@@ -59,14 +59,11 @@ const target = project
 
 // Merge with any existing hooks.json.
 let existing = { version: 1, hooks: {} };
-if (existsSync(target)) {
-  try {
-    existing = JSON.parse(readFileSync(target, "utf-8"));
-    existing.hooks ??= {};
-  } catch {
-    console.error(`Warning: could not parse existing ${target}; it will be overwritten.`);
-    existing = { version: 1, hooks: {} };
-  }
+try {
+  existing = JSON.parse(readFileSync(target, "utf-8"));
+  existing.hooks ??= {};
+} catch {
+  existing = { version: 1, hooks: {} };
 }
 
 const merged = {
