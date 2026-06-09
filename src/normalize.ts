@@ -11,6 +11,7 @@
  */
 
 import type { UsageFields } from "./types.js";
+import { canonicalModelId, computeCosts, lookupPricing, type ModelPricing } from "./pricing.js";
 
 export function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -62,22 +63,35 @@ export function preferModel(
 
 /**
  * Derive { ls_model_name, ls_provider } from a Cursor model label.
- * "default" (Auto mode) → model "default", provider "cursor".
+ * The model name is suffix-stripped and normalized to a canonical provider id
+ * (so LangSmith's price table can match it). "default" (Auto mode) → model
+ * "default", provider "cursor".
  */
 export function deriveModelInfo(model: string | undefined): ModelInfo {
   const raw = (model ?? "").trim() || "default";
-  return { ls_model_name: stripModelSuffixes(raw), ls_provider: providerFor(raw) };
+  return {
+    ls_model_name: canonicalModelId(stripModelSuffixes(raw)),
+    ls_provider: providerFor(raw),
+  };
 }
 
-// ─── Usage ─────────────────────────────────────────────────────────────────
+// ─── Usage + cost ────────────────────────────────────────────────────────────
 
 /**
  * Build LangSmith usage_metadata from Cursor's token fields. Cursor reports
  * input/output and cache read/write separately; we fold cache into input_tokens
- * (mirroring the Claude Code integration) and expose details. Returns undefined
- * when there are no tokens.
+ * (mirroring the Claude Code integration) and expose details.
+ *
+ * When a price table entry resolves for `modelId`, cost fields are attached
+ * (input_cost / output_cost / total_cost / input_cost_details) so cost renders
+ * even when LangSmith can't price the model server-side.
+ *
+ * Returns undefined when there are no tokens.
  */
-export function buildUsageMetadata(usage: UsageFields | undefined) {
+export function buildUsageMetadata(
+  usage: UsageFields | undefined,
+  opts?: { modelId?: string; pricing?: Record<string, ModelPricing> },
+) {
   if (!usage) return undefined;
   const cacheRead = usage.cache_read_tokens ?? 0;
   const cacheWrite = usage.cache_write_tokens ?? 0;
@@ -87,11 +101,14 @@ export function buildUsageMetadata(usage: UsageFields | undefined) {
 
   if (total_tokens === 0) return undefined;
 
+  const costs = computeCosts(usage, lookupPricing(opts?.modelId, opts?.pricing));
+
   return {
     input_tokens,
     output_tokens,
     total_tokens,
     input_token_details: { cache_read: cacheRead, cache_creation: cacheWrite },
+    ...costs,
   };
 }
 

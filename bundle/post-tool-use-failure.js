@@ -174,10 +174,26 @@ function loadConfig(options) {
   }
   const fileMetadata = { ...globalFile?.metadata, ...localFile?.metadata };
   const customMetadata = { ...identityMetadata, ...fileMetadata, ...envMetadata };
+  const envPricing = parseJson(getEnv("MODEL_PRICING"));
+  const modelPricing = {
+    ...globalFile?.model_pricing,
+    ...localFile?.model_pricing,
+    ...envPricing
+  };
   if (enabled && !apiKey && (!replicas || replicas.length === 0)) {
     debug("Config enabled but no API key / replicas resolved");
   }
-  return { enabled, apiKey, apiUrl, project, debug: debug2, stateFilePath, replicas, customMetadata };
+  return {
+    enabled,
+    apiKey,
+    apiUrl,
+    project,
+    debug: debug2,
+    stateFilePath,
+    replicas,
+    customMetadata,
+    modelPricing
+  };
 }
 
 // dist/utils/hook-init.js

@@ -46,6 +46,7 @@ async function main(): Promise<void> {
       userEmail: input.user_email,
       workspaceRoots: input.workspace_roots,
       customMetadata: config.customMetadata,
+      modelPricing: config.modelPricing,
     });
   } catch (err) {
     error(`Failed to build turn runs: ${err}`);

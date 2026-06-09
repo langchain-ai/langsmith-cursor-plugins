@@ -773,10 +773,26 @@ function loadConfig(options) {
   }
   const fileMetadata = { ...globalFile?.metadata, ...localFile?.metadata };
   const customMetadata = { ...identityMetadata, ...fileMetadata, ...envMetadata };
+  const envPricing = parseJson(getEnv("MODEL_PRICING"));
+  const modelPricing = {
+    ...globalFile?.model_pricing,
+    ...localFile?.model_pricing,
+    ...envPricing
+  };
   if (enabled && !apiKey && (!replicas2 || replicas2.length === 0)) {
     debug("Config enabled but no API key / replicas resolved");
   }
-  return { enabled, apiKey, apiUrl, project, debug: debug2, stateFilePath, replicas: replicas2, customMetadata };
+  return {
+    enabled,
+    apiKey,
+    apiUrl,
+    project,
+    debug: debug2,
+    stateFilePath,
+    replicas: replicas2,
+    customMetadata,
+    modelPricing
+  };
 }
 
 // dist/utils/hook-init.js
@@ -860,6 +876,58 @@ function pruneOldConversations(state, now = Date.now()) {
   return pruned;
 }
 
+// dist/pricing.js
+var CANONICAL_MODEL_MAP = {
+  "claude-4.6-sonnet": "claude-sonnet-4-6",
+  "claude-4.6-opus": "claude-opus-4-6",
+  "claude-4.6-haiku": "claude-haiku-4-6"
+  // GPT / Gemini Cursor labels generally already match canonical ids.
+};
+var BUILTIN_PRICING = {
+  // Anthropic — Sonnet tier (Claude 3.5 / 4 / 4.6 Sonnet share list pricing)
+  "claude-sonnet-4-6": { input: 3, output: 15, cache_read: 0.3, cache_creation: 3.75 },
+  "claude-4.6-sonnet": { input: 3, output: 15, cache_read: 0.3, cache_creation: 3.75 },
+  // Anthropic — Opus / Haiku tiers
+  "claude-opus-4-6": { input: 15, output: 75, cache_read: 1.5, cache_creation: 18.75 },
+  "claude-4.6-opus": { input: 15, output: 75, cache_read: 1.5, cache_creation: 18.75 },
+  "claude-haiku-4-6": { input: 0.8, output: 4, cache_read: 0.08, cache_creation: 1 },
+  "claude-4.6-haiku": { input: 0.8, output: 4, cache_read: 0.08, cache_creation: 1 },
+  // OpenAI — approximate; override via config if exact rates matter.
+  "gpt-5.5": { input: 1.25, output: 10, cache_read: 0.125 }
+};
+function normKey(model) {
+  return model.trim().toLowerCase().replace(/^[a-z]+\//, "");
+}
+function canonicalModelId(model) {
+  return CANONICAL_MODEL_MAP[normKey(model)] ?? model;
+}
+function lookupPricing(modelId, overrides) {
+  if (!modelId)
+    return void 0;
+  const key = normKey(modelId);
+  const canonical = normKey(canonicalModelId(modelId));
+  return overrides?.[key] ?? overrides?.[canonical] ?? BUILTIN_PRICING[key] ?? BUILTIN_PRICING[canonical];
+}
+function computeCosts(usage, pricing) {
+  if (!usage || !pricing)
+    return void 0;
+  const per = (tokens, rate) => tokens * rate / 1e6;
+  const baseInput = usage.input_tokens ?? 0;
+  const cacheRead = usage.cache_read_tokens ?? 0;
+  const cacheWrite = usage.cache_write_tokens ?? 0;
+  const output = usage.output_tokens ?? 0;
+  const cacheReadCost = per(cacheRead, pricing.cache_read ?? pricing.input);
+  const cacheCreationCost = per(cacheWrite, pricing.cache_creation ?? pricing.input);
+  const input_cost = per(baseInput, pricing.input) + cacheReadCost + cacheCreationCost;
+  const output_cost = per(output, pricing.output);
+  return {
+    input_cost,
+    output_cost,
+    total_cost: input_cost + output_cost,
+    input_cost_details: { cache_read: cacheReadCost, cache_creation: cacheCreationCost }
+  };
+}
+
 // dist/normalize.js
 var MODEL_SUFFIXES = /* @__PURE__ */ new Set(["thinking", "minimal", "low", "medium", "high"]);
 function providerFor(model) {
@@ -891,9 +959,12 @@ function preferModel(current, incoming) {
 }
 function deriveModelInfo(model) {
   const raw = (model ?? "").trim() || "default";
-  return { ls_model_name: stripModelSuffixes(raw), ls_provider: providerFor(raw) };
+  return {
+    ls_model_name: canonicalModelId(stripModelSuffixes(raw)),
+    ls_provider: providerFor(raw)
+  };
 }
-function buildUsageMetadata(usage) {
+function buildUsageMetadata(usage, opts) {
   if (!usage)
     return void 0;
   const cacheRead = usage.cache_read_tokens ?? 0;
@@ -903,11 +974,13 @@ function buildUsageMetadata(usage) {
   const total_tokens = input_tokens + output_tokens;
   if (total_tokens === 0)
     return void 0;
+  const costs = computeCosts(usage, lookupPricing(opts?.modelId, opts?.pricing));
   return {
     input_tokens,
     output_tokens,
     total_tokens,
-    input_token_details: { cache_read: cacheRead, cache_creation: cacheWrite }
+    input_token_details: { cache_read: cacheRead, cache_creation: cacheWrite },
+    ...costs
   };
 }
 
@@ -9159,7 +9232,7 @@ function baseMetadata(conversationId, customMetadata, userEmail) {
   };
 }
 async function buildTurnRuns(options) {
-  const { buffer, conversationId, turnNum, project, userEmail, customMetadata } = options;
+  const { buffer, conversationId, turnNum, project, userEmail, customMetadata, modelPricing } = options;
   if (!client && !replicas) {
     throw new Error("LangSmith client not initialized \u2014 call initTracing() first");
   }
@@ -9212,7 +9285,10 @@ async function buildTurnRuns(options) {
         ls_provider,
         ls_model_name,
         ls_invocation_params: { model: ls_model_name },
-        usage_metadata: buildUsageMetadata(buffer.usage)
+        usage_metadata: buildUsageMetadata(buffer.usage, {
+          modelId: ls_model_name,
+          pricing: modelPricing
+        })
       }
     }
   });
@@ -9329,7 +9405,8 @@ async function main() {
       project: config.project,
       userEmail: input.user_email,
       workspaceRoots: input.workspace_roots,
-      customMetadata: config.customMetadata
+      customMetadata: config.customMetadata,
+      modelPricing: config.modelPricing
     });
   } catch (err) {
     error(`Failed to build turn runs: ${err}`);

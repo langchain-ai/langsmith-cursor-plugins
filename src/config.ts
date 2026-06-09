@@ -20,6 +20,7 @@ import { execSync } from "node:child_process";
 import type { RunTreeConfig } from "langsmith";
 import { debug as logDebug } from "./logger.js";
 import { DEFAULT_PROJECT } from "./constants.js";
+import type { ModelPricing } from "./pricing.js";
 
 export interface Config {
   /** Master switch — tracing only runs when true. */
@@ -32,6 +33,8 @@ export interface Config {
   replicas?: RunTreeConfig["replicas"];
   /** Identity / repo / user metadata attached to every run. */
   customMetadata?: Record<string, unknown>;
+  /** Per-model price overrides (USD per 1M tokens), keyed by model id. */
+  modelPricing?: Record<string, ModelPricing>;
 }
 
 const DEFAULT_API_URL = "https://api.smith.langchain.com";
@@ -65,6 +68,7 @@ interface FileConfig {
   project?: string;
   metadata?: Record<string, unknown>;
   replicas?: Array<Record<string, unknown>>;
+  model_pricing?: Record<string, ModelPricing>;
 }
 
 function readConfigFile(file: string): FileConfig | undefined {
@@ -177,9 +181,26 @@ export function loadConfig(options?: { cwd?: string }): Config {
   const fileMetadata = { ...globalFile?.metadata, ...localFile?.metadata };
   const customMetadata = { ...identityMetadata, ...fileMetadata, ...envMetadata };
 
+  const envPricing = parseJson<Record<string, ModelPricing>>(getEnv("MODEL_PRICING"));
+  const modelPricing = {
+    ...globalFile?.model_pricing,
+    ...localFile?.model_pricing,
+    ...envPricing,
+  };
+
   if (enabled && !apiKey && (!replicas || replicas.length === 0)) {
     logDebug("Config enabled but no API key / replicas resolved");
   }
 
-  return { enabled, apiKey, apiUrl, project, debug, stateFilePath, replicas, customMetadata };
+  return {
+    enabled,
+    apiKey,
+    apiUrl,
+    project,
+    debug,
+    stateFilePath,
+    replicas,
+    customMetadata,
+    modelPricing,
+  };
 }
