@@ -34,6 +34,15 @@ export {
   isRecord,
 } from "./normalize.js";
 
+export {
+  canonicalModelId,
+  lookupPricing,
+  computeCosts,
+  CANONICAL_MODEL_MAP,
+  BUILTIN_PRICING,
+} from "./pricing.js";
+export type { ModelPricing, CostFields } from "./pricing.js";
+
 export * from "./types.js";
 
 export {

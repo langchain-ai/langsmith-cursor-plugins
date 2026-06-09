@@ -1,13 +1,12 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { join } from "node:path";
-import { existsSync } from "node:fs";
 import type { Run } from "langsmith";
 import { replayHookLog } from "./utils/replay.js";
 import { mockClient } from "./utils/mock_client.js";
 import { getAssumedTreeFromCalls } from "./utils/tree.js";
 import { initTracing, buildTurnRuns, flushPendingTraces } from "../src/langsmith.js";
 
-const CAPTURE = join(process.cwd(), "diagnostics/captures/run2/cursor-diag/hooks.jsonl");
+const CAPTURE = join(process.cwd(), "test/fixtures/cursor-hooks.jsonl");
 const PARENT_CONV = "6bd3db3e-e838-485e-befc-b5f0d05b18cd";
 
 function meta(run: Run): Record<string, unknown> {
@@ -16,10 +15,6 @@ function meta(run: Run): Record<string, unknown> {
 
 describe("replay run2 hooks.jsonl through the event-buffer reducers", () => {
   const { finalized, finalState } = replayHookLog(CAPTURE);
-
-  it("the capture exists", () => {
-    expect(existsSync(CAPTURE)).toBe(true);
-  });
 
   it("finalizes one turn per stop, all in the same conversation/thread", () => {
     expect(finalized.length).toBe(6);
@@ -111,5 +106,29 @@ describe("buildTurnRuns produces the expected LangSmith run tree", () => {
     expect(task.run_type).toBe("tool");
     expect(task.parent_run_id).toBe(root.id);
     expect(meta(task).subagent_type).toBe("explore");
+  });
+
+  it("attaches cost for a priced model (the claude turn)", async () => {
+    const { client, callSpy } = mockClient();
+    initTracing(undefined, undefined, undefined, client);
+
+    const { finalized } = replayHookLog(CAPTURE);
+    const turn = finalized.find((f) => (f.buffer.model ?? "").includes("claude"))!;
+    expect(turn).toBeDefined();
+
+    await buildTurnRuns({
+      buffer: turn.buffer,
+      conversationId: turn.conversationId,
+      turnNum: turn.turnNum,
+      project: "test",
+    });
+    await flushPendingTraces();
+
+    const tree = await getAssumedTreeFromCalls(callSpy.mock.calls, client);
+    const llm = Object.values(tree.data).find((r) => r.run_type === "llm")!;
+    const usage = meta(llm).usage_metadata as { total_cost?: number; total_tokens?: number };
+    expect(meta(llm).ls_model_name).toBe("claude-sonnet-4-6"); // canonicalized
+    expect(usage.total_tokens).toBeGreaterThan(0);
+    expect(usage.total_cost).toBeGreaterThan(0);
   });
 });

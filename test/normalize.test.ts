@@ -7,11 +7,12 @@ import {
   parseToolOutput,
   normalizeContentPart,
 } from "../src/normalize.js";
+import { lookupPricing } from "../src/pricing.js";
 
 describe("deriveModelInfo / provider mapping", () => {
-  it("maps Cursor model labels to ls_provider", () => {
+  it("maps Cursor model labels to ls_provider and a canonical model id", () => {
     expect(deriveModelInfo("claude-4.6-sonnet-medium-thinking")).toEqual({
-      ls_model_name: "claude-4.6-sonnet",
+      ls_model_name: "claude-sonnet-4-6", // normalized to canonical id
       ls_provider: "anthropic",
     });
     expect(deriveModelInfo("gpt-5.5-medium")).toEqual({
@@ -74,6 +75,49 @@ describe("buildUsageMetadata", () => {
     expect(buildUsageMetadata(undefined)).toBeUndefined();
     expect(buildUsageMetadata({})).toBeUndefined();
     expect(buildUsageMetadata({ input_tokens: 0, output_tokens: 0 })).toBeUndefined();
+  });
+
+  it("does not attach cost without a resolvable price", () => {
+    const u = buildUsageMetadata({ input_tokens: 100, output_tokens: 20 }) as Record<
+      string,
+      unknown
+    >;
+    expect(u.total_cost).toBeUndefined();
+  });
+
+  it("attaches cost when the model is priced (built-in table)", () => {
+    // Expectations derive from the pricing module so rates live in one place.
+    // At 1M in / 1M out the per-token cost equals the per-1M rate.
+    const price = lookupPricing("claude-sonnet-4-6")!;
+    const u = buildUsageMetadata(
+      {
+        input_tokens: 1_000_000,
+        output_tokens: 1_000_000,
+        cache_read_tokens: 0,
+        cache_write_tokens: 0,
+      },
+      { modelId: "claude-sonnet-4-6" },
+    ) as Record<string, unknown>;
+    expect(u.input_cost).toBeCloseTo(price.input, 5);
+    expect(u.output_cost).toBeCloseTo(price.output, 5);
+    expect(u.total_cost).toBeCloseTo(price.input + price.output, 5);
+  });
+
+  it("resolves cost via the Cursor label too (claude-4.6-sonnet)", () => {
+    const price = lookupPricing("claude-4.6-sonnet")!;
+    const u = buildUsageMetadata(
+      { input_tokens: 1_000_000, output_tokens: 0 },
+      { modelId: "claude-4.6-sonnet" },
+    ) as Record<string, unknown>;
+    expect(u.input_cost).toBeCloseTo(price.input, 5);
+  });
+
+  it("honors caller pricing overrides", () => {
+    const u = buildUsageMetadata(
+      { input_tokens: 1_000_000, output_tokens: 0 },
+      { modelId: "mystery-model", pricing: { "mystery-model": { input: 7, output: 21 } } },
+    ) as Record<string, unknown>;
+    expect(u.input_cost).toBeCloseTo(7, 5);
   });
 });
 

@@ -10,6 +10,7 @@
 import { Client, RunTree, type RunTreeConfig, uuid7 } from "langsmith";
 import type { TurnBuffer, ToolEvent, SubagentEvent } from "./types.js";
 import { buildUsageMetadata, deriveModelInfo } from "./normalize.js";
+import type { ModelPricing } from "./pricing.js";
 import { LS_INTEGRATION, DEFAULT_TAGS, TURN_RUN_NAME } from "./constants.js";
 import * as logger from "./logger.js";
 
@@ -78,6 +79,8 @@ export interface BuildTurnOptions {
   workspaceRoots?: string[];
   /** Identity / repo / user metadata from config. */
   customMetadata?: Record<string, unknown>;
+  /** Per-model price overrides (USD per 1M tokens). */
+  modelPricing?: Record<string, ModelPricing>;
 }
 
 /** Tool start = end − duration (seconds). Clamp so start never exceeds end. */
@@ -109,7 +112,8 @@ function baseMetadata(
  *   └── Task (tool)         one per subagent (minimal v1)
  */
 export async function buildTurnRuns(options: BuildTurnOptions): Promise<void> {
-  const { buffer, conversationId, turnNum, project, userEmail, customMetadata } = options;
+  const { buffer, conversationId, turnNum, project, userEmail, customMetadata, modelPricing } =
+    options;
 
   if (!client && !replicas) {
     throw new Error("LangSmith client not initialized — call initTracing() first");
@@ -173,7 +177,10 @@ export async function buildTurnRuns(options: BuildTurnOptions): Promise<void> {
         ls_provider,
         ls_model_name,
         ls_invocation_params: { model: ls_model_name },
-        usage_metadata: buildUsageMetadata(buffer.usage),
+        usage_metadata: buildUsageMetadata(buffer.usage, {
+          modelId: ls_model_name,
+          pricing: modelPricing,
+        }),
       },
     },
   });
