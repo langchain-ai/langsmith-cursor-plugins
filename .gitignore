@@ -1,0 +1,26 @@
+# Node.js
+node_modules/
+dist/
+# bundle/ is checked in so the plugin works without a build step
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Environment variables
+.env
+.env.local
+
+# Local LangSmith config (may contain API keys)
+langsmith.json
+.cursor/langsmith.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
+*.log
