@@ -9293,11 +9293,19 @@ async function buildTurnRuns(options) {
     }
   });
   await llmRun.postRun();
+  const childCtx = {
+    parentRunId: turnRunId,
+    traceId: turnRunId,
+    parentDottedOrder: turnDottedOrder,
+    project,
+    meta,
+    conversationId
+  };
   for (const tool of buffer.tools) {
-    await postToolRun(tool, { turnRunId, turnDottedOrder, project, meta, conversationId });
+    await postToolRun(tool, childCtx);
   }
   for (const sub of buffer.subagents) {
-    await postSubagentRun(sub, { turnRunId, turnDottedOrder, project, meta });
+    await postSubagentRun(sub, childCtx);
   }
   await new RunTree({
     client,
@@ -9319,7 +9327,7 @@ async function buildTurnRuns(options) {
 async function postToolRun(tool, ctx) {
   const startMs = toolStartMs(tool);
   const runId = uuid7();
-  const dottedOrder = `${ctx.turnDottedOrder}.${generateDottedOrderSegment(startMs, runId)}`;
+  const dottedOrder = `${ctx.parentDottedOrder}.${generateDottedOrderSegment(startMs, runId)}`;
   const isError2 = tool.error != null;
   await new RunTree({
     client,
@@ -9333,8 +9341,8 @@ async function postToolRun(tool, ctx) {
     project_name: ctx.project,
     start_time: startMs,
     end_time: tool.endMs,
-    parent_run_id: ctx.turnRunId,
-    trace_id: ctx.turnRunId,
+    parent_run_id: ctx.parentRunId,
+    trace_id: ctx.traceId,
     dotted_order: dottedOrder,
     extra: {
       metadata: {
@@ -9348,8 +9356,9 @@ async function postToolRun(tool, ctx) {
 }
 async function postSubagentRun(sub, ctx) {
   const runId = uuid7();
-  const dottedOrder = `${ctx.turnDottedOrder}.${generateDottedOrderSegment(sub.startMs, runId)}`;
+  const dottedOrder = `${ctx.parentDottedOrder}.${generateDottedOrderSegment(sub.startMs, runId)}`;
   const isError2 = sub.status != null && sub.status !== "completed";
+  const tools = sub.tools ?? [];
   await new RunTree({
     client,
     replicas,
@@ -9357,13 +9366,16 @@ async function postSubagentRun(sub, ctx) {
     name: "Task",
     run_type: "tool",
     inputs: { subagent_type: sub.subagent_type, task: sub.task },
-    outputs: { status: sub.status ?? "completed" },
+    outputs: {
+      status: sub.status ?? "completed",
+      ...sub.resultText ? { result: sub.resultText } : {}
+    },
     error: isError2 ? sub.status : void 0,
     project_name: ctx.project,
     start_time: sub.startMs,
     end_time: sub.endMs ?? sub.startMs,
-    parent_run_id: ctx.turnRunId,
-    trace_id: ctx.turnRunId,
+    parent_run_id: ctx.parentRunId,
+    trace_id: ctx.traceId,
     dotted_order: dottedOrder,
     extra: {
       metadata: {
@@ -9371,10 +9383,22 @@ async function postSubagentRun(sub, ctx) {
         tool_name: "Task",
         subagent_id: sub.subagent_id,
         subagent_type: sub.subagent_type,
-        ls_note: "Subagent internal tool calls and usage are not traced in v1."
+        ...sub.childConversationId ? { subagent_conversation_id: sub.childConversationId } : {},
+        subagent_tool_count: tools.length
       }
     }
   }).postRun();
+  const subCtx = {
+    parentRunId: runId,
+    traceId: ctx.traceId,
+    parentDottedOrder: dottedOrder,
+    project: ctx.project,
+    meta: ctx.meta,
+    conversationId: sub.childConversationId
+  };
+  for (const tool of tools) {
+    await postToolRun(tool, subCtx);
+  }
 }
 
 // dist/hooks/stop.js

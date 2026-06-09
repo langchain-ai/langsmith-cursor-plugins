@@ -131,7 +131,7 @@ export interface ToolEvent {
   endMs: number;
 }
 
-/** A subagent invocation (minimal v1 — rendered as a Task tool run). */
+/** A subagent invocation, rendered as a Task tool run with nested tool children. */
 export interface SubagentEvent {
   subagent_id: string;
   subagent_type: string;
@@ -142,6 +142,19 @@ export interface SubagentEvent {
   startMs: number;
   /** Wall-clock ms when subagentStop fired. */
   endMs?: number;
+  /**
+   * The subagent's own conversation_id (== its transcript filename). Resolved at
+   * subagentStop from the on-disk transcript, else by temporal linking.
+   */
+  childConversationId?: string;
+  /**
+   * The subagent's internal tool calls, nested under the Task run. Sourced from
+   * the child conversation's buffered postToolUse events (rich: input + output +
+   * duration), or the transcript (inputs only) as a fallback.
+   */
+  tools?: ToolEvent[];
+  /** The subagent's final answer text (from its transcript). */
+  resultText?: string;
 }
 
 /** An assistant thinking block. */

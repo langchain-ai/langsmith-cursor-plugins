@@ -186,14 +186,24 @@ export async function buildTurnRuns(options: BuildTurnOptions): Promise<void> {
   });
   await llmRun.postRun();
 
+  // Children (tools + Task runs) hang off the turn root.
+  const childCtx: ChildCtx = {
+    parentRunId: turnRunId,
+    traceId: turnRunId,
+    parentDottedOrder: turnDottedOrder,
+    project,
+    meta,
+    conversationId,
+  };
+
   // 3. Tool runs (siblings of the llm run).
   for (const tool of buffer.tools) {
-    await postToolRun(tool, { turnRunId, turnDottedOrder, project, meta, conversationId });
+    await postToolRun(tool, childCtx);
   }
 
-  // 4. Subagent Task runs (minimal v1 — task in, status out).
+  // 4. Subagent Task runs, each nesting its own internal tool runs.
   for (const sub of buffer.subagents) {
-    await postSubagentRun(sub, { turnRunId, turnDottedOrder, project, meta });
+    await postSubagentRun(sub, childCtx);
   }
 
   // 5. Finalize the root turn run.
@@ -219,8 +229,12 @@ export async function buildTurnRuns(options: BuildTurnOptions): Promise<void> {
 }
 
 interface ChildCtx {
-  turnRunId: string;
-  turnDottedOrder: string;
+  /** Run this child hangs off of (the turn root, or a Task run for nesting). */
+  parentRunId: string;
+  /** The trace root run id — constant for the whole tree, regardless of depth. */
+  traceId: string;
+  /** Dotted order of the parent run (child = `${parentDottedOrder}.${segment}`). */
+  parentDottedOrder: string;
   project: string;
   meta: Record<string, unknown>;
   conversationId?: string;
@@ -229,7 +243,7 @@ interface ChildCtx {
 async function postToolRun(tool: ToolEvent, ctx: ChildCtx): Promise<void> {
   const startMs = toolStartMs(tool);
   const runId = uuid7();
-  const dottedOrder = `${ctx.turnDottedOrder}.${generateDottedOrderSegment(startMs, runId)}`;
+  const dottedOrder = `${ctx.parentDottedOrder}.${generateDottedOrderSegment(startMs, runId)}`;
   const isError = tool.error != null;
 
   await new RunTree({
@@ -244,8 +258,8 @@ async function postToolRun(tool: ToolEvent, ctx: ChildCtx): Promise<void> {
     project_name: ctx.project,
     start_time: startMs,
     end_time: tool.endMs,
-    parent_run_id: ctx.turnRunId,
-    trace_id: ctx.turnRunId,
+    parent_run_id: ctx.parentRunId,
+    trace_id: ctx.traceId,
     dotted_order: dottedOrder,
     extra: {
       metadata: {
@@ -258,10 +272,16 @@ async function postToolRun(tool: ToolEvent, ctx: ChildCtx): Promise<void> {
   }).postRun();
 }
 
+/**
+ * Post the Task run for a subagent, then nest the subagent's internal tool runs
+ * underneath it (recovered from the child conversation's buffered tools, or the
+ * transcript). The Task run's output carries the subagent's final answer.
+ */
 async function postSubagentRun(sub: SubagentEvent, ctx: ChildCtx): Promise<void> {
   const runId = uuid7();
-  const dottedOrder = `${ctx.turnDottedOrder}.${generateDottedOrderSegment(sub.startMs, runId)}`;
+  const dottedOrder = `${ctx.parentDottedOrder}.${generateDottedOrderSegment(sub.startMs, runId)}`;
   const isError = sub.status != null && sub.status !== "completed";
+  const tools = sub.tools ?? [];
 
   await new RunTree({
     client,
@@ -270,13 +290,16 @@ async function postSubagentRun(sub: SubagentEvent, ctx: ChildCtx): Promise<void>
     name: "Task",
     run_type: "tool",
     inputs: { subagent_type: sub.subagent_type, task: sub.task },
-    outputs: { status: sub.status ?? "completed" },
+    outputs: {
+      status: sub.status ?? "completed",
+      ...(sub.resultText ? { result: sub.resultText } : {}),
+    },
     error: isError ? sub.status : undefined,
     project_name: ctx.project,
     start_time: sub.startMs,
     end_time: sub.endMs ?? sub.startMs,
-    parent_run_id: ctx.turnRunId,
-    trace_id: ctx.turnRunId,
+    parent_run_id: ctx.parentRunId,
+    trace_id: ctx.traceId,
     dotted_order: dottedOrder,
     extra: {
       metadata: {
@@ -284,8 +307,22 @@ async function postSubagentRun(sub: SubagentEvent, ctx: ChildCtx): Promise<void>
         tool_name: "Task",
         subagent_id: sub.subagent_id,
         subagent_type: sub.subagent_type,
-        ls_note: "Subagent internal tool calls and usage are not traced in v1.",
+        ...(sub.childConversationId ? { subagent_conversation_id: sub.childConversationId } : {}),
+        subagent_tool_count: tools.length,
       },
     },
   }).postRun();
+
+  // Nest the subagent's internal tool calls as children of the Task run.
+  const subCtx: ChildCtx = {
+    parentRunId: runId,
+    traceId: ctx.traceId,
+    parentDottedOrder: dottedOrder,
+    project: ctx.project,
+    meta: ctx.meta,
+    conversationId: sub.childConversationId,
+  };
+  for (const tool of tools) {
+    await postToolRun(tool, subCtx);
+  }
 }
