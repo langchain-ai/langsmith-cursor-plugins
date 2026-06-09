@@ -147,3 +147,54 @@ export function normalizeContent(content: unknown): unknown {
   if (!Array.isArray(content)) return content;
   return content.map(normalizeContentPart);
 }
+
+// ─── Subagent transcript ─────────────────────────────────────────────────────
+
+/** A tool call recovered from a subagent transcript (inputs only — no output). */
+export interface SubagentToolCall {
+  name: string;
+  input: Record<string, unknown>;
+}
+
+/**
+ * UI-only pseudo-tools the agent emits into the transcript that never fire a
+ * real postToolUse hook (so they have no I/O worth tracing).
+ */
+const SUBAGENT_PSEUDO_TOOLS = new Set(["UpdateCurrentStep"]);
+
+/**
+ * Parse a subagent transcript (an array of parsed JSONL rows of the shape
+ * `{ role, message: { content: [...] } }`) into its ordered tool calls and its
+ * final assistant text.
+ *
+ * The on-disk subagent transcript is the only place the subagent's final answer
+ * is recorded (the child conversation never fires afterAgentResponse/stop). Tool
+ * calls here carry inputs but no outputs — richer tool I/O comes from the child
+ * conversation's buffered postToolUse hook events; these are the fallback.
+ */
+export function parseSubagentTranscript(rows: unknown[]): {
+  toolCalls: SubagentToolCall[];
+  resultText?: string;
+} {
+  const toolCalls: SubagentToolCall[] = [];
+  let resultText: string | undefined;
+
+  for (const row of rows) {
+    if (!isRecord(row) || row.role !== "assistant") continue;
+    const message = isRecord(row.message) ? row.message : undefined;
+    const content = message?.content;
+    if (!Array.isArray(content)) continue;
+
+    for (const part of content) {
+      if (!isRecord(part)) continue;
+      if (part.type === "tool_use" && typeof part.name === "string") {
+        if (SUBAGENT_PSEUDO_TOOLS.has(part.name)) continue;
+        toolCalls.push({ name: part.name, input: isRecord(part.input) ? part.input : {} });
+      } else if (part.type === "text" && typeof part.text === "string" && part.text.trim()) {
+        resultText = part.text; // keep the last non-empty assistant text
+      }
+    }
+  }
+
+  return { toolCalls, resultText };
+}
