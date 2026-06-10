@@ -5,6 +5,18 @@
  * Field names mirror the real payloads captured in diagnostics/captures.
  */
 
+// ─── Multimodal content ──────────────────────────────────────────────────────
+
+/**
+ * A LangChain v1 multimodal content part. `mime_type` is required whenever
+ * `base64` is set — this is the shape the LangSmith UI renders inline (matches
+ * smith-frontend schema-runtime.ts; same decision as the Pi integration).
+ */
+export type ContentPart =
+  | { type: "text"; text: string }
+  | { type: "image"; mime_type: string; base64: string }
+  | { type: "file"; mime_type: string; base64: string; filename?: string };
+
 // ─── Hook Input Types ───────────────────────────────────────────────────────
 
 /** Fields present on (almost) every Cursor hook payload. */

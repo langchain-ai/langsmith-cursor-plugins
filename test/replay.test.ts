@@ -133,6 +133,39 @@ describe("buildTurnRuns produces the expected LangSmith run tree", () => {
     expect(nested.some((r) => r.name === "Read")).toBe(true);
   });
 
+  it("emits attachment content parts on the llm + root inputs (inline-render shape)", async () => {
+    const { client, callSpy } = mockClient();
+    initTracing(undefined, undefined, undefined, client);
+
+    const { finalized } = replayHookLog(CAPTURE);
+    const turn = finalized[0];
+    const imagePart = { type: "image", mime_type: "image/png", base64: "iVBORw0KGgo=" };
+
+    await buildTurnRuns({
+      buffer: turn.buffer,
+      conversationId: turn.conversationId,
+      turnNum: turn.turnNum,
+      project: "test",
+      attachments: [imagePart],
+    });
+    await flushPendingTraces();
+
+    const tree = await getAssumedTreeFromCalls(callSpy.mock.calls, client);
+    const llm = Object.values(tree.data).find((r) => r.run_type === "llm")!;
+    const root = Object.values(tree.data).find((r) => r.run_type === "chain")!;
+
+    // The user message is a content-part array (text + image), and the image
+    // part matches the LangChain v1 shape the LangSmith UI renders inline.
+    const llmContent = (llm.inputs as { messages: { content: unknown[] }[] }).messages[0].content;
+    expect(Array.isArray(llmContent)).toBe(true);
+    expect(llmContent).toContainEqual(imagePart);
+    expect(llmContent).toContainEqual({ type: "text", text: turn.buffer.prompt });
+
+    const rootContent = (root.inputs as { messages?: { content: unknown[] }[] }).messages?.[0]
+      .content;
+    expect(rootContent).toContainEqual(imagePart);
+  });
+
   it("attaches cost for a priced model (the claude turn)", async () => {
     const { client, callSpy } = mockClient();
     initTracing(undefined, undefined, undefined, client);

@@ -35,6 +35,10 @@ export interface Config {
   customMetadata?: Record<string, unknown>;
   /** Per-model price overrides (USD per 1M tokens), keyed by model id. */
   modelPricing?: Record<string, ModelPricing>;
+  /** Enrich turns with image/file attachment bytes from Cursor's DB (default on). */
+  attachmentsEnabled: boolean;
+  /** Override the Cursor state.vscdb path used for attachment enrichment. */
+  cursorDbPath?: string;
 }
 
 const DEFAULT_API_URL = "https://api.smith.langchain.com";
@@ -69,6 +73,8 @@ interface FileConfig {
   metadata?: Record<string, unknown>;
   replicas?: Array<Record<string, unknown>>;
   model_pricing?: Record<string, ModelPricing>;
+  attachments?: boolean;
+  cursor_db_path?: string;
 }
 
 function readConfigFile(file: string): FileConfig | undefined {
@@ -167,6 +173,14 @@ export function loadConfig(options?: { cwd?: string }): Config {
 
   const replicas = normalizeReplicas(envReplicas ?? localFile?.replicas ?? globalFile?.replicas);
 
+  // Attachment enrichment defaults ON; opt out via config or CURSOR_LANGSMITH_ATTACHMENTS.
+  const attachmentsEnabled =
+    parseBoolean(getEnv("ATTACHMENTS")) ??
+    localFile?.attachments ??
+    globalFile?.attachments ??
+    true;
+  const cursorDbPath = getEnv("DB_PATH") ?? localFile?.cursor_db_path ?? globalFile?.cursor_db_path;
+
   const stateFilePath =
     process.env.CURSOR_LANGSMITH_STATE_FILE ?? join(home, ".cursor", "langsmith-state.json");
 
@@ -202,5 +216,7 @@ export function loadConfig(options?: { cwd?: string }): Config {
     replicas,
     customMetadata,
     modelPricing,
+    attachmentsEnabled,
+    cursorDbPath,
   };
 }
