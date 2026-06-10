@@ -8,7 +8,7 @@
  */
 
 import { Client, RunTree, type RunTreeConfig, uuid7 } from "langsmith";
-import type { TurnBuffer, ToolEvent, SubagentEvent } from "./types.js";
+import type { TurnBuffer, ToolEvent, SubagentEvent, ContentPart } from "./types.js";
 import { buildUsageMetadata, deriveModelInfo } from "./normalize.js";
 import type { ModelPricing } from "./pricing.js";
 import { LS_INTEGRATION, DEFAULT_TAGS, TURN_RUN_NAME } from "./constants.js";
@@ -81,6 +81,23 @@ export interface BuildTurnOptions {
   customMetadata?: Record<string, unknown>;
   /** Per-model price overrides (USD per 1M tokens). */
   modelPricing?: Record<string, ModelPricing>;
+  /**
+   * Image/file attachment content parts for the user message, recovered from
+   * Cursor's DB (hooks don't expose attachment bytes). Empty/omitted → the user
+   * message stays a plain prompt string.
+   */
+  attachments?: ContentPart[];
+}
+
+/**
+ * Build the user-message content for a turn. With attachments, return a
+ * LangChain v1 content-part array (text + image/file parts) so the LangSmith UI
+ * renders the attachment inline; without, keep the plain prompt string (the
+ * pre-attachment shape, so non-multimodal turns are unchanged).
+ */
+function userMessageContent(prompt: string, attachments: ContentPart[]): unknown {
+  if (attachments.length === 0) return prompt;
+  return [...(prompt ? [{ type: "text", text: prompt }] : []), ...attachments];
 }
 
 /** Tool start = end − duration (seconds). Clamp so start never exceeds end. */
@@ -120,6 +137,8 @@ export async function buildTurnRuns(options: BuildTurnOptions): Promise<void> {
   }
 
   const meta = baseMetadata(conversationId, customMetadata, userEmail);
+  const promptText = buffer.prompt ?? "";
+  const userContent = userMessageContent(promptText, options.attachments ?? []);
 
   // Turn end = latest event time we know about, falling back to now.
   const toolEnds = buffer.tools.map((t) => t.endMs);
@@ -137,7 +156,13 @@ export async function buildTurnRuns(options: BuildTurnOptions): Promise<void> {
     id: turnRunId,
     name: turnName,
     run_type: "chain",
-    inputs: { prompt: buffer.prompt ?? "" },
+    // With attachments, carry the user message as content parts (so the image
+    // renders inline on the trace root, where the prompt lives); otherwise the
+    // plain prompt string, unchanged from the pre-attachment shape.
+    inputs:
+      (options.attachments?.length ?? 0) > 0
+        ? { messages: [{ role: "user", content: userContent }] }
+        : { prompt: promptText },
     project_name: project,
     start_time: buffer.startMs,
     trace_id: turnRunId,
@@ -163,7 +188,7 @@ export async function buildTurnRuns(options: BuildTurnOptions): Promise<void> {
     id: llmRunId,
     name: ls_provider ?? ls_model_name,
     run_type: "llm",
-    inputs: { messages: [{ role: "user", content: buffer.prompt ?? "" }] },
+    inputs: { messages: [{ role: "user", content: userContent }] },
     outputs: { messages: [{ role: "assistant", content: assistantContent }] },
     project_name: project,
     start_time: buffer.startMs,

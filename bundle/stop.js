@@ -764,6 +764,8 @@ function loadConfig(options) {
   const project = getEnv("PROJECT") ?? localFile?.project ?? globalFile?.project ?? DEFAULT_PROJECT;
   const debug2 = envDebug ?? false;
   const replicas2 = normalizeReplicas(envReplicas ?? localFile?.replicas ?? globalFile?.replicas);
+  const attachmentsEnabled = parseBoolean(getEnv("ATTACHMENTS")) ?? localFile?.attachments ?? globalFile?.attachments ?? true;
+  const cursorDbPath = getEnv("DB_PATH") ?? localFile?.cursor_db_path ?? globalFile?.cursor_db_path;
   const stateFilePath = process.env.CURSOR_LANGSMITH_STATE_FILE ?? join(home, ".cursor", "langsmith-state.json");
   const identityMetadata = { local_username: userInfo().username };
   const repo = getRepoName(cwd);
@@ -791,7 +793,9 @@ function loadConfig(options) {
     stateFilePath,
     replicas: replicas2,
     customMetadata,
-    modelPricing
+    modelPricing,
+    attachmentsEnabled,
+    cursorDbPath
   };
 }
 
@@ -929,6 +933,9 @@ function computeCosts(usage, pricing) {
 }
 
 // dist/normalize.js
+function isRecord(value) {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
 var MODEL_SUFFIXES = /* @__PURE__ */ new Set(["thinking", "minimal", "low", "medium", "high"]);
 function providerFor(model) {
   const m = model.toLowerCase();
@@ -9219,6 +9226,11 @@ function generateDottedOrderSegment(time, runId) {
   const stripped = isoWithMicroseconds.replace(/[-:.]/g, "");
   return stripped + runId;
 }
+function userMessageContent(prompt, attachments) {
+  if (attachments.length === 0)
+    return prompt;
+  return [...prompt ? [{ type: "text", text: prompt }] : [], ...attachments];
+}
 function toolStartMs(tool) {
   const durMs = (tool.duration ?? 0) * 1e3;
   return Math.max(0, tool.endMs - durMs);
@@ -9237,6 +9249,8 @@ async function buildTurnRuns(options) {
     throw new Error("LangSmith client not initialized \u2014 call initTracing() first");
   }
   const meta = baseMetadata(conversationId, customMetadata, userEmail);
+  const promptText = buffer.prompt ?? "";
+  const userContent = userMessageContent(promptText, options.attachments ?? []);
   const toolEnds = buffer.tools.map((t) => t.endMs);
   const subagentEnds = buffer.subagents.map((s) => s.endMs ?? s.startMs);
   const turnEndMs = Math.max(buffer.startMs, ...toolEnds, ...subagentEnds, Date.now());
@@ -9249,7 +9263,10 @@ async function buildTurnRuns(options) {
     id: turnRunId,
     name: turnName,
     run_type: "chain",
-    inputs: { prompt: buffer.prompt ?? "" },
+    // With attachments, carry the user message as content parts (so the image
+    // renders inline on the trace root, where the prompt lives); otherwise the
+    // plain prompt string, unchanged from the pre-attachment shape.
+    inputs: (options.attachments?.length ?? 0) > 0 ? { messages: [{ role: "user", content: userContent }] } : { prompt: promptText },
     project_name: project,
     start_time: buffer.startMs,
     trace_id: turnRunId,
@@ -9271,7 +9288,7 @@ async function buildTurnRuns(options) {
     id: llmRunId,
     name: ls_provider ?? ls_model_name,
     run_type: "llm",
-    inputs: { messages: [{ role: "user", content: buffer.prompt ?? "" }] },
+    inputs: { messages: [{ role: "user", content: userContent }] },
     outputs: { messages: [{ role: "assistant", content: assistantContent }] },
     project_name: project,
     start_time: buffer.startMs,
@@ -9401,6 +9418,166 @@ async function postSubagentRun(sub, ctx) {
   }
 }
 
+// dist/attachments.js
+import { execFileSync } from "node:child_process";
+import { existsSync as existsSync3, readFileSync as readFileSync5, statSync as statSync2 } from "node:fs";
+import { homedir, platform } from "node:os";
+import { basename, join as join2 } from "node:path";
+var MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024;
+function defaultCursorDbPath() {
+  const home = homedir();
+  const tail = ["Cursor", "User", "globalStorage", "state.vscdb"];
+  switch (platform()) {
+    case "darwin":
+      return join2(home, "Library", "Application Support", ...tail);
+    case "win32":
+      return join2(process.env.APPDATA ?? join2(home, "AppData", "Roaming"), ...tail);
+    default:
+      return join2(process.env.XDG_CONFIG_HOME ?? join2(home, ".config"), ...tail);
+  }
+}
+function normalizeWs(text) {
+  return text.replace(/\s+/g, " ").trim();
+}
+function queryBubbles(dbPath, conversationId) {
+  const like = `bubbleId:${conversationId}:%`.replace(/'/g, "''");
+  const sql = `SELECT value FROM cursorDiskKV WHERE key LIKE '${like}'`;
+  const out = execFileSync("sqlite3", ["-readonly", "-json", dbPath, sql], {
+    encoding: "utf-8",
+    maxBuffer: 256 * 1024 * 1024,
+    stdio: ["ignore", "pipe", "ignore"],
+    timeout: 5e3
+  });
+  const trimmed = out.trim();
+  if (!trimmed)
+    return [];
+  const rows = JSON.parse(trimmed);
+  const bubbles = [];
+  for (const row of rows) {
+    if (typeof row.value !== "string")
+      continue;
+    try {
+      bubbles.push(JSON.parse(row.value));
+    } catch {
+    }
+  }
+  return bubbles;
+}
+function selectedAttachmentPaths(bubbles, prompt) {
+  const want = prompt ? normalizeWs(prompt) : "";
+  const userImageBubbles = bubbles.filter((b) => isRecord(b) && b.type === 1).map((b) => ({
+    text: typeof b.text === "string" ? normalizeWs(b.text) : "",
+    paths: imagePathsOf(b)
+  })).filter((b) => b.paths.length > 0);
+  let matched;
+  if (want !== "") {
+    matched = userImageBubbles.filter((b) => b.text === want);
+  } else {
+    const empties = userImageBubbles.filter((b) => b.text === "");
+    matched = empties.length === 1 ? empties : [];
+  }
+  const seen = /* @__PURE__ */ new Set();
+  const paths = [];
+  for (const b of matched) {
+    for (const p of b.paths) {
+      if (!seen.has(p)) {
+        seen.add(p);
+        paths.push(p);
+      }
+    }
+  }
+  return paths;
+}
+function imagePathsOf(bubble) {
+  const ctx = isRecord(bubble.context) ? bubble.context : void 0;
+  const imgs = ctx && Array.isArray(ctx.selectedImages) ? ctx.selectedImages : [];
+  const paths = [];
+  for (const im of imgs) {
+    if (isRecord(im) && typeof im.path === "string" && im.path)
+      paths.push(im.path);
+  }
+  return paths;
+}
+function sniffMime(buf, path2) {
+  if (buf.length >= 8 && buf[0] === 137 && buf[1] === 80 && buf[2] === 78 && buf[3] === 71) {
+    return "image/png";
+  }
+  if (buf.length >= 3 && buf[0] === 255 && buf[1] === 216 && buf[2] === 255)
+    return "image/jpeg";
+  if (buf.length >= 6) {
+    const sig = buf.toString("ascii", 0, 6);
+    if (sig === "GIF87a" || sig === "GIF89a")
+      return "image/gif";
+  }
+  if (buf.length >= 12 && buf.toString("ascii", 0, 4) === "RIFF" && buf.toString("ascii", 8, 12) === "WEBP") {
+    return "image/webp";
+  }
+  if (buf.length >= 5 && buf.toString("ascii", 0, 5) === "%PDF-")
+    return "application/pdf";
+  const ext = path2.toLowerCase().split(".").pop() ?? "";
+  const byExt = {
+    png: "image/png",
+    jpg: "image/jpeg",
+    jpeg: "image/jpeg",
+    gif: "image/gif",
+    webp: "image/webp",
+    svg: "image/svg+xml",
+    pdf: "application/pdf",
+    txt: "text/plain",
+    md: "text/markdown"
+  };
+  return byExt[ext] ?? "application/octet-stream";
+}
+function fileToContentPart(path2) {
+  try {
+    const st = statSync2(path2);
+    if (!st.isFile()) {
+      warn(`attachments: not a file, skipping: ${path2}`);
+      return void 0;
+    }
+    if (st.size > MAX_ATTACHMENT_BYTES) {
+      warn(`attachments: too large (${st.size} bytes), skipping: ${path2}`);
+      return void 0;
+    }
+    const buf = readFileSync5(path2);
+    const mime = sniffMime(buf, path2);
+    const base64 = buf.toString("base64");
+    if (mime.startsWith("image/"))
+      return { type: "image", mime_type: mime, base64 };
+    return { type: "file", mime_type: mime, base64, filename: basename(path2) };
+  } catch (err) {
+    warn(`attachments: read failed, skipping: ${path2} (${err})`);
+    return void 0;
+  }
+}
+function resolveTurnAttachments(opts) {
+  try {
+    const dbPath = opts.dbPath ?? defaultCursorDbPath();
+    if (!existsSync3(dbPath)) {
+      debug(`attachments: no Cursor DB at ${dbPath}`);
+      return [];
+    }
+    const read = opts.readBubbles ?? queryBubbles;
+    const bubbles = read(dbPath, opts.conversationId);
+    const paths = selectedAttachmentPaths(bubbles, opts.prompt);
+    if (paths.length === 0)
+      return [];
+    const parts = [];
+    for (const p of paths) {
+      const part = fileToContentPart(p);
+      if (part)
+        parts.push(part);
+    }
+    if (parts.length > 0) {
+      log(`attachments: enriched turn with ${parts.length} attachment(s)`);
+    }
+    return parts;
+  } catch (err) {
+    warn(`attachments: enrichment failed, skipping (${err})`);
+    return [];
+  }
+}
+
 // dist/hooks/stop.js
 async function main() {
   const input = await readStdin();
@@ -9421,6 +9598,14 @@ async function main() {
     debug("No buffered turn for this generation \u2014 nothing to trace");
     return;
   }
+  let attachments = [];
+  if (config.attachmentsEnabled) {
+    attachments = resolveTurnAttachments({
+      conversationId: input.conversation_id,
+      prompt: toTrace.prompt,
+      dbPath: config.cursorDbPath
+    });
+  }
   try {
     await buildTurnRuns({
       buffer: toTrace,
@@ -9430,7 +9615,8 @@ async function main() {
       userEmail: input.user_email,
       workspaceRoots: input.workspace_roots,
       customMetadata: config.customMetadata,
-      modelPricing: config.modelPricing
+      modelPricing: config.modelPricing,
+      attachments
     });
   } catch (err) {
     error(`Failed to build turn runs: ${err}`);
