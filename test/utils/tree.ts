@@ -1,9 +1,8 @@
 import { Client, type Run } from "langsmith";
 
 /**
- * Reconstruct the posted run tree from captured fetch calls.
- * Returns stable "name:index" node ids, parent→child edges, and per-node data.
- * Ported from the Pi integration's test harness.
+ * Reconstruct the posted run tree from captured fetch calls. Returns stable
+ * "name:index" node ids, parent→child edges, and per-node data.
  */
 export async function getAssumedTreeFromCalls(
   calls: unknown[][],

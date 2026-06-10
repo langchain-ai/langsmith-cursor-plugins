@@ -1,10 +1,6 @@
 /**
- * Pure state reducers — one per hook event.
- *
- * Each takes the current TracingState + a hook input + a wall-clock timestamp
- * and returns the next state. Hooks call these inside atomicUpdateState; tests
- * drive them directly over recorded hook logs. Keeping them pure (no I/O) makes
- * the event-buffer logic fully unit-testable.
+ * Pure state reducers — one per hook event. Each maps (state, input, timestamp)
+ * to next state. No I/O, so fully unit-testable.
  */
 
 import type {
@@ -155,11 +151,8 @@ function collectTools(conv: ConversationState): ToolEvent[] {
 }
 
 /**
- * In-memory fallback for linking a subagent to its child conversation when the
- * on-disk transcript could not be resolved: the child is an orphan conversation
- * (never `stop`s, so turn_count stays 0) whose buffered tools fall within the
- * subagent's [start, stop] window. Unambiguous for a single subagent; parallel
- * workers are deferred.
+ * In-memory fallback: link a subagent to the orphan conversation (turn_count 0)
+ * whose buffered tools fall in its window. Single-subagent only.
  */
 function findChildConversation(
   state: TracingState,

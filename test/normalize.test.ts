@@ -86,8 +86,8 @@ describe("buildUsageMetadata", () => {
   });
 
   it("attaches cost when the model is priced (built-in table)", () => {
-    // Expectations derive from the pricing module so rates live in one place.
-    // At 1M in / 1M out the per-token cost equals the per-1M rate.
+    // Rates come from the pricing module (one source of truth). At 1M in/out,
+    // per-token cost equals the per-1M rate.
     const price = lookupPricing("claude-sonnet-4-6")!;
     const u = buildUsageMetadata(
       {

@@ -9263,9 +9263,7 @@ async function buildTurnRuns(options) {
     id: turnRunId,
     name: turnName,
     run_type: "chain",
-    // With attachments, carry the user message as content parts (so the image
-    // renders inline on the trace root, where the prompt lives); otherwise the
-    // plain prompt string, unchanged from the pre-attachment shape.
+    // With attachments, carry the user message as content parts; else the plain prompt.
     inputs: (options.attachments?.length ?? 0) > 0 ? { messages: [{ role: "user", content: userContent }] } : { prompt: promptText },
     project_name: project,
     start_time: buffer.startMs,

@@ -1,16 +1,6 @@
 /**
- * Configuration loading.
- *
- * Cascade (later overrides earlier):
- *   defaults → ~/.cursor/langsmith.json → ./.cursor/langsmith.json → environment
- *
- * Config file shape (snake_case, matches the Pi integration):
- *   { "enabled": true, "api_key": "...", "api_url": "...", "project": "...",
- *     "metadata": {...}, "replicas": [...] }
- *
- * Environment variables: TRACE_TO_LANGSMITH, and CURSOR_LANGSMITH_<X> (falling
- * back to LANGSMITH_<X>) for API_KEY, ENDPOINT, PROJECT, METADATA,
- * RUNS_ENDPOINTS, DEBUG.
+ * Configuration loading. Cascade (later wins): defaults → ~/.cursor/langsmith.json
+ * → ./.cursor/langsmith.json → environment (CURSOR_LANGSMITH_* / LANGSMITH_*).
  */
 
 import { readFileSync } from "node:fs";

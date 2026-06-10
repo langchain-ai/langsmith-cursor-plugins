@@ -6,12 +6,8 @@ import { loadConfig, type Config } from "../config.js";
 import { initLogger, error } from "../logger.js";
 
 /**
- * Standard hook startup: load config, init logger, check enable-switch and API key.
- * Returns the Config if tracing should proceed, null if the hook should exit early.
- *
- * Tracing is enabled when `enabled: true` is set in a langsmith.json config file
- * (~/.cursor/langsmith.json or ./.cursor/langsmith.json) or via the
- * TRACE_TO_LANGSMITH=true environment variable.
+ * Standard hook startup: load config, init logger, check enable-switch and API
+ * key. Returns Config to proceed, or null to exit.
  */
 export function initHook(cwd?: string): Config | null {
   const config = loadConfig({ cwd });

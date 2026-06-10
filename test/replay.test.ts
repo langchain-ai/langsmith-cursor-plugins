@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect } from "vitest";
 import { join } from "node:path";
 import type { Run } from "langsmith";
 import { replayHookLog } from "./utils/replay.js";
@@ -56,8 +56,8 @@ describe("replay run2 hooks.jsonl through the event-buffer reducers", () => {
   });
 
   it("consumes the subagent's child conversation (no orphan left behind)", () => {
-    // The child conversation_id that held the subagent's tool calls is spliced
-    // into the parent's Task run at subagentStop and removed from state.
+    // The child conversation holding the subagent's tools is spliced into the
+    // parent's Task run at subagentStop and removed from state.
     expect(Object.keys(finalState)).not.toContain(CHILD_CONV);
     const orphanConvs = Object.keys(finalState).filter((c) => c !== PARENT_CONV);
     expect(orphanConvs.length).toBe(0);
@@ -65,11 +65,6 @@ describe("replay run2 hooks.jsonl through the event-buffer reducers", () => {
 });
 
 describe("buildTurnRuns produces the expected LangSmith run tree", () => {
-  beforeEach(() => {
-    const { client } = mockClient();
-    initTracing(undefined, undefined, undefined, client);
-  });
-
   it("builds Turn(chain) → llm with thread_id + usage_metadata", async () => {
     const { client, callSpy } = mockClient();
     initTracing(undefined, undefined, undefined, client);
@@ -154,8 +149,8 @@ describe("buildTurnRuns produces the expected LangSmith run tree", () => {
     const llm = Object.values(tree.data).find((r) => r.run_type === "llm")!;
     const root = Object.values(tree.data).find((r) => r.run_type === "chain")!;
 
-    // The user message is a content-part array (text + image), and the image
-    // part matches the LangChain v1 shape the LangSmith UI renders inline.
+    // The user message is a content-part array (text + image); the image part
+    // matches the LangChain v1 inline-render shape.
     const llmContent = (llm.inputs as { messages: { content: unknown[] }[] }).messages[0].content;
     expect(Array.isArray(llmContent)).toBe(true);
     expect(llmContent).toContainEqual(imagePart);
