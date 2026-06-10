@@ -18,9 +18,8 @@ async function main(): Promise<void> {
 
   debug(`subagentStop ${input.subagent_type} (${input.subagent_id})`);
 
-  // Best-effort: recover the subagent's child conversation id (to splice in its
-  // rich buffered tool events) and final answer from its on-disk transcript.
-  // The reducer falls back to temporal linking if this returns undefined.
+  // Best-effort: recover the subagent's child conversation id and final answer
+  // from its transcript; reducer falls back to temporal linking.
   const resolved = resolveSubagentTranscript(input.transcript_path, input.task);
   if (resolved) {
     debug(

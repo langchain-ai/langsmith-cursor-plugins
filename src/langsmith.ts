@@ -1,10 +1,6 @@
 /**
- * LangSmith run construction and submission.
- *
- * Builds one trace per turn from a buffered TurnBuffer and sends it via the
- * LangSmith JS SDK RunTree API (which handles batching, multipart
- * serialization, retries, and auth). Each turn is its own trace, grouped into a
- * thread via the `thread_id` metadata key (= conversation_id).
+ * LangSmith run construction. Builds one trace per turn via the RunTree API,
+ * grouped into a thread by `thread_id` (= conversation_id).
  */
 
 import { Client, RunTree, type RunTreeConfig, uuid7 } from "langsmith";
@@ -82,18 +78,15 @@ export interface BuildTurnOptions {
   /** Per-model price overrides (USD per 1M tokens). */
   modelPricing?: Record<string, ModelPricing>;
   /**
-   * Image/file attachment content parts for the user message, recovered from
-   * Cursor's DB (hooks don't expose attachment bytes). Empty/omitted → the user
-   * message stays a plain prompt string.
+   * Image/file attachment parts for the user message, recovered from Cursor's DB.
+   * Empty → the user message stays a plain prompt string.
    */
   attachments?: ContentPart[];
 }
 
 /**
- * Build the user-message content for a turn. With attachments, return a
- * LangChain v1 content-part array (text + image/file parts) so the LangSmith UI
- * renders the attachment inline; without, keep the plain prompt string (the
- * pre-attachment shape, so non-multimodal turns are unchanged).
+ * Build user-message content. With attachments, return a content-part array
+ * (text + image/file) for inline rendering; without, the plain prompt string.
  */
 function userMessageContent(prompt: string, attachments: ContentPart[]): unknown {
   if (attachments.length === 0) return prompt;
@@ -156,9 +149,7 @@ export async function buildTurnRuns(options: BuildTurnOptions): Promise<void> {
     id: turnRunId,
     name: turnName,
     run_type: "chain",
-    // With attachments, carry the user message as content parts (so the image
-    // renders inline on the trace root, where the prompt lives); otherwise the
-    // plain prompt string, unchanged from the pre-attachment shape.
+    // With attachments, carry the user message as content parts; else the plain prompt.
     inputs:
       (options.attachments?.length ?? 0) > 0
         ? { messages: [{ role: "user", content: userContent }] }
@@ -298,9 +289,8 @@ async function postToolRun(tool: ToolEvent, ctx: ChildCtx): Promise<void> {
 }
 
 /**
- * Post the Task run for a subagent, then nest the subagent's internal tool runs
- * underneath it (recovered from the child conversation's buffered tools, or the
- * transcript). The Task run's output carries the subagent's final answer.
+ * Post the subagent's Task run, then nest its internal tool runs underneath.
+ * Output carries the subagent's final answer.
  */
 async function postSubagentRun(sub: SubagentEvent, ctx: ChildCtx): Promise<void> {
   const runId = uuid7();

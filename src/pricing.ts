@@ -1,19 +1,6 @@
 /**
- * Model-name normalization + cost computation.
- *
- * Two cooperating mechanisms make cost render in LangSmith for Cursor traces:
- *
- *  1. Normalization — map Cursor's model labels (e.g. "claude-4.6-sonnet") to a
- *     canonical provider model id so LangSmith's server-side price table can
- *     match it. Also improves model/provider querying.
- *  2. Cost attachment — compute input/output/total cost ourselves from a price
- *     table and attach it to usage_metadata (like the Pi integration). This is
- *     the robust fallback: cost renders even when LangSmith can't price the model.
- *
- * Prices below are **list-price estimates (USD per 1M tokens)** and are meant to
- * be overridden via config (`model_pricing` in langsmith.json, or
- * CURSOR_LANGSMITH_MODEL_PRICING). Keys are lowercased canonical ids and/or the
- * Cursor labels we see, so lookups hit with or without normalization.
+ * Model-name normalization + cost computation. Normalizes Cursor labels to
+ * canonical ids and attaches computed costs (list-price estimates; override via config).
  */
 
 import type { UsageFields } from "./types.js";
@@ -40,11 +27,7 @@ export const CANONICAL_MODEL_MAP: Record<string, string> = {
   // GPT / Gemini Cursor labels generally already match canonical ids.
 };
 
-/**
- * Built-in price table (USD per 1M tokens). List-price estimates as of early
- * 2026 — override via config for accuracy or unlisted models. Keyed by
- * lowercased canonical id and common Cursor labels.
- */
+/** Built-in price table (USD per 1M tokens) — list-price estimates; override via config. */
 export const BUILTIN_PRICING: Record<string, ModelPricing> = {
   // Anthropic — Sonnet tier (Claude 3.5 / 4 / 4.6 Sonnet share list pricing)
   "claude-sonnet-4-6": { input: 3, output: 15, cache_read: 0.3, cache_creation: 3.75 },
@@ -92,9 +75,8 @@ export interface CostFields {
 }
 
 /**
- * Compute cost (USD) from raw Cursor token fields and a price table.
- * Cache-read/creation tokens are priced at their own rates, falling back to the
- * input rate. Returns undefined when no pricing is available.
+ * Compute cost (USD) from Cursor tokens and a price table. Cache tokens fall
+ * back to input rate. Undefined when unpriced.
  */
 export function computeCosts(
   usage: UsageFields | undefined,

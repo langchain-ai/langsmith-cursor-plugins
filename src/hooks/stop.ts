@@ -1,9 +1,7 @@
 #!/usr/bin/env node
 /**
- * stop hook — finalizes the current turn (one generation): merges final usage,
- * builds and posts the LangSmith trace, flushes, and clears the turn buffer.
- *
- * Idempotent: one stop = one turn. No buffer for this generation → no-op.
+ * stop hook — finalizes the turn: merges usage, posts the LangSmith trace,
+ * flushes, and clears the buffer. Idempotent; no buffer → no-op.
  */
 
 import { readStdin } from "../utils/stdin.js";
@@ -38,8 +36,8 @@ async function main(): Promise<void> {
     return;
   }
 
-  // Best-effort attachment enrichment (read-only DB + disk). Never throws; an
-  // empty result leaves the turn exactly as the hook event stream produced it.
+  // Best-effort attachment enrichment (read-only DB + disk); never throws, and an
+  // empty result leaves the turn unchanged.
   let attachments: ContentPart[] = [];
   if (config.attachmentsEnabled) {
     attachments = resolveTurnAttachments({

@@ -1,16 +1,6 @@
 /**
- * On-disk subagent transcript resolution.
- *
- * The subagent hooks (subagentStart/Stop) never tell us the subagent's own
- * conversation_id, and they carry only the *parent* transcript_path. But Cursor
- * writes each subagent's transcript to a sibling `subagents/<child_conv>.jsonl`
- * file whose basename IS the child conversation_id. We locate the right file by
- * matching the task text, which gives us both:
- *   - the child conversation_id (to splice in the child's buffered tool events), and
- *   - the subagent's final answer text (recorded nowhere else).
- *
- * This is best-effort, synchronous, and never throws: any failure returns
- * undefined and the caller falls back to in-memory temporal linking.
+ * On-disk subagent transcript resolution. Match by task text to recover child
+ * conversation_id and final answer from `subagents/*.jsonl`. Best-effort; never throws.
  */
 
 import { readFileSync, readdirSync, statSync } from "node:fs";
@@ -59,10 +49,8 @@ function firstUserText(rows: unknown[]): string {
 }
 
 /**
- * Find and parse the subagent transcript for `task` under the parent
- * transcript's `subagents/` directory. Matches by task-text prefix; when a task
- * is unavailable or several files match, falls back to the most recently
- * modified file (single-subagent case — parallel workers are deferred).
+ * Find and parse the transcript for `task` under the parent's `subagents/` dir.
+ * Matches by task-text prefix, else most recent file.
  */
 export function resolveSubagentTranscript(
   parentTranscriptPath: string | null | undefined,

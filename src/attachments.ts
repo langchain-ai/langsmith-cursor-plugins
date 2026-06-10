@@ -1,27 +1,11 @@
 /**
- * Attachment enrichment — read-only Cursor DB + on-disk image bytes.
+ * Attachment enrichment: read image bytes from Cursor's SQLite/disk (hooks hide
+ * them) and emit a multimodal part. Read-only; never throws.
  *
- * Cursor never exposes attachment bytes to hooks (`beforeSubmitPrompt.attachments`
- * is always `[]`), but it records them in its SQLite store. The user-message
- * bubble carries `context.selectedImages[].path` — an absolute path to the image
- * file Cursor persists under `workspaceStorage/.../images/`. We read that file,
- * base64-encode it, sniff the real MIME from magic bytes, and emit a LangChain v1
- * multimodal content part so the attachment renders inline in the LangSmith trace.
- *
- * Design constraints (see project memory cursor-build-status):
- *   - READ-ONLY, fully isolated from the hook event path. Every failure (no DB,
- *     no `sqlite3`, locked DB, missing/oversized file) is caught and downgraded to
- *     a skip-with-log. This module must NEVER throw into the stop hook.
- *   - Match on the bubble's `path` field, NOT its `selectedImages[].uuid` — the
- *     on-disk filename embeds a *different* uuid.
- *   - Prefer base64 over a url/path: the on-disk path is local & ephemeral and
- *     won't resolve in the LangSmith UI.
- *   - We attribute an attachment to a turn by matching the user bubble's text to
- *     the turn's prompt, so an image only enriches the turn it was sent on.
- *
- * The agentKv blob store also holds the bytes (base64), but it isn't keyed by
- * conversation_id, so linking a blob back to a turn is unreliable. The on-disk
- * `path` route is the clean one and the only one used here.
+ * Notes:
+ *   - Match the bubble's `path` field, not `selectedImages[].uuid` (different uuid).
+ *   - Prefer base64 over the local/ephemeral path, which won't resolve in the UI.
+ *   - Attribute to a turn by matching bubble text to the prompt.
  */
 
 import { execFileSync } from "node:child_process";
@@ -55,11 +39,8 @@ function normalizeWs(text: string): string {
 }
 
 /**
- * Query the bubbles for one conversation via the `sqlite3` CLI (read-only).
- *
- * Keys are `bubbleId:<conversation_id>:<bubble_id>`; `-json` gives us a robust,
- * single-parse envelope (each `value` is itself a JSON-encoded string). Opening
- * read-only lets us coexist with Cursor's live writer.
+ * Query one conversation's bubbles via the `sqlite3` CLI, read-only. Keys are
+ * `bubbleId:<conversation_id>:<bubble_id>`; `-json` gives a single-parse envelope.
  */
 function queryBubbles(dbPath: string, conversationId: string): unknown[] {
   // conversation_id is a UUID, but escape quotes defensively for the LIKE clause.
@@ -87,10 +68,8 @@ function queryBubbles(dbPath: string, conversationId: string): unknown[] {
 }
 
 /**
- * Collect `context.selectedImages[].path` from the user bubble(s) whose text
- * matches `prompt`. Requiring a text match keeps the attachment on the turn it
- * was actually sent on. When the prompt is empty (image-only message), fall back
- * to the single user bubble that has attachments — but only if it's unambiguous.
+ * Collect `context.selectedImages[].path` from user bubbles whose text matches
+ * `prompt`. Empty prompt → the sole bubble with attachments, if unambiguous.
  */
 export function selectedAttachmentPaths(bubbles: unknown[], prompt: string | undefined): string[] {
   const want = prompt ? normalizeWs(prompt) : "";
@@ -171,9 +150,8 @@ export function sniffMime(buf: Buffer, path: string): string {
 }
 
 /**
- * Read a file and convert it to a content part: an `image` part for image MIMEs,
- * a `file` part otherwise. Returns undefined (skip-with-log) when the file is
- * missing, not a regular file, oversized, or unreadable.
+ * Read a file to a content part — `image` for images, else `file`. Undefined
+ * when missing, non-file, oversized, or unreadable.
  */
 export function fileToContentPart(path: string): ContentPart | undefined {
   try {
@@ -208,8 +186,8 @@ export interface ResolveAttachmentsOptions {
 }
 
 /**
- * Resolve a turn's image/file attachments as LangChain v1 content parts.
- * Best-effort and total: any failure returns `[]` and is logged, never thrown.
+ * Resolve a turn's attachments as LangChain v1 content parts. Best-effort: any
+ * failure returns `[]` and is logged, never thrown.
  */
 export function resolveTurnAttachments(opts: ResolveAttachmentsOptions): ContentPart[] {
   try {

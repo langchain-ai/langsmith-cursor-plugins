@@ -1,16 +1,13 @@
 /**
- * Types for Cursor hook inputs (delivered via stdin JSON) and the on-disk
- * event-buffer state used to assemble one LangSmith trace per turn.
- *
- * Field names mirror the real payloads captured in diagnostics/captures.
+ * Types for Cursor hook inputs (stdin JSON) and the on-disk event-buffer state.
+ * Field names mirror the real captured payloads.
  */
 
 // ─── Multimodal content ──────────────────────────────────────────────────────
 
 /**
- * A LangChain v1 multimodal content part. `mime_type` is required whenever
- * `base64` is set — this is the shape the LangSmith UI renders inline (matches
- * smith-frontend schema-runtime.ts; same decision as the Pi integration).
+ * A LangChain v1 multimodal content part. `mime_type` is required with `base64`
+ * — the shape the LangSmith UI renders inline.
  */
 export type ContentPart =
   | { type: "text"; text: string }
@@ -160,9 +157,8 @@ export interface SubagentEvent {
    */
   childConversationId?: string;
   /**
-   * The subagent's internal tool calls, nested under the Task run. Sourced from
-   * the child conversation's buffered postToolUse events (rich: input + output +
-   * duration), or the transcript (inputs only) as a fallback.
+   * The subagent's internal tool calls, nested under the Task run. From the child
+   * conversation's buffered events, or transcript (inputs only).
    */
   tools?: ToolEvent[];
   /** The subagent's final answer text (from its transcript). */

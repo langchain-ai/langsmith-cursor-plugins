@@ -1,13 +1,9 @@
 /**
  * Converters: Cursor hook payloads → LangSmith run shapes.
- *
- * - Model labels → ls_provider / ls_model_name (Cursor uses its own naming,
- *   e.g. "claude-4.6-sonnet-medium-thinking", "gpt-5.5-medium", "default").
- * - Cursor token fields → LangSmith usage_metadata.
- * - tool_output is a JSON-encoded string → parse it.
- * - Multimodal content parts → LangChain v1 ({ type, mime_type, base64 }) for
- *   inline UI rendering (kept for forward-compat; Cursor hooks don't currently
- *   surface attachment bytes).
+ *  - Model labels → ls_provider / ls_model_name
+ *  - Cursor token fields → usage_metadata
+ *  - tool_output (JSON string) → parsed
+ *  - Multimodal parts → LangChain v1 (forward-compat)
  */
 
 import type { UsageFields } from "./types.js";
@@ -50,8 +46,8 @@ export interface ModelInfo {
 }
 
 /**
- * Prefer a concrete model label over "default" (Auto mode). Within one turn the
- * model field can vary across hooks; this keeps the most specific value.
+ * Prefer a concrete model label over "default" (Auto mode); keeps the most
+ * specific value seen across a turn's hooks.
  */
 export function preferModel(
   current: string | undefined,
@@ -62,10 +58,8 @@ export function preferModel(
 }
 
 /**
- * Derive { ls_model_name, ls_provider } from a Cursor model label.
- * The model name is suffix-stripped and normalized to a canonical provider id
- * (so LangSmith's price table can match it). "default" (Auto mode) → model
- * "default", provider "cursor".
+ * Derive { ls_model_name, ls_provider } from a Cursor model label: suffix-stripped
+ * and canonicalized. "default" (Auto) → model "default", provider "cursor".
  */
 export function deriveModelInfo(model: string | undefined): ModelInfo {
   const raw = (model ?? "").trim() || "default";
@@ -78,15 +72,8 @@ export function deriveModelInfo(model: string | undefined): ModelInfo {
 // ─── Usage + cost ────────────────────────────────────────────────────────────
 
 /**
- * Build LangSmith usage_metadata from Cursor's token fields. Cursor reports
- * input/output and cache read/write separately; we fold cache into input_tokens
- * (mirroring the Claude Code integration) and expose details.
- *
- * When a price table entry resolves for `modelId`, cost fields are attached
- * (input_cost / output_cost / total_cost / input_cost_details) so cost renders
- * even when LangSmith can't price the model server-side.
- *
- * Returns undefined when there are no tokens.
+ * Build usage_metadata from Cursor's token fields, folding cache into
+ * input_tokens. Attaches cost when `modelId` is priced. Undefined when no tokens.
  */
 export function buildUsageMetadata(
   usage: UsageFields | undefined,
@@ -131,9 +118,8 @@ export function parseToolOutput(raw: unknown): unknown {
 const MULTIMODAL_PART_TYPES = new Set(["image", "file"]);
 
 /**
- * Convert a custom binary content part ({ type, mimeType, data }) to the
- * LangChain v1 multimodal block ({ type, mime_type, base64 }) the LangSmith UI
- * renders inline. Non-multimodal parts pass through untouched.
+ * Convert a binary content part ({ type, mimeType, data }) to the LangChain v1
+ * block ({ type, mime_type, base64 }). Non-multimodal parts pass through.
  */
 export function normalizeContentPart(part: unknown): unknown {
   if (!isRecord(part)) return part;
@@ -157,20 +143,14 @@ export interface SubagentToolCall {
 }
 
 /**
- * UI-only pseudo-tools the agent emits into the transcript that never fire a
- * real postToolUse hook (so they have no I/O worth tracing).
+ * UI-only pseudo-tools the agent emits but never fires a real postToolUse for —
+ * no I/O worth tracing.
  */
 const SUBAGENT_PSEUDO_TOOLS = new Set(["UpdateCurrentStep"]);
 
 /**
- * Parse a subagent transcript (an array of parsed JSONL rows of the shape
- * `{ role, message: { content: [...] } }`) into its ordered tool calls and its
- * final assistant text.
- *
- * The on-disk subagent transcript is the only place the subagent's final answer
- * is recorded (the child conversation never fires afterAgentResponse/stop). Tool
- * calls here carry inputs but no outputs — richer tool I/O comes from the child
- * conversation's buffered postToolUse hook events; these are the fallback.
+ * Parse a subagent transcript into ordered tool calls (inputs only) and its
+ * final assistant text (recorded nowhere else).
  */
 export function parseSubagentTranscript(rows: unknown[]): {
   toolCalls: SubagentToolCall[];
