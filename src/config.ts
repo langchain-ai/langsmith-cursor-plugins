@@ -10,7 +10,6 @@ import { execSync } from "node:child_process";
 import type { RunTreeConfig } from "langsmith";
 import { debug as logDebug } from "./logger.js";
 import { DEFAULT_PROJECT } from "./constants.js";
-import type { ModelPricing } from "./pricing.js";
 
 export interface Config {
   /** Master switch — tracing only runs when true. */
@@ -23,8 +22,6 @@ export interface Config {
   replicas?: RunTreeConfig["replicas"];
   /** Identity / repo / user metadata attached to every run. */
   customMetadata?: Record<string, unknown>;
-  /** Per-model price overrides (USD per 1M tokens), keyed by model id. */
-  modelPricing?: Record<string, ModelPricing>;
   /** Enrich turns with image/file attachment bytes from Cursor's DB (default on). */
   attachmentsEnabled: boolean;
   /** Override the Cursor state.vscdb path used for attachment enrichment. */
@@ -62,7 +59,6 @@ interface FileConfig {
   project?: string;
   metadata?: Record<string, unknown>;
   replicas?: Array<Record<string, unknown>>;
-  model_pricing?: Record<string, ModelPricing>;
   attachments?: boolean;
   cursor_db_path?: string;
 }
@@ -185,13 +181,6 @@ export function loadConfig(options?: { cwd?: string }): Config {
   const fileMetadata = { ...globalFile?.metadata, ...localFile?.metadata };
   const customMetadata = { ...identityMetadata, ...fileMetadata, ...envMetadata };
 
-  const envPricing = parseJson<Record<string, ModelPricing>>(getEnv("MODEL_PRICING"));
-  const modelPricing = {
-    ...globalFile?.model_pricing,
-    ...localFile?.model_pricing,
-    ...envPricing,
-  };
-
   if (enabled && !apiKey && (!replicas || replicas.length === 0)) {
     logDebug("Config enabled but no API key / replicas resolved");
   }
@@ -205,7 +194,6 @@ export function loadConfig(options?: { cwd?: string }): Config {
     stateFilePath,
     replicas,
     customMetadata,
-    modelPricing,
     attachmentsEnabled,
     cursorDbPath,
   };

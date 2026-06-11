@@ -6,8 +6,8 @@ import {
   buildUsageMetadata,
   parseToolOutput,
   normalizeContentPart,
+  canonicalModelId,
 } from "../src/normalize.js";
-import { lookupPricing } from "../src/pricing.js";
 
 describe("deriveModelInfo / provider mapping", () => {
   it("maps Cursor model labels to ls_provider and a canonical model id", () => {
@@ -77,47 +77,31 @@ describe("buildUsageMetadata", () => {
     expect(buildUsageMetadata({ input_tokens: 0, output_tokens: 0 })).toBeUndefined();
   });
 
-  it("does not attach cost without a resolvable price", () => {
-    const u = buildUsageMetadata({ input_tokens: 100, output_tokens: 20 }) as Record<
-      string,
-      unknown
-    >;
+  it("never attaches cost — LangSmith prices server-side", () => {
+    const u = buildUsageMetadata({
+      input_tokens: 1_000_000,
+      output_tokens: 1_000_000,
+      cache_read_tokens: 5,
+      cache_write_tokens: 5,
+    }) as Record<string, unknown>;
     expect(u.total_cost).toBeUndefined();
+    expect(u.input_cost).toBeUndefined();
+    expect(u.output_cost).toBeUndefined();
+  });
+});
+
+describe("canonicalModelId", () => {
+  it("reorders Cursor's version-first Claude labels to LangSmith's tier-first ids", () => {
+    expect(canonicalModelId("claude-4.6-sonnet")).toBe("claude-sonnet-4-6");
+    expect(canonicalModelId("claude-4.8-opus")).toBe("claude-opus-4-8");
+    expect(canonicalModelId("claude-3.7-sonnet")).toBe("claude-3-7-sonnet");
   });
 
-  it("attaches cost when the model is priced (built-in table)", () => {
-    // Rates come from the pricing module (one source of truth). At 1M in/out,
-    // per-token cost equals the per-1M rate.
-    const price = lookupPricing("claude-sonnet-4-6")!;
-    const u = buildUsageMetadata(
-      {
-        input_tokens: 1_000_000,
-        output_tokens: 1_000_000,
-        cache_read_tokens: 0,
-        cache_write_tokens: 0,
-      },
-      { modelId: "claude-sonnet-4-6" },
-    ) as Record<string, unknown>;
-    expect(u.input_cost).toBeCloseTo(price.input, 5);
-    expect(u.output_cost).toBeCloseTo(price.output, 5);
-    expect(u.total_cost).toBeCloseTo(price.input + price.output, 5);
-  });
-
-  it("resolves cost via the Cursor label too (claude-4.6-sonnet)", () => {
-    const price = lookupPricing("claude-4.6-sonnet")!;
-    const u = buildUsageMetadata(
-      { input_tokens: 1_000_000, output_tokens: 0 },
-      { modelId: "claude-4.6-sonnet" },
-    ) as Record<string, unknown>;
-    expect(u.input_cost).toBeCloseTo(price.input, 5);
-  });
-
-  it("honors caller pricing overrides", () => {
-    const u = buildUsageMetadata(
-      { input_tokens: 1_000_000, output_tokens: 0 },
-      { modelId: "mystery-model", pricing: { "mystery-model": { input: 7, output: 21 } } },
-    ) as Record<string, unknown>;
-    expect(u.input_cost).toBeCloseTo(7, 5);
+  it("passes through ids that already match (GPT, fable, unknowns)", () => {
+    expect(canonicalModelId("gpt-5.5")).toBe("gpt-5.5");
+    expect(canonicalModelId("claude-fable-5")).toBe("claude-fable-5");
+    expect(canonicalModelId("composer-2.5-fast")).toBe("composer-2.5-fast");
+    expect(canonicalModelId("mystery")).toBe("mystery");
   });
 });
 

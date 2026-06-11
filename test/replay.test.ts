@@ -161,7 +161,7 @@ describe("buildTurnRuns produces the expected LangSmith run tree", () => {
     expect(rootContent).toContainEqual(imagePart);
   });
 
-  it("attaches cost for a priced model (the claude turn)", async () => {
+  it("canonicalizes the model and emits tokens (cost left to LangSmith)", async () => {
     const { client, callSpy } = mockClient();
     initTracing(undefined, undefined, undefined, client);
 
@@ -182,6 +182,6 @@ describe("buildTurnRuns produces the expected LangSmith run tree", () => {
     const usage = meta(llm).usage_metadata as { total_cost?: number; total_tokens?: number };
     expect(meta(llm).ls_model_name).toBe("claude-sonnet-4-6"); // canonicalized
     expect(usage.total_tokens).toBeGreaterThan(0);
-    expect(usage.total_cost).toBeGreaterThan(0);
+    expect(usage.total_cost).toBeUndefined(); // server-side pricing only
   });
 });
