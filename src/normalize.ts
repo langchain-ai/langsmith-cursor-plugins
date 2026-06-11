@@ -7,7 +7,6 @@
  */
 
 import type { UsageFields } from "./types.js";
-import { canonicalModelId, computeCosts, lookupPricing, type ModelPricing } from "./pricing.js";
 
 export function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -17,6 +16,43 @@ export function isRecord(value: unknown): value is Record<string, unknown> {
 
 /** Reasoning-effort / thinking suffixes Cursor appends to model labels. */
 const MODEL_SUFFIXES = new Set(["thinking", "minimal", "low", "medium", "high"]);
+
+/**
+ * Explicit Cursor-label → canonical-id overrides for irregular cases the generic
+ * reorder below can't derive. Empty by default (the regex covers the common
+ * `claude-<ver>-<tier>` shape); add an entry only when a label is irregular.
+ */
+export const CANONICAL_MODEL_MAP: Record<string, string> = {};
+
+/** Lowercase + strip a leading provider prefix some labels carry (e.g. "anthropic/"). */
+function normKey(model: string): string {
+  return model
+    .trim()
+    .toLowerCase()
+    .replace(/^[a-z]+\//, "");
+}
+
+/**
+ * Canonicalize a (suffix-stripped) Cursor model label to the id LangSmith's price
+ * table matches. Cursor writes Claude labels version-first with a dotted version
+ * (`claude-4.8-opus`); LangSmith's ids split the version on dashes and — from v4
+ * on — put the tier first (`claude-opus-4-8`), while the v3 line keeps the version
+ * first (`claude-3-7-sonnet`). We reorder by major version generically, so future
+ * Anthropic releases need no new entries. Explicit overrides win; everything else
+ * (GPT, Gemini, `claude-fable-5`, composer, …) passes through unchanged.
+ */
+export function canonicalModelId(model: string): string {
+  const key = normKey(model);
+  if (CANONICAL_MODEL_MAP[key]) return CANONICAL_MODEL_MAP[key];
+  const m = key.match(/^claude-(\d+)\.(\d+)-(sonnet|opus|haiku)$/);
+  if (m) {
+    const [, major, minor, tier] = m;
+    return Number(major) >= 4
+      ? `claude-${tier}-${major}-${minor}` // v4+: tier-first
+      : `claude-${major}-${minor}-${tier}`; // v3: version-first
+  }
+  return model;
+}
 
 /** Map a model-label prefix to a LangSmith ls_provider. */
 function providerFor(model: string): string | undefined {
@@ -73,12 +109,10 @@ export function deriveModelInfo(model: string | undefined): ModelInfo {
 
 /**
  * Build usage_metadata from Cursor's token fields, folding cache into
- * input_tokens. Attaches cost when `modelId` is priced. Undefined when no tokens.
+ * input_tokens. Cost is left to LangSmith's server-side price table (which prices
+ * by the canonical ls_model_name). Undefined when no tokens.
  */
-export function buildUsageMetadata(
-  usage: UsageFields | undefined,
-  opts?: { modelId?: string; pricing?: Record<string, ModelPricing> },
-) {
+export function buildUsageMetadata(usage: UsageFields | undefined) {
   if (!usage) return undefined;
   const cacheRead = usage.cache_read_tokens ?? 0;
   const cacheWrite = usage.cache_write_tokens ?? 0;
@@ -88,14 +122,11 @@ export function buildUsageMetadata(
 
   if (total_tokens === 0) return undefined;
 
-  const costs = computeCosts(usage, lookupPricing(opts?.modelId, opts?.pricing));
-
   return {
     input_tokens,
     output_tokens,
     total_tokens,
     input_token_details: { cache_read: cacheRead, cache_creation: cacheWrite },
-    ...costs,
   };
 }
 
