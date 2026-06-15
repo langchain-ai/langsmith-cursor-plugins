@@ -1,0 +1,200 @@
+/**
+ * Configuration loading. Cascade (later wins): defaults → ~/.cursor/langsmith.json
+ * → ./.cursor/langsmith.json → environment (CURSOR_LANGSMITH_* / LANGSMITH_*).
+ */
+
+import { readFileSync } from "node:fs";
+import { userInfo } from "node:os";
+import { join } from "node:path";
+import { execSync } from "node:child_process";
+import type { RunTreeConfig } from "langsmith";
+import { debug as logDebug } from "./logger.js";
+import { DEFAULT_PROJECT } from "./constants.js";
+
+export interface Config {
+  /** Master switch — tracing only runs when true. */
+  enabled: boolean;
+  apiKey: string;
+  apiUrl: string;
+  project: string;
+  debug: boolean;
+  stateFilePath: string;
+  replicas?: RunTreeConfig["replicas"];
+  /** Identity / repo / user metadata attached to every run. */
+  customMetadata?: Record<string, unknown>;
+  /** Enrich turns with image/file attachment bytes from Cursor's DB (default on). */
+  attachmentsEnabled: boolean;
+  /** Override the Cursor state.vscdb path used for attachment enrichment. */
+  cursorDbPath?: string;
+}
+
+const DEFAULT_API_URL = "https://api.smith.langchain.com";
+
+// ─── Primitive parsers ───────────────────────────────────────────────────────
+
+function parseBoolean(value: unknown): boolean | undefined {
+  if (typeof value === "boolean") return value;
+  if (typeof value !== "string") return undefined;
+  const v = value.trim().toLowerCase();
+  if (["1", "true", "yes", "on"].includes(v)) return true;
+  if (["0", "false", "no", "off"].includes(v)) return false;
+  return undefined;
+}
+
+function parseJson<T = Record<string, unknown>>(value: unknown): T | undefined {
+  if (typeof value !== "string" || value.trim().length === 0) return undefined;
+  try {
+    return JSON.parse(value) as T;
+  } catch {
+    return undefined;
+  }
+}
+
+// ─── Config file shape (snake_case on disk) ──────────────────────────────────
+
+interface FileConfig {
+  enabled?: boolean;
+  api_key?: string;
+  api_url?: string;
+  project?: string;
+  metadata?: Record<string, unknown>;
+  replicas?: Array<Record<string, unknown>>;
+  attachments?: boolean;
+  cursor_db_path?: string;
+}
+
+function readConfigFile(file: string): FileConfig | undefined {
+  try {
+    return JSON.parse(readFileSync(file, "utf-8")) as FileConfig;
+  } catch {
+    return undefined;
+  }
+}
+
+/** Read CURSOR_LANGSMITH_<suffix>, falling back to LANGSMITH_<suffix>. */
+function getEnv(suffix: string): string | undefined {
+  return process.env[`CURSOR_LANGSMITH_${suffix}`] ?? process.env[`LANGSMITH_${suffix}`];
+}
+
+/** Normalize a snake_case or camelCase replica entry to the LangSmith SDK shape. */
+function normalizeReplicas(
+  replicas: Array<Record<string, unknown>> | undefined,
+): RunTreeConfig["replicas"] | undefined {
+  if (!Array.isArray(replicas)) return undefined;
+  return replicas.map((r) => ({
+    ...(r.api_url || r.apiUrl ? { apiUrl: (r.api_url ?? r.apiUrl) as string } : {}),
+    ...(r.api_key || r.apiKey ? { apiKey: (r.api_key ?? r.apiKey) as string } : {}),
+    ...(r.project || r.projectName ? { projectName: (r.project ?? r.projectName) as string } : {}),
+    ...(r.updates ? { updates: r.updates as Record<string, unknown> } : {}),
+  })) as RunTreeConfig["replicas"];
+}
+
+// ─── Git repo metadata (ported from the Claude Code integration) ─────────────
+
+const GIT_PROVIDERS_REGEX = {
+  github: /[@/](?:github\.com)[:/](.+?)(?:\.git)?\s/,
+  gitlab: /[@/](?:gitlab\.com)[:/](.+?)(?:\.git)?\s/,
+  bitbucket: /[@/](?:bitbucket\.org)[:/](.+?)(?:\.git)?\s/,
+  devAzure: /[@/](?:dev\.azure\.com)[:/](.+?)(?:\.git)?\s/,
+};
+
+export function parseRepoName(remoteUrl: string): { provider: string; name: string } | undefined {
+  for (const [provider, regex] of Object.entries(GIT_PROVIDERS_REGEX)) {
+    const match = remoteUrl.match(regex);
+    if (match) return { provider, name: match[1] };
+  }
+  return undefined;
+}
+
+export function getRepoName(cwd: string): { provider: string; name: string } | undefined {
+  try {
+    const output = execSync("git remote -v", {
+      cwd,
+      encoding: "utf-8",
+      timeout: 5000,
+      stdio: ["ignore", "pipe", "ignore"],
+    });
+    const remotes: Array<{ name: string; url: string }> = [];
+    for (const line of output.trim().split("\n").filter(Boolean)) {
+      const parts = line.split(/\s+/);
+      if (parts.length >= 2 && line.includes("(fetch)")) {
+        remotes.push({ name: parts[0], url: parts[1] });
+      }
+    }
+    const origin = remotes.find((r) => r.name === "origin");
+    if (origin) {
+      const name = parseRepoName(origin.url + " ");
+      if (name) return name;
+    }
+    for (const remote of remotes) {
+      const name = parseRepoName(remote.url + " ");
+      if (name) return name;
+    }
+  } catch {
+    // Not a git repo or git unavailable — skip.
+  }
+  return undefined;
+}
+
+// ─── Main loader ─────────────────────────────────────────────────────────────
+
+export function loadConfig(options?: { cwd?: string }): Config {
+  const home = process.env.HOME ?? process.env.USERPROFILE ?? "";
+  const cwd = options?.cwd ?? process.cwd();
+
+  const globalFile = readConfigFile(join(home, ".cursor", "langsmith.json"));
+  const localFile = readConfigFile(join(cwd, ".cursor", "langsmith.json"));
+
+  const envEnabled = parseBoolean(process.env.TRACE_TO_LANGSMITH);
+  const envMetadata = parseJson(getEnv("METADATA"));
+  const envReplicas = parseJson<Array<Record<string, unknown>>>(getEnv("RUNS_ENDPOINTS"));
+  const envDebug = parseBoolean(getEnv("DEBUG"));
+
+  // Merge file layers then env (env wins).
+  const enabled = envEnabled ?? localFile?.enabled ?? globalFile?.enabled ?? false;
+  const apiKey = getEnv("API_KEY") ?? localFile?.api_key ?? globalFile?.api_key ?? "";
+  const apiUrl = getEnv("ENDPOINT") ?? localFile?.api_url ?? globalFile?.api_url ?? DEFAULT_API_URL;
+  const project = getEnv("PROJECT") ?? localFile?.project ?? globalFile?.project ?? DEFAULT_PROJECT;
+  const debug = envDebug ?? false;
+
+  const replicas = normalizeReplicas(envReplicas ?? localFile?.replicas ?? globalFile?.replicas);
+
+  // Attachment enrichment defaults ON; opt out via config or CURSOR_LANGSMITH_ATTACHMENTS.
+  const attachmentsEnabled =
+    parseBoolean(getEnv("ATTACHMENTS")) ??
+    localFile?.attachments ??
+    globalFile?.attachments ??
+    true;
+  const cursorDbPath = getEnv("DB_PATH") ?? localFile?.cursor_db_path ?? globalFile?.cursor_db_path;
+
+  const stateFilePath =
+    process.env.CURSOR_LANGSMITH_STATE_FILE ?? join(home, ".cursor", "langsmith-state.json");
+
+  // Identity + repo metadata, attached to every run.
+  const identityMetadata: Record<string, unknown> = { local_username: userInfo().username };
+  const repo = getRepoName(cwd);
+  if (repo) {
+    identityMetadata.repository_name = repo.name;
+    identityMetadata.repository_provider = repo.provider;
+  }
+
+  const fileMetadata = { ...globalFile?.metadata, ...localFile?.metadata };
+  const customMetadata = { ...identityMetadata, ...fileMetadata, ...envMetadata };
+
+  if (enabled && !apiKey && (!replicas || replicas.length === 0)) {
+    logDebug("Config enabled but no API key / replicas resolved");
+  }
+
+  return {
+    enabled,
+    apiKey,
+    apiUrl,
+    project,
+    debug,
+    stateFilePath,
+    replicas,
+    customMetadata,
+    attachmentsEnabled,
+    cursorDbPath,
+  };
+}
