@@ -52,17 +52,40 @@ Create `~/.cursor/langsmith.json` (global) or `./.cursor/langsmith.json` (projec
 }
 ```
 
-Config resolves in this order (later overrides earlier): defaults → `~/.cursor/langsmith.json` → `./.cursor/langsmith.json` → environment variables (`TRACE_TO_LANGSMITH`, `CURSOR_LANGSMITH_API_KEY` / `LANGSMITH_API_KEY`, `LANGSMITH_ENDPOINT`, `LANGSMITH_PROJECT`, `CURSOR_LANGSMITH_RUNS_ENDPOINTS`, `CURSOR_LANGSMITH_METADATA`, `CURSOR_LANGSMITH_DEBUG`).
+Config resolves in this order (later overrides earlier): defaults → `~/.cursor/langsmith.json` → `./.cursor/langsmith.json` → environment variables (`TRACE_TO_LANGSMITH`, `CURSOR_LANGSMITH_API_KEY` / `LANGSMITH_API_KEY`, `LANGSMITH_ENDPOINT`, `LANGSMITH_PROJECT`, `CURSOR_LANGSMITH_RUNS_ENDPOINTS`, `CURSOR_LANGSMITH_METADATA`, `CURSOR_LANGSMITH_MODEL_PRICING`, `CURSOR_LANGSMITH_DEBUG`).
 
 Tracing only runs when `enabled` (or `TRACE_TO_LANGSMITH=true`) **and** an API key (or replicas) is set.
 
 Verify activity: `tail -f ~/.cursor/langsmith-hook.log`.
 
+### Cost / pricing
+
+Cost shows in LangSmith via two cooperating paths:
+
+1. **Model normalization** — Cursor's model labels (e.g. `claude-4.6-sonnet`) are normalized to canonical provider ids (e.g. `claude-sonnet-4-6`) as `ls_model_name`, so LangSmith's server-side price table can match and price them for free.
+2. **Cost attachment** — we also compute `input_cost` / `output_cost` / `total_cost` from a built-in price table and attach them to `usage_metadata`, so cost renders even when LangSmith can't price a Cursor-specific model.
+
+The built-in prices are **list-price estimates** (`src/pricing.ts`). Override or add models via `model_pricing` (USD per 1M tokens) in `langsmith.json`:
+
+```json
+{
+  "enabled": true,
+  "api_key": "lsv2_pt_...",
+  "project": "cursor",
+  "model_pricing": {
+    "gpt-5.5": { "input": 1.25, "output": 10, "cache_read": 0.125 },
+    "claude-sonnet-4-6": { "input": 3, "output": 15, "cache_read": 0.3, "cache_creation": 3.75 }
+  }
+}
+```
+
+Keys may be the canonical id or the Cursor label; overrides win over the built-in table.
+
 ## What's traced
 
 - **Turns** grouped into threads (`thread_id` = `conversation_id`).
-- **Token usage / cost** per turn (`usage_metadata` on the `llm` run).
-- **Model / provider** (`ls_model_name`, `ls_provider`) — derived from Cursor's model label. Auto mode reports `default` (provider `cursor`).
+- **Token usage / cost** per turn (`usage_metadata` on the `llm` run; see [Cost / pricing](#cost--pricing)).
+- **Model / provider** (`ls_model_name`, `ls_provider`) — Cursor's label, normalized to a canonical provider id. Auto mode reports `default` (provider `cursor`).
 - **Tool calls** (success and failure) with inputs/outputs.
 - **Subagents** as a `Task` tool run (type + task).
 

@@ -1,16 +1,6 @@
 /**
- * Configuration loading.
- *
- * Cascade (later overrides earlier):
- *   defaults → ~/.cursor/langsmith.json → ./.cursor/langsmith.json → environment
- *
- * Config file shape (snake_case, matches the Pi integration):
- *   { "enabled": true, "api_key": "...", "api_url": "...", "project": "...",
- *     "metadata": {...}, "replicas": [...] }
- *
- * Environment variables: TRACE_TO_LANGSMITH, and CURSOR_LANGSMITH_<X> (falling
- * back to LANGSMITH_<X>) for API_KEY, ENDPOINT, PROJECT, METADATA,
- * RUNS_ENDPOINTS, DEBUG.
+ * Configuration loading. Cascade (later wins): defaults → ~/.cursor/langsmith.json
+ * → ./.cursor/langsmith.json → environment (CURSOR_LANGSMITH_* / LANGSMITH_*).
  */
 
 import { readFileSync } from "node:fs";
@@ -32,6 +22,10 @@ export interface Config {
   replicas?: RunTreeConfig["replicas"];
   /** Identity / repo / user metadata attached to every run. */
   customMetadata?: Record<string, unknown>;
+  /** Enrich turns with image/file attachment bytes from Cursor's DB (default on). */
+  attachmentsEnabled: boolean;
+  /** Override the Cursor state.vscdb path used for attachment enrichment. */
+  cursorDbPath?: string;
 }
 
 const DEFAULT_API_URL = "https://api.smith.langchain.com";
@@ -65,6 +59,8 @@ interface FileConfig {
   project?: string;
   metadata?: Record<string, unknown>;
   replicas?: Array<Record<string, unknown>>;
+  attachments?: boolean;
+  cursor_db_path?: string;
 }
 
 function readConfigFile(file: string): FileConfig | undefined {
@@ -163,6 +159,14 @@ export function loadConfig(options?: { cwd?: string }): Config {
 
   const replicas = normalizeReplicas(envReplicas ?? localFile?.replicas ?? globalFile?.replicas);
 
+  // Attachment enrichment defaults ON; opt out via config or CURSOR_LANGSMITH_ATTACHMENTS.
+  const attachmentsEnabled =
+    parseBoolean(getEnv("ATTACHMENTS")) ??
+    localFile?.attachments ??
+    globalFile?.attachments ??
+    true;
+  const cursorDbPath = getEnv("DB_PATH") ?? localFile?.cursor_db_path ?? globalFile?.cursor_db_path;
+
   const stateFilePath =
     process.env.CURSOR_LANGSMITH_STATE_FILE ?? join(home, ".cursor", "langsmith-state.json");
 
@@ -181,5 +185,16 @@ export function loadConfig(options?: { cwd?: string }): Config {
     logDebug("Config enabled but no API key / replicas resolved");
   }
 
-  return { enabled, apiKey, apiUrl, project, debug, stateFilePath, replicas, customMetadata };
+  return {
+    enabled,
+    apiKey,
+    apiUrl,
+    project,
+    debug,
+    stateFilePath,
+    replicas,
+    customMetadata,
+    attachmentsEnabled,
+    cursorDbPath,
+  };
 }

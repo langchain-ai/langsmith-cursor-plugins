@@ -1,15 +1,14 @@
 /**
- * Pure state reducers — one per hook event.
- *
- * Each takes the current TracingState + a hook input + a wall-clock timestamp
- * and returns the next state. Hooks call these inside atomicUpdateState; tests
- * drive them directly over recorded hook logs. Keeping them pure (no I/O) makes
- * the event-buffer logic fully unit-testable.
+ * Pure state reducers — one per hook event. Each maps (state, input, timestamp)
+ * to next state. No I/O, so fully unit-testable.
  */
 
 import type {
   TracingState,
+  ConversationState,
   TurnBuffer,
+  ToolEvent,
+  SubagentEvent,
   BeforeSubmitPromptInput,
   PostToolUseInput,
   PostToolUseFailureInput,
@@ -19,7 +18,7 @@ import type {
   StopInput,
 } from "./types.js";
 import { getConversationState, newTurnBuffer, pruneOldConversations } from "./state.js";
-import { parseToolOutput, preferModel } from "./normalize.js";
+import { parseToolOutput, preferModel, type SubagentToolCall } from "./normalize.js";
 
 function touch(conv: { updated: string }): void {
   conv.updated = new Date().toISOString();
@@ -135,24 +134,117 @@ export function reduceSubagentStart(
   return { ...state, [parentConv]: conv };
 }
 
+/** Data recovered from the on-disk subagent transcript (resolved in the hook). */
+export interface ResolvedSubagent {
+  /** The subagent's own conversation_id (= transcript filename). */
+  childConversationId?: string;
+  /** Tool calls from the transcript (inputs only) — fallback when no child buffer. */
+  toolCalls?: SubagentToolCall[];
+  resultText?: string;
+}
+
+/** Flatten and time-order every buffered tool event across a conversation. */
+function collectTools(conv: ConversationState): ToolEvent[] {
+  const tools: ToolEvent[] = [];
+  for (const turn of Object.values(conv.turns)) tools.push(...turn.tools);
+  return tools.sort((a, b) => a.endMs - b.endMs);
+}
+
+/**
+ * In-memory fallback: link a subagent to the orphan conversation (turn_count 0)
+ * whose buffered tools fall in its window. Single-subagent only.
+ */
+function findChildConversation(
+  state: TracingState,
+  parentConv: string,
+  startMs: number,
+  nowMs: number,
+): string | undefined {
+  const slack = 2_000;
+  let best: string | undefined;
+  let bestScore = 0;
+  for (const [convId, conv] of Object.entries(state)) {
+    if (convId === parentConv || conv.turn_count !== 0) continue;
+    const inWindow = collectTools(conv).filter(
+      (t) => t.endMs >= startMs - slack && t.endMs <= nowMs + slack,
+    ).length;
+    if (inWindow > bestScore) {
+      bestScore = inWindow;
+      best = convId;
+    }
+  }
+  return best;
+}
+
+/** Synthetic ToolEvent from a transcript tool call, spread across the window. */
+function transcriptToolEvent(
+  call: SubagentToolCall,
+  index: number,
+  count: number,
+  startMs: number,
+  endMs: number,
+): ToolEvent {
+  const span = Math.max(0, endMs - startMs);
+  const slice = count > 0 ? span / count : 0;
+  const end = Math.round(startMs + slice * (index + 1));
+  return {
+    tool_use_id: `subagent-tool-${index}`,
+    name: call.name,
+    input: call.input,
+    duration: slice / 1000,
+    endMs: end,
+  };
+}
+
 export function reduceSubagentStop(
   state: TracingState,
   input: SubagentStopInput,
   nowMs: number,
+  resolved?: ResolvedSubagent,
 ): TracingState {
   const parentConv = input.parent_conversation_id ?? input.conversation_id;
   const conv = getConversationState(state, parentConv);
+
+  let target: SubagentEvent | undefined;
   for (const turn of Object.values(conv.turns)) {
     const sub = turn.subagents.find((s) => s.subagent_id === input.subagent_id && s.endMs == null);
     if (sub) {
-      sub.status = input.status;
-      sub.duration_ms = input.duration_ms;
-      sub.endMs = nowMs;
+      target = sub;
       break;
     }
   }
+
+  if (!target) {
+    touch(conv);
+    return { ...state, [parentConv]: conv };
+  }
+
+  target.status = input.status;
+  target.duration_ms = input.duration_ms;
+  target.endMs = nowMs;
+  if (resolved?.resultText) target.resultText = resolved.resultText;
+
+  let next: TracingState = { ...state, [parentConv]: conv };
+
+  // Prefer the child conversation's rich (input+output+duration) buffered tools.
+  const childConv =
+    resolved?.childConversationId ?? findChildConversation(next, parentConv, target.startMs, nowMs);
+  if (childConv && next[childConv]) {
+    target.childConversationId = childConv;
+    target.tools = collectTools(next[childConv]);
+    const { [childConv]: _consumed, ...rest } = next;
+    next = rest;
+  } else if (resolved?.toolCalls?.length) {
+    // Fallback: transcript tool calls (inputs only, synthesized timing).
+    const calls = resolved.toolCalls;
+    target.childConversationId = resolved.childConversationId;
+    target.tools = calls.map((c, i) =>
+      transcriptToolEvent(c, i, calls.length, target.startMs, nowMs),
+    );
+  }
+
   touch(conv);
-  return { ...state, [parentConv]: conv };
+  return next;
 }
 
 export interface StopResult {

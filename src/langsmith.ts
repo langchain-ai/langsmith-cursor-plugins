@@ -1,14 +1,10 @@
 /**
- * LangSmith run construction and submission.
- *
- * Builds one trace per turn from a buffered TurnBuffer and sends it via the
- * LangSmith JS SDK RunTree API (which handles batching, multipart
- * serialization, retries, and auth). Each turn is its own trace, grouped into a
- * thread via the `thread_id` metadata key (= conversation_id).
+ * LangSmith run construction. Builds one trace per turn via the RunTree API,
+ * grouped into a thread by `thread_id` (= conversation_id).
  */
 
 import { Client, RunTree, type RunTreeConfig, uuid7 } from "langsmith";
-import type { TurnBuffer, ToolEvent, SubagentEvent } from "./types.js";
+import type { TurnBuffer, ToolEvent, SubagentEvent, ContentPart } from "./types.js";
 import { buildUsageMetadata, deriveModelInfo } from "./normalize.js";
 import { LS_INTEGRATION, DEFAULT_TAGS, TURN_RUN_NAME } from "./constants.js";
 import * as logger from "./logger.js";
@@ -78,6 +74,20 @@ export interface BuildTurnOptions {
   workspaceRoots?: string[];
   /** Identity / repo / user metadata from config. */
   customMetadata?: Record<string, unknown>;
+  /**
+   * Image/file attachment parts for the user message, recovered from Cursor's DB.
+   * Empty → the user message stays a plain prompt string.
+   */
+  attachments?: ContentPart[];
+}
+
+/**
+ * Build user-message content. With attachments, return a content-part array
+ * (text + image/file) for inline rendering; without, the plain prompt string.
+ */
+function userMessageContent(prompt: string, attachments: ContentPart[]): unknown {
+  if (attachments.length === 0) return prompt;
+  return [...(prompt ? [{ type: "text", text: prompt }] : []), ...attachments];
 }
 
 /** Tool start = end − duration (seconds). Clamp so start never exceeds end. */
@@ -116,6 +126,8 @@ export async function buildTurnRuns(options: BuildTurnOptions): Promise<void> {
   }
 
   const meta = baseMetadata(conversationId, customMetadata, userEmail);
+  const promptText = buffer.prompt ?? "";
+  const userContent = userMessageContent(promptText, options.attachments ?? []);
 
   // Turn end = latest event time we know about, falling back to now.
   const toolEnds = buffer.tools.map((t) => t.endMs);
@@ -133,7 +145,11 @@ export async function buildTurnRuns(options: BuildTurnOptions): Promise<void> {
     id: turnRunId,
     name: turnName,
     run_type: "chain",
-    inputs: { prompt: buffer.prompt ?? "" },
+    // With attachments, carry the user message as content parts; else the plain prompt.
+    inputs:
+      (options.attachments?.length ?? 0) > 0
+        ? { messages: [{ role: "user", content: userContent }] }
+        : { prompt: promptText },
     project_name: project,
     start_time: buffer.startMs,
     trace_id: turnRunId,
@@ -159,7 +175,7 @@ export async function buildTurnRuns(options: BuildTurnOptions): Promise<void> {
     id: llmRunId,
     name: ls_provider ?? ls_model_name,
     run_type: "llm",
-    inputs: { messages: [{ role: "user", content: buffer.prompt ?? "" }] },
+    inputs: { messages: [{ role: "user", content: userContent }] },
     outputs: { messages: [{ role: "assistant", content: assistantContent }] },
     project_name: project,
     start_time: buffer.startMs,
@@ -179,14 +195,24 @@ export async function buildTurnRuns(options: BuildTurnOptions): Promise<void> {
   });
   await llmRun.postRun();
 
+  // Children (tools + Task runs) hang off the turn root.
+  const childCtx: ChildCtx = {
+    parentRunId: turnRunId,
+    traceId: turnRunId,
+    parentDottedOrder: turnDottedOrder,
+    project,
+    meta,
+    conversationId,
+  };
+
   // 3. Tool runs (siblings of the llm run).
   for (const tool of buffer.tools) {
-    await postToolRun(tool, { turnRunId, turnDottedOrder, project, meta, conversationId });
+    await postToolRun(tool, childCtx);
   }
 
-  // 4. Subagent Task runs (minimal v1 — task in, status out).
+  // 4. Subagent Task runs, each nesting its own internal tool runs.
   for (const sub of buffer.subagents) {
-    await postSubagentRun(sub, { turnRunId, turnDottedOrder, project, meta });
+    await postSubagentRun(sub, childCtx);
   }
 
   // 5. Finalize the root turn run.
@@ -212,8 +238,12 @@ export async function buildTurnRuns(options: BuildTurnOptions): Promise<void> {
 }
 
 interface ChildCtx {
-  turnRunId: string;
-  turnDottedOrder: string;
+  /** Run this child hangs off of (the turn root, or a Task run for nesting). */
+  parentRunId: string;
+  /** The trace root run id — constant for the whole tree, regardless of depth. */
+  traceId: string;
+  /** Dotted order of the parent run (child = `${parentDottedOrder}.${segment}`). */
+  parentDottedOrder: string;
   project: string;
   meta: Record<string, unknown>;
   conversationId?: string;
@@ -222,7 +252,7 @@ interface ChildCtx {
 async function postToolRun(tool: ToolEvent, ctx: ChildCtx): Promise<void> {
   const startMs = toolStartMs(tool);
   const runId = uuid7();
-  const dottedOrder = `${ctx.turnDottedOrder}.${generateDottedOrderSegment(startMs, runId)}`;
+  const dottedOrder = `${ctx.parentDottedOrder}.${generateDottedOrderSegment(startMs, runId)}`;
   const isError = tool.error != null;
 
   await new RunTree({
@@ -237,8 +267,8 @@ async function postToolRun(tool: ToolEvent, ctx: ChildCtx): Promise<void> {
     project_name: ctx.project,
     start_time: startMs,
     end_time: tool.endMs,
-    parent_run_id: ctx.turnRunId,
-    trace_id: ctx.turnRunId,
+    parent_run_id: ctx.parentRunId,
+    trace_id: ctx.traceId,
     dotted_order: dottedOrder,
     extra: {
       metadata: {
@@ -251,10 +281,15 @@ async function postToolRun(tool: ToolEvent, ctx: ChildCtx): Promise<void> {
   }).postRun();
 }
 
+/**
+ * Post the subagent's Task run, then nest its internal tool runs underneath.
+ * Output carries the subagent's final answer.
+ */
 async function postSubagentRun(sub: SubagentEvent, ctx: ChildCtx): Promise<void> {
   const runId = uuid7();
-  const dottedOrder = `${ctx.turnDottedOrder}.${generateDottedOrderSegment(sub.startMs, runId)}`;
+  const dottedOrder = `${ctx.parentDottedOrder}.${generateDottedOrderSegment(sub.startMs, runId)}`;
   const isError = sub.status != null && sub.status !== "completed";
+  const tools = sub.tools ?? [];
 
   await new RunTree({
     client,
@@ -263,13 +298,16 @@ async function postSubagentRun(sub: SubagentEvent, ctx: ChildCtx): Promise<void>
     name: "Task",
     run_type: "tool",
     inputs: { subagent_type: sub.subagent_type, task: sub.task },
-    outputs: { status: sub.status ?? "completed" },
+    outputs: {
+      status: sub.status ?? "completed",
+      ...(sub.resultText ? { result: sub.resultText } : {}),
+    },
     error: isError ? sub.status : undefined,
     project_name: ctx.project,
     start_time: sub.startMs,
     end_time: sub.endMs ?? sub.startMs,
-    parent_run_id: ctx.turnRunId,
-    trace_id: ctx.turnRunId,
+    parent_run_id: ctx.parentRunId,
+    trace_id: ctx.traceId,
     dotted_order: dottedOrder,
     extra: {
       metadata: {
@@ -277,8 +315,22 @@ async function postSubagentRun(sub: SubagentEvent, ctx: ChildCtx): Promise<void>
         tool_name: "Task",
         subagent_id: sub.subagent_id,
         subagent_type: sub.subagent_type,
-        ls_note: "Subagent internal tool calls and usage are not traced in v1.",
+        ...(sub.childConversationId ? { subagent_conversation_id: sub.childConversationId } : {}),
+        subagent_tool_count: tools.length,
       },
     },
   }).postRun();
+
+  // Nest the subagent's internal tool calls as children of the Task run.
+  const subCtx: ChildCtx = {
+    parentRunId: runId,
+    traceId: ctx.traceId,
+    parentDottedOrder: dottedOrder,
+    project: ctx.project,
+    meta: ctx.meta,
+    conversationId: sub.childConversationId,
+  };
+  for (const tool of tools) {
+    await postToolRun(tool, subCtx);
+  }
 }

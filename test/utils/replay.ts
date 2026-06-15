@@ -24,10 +24,8 @@ interface CaptureLine {
 }
 
 /**
- * Replay a captured diagnostics hooks.jsonl through the pure reducers, using
- * each event's recorded timestamp as the wall clock. Returns the turns that a
- * `stop` finalized (in order) plus the residual state (e.g. orphan subagent
- * conversations that never `stop`).
+ * Replay captured hooks.jsonl through the pure reducers, using each event's
+ * timestamp as the clock. Yields finalized turns and residual state.
  */
 export function replayHookLog(path: string): {
   finalized: FinalizedTurn[];

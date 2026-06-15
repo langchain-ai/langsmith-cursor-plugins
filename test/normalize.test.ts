@@ -6,12 +6,13 @@ import {
   buildUsageMetadata,
   parseToolOutput,
   normalizeContentPart,
+  canonicalModelId,
 } from "../src/normalize.js";
 
 describe("deriveModelInfo / provider mapping", () => {
-  it("maps Cursor model labels to ls_provider", () => {
+  it("maps Cursor model labels to ls_provider and a canonical model id", () => {
     expect(deriveModelInfo("claude-4.6-sonnet-medium-thinking")).toEqual({
-      ls_model_name: "claude-4.6-sonnet",
+      ls_model_name: "claude-sonnet-4-6", // normalized to canonical id
       ls_provider: "anthropic",
     });
     expect(deriveModelInfo("gpt-5.5-medium")).toEqual({
@@ -74,6 +75,33 @@ describe("buildUsageMetadata", () => {
     expect(buildUsageMetadata(undefined)).toBeUndefined();
     expect(buildUsageMetadata({})).toBeUndefined();
     expect(buildUsageMetadata({ input_tokens: 0, output_tokens: 0 })).toBeUndefined();
+  });
+
+  it("never attaches cost — LangSmith prices server-side", () => {
+    const u = buildUsageMetadata({
+      input_tokens: 1_000_000,
+      output_tokens: 1_000_000,
+      cache_read_tokens: 5,
+      cache_write_tokens: 5,
+    }) as Record<string, unknown>;
+    expect(u.total_cost).toBeUndefined();
+    expect(u.input_cost).toBeUndefined();
+    expect(u.output_cost).toBeUndefined();
+  });
+});
+
+describe("canonicalModelId", () => {
+  it("reorders Cursor's version-first Claude labels to LangSmith's tier-first ids", () => {
+    expect(canonicalModelId("claude-4.6-sonnet")).toBe("claude-sonnet-4-6");
+    expect(canonicalModelId("claude-4.8-opus")).toBe("claude-opus-4-8");
+    expect(canonicalModelId("claude-3.7-sonnet")).toBe("claude-3-7-sonnet");
+  });
+
+  it("passes through ids that already match (GPT, fable, unknowns)", () => {
+    expect(canonicalModelId("gpt-5.5")).toBe("gpt-5.5");
+    expect(canonicalModelId("claude-fable-5")).toBe("claude-fable-5");
+    expect(canonicalModelId("composer-2.5-fast")).toBe("composer-2.5-fast");
+    expect(canonicalModelId("mystery")).toBe("mystery");
   });
 });
 

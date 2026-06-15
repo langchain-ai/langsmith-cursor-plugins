@@ -32,6 +32,8 @@ export {
   normalizeContentPart,
   normalizeContent,
   isRecord,
+  canonicalModelId,
+  CANONICAL_MODEL_MAP,
 } from "./normalize.js";
 
 export * from "./types.js";
