@@ -71,5 +71,6 @@ main().catch((err) => {
   } catch {
     /* last resort */
   }
-  process.exit(0);
+  // Non-zero exit (never 2 = "block") tells Cursor the hook failed.
+  process.exit(1);
 });

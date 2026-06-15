@@ -887,8 +887,10 @@ function canonicalModelId(model) {
   if (CANONICAL_MODEL_MAP[key])
     return CANONICAL_MODEL_MAP[key];
   const m = key.match(/^claude-(\d+)\.(\d+)-(sonnet|opus|haiku)$/);
-  if (m)
-    return `claude-${m[3]}-${m[1]}-${m[2]}`;
+  if (m) {
+    const [, major, minor, tier] = m;
+    return Number(major) >= 4 ? `claude-${tier}-${major}-${minor}` : `claude-${major}-${minor}-${tier}`;
+  }
   return model;
 }
 function providerFor(model) {
@@ -9148,11 +9150,6 @@ function _checkEndpointEnvUnset(parsed) {
   }
 }
 
-// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/uuid.js
-function uuid7() {
-  return v7_default();
-}
-
 // node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/index.js
 var __version__ = "0.5.26";
 
@@ -9172,16 +9169,9 @@ async function flushPendingTraces() {
   ]);
   debug("Trace batches flushed");
 }
-function generateDottedOrderSegment(time, runId) {
-  const iso = typeof time === "string" ? time : new Date(time).toISOString();
-  const isoWithMicroseconds = `${iso.slice(0, -1)}000Z`;
-  const stripped = isoWithMicroseconds.replace(/[-:.]/g, "");
-  return stripped + runId;
-}
 function userMessageContent(prompt, attachments) {
-  if (attachments.length === 0)
-    return prompt;
-  return [...prompt ? [{ type: "text", text: prompt }] : [], ...attachments];
+  const textPart = prompt || attachments.length === 0 ? [{ type: "text", text: prompt }] : [];
+  return [...textPart, ...attachments];
 }
 function toolStartMs(tool) {
   const durMs = (tool.duration ?? 0) * 1e3;
@@ -9206,49 +9196,33 @@ async function buildTurnRuns(options) {
   const toolEnds = buffer.tools.map((t) => t.endMs);
   const subagentEnds = buffer.subagents.map((s) => s.endMs ?? s.startMs);
   const turnEndMs = Math.max(buffer.startMs, ...toolEnds, ...subagentEnds, Date.now());
-  const turnRunId = uuid7();
-  const turnDottedOrder = generateDottedOrderSegment(buffer.startMs, turnRunId);
   const turnName = `${TURN_RUN_NAME} ${turnNum}`;
   const turnRun = new RunTree({
     client,
     replicas,
-    id: turnRunId,
     name: turnName,
     run_type: "chain",
-    // With attachments, carry the user message as content parts; else the plain prompt.
-    inputs: (options.attachments?.length ?? 0) > 0 ? { messages: [{ role: "user", content: userContent }] } : { prompt: promptText },
+    inputs: { messages: [{ role: "user", content: userContent }] },
     project_name: project,
     start_time: buffer.startMs,
-    trace_id: turnRunId,
-    dotted_order: turnDottedOrder,
     tags: DEFAULT_TAGS,
     extra: { metadata: { ...meta, turn_number: turnNum, model: buffer.model } }
   });
   await turnRun.postRun();
   const { ls_model_name, ls_provider } = deriveModelInfo(buffer.model);
-  const llmRunId = uuid7();
-  const llmDottedOrder = `${turnDottedOrder}.${generateDottedOrderSegment(buffer.startMs, llmRunId)}`;
   const assistantContent = [
     ...buffer.thoughts.map((t) => ({ type: "thinking", thinking: t.text })),
     ...buffer.finalText ? [{ type: "text", text: buffer.finalText }] : []
   ];
-  const llmRun = new RunTree({
-    client,
-    replicas,
-    id: llmRunId,
+  const llmRun = turnRun.createChild({
     name: ls_provider ?? ls_model_name,
     run_type: "llm",
     inputs: { messages: [{ role: "user", content: userContent }] },
     outputs: { messages: [{ role: "assistant", content: assistantContent }] },
-    project_name: project,
     start_time: buffer.startMs,
     end_time: turnEndMs,
-    parent_run_id: turnRunId,
-    trace_id: turnRunId,
-    dotted_order: llmDottedOrder,
     extra: {
       metadata: {
-        ...meta,
         ls_provider,
         ls_model_name,
         ls_invocation_params: { model: ls_model_name },
@@ -9257,76 +9231,43 @@ async function buildTurnRuns(options) {
     }
   });
   await llmRun.postRun();
-  const childCtx = {
-    parentRunId: turnRunId,
-    traceId: turnRunId,
-    parentDottedOrder: turnDottedOrder,
-    project,
-    meta,
-    conversationId
-  };
   for (const tool of buffer.tools) {
-    await postToolRun(tool, childCtx);
+    await postToolRun(tool, turnRun);
   }
   for (const sub of buffer.subagents) {
-    await postSubagentRun(sub, childCtx);
+    await postSubagentRun(sub, turnRun);
   }
-  await new RunTree({
-    client,
-    replicas,
-    id: turnRunId,
-    name: turnName,
-    run_type: "chain",
-    project_name: project,
-    start_time: buffer.startMs,
-    end_time: turnEndMs,
-    trace_id: turnRunId,
-    dotted_order: turnDottedOrder,
-    outputs: { text: buffer.finalText ?? "" },
-    error: buffer.status && buffer.status !== "completed" ? buffer.status : void 0,
-    extra: { metadata: { ...meta, turn_number: turnNum, model: buffer.model } }
-  }).patchRun({ excludeInputs: true });
+  turnRun.end_time = turnEndMs;
+  turnRun.outputs = { text: buffer.finalText ?? "" };
+  turnRun.error = buffer.status && buffer.status !== "completed" ? buffer.status : void 0;
+  await turnRun.patchRun({ excludeInputs: true });
   log(`Traced ${turnName} (conv=${conversationId}): ${buffer.tools.length} tool(s), ${buffer.subagents.length} subagent(s)`);
 }
-async function postToolRun(tool, ctx) {
+async function postToolRun(tool, parent) {
   const startMs = toolStartMs(tool);
-  const runId = uuid7();
-  const dottedOrder = `${ctx.parentDottedOrder}.${generateDottedOrderSegment(startMs, runId)}`;
   const isError2 = tool.error != null;
-  await new RunTree({
-    client,
-    replicas,
-    id: runId,
+  const run = parent.createChild({
     name: tool.name,
     run_type: "tool",
     inputs: { input: tool.input },
     outputs: isError2 ? { error: tool.error } : { output: tool.output ?? "" },
     error: isError2 ? tool.error : void 0,
-    project_name: ctx.project,
     start_time: startMs,
     end_time: tool.endMs,
-    parent_run_id: ctx.parentRunId,
-    trace_id: ctx.traceId,
-    dotted_order: dottedOrder,
     extra: {
       metadata: {
-        ...ctx.meta,
         tool_name: tool.name,
         tool_use_id: tool.tool_use_id,
         ...tool.failure_type ? { failure_type: tool.failure_type } : {}
       }
     }
-  }).postRun();
+  });
+  await run.postRun();
 }
-async function postSubagentRun(sub, ctx) {
-  const runId = uuid7();
-  const dottedOrder = `${ctx.parentDottedOrder}.${generateDottedOrderSegment(sub.startMs, runId)}`;
+async function postSubagentRun(sub, parent) {
   const isError2 = sub.status != null && sub.status !== "completed";
   const tools = sub.tools ?? [];
-  await new RunTree({
-    client,
-    replicas,
-    id: runId,
+  const taskRun = parent.createChild({
     name: "Task",
     run_type: "tool",
     inputs: { subagent_type: sub.subagent_type, task: sub.task },
@@ -9335,15 +9276,10 @@ async function postSubagentRun(sub, ctx) {
       ...sub.resultText ? { result: sub.resultText } : {}
     },
     error: isError2 ? sub.status : void 0,
-    project_name: ctx.project,
     start_time: sub.startMs,
     end_time: sub.endMs ?? sub.startMs,
-    parent_run_id: ctx.parentRunId,
-    trace_id: ctx.traceId,
-    dotted_order: dottedOrder,
     extra: {
       metadata: {
-        ...ctx.meta,
         tool_name: "Task",
         subagent_id: sub.subagent_id,
         subagent_type: sub.subagent_type,
@@ -9351,22 +9287,15 @@ async function postSubagentRun(sub, ctx) {
         subagent_tool_count: tools.length
       }
     }
-  }).postRun();
-  const subCtx = {
-    parentRunId: runId,
-    traceId: ctx.traceId,
-    parentDottedOrder: dottedOrder,
-    project: ctx.project,
-    meta: ctx.meta,
-    conversationId: sub.childConversationId
-  };
+  });
+  await taskRun.postRun();
   for (const tool of tools) {
-    await postToolRun(tool, subCtx);
+    await postToolRun(tool, taskRun);
   }
 }
 
 // dist/attachments.js
-import { execFileSync } from "node:child_process";
+import { DatabaseSync } from "node:sqlite";
 import { existsSync as existsSync3, readFileSync as readFileSync5, statSync as statSync2 } from "node:fs";
 import { homedir, platform } from "node:os";
 import { basename, join as join2 } from "node:path";
@@ -9387,28 +9316,24 @@ function normalizeWs(text) {
   return text.replace(/\s+/g, " ").trim();
 }
 function queryBubbles(dbPath, conversationId) {
-  const like = `bubbleId:${conversationId}:%`.replace(/'/g, "''");
-  const sql = `SELECT value FROM cursorDiskKV WHERE key LIKE '${like}'`;
-  const out = execFileSync("sqlite3", ["-readonly", "-json", dbPath, sql], {
-    encoding: "utf-8",
-    maxBuffer: 256 * 1024 * 1024,
-    stdio: ["ignore", "pipe", "ignore"],
-    timeout: 5e3
-  });
-  const trimmed = out.trim();
-  if (!trimmed)
-    return [];
-  const rows = JSON.parse(trimmed);
-  const bubbles = [];
-  for (const row of rows) {
-    if (typeof row.value !== "string")
-      continue;
-    try {
-      bubbles.push(JSON.parse(row.value));
-    } catch {
+  const like = `bubbleId:${conversationId}:%`;
+  const db = new DatabaseSync(dbPath, { readOnly: true });
+  try {
+    const rows = db.prepare("SELECT value FROM cursorDiskKV WHERE key LIKE ?").all(like);
+    const bubbles = [];
+    for (const row of rows) {
+      const text = typeof row.value === "string" ? row.value : row.value instanceof Uint8Array ? Buffer.from(row.value).toString("utf-8") : void 0;
+      if (text === void 0)
+        continue;
+      try {
+        bubbles.push(JSON.parse(text));
+      } catch {
+      }
     }
+    return bubbles;
+  } finally {
+    db.close();
   }
-  return bubbles;
 }
 function selectedAttachmentPaths(bubbles, prompt) {
   const want = prompt ? normalizeWs(prompt) : "";
@@ -9475,26 +9400,30 @@ function sniffMime(buf, path2) {
   };
   return byExt[ext] ?? "application/octet-stream";
 }
+function placeholder(text) {
+  return { type: "text", text };
+}
 function fileToContentPart(path2) {
+  const name = basename(path2);
   try {
     const st = statSync2(path2);
     if (!st.isFile()) {
       warn(`attachments: not a file, skipping: ${path2}`);
-      return void 0;
+      return placeholder(`[attachment skipped: ${name} \u2014 not a file]`);
     }
     if (st.size > MAX_ATTACHMENT_BYTES) {
       warn(`attachments: too large (${st.size} bytes), skipping: ${path2}`);
-      return void 0;
+      return placeholder(`[attachment too large: ${name} (${st.size} bytes)]`);
     }
     const buf = readFileSync5(path2);
     const mime = sniffMime(buf, path2);
     const base64 = buf.toString("base64");
     if (mime.startsWith("image/"))
       return { type: "image", mime_type: mime, base64 };
-    return { type: "file", mime_type: mime, base64, filename: basename(path2) };
+    return { type: "file", mime_type: mime, base64, filename: name };
   } catch (err) {
     warn(`attachments: read failed, skipping: ${path2} (${err})`);
-    return void 0;
+    return placeholder(`[attachment unavailable: ${name}]`);
   }
 }
 function resolveTurnAttachments(opts) {
@@ -9509,12 +9438,7 @@ function resolveTurnAttachments(opts) {
     const paths = selectedAttachmentPaths(bubbles, opts.prompt);
     if (paths.length === 0)
       return [];
-    const parts = [];
-    for (const p of paths) {
-      const part = fileToContentPart(p);
-      if (part)
-        parts.push(part);
-    }
+    const parts = paths.map(fileToContentPart);
     if (parts.length > 0) {
       log(`attachments: enriched turn with ${parts.length} attachment(s)`);
     }
@@ -9574,5 +9498,5 @@ main().catch((err) => {
     warn(`stop hook error: ${err}`);
   } catch {
   }
-  process.exit(0);
+  process.exit(1);
 });
