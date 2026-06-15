@@ -313,5 +313,5 @@ main().catch((err) => {
     error(`afterAgentResponse hook error: ${err}`);
   } catch {
   }
-  process.exit(0);
+  process.exit(1);
 });
