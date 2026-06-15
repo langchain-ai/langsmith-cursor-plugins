@@ -165,6 +165,8 @@ function loadConfig(options) {
   const project = getEnv("PROJECT") ?? localFile?.project ?? globalFile?.project ?? DEFAULT_PROJECT;
   const debug2 = envDebug ?? false;
   const replicas = normalizeReplicas(envReplicas ?? localFile?.replicas ?? globalFile?.replicas);
+  const attachmentsEnabled = parseBoolean(getEnv("ATTACHMENTS")) ?? localFile?.attachments ?? globalFile?.attachments ?? true;
+  const cursorDbPath = getEnv("DB_PATH") ?? localFile?.cursor_db_path ?? globalFile?.cursor_db_path;
   const stateFilePath = process.env.CURSOR_LANGSMITH_STATE_FILE ?? join(home, ".cursor", "langsmith-state.json");
   const identityMetadata = { local_username: userInfo().username };
   const repo = getRepoName(cwd);
@@ -177,7 +179,18 @@ function loadConfig(options) {
   if (enabled && !apiKey && (!replicas || replicas.length === 0)) {
     debug("Config enabled but no API key / replicas resolved");
   }
-  return { enabled, apiKey, apiUrl, project, debug: debug2, stateFilePath, replicas, customMetadata };
+  return {
+    enabled,
+    apiKey,
+    apiUrl,
+    project,
+    debug: debug2,
+    stateFilePath,
+    replicas,
+    customMetadata,
+    attachmentsEnabled,
+    cursorDbPath
+  };
 }
 
 // dist/utils/hook-init.js
@@ -250,24 +263,166 @@ function getConversationState(state, conversationId) {
 }
 var CONVERSATION_MAX_AGE_MS = 24 * 60 * 60 * 1e3;
 
+// dist/normalize.js
+function isRecord(value) {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+var SUBAGENT_PSEUDO_TOOLS = /* @__PURE__ */ new Set(["UpdateCurrentStep"]);
+function parseSubagentTranscript(rows) {
+  const toolCalls = [];
+  let resultText;
+  for (const row of rows) {
+    if (!isRecord(row) || row.role !== "assistant")
+      continue;
+    const message = isRecord(row.message) ? row.message : void 0;
+    const content = message?.content;
+    if (!Array.isArray(content))
+      continue;
+    for (const part of content) {
+      if (!isRecord(part))
+        continue;
+      if (part.type === "tool_use" && typeof part.name === "string") {
+        if (SUBAGENT_PSEUDO_TOOLS.has(part.name))
+          continue;
+        toolCalls.push({ name: part.name, input: isRecord(part.input) ? part.input : {} });
+      } else if (part.type === "text" && typeof part.text === "string" && part.text.trim()) {
+        resultText = part.text;
+      }
+    }
+  }
+  return { toolCalls, resultText };
+}
+
 // dist/reducer.js
 function touch(conv) {
   conv.updated = (/* @__PURE__ */ new Date()).toISOString();
 }
-function reduceSubagentStop(state, input, nowMs) {
+function collectTools(conv) {
+  const tools = [];
+  for (const turn of Object.values(conv.turns))
+    tools.push(...turn.tools);
+  return tools.sort((a, b) => a.endMs - b.endMs);
+}
+function findChildConversation(state, parentConv, startMs, nowMs) {
+  const slack = 2e3;
+  let best;
+  let bestScore = 0;
+  for (const [convId, conv] of Object.entries(state)) {
+    if (convId === parentConv || conv.turn_count !== 0)
+      continue;
+    const inWindow = collectTools(conv).filter((t) => t.endMs >= startMs - slack && t.endMs <= nowMs + slack).length;
+    if (inWindow > bestScore) {
+      bestScore = inWindow;
+      best = convId;
+    }
+  }
+  return best;
+}
+function transcriptToolEvent(call, index, count, startMs, endMs) {
+  const span = Math.max(0, endMs - startMs);
+  const slice = count > 0 ? span / count : 0;
+  const end = Math.round(startMs + slice * (index + 1));
+  return {
+    tool_use_id: `subagent-tool-${index}`,
+    name: call.name,
+    input: call.input,
+    duration: slice / 1e3,
+    endMs: end
+  };
+}
+function reduceSubagentStop(state, input, nowMs, resolved) {
   const parentConv = input.parent_conversation_id ?? input.conversation_id;
   const conv = getConversationState(state, parentConv);
+  let target;
   for (const turn of Object.values(conv.turns)) {
     const sub = turn.subagents.find((s) => s.subagent_id === input.subagent_id && s.endMs == null);
     if (sub) {
-      sub.status = input.status;
-      sub.duration_ms = input.duration_ms;
-      sub.endMs = nowMs;
+      target = sub;
       break;
     }
   }
+  if (!target) {
+    touch(conv);
+    return { ...state, [parentConv]: conv };
+  }
+  target.status = input.status;
+  target.duration_ms = input.duration_ms;
+  target.endMs = nowMs;
+  if (resolved?.resultText)
+    target.resultText = resolved.resultText;
+  let next = { ...state, [parentConv]: conv };
+  const childConv = resolved?.childConversationId ?? findChildConversation(next, parentConv, target.startMs, nowMs);
+  if (childConv && next[childConv]) {
+    target.childConversationId = childConv;
+    target.tools = collectTools(next[childConv]);
+    const { [childConv]: _consumed, ...rest } = next;
+    next = rest;
+  } else if (resolved?.toolCalls?.length) {
+    const calls = resolved.toolCalls;
+    target.childConversationId = resolved.childConversationId;
+    target.tools = calls.map((c, i) => transcriptToolEvent(c, i, calls.length, target.startMs, nowMs));
+  }
   touch(conv);
-  return { ...state, [parentConv]: conv };
+  return next;
+}
+
+// dist/subagent-transcript.js
+import { readFileSync as readFileSync3, readdirSync, statSync as statSync2 } from "node:fs";
+import { dirname as dirname3, join as join2, basename } from "node:path";
+function normalizeWs(text) {
+  return text.replace(/\s+/g, " ").trim();
+}
+function readJsonl(path) {
+  const rows = [];
+  for (const line of readFileSync3(path, "utf-8").split("\n")) {
+    const trimmed = line.trim();
+    if (!trimmed)
+      continue;
+    try {
+      rows.push(JSON.parse(trimmed));
+    } catch {
+    }
+  }
+  return rows;
+}
+function firstUserText(rows) {
+  for (const row of rows) {
+    if (!isRecord(row) || row.role !== "user")
+      continue;
+    const content = isRecord(row.message) ? row.message.content : void 0;
+    if (!Array.isArray(content))
+      continue;
+    return content.filter((p) => isRecord(p) && p.type === "text").map((p) => typeof p.text === "string" ? p.text : "").join("");
+  }
+  return "";
+}
+function resolveSubagentTranscript(parentTranscriptPath, task) {
+  if (!parentTranscriptPath)
+    return void 0;
+  try {
+    const dir = join2(dirname3(parentTranscriptPath), "subagents");
+    const files = readdirSync(dir).filter((f) => f.endsWith(".jsonl"));
+    if (files.length === 0)
+      return void 0;
+    const candidates = files.map((f) => {
+      const full = join2(dir, f);
+      return { full, child: basename(f, ".jsonl"), mtime: statSync2(full).mtimeMs };
+    });
+    const wanted = task ? normalizeWs(task).slice(0, 120) : "";
+    let chosen;
+    if (candidates.length === 1) {
+      chosen = candidates[0];
+    } else {
+      const matches = candidates.map((c) => ({ ...c, rows: readJsonl(c.full) })).filter((c) => wanted !== "" && normalizeWs(firstUserText(c.rows)).includes(wanted));
+      const pool = matches.length > 0 ? matches : candidates;
+      chosen = pool.slice().sort((a, b) => b.mtime - a.mtime)[0];
+    }
+    const rows = chosen.rows ?? readJsonl(chosen.full);
+    const { toolCalls, resultText } = parseSubagentTranscript(rows);
+    return { childConversationId: chosen.child, toolCalls, resultText };
+  } catch {
+    return void 0;
+  }
 }
 
 // dist/hooks/subagent-stop.js
@@ -277,7 +432,11 @@ async function main() {
   if (!config)
     return;
   debug(`subagentStop ${input.subagent_type} (${input.subagent_id})`);
-  await atomicUpdateState(config.stateFilePath, (s) => reduceSubagentStop(s, input, Date.now()));
+  const resolved = resolveSubagentTranscript(input.transcript_path, input.task);
+  if (resolved) {
+    debug(`resolved subagent transcript: child=${resolved.childConversationId}, ${resolved.toolCalls.length} tool call(s)`);
+  }
+  await atomicUpdateState(config.stateFilePath, (s) => reduceSubagentStop(s, input, Date.now(), resolved));
 }
 main().catch((err) => {
   try {

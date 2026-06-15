@@ -1,9 +1,18 @@
 /**
- * Types for Cursor hook inputs (delivered via stdin JSON) and the on-disk
- * event-buffer state used to assemble one LangSmith trace per turn.
- *
- * Field names mirror the real payloads captured in diagnostics/captures.
+ * Types for Cursor hook inputs (stdin JSON) and the on-disk event-buffer state.
+ * Field names mirror the real captured payloads.
  */
+
+// ─── Multimodal content ──────────────────────────────────────────────────────
+
+/**
+ * A LangChain v1 multimodal content part. `mime_type` is required with `base64`
+ * — the shape the LangSmith UI renders inline.
+ */
+export type ContentPart =
+  | { type: "text"; text: string }
+  | { type: "image"; mime_type: string; base64: string }
+  | { type: "file"; mime_type: string; base64: string; filename?: string };
 
 // ─── Hook Input Types ───────────────────────────────────────────────────────
 
@@ -131,7 +140,7 @@ export interface ToolEvent {
   endMs: number;
 }
 
-/** A subagent invocation (minimal v1 — rendered as a Task tool run). */
+/** A subagent invocation, rendered as a Task tool run with nested tool children. */
 export interface SubagentEvent {
   subagent_id: string;
   subagent_type: string;
@@ -142,6 +151,18 @@ export interface SubagentEvent {
   startMs: number;
   /** Wall-clock ms when subagentStop fired. */
   endMs?: number;
+  /**
+   * The subagent's own conversation_id (== its transcript filename). Resolved at
+   * subagentStop from the on-disk transcript, else by temporal linking.
+   */
+  childConversationId?: string;
+  /**
+   * The subagent's internal tool calls, nested under the Task run. From the child
+   * conversation's buffered events, or transcript (inputs only).
+   */
+  tools?: ToolEvent[];
+  /** The subagent's final answer text (from its transcript). */
+  resultText?: string;
 }
 
 /** An assistant thinking block. */

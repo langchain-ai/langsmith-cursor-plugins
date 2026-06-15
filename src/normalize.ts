@@ -1,13 +1,9 @@
 /**
  * Converters: Cursor hook payloads → LangSmith run shapes.
- *
- * - Model labels → ls_provider / ls_model_name (Cursor uses its own naming,
- *   e.g. "claude-4.6-sonnet-medium-thinking", "gpt-5.5-medium", "default").
- * - Cursor token fields → LangSmith usage_metadata.
- * - tool_output is a JSON-encoded string → parse it.
- * - Multimodal content parts → LangChain v1 ({ type, mime_type, base64 }) for
- *   inline UI rendering (kept for forward-compat; Cursor hooks don't currently
- *   surface attachment bytes).
+ *  - Model labels → ls_provider / ls_model_name
+ *  - Cursor token fields → usage_metadata
+ *  - tool_output (JSON string) → parsed
+ *  - Multimodal parts → LangChain v1 (forward-compat)
  */
 
 import type { UsageFields } from "./types.js";
@@ -20,6 +16,43 @@ export function isRecord(value: unknown): value is Record<string, unknown> {
 
 /** Reasoning-effort / thinking suffixes Cursor appends to model labels. */
 const MODEL_SUFFIXES = new Set(["thinking", "minimal", "low", "medium", "high"]);
+
+/**
+ * Explicit Cursor-label → canonical-id overrides for irregular cases the generic
+ * reorder below can't derive. Empty by default (the regex covers the common
+ * `claude-<ver>-<tier>` shape); add an entry only when a label is irregular.
+ */
+export const CANONICAL_MODEL_MAP: Record<string, string> = {};
+
+/** Lowercase + strip a leading provider prefix some labels carry (e.g. "anthropic/"). */
+function normKey(model: string): string {
+  return model
+    .trim()
+    .toLowerCase()
+    .replace(/^[a-z]+\//, "");
+}
+
+/**
+ * Canonicalize a (suffix-stripped) Cursor model label to the id LangSmith's price
+ * table matches. Cursor writes Claude labels version-first with a dotted version
+ * (`claude-4.8-opus`); LangSmith's ids split the version on dashes and — from v4
+ * on — put the tier first (`claude-opus-4-8`), while the v3 line keeps the version
+ * first (`claude-3-7-sonnet`). We reorder by major version generically, so future
+ * Anthropic releases need no new entries. Explicit overrides win; everything else
+ * (GPT, Gemini, `claude-fable-5`, composer, …) passes through unchanged.
+ */
+export function canonicalModelId(model: string): string {
+  const key = normKey(model);
+  if (CANONICAL_MODEL_MAP[key]) return CANONICAL_MODEL_MAP[key];
+  const m = key.match(/^claude-(\d+)\.(\d+)-(sonnet|opus|haiku)$/);
+  if (m) {
+    const [, major, minor, tier] = m;
+    return Number(major) >= 4
+      ? `claude-${tier}-${major}-${minor}` // v4+: tier-first
+      : `claude-${major}-${minor}-${tier}`; // v3: version-first
+  }
+  return model;
+}
 
 /** Map a model-label prefix to a LangSmith ls_provider. */
 function providerFor(model: string): string | undefined {
@@ -49,8 +82,8 @@ export interface ModelInfo {
 }
 
 /**
- * Prefer a concrete model label over "default" (Auto mode). Within one turn the
- * model field can vary across hooks; this keeps the most specific value.
+ * Prefer a concrete model label over "default" (Auto mode); keeps the most
+ * specific value seen across a turn's hooks.
  */
 export function preferModel(
   current: string | undefined,
@@ -61,21 +94,23 @@ export function preferModel(
 }
 
 /**
- * Derive { ls_model_name, ls_provider } from a Cursor model label.
- * "default" (Auto mode) → model "default", provider "cursor".
+ * Derive { ls_model_name, ls_provider } from a Cursor model label: suffix-stripped
+ * and canonicalized. "default" (Auto) → model "default", provider "cursor".
  */
 export function deriveModelInfo(model: string | undefined): ModelInfo {
   const raw = (model ?? "").trim() || "default";
-  return { ls_model_name: stripModelSuffixes(raw), ls_provider: providerFor(raw) };
+  return {
+    ls_model_name: canonicalModelId(stripModelSuffixes(raw)),
+    ls_provider: providerFor(raw),
+  };
 }
 
-// ─── Usage ─────────────────────────────────────────────────────────────────
+// ─── Usage + cost ────────────────────────────────────────────────────────────
 
 /**
- * Build LangSmith usage_metadata from Cursor's token fields. Cursor reports
- * input/output and cache read/write separately; we fold cache into input_tokens
- * (mirroring the Claude Code integration) and expose details. Returns undefined
- * when there are no tokens.
+ * Build usage_metadata from Cursor's token fields, folding cache into
+ * input_tokens. Cost is left to LangSmith's server-side price table (which prices
+ * by the canonical ls_model_name). Undefined when no tokens.
  */
 export function buildUsageMetadata(usage: UsageFields | undefined) {
   if (!usage) return undefined;
@@ -114,9 +149,8 @@ export function parseToolOutput(raw: unknown): unknown {
 const MULTIMODAL_PART_TYPES = new Set(["image", "file"]);
 
 /**
- * Convert a custom binary content part ({ type, mimeType, data }) to the
- * LangChain v1 multimodal block ({ type, mime_type, base64 }) the LangSmith UI
- * renders inline. Non-multimodal parts pass through untouched.
+ * Convert a binary content part ({ type, mimeType, data }) to the LangChain v1
+ * block ({ type, mime_type, base64 }). Non-multimodal parts pass through.
  */
 export function normalizeContentPart(part: unknown): unknown {
   if (!isRecord(part)) return part;
@@ -129,4 +163,49 @@ export function normalizeContentPart(part: unknown): unknown {
 export function normalizeContent(content: unknown): unknown {
   if (!Array.isArray(content)) return content;
   return content.map(normalizeContentPart);
+}
+
+// ─── Subagent transcript ─────────────────────────────────────────────────────
+
+/** A tool call recovered from a subagent transcript (inputs only — no output). */
+export interface SubagentToolCall {
+  name: string;
+  input: Record<string, unknown>;
+}
+
+/**
+ * UI-only pseudo-tools the agent emits but never fires a real postToolUse for —
+ * no I/O worth tracing.
+ */
+const SUBAGENT_PSEUDO_TOOLS = new Set(["UpdateCurrentStep"]);
+
+/**
+ * Parse a subagent transcript into ordered tool calls (inputs only) and its
+ * final assistant text (recorded nowhere else).
+ */
+export function parseSubagentTranscript(rows: unknown[]): {
+  toolCalls: SubagentToolCall[];
+  resultText?: string;
+} {
+  const toolCalls: SubagentToolCall[] = [];
+  let resultText: string | undefined;
+
+  for (const row of rows) {
+    if (!isRecord(row) || row.role !== "assistant") continue;
+    const message = isRecord(row.message) ? row.message : undefined;
+    const content = message?.content;
+    if (!Array.isArray(content)) continue;
+
+    for (const part of content) {
+      if (!isRecord(part)) continue;
+      if (part.type === "tool_use" && typeof part.name === "string") {
+        if (SUBAGENT_PSEUDO_TOOLS.has(part.name)) continue;
+        toolCalls.push({ name: part.name, input: isRecord(part.input) ? part.input : {} });
+      } else if (part.type === "text" && typeof part.text === "string" && part.text.trim()) {
+        resultText = part.text; // keep the last non-empty assistant text
+      }
+    }
+  }
+
+  return { toolCalls, resultText };
 }

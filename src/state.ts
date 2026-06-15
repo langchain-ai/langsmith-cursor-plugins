@@ -1,13 +1,6 @@
 /**
- * Persistent event-buffer state.
- *
- * Cursor hooks are short-lived, out-of-process invocations. To assemble one
- * trace per turn we buffer the event stream to a JSON file keyed by
- * conversation_id; each conversation holds in-progress turn buffers keyed by
- * generation_id. The `stop` hook reads the buffer, posts the trace, and clears
- * that turn.
- *
- * A file lock serializes concurrent hook processes (tool hooks can overlap).
+ * Persistent per-turn event buffer: hooks append to a conversation_id-keyed JSON
+ * file; `stop` posts the trace and clears the turn. File-locked.
  */
 
 import { readFileSync, writeFileSync, mkdirSync, openSync, closeSync, unlinkSync } from "node:fs";
@@ -108,9 +101,8 @@ export function newTurnBuffer(generationId: string, startMs: number): TurnBuffer
 }
 
 /**
- * Get the in-progress turn buffer for a generation, or undefined if absent.
- * Tool/thought hooks can fire before beforeSubmitPrompt is flushed to disk, so
- * callers may need to lazily create one.
+ * In-progress turn buffer for a generation, or undefined; callers may lazily
+ * create one if hooks fire early.
  */
 export function getTurnBuffer(
   state: TracingState,

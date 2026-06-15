@@ -4,9 +4,8 @@ import { Client } from "langsmith";
 type ClientParams = Exclude<ConstructorParameters<typeof Client>[0], undefined>;
 
 /**
- * A LangSmith Client backed by a mock fetch. `callSpy.mock.calls` captures
- * every request the client (and RunTree batching) makes, so tests can
- * reconstruct the posted run tree without hitting the network.
+ * A LangSmith Client backed by a mock fetch. `callSpy.mock.calls` captures every
+ * request, so tests can reconstruct the run tree offline.
  */
 export const mockClient = (config?: Omit<ClientParams, "autoBatchTracing">) => {
   const mockFetch = vi.fn<typeof fetch>().mockResolvedValue({

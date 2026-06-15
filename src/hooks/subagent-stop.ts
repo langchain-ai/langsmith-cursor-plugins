@@ -7,6 +7,7 @@ import { readStdin } from "../utils/stdin.js";
 import { initHook } from "../utils/hook-init.js";
 import { atomicUpdateState } from "../state.js";
 import { reduceSubagentStop } from "../reducer.js";
+import { resolveSubagentTranscript } from "../subagent-transcript.js";
 import { error, debug } from "../logger.js";
 import type { SubagentStopInput } from "../types.js";
 
@@ -16,7 +17,19 @@ async function main(): Promise<void> {
   if (!config) return;
 
   debug(`subagentStop ${input.subagent_type} (${input.subagent_id})`);
-  await atomicUpdateState(config.stateFilePath, (s) => reduceSubagentStop(s, input, Date.now()));
+
+  // Best-effort: recover the subagent's child conversation id and final answer
+  // from its transcript; reducer falls back to temporal linking.
+  const resolved = resolveSubagentTranscript(input.transcript_path, input.task);
+  if (resolved) {
+    debug(
+      `resolved subagent transcript: child=${resolved.childConversationId}, ${resolved.toolCalls.length} tool call(s)`,
+    );
+  }
+
+  await atomicUpdateState(config.stateFilePath, (s) =>
+    reduceSubagentStop(s, input, Date.now(), resolved),
+  );
 }
 
 main().catch((err) => {
