@@ -1,14 +1,9 @@
 /**
- * Attachment enrichment: read image bytes from Cursor's SQLite/disk (hooks hide
- * them) and emit a multimodal part. Read-only; never throws.
- *
- * Notes:
- *   - Match the bubble's `path` field, not `selectedImages[].uuid` (different uuid).
- *   - Prefer base64 over the local/ephemeral path, which won't resolve in the UI.
- *   - Attribute to a turn by matching bubble text to the prompt.
+ * Read attachment bytes from Cursor's DB (hooks hide them) → multimodal part.
+ * Read-only, never throws. Match bubble `path` (not `selectedImages[].uuid`).
  */
 
-import { execFileSync } from "node:child_process";
+import { DatabaseSync } from "node:sqlite";
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { homedir, platform } from "node:os";
 import { basename, join } from "node:path";
@@ -38,33 +33,34 @@ function normalizeWs(text: string): string {
   return text.replace(/\s+/g, " ").trim();
 }
 
-/**
- * Query one conversation's bubbles via the `sqlite3` CLI, read-only. Keys are
- * `bubbleId:<conversation_id>:<bubble_id>`; `-json` gives a single-parse envelope.
- */
+/** Query a conversation's bubbles via built-in `node:sqlite`, read-only (no native dep). */
 function queryBubbles(dbPath: string, conversationId: string): unknown[] {
-  // conversation_id is a UUID, but escape quotes defensively for the LIKE clause.
-  const like = `bubbleId:${conversationId}:%`.replace(/'/g, "''");
-  const sql = `SELECT value FROM cursorDiskKV WHERE key LIKE '${like}'`;
-  const out = execFileSync("sqlite3", ["-readonly", "-json", dbPath, sql], {
-    encoding: "utf-8",
-    maxBuffer: 256 * 1024 * 1024,
-    stdio: ["ignore", "pipe", "ignore"],
-    timeout: 5000,
-  });
-  const trimmed = out.trim();
-  if (!trimmed) return []; // sqlite3 prints nothing for zero rows
-  const rows = JSON.parse(trimmed) as Array<{ value?: unknown }>;
-  const bubbles: unknown[] = [];
-  for (const row of rows) {
-    if (typeof row.value !== "string") continue;
-    try {
-      bubbles.push(JSON.parse(row.value));
-    } catch {
-      /* skip malformed bubble */
+  const like = `bubbleId:${conversationId}:%`;
+  const db = new DatabaseSync(dbPath, { readOnly: true });
+  try {
+    const rows = db.prepare("SELECT value FROM cursorDiskKV WHERE key LIKE ?").all(like) as Array<{
+      value?: unknown;
+    }>;
+    const bubbles: unknown[] = [];
+    for (const row of rows) {
+      // TEXT comes back as a string; BLOB as a Uint8Array — handle both.
+      const text =
+        typeof row.value === "string"
+          ? row.value
+          : row.value instanceof Uint8Array
+            ? Buffer.from(row.value).toString("utf-8")
+            : undefined;
+      if (text === undefined) continue;
+      try {
+        bubbles.push(JSON.parse(text));
+      } catch {
+        /* skip malformed bubble */
+      }
     }
+    return bubbles;
+  } finally {
+    db.close();
   }
-  return bubbles;
 }
 
 /**
@@ -149,29 +145,32 @@ export function sniffMime(buf: Buffer, path: string): string {
   return byExt[ext] ?? "application/octet-stream";
 }
 
-/**
- * Read a file to a content part — `image` for images, else `file`. Undefined
- * when missing, non-file, oversized, or unreadable.
- */
-export function fileToContentPart(path: string): ContentPart | undefined {
+/** A text placeholder content part used when a file can't be embedded. */
+function placeholder(text: string): ContentPart {
+  return { type: "text", text };
+}
+
+/** File → content part (`image`/`file`); a text placeholder if it can't be embedded. */
+export function fileToContentPart(path: string): ContentPart {
+  const name = basename(path);
   try {
     const st = statSync(path);
     if (!st.isFile()) {
       logger.warn(`attachments: not a file, skipping: ${path}`);
-      return undefined;
+      return placeholder(`[attachment skipped: ${name} — not a file]`);
     }
     if (st.size > MAX_ATTACHMENT_BYTES) {
       logger.warn(`attachments: too large (${st.size} bytes), skipping: ${path}`);
-      return undefined;
+      return placeholder(`[attachment too large: ${name} (${st.size} bytes)]`);
     }
     const buf = readFileSync(path);
     const mime = sniffMime(buf, path);
     const base64 = buf.toString("base64");
     if (mime.startsWith("image/")) return { type: "image", mime_type: mime, base64 };
-    return { type: "file", mime_type: mime, base64, filename: basename(path) };
+    return { type: "file", mime_type: mime, base64, filename: name };
   } catch (err) {
     logger.warn(`attachments: read failed, skipping: ${path} (${err})`);
-    return undefined;
+    return placeholder(`[attachment unavailable: ${name}]`);
   }
 }
 
@@ -181,14 +180,11 @@ export interface ResolveAttachmentsOptions {
   prompt?: string;
   /** Override the DB path; defaults to the platform Cursor globalStorage DB. */
   dbPath?: string;
-  /** Injectable bubble reader (tests). Defaults to the sqlite3 CLI query. */
+  /** Injectable bubble reader (tests). Defaults to the `node:sqlite` query. */
   readBubbles?: (dbPath: string, conversationId: string) => unknown[];
 }
 
-/**
- * Resolve a turn's attachments as LangChain v1 content parts. Best-effort: any
- * failure returns `[]` and is logged, never thrown.
- */
+/** Resolve a turn's attachments as content parts. Best-effort: returns `[]` on failure. */
 export function resolveTurnAttachments(opts: ResolveAttachmentsOptions): ContentPart[] {
   try {
     const dbPath = opts.dbPath ?? defaultCursorDbPath();
@@ -201,11 +197,7 @@ export function resolveTurnAttachments(opts: ResolveAttachmentsOptions): Content
     const paths = selectedAttachmentPaths(bubbles, opts.prompt);
     if (paths.length === 0) return [];
 
-    const parts: ContentPart[] = [];
-    for (const p of paths) {
-      const part = fileToContentPart(p);
-      if (part) parts.push(part);
-    }
+    const parts: ContentPart[] = paths.map(fileToContentPart);
     if (parts.length > 0) {
       logger.log(`attachments: enriched turn with ${parts.length} attachment(s)`);
     }
