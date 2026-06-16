@@ -949,6 +949,12 @@ function buildUsageMetadata(usage) {
 function touch(conv) {
   conv.updated = (/* @__PURE__ */ new Date()).toISOString();
 }
+function reduceRecordLastTrace(state, conversationId, lastTrace) {
+  const conv = getConversationState(state, conversationId);
+  conv.last_trace = lastTrace;
+  touch(conv);
+  return { ...state, [conversationId]: conv };
+}
 function reduceStop(state, input, nowMs) {
   const conv = getConversationState(state, input.conversation_id);
   const turn = conv.turns[input.generation_id];
@@ -9261,6 +9267,7 @@ async function buildTurnRuns(options) {
   turnRun.error = buffer.status && buffer.status !== "completed" ? buffer.status : void 0;
   await turnRun.patchRun({ excludeInputs: true });
   log(`Traced ${turnName} (conv=${conversationId}): ${buffer.tools.length} tool(s), ${buffer.subagents.length} subagent(s)`);
+  return { runId: turnRun.id, traceId: turnRun.trace_id ?? turnRun.id };
 }
 async function postToolRun(tool, parent) {
   const startMs = toolStartMs(tool);
@@ -9496,8 +9503,9 @@ async function main() {
       dbPath: config.cursorDbPath
     });
   }
+  let built;
   try {
-    await buildTurnRuns({
+    built = await buildTurnRuns({
       buffer: toTrace,
       conversationId: input.conversation_id,
       turnNum,
@@ -9511,6 +9519,14 @@ async function main() {
     error(`Failed to build turn runs: ${err}`);
   }
   await flushPendingTraces();
+  if (built) {
+    await atomicUpdateState(config.stateFilePath, (s) => reduceRecordLastTrace(s, input.conversation_id, {
+      runId: built.runId,
+      traceId: built.traceId,
+      turnNum,
+      finalizedAt: (/* @__PURE__ */ new Date()).toISOString()
+    }));
+  }
 }
 main().catch((err) => {
   try {

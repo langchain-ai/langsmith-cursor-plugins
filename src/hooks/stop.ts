@@ -7,8 +7,8 @@
 import { readStdin } from "../utils/stdin.js";
 import { initHook } from "../utils/hook-init.js";
 import { atomicUpdateState } from "../state.js";
-import { reduceStop } from "../reducer.js";
-import { initTracing, buildTurnRuns, flushPendingTraces } from "../langsmith.js";
+import { reduceStop, reduceRecordLastTrace } from "../reducer.js";
+import { initTracing, buildTurnRuns, flushPendingTraces, type BuiltTurn } from "../langsmith.js";
 import { resolveTurnAttachments } from "../attachments.js";
 import { error, debug, warn } from "../logger.js";
 import type { ContentPart, StopInput, TurnBuffer } from "../types.js";
@@ -47,8 +47,9 @@ async function main(): Promise<void> {
     });
   }
 
+  let built: BuiltTurn | undefined;
   try {
-    await buildTurnRuns({
+    built = await buildTurnRuns({
       buffer: toTrace,
       conversationId: input.conversation_id,
       turnNum,
@@ -63,6 +64,18 @@ async function main(): Promise<void> {
   }
 
   await flushPendingTraces();
+
+  // Remember this turn's run so a later `/langsmith` feedback command can flag it.
+  if (built) {
+    await atomicUpdateState(config.stateFilePath, (s) =>
+      reduceRecordLastTrace(s, input.conversation_id, {
+        runId: built!.runId,
+        traceId: built!.traceId,
+        turnNum,
+        finalizedAt: new Date().toISOString(),
+      }),
+    );
+  }
 }
 
 main().catch((err) => {
