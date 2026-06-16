@@ -102,6 +102,31 @@ function baseMetadata(
   };
 }
 
+/**
+ * LangChain-style `tool_call` content blocks for every tool the model invoked
+ * this turn — direct tool calls plus subagent `Task` calls — ordered by start
+ * time. Cursor doesn't expose where these interleave with assistant text, so
+ * they're grouped together (before the final text in the assistant message).
+ */
+function assistantToolCallBlocks(buffer: TurnBuffer): Array<Record<string, unknown>> {
+  const calls: Array<{ startMs: number; block: Record<string, unknown> }> = [
+    ...buffer.tools.map((t) => ({
+      startMs: toolStartMs(t),
+      block: { type: "tool_call", name: t.name, args: t.input, id: t.tool_use_id },
+    })),
+    ...buffer.subagents.map((s) => ({
+      startMs: s.startMs,
+      block: {
+        type: "tool_call",
+        name: "Task",
+        args: { subagent_type: s.subagent_type, task: s.task },
+        id: s.subagent_id,
+      },
+    })),
+  ];
+  return calls.sort((a, b) => a.startMs - b.startMs).map((c) => c.block);
+}
+
 /** Build and submit the full LangSmith trace for one finalized turn. */
 export async function buildTurnRuns(options: BuildTurnOptions): Promise<void> {
   const { buffer, conversationId, turnNum, project, userEmail, customMetadata } = options;
@@ -134,10 +159,13 @@ export async function buildTurnRuns(options: BuildTurnOptions): Promise<void> {
   });
   await turnRun.postRun();
 
-  // 2. llm run: usage + model/provider + assistant text. Inherits root metadata.
+  // 2. llm run: usage + model/provider + assistant message. Inherits root metadata.
+  //    The assistant content carries thinking, the tool_call blocks the model
+  //    emitted this turn, then the final text.
   const { ls_model_name, ls_provider } = deriveModelInfo(buffer.model);
   const assistantContent: Array<Record<string, unknown>> = [
     ...buffer.thoughts.map((t) => ({ type: "thinking", thinking: t.text })),
+    ...assistantToolCallBlocks(buffer),
     ...(buffer.finalText ? [{ type: "text", text: buffer.finalText }] : []),
   ];
 

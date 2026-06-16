@@ -9185,6 +9185,24 @@ function baseMetadata(conversationId, customMetadata, userEmail) {
     ...customMetadata
   };
 }
+function assistantToolCallBlocks(buffer) {
+  const calls = [
+    ...buffer.tools.map((t) => ({
+      startMs: toolStartMs(t),
+      block: { type: "tool_call", name: t.name, args: t.input, id: t.tool_use_id }
+    })),
+    ...buffer.subagents.map((s) => ({
+      startMs: s.startMs,
+      block: {
+        type: "tool_call",
+        name: "Task",
+        args: { subagent_type: s.subagent_type, task: s.task },
+        id: s.subagent_id
+      }
+    }))
+  ];
+  return calls.sort((a, b) => a.startMs - b.startMs).map((c) => c.block);
+}
 async function buildTurnRuns(options) {
   const { buffer, conversationId, turnNum, project, userEmail, customMetadata } = options;
   if (!client && !replicas) {
@@ -9212,6 +9230,7 @@ async function buildTurnRuns(options) {
   const { ls_model_name, ls_provider } = deriveModelInfo(buffer.model);
   const assistantContent = [
     ...buffer.thoughts.map((t) => ({ type: "thinking", thinking: t.text })),
+    ...assistantToolCallBlocks(buffer),
     ...buffer.finalText ? [{ type: "text", text: buffer.finalText }] : []
   ];
   const llmRun = turnRun.createChild({

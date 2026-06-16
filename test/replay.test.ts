@@ -128,6 +128,65 @@ describe("buildTurnRuns produces the expected LangSmith run tree", () => {
     expect(nested.some((r) => r.name === "Read")).toBe(true);
   });
 
+  it("emits tool_call content blocks in the llm assistant message", async () => {
+    const { client, callSpy } = mockClient();
+    initTracing(undefined, undefined, undefined, client);
+
+    const { finalized } = replayHookLog(CAPTURE);
+    // A turn whose assistant invoked at least one tool directly.
+    const turn = finalized.find((f) => f.buffer.tools.length > 0)!;
+    expect(turn).toBeDefined();
+
+    await buildTurnRuns({
+      buffer: turn.buffer,
+      conversationId: turn.conversationId,
+      turnNum: turn.turnNum,
+      project: "test",
+    });
+    await flushPendingTraces();
+
+    const tree = await getAssumedTreeFromCalls(callSpy.mock.calls, client);
+    const llm = Object.values(tree.data).find((r) => r.run_type === "llm")!;
+    const content = (llm.outputs as { messages: { content: Array<Record<string, unknown>> }[] })
+      .messages[0].content;
+
+    const toolCalls = content.filter((b) => b.type === "tool_call");
+    expect(toolCalls.length).toBe(turn.buffer.tools.length);
+    // Each block carries the LangChain tool_call shape (name + args + id).
+    const first = turn.buffer.tools[0];
+    expect(toolCalls).toContainEqual({
+      type: "tool_call",
+      name: first.name,
+      args: first.input,
+      id: first.tool_use_id,
+    });
+  });
+
+  it("renders a subagent invocation as a Task tool_call block in the llm message", async () => {
+    const { client, callSpy } = mockClient();
+    initTracing(undefined, undefined, undefined, client);
+
+    const { finalized } = replayHookLog(CAPTURE);
+    const turn = finalized.find((f) => f.buffer.subagents.length > 0)!;
+
+    await buildTurnRuns({
+      buffer: turn.buffer,
+      conversationId: turn.conversationId,
+      turnNum: turn.turnNum,
+      project: "test",
+    });
+    await flushPendingTraces();
+
+    const tree = await getAssumedTreeFromCalls(callSpy.mock.calls, client);
+    const llm = Object.values(tree.data).find((r) => r.run_type === "llm")!;
+    const content = (llm.outputs as { messages: { content: Array<Record<string, unknown>> }[] })
+      .messages[0].content;
+
+    const taskCall = content.find((b) => b.type === "tool_call" && b.name === "Task");
+    expect(taskCall).toBeDefined();
+    expect((taskCall!.args as { subagent_type?: string }).subagent_type).toBe("explore");
+  });
+
   it("emits attachment content parts on the llm + root inputs (inline-render shape)", async () => {
     const { client, callSpy } = mockClient();
     initTracing(undefined, undefined, undefined, client);
