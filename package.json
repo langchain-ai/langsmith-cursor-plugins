@@ -18,11 +18,11 @@
     "clean": "rm -rf dist bundle"
   },
   "dependencies": {
-    "langsmith": "^0.5.19"
+    "langsmith": "^0.6.0"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
-    "esbuild": "^0.27.7",
+    "esbuild": "^0.28.1",
     "oxfmt": "^0.43.0",
     "oxlint": "^1.58.0",
     "tsx": "^4.21.0",
