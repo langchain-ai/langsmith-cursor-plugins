@@ -102,29 +102,50 @@ function baseMetadata(
   };
 }
 
-/**
- * LangChain-style `tool_call` content blocks for every tool the model invoked
- * this turn — direct tool calls plus subagent `Task` calls — ordered by start
- * time. Cursor doesn't expose where these interleave with assistant text, so
- * they're grouped together (before the final text in the assistant message).
- */
-function assistantToolCallBlocks(buffer: TurnBuffer): Array<Record<string, unknown>> {
-  const calls: Array<{ startMs: number; block: Record<string, unknown> }> = [
+interface TurnCall {
+  startMs: number;
+  /** LangChain `tool_call` content block for the assistant message. */
+  toolCallBlock: Record<string, unknown>;
+  /** Tool-result message fed back into the final llm run's input. */
+  resultMessage: Record<string, unknown>;
+}
+
+/** Render a tool's output (or error) as text for a tool-result message. */
+function toolResultText(tool: ToolEvent): string {
+  if (tool.error != null) return tool.error;
+  const out = tool.output;
+  if (out == null) return "";
+  return typeof out === "string" ? out : JSON.stringify(out);
+}
+
+/** Tool/subagent calls this turn, ordered by start, each paired with its result message. */
+function orderedTurnCalls(buffer: TurnBuffer): TurnCall[] {
+  const calls: TurnCall[] = [
     ...buffer.tools.map((t) => ({
-      startMs: toolStartMs(t),
-      block: { type: "tool_call", name: t.name, args: t.input, id: t.tool_use_id },
+      startMs: Math.max(buffer.startMs, toolStartMs(t)),
+      toolCallBlock: { type: "tool_call", name: t.name, args: t.input, id: t.tool_use_id },
+      resultMessage: {
+        role: "tool",
+        tool_call_id: t.tool_use_id,
+        content: [{ type: "text", text: toolResultText(t) }],
+      },
     })),
     ...buffer.subagents.map((s) => ({
       startMs: s.startMs,
-      block: {
+      toolCallBlock: {
         type: "tool_call",
         name: "Task",
         args: { subagent_type: s.subagent_type, task: s.task },
         id: s.subagent_id,
       },
+      resultMessage: {
+        role: "tool",
+        tool_call_id: s.subagent_id,
+        content: [{ type: "text", text: s.resultText ?? `status: ${s.status ?? "completed"}` }],
+      },
     })),
   ];
-  return calls.sort((a, b) => a.startMs - b.startMs).map((c) => c.block);
+  return calls.sort((a, b) => a.startMs - b.startMs);
 }
 
 /** Build and submit the full LangSmith trace for one finalized turn. */
@@ -159,42 +180,74 @@ export async function buildTurnRuns(options: BuildTurnOptions): Promise<void> {
   });
   await turnRun.postRun();
 
-  // 2. llm run: usage + model/provider + assistant message. Inherits root metadata.
-  //    The assistant content carries thinking, the tool_call blocks the model
-  //    emitted this turn, then the final text.
+  // 2. llm + tool runs, created in invocation order. Turn-level usage goes on one llm run.
   const { ls_model_name, ls_provider } = deriveModelInfo(buffer.model);
-  const assistantContent: Array<Record<string, unknown>> = [
-    ...buffer.thoughts.map((t) => ({ type: "thinking", thinking: t.text })),
-    ...assistantToolCallBlocks(buffer),
-    ...(buffer.finalText ? [{ type: "text", text: buffer.finalText }] : []),
-  ];
+  const llmName = ls_provider ?? ls_model_name;
+  const llmMeta = {
+    ls_provider,
+    ls_model_name,
+    ls_invocation_params: { model: ls_model_name },
+  };
+  const usageMetadata = buildUsageMetadata(buffer.usage);
+  const thinking = buffer.thoughts.map((t) => ({ type: "thinking", thinking: t.text }));
+  const finalTextBlocks = buffer.finalText ? [{ type: "text", text: buffer.finalText }] : [];
+  const calls = orderedTurnCalls(buffer);
 
-  const llmRun = turnRun.createChild({
-    name: ls_provider ?? ls_model_name,
-    run_type: "llm",
-    inputs: { messages: [{ role: "user", content: userContent }] },
-    outputs: { messages: [{ role: "assistant", content: assistantContent }] },
-    start_time: buffer.startMs,
-    end_time: turnEndMs,
-    extra: {
-      metadata: {
-        ls_provider,
-        ls_model_name,
-        ls_invocation_params: { model: ls_model_name },
-        usage_metadata: buildUsageMetadata(buffer.usage),
+  if (calls.length === 0) {
+    // No tools: a single llm run, user → assistant (thinking + final text).
+    const llmRun = turnRun.createChild({
+      name: llmName,
+      run_type: "llm",
+      inputs: { messages: [{ role: "user", content: userContent }] },
+      outputs: { messages: [{ role: "assistant", content: [...thinking, ...finalTextBlocks] }] },
+      start_time: buffer.startMs,
+      end_time: turnEndMs,
+      extra: { metadata: { ...llmMeta, usage_metadata: usageMetadata } },
+    });
+    await llmRun.postRun();
+  } else {
+    // Agentic turn: "decide" llm → tool runs → "answer" llm fed the results.
+    const firstCallStart = Math.min(...calls.map((c) => c.startMs));
+    const lastCallEnd = Math.max(
+      buffer.startMs,
+      ...buffer.tools.map((t) => t.endMs),
+      ...buffer.subagents.map((s) => s.endMs ?? s.startMs),
+    );
+    const assistantDecision = [...thinking, ...calls.map((c) => c.toolCallBlock)];
+
+    // 2a. "decide" llm — emits the tool calls. Usage goes on the answer run.
+    const decideRun = turnRun.createChild({
+      name: llmName,
+      run_type: "llm",
+      inputs: { messages: [{ role: "user", content: userContent }] },
+      outputs: { messages: [{ role: "assistant", content: assistantDecision }] },
+      start_time: buffer.startMs,
+      end_time: Math.max(buffer.startMs, firstCallStart),
+      extra: { metadata: { ...llmMeta } },
+    });
+    await decideRun.postRun();
+
+    // 3. Tool runs (and subagent Task runs) between the two llm calls.
+    for (const tool of buffer.tools) await postToolRun(tool, turnRun);
+    for (const sub of buffer.subagents) await postSubagentRun(sub, turnRun);
+
+    // 2b. "answer" llm — tool results fed back in, produces the final text.
+    const answerRun = turnRun.createChild({
+      name: llmName,
+      run_type: "llm",
+      inputs: {
+        messages: [
+          { role: "user", content: userContent },
+          { role: "assistant", content: assistantDecision },
+          ...calls.map((c) => c.resultMessage),
+        ],
       },
-    },
-  });
-  await llmRun.postRun();
-
-  // 3. Tool runs (siblings of the llm run, children of the turn root).
-  for (const tool of buffer.tools) {
-    await postToolRun(tool, turnRun);
-  }
-
-  // 4. Subagent Task runs, each nesting its own internal tool runs.
-  for (const sub of buffer.subagents) {
-    await postSubagentRun(sub, turnRun);
+      outputs: { messages: [{ role: "assistant", content: finalTextBlocks }] },
+      start_time: lastCallEnd,
+      end_time: turnEndMs,
+      extra: { metadata: { ...llmMeta, usage_metadata: usageMetadata } },
+    });
+    await answerRun.postRun();
   }
 
   // 5. Finalize the root turn run.
@@ -210,7 +263,10 @@ export async function buildTurnRuns(options: BuildTurnOptions): Promise<void> {
 
 /** Post one tool run as a child of `parent` (the turn root, or a Task run). */
 async function postToolRun(tool: ToolEvent, parent: RunTree): Promise<void> {
-  const startMs = toolStartMs(tool);
+  // Clamp start to the parent's — Cursor tool durations can exceed the turn,
+  // mis-sorting tools ahead of the llm.
+  const floorMs = typeof parent.start_time === "number" ? parent.start_time : 0;
+  const startMs = Math.max(floorMs, toolStartMs(tool));
   const isError = tool.error != null;
 
   const run = parent.createChild({
