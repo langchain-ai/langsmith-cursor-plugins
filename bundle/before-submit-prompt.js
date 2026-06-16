@@ -311,5 +311,5 @@ main().catch((err) => {
     error(`beforeSubmitPrompt hook error: ${err}`);
   } catch {
   }
-  process.exit(0);
+  process.exit(1);
 });

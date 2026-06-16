@@ -285,5 +285,5 @@ main().catch((err) => {
     error(`sessionStart hook error: ${err}`);
   } catch {
   }
-  process.exit(0);
+  process.exit(1);
 });

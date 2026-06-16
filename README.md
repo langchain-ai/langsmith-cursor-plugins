@@ -25,7 +25,7 @@ Cursor Turn N (chain)
 
 ## Install
 
-Requirements: Node.js ≥ 20.
+Requirements: Node.js ≥ 22.13 (uses the built-in `node:sqlite` module, with its read-only open option, for attachment enrichment).
 
 ```bash
 pnpm install
@@ -52,7 +52,23 @@ Create `~/.cursor/langsmith.json` (global) or `./.cursor/langsmith.json` (projec
 }
 ```
 
-Config resolves in this order (later overrides earlier): defaults → `~/.cursor/langsmith.json` → `./.cursor/langsmith.json` → environment variables (`TRACE_TO_LANGSMITH`, `CURSOR_LANGSMITH_API_KEY` / `LANGSMITH_API_KEY`, `LANGSMITH_ENDPOINT`, `LANGSMITH_PROJECT`, `CURSOR_LANGSMITH_RUNS_ENDPOINTS`, `CURSOR_LANGSMITH_METADATA`, `CURSOR_LANGSMITH_MODEL_PRICING`, `CURSOR_LANGSMITH_DEBUG`).
+Config resolves in this order (later overrides earlier): defaults → `~/.cursor/langsmith.json` → `./.cursor/langsmith.json` → environment variables.
+
+Every `CURSOR_LANGSMITH_*` variable also accepts the `LANGSMITH_*` form (the `CURSOR_LANGSMITH_*` name wins when both are set).
+
+| Environment variable              | Config key       | Description                                                           | Default                           |
+| --------------------------------- | ---------------- | --------------------------------------------------------------------- | --------------------------------- |
+| `TRACE_TO_LANGSMITH`              | `enabled`        | Master switch — tracing runs only when truthy.                        | `false`                           |
+| `CURSOR_LANGSMITH_API_KEY`        | `api_key`        | LangSmith API key.                                                    | —                                 |
+| `CURSOR_LANGSMITH_ENDPOINT`       | `api_url`        | LangSmith API base URL.                                               | `https://api.smith.langchain.com` |
+| `CURSOR_LANGSMITH_PROJECT`        | `project`        | Target tracing project.                                               | `cursor`                          |
+| `CURSOR_LANGSMITH_METADATA`       | `metadata`       | Extra metadata attached to every run (JSON object).                   | —                                 |
+| `CURSOR_LANGSMITH_RUNS_ENDPOINTS` | `replicas`       | Additional replica destinations (JSON array).                         | —                                 |
+| `CURSOR_LANGSMITH_ATTACHMENTS`    | `attachments`    | Enrich turns with image/file attachment bytes from Cursor's DB.       | `true`                            |
+| `CURSOR_LANGSMITH_DB_PATH`        | `cursor_db_path` | Override the Cursor `state.vscdb` path used for attachments.          | platform default                  |
+| `CURSOR_LANGSMITH_DEBUG`          | —                | Verbose hook logging.                                                 | `false`                           |
+| `CURSOR_LANGSMITH_STATE_FILE`     | —                | Override the on-disk event-buffer state file (no `LANGSMITH_*` form). | `~/.cursor/langsmith-state.json`  |
+| `CURSOR_LANGSMITH_LOG_FILE`       | —                | Override the hook log file (no `LANGSMITH_*` form).                   | `~/.cursor/langsmith-hook.log`    |
 
 Tracing only runs when `enabled` (or `TRACE_TO_LANGSMITH=true`) **and** an API key (or replicas) is set.
 
@@ -60,39 +76,20 @@ Verify activity: `tail -f ~/.cursor/langsmith-hook.log`.
 
 ### Cost / pricing
 
-Cost shows in LangSmith via two cooperating paths:
-
-1. **Model normalization** — Cursor's model labels (e.g. `claude-4.6-sonnet`) are normalized to canonical provider ids (e.g. `claude-sonnet-4-6`) as `ls_model_name`, so LangSmith's server-side price table can match and price them for free.
-2. **Cost attachment** — we also compute `input_cost` / `output_cost` / `total_cost` from a built-in price table and attach them to `usage_metadata`, so cost renders even when LangSmith can't price a Cursor-specific model.
-
-The built-in prices are **list-price estimates** (`src/pricing.ts`). Override or add models via `model_pricing` (USD per 1M tokens) in `langsmith.json`:
-
-```json
-{
-  "enabled": true,
-  "api_key": "lsv2_pt_...",
-  "project": "cursor",
-  "model_pricing": {
-    "gpt-5.5": { "input": 1.25, "output": 10, "cache_read": 0.125 },
-    "claude-sonnet-4-6": { "input": 3, "output": 15, "cache_read": 0.3, "cache_creation": 3.75 }
-  }
-}
-```
-
-Keys may be the canonical id or the Cursor label; overrides win over the built-in table.
+We don't compute cost locally. Instead, Cursor's model labels (e.g. `claude-4.6-sonnet`) are normalized to canonical provider ids (e.g. `claude-sonnet-4-6`) as `ls_model_name`, and the token breakdown is sent as `usage_metadata`. LangSmith's server-side model price table matches the canonical id and renders cost in the UI. Auto mode reports `default` (provider `cursor`), which LangSmith can't price.
 
 ## What's traced
 
 - **Turns** grouped into threads (`thread_id` = `conversation_id`).
-- **Token usage / cost** per turn (`usage_metadata` on the `llm` run; see [Cost / pricing](#cost--pricing)).
+- **Token usage** per turn (`usage_metadata` on the `llm` run), priced by LangSmith (see [Cost / pricing](#cost--pricing)).
 - **Model / provider** (`ls_model_name`, `ls_provider`) — Cursor's label, normalized to a canonical provider id. Auto mode reports `default` (provider `cursor`).
 - **Tool calls** (success and failure) with inputs/outputs.
-- **Subagents** as a `Task` tool run (type + task).
+- **Image/file attachments** — recovered from Cursor's local DB and rendered inline on the user message.
+- **Subagents** as a `Task` tool run (type + task), with their internal tool calls nested underneath.
 
-## Known limitations (v1)
+## Known limitations
 
-- **Image/file attachments** are not traced — Cursor does not expose attachment bytes to hooks.
-- **Subagent internals** (their own tool calls and token usage) are not traced — they arrive under a separate conversation with no usage signal. The subagent appears as a single `Task` run.
+- **Subagent token usage** is not available — Cursor exposes no per-subagent usage breakdown via hooks or its local DB, so a subagent's `Task` run carries its tool calls but no token counts.
 
 ## Development
 

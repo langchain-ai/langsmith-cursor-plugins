@@ -60,8 +60,11 @@ describe("fileToContentPart", () => {
     expect((part as { base64: string }).base64).toBe(PDF.toString("base64"));
   });
 
-  it("skips a missing file (returns undefined, never throws)", () => {
-    expect(fileToContentPart("/no/such/file.png")).toBeUndefined();
+  it("emits a text placeholder for a missing file (never throws)", () => {
+    expect(fileToContentPart("/no/such/file.png")).toEqual({
+      type: "text",
+      text: "[attachment unavailable: file.png]",
+    });
   });
 });
 
@@ -119,7 +122,7 @@ describe("resolveTurnAttachments (end-to-end, injected reader)", () => {
     ).toEqual([]);
   });
 
-  it("returns [] when the reader throws (locked DB / no sqlite3)", () => {
+  it("returns [] when the reader throws (locked/unreadable DB)", () => {
     const parts = resolveTurnAttachments({
       conversationId: "c",
       prompt: "p",
