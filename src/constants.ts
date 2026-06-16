@@ -9,3 +9,13 @@ export const DEFAULT_TAGS = ["cursor", "coding-agent"];
 
 /** Default LangSmith project name when none is configured. */
 export const DEFAULT_PROJECT = "cursor";
+
+/**
+ * Slash-command prefixes a user can type in the Cursor chat box to attach
+ * LangSmith feedback to the turn they just saw. Matched case-insensitively on
+ * the first whitespace-delimited token.
+ */
+export const FEEDBACK_COMMAND_PREFIXES = ["/langsmith", "/ls"];
+
+/** LangSmith feedback key under which all user-typed feedback is recorded. */
+export const FEEDBACK_KEY = "user_feedback";

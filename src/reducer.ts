@@ -16,6 +16,7 @@ import type {
   SubagentStartInput,
   SubagentStopInput,
   StopInput,
+  LastTrace,
 } from "./types.js";
 import { getConversationState, newTurnBuffer, pruneOldConversations } from "./state.js";
 import { parseToolOutput, preferModel, type SubagentToolCall } from "./normalize.js";
@@ -245,6 +246,22 @@ export function reduceSubagentStop(
 
   touch(conv);
   return next;
+}
+
+/**
+ * Record the just-finalized turn's run on the conversation, so a later feedback
+ * slash-command can attach LangSmith feedback to it. Runs after the trace is
+ * built (the run id is generated during construction).
+ */
+export function reduceRecordLastTrace(
+  state: TracingState,
+  conversationId: string,
+  lastTrace: LastTrace,
+): TracingState {
+  const conv = getConversationState(state, conversationId);
+  conv.last_trace = lastTrace;
+  touch(conv);
+  return { ...state, [conversationId]: conv };
 }
 
 export interface StopResult {
