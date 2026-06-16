@@ -9185,23 +9185,41 @@ function baseMetadata(conversationId, customMetadata, userEmail) {
     ...customMetadata
   };
 }
-function assistantToolCallBlocks(buffer) {
+function toolResultText(tool) {
+  if (tool.error != null)
+    return tool.error;
+  const out = tool.output;
+  if (out == null)
+    return "";
+  return typeof out === "string" ? out : JSON.stringify(out);
+}
+function orderedTurnCalls(buffer) {
   const calls = [
     ...buffer.tools.map((t) => ({
-      startMs: toolStartMs(t),
-      block: { type: "tool_call", name: t.name, args: t.input, id: t.tool_use_id }
+      startMs: Math.max(buffer.startMs, toolStartMs(t)),
+      toolCallBlock: { type: "tool_call", name: t.name, args: t.input, id: t.tool_use_id },
+      resultMessage: {
+        role: "tool",
+        tool_call_id: t.tool_use_id,
+        content: [{ type: "text", text: toolResultText(t) }]
+      }
     })),
     ...buffer.subagents.map((s) => ({
       startMs: s.startMs,
-      block: {
+      toolCallBlock: {
         type: "tool_call",
         name: "Task",
         args: { subagent_type: s.subagent_type, task: s.task },
         id: s.subagent_id
+      },
+      resultMessage: {
+        role: "tool",
+        tool_call_id: s.subagent_id,
+        content: [{ type: "text", text: s.resultText ?? `status: ${s.status ?? "completed"}` }]
       }
     }))
   ];
-  return calls.sort((a, b) => a.startMs - b.startMs).map((c) => c.block);
+  return calls.sort((a, b) => a.startMs - b.startMs);
 }
 async function buildTurnRuns(options) {
   const { buffer, conversationId, turnNum, project, userEmail, customMetadata } = options;
@@ -9228,33 +9246,61 @@ async function buildTurnRuns(options) {
   });
   await turnRun.postRun();
   const { ls_model_name, ls_provider } = deriveModelInfo(buffer.model);
-  const assistantContent = [
-    ...buffer.thoughts.map((t) => ({ type: "thinking", thinking: t.text })),
-    ...assistantToolCallBlocks(buffer),
-    ...buffer.finalText ? [{ type: "text", text: buffer.finalText }] : []
-  ];
-  const llmRun = turnRun.createChild({
-    name: ls_provider ?? ls_model_name,
-    run_type: "llm",
-    inputs: { messages: [{ role: "user", content: userContent }] },
-    outputs: { messages: [{ role: "assistant", content: assistantContent }] },
-    start_time: buffer.startMs,
-    end_time: turnEndMs,
-    extra: {
-      metadata: {
-        ls_provider,
-        ls_model_name,
-        ls_invocation_params: { model: ls_model_name },
-        usage_metadata: buildUsageMetadata(buffer.usage)
-      }
-    }
-  });
-  await llmRun.postRun();
-  for (const tool of buffer.tools) {
-    await postToolRun(tool, turnRun);
-  }
-  for (const sub of buffer.subagents) {
-    await postSubagentRun(sub, turnRun);
+  const llmName = ls_provider ?? ls_model_name;
+  const llmMeta = {
+    ls_provider,
+    ls_model_name,
+    ls_invocation_params: { model: ls_model_name }
+  };
+  const usageMetadata = buildUsageMetadata(buffer.usage);
+  const thinking = buffer.thoughts.map((t) => ({ type: "thinking", thinking: t.text }));
+  const finalTextBlocks = buffer.finalText ? [{ type: "text", text: buffer.finalText }] : [];
+  const calls = orderedTurnCalls(buffer);
+  if (calls.length === 0) {
+    const llmRun = turnRun.createChild({
+      name: llmName,
+      run_type: "llm",
+      inputs: { messages: [{ role: "user", content: userContent }] },
+      outputs: { messages: [{ role: "assistant", content: [...thinking, ...finalTextBlocks] }] },
+      start_time: buffer.startMs,
+      end_time: turnEndMs,
+      extra: { metadata: { ...llmMeta, usage_metadata: usageMetadata } }
+    });
+    await llmRun.postRun();
+  } else {
+    const firstCallStart = Math.min(...calls.map((c) => c.startMs));
+    const lastCallEnd = Math.max(buffer.startMs, ...buffer.tools.map((t) => t.endMs), ...buffer.subagents.map((s) => s.endMs ?? s.startMs));
+    const assistantDecision = [...thinking, ...calls.map((c) => c.toolCallBlock)];
+    const decideRun = turnRun.createChild({
+      name: llmName,
+      run_type: "llm",
+      inputs: { messages: [{ role: "user", content: userContent }] },
+      outputs: { messages: [{ role: "assistant", content: assistantDecision }] },
+      start_time: buffer.startMs,
+      end_time: Math.max(buffer.startMs, firstCallStart),
+      extra: { metadata: { ...llmMeta } }
+    });
+    await decideRun.postRun();
+    for (const tool of buffer.tools)
+      await postToolRun(tool, turnRun);
+    for (const sub of buffer.subagents)
+      await postSubagentRun(sub, turnRun);
+    const answerRun = turnRun.createChild({
+      name: llmName,
+      run_type: "llm",
+      inputs: {
+        messages: [
+          { role: "user", content: userContent },
+          { role: "assistant", content: assistantDecision },
+          ...calls.map((c) => c.resultMessage)
+        ]
+      },
+      outputs: { messages: [{ role: "assistant", content: finalTextBlocks }] },
+      start_time: lastCallEnd,
+      end_time: turnEndMs,
+      extra: { metadata: { ...llmMeta, usage_metadata: usageMetadata } }
+    });
+    await answerRun.postRun();
   }
   turnRun.end_time = turnEndMs;
   turnRun.outputs = { text: buffer.finalText ?? "" };
@@ -9263,7 +9309,8 @@ async function buildTurnRuns(options) {
   log(`Traced ${turnName} (conv=${conversationId}): ${buffer.tools.length} tool(s), ${buffer.subagents.length} subagent(s)`);
 }
 async function postToolRun(tool, parent) {
-  const startMs = toolStartMs(tool);
+  const floorMs = typeof parent.start_time === "number" ? parent.start_time : 0;
+  const startMs = Math.max(floorMs, toolStartMs(tool));
   const isError2 = tool.error != null;
   const run = parent.createChild({
     name: tool.name,
