@@ -162,6 +162,35 @@ describe("buildTurnRuns produces the expected LangSmith run tree", () => {
     });
   });
 
+  it("orders the decide llm first, then tools, then the answer llm", async () => {
+    const { client, callSpy } = mockClient();
+    initTracing(undefined, undefined, undefined, client);
+
+    const { finalized } = replayHookLog(CAPTURE);
+    const turn = finalized.find((f) => f.buffer.tools.length > 0)!;
+
+    await buildTurnRuns({
+      buffer: turn.buffer,
+      conversationId: turn.conversationId,
+      turnNum: turn.turnNum,
+      project: "test",
+    });
+    await flushPendingTraces();
+
+    const tree = await getAssumedTreeFromCalls(callSpy.mock.calls, client);
+    const root = Object.values(tree.data).find((r) => r.run_type === "chain")!;
+    const children = Object.values(tree.data)
+      .filter((r) => r.parent_run_id === root.id)
+      .sort((a, b) => (a.dotted_order! < b.dotted_order! ? -1 : 1));
+
+    // First child is the "decide" llm, last is the "answer" llm, tools in between.
+    expect(children[0].run_type).toBe("llm");
+    expect(children[children.length - 1].run_type).toBe("llm");
+    const middle = children.slice(1, -1);
+    expect(middle.length).toBe(turn.buffer.tools.length);
+    expect(middle.every((r) => r.run_type === "tool")).toBe(true);
+  });
+
   it("renders a subagent invocation as a Task tool_call block in the llm message", async () => {
     const { client, callSpy } = mockClient();
     initTracing(undefined, undefined, undefined, client);
@@ -237,7 +266,10 @@ describe("buildTurnRuns produces the expected LangSmith run tree", () => {
     await flushPendingTraces();
 
     const tree = await getAssumedTreeFromCalls(callSpy.mock.calls, client);
-    const llm = Object.values(tree.data).find((r) => r.run_type === "llm")!;
+    // Usage sits on the answer llm run (agentic turns have two llm runs).
+    const llm = Object.values(tree.data).find(
+      (r) => r.run_type === "llm" && meta(r).usage_metadata != null,
+    )!;
     const usage = meta(llm).usage_metadata as { total_cost?: number; total_tokens?: number };
     expect(meta(llm).ls_model_name).toBe("claude-sonnet-4-6"); // canonicalized
     expect(usage.total_tokens).toBeGreaterThan(0);
