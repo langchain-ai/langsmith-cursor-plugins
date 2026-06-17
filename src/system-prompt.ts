@@ -1,14 +1,6 @@
 /**
- * Recover a turn's system prompt from Cursor's DB (hooks don't expose it).
- *
- * Path:  composerData:<conversation_id> (JSON) → .conversationState (~base64 / hex)
- *        → protobuf ConversationStateStructure.root_prompt_messages_json (field 1,
- *          repeated bytes = agentKv blob ids)
- *        → agentKv:blob:<hex> (JSON message) → the one with role "system".
- *
- * We decode only field 1 of the top-level message with a tiny wire-format reader —
- * no protobuf schema/codegen to maintain across Cursor versions (field numbers are
- * wire-stable). Read-only, never throws: failures → undefined, core path untouched.
+ * Recover a turn's system prompt from Cursor's DB: composerData →
+ * conversationState (protobuf field 1) → agentKv system message. Best-effort.
  */
 
 import { DatabaseSync } from "node:sqlite";
@@ -44,10 +36,7 @@ function skipVarint(buf: Buffer, c: Cursor): void {
   while (c.p < buf.length && buf[c.p++] & 0x80);
 }
 
-/**
- * Collect every length-delimited (wire type 2) value for `field` at the top level
- * of a protobuf message, skipping all other fields. Returns [] on any malformed byte.
- */
+/** Collect top-level length-delimited (wire type 2) values for `field`; [] if malformed. */
 export function readProtoLenField(buf: Buffer, field: number): Buffer[] {
   const out: Buffer[] = [];
   const c: Cursor = { p: 0 };
@@ -137,10 +126,7 @@ export interface ResolveSystemPromptOptions {
   openReader?: (dbPath: string) => BlobReader;
 }
 
-/**
- * Resolve a conversation's system prompt from Cursor's DB. Best-effort: returns
- * undefined (never throws) when the DB, blob, or system message is missing.
- */
+/** Resolve a conversation's system prompt from Cursor's DB. Best-effort; never throws. */
 export function resolveTurnSystemPrompt(opts: ResolveSystemPromptOptions): string | undefined {
   try {
     const dbPath = opts.dbPath ?? defaultCursorDbPath();

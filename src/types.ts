@@ -161,15 +161,9 @@ export interface SubagentEvent {
   startMs: number;
   /** Wall-clock ms when subagentStop fired. */
   endMs?: number;
-  /**
-   * The subagent's own conversation_id (== its transcript filename). Resolved at
-   * subagentStop from the on-disk transcript, else by temporal linking.
-   */
+  /** The subagent's own conversation_id (== its transcript filename). */
   childConversationId?: string;
-  /**
-   * The subagent's internal tool calls, nested under the Task run. From the child
-   * conversation's buffered events, or transcript (inputs only).
-   */
+  /** The subagent's internal tool calls, nested under the Task run. */
   tools?: ToolEvent[];
   /** The subagent's final answer text (from its transcript). */
   resultText?: string;

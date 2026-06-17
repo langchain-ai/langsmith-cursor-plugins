@@ -1,9 +1,6 @@
 /**
- * Converters: Cursor hook payloads → LangSmith run shapes.
- *  - Model labels → ls_provider / ls_model_name
- *  - Cursor token fields → usage_metadata
- *  - tool_output (JSON string) → parsed
- *  - Multimodal parts → LangChain v1 (forward-compat)
+ * Converters: Cursor hook payloads → LangSmith run shapes (model/provider,
+ * usage_metadata, parsed tool_output, multimodal parts).
  */
 
 import type { UsageFields } from "./types.js";
@@ -17,11 +14,7 @@ export function isRecord(value: unknown): value is Record<string, unknown> {
 /** Reasoning-effort / thinking suffixes Cursor appends to model labels. */
 const MODEL_SUFFIXES = new Set(["thinking", "minimal", "low", "medium", "high"]);
 
-/**
- * Explicit Cursor-label → canonical-id overrides for irregular cases the generic
- * reorder below can't derive. Empty by default (the regex covers the common
- * `claude-<ver>-<tier>` shape); add an entry only when a label is irregular.
- */
+/** Explicit Cursor-label → canonical-id overrides for cases the regex can't derive. */
 export const CANONICAL_MODEL_MAP: Record<string, string> = {};
 
 /** Lowercase + strip a leading provider prefix some labels carry (e.g. "anthropic/"). */
@@ -32,15 +25,7 @@ function normKey(model: string): string {
     .replace(/^[a-z]+\//, "");
 }
 
-/**
- * Canonicalize a (suffix-stripped) Cursor model label to the id LangSmith's price
- * table matches. Cursor writes Claude labels version-first with a dotted version
- * (`claude-4.8-opus`); LangSmith's ids split the version on dashes and — from v4
- * on — put the tier first (`claude-opus-4-8`), while the v3 line keeps the version
- * first (`claude-3-7-sonnet`). We reorder by major version generically, so future
- * Anthropic releases need no new entries. Explicit overrides win; everything else
- * (GPT, Gemini, `claude-fable-5`, composer, …) passes through unchanged.
- */
+/** Canonicalize a Cursor model label to LangSmith's price-table id (Claude reordered by version). */
 export function canonicalModelId(model: string): string {
   const key = normKey(model);
   if (CANONICAL_MODEL_MAP[key]) return CANONICAL_MODEL_MAP[key];
@@ -81,10 +66,7 @@ export interface ModelInfo {
   ls_provider?: string;
 }
 
-/**
- * Prefer a concrete model label over "default" (Auto mode); keeps the most
- * specific value seen across a turn's hooks.
- */
+/** Prefer a concrete model label over "default" (Auto mode). */
 export function preferModel(
   current: string | undefined,
   incoming: string | undefined,
@@ -93,10 +75,7 @@ export function preferModel(
   return current ?? incoming;
 }
 
-/**
- * Derive { ls_model_name, ls_provider } from a Cursor model label: suffix-stripped
- * and canonicalized. "default" (Auto) → model "default", provider "cursor".
- */
+/** Derive { ls_model_name, ls_provider } from a Cursor model label (suffix-stripped, canonical). */
 export function deriveModelInfo(model: string | undefined): ModelInfo {
   const raw = (model ?? "").trim() || "default";
   return {
@@ -107,11 +86,7 @@ export function deriveModelInfo(model: string | undefined): ModelInfo {
 
 // ─── Usage + cost ────────────────────────────────────────────────────────────
 
-/**
- * Build usage_metadata from Cursor's token fields, folding cache into
- * input_tokens. Cost is left to LangSmith's server-side price table (which prices
- * by the canonical ls_model_name). Undefined when no tokens.
- */
+/** Build usage_metadata from token fields, folding cache into input_tokens; no cost (priced server-side). */
 export function buildUsageMetadata(usage: UsageFields | undefined) {
   if (!usage) return undefined;
   const cacheRead = usage.cache_read_tokens ?? 0;
@@ -148,10 +123,7 @@ export function parseToolOutput(raw: unknown): unknown {
 
 const MULTIMODAL_PART_TYPES = new Set(["image", "file"]);
 
-/**
- * Convert a binary content part ({ type, mimeType, data }) to the LangChain v1
- * block ({ type, mime_type, base64 }). Non-multimodal parts pass through.
- */
+/** Convert a binary part ({type,mimeType,data}) to LangChain v1; others pass through. */
 export function normalizeContentPart(part: unknown): unknown {
   if (!isRecord(part)) return part;
   if (typeof part.type !== "string" || !MULTIMODAL_PART_TYPES.has(part.type)) return part;

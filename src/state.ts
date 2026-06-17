@@ -1,6 +1,6 @@
 /**
- * Persistent per-turn event buffer: hooks append to a conversation_id-keyed JSON
- * file; `stop` posts the trace and clears the turn. File-locked.
+ * Persistent per-turn event buffer in a conversation_id-keyed JSON file; `stop`
+ * posts the trace and clears the turn. File-locked.
  */
 
 import { readFileSync, writeFileSync, mkdirSync, openSync, closeSync, unlinkSync } from "node:fs";
@@ -50,10 +50,7 @@ function releaseLock(stateFilePath: string): void {
   }
 }
 
-/**
- * Atomically read state, apply `fn`, and write the result back.
- * A file lock prevents concurrent hooks from clobbering each other.
- */
+/** Atomically read state, apply `fn`, write it back; a file lock serializes hooks. */
 export async function atomicUpdateState(
   stateFilePath: string,
   fn: (state: TracingState) => TracingState,
@@ -100,10 +97,7 @@ export function newTurnBuffer(generationId: string, startMs: number): TurnBuffer
   };
 }
 
-/**
- * In-progress turn buffer for a generation, or undefined; callers may lazily
- * create one if hooks fire early.
- */
+/** In-progress turn buffer for a generation, or undefined. */
 export function getTurnBuffer(
   state: TracingState,
   conversationId: string,

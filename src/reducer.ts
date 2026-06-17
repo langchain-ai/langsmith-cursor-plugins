@@ -1,6 +1,6 @@
 /**
- * Pure state reducers — one per hook event. Each maps (state, input, timestamp)
- * to next state. No I/O, so fully unit-testable.
+ * Pure state reducers — one per hook event, mapping (state, input, timestamp) to
+ * next state. No I/O, so fully unit-testable.
  */
 
 import type {
@@ -153,8 +153,8 @@ function collectTools(conv: ConversationState): ToolEvent[] {
 }
 
 /**
- * In-memory fallback: link a subagent to the orphan conversation (turn_count 0)
- * whose buffered tools fall in its window. Single-subagent only.
+ * Fallback: link a subagent to the orphan conversation (turn_count 0) whose
+ * buffered tools fall in its window. Single-subagent only.
  */
 function findChildConversation(
   state: TracingState,

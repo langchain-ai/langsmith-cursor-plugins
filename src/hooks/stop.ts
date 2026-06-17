@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
- * stop hook — finalizes the turn: merges usage, posts the LangSmith trace,
- * flushes, and clears the buffer. Idempotent; no buffer → no-op.
+ * stop hook — finalizes the turn: posts the LangSmith trace, flushes, clears the
+ * buffer. Idempotent; no buffer → no-op.
  */
 
 import { readStdin } from "../utils/stdin.js";

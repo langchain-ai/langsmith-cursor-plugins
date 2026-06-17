@@ -348,8 +348,7 @@ async function postSubagentRun(sub: SubagentEvent, parent: RunTree): Promise<voi
   });
   await taskRun.postRun();
 
-  // The subagent's own LLM call: its system prompt + task → final answer, with model
-  // attribution. Mirrors the main turn's llm run. Usage is unavailable for subagents.
+  // The subagent's own LLM call: system prompt + task → answer, with model. No usage.
   if (sub.model || sub.systemPrompt || sub.resultText) {
     const subModel = deriveModelInfo(sub.model);
     const llmRun = taskRun.createChild({
