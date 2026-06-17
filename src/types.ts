@@ -145,8 +145,18 @@ export interface SubagentEvent {
   subagent_id: string;
   subagent_type: string;
   task: string;
+  /** Short human-readable label for the task (subagentStop.description). */
+  description?: string;
+  /** Cursor model label the subagent ran on (subagentStart.subagent_model). */
+  model?: string;
+  /** True when this subagent is one of several parallel workers. */
+  is_parallel_worker?: boolean;
   status?: string;
   duration_ms?: number;
+  /** Cursor-reported counts at subagentStop (often 0 — unreliable, surfaced as-is). */
+  message_count?: number;
+  tool_call_count?: number;
+  loop_count?: number;
   /** Wall-clock ms when subagentStart fired. */
   startMs: number;
   /** Wall-clock ms when subagentStop fired. */

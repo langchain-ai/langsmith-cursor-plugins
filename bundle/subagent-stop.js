@@ -349,6 +349,10 @@ function reduceSubagentStop(state, input, nowMs, resolved) {
   }
   target.status = input.status;
   target.duration_ms = input.duration_ms;
+  target.description = input.description;
+  target.message_count = input.message_count;
+  target.tool_call_count = input.tool_call_count;
+  target.loop_count = input.loop_count;
   target.endMs = nowMs;
   if (resolved?.resultText)
     target.resultText = resolved.resultText;

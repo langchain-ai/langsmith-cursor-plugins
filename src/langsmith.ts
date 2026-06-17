@@ -307,10 +307,18 @@ async function postSubagentRun(sub: SubagentEvent, parent: RunTree): Promise<voi
   const isError = sub.status != null && sub.status !== "completed";
   const tools = sub.tools ?? [];
 
+  // Surface the subagent kind in the tree (e.g. "Task: explore") and its model.
+  const runName = sub.subagent_type ? `Task: ${sub.subagent_type}` : "Task";
+  const model = sub.model ? deriveModelInfo(sub.model) : undefined;
+
   const taskRun = parent.createChild({
-    name: "Task",
+    name: runName,
     run_type: "tool",
-    inputs: { subagent_type: sub.subagent_type, task: sub.task },
+    inputs: {
+      subagent_type: sub.subagent_type,
+      ...(sub.description ? { description: sub.description } : {}),
+      task: sub.task,
+    },
     outputs: {
       status: sub.status ?? "completed",
       ...(sub.resultText ? { result: sub.resultText } : {}),
@@ -323,8 +331,18 @@ async function postSubagentRun(sub: SubagentEvent, parent: RunTree): Promise<voi
         tool_name: "Task",
         subagent_id: sub.subagent_id,
         subagent_type: sub.subagent_type,
+        ...(sub.description ? { subagent_description: sub.description } : {}),
+        ...(sub.model ? { subagent_model: sub.model } : {}),
+        ...(model?.ls_provider ? { subagent_provider: model.ls_provider } : {}),
+        ...(sub.is_parallel_worker != null
+          ? { subagent_is_parallel_worker: sub.is_parallel_worker }
+          : {}),
         ...(sub.childConversationId ? { subagent_conversation_id: sub.childConversationId } : {}),
+        // Tools we actually captured (authoritative) vs Cursor-reported counts (often 0).
         subagent_tool_count: tools.length,
+        ...(sub.message_count != null ? { reported_message_count: sub.message_count } : {}),
+        ...(sub.tool_call_count != null ? { reported_tool_call_count: sub.tool_call_count } : {}),
+        ...(sub.loop_count != null ? { reported_loop_count: sub.loop_count } : {}),
       },
     },
   });
