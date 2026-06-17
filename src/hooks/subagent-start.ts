@@ -1,8 +1,5 @@
 #!/usr/bin/env node
-/**
- * subagentStart hook — records a subagent invocation on the parent turn buffer.
- * Internal tool calls/usage are not traced in v1.
- */
+/** subagentStart hook — records a subagent invocation on the parent turn buffer. */
 
 import { readStdin } from "../utils/stdin.js";
 import { initHook } from "../utils/hook-init.js";

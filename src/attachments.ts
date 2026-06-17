@@ -1,6 +1,6 @@
 /**
- * Read attachment bytes from Cursor's DB (hooks hide them) → multimodal part.
- * Read-only, never throws. Match bubble `path` (not `selectedImages[].uuid`).
+ * Read attachment bytes from Cursor's DB → multimodal part. Read-only, never throws.
+ * Match bubble `path` (not `selectedImages[].uuid`).
  */
 
 import { DatabaseSync } from "node:sqlite";
@@ -64,8 +64,8 @@ function queryBubbles(dbPath: string, conversationId: string): unknown[] {
 }
 
 /**
- * Collect `context.selectedImages[].path` from user bubbles whose text matches
- * `prompt`. Empty prompt → the sole bubble with attachments, if unambiguous.
+ * Collect `context.selectedImages[].path` from user bubbles matching `prompt`.
+ * Empty prompt → the sole bubble with attachments, if unambiguous.
  */
 export function selectedAttachmentPaths(bubbles: unknown[], prompt: string | undefined): string[] {
   const want = prompt ? normalizeWs(prompt) : "";

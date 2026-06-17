@@ -1,6 +1,6 @@
 /**
- * Configuration loading. Cascade (later wins): defaults → ~/.cursor/langsmith.json
- * → ./.cursor/langsmith.json → environment (CURSOR_LANGSMITH_* / LANGSMITH_*).
+ * Configuration loading. Cascade (later wins): defaults → global file → local
+ * file → environment (CURSOR_LANGSMITH_* / LANGSMITH_*).
  */
 
 import { readFileSync } from "node:fs";
