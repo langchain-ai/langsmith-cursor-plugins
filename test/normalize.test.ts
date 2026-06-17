@@ -5,6 +5,7 @@ import {
   preferModel,
   buildUsageMetadata,
   parseToolOutput,
+  extractMcpError,
   normalizeContentPart,
   canonicalModelId,
 } from "../src/normalize.js";
@@ -129,5 +130,46 @@ describe("normalizeContentPart", () => {
       type: "text",
       text: "hi",
     });
+  });
+});
+
+describe("extractMcpError", () => {
+  const softError = {
+    content: [{ type: "text", text: "SOFT ERROR: this MCP tool deliberately failed." }],
+    isError: true,
+  };
+
+  it("flags an MCP tool whose output has isError:true, using the content text", () => {
+    expect(extractMcpError("MCP:soft_error", softError)).toBe(
+      "SOFT ERROR: this MCP tool deliberately failed.",
+    );
+  });
+
+  it("falls back to a generic message when isError:true but no text content", () => {
+    expect(extractMcpError("MCP:foo", { isError: true })).toBe("MCP tool returned isError: true");
+  });
+
+  it("ignores successful MCP calls (isError:false or absent)", () => {
+    expect(extractMcpError("MCP:foo", { content: [{ type: "text", text: "ok" }], isError: false })).toBeUndefined();
+    expect(extractMcpError("MCP:foo", { content: [] })).toBeUndefined();
+  });
+
+  it("ignores non-MCP tools even when output looks like an error", () => {
+    expect(extractMcpError("Read", softError)).toBeUndefined();
+  });
+
+  it("does NOT catch laundered hard errors (isError:false)", () => {
+    // Cursor rewrites JSON-RPC protocol errors to isError:false with the message
+    // buried as text — intentionally not flagged (would need a brittle heuristic).
+    const hardError = {
+      content: [{ type: "text", text: '{"error":"MCP error -32603: HARD ERROR"}' }],
+      isError: false,
+    };
+    expect(extractMcpError("MCP:hard_error", hardError)).toBeUndefined();
+  });
+
+  it("handles non-record output safely", () => {
+    expect(extractMcpError("MCP:foo", "some string")).toBeUndefined();
+    expect(extractMcpError("MCP:foo", undefined)).toBeUndefined();
   });
 });
