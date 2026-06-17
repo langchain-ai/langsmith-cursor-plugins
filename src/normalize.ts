@@ -144,6 +144,35 @@ export function parseToolOutput(raw: unknown): unknown {
   }
 }
 
+/** MCP tool names arrive namespaced as "MCP:<tool>". */
+export const MCP_TOOL_PREFIX = "MCP:";
+
+/** Join the text parts of an MCP tool result's `content` array, if any. */
+function mcpContentToText(content: unknown): string | undefined {
+  if (!Array.isArray(content)) return undefined;
+  const texts = content
+    .filter(isRecord)
+    .map((part) => (typeof part.text === "string" ? part.text : undefined))
+    .filter((text): text is string => text != null && text !== "");
+  return texts.length > 0 ? texts.join("\n") : undefined;
+}
+
+/**
+ * MCP tool failures never arrive via postToolUseFailure — Cursor routes them
+ * through postToolUse with the error embedded in the (parsed) output. Detect the
+ * clean case: an "MCP:"-prefixed tool whose output has `isError === true`, and
+ * return a human-readable error string so the run can be flagged as an error.
+ *
+ * NB: hard protocol errors are laundered by Cursor into `isError: false` (the
+ * message survives only as nested text), so they are intentionally NOT caught
+ * here — that would require a brittle string heuristic.
+ */
+export function extractMcpError(toolName: string, output: unknown): string | undefined {
+  if (!toolName.startsWith(MCP_TOOL_PREFIX)) return undefined;
+  if (!isRecord(output) || output.isError !== true) return undefined;
+  return mcpContentToText(output.content) ?? "MCP tool returned isError: true";
+}
+
 // ─── Multimodal content (forward-compat) ─────────────────────────────────────
 
 const MULTIMODAL_PART_TYPES = new Set(["image", "file"]);

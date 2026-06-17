@@ -18,7 +18,12 @@ import type {
   StopInput,
 } from "./types.js";
 import { getConversationState, newTurnBuffer, pruneOldConversations } from "./state.js";
-import { parseToolOutput, preferModel, type SubagentToolCall } from "./normalize.js";
+import {
+  extractMcpError,
+  parseToolOutput,
+  preferModel,
+  type SubagentToolCall,
+} from "./normalize.js";
 
 function touch(conv: { updated: string }): void {
   conv.updated = new Date().toISOString();
@@ -59,11 +64,15 @@ export function reducePostToolUse(
   const conv = getConversationState(state, input.conversation_id);
   const turn = conv.turns[input.generation_id] ?? newTurnBuffer(input.generation_id, nowMs);
   turn.model = preferModel(turn.model, input.model);
+  const output = parseToolOutput(input.tool_output);
   turn.tools.push({
     tool_use_id: input.tool_use_id,
     name: input.tool_name,
     input: input.tool_input ?? {},
-    output: parseToolOutput(input.tool_output),
+    output,
+    // Cursor never fires postToolUseFailure for MCP tools; a failed MCP call
+    // arrives here with isError in the output. Flag it so the run is an error.
+    error: extractMcpError(input.tool_name, output),
     duration: input.duration,
     endMs: nowMs,
   });

@@ -273,6 +273,9 @@ function newTurnBuffer(generationId, startMs) {
 var CONVERSATION_MAX_AGE_MS = 24 * 60 * 60 * 1e3;
 
 // dist/normalize.js
+function isRecord(value) {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
 function preferModel(current, incoming) {
   if (incoming && incoming.toLowerCase() !== "default")
     return incoming;
@@ -290,6 +293,20 @@ function parseToolOutput(raw) {
     return raw;
   }
 }
+var MCP_TOOL_PREFIX = "MCP:";
+function mcpContentToText(content) {
+  if (!Array.isArray(content))
+    return void 0;
+  const texts = content.filter(isRecord).map((part) => typeof part.text === "string" ? part.text : void 0).filter((text) => text != null && text !== "");
+  return texts.length > 0 ? texts.join("\n") : void 0;
+}
+function extractMcpError(toolName, output) {
+  if (!toolName.startsWith(MCP_TOOL_PREFIX))
+    return void 0;
+  if (!isRecord(output) || output.isError !== true)
+    return void 0;
+  return mcpContentToText(output.content) ?? "MCP tool returned isError: true";
+}
 
 // dist/reducer.js
 function touch(conv) {
@@ -299,11 +316,15 @@ function reducePostToolUse(state, input, nowMs) {
   const conv = getConversationState(state, input.conversation_id);
   const turn = conv.turns[input.generation_id] ?? newTurnBuffer(input.generation_id, nowMs);
   turn.model = preferModel(turn.model, input.model);
+  const output = parseToolOutput(input.tool_output);
   turn.tools.push({
     tool_use_id: input.tool_use_id,
     name: input.tool_name,
     input: input.tool_input ?? {},
-    output: parseToolOutput(input.tool_output),
+    output,
+    // Cursor never fires postToolUseFailure for MCP tools; a failed MCP call
+    // arrives here with isError in the output. Flag it so the run is an error.
+    error: extractMcpError(input.tool_name, output),
     duration: input.duration,
     endMs: nowMs
   });
