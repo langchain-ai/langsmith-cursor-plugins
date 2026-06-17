@@ -24,7 +24,9 @@ export interface Config {
   customMetadata?: Record<string, unknown>;
   /** Enrich turns with image/file attachment bytes from Cursor's DB (default on). */
   attachmentsEnabled: boolean;
-  /** Override the Cursor state.vscdb path used for attachment enrichment. */
+  /** Recover the turn's system prompt from Cursor's DB (default on). */
+  systemPromptEnabled: boolean;
+  /** Override the Cursor state.vscdb path used for DB enrichment. */
   cursorDbPath?: string;
 }
 
@@ -60,6 +62,7 @@ interface FileConfig {
   metadata?: Record<string, unknown>;
   replicas?: Array<Record<string, unknown>>;
   attachments?: boolean;
+  system_prompt?: boolean;
   cursor_db_path?: string;
 }
 
@@ -165,6 +168,12 @@ export function loadConfig(options?: { cwd?: string }): Config {
     localFile?.attachments ??
     globalFile?.attachments ??
     true;
+  // System-prompt enrichment defaults ON; opt out via config or CURSOR_LANGSMITH_SYSTEM_PROMPT.
+  const systemPromptEnabled =
+    parseBoolean(getEnv("SYSTEM_PROMPT")) ??
+    localFile?.system_prompt ??
+    globalFile?.system_prompt ??
+    true;
   const cursorDbPath = getEnv("DB_PATH") ?? localFile?.cursor_db_path ?? globalFile?.cursor_db_path;
 
   const stateFilePath =
@@ -195,6 +204,7 @@ export function loadConfig(options?: { cwd?: string }): Config {
     replicas,
     customMetadata,
     attachmentsEnabled,
+    systemPromptEnabled,
     cursorDbPath,
   };
 }

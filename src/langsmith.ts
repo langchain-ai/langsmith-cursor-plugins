@@ -74,6 +74,16 @@ export interface BuildTurnOptions {
   customMetadata?: Record<string, unknown>;
   /** Image/file parts for the user message, recovered from Cursor's DB. */
   attachments?: ContentPart[];
+  /** The turn's system prompt, recovered from Cursor's DB (prepended to llm runs). */
+  systemPrompt?: string;
+}
+
+/** Prepend a system message to an llm run's input messages, when one was recovered. */
+function withSystem(
+  messages: Array<Record<string, unknown>>,
+  systemPrompt: string | undefined,
+): Array<Record<string, unknown>> {
+  return systemPrompt ? [{ role: "system", content: systemPrompt }, ...messages] : messages;
 }
 
 /** User message as a content-part array (text first), so consumers see one format. */
@@ -150,7 +160,8 @@ function orderedTurnCalls(buffer: TurnBuffer): TurnCall[] {
 
 /** Build and submit the full LangSmith trace for one finalized turn. */
 export async function buildTurnRuns(options: BuildTurnOptions): Promise<void> {
-  const { buffer, conversationId, turnNum, project, userEmail, customMetadata } = options;
+  const { buffer, conversationId, turnNum, project, userEmail, customMetadata, systemPrompt } =
+    options;
 
   if (!client && !replicas) {
     throw new Error("LangSmith client not initialized — call initTracing() first");
@@ -198,7 +209,7 @@ export async function buildTurnRuns(options: BuildTurnOptions): Promise<void> {
     const llmRun = turnRun.createChild({
       name: llmName,
       run_type: "llm",
-      inputs: { messages: [{ role: "user", content: userContent }] },
+      inputs: { messages: withSystem([{ role: "user", content: userContent }], systemPrompt) },
       outputs: { messages: [{ role: "assistant", content: [...thinking, ...finalTextBlocks] }] },
       start_time: buffer.startMs,
       end_time: turnEndMs,
@@ -219,7 +230,7 @@ export async function buildTurnRuns(options: BuildTurnOptions): Promise<void> {
     const decideRun = turnRun.createChild({
       name: llmName,
       run_type: "llm",
-      inputs: { messages: [{ role: "user", content: userContent }] },
+      inputs: { messages: withSystem([{ role: "user", content: userContent }], systemPrompt) },
       outputs: { messages: [{ role: "assistant", content: assistantDecision }] },
       start_time: buffer.startMs,
       end_time: Math.max(buffer.startMs, firstCallStart),
@@ -236,11 +247,14 @@ export async function buildTurnRuns(options: BuildTurnOptions): Promise<void> {
       name: llmName,
       run_type: "llm",
       inputs: {
-        messages: [
-          { role: "user", content: userContent },
-          { role: "assistant", content: assistantDecision },
-          ...calls.map((c) => c.resultMessage),
-        ],
+        messages: withSystem(
+          [
+            { role: "user", content: userContent },
+            { role: "assistant", content: assistantDecision },
+            ...calls.map((c) => c.resultMessage),
+          ],
+          systemPrompt,
+        ),
       },
       outputs: { messages: [{ role: "assistant", content: finalTextBlocks }] },
       start_time: lastCallEnd,
