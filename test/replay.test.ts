@@ -127,11 +127,16 @@ describe("buildTurnRuns produces the expected LangSmith run tree", () => {
 
     // The subagent's internal tool calls nest under the Task run...
     const nested = Object.values(tree.data).filter((r) => r.parent_run_id === task.id);
-    expect(nested.length).toBe(35);
-    expect(nested.every((r) => r.run_type === "tool")).toBe(true);
+    const nestedTools = nested.filter((r) => r.run_type === "tool");
+    expect(nestedTools.length).toBe(35);
+    expect(nestedTools.some((r) => r.name === "Read")).toBe(true);
+    // ...alongside one llm run carrying the subagent's model + I/O.
+    const nestedLlm = nested.filter((r) => r.run_type === "llm");
+    expect(nestedLlm.length).toBe(1);
+    expect(meta(nestedLlm[0]).ls_model_name).toBe("composer-2.5-fast");
+    expect(meta(nestedLlm[0]).ls_provider).toBe("cursor");
     // ...while staying part of the same trace (root), not a separate trace.
     expect(nested.every((r) => r.trace_id === root.id)).toBe(true);
-    expect(nested.some((r) => r.name === "Read")).toBe(true);
   });
 
   it("emits tool_call content blocks in the llm assistant message", async () => {

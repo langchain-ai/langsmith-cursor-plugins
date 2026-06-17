@@ -348,6 +348,30 @@ async function postSubagentRun(sub: SubagentEvent, parent: RunTree): Promise<voi
   });
   await taskRun.postRun();
 
+  // The subagent's own LLM call: its system prompt + task → final answer, with model
+  // attribution. Mirrors the main turn's llm run. Usage is unavailable for subagents.
+  if (sub.model || sub.systemPrompt || sub.resultText) {
+    const subModel = deriveModelInfo(sub.model);
+    const llmRun = taskRun.createChild({
+      name: subModel.ls_provider ?? subModel.ls_model_name,
+      run_type: "llm",
+      inputs: {
+        messages: withSystem([{ role: "user", content: sub.task }], sub.systemPrompt),
+      },
+      outputs: { messages: [{ role: "assistant", content: sub.resultText ?? "" }] },
+      start_time: sub.startMs,
+      end_time: sub.endMs ?? sub.startMs,
+      extra: {
+        metadata: {
+          ls_provider: subModel.ls_provider,
+          ls_model_name: subModel.ls_model_name,
+          ls_invocation_params: { model: subModel.ls_model_name },
+        },
+      },
+    });
+    await llmRun.postRun();
+  }
+
   // Nest the subagent's internal tool calls as children of the Task run.
   for (const tool of tools) {
     await postToolRun(tool, taskRun);
