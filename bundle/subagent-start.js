@@ -298,6 +298,8 @@ function reduceSubagentStart(state, input, nowMs) {
     subagent_id: input.subagent_id,
     subagent_type: input.subagent_type,
     task: input.task,
+    model: input.subagent_model ?? input.model,
+    is_parallel_worker: input.is_parallel_worker,
     startMs: nowMs
   });
   conv.turns[turn.generation_id] = turn;

@@ -112,12 +112,18 @@ describe("buildTurnRuns produces the expected LangSmith run tree", () => {
 
     const tree = await getAssumedTreeFromCalls(callSpy.mock.calls, client);
     const root = Object.values(tree.data).find((r) => r.run_type === "chain")!;
-    const task = Object.values(tree.data).find((r) => r.name === "Task")!;
+    const task = Object.values(tree.data).find((r) => r.name?.startsWith("Task"))!;
 
     expect(task).toBeDefined();
     expect(task.run_type).toBe("tool");
     expect(task.parent_run_id).toBe(root.id);
+    // Run name surfaces the subagent kind; metadata carries model + parallel flag.
+    expect(task.name).toBe("Task: explore");
     expect(meta(task).subagent_type).toBe("explore");
+    expect(meta(task).subagent_model).toBe("composer-2.5-fast");
+    expect(meta(task).subagent_provider).toBe("cursor");
+    expect(meta(task).subagent_is_parallel_worker).toBe(false);
+    expect(meta(task).subagent_description).toBe("Summarize repository architecture");
 
     // The subagent's internal tool calls nest under the Task run...
     const nested = Object.values(tree.data).filter((r) => r.parent_run_id === task.id);

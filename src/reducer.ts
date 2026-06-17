@@ -127,6 +127,8 @@ export function reduceSubagentStart(
     subagent_id: input.subagent_id,
     subagent_type: input.subagent_type,
     task: input.task,
+    model: input.subagent_model ?? input.model,
+    is_parallel_worker: input.is_parallel_worker,
     startMs: nowMs,
   });
   conv.turns[turn.generation_id] = turn;
@@ -221,6 +223,10 @@ export function reduceSubagentStop(
 
   target.status = input.status;
   target.duration_ms = input.duration_ms;
+  target.description = input.description;
+  target.message_count = input.message_count;
+  target.tool_call_count = input.tool_call_count;
+  target.loop_count = input.loop_count;
   target.endMs = nowMs;
   if (resolved?.resultText) target.resultText = resolved.resultText;
 
