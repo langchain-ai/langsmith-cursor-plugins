@@ -148,8 +148,14 @@ function orderedTurnCalls(buffer: TurnBuffer): TurnCall[] {
   return calls.sort((a, b) => a.startMs - b.startMs);
 }
 
+/** Identifies the run a feedback command attaches to. */
+export interface BuiltTurn {
+  runId: string;
+  traceId: string;
+}
+
 /** Build and submit the full LangSmith trace for one finalized turn. */
-export async function buildTurnRuns(options: BuildTurnOptions): Promise<void> {
+export async function buildTurnRuns(options: BuildTurnOptions): Promise<BuiltTurn> {
   const { buffer, conversationId, turnNum, project, userEmail, customMetadata } = options;
 
   if (!client && !replicas) {
@@ -259,6 +265,70 @@ export async function buildTurnRuns(options: BuildTurnOptions): Promise<void> {
   logger.log(
     `Traced ${turnName} (conv=${conversationId}): ${buffer.tools.length} tool(s), ${buffer.subagents.length} subagent(s)`,
   );
+
+  return { runId: turnRun.id, traceId: turnRun.trace_id ?? turnRun.id };
+}
+
+// ─── User feedback ─────────────────────────────────────────────────────────
+
+/** A run to attach feedback to. */
+export interface FeedbackTarget {
+  runId: string;
+}
+
+/** LangSmith feedback fields posted by a user's in-chat feedback command. */
+export interface FeedbackPayload {
+  key: string;
+  score?: number;
+  value?: string;
+  comment?: string;
+  sourceInfo?: Record<string, unknown>;
+}
+
+/**
+ * Clients to post feedback to: the primary client when present, otherwise one
+ * per configured replica with an API key (replica-only setups). RunTree posts
+ * the same run id to every replica, so the id is valid on each endpoint.
+ */
+function feedbackClients(): Client[] {
+  if (client) return [client];
+  const clients: Client[] = [];
+  for (const r of replicas ?? []) {
+    // Replica is `[project, meta] | WriteReplica`; only the object form carries creds.
+    if (!Array.isArray(r) && typeof r === "object" && r.apiKey) {
+      clients.push(r.client ?? new Client({ apiKey: r.apiKey, apiUrl: r.apiUrl }));
+    }
+  }
+  return clients;
+}
+
+/**
+ * Attach user feedback to a previously traced run. Returns the number of
+ * endpoints the feedback was successfully posted to (0 if none / all failed).
+ */
+export async function submitFeedback(
+  target: FeedbackTarget,
+  payload: FeedbackPayload,
+): Promise<number> {
+  const clients = feedbackClients();
+  if (clients.length === 0) {
+    throw new Error("LangSmith client not initialized — call initTracing() first");
+  }
+  let posted = 0;
+  for (const c of clients) {
+    try {
+      await c.createFeedback(target.runId, payload.key, {
+        score: payload.score,
+        value: payload.value,
+        comment: payload.comment,
+        sourceInfo: payload.sourceInfo,
+      });
+      posted += 1;
+    } catch (err) {
+      logger.warn(`Feedback post failed for run ${target.runId}: ${err}`);
+    }
+  }
+  return posted;
 }
 
 /** Post one tool run as a child of `parent` (the turn root, or a Task run). */

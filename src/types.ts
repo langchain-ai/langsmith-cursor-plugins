@@ -190,6 +190,21 @@ export interface TurnBuffer {
   status?: string;
 }
 
+/**
+ * The most recently finalized turn's run, persisted so a later feedback
+ * slash-command can attach LangSmith feedback to the turn the user just saw.
+ */
+export interface LastTrace {
+  /** Root turn run id — the feedback target. */
+  runId: string;
+  /** Trace id (equals the root run id for a turn). */
+  traceId: string;
+  /** Turn number, for the confirmation message ("Cursor Turn N"). */
+  turnNum: number;
+  /** ISO timestamp when the turn was finalized. */
+  finalizedAt: string;
+}
+
 /** State for one conversation (thread). */
 export interface ConversationState {
   /** In-progress turn buffers keyed by generation_id. */
@@ -198,6 +213,8 @@ export interface ConversationState {
   turn_count: number;
   /** ISO timestamp of last update (for pruning). */
   updated: string;
+  /** The last finalized turn's run, targeted by a feedback slash-command. */
+  last_trace?: LastTrace;
 }
 
 export interface TracingState {

@@ -8,7 +8,7 @@ It works via [Cursor hooks](https://cursor.com/docs/agent/hooks): short-lived ho
 
 Cursor's transcript file is text-only, so this integration is built entirely from **hook payloads**, not the transcript:
 
-- `beforeSubmitPrompt` opens a turn buffer (prompt + model).
+- `beforeSubmitPrompt` opens a turn buffer (prompt + model) — or, for a `/langsmith` command, posts feedback to the previous turn instead (see [Flag a trace with feedback](#flag-a-trace-with-feedback)).
 - `postToolUse` / `postToolUseFailure` append tool calls.
 - `afterAgentResponse` records the final text + token usage.
 - `subagentStart` / `subagentStop` record subagents (linked to the turn).
@@ -86,6 +86,22 @@ We don't compute cost locally. Instead, Cursor's model labels (e.g. `claude-4.6-
 - **Tool calls** (success and failure) with inputs/outputs.
 - **Image/file attachments** — recovered from Cursor's local DB and rendered inline on the user message.
 - **Subagents** as a `Task` tool run (type + task), with their internal tool calls nested underneath.
+
+## Flag a trace with feedback
+
+You can attach LangSmith feedback to the turn you just saw **without leaving Cursor** — useful for flagging a prompt that burned excessive tokens, gave a bad answer, or worked unusually well, so it can be reviewed (or ingested) later.
+
+Type a `/langsmith` command in the Cursor chat box instead of a normal message. The `beforeSubmitPrompt` hook posts the feedback to the previous turn's trace and **cancels** the submission (it never reaches the agent), echoing a confirmation:
+
+| Command                          | Effect on the previous turn's trace          |
+| -------------------------------- | -------------------------------------------- |
+| `/langsmith good [comment]`      | 👍 score `1`                                  |
+| `/langsmith bad too many tokens` | 👎 score `0` + comment                        |
+| `/langsmith flag revisit this`   | 🚩 bookmark (no score) + comment              |
+| `/langsmith <free text>`         | 📝 comment-only note                          |
+| `/langsmith`                     | shows usage help                             |
+
+`/ls` is an alias. All feedback is recorded under the key `user_feedback`, so it can be filtered by score or comment in LangSmith. Feedback targets the most recently finalized turn in the conversation, so send your message, see the response, then flag it.
 
 ## Known limitations
 

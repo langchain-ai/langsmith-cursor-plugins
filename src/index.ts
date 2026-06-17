@@ -8,10 +8,15 @@ export type { Config } from "./config.js";
 export {
   initTracing,
   buildTurnRuns,
+  submitFeedback,
   flushPendingTraces,
   generateDottedOrderSegment,
   parseDottedOrder,
 } from "./langsmith.js";
+export type { BuiltTurn, FeedbackTarget, FeedbackPayload } from "./langsmith.js";
+
+export { parseFeedbackCommand, feedbackHelpText } from "./feedback.js";
+export type { FeedbackCommand, ParsedFeedback } from "./feedback.js";
 
 export {
   loadState,
@@ -46,4 +51,5 @@ export {
   reduceSubagentStart,
   reduceSubagentStop,
   reduceStop,
+  reduceRecordLastTrace,
 } from "./reducer.js";
