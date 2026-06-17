@@ -173,6 +173,8 @@ export interface SubagentEvent {
   tools?: ToolEvent[];
   /** The subagent's final answer text (from its transcript). */
   resultText?: string;
+  /** The subagent's own system prompt, recovered from its child conversation's DB state. */
+  systemPrompt?: string;
 }
 
 /** An assistant thinking block. */

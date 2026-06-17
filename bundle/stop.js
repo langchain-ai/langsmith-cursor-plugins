@@ -9412,6 +9412,27 @@ async function postSubagentRun(sub, parent) {
     }
   });
   await taskRun.postRun();
+  if (sub.model || sub.systemPrompt || sub.resultText) {
+    const subModel = deriveModelInfo(sub.model);
+    const llmRun = taskRun.createChild({
+      name: subModel.ls_provider ?? subModel.ls_model_name,
+      run_type: "llm",
+      inputs: {
+        messages: withSystem([{ role: "user", content: sub.task }], sub.systemPrompt)
+      },
+      outputs: { messages: [{ role: "assistant", content: sub.resultText ?? "" }] },
+      start_time: sub.startMs,
+      end_time: sub.endMs ?? sub.startMs,
+      extra: {
+        metadata: {
+          ls_provider: subModel.ls_provider,
+          ls_model_name: subModel.ls_model_name,
+          ls_invocation_params: { model: subModel.ls_model_name }
+        }
+      }
+    });
+    await llmRun.postRun();
+  }
   for (const tool of tools) {
     await postToolRun(tool, taskRun);
   }
@@ -9732,6 +9753,14 @@ async function main() {
       conversationId: input.conversation_id,
       dbPath: config.cursorDbPath
     });
+    for (const sub of toTrace.subagents) {
+      if (sub.childConversationId) {
+        sub.systemPrompt = resolveTurnSystemPrompt({
+          conversationId: sub.childConversationId,
+          dbPath: config.cursorDbPath
+        });
+      }
+    }
   }
   try {
     await buildTurnRuns({

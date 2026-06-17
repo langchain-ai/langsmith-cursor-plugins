@@ -56,6 +56,15 @@ async function main(): Promise<void> {
       conversationId: input.conversation_id,
       dbPath: config.cursorDbPath,
     });
+    // Each subagent has its own child conversation with a subagent-specific prompt.
+    for (const sub of toTrace.subagents) {
+      if (sub.childConversationId) {
+        sub.systemPrompt = resolveTurnSystemPrompt({
+          conversationId: sub.childConversationId,
+          dbPath: config.cursorDbPath,
+        });
+      }
+    }
   }
 
   try {
