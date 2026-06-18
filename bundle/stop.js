@@ -9236,22 +9236,25 @@ function toolResultText(tool) {
     return "";
   return typeof out === "string" ? out : JSON.stringify(out);
 }
+function toolCall(t, floorMs) {
+  return {
+    startMs: Math.max(floorMs, toolStartMs(t)),
+    toolCallBlock: { type: "tool_call", name: t.name, args: t.input, id: t.tool_use_id },
+    resultMessage: {
+      role: "tool",
+      tool_call_id: t.tool_use_id,
+      content: [{ type: "text", text: toolResultText(t) }]
+    }
+  };
+}
 function orderedTurnCalls(buffer) {
   const calls = [
-    ...buffer.tools.map((t) => ({
-      startMs: Math.max(buffer.startMs, toolStartMs(t)),
-      toolCallBlock: { type: "tool_call", name: t.name, args: t.input, id: t.tool_use_id },
-      resultMessage: {
-        role: "tool",
-        tool_call_id: t.tool_use_id,
-        content: [{ type: "text", text: toolResultText(t) }]
-      }
-    })),
+    ...buffer.tools.map((t) => toolCall(t, buffer.startMs)),
     ...buffer.subagents.map((s) => ({
       startMs: s.startMs,
       toolCallBlock: {
         type: "tool_call",
-        name: "Task",
+        name: "Subagent",
         args: { subagent_type: s.subagent_type, task: s.task },
         id: s.subagent_id
       },
@@ -9376,9 +9379,17 @@ async function postToolRun(tool, parent) {
 async function postSubagentRun(sub, parent) {
   const isError2 = sub.status != null && sub.status !== "completed";
   const tools = sub.tools ?? [];
-  const runName = sub.subagent_type ? `Task: ${sub.subagent_type}` : "Task";
-  const model = sub.model ? deriveModelInfo(sub.model) : void 0;
-  const taskRun = parent.createChild({
+  const startMs = sub.startMs;
+  const endMs = sub.endMs ?? sub.startMs;
+  const runName = sub.subagent_type ? `${sub.subagent_type} Subagent` : "Subagent";
+  const subModel = deriveModelInfo(sub.model);
+  const llmName = subModel.ls_provider ?? subModel.ls_model_name;
+  const llmMeta = {
+    ls_provider: subModel.ls_provider,
+    ls_model_name: subModel.ls_model_name,
+    ls_invocation_params: { model: subModel.ls_model_name }
+  };
+  const subagentRun = parent.createChild({
     name: runName,
     run_type: "tool",
     inputs: {
@@ -9391,16 +9402,16 @@ async function postSubagentRun(sub, parent) {
       ...sub.resultText ? { result: sub.resultText } : {}
     },
     error: isError2 ? sub.status : void 0,
-    start_time: sub.startMs,
-    end_time: sub.endMs ?? sub.startMs,
+    start_time: startMs,
+    end_time: endMs,
     extra: {
       metadata: {
-        tool_name: "Task",
+        tool_name: "Subagent",
         subagent_id: sub.subagent_id,
         subagent_type: sub.subagent_type,
         ...sub.description ? { subagent_description: sub.description } : {},
         ...sub.model ? { subagent_model: sub.model } : {},
-        ...model?.ls_provider ? { subagent_provider: model.ls_provider } : {},
+        ...subModel.ls_provider ? { subagent_provider: subModel.ls_provider } : {},
         ...sub.is_parallel_worker != null ? { subagent_is_parallel_worker: sub.is_parallel_worker } : {},
         ...sub.childConversationId ? { subagent_conversation_id: sub.childConversationId } : {},
         // Tools we actually captured (authoritative) vs Cursor-reported counts (often 0).
@@ -9411,31 +9422,54 @@ async function postSubagentRun(sub, parent) {
       }
     }
   });
-  await taskRun.postRun();
-  if (sub.model || sub.systemPrompt || sub.resultText) {
-    const subModel = deriveModelInfo(sub.model);
-    const llmRun = taskRun.createChild({
-      name: subModel.ls_provider ?? subModel.ls_model_name,
+  await subagentRun.postRun();
+  const baseMessages = withSystem([{ role: "user", content: sub.task }], sub.systemPrompt);
+  const finalBlocks = sub.resultText ? [{ type: "text", text: sub.resultText }] : [];
+  const calls = tools.map((t) => toolCall(t, startMs)).sort((a, b) => a.startMs - b.startMs);
+  if (calls.length === 0) {
+    const llmRun = subagentRun.createChild({
+      name: llmName,
       run_type: "llm",
-      inputs: {
-        messages: withSystem([{ role: "user", content: sub.task }], sub.systemPrompt)
-      },
-      outputs: { messages: [{ role: "assistant", content: sub.resultText ?? "" }] },
-      start_time: sub.startMs,
-      end_time: sub.endMs ?? sub.startMs,
-      extra: {
-        metadata: {
-          ls_provider: subModel.ls_provider,
-          ls_model_name: subModel.ls_model_name,
-          ls_invocation_params: { model: subModel.ls_model_name }
-        }
-      }
+      inputs: { messages: baseMessages },
+      outputs: { messages: [{ role: "assistant", content: finalBlocks }] },
+      start_time: startMs,
+      end_time: endMs,
+      extra: { metadata: { ...llmMeta } }
     });
     await llmRun.postRun();
+    return;
   }
-  for (const tool of tools) {
-    await postToolRun(tool, taskRun);
-  }
+  const firstCallStart = Math.min(...calls.map((c) => c.startMs));
+  const lastCallEnd = Math.max(startMs, ...tools.map((t) => t.endMs));
+  const assistantDecision = calls.map((c) => c.toolCallBlock);
+  const decideRun = subagentRun.createChild({
+    name: llmName,
+    run_type: "llm",
+    inputs: { messages: baseMessages },
+    outputs: { messages: [{ role: "assistant", content: assistantDecision }] },
+    start_time: startMs,
+    end_time: Math.max(startMs, firstCallStart),
+    extra: { metadata: { ...llmMeta } }
+  });
+  await decideRun.postRun();
+  for (const tool of tools)
+    await postToolRun(tool, subagentRun);
+  const answerRun = subagentRun.createChild({
+    name: llmName,
+    run_type: "llm",
+    inputs: {
+      messages: [
+        ...baseMessages,
+        { role: "assistant", content: assistantDecision },
+        ...calls.map((c) => c.resultMessage)
+      ]
+    },
+    outputs: { messages: [{ role: "assistant", content: finalBlocks }] },
+    start_time: lastCallEnd,
+    end_time: endMs,
+    extra: { metadata: { ...llmMeta } }
+  });
+  await answerRun.postRun();
 }
 
 // dist/attachments.js
