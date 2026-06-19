@@ -9716,41 +9716,56 @@ function openDbReader(dbPath) {
     close: () => db.close()
   };
 }
-function resolveTurnSystemPrompt(opts) {
+function systemPromptFor(reader, conversationId) {
+  try {
+    const composer = reader.get(`composerData:${conversationId}`);
+    if (!composer)
+      return void 0;
+    const parsed = JSON.parse(composer.toString("utf-8"));
+    const blob = decodeConversationStateBlob(isRecord(parsed) ? parsed.conversationState : void 0);
+    if (!blob)
+      return void 0;
+    for (const id of readProtoLenField(blob, ROOT_PROMPT_MESSAGES_FIELD)) {
+      const msg = reader.get(`agentKv:blob:${id.toString("hex")}`);
+      if (!msg)
+        continue;
+      const system = systemContentOf(msg);
+      if (system) {
+        log(`system-prompt: recovered for ${conversationId} (${system.length} chars)`);
+        return system;
+      }
+    }
+    return void 0;
+  } catch (err) {
+    warn(`system-prompt: resolution failed for ${conversationId}, skipping (${err})`);
+    return void 0;
+  }
+}
+function resolveSystemPrompts(opts) {
+  const result = /* @__PURE__ */ new Map();
+  const ids = [...new Set(opts.conversationIds)].filter(Boolean);
+  if (ids.length === 0)
+    return result;
   try {
     const dbPath = opts.dbPath ?? defaultCursorDbPath();
     if (!existsSync4(dbPath)) {
       debug(`system-prompt: no Cursor DB at ${dbPath}`);
-      return void 0;
+      return result;
     }
     const reader = (opts.openReader ?? openDbReader)(dbPath);
     try {
-      const composer = reader.get(`composerData:${opts.conversationId}`);
-      if (!composer)
-        return void 0;
-      const parsed = JSON.parse(composer.toString("utf-8"));
-      const blob = decodeConversationStateBlob(isRecord(parsed) ? parsed.conversationState : void 0);
-      if (!blob)
-        return void 0;
-      const blobIds = readProtoLenField(blob, ROOT_PROMPT_MESSAGES_FIELD);
-      for (const id of blobIds) {
-        const msg = reader.get(`agentKv:blob:${id.toString("hex")}`);
-        if (!msg)
-          continue;
-        const system = systemContentOf(msg);
-        if (system) {
-          log(`system-prompt: recovered (${system.length} chars)`);
-          return system;
-        }
+      for (const id of ids) {
+        const system = systemPromptFor(reader, id);
+        if (system)
+          result.set(id, system);
       }
-      return void 0;
     } finally {
       reader.close();
     }
   } catch (err) {
     warn(`system-prompt: resolution failed, skipping (${err})`);
-    return void 0;
   }
+  return result;
 }
 
 // dist/hooks/stop.js
@@ -9783,17 +9798,15 @@ async function main() {
   }
   let systemPrompt;
   if (config.systemPromptEnabled) {
-    systemPrompt = resolveTurnSystemPrompt({
-      conversationId: input.conversation_id,
+    const childIds = toTrace.subagents.map((s) => s.childConversationId).filter((id) => !!id);
+    const prompts = resolveSystemPrompts({
+      conversationIds: [input.conversation_id, ...childIds],
       dbPath: config.cursorDbPath
     });
+    systemPrompt = prompts.get(input.conversation_id);
     for (const sub of toTrace.subagents) {
-      if (sub.childConversationId) {
-        sub.systemPrompt = resolveTurnSystemPrompt({
-          conversationId: sub.childConversationId,
-          dbPath: config.cursorDbPath
-        });
-      }
+      if (sub.childConversationId)
+        sub.systemPrompt = prompts.get(sub.childConversationId);
     }
   }
   try {

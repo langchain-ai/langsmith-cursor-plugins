@@ -118,47 +118,79 @@ function openDbReader(dbPath: string): BlobReader {
   };
 }
 
-export interface ResolveSystemPromptOptions {
-  conversationId: string;
+/** Resolve one conversation's system prompt using an already-open reader. Never throws. */
+function systemPromptFor(reader: BlobReader, conversationId: string): string | undefined {
+  try {
+    const composer = reader.get(`composerData:${conversationId}`);
+    if (!composer) return undefined;
+
+    const parsed = JSON.parse(composer.toString("utf-8"));
+    const blob = decodeConversationStateBlob(isRecord(parsed) ? parsed.conversationState : undefined);
+    if (!blob) return undefined;
+
+    for (const id of readProtoLenField(blob, ROOT_PROMPT_MESSAGES_FIELD)) {
+      const msg = reader.get(`agentKv:blob:${id.toString("hex")}`);
+      if (!msg) continue;
+      const system = systemContentOf(msg);
+      if (system) {
+        logger.log(`system-prompt: recovered for ${conversationId} (${system.length} chars)`);
+        return system;
+      }
+    }
+    return undefined;
+  } catch (err) {
+    logger.warn(`system-prompt: resolution failed for ${conversationId}, skipping (${err})`);
+    return undefined;
+  }
+}
+
+export interface ResolveSystemPromptsOptions {
+  conversationIds: string[];
   /** Override the DB path; defaults to the platform Cursor globalStorage DB. */
   dbPath?: string;
   /** Injectable reader factory (tests). Defaults to the read-only `node:sqlite` reader. */
   openReader?: (dbPath: string) => BlobReader;
 }
 
-/** Resolve a conversation's system prompt from Cursor's DB. Best-effort; never throws. */
-export function resolveTurnSystemPrompt(opts: ResolveSystemPromptOptions): string | undefined {
+/** Resolve system prompts for several conversations over one shared connection. */
+export function resolveSystemPrompts(
+  opts: ResolveSystemPromptsOptions,
+): Map<string, string | undefined> {
+  const result = new Map<string, string | undefined>();
+  const ids = [...new Set(opts.conversationIds)].filter(Boolean);
+  if (ids.length === 0) return result;
   try {
     const dbPath = opts.dbPath ?? defaultCursorDbPath();
     if (!existsSync(dbPath)) {
       logger.debug(`system-prompt: no Cursor DB at ${dbPath}`);
-      return undefined;
+      return result;
     }
     const reader = (opts.openReader ?? openDbReader)(dbPath);
     try {
-      const composer = reader.get(`composerData:${opts.conversationId}`);
-      if (!composer) return undefined;
-
-      const parsed = JSON.parse(composer.toString("utf-8"));
-      const blob = decodeConversationStateBlob(isRecord(parsed) ? parsed.conversationState : undefined);
-      if (!blob) return undefined;
-
-      const blobIds = readProtoLenField(blob, ROOT_PROMPT_MESSAGES_FIELD);
-      for (const id of blobIds) {
-        const msg = reader.get(`agentKv:blob:${id.toString("hex")}`);
-        if (!msg) continue;
-        const system = systemContentOf(msg);
-        if (system) {
-          logger.log(`system-prompt: recovered (${system.length} chars)`);
-          return system;
-        }
+      for (const id of ids) {
+        const system = systemPromptFor(reader, id);
+        if (system) result.set(id, system);
       }
-      return undefined;
     } finally {
       reader.close();
     }
   } catch (err) {
     logger.warn(`system-prompt: resolution failed, skipping (${err})`);
-    return undefined;
   }
+  return result;
+}
+
+export interface ResolveSystemPromptOptions {
+  conversationId: string;
+  dbPath?: string;
+  openReader?: (dbPath: string) => BlobReader;
+}
+
+/** Resolve a single conversation's system prompt (opens + closes one connection). */
+export function resolveTurnSystemPrompt(opts: ResolveSystemPromptOptions): string | undefined {
+  return resolveSystemPrompts({
+    conversationIds: [opts.conversationId],
+    dbPath: opts.dbPath,
+    openReader: opts.openReader,
+  }).get(opts.conversationId);
 }

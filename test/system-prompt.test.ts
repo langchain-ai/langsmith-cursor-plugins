@@ -7,6 +7,7 @@ import {
   decodeConversationStateBlob,
   systemContentOf,
   resolveTurnSystemPrompt,
+  resolveSystemPrompts,
   type BlobReader,
 } from "../src/system-prompt.js";
 
@@ -151,5 +152,33 @@ describe("resolveTurnSystemPrompt", () => {
     expect(
       resolveTurnSystemPrompt({ conversationId: "conv1", dbPath: "/no/such/state.vscdb" }),
     ).toBeUndefined();
+  });
+
+  it("resolveSystemPrompts opens ONE connection for many conversations (deduped)", () => {
+    const stateOf = (idByte: number) =>
+      "~" + lenField(1, Buffer.from([idByte])).toString("base64");
+    const map = new Map<string, Buffer>([
+      ["composerData:a", Buffer.from(JSON.stringify({ conversationState: stateOf(0xa1) }))],
+      ["composerData:b", Buffer.from(JSON.stringify({ conversationState: stateOf(0xb2) }))],
+      ["agentKv:blob:a1", Buffer.from(JSON.stringify({ role: "system", content: "SYS A" }))],
+      ["agentKv:blob:b2", Buffer.from(JSON.stringify({ role: "system", content: "SYS B" }))],
+    ]);
+    let opens = 0;
+    let closes = 0;
+    const openReader = (): BlobReader => {
+      opens++;
+      return { get: (k) => map.get(k), close: () => void closes++ };
+    };
+
+    const got = resolveSystemPrompts({
+      conversationIds: ["a", "b", "a"], // duplicate is deduped
+      dbPath: tmpDb(),
+      openReader,
+    });
+
+    expect(opens).toBe(1);
+    expect(closes).toBe(1);
+    expect(got.get("a")).toBe("SYS A");
+    expect(got.get("b")).toBe("SYS B");
   });
 });
