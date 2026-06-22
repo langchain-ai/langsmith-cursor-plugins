@@ -54,21 +54,21 @@ Create `~/.cursor/langsmith.json` (global) or `./.cursor/langsmith.json` (projec
 
 Config resolves in this order (later overrides earlier): defaults → `~/.cursor/langsmith.json` → `./.cursor/langsmith.json` → environment variables.
 
-Every `CURSOR_LANGSMITH_*` variable also accepts the `LANGSMITH_*` form (the `CURSOR_LANGSMITH_*` name wins when both are set).
+Every `LANGSMITH_CURSOR_*` variable also accepts the `LANGSMITH_*` form (the `LANGSMITH_CURSOR_*` name wins when both are set).
 
 | Environment variable              | Config key       | Description                                                           | Default                           |
 | --------------------------------- | ---------------- | --------------------------------------------------------------------- | --------------------------------- |
 | `TRACE_TO_LANGSMITH`              | `enabled`        | Master switch — tracing runs only when truthy.                        | `false`                           |
-| `CURSOR_LANGSMITH_API_KEY`        | `api_key`        | LangSmith API key.                                                    | —                                 |
-| `CURSOR_LANGSMITH_ENDPOINT`       | `api_url`        | LangSmith API base URL.                                               | `https://api.smith.langchain.com` |
-| `CURSOR_LANGSMITH_PROJECT`        | `project`        | Target tracing project.                                               | `cursor`                          |
-| `CURSOR_LANGSMITH_METADATA`       | `metadata`       | Extra metadata attached to every run (JSON object).                   | —                                 |
-| `CURSOR_LANGSMITH_RUNS_ENDPOINTS` | `replicas`       | Additional replica destinations (JSON array).                         | —                                 |
-| `CURSOR_LANGSMITH_ATTACHMENTS`    | `attachments`    | Enrich turns with image/file attachment bytes from Cursor's DB.       | `true`                            |
-| `CURSOR_LANGSMITH_DB_PATH`        | `cursor_db_path` | Override the Cursor `state.vscdb` path used for attachments.          | platform default                  |
-| `CURSOR_LANGSMITH_DEBUG`          | —                | Verbose hook logging.                                                 | `false`                           |
-| `CURSOR_LANGSMITH_STATE_FILE`     | —                | Override the on-disk event-buffer state file (no `LANGSMITH_*` form). | `~/.cursor/langsmith-state.json`  |
-| `CURSOR_LANGSMITH_LOG_FILE`       | —                | Override the hook log file (no `LANGSMITH_*` form).                   | `~/.cursor/langsmith-hook.log`    |
+| `LANGSMITH_CURSOR_API_KEY`        | `api_key`        | LangSmith API key.                                                    | —                                 |
+| `LANGSMITH_CURSOR_ENDPOINT`       | `api_url`        | LangSmith API base URL.                                               | `https://api.smith.langchain.com` |
+| `LANGSMITH_CURSOR_PROJECT`        | `project`        | Target tracing project.                                               | `cursor`                          |
+| `LANGSMITH_CURSOR_METADATA`       | `metadata`       | Extra metadata attached to every run (JSON object).                   | —                                 |
+| `LANGSMITH_CURSOR_RUNS_ENDPOINTS` | `replicas`       | Additional replica destinations (JSON array).                         | —                                 |
+| `LANGSMITH_CURSOR_ATTACHMENTS`    | `attachments`    | Enrich turns with image/file attachment bytes from Cursor's DB.       | `true`                            |
+| `LANGSMITH_CURSOR_DB_PATH`        | `cursor_db_path` | Override the Cursor `state.vscdb` path used for attachments.          | platform default                  |
+| `LANGSMITH_CURSOR_DEBUG`          | —                | Verbose hook logging.                                                 | `false`                           |
+| `LANGSMITH_CURSOR_STATE_FILE`     | —                | Override the on-disk event-buffer state file (no `LANGSMITH_*` form). | `~/.cursor/langsmith-state.json`  |
+| `LANGSMITH_CURSOR_LOG_FILE`       | —                | Override the hook log file (no `LANGSMITH_*` form).                   | `~/.cursor/langsmith-hook.log`    |
 
 Tracing only runs when `enabled` (or `TRACE_TO_LANGSMITH=true`) **and** an API key (or replicas) is set.
 

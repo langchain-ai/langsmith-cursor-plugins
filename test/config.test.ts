@@ -17,13 +17,13 @@ function clearEnv(): void {
   for (const k of [
     "TRACE_TO_LANGSMITH",
     "LANGSMITH_API_KEY",
-    "CURSOR_LANGSMITH_API_KEY",
+    "LANGSMITH_CURSOR_API_KEY",
     "LANGSMITH_ENDPOINT",
-    "CURSOR_LANGSMITH_ENDPOINT",
+    "LANGSMITH_CURSOR_ENDPOINT",
     "LANGSMITH_PROJECT",
-    "CURSOR_LANGSMITH_PROJECT",
-    "CURSOR_LANGSMITH_DEBUG",
-    "CURSOR_LANGSMITH_STATE_FILE",
+    "LANGSMITH_CURSOR_PROJECT",
+    "LANGSMITH_CURSOR_DEBUG",
+    "LANGSMITH_CURSOR_STATE_FILE",
   ]) {
     vi.stubEnv(k, undefined as unknown as string);
   }
@@ -65,7 +65,7 @@ describe("loadConfig cascade", () => {
     const home = mkdtempSync(join(tmpdir(), "home-"));
     vi.stubEnv("HOME", home);
     vi.stubEnv("TRACE_TO_LANGSMITH", "true");
-    vi.stubEnv("CURSOR_LANGSMITH_API_KEY", "k");
+    vi.stubEnv("LANGSMITH_CURSOR_API_KEY", "k");
     const cfg = loadConfig({ cwd: home });
     expect(cfg.enabled).toBe(true);
     expect(cfg.apiKey).toBe("k");

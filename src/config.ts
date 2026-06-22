@@ -1,6 +1,6 @@
 /**
  * Configuration loading. Cascade (later wins): defaults → global file → local
- * file → environment (CURSOR_LANGSMITH_* / LANGSMITH_*).
+ * file → environment (LANGSMITH_CURSOR_* / LANGSMITH_*).
  */
 
 import { readFileSync } from "node:fs";
@@ -74,9 +74,9 @@ function readConfigFile(file: string): FileConfig | undefined {
   }
 }
 
-/** Read CURSOR_LANGSMITH_<suffix>, falling back to LANGSMITH_<suffix>. */
+/** Read LANGSMITH_CURSOR_<suffix>, falling back to LANGSMITH_<suffix>. */
 function getEnv(suffix: string): string | undefined {
-  return process.env[`CURSOR_LANGSMITH_${suffix}`] ?? process.env[`LANGSMITH_${suffix}`];
+  return process.env[`LANGSMITH_CURSOR_${suffix}`] ?? process.env[`LANGSMITH_${suffix}`];
 }
 
 /** Normalize a snake_case or camelCase replica entry to the LangSmith SDK shape. */
@@ -162,13 +162,13 @@ export function loadConfig(options?: { cwd?: string }): Config {
 
   const replicas = normalizeReplicas(envReplicas ?? localFile?.replicas ?? globalFile?.replicas);
 
-  // Attachment enrichment defaults ON; opt out via config or CURSOR_LANGSMITH_ATTACHMENTS.
+  // Attachment enrichment defaults ON; opt out via config or LANGSMITH_CURSOR_ATTACHMENTS.
   const attachmentsEnabled =
     parseBoolean(getEnv("ATTACHMENTS")) ??
     localFile?.attachments ??
     globalFile?.attachments ??
     true;
-  // System-prompt enrichment defaults ON; opt out via config or CURSOR_LANGSMITH_SYSTEM_PROMPT.
+  // System-prompt enrichment defaults ON; opt out via config or LANGSMITH_CURSOR_SYSTEM_PROMPT.
   const systemPromptEnabled =
     parseBoolean(getEnv("SYSTEM_PROMPT")) ??
     localFile?.system_prompt ??
@@ -177,7 +177,7 @@ export function loadConfig(options?: { cwd?: string }): Config {
   const cursorDbPath = getEnv("DB_PATH") ?? localFile?.cursor_db_path ?? globalFile?.cursor_db_path;
 
   const stateFilePath =
-    process.env.CURSOR_LANGSMITH_STATE_FILE ?? join(home, ".cursor", "langsmith-state.json");
+    process.env.LANGSMITH_CURSOR_STATE_FILE ?? join(home, ".cursor", "langsmith-state.json");
 
   // Identity + repo metadata, attached to every run.
   const identityMetadata: Record<string, unknown> = { local_username: userInfo().username };
