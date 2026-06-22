@@ -1,6 +1,6 @@
 /**
- * On-disk subagent transcript resolution. Match by task text to recover child
- * conversation_id and final answer from `subagents/*.jsonl`. Best-effort; never throws.
+ * Match a subagent transcript by task text to recover its child conversation_id
+ * and final answer from `subagents/*.jsonl`. Best-effort; never throws.
  */
 
 import { readFileSync, readdirSync, statSync } from "node:fs";
@@ -48,10 +48,7 @@ function firstUserText(rows: unknown[]): string {
   return "";
 }
 
-/**
- * Find and parse the transcript for `task` under the parent's `subagents/` dir.
- * Matches by task-text prefix, else most recent file.
- */
+/** Find and parse the `task` transcript under `subagents/`: task-prefix match, else newest. */
 export function resolveSubagentTranscript(
   parentTranscriptPath: string | null | undefined,
   task: string | undefined,

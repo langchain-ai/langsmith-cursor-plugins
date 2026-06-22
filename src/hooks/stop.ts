@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
- * stop hook — finalizes the turn: merges usage, posts the LangSmith trace,
- * flushes, and clears the buffer. Idempotent; no buffer → no-op.
+ * stop hook — finalizes the turn: posts the LangSmith trace, flushes, clears the
+ * buffer. Idempotent; no buffer → no-op.
  */
 
 import { readStdin } from "../utils/stdin.js";
@@ -10,6 +10,7 @@ import { atomicUpdateState } from "../state.js";
 import { reduceStop } from "../reducer.js";
 import { initTracing, buildTurnRuns, flushPendingTraces } from "../langsmith.js";
 import { resolveTurnAttachments } from "../attachments.js";
+import { resolveSystemPrompts } from "../system-prompt.js";
 import { error, debug, warn } from "../logger.js";
 import type { ContentPart, StopInput, TurnBuffer } from "../types.js";
 
@@ -47,6 +48,25 @@ async function main(): Promise<void> {
     });
   }
 
+  // Best-effort system-prompt enrichment (read-only DB + protobuf field decode);
+  // never throws, and undefined leaves the llm runs unchanged.
+  let systemPrompt: string | undefined;
+  if (config.systemPromptEnabled) {
+    // Resolve the main turn + every subagent's child conversation over ONE DB
+    // connection (avoids an open-per-subagent explosion with many subagents).
+    const childIds = toTrace.subagents
+      .map((s) => s.childConversationId)
+      .filter((id): id is string => !!id);
+    const prompts = resolveSystemPrompts({
+      conversationIds: [input.conversation_id, ...childIds],
+      dbPath: config.cursorDbPath,
+    });
+    systemPrompt = prompts.get(input.conversation_id);
+    for (const sub of toTrace.subagents) {
+      if (sub.childConversationId) sub.systemPrompt = prompts.get(sub.childConversationId);
+    }
+  }
+
   try {
     await buildTurnRuns({
       buffer: toTrace,
@@ -57,6 +77,7 @@ async function main(): Promise<void> {
       workspaceRoots: input.workspace_roots,
       customMetadata: config.customMetadata,
       attachments,
+      systemPrompt,
     });
   } catch (err) {
     error(`Failed to build turn runs: ${err}`);

@@ -1,6 +1,6 @@
 /**
- * Pure state reducers — one per hook event. Each maps (state, input, timestamp)
- * to next state. No I/O, so fully unit-testable.
+ * Pure state reducers — one per hook event, mapping (state, input, timestamp) to
+ * next state. No I/O, so fully unit-testable.
  */
 
 import type {
@@ -136,6 +136,8 @@ export function reduceSubagentStart(
     subagent_id: input.subagent_id,
     subagent_type: input.subagent_type,
     task: input.task,
+    model: input.subagent_model ?? input.model,
+    is_parallel_worker: input.is_parallel_worker,
     startMs: nowMs,
   });
   conv.turns[turn.generation_id] = turn;
@@ -160,8 +162,8 @@ function collectTools(conv: ConversationState): ToolEvent[] {
 }
 
 /**
- * In-memory fallback: link a subagent to the orphan conversation (turn_count 0)
- * whose buffered tools fall in its window. Single-subagent only.
+ * Fallback: link a subagent to the orphan conversation (turn_count 0) whose
+ * buffered tools fall in its window. Single-subagent only.
  */
 function findChildConversation(
   state: TracingState,
@@ -230,6 +232,10 @@ export function reduceSubagentStop(
 
   target.status = input.status;
   target.duration_ms = input.duration_ms;
+  target.description = input.description;
+  target.message_count = input.message_count;
+  target.tool_call_count = input.tool_call_count;
+  target.loop_count = input.loop_count;
   target.endMs = nowMs;
   if (resolved?.resultText) target.resultText = resolved.resultText;
 
