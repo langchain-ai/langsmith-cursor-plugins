@@ -111,19 +111,23 @@ describe("buildTurnRuns produces the expected LangSmith run tree", () => {
     await flushPendingTraces();
 
     const tree = await getAssumedTreeFromCalls(callSpy.mock.calls, client);
-    const root = Object.values(tree.data).find((r) => r.run_type === "chain")!;
+    // The root turn is the parentless chain; the subagent is a nested chain.
+    const root = Object.values(tree.data).find((r) => r.run_type === "chain" && !r.parent_run_id)!;
     const task = Object.values(tree.data).find((r) => r.name?.endsWith("Subagent"))!;
 
     expect(task).toBeDefined();
-    expect(task.run_type).toBe("tool");
+    // A subagent is a nested chain run (validator runType "subagent"), not a tool.
+    expect(task.run_type).toBe("chain");
     expect(task.parent_run_id).toBe(root.id);
     // Run name surfaces the subagent kind; metadata carries model + parallel flag.
     expect(task.name).toBe("explore Subagent");
-    expect(meta(task).subagent_type).toBe("explore");
     expect(meta(task).subagent_model).toBe("composer-2.5-fast");
     expect(meta(task).subagent_provider).toBe("cursor");
     expect(meta(task).subagent_is_parallel_worker).toBe(false);
     expect(meta(task).subagent_description).toBe("Summarize repository architecture");
+    // coding-agent-v1 subagent identity keys live on the subagent run.
+    expect(meta(task).ls_subagent_id).toBeDefined();
+    expect(meta(task).ls_subagent_type).toBe("explore");
 
     // The subagent's internal tool calls nest under the Subagent run...
     const nested = Object.values(tree.data).filter((r) => r.parent_run_id === task.id);
@@ -137,6 +141,9 @@ describe("buildTurnRuns produces the expected LangSmith run tree", () => {
     expect(nestedLlm.every((r) => meta(r).ls_provider === "cursor")).toBe(true);
     // ...while staying part of the same trace (root), not a separate trace.
     expect(nested.every((r) => r.trace_id === root.id)).toBe(true);
+    // Subagent-only keys must NOT leak onto the subagent's llm/tool children.
+    expect(nested.every((r) => meta(r).ls_subagent_id === undefined)).toBe(true);
+    expect(nested.every((r) => meta(r).ls_subagent_type === undefined)).toBe(true);
   });
 
   it("emits tool_call content blocks in the llm assistant message", async () => {
@@ -219,7 +226,7 @@ describe("buildTurnRuns produces the expected LangSmith run tree", () => {
 
     const tree = await getAssumedTreeFromCalls(callSpy.mock.calls, client);
     // The parent's "decide" llm (direct child of the root chain) emits the Subagent call.
-    const root = Object.values(tree.data).find((r) => r.run_type === "chain")!;
+    const root = Object.values(tree.data).find((r) => r.run_type === "chain" && !r.parent_run_id)!;
     const decide = Object.values(tree.data).find(
       (r) => r.run_type === "llm" && r.parent_run_id === root.id,
     )!;
