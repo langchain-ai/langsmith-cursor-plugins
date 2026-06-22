@@ -6,11 +6,7 @@ var __getOwnPropNames = Object.getOwnPropertyNames;
 var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
 var __commonJS = (cb, mod) => function __require() {
-  try {
-    return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
-  } catch (e) {
-    throw mod = 0, e;
-  }
+  return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
 };
 var __copyProps = (to, from, except, desc) => {
   if (from && typeof from === "object" || typeof from === "function") {
@@ -621,7 +617,7 @@ import { execSync } from "node:child_process";
 import { appendFileSync, mkdirSync, statSync, renameSync } from "node:fs";
 import { dirname } from "node:path";
 var MAX_LOG_BYTES = 5 * 1024 * 1024;
-var LOG_FILE = process.env.CURSOR_LANGSMITH_LOG_FILE ?? `${process.env.HOME ?? ""}/.cursor/langsmith-hook.log`;
+var LOG_FILE = process.env.LANGSMITH_CURSOR_LOG_FILE ?? `${process.env.HOME ?? ""}/.cursor/langsmith-hook.log`;
 var debugEnabled = false;
 function initLogger(debug2) {
   debugEnabled = debug2;
@@ -697,7 +693,7 @@ function readConfigFile(file) {
   }
 }
 function getEnv(suffix) {
-  return process.env[`CURSOR_LANGSMITH_${suffix}`] ?? process.env[`LANGSMITH_${suffix}`];
+  return process.env[`LANGSMITH_CURSOR_${suffix}`] ?? process.env[`LANGSMITH_${suffix}`];
 }
 function normalizeReplicas(replicas2) {
   if (!Array.isArray(replicas2))
@@ -771,7 +767,7 @@ function loadConfig(options) {
   const attachmentsEnabled = parseBoolean(getEnv("ATTACHMENTS")) ?? localFile?.attachments ?? globalFile?.attachments ?? true;
   const systemPromptEnabled = parseBoolean(getEnv("SYSTEM_PROMPT")) ?? localFile?.system_prompt ?? globalFile?.system_prompt ?? true;
   const cursorDbPath = getEnv("DB_PATH") ?? localFile?.cursor_db_path ?? globalFile?.cursor_db_path;
-  const stateFilePath = process.env.CURSOR_LANGSMITH_STATE_FILE ?? join(home, ".cursor", "langsmith-state.json");
+  const stateFilePath = process.env.LANGSMITH_CURSOR_STATE_FILE ?? join(home, ".cursor", "langsmith-state.json");
   const identityMetadata = { local_username: userInfo().username };
   const repo = getRepoName(cwd);
   if (repo) {
@@ -806,7 +802,7 @@ function initHook(cwd) {
     return null;
   }
   if (!config.apiKey && (!config.replicas || config.replicas.length === 0)) {
-    error("Tracing enabled but no API key set (langsmith.json api_key, CURSOR_LANGSMITH_API_KEY, or LANGSMITH_API_KEY) and no replicas configured");
+    error("Tracing enabled but no API key set (langsmith.json api_key, LANGSMITH_CURSOR_API_KEY, or LANGSMITH_API_KEY) and no replicas configured");
     return null;
   }
   return config;
@@ -977,16 +973,16 @@ function reduceStop(state, input, nowMs) {
   return { state: nextState, buffer: turn, turnNum };
 }
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/utils/uuid/src/regex.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/utils/uuid/src/regex.js
 var regex_default = /^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$/i;
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/utils/uuid/src/validate.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/utils/uuid/src/validate.js
 function validate(uuid) {
   return typeof uuid === "string" && regex_default.test(uuid);
 }
 var validate_default = validate;
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/utils/uuid/src/parse.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/utils/uuid/src/parse.js
 function parse(uuid) {
   if (!validate_default(uuid)) {
     throw TypeError("Invalid UUID");
@@ -1018,7 +1014,7 @@ function parse(uuid) {
 }
 var parse_default = parse;
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/utils/uuid/src/stringify.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/utils/uuid/src/stringify.js
 var byteToHex = [];
 for (let i = 0; i < 256; ++i) {
   byteToHex.push((i + 256).toString(16).slice(1));
@@ -1027,13 +1023,13 @@ function unsafeStringify(arr2, offset = 0) {
   return (byteToHex[arr2[offset + 0]] + byteToHex[arr2[offset + 1]] + byteToHex[arr2[offset + 2]] + byteToHex[arr2[offset + 3]] + "-" + byteToHex[arr2[offset + 4]] + byteToHex[arr2[offset + 5]] + "-" + byteToHex[arr2[offset + 6]] + byteToHex[arr2[offset + 7]] + "-" + byteToHex[arr2[offset + 8]] + byteToHex[arr2[offset + 9]] + "-" + byteToHex[arr2[offset + 10]] + byteToHex[arr2[offset + 11]] + byteToHex[arr2[offset + 12]] + byteToHex[arr2[offset + 13]] + byteToHex[arr2[offset + 14]] + byteToHex[arr2[offset + 15]]).toLowerCase();
 }
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/utils/uuid/src/rng.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/utils/uuid/src/rng.js
 var rnds8 = new Uint8Array(16);
 function rng() {
   return crypto.getRandomValues(rnds8);
 }
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/utils/uuid/src/v4.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/utils/uuid/src/v4.js
 function v4(options, buf, offset) {
   if (!buf && !options && crypto.randomUUID) {
     return crypto.randomUUID();
@@ -1062,7 +1058,7 @@ function _v4(options, buf, offset) {
 }
 var v4_default = v4;
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/utils/uuid/src/sha1.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/utils/uuid/src/sha1.js
 function f(s, x, y, z) {
   switch (s) {
     case 0:
@@ -1130,7 +1126,7 @@ function sha1(bytes) {
 }
 var sha1_default = sha1;
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/utils/uuid/src/v35.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/utils/uuid/src/v35.js
 function stringToBytes(str) {
   str = unescape(encodeURIComponent(str));
   const bytes = new Uint8Array(str.length);
@@ -1169,7 +1165,7 @@ function v35(version, hash, value, namespace, buf, offset) {
   return unsafeStringify(bytes);
 }
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/utils/uuid/src/v5.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/utils/uuid/src/v5.js
 function v5(value, namespace, buf, offset) {
   return v35(80, sha1_default, value, namespace, buf, offset);
 }
@@ -1177,7 +1173,7 @@ v5.DNS = DNS;
 v5.URL = URL2;
 var v5_default = v5;
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/utils/uuid/src/v7.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/utils/uuid/src/v7.js
 var _state = {};
 function v7(options, buf, offset) {
   let bytes;
@@ -1239,7 +1235,7 @@ function v7Bytes(rnds, msecs, seq, buf, offset = 0) {
 }
 var v7_default = v7;
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/experimental/otel/constants.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/experimental/otel/constants.js
 var GEN_AI_OPERATION_NAME = "gen_ai.operation.name";
 var GEN_AI_SYSTEM = "gen_ai.system";
 var GEN_AI_REQUEST_MODEL = "gen_ai.request.model";
@@ -1274,7 +1270,7 @@ var LANGSMITH_TAGS = "langsmith.span.tags";
 var LANGSMITH_REQUEST_STREAMING = "langsmith.request.streaming";
 var LANGSMITH_REQUEST_HEADERS = "langsmith.request.headers";
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/utils/env.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/utils/env.js
 var globalEnv;
 var isBrowser = () => typeof window !== "undefined" && typeof window.document !== "undefined";
 var isWebWorker = () => typeof globalThis === "object" && globalThis.constructor && globalThis.constructor.name === "DedicatedWorkerGlobalScope";
@@ -1435,7 +1431,7 @@ function resolveTracingMode(configValue) {
   return "langsmith";
 }
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/singletons/otel.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/singletons/otel.js
 var MockTracer = class {
   constructor() {
     Object.defineProperty(this, "hasWarned", {
@@ -1541,7 +1537,7 @@ function getDefaultOTLPTracerComponents() {
   return OTELProviderSingleton.getDefaultOTLPTracerComponents();
 }
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/experimental/otel/translator.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/experimental/otel/translator.js
 var WELL_KNOWN_OPERATION_NAMES = {
   llm: "chat",
   tool: "execute_tool",
@@ -1882,7 +1878,7 @@ var LangSmithToOTELTranslator = class {
   }
 };
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/utils/is-network-error/index.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/utils/is-network-error/index.js
 var objectToString = Object.prototype.toString;
 var isError = (value) => objectToString.call(value) === "[object Error]";
 var errorMessages = /* @__PURE__ */ new Set([
@@ -1921,7 +1917,7 @@ function isNetworkError(error2) {
   return errorMessages.has(message);
 }
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/utils/p-retry/index.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/utils/p-retry/index.js
 function validateRetries(retries) {
   if (typeof retries === "number") {
     if (retries < 0) {
@@ -2094,11 +2090,11 @@ async function pRetry(input, options = {}) {
   throw new Error("Retry attempts exhausted without throwing an error.");
 }
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/utils/p-queue.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/utils/p-queue.js
 var import_p_queue = __toESM(require_dist(), 1);
 var PQueue = "default" in import_p_queue.default ? import_p_queue.default.default : import_p_queue.default;
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/utils/async_caller.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/utils/async_caller.js
 var STATUS_RETRYABLE = [
   408,
   // Request Timeout
@@ -2226,7 +2222,7 @@ var AsyncCaller = class {
   }
 };
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/utils/messages.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/utils/messages.js
 function isLangChainMessage(message) {
   return typeof message?._getType === "function";
 }
@@ -2241,7 +2237,7 @@ function convertLangChainMessageToExample(message) {
   return converted;
 }
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/utils/warn.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/utils/warn.js
 var warnedMessages = {};
 function warnOnce(message) {
   if (!warnedMessages[message]) {
@@ -2250,7 +2246,7 @@ function warnOnce(message) {
   }
 }
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/utils/xxhash/xxhash.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/utils/xxhash/xxhash.js
 var n = (n2) => BigInt(n2);
 var PRIME32_1 = n("0x9E3779B1");
 var PRIME32_2 = n("0x85EBCA77");
@@ -2530,7 +2526,7 @@ function xxh128ToBytes(hash128) {
   return result;
 }
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/utils/_uuid.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/utils/_uuid.js
 var UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 function assertUuid(str, which) {
   if (!UUID_REGEX.test(str)) {
@@ -2592,7 +2588,7 @@ function nonCryptographicUuid7Deterministic(originalId, key) {
   return bytesToUuid(b);
 }
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/utils/error.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/utils/error.js
 function getInvalidPromptIdentifierMsg(identifier) {
   return `Invalid prompt identifier format: "${identifier}". Expected one of:
   - "prompt-name" (for private prompts)
@@ -2688,7 +2684,7 @@ function isConflictingEndpointsError(err) {
   return typeof err === "object" && err !== null && err.code === ERR_CONFLICTING_ENDPOINTS;
 }
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/utils/prompts.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/utils/prompts.js
 function parseHubIdentifier(identifier) {
   if (!identifier || identifier.split("/").length > 2 || identifier.startsWith("/") || identifier.endsWith("/") || identifier.split(":").length > 2) {
     throw new Error(getInvalidPromptIdentifierMsg(identifier));
@@ -2709,7 +2705,7 @@ function parseHubIdentifier(identifier) {
   }
 }
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/utils/fs.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/utils/fs.js
 import * as nodeFs from "node:fs";
 import * as nodeFsPromises from "node:fs/promises";
 import * as nodePath from "node:path";
@@ -2750,7 +2746,7 @@ function readFileSync4(filePath) {
   return nodeFs.readFileSync(filePath, "utf-8");
 }
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/utils/prompt_cache/index.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/utils/prompt_cache/index.js
 function isStale(entry, ttlSeconds) {
   if (ttlSeconds === null) {
     return false;
@@ -3024,7 +3020,7 @@ var PromptCache = class {
 };
 var promptCacheSingleton = new PromptCache();
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/singletons/fetch.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/singletons/fetch.js
 var DEFAULT_FETCH_IMPLEMENTATION = (...args) => fetch(...args);
 var globalFetchSupportsWebStreaming = void 0;
 var LANGSMITH_FETCH_IMPLEMENTATION_KEY = /* @__PURE__ */ Symbol.for("ls:fetch_implementation");
@@ -3049,7 +3045,7 @@ var _getFetchImplementation = (debug2) => {
   };
 };
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/utils/fast-safe-stringify/index.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/utils/fast-safe-stringify/index.js
 var LIMIT_REPLACE_NODE = "[...]";
 var CIRCULAR_REPLACE_NODE = { result: "[Circular]" };
 var arr = [];
@@ -3339,12 +3335,12 @@ function replaceGetterValues(replacer) {
   };
 }
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/utils/worker_threads.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/utils/worker_threads.js
 import { Worker as NodeWorker } from "node:worker_threads";
 var Worker = NodeWorker;
 var WORKER_THREADS_AVAILABLE = true;
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/utils/serialize_worker.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/utils/serialize_worker.js
 var WORKER_SOURCE = (
   /* js */
   `
@@ -3629,13 +3625,7 @@ function hasLargeString(value, threshold = LARGE_STRING_THRESHOLD, nodeBudget = 
   return false;
 }
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/client.js
-function assertPullPublicPromptAllowed(promptIdentifier, dangerouslyPullPublicPrompt) {
-  const [owner] = parseHubIdentifier(promptIdentifier);
-  if (owner !== "-" && !dangerouslyPullPublicPrompt) {
-    throw new Error("Pulling a public prompt by owner/name is disabled by default because prompts may contain untrusted serialized LangChain objects. If you trust this prompt, set `dangerouslyPullPublicPrompt: true` to acknowledge the risk.");
-  }
-}
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/client.js
 function _ensureUTCTimestamp(ts) {
   if (typeof ts === "string" && ts.length > 0 && !ts.includes("Z") && !ts.includes("+") && !ts.includes("-", 10)) {
     return ts + "Z";
@@ -3753,7 +3743,7 @@ var AutoBatchQueue = class {
     const itemPromise = new Promise((resolve) => {
       itemPromiseResolve = resolve;
     });
-    const size = estimateSerializedSize(item.item).size;
+    const size = getLangSmithEnvironmentVariable("PERF_OPTIMIZATION") === "true" ? estimateSerializedSize(item.item).size : serialize(item.item, `Serializing run with id: ${item.item.id}`).length;
     if (this.sizeBytes + size > this.maxSizeBytes && this.items.length > 0) {
       console.warn(`AutoBatchQueue size limit (${this.maxSizeBytes} bytes) exceeded. Dropping run with id: ${item.item.id}. Current queue size: ${this.sizeBytes} bytes, attempted addition: ${size} bytes.`);
       itemPromiseResolve();
@@ -3815,9 +3805,11 @@ var Client = class _Client {
   }
   /**
    * Serialize a payload for tracing, optionally offloading the work to a
-   * Node worker thread when the runtime supports worker_threads.
+   * Node worker thread when LANGSMITH_PERF_OPTIMIZATION=true and the runtime
+   * supports worker_threads.
    *
    * Falls back to synchronous serialization when:
+   *  - the perf flag is off
    *  - manualFlushMode is enabled (serverless: worker boot cost > benefit)
    *  - worker_threads is unavailable (non-Node runtimes)
    *  - the payload contains values that can't be structured-cloned across
@@ -3833,7 +3825,8 @@ var Client = class _Client {
     });
   }
   async _serializeBody(payload, errorContext) {
-    if (this.manualFlushMode) {
+    const perfOptIn = getLangSmithEnvironmentVariable("PERF_OPTIMIZATION") === "true";
+    if (!perfOptIn || this.manualFlushMode) {
       return serialize(payload, errorContext);
     }
     if (!hasLargeString(payload)) {
@@ -7776,24 +7769,7 @@ Message: ${Array.isArray(result.detail) ? result.detail.join("\n") : "Unspecifie
       hub_model_provider: result.model_provider
     };
   }
-  /**
-   * Pull a prompt commit from the LangSmith API.
-   *
-   * Public prompts referenced by owner/name cross a trust boundary because the
-   * prompt manifest may contain serialized LangChain objects and configuration
-   * that affect runtime behavior. For example, a prompt can intentionally
-   * configure a model with a custom base URL, headers, model name, or other
-   * constructor arguments. These are supported features, but they also mean the
-   * prompt contents should be treated as executable configuration rather than
-   * plain text.
-   *
-   * Set `dangerouslyPullPublicPrompt: true` only after reviewing and trusting
-   * the prompt contents, not merely the publishing account. Prompts from your
-   * own or your organization's account can still be unsafe if that account or
-   * prompt was compromised.
-   */
   async pullPromptCommit(promptIdentifier, options) {
-    assertPullPublicPromptAllowed(promptIdentifier, options?.dangerouslyPullPublicPrompt);
     const refreshFunc = this._fetchPromptFromApi.bind(this, promptIdentifier, options);
     if (!options?.skipCache && this._promptCache) {
       const cacheKey = this._getPromptCacheKey(promptIdentifier, options?.includeModel);
@@ -7810,26 +7786,12 @@ Message: ${Array.isArray(result.detail) ? result.detail.join("\n") : "Unspecifie
   /**
    * This method should not be used directly, use `import { pull } from "langchain/hub"` instead.
    * Using this method directly returns the JSON string of the prompt rather than a LangChain object.
-   *
-   * Public prompts referenced by owner/name cross a trust boundary because the
-   * prompt manifest may contain serialized LangChain objects and configuration
-   * that affect runtime behavior. For example, a prompt can intentionally
-   * configure a model with a custom base URL, headers, model name, or other
-   * constructor arguments. These are supported features, but they also mean the
-   * prompt contents should be treated as executable configuration rather than
-   * plain text.
-   *
-   * Set `dangerouslyPullPublicPrompt: true` only after reviewing and trusting
-   * the prompt contents, not merely the publishing account. Prompts from your
-   * own or your organization's account can still be unsafe if that account or
-   * prompt was compromised.
    * @private
    */
   async _pullPrompt(promptIdentifier, options) {
     const promptObject = await this.pullPromptCommit(promptIdentifier, {
       includeModel: options?.includeModel,
-      skipCache: options?.skipCache,
-      dangerouslyPullPublicPrompt: options?.dangerouslyPullPublicPrompt
+      skipCache: options?.skipCache
     });
     const prompt = JSON.stringify(promptObject.manifest);
     return prompt;
@@ -8251,7 +8213,7 @@ function isExampleCreate(input) {
   return "dataset_id" in input || "dataset_name" in input;
 }
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/env.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/env.js
 var isTracingEnabled = (tracingEnabled) => {
   if (tracingEnabled !== void 0) {
     return tracingEnabled;
@@ -8260,11 +8222,11 @@ var isTracingEnabled = (tracingEnabled) => {
   return !!envVars.find((envVar) => getLangSmithEnvironmentVariable(envVar) === "true");
 };
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/singletons/constants.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/singletons/constants.js
 var _LC_CONTEXT_VARIABLES_KEY = /* @__PURE__ */ Symbol.for("lc:context_variables");
 var _REPLICA_TRACE_ROOTS_KEY = /* @__PURE__ */ Symbol.for("langsmith:replica_trace_roots");
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/utils/context_vars.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/utils/context_vars.js
 function getContextVar(runTree, key) {
   if (_LC_CONTEXT_VARIABLES_KEY in runTree) {
     const contextVars = runTree[_LC_CONTEXT_VARIABLES_KEY];
@@ -8281,13 +8243,13 @@ function setContextVar(runTree, key, value) {
   runTree[_LC_CONTEXT_VARIABLES_KEY] = contextVars;
 }
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/utils/project.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/utils/project.js
 var getDefaultProjectName = () => {
   return getLangSmithEnvironmentVariable("PROJECT") ?? getEnvironmentVariable("LANGCHAIN_SESSION") ?? // TODO: Deprecate
   "default";
 };
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/run_trees.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/run_trees.js
 var TIMESTAMP_LENGTH = 36;
 var UUID_NAMESPACE_DNS = "6ba7b810-9dad-11d1-80b4-00c04fd430c8";
 function getReplicaKey(replica) {
@@ -9190,8 +9152,8 @@ function _checkEndpointEnvUnset(parsed) {
   }
 }
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/index.js
-var __version__ = "0.6.0";
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/index.js
+var __version__ = "0.5.26";
 
 // dist/langsmith.js
 var client = void 0;
