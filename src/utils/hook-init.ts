@@ -5,10 +5,7 @@
 import { loadConfig, type Config } from "../config.js";
 import { initLogger, error } from "../logger.js";
 
-/**
- * Standard hook startup: load config, init logger, check enable-switch and API
- * key. Returns Config to proceed, or null to exit.
- */
+/** Standard hook startup: load config, init logger, check enable + API key. */
 export function initHook(cwd?: string): Config | null {
   const config = loadConfig({ cwd });
   initLogger(config.debug);

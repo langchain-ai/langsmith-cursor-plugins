@@ -166,6 +166,7 @@ function loadConfig(options) {
   const debug2 = envDebug ?? false;
   const replicas = normalizeReplicas(envReplicas ?? localFile?.replicas ?? globalFile?.replicas);
   const attachmentsEnabled = parseBoolean(getEnv("ATTACHMENTS")) ?? localFile?.attachments ?? globalFile?.attachments ?? true;
+  const systemPromptEnabled = parseBoolean(getEnv("SYSTEM_PROMPT")) ?? localFile?.system_prompt ?? globalFile?.system_prompt ?? true;
   const cursorDbPath = getEnv("DB_PATH") ?? localFile?.cursor_db_path ?? globalFile?.cursor_db_path;
   const stateFilePath = process.env.CURSOR_LANGSMITH_STATE_FILE ?? join(home, ".cursor", "langsmith-state.json");
   const identityMetadata = { local_username: userInfo().username };
@@ -189,6 +190,7 @@ function loadConfig(options) {
     replicas,
     customMetadata,
     attachmentsEnabled,
+    systemPromptEnabled,
     cursorDbPath
   };
 }
@@ -296,6 +298,8 @@ function reduceSubagentStart(state, input, nowMs) {
     subagent_id: input.subagent_id,
     subagent_type: input.subagent_type,
     task: input.task,
+    model: input.subagent_model ?? input.model,
+    is_parallel_worker: input.is_parallel_worker,
     startMs: nowMs
   });
   conv.turns[turn.generation_id] = turn;

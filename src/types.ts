@@ -145,24 +145,30 @@ export interface SubagentEvent {
   subagent_id: string;
   subagent_type: string;
   task: string;
+  /** Short human-readable label for the task (subagentStop.description). */
+  description?: string;
+  /** Cursor model label the subagent ran on (subagentStart.subagent_model). */
+  model?: string;
+  /** True when this subagent is one of several parallel workers. */
+  is_parallel_worker?: boolean;
   status?: string;
   duration_ms?: number;
+  /** Cursor-reported counts at subagentStop (often 0 — unreliable, surfaced as-is). */
+  message_count?: number;
+  tool_call_count?: number;
+  loop_count?: number;
   /** Wall-clock ms when subagentStart fired. */
   startMs: number;
   /** Wall-clock ms when subagentStop fired. */
   endMs?: number;
-  /**
-   * The subagent's own conversation_id (== its transcript filename). Resolved at
-   * subagentStop from the on-disk transcript, else by temporal linking.
-   */
+  /** The subagent's own conversation_id (== its transcript filename). */
   childConversationId?: string;
-  /**
-   * The subagent's internal tool calls, nested under the Task run. From the child
-   * conversation's buffered events, or transcript (inputs only).
-   */
+  /** The subagent's internal tool calls, nested under the Task run. */
   tools?: ToolEvent[];
   /** The subagent's final answer text (from its transcript). */
   resultText?: string;
+  /** The subagent's own system prompt, recovered from its child conversation's DB state. */
+  systemPrompt?: string;
 }
 
 /** An assistant thinking block. */
