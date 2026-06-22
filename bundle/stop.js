@@ -621,7 +621,7 @@ import { execSync } from "node:child_process";
 import { appendFileSync, mkdirSync, statSync, renameSync } from "node:fs";
 import { dirname } from "node:path";
 var MAX_LOG_BYTES = 5 * 1024 * 1024;
-var LOG_FILE = process.env.CURSOR_LANGSMITH_LOG_FILE ?? `${process.env.HOME ?? ""}/.cursor/langsmith-hook.log`;
+var LOG_FILE = process.env.LANGSMITH_CURSOR_LOG_FILE ?? `${process.env.HOME ?? ""}/.cursor/langsmith-hook.log`;
 var debugEnabled = false;
 function initLogger(debug2) {
   debugEnabled = debug2;
@@ -697,7 +697,7 @@ function readConfigFile(file) {
   }
 }
 function getEnv(suffix) {
-  return process.env[`CURSOR_LANGSMITH_${suffix}`] ?? process.env[`LANGSMITH_${suffix}`];
+  return process.env[`LANGSMITH_CURSOR_${suffix}`] ?? process.env[`LANGSMITH_${suffix}`];
 }
 function normalizeReplicas(replicas2) {
   if (!Array.isArray(replicas2))
@@ -771,7 +771,7 @@ function loadConfig(options) {
   const attachmentsEnabled = parseBoolean(getEnv("ATTACHMENTS")) ?? localFile?.attachments ?? globalFile?.attachments ?? true;
   const systemPromptEnabled = parseBoolean(getEnv("SYSTEM_PROMPT")) ?? localFile?.system_prompt ?? globalFile?.system_prompt ?? true;
   const cursorDbPath = getEnv("DB_PATH") ?? localFile?.cursor_db_path ?? globalFile?.cursor_db_path;
-  const stateFilePath = process.env.CURSOR_LANGSMITH_STATE_FILE ?? join(home, ".cursor", "langsmith-state.json");
+  const stateFilePath = process.env.LANGSMITH_CURSOR_STATE_FILE ?? join(home, ".cursor", "langsmith-state.json");
   const identityMetadata = { local_username: userInfo().username };
   const repo = getRepoName(cwd);
   if (repo) {
@@ -806,7 +806,7 @@ function initHook(cwd) {
     return null;
   }
   if (!config.apiKey && (!config.replicas || config.replicas.length === 0)) {
-    error("Tracing enabled but no API key set (langsmith.json api_key, CURSOR_LANGSMITH_API_KEY, or LANGSMITH_API_KEY) and no replicas configured");
+    error("Tracing enabled but no API key set (langsmith.json api_key, LANGSMITH_CURSOR_API_KEY, or LANGSMITH_API_KEY) and no replicas configured");
     return null;
   }
   return config;

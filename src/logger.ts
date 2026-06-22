@@ -8,7 +8,7 @@ import { dirname } from "node:path";
 const MAX_LOG_BYTES = 5 * 1024 * 1024; // 5 MB
 
 const LOG_FILE =
-  process.env.CURSOR_LANGSMITH_LOG_FILE ?? `${process.env.HOME ?? ""}/.cursor/langsmith-hook.log`;
+  process.env.LANGSMITH_CURSOR_LOG_FILE ?? `${process.env.HOME ?? ""}/.cursor/langsmith-hook.log`;
 
 let debugEnabled = false;
 

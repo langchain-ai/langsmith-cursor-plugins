@@ -16,7 +16,7 @@ export function initHook(cwd?: string): Config | null {
 
   if (!config.apiKey && (!config.replicas || config.replicas.length === 0)) {
     error(
-      "Tracing enabled but no API key set (langsmith.json api_key, CURSOR_LANGSMITH_API_KEY, or LANGSMITH_API_KEY) and no replicas configured",
+      "Tracing enabled but no API key set (langsmith.json api_key, LANGSMITH_CURSOR_API_KEY, or LANGSMITH_API_KEY) and no replicas configured",
     );
     return null;
   }
