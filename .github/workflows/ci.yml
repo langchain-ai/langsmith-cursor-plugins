@@ -1,10 +1,9 @@
 name: CI
 
 on:
-  pull_request:
-    branches: [main]
   push:
     branches: [main]
+  pull_request:
 
 # Least-privilege: this workflow only needs to read the repo.
 permissions:
@@ -15,29 +14,22 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
           cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Lint
-        run: pnpm lint
-
-      - name: Test
-        run: pnpm test
-
-      - name: Build
-        run: pnpm build
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm test
+      - run: pnpm build
+      - name: Check bundle is up to date
+        run: |
+          git diff --exit-code bundle/ || {
+            echo "::error::bundle/ is out of date. Run 'pnpm build' and commit the result."
+            exit 1
+          }
