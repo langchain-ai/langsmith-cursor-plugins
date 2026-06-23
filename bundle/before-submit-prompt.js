@@ -64,6 +64,13 @@ function debug(message) {
 var DEFAULT_PROJECT = "cursor";
 
 // dist/config.js
+var LS_INTEGRATION_VERSION = true ? "0.2.0" : process.env.LANGSMITH_CURSOR_INTEGRATION_VERSION || void 0;
+var PROVIDER_HOSTS = {
+  github: "github.com",
+  gitlab: "gitlab.com",
+  bitbucket: "bitbucket.org",
+  devAzure: "dev.azure.com"
+};
 var DEFAULT_API_URL = "https://api.smith.langchain.com";
 function parseBoolean(value) {
   if (typeof value === "boolean")
@@ -150,6 +157,32 @@ function getRepoName(cwd) {
   }
   return void 0;
 }
+function getGitInfo(cwd) {
+  const result = {};
+  try {
+    const branch = execSync("git rev-parse --abbrev-ref HEAD", {
+      cwd,
+      encoding: "utf-8",
+      timeout: 5e3,
+      stdio: ["ignore", "pipe", "ignore"]
+    }).trim();
+    if (branch && branch !== "HEAD")
+      result.branch = branch;
+  } catch {
+  }
+  try {
+    const commit = execSync("git rev-parse HEAD", {
+      cwd,
+      encoding: "utf-8",
+      timeout: 5e3,
+      stdio: ["ignore", "pipe", "ignore"]
+    }).trim();
+    if (commit)
+      result.commit = commit;
+  } catch {
+  }
+  return result;
+}
 function loadConfig(options) {
   const home = process.env.HOME ?? process.env.USERPROFILE ?? "";
   const cwd = options?.cwd ?? process.cwd();
@@ -169,14 +202,25 @@ function loadConfig(options) {
   const systemPromptEnabled = parseBoolean(getEnv("SYSTEM_PROMPT")) ?? localFile?.system_prompt ?? globalFile?.system_prompt ?? true;
   const cursorDbPath = getEnv("DB_PATH") ?? localFile?.cursor_db_path ?? globalFile?.cursor_db_path;
   const stateFilePath = process.env.LANGSMITH_CURSOR_STATE_FILE ?? join(home, ".cursor", "langsmith-state.json");
-  const identityMetadata = { local_username: userInfo().username };
+  const baseMetadata = { cwd };
+  if (LS_INTEGRATION_VERSION)
+    baseMetadata.ls_integration_version = LS_INTEGRATION_VERSION;
   const repo = getRepoName(cwd);
   if (repo) {
-    identityMetadata.repository_name = repo.name;
-    identityMetadata.repository_provider = repo.provider;
+    baseMetadata.repository_name = repo.name;
+    baseMetadata.repository_provider = repo.provider;
+    const host = PROVIDER_HOSTS[repo.provider];
+    if (host)
+      baseMetadata.repository_url = `https://${host}/${repo.name}`;
   }
+  const git = getGitInfo(cwd);
+  if (git.branch)
+    baseMetadata.git_branch = git.branch;
+  if (git.commit)
+    baseMetadata.git_commit_sha = git.commit;
+  baseMetadata.local_username = userInfo().username;
   const fileMetadata = { ...globalFile?.metadata, ...localFile?.metadata };
-  const customMetadata = { ...identityMetadata, ...fileMetadata, ...envMetadata };
+  const customMetadata = { ...baseMetadata, ...fileMetadata, ...envMetadata };
   if (enabled && !apiKey && (!replicas || replicas.length === 0)) {
     debug("Config enabled but no API key / replicas resolved");
   }
