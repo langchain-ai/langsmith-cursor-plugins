@@ -76,6 +76,7 @@ async function main(): Promise<void> {
       userEmail: input.user_email,
       workspaceRoots: input.workspace_roots,
       customMetadata: config.customMetadata,
+      runtimeVersion: input.cursor_version,
       attachments,
       systemPrompt,
     });

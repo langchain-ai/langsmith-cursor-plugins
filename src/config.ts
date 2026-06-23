@@ -11,6 +11,24 @@ import type { RunTreeConfig } from "langsmith";
 import { debug as logDebug } from "./logger.js";
 import { DEFAULT_PROJECT } from "./constants.js";
 
+/**
+ * Plugin version, injected at build time by esbuild `define` (no runtime
+ * package.json); env is the fallback. → `ls_integration_version`.
+ */
+declare const __LS_INTEGRATION_VERSION__: string;
+export const LS_INTEGRATION_VERSION: string | undefined =
+  typeof __LS_INTEGRATION_VERSION__ !== "undefined"
+    ? __LS_INTEGRATION_VERSION__
+    : process.env.LANGSMITH_CURSOR_INTEGRATION_VERSION || undefined;
+
+/** Host used to build a canonical https `repository_url` from a parsed provider. */
+const PROVIDER_HOSTS: Record<string, string> = {
+  github: "github.com",
+  gitlab: "gitlab.com",
+  bitbucket: "bitbucket.org",
+  devAzure: "dev.azure.com",
+};
+
 export interface Config {
   /** Master switch — tracing only runs when true. */
   enabled: boolean;
@@ -139,6 +157,35 @@ export function getRepoName(cwd: string): { provider: string; name: string } | u
   return undefined;
 }
 
+/** Current branch + commit sha → coding-agent-v1 git_branch / git_commit_sha. */
+export function getGitInfo(cwd: string): { branch?: string; commit?: string } {
+  const result: { branch?: string; commit?: string } = {};
+  try {
+    const branch = execSync("git rev-parse --abbrev-ref HEAD", {
+      cwd,
+      encoding: "utf-8",
+      timeout: 5000,
+      stdio: ["ignore", "pipe", "ignore"],
+    }).trim();
+    // "HEAD" means detached — no branch name available.
+    if (branch && branch !== "HEAD") result.branch = branch;
+  } catch {
+    // Not a git repo / git unavailable — skip.
+  }
+  try {
+    const commit = execSync("git rev-parse HEAD", {
+      cwd,
+      encoding: "utf-8",
+      timeout: 5000,
+      stdio: ["ignore", "pipe", "ignore"],
+    }).trim();
+    if (commit) result.commit = commit;
+  } catch {
+    // Not a git repo / git unavailable — skip.
+  }
+  return result;
+}
+
 // ─── Main loader ─────────────────────────────────────────────────────────────
 
 export function loadConfig(options?: { cwd?: string }): Config {
@@ -179,16 +226,28 @@ export function loadConfig(options?: { cwd?: string }): Config {
   const stateFilePath =
     process.env.LANGSMITH_CURSOR_STATE_FILE ?? join(home, ".cursor", "langsmith-state.json");
 
-  // Identity + repo metadata, attached to every run.
-  const identityMetadata: Record<string, unknown> = { local_username: userInfo().username };
+  // coding-agent-v1 base metadata (later spreads win). Identity literals are
+  // owned by codingAgentMetadata(), so they're not here.
+  const baseMetadata: Record<string, unknown> = { cwd };
+  if (LS_INTEGRATION_VERSION) baseMetadata.ls_integration_version = LS_INTEGRATION_VERSION;
+
+  // Repo attribution: name + provider, and the canonical https repository_url.
   const repo = getRepoName(cwd);
   if (repo) {
-    identityMetadata.repository_name = repo.name;
-    identityMetadata.repository_provider = repo.provider;
+    baseMetadata.repository_name = repo.name;
+    baseMetadata.repository_provider = repo.provider;
+    const host = PROVIDER_HOSTS[repo.provider];
+    if (host) baseMetadata.repository_url = `https://${host}/${repo.name}`;
   }
+  const git = getGitInfo(cwd);
+  if (git.branch) baseMetadata.git_branch = git.branch;
+  if (git.commit) baseMetadata.git_commit_sha = git.commit;
+
+  // user_id is not exposed by Cursor's hooks; user_email is added per-turn in buildTurnRuns.
+  baseMetadata.local_username = userInfo().username;
 
   const fileMetadata = { ...globalFile?.metadata, ...localFile?.metadata };
-  const customMetadata = { ...identityMetadata, ...fileMetadata, ...envMetadata };
+  const customMetadata = { ...baseMetadata, ...fileMetadata, ...envMetadata };
 
   if (enabled && !apiKey && (!replicas || replicas.length === 0)) {
     logDebug("Config enabled but no API key / replicas resolved");
