@@ -39,6 +39,8 @@ node scripts/install.mjs --print    # preview without writing
 
 Then **fully restart Cursor** so it reloads `hooks.json`.
 
+> `bundle/` is committed on purpose — it lets the hooks (and the Cursor plugin install via `.cursor-plugin/`) run without a build step. Don't add it to `.gitignore`.
+
 ## Configure
 
 Create `~/.cursor/langsmith.json` (global) or `./.cursor/langsmith.json` (project):

@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "hooks": {
+    "beforeSubmitPrompt": [{ "command": "node ./bundle/before-submit-prompt.js" }],
+    "afterAgentResponse": [{ "command": "node ./bundle/after-agent-response.js" }],
+    "postToolUse": [{ "command": "node ./bundle/post-tool-use.js" }],
+    "postToolUseFailure": [{ "command": "node ./bundle/post-tool-use-failure.js" }],
+    "subagentStart": [{ "command": "node ./bundle/subagent-start.js" }],
+    "subagentStop": [{ "command": "node ./bundle/subagent-stop.js" }],
+    "stop": [{ "command": "node ./bundle/stop.js" }],
+    "sessionStart": [{ "command": "node ./bundle/session-start.js" }]
+  }
+}
