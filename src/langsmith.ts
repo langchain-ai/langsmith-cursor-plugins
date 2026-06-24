@@ -5,6 +5,7 @@ import type { TurnBuffer, ToolEvent, SubagentEvent, ContentPart } from "./types.
 import { buildUsageMetadata, deriveModelInfo } from "./normalize.js";
 import { DEFAULT_TAGS, TURN_RUN_NAME } from "./constants.js";
 import { codingAgentMetadata } from "./metadata.js";
+import { groupSteps, type Step } from "./conversation-steps.js";
 import * as logger from "./logger.js";
 
 // ─── Client setup ─────────────────────────────────────────────────────────
@@ -79,6 +80,8 @@ export interface BuildTurnOptions {
   attachments?: ContentPart[];
   /** The turn's system prompt, recovered from Cursor's DB (prepended to llm runs). */
   systemPrompt?: string;
+  /** True interleaved step sequence from Cursor's DB; enables per-round llm/tool fidelity. */
+  steps?: Step[];
 }
 
 /** Per-turn context shared by every run's coding-agent-v1 metadata. */
@@ -216,7 +219,27 @@ export async function buildTurnRuns(options: BuildTurnOptions): Promise<void> {
   const finalTextBlocks = buffer.finalText ? [{ type: "text", text: buffer.finalText }] : [];
   const calls = orderedTurnCalls(buffer);
 
-  if (calls.length === 0) {
+  // Interleaved per-step fidelity from the DB; false → fall through to decide/answer.
+  const interleaved =
+    options.steps && options.steps.length > 0
+      ? await postInterleavedRounds({
+          turnRun,
+          ctx,
+          steps: options.steps,
+          buffer,
+          userContent,
+          systemPrompt,
+          llmName,
+          llmMeta,
+          usageMetadata,
+          finalTextBlocks,
+          turnEndMs,
+        })
+      : false;
+
+  if (interleaved) {
+    // Rendered above as per-round llm + tool runs.
+  } else if (calls.length === 0) {
     // No tools: a single llm run, user → assistant (thinking + final text).
     const llmRun = turnRun.createChild({
       name: llmName,
@@ -295,6 +318,113 @@ export async function buildTurnRuns(options: BuildTurnOptions): Promise<void> {
   logger.log(
     `Traced ${turnName} (conv=${conversationId}): ${buffer.tools.length} tool(s), ${buffer.subagents.length} subagent(s)`,
   );
+}
+
+/** Inputs for the interleaved per-step renderer. */
+interface InterleaveOptions {
+  turnRun: RunTree;
+  ctx: MetaCtx;
+  steps: Step[];
+  buffer: TurnBuffer;
+  userContent: ContentPart[];
+  systemPrompt?: string;
+  llmName: string;
+  llmMeta: Record<string, unknown>;
+  usageMetadata: ReturnType<typeof buildUsageMetadata>;
+  finalTextBlocks: Array<Record<string, unknown>>;
+  turnEndMs: number;
+}
+
+/** Thinking content blocks for the rounds with non-empty text. */
+function thinkingBlocks(
+  thinking: Array<{ text?: string; durationMs?: number }>,
+): Array<Record<string, unknown>> {
+  return thinking.flatMap((t) => (t.text ? [{ type: "thinking", thinking: t.text }] : []));
+}
+
+/**
+ * Render the turn as interleaved per-round llm + tool runs from the decoded steps.
+ * Returns false when the steps don't line up with hook tools, so the caller falls back.
+ */
+async function postInterleavedRounds(p: InterleaveOptions): Promise<boolean> {
+  const toolMap = new Map<string, ToolEvent>();
+  for (const t of p.buffer.tools) if (t.tool_use_id) toolMap.set(t.tool_use_id, t);
+
+  const rounds = groupSteps(p.steps);
+  if (rounds.length === 0) return false;
+
+  // The trailing text-only round (if any) is the final answer; the rest emit tools.
+  const last = rounds[rounds.length - 1];
+  const finalRound = last.toolSteps.length === 0 ? last : undefined;
+  const actionRounds = finalRound ? rounds.slice(0, -1) : rounds;
+
+  // Need at least one tool that lines up with the hook buffer to justify interleaving.
+  const anyMatched = actionRounds.some((r) =>
+    r.toolSteps.some((ts) => ts.toolUseId != null && toolMap.has(ts.toolUseId)),
+  );
+  if (!anyMatched) return false;
+
+  const msgs: Array<Record<string, unknown>> = [{ role: "user", content: p.userContent }];
+  let cursorMs = p.buffer.startMs;
+
+  for (const round of actionRounds) {
+    const matched = round.toolSteps
+      .map((ts) => (ts.toolUseId != null ? toolMap.get(ts.toolUseId) : undefined))
+      .filter((t): t is ToolEvent => t != null);
+    const calls = matched.map((t) => toolCall(t, p.buffer.startMs));
+
+    const textBlocks = round.assistantText ? [{ type: "text", text: round.assistantText }] : [];
+    const assistantContent = [
+      ...thinkingBlocks(round.thinking),
+      ...textBlocks,
+      ...calls.map((c) => c.toolCallBlock),
+    ];
+
+    const llmStart = cursorMs;
+    const llmEnd = calls.length
+      ? Math.max(cursorMs, Math.min(...calls.map((c) => c.startMs)))
+      : cursorMs;
+
+    const llmRun = p.turnRun.createChild({
+      name: p.llmName,
+      run_type: "llm",
+      inputs: { messages: withSystem([...msgs], p.systemPrompt) },
+      outputs: { messages: [{ role: "assistant", content: assistantContent }] },
+      start_time: llmStart,
+      end_time: llmEnd,
+      extra: { metadata: codingAgentMetadata({ ...p.ctx, runSpecific: { ...p.llmMeta } }) },
+    });
+    await llmRun.postRun();
+
+    for (const t of matched) await postToolRun(t, p.turnRun, p.ctx);
+
+    // Thread this round's assistant turn + tool results into the running conversation.
+    msgs.push({ role: "assistant", content: assistantContent });
+    for (const c of calls) msgs.push(c.resultMessage);
+    if (matched.length) cursorMs = Math.max(cursorMs, ...matched.map((t) => t.endMs));
+  }
+
+  // Subagents render as nested chains, ordered in the UI by their own start_time.
+  for (const sub of p.buffer.subagents) await postSubagentRun(sub, p.turnRun, p.ctx);
+
+  // Final answer llm — carries turn usage; folds in any trailing text-only round.
+  const answerContent = [...thinkingBlocks(finalRound?.thinking ?? []), ...p.finalTextBlocks];
+  const answerRun = p.turnRun.createChild({
+    name: p.llmName,
+    run_type: "llm",
+    inputs: { messages: withSystem([...msgs], p.systemPrompt) },
+    outputs: { messages: [{ role: "assistant", content: answerContent }] },
+    start_time: cursorMs,
+    end_time: p.turnEndMs,
+    extra: {
+      metadata: codingAgentMetadata({
+        ...p.ctx,
+        runSpecific: { ...p.llmMeta, usage_metadata: p.usageMetadata },
+      }),
+    },
+  });
+  await answerRun.postRun();
+  return true;
 }
 
 /** Post one tool run under `parent`. `clearSubagent` neutralizes inherited subagent keys. */

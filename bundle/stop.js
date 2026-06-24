@@ -6,11 +6,7 @@ var __getOwnPropNames = Object.getOwnPropertyNames;
 var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
 var __commonJS = (cb, mod) => function __require() {
-  try {
-    return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
-  } catch (e) {
-    throw mod = 0, e;
-  }
+  return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
 };
 var __copyProps = (to, from, except, desc) => {
   if (from && typeof from === "object" || typeof from === "function") {
@@ -802,6 +798,7 @@ function loadConfig(options) {
   const replicas2 = normalizeReplicas(envReplicas ?? localFile?.replicas ?? globalFile?.replicas);
   const attachmentsEnabled = parseBoolean(getEnv("ATTACHMENTS")) ?? localFile?.attachments ?? globalFile?.attachments ?? true;
   const systemPromptEnabled = parseBoolean(getEnv("SYSTEM_PROMPT")) ?? localFile?.system_prompt ?? globalFile?.system_prompt ?? true;
+  const stepFidelityEnabled = parseBoolean(getEnv("STEP_FIDELITY")) ?? localFile?.step_fidelity ?? globalFile?.step_fidelity ?? true;
   const cursorDbPath = getEnv("DB_PATH") ?? localFile?.cursor_db_path ?? globalFile?.cursor_db_path;
   const stateFilePath = process.env.LANGSMITH_CURSOR_STATE_FILE ?? join(home, ".cursor", "langsmith-state.json");
   const baseMetadata = { cwd };
@@ -837,6 +834,7 @@ function loadConfig(options) {
     customMetadata,
     attachmentsEnabled,
     systemPromptEnabled,
+    stepFidelityEnabled,
     cursorDbPath
   };
 }
@@ -1020,16 +1018,16 @@ function reduceStop(state, input, nowMs) {
   return { state: nextState, buffer: turn, turnNum };
 }
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/utils/uuid/src/regex.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/utils/uuid/src/regex.js
 var regex_default = /^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$/i;
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/utils/uuid/src/validate.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/utils/uuid/src/validate.js
 function validate(uuid) {
   return typeof uuid === "string" && regex_default.test(uuid);
 }
 var validate_default = validate;
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/utils/uuid/src/parse.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/utils/uuid/src/parse.js
 function parse(uuid) {
   if (!validate_default(uuid)) {
     throw TypeError("Invalid UUID");
@@ -1061,7 +1059,7 @@ function parse(uuid) {
 }
 var parse_default = parse;
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/utils/uuid/src/stringify.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/utils/uuid/src/stringify.js
 var byteToHex = [];
 for (let i = 0; i < 256; ++i) {
   byteToHex.push((i + 256).toString(16).slice(1));
@@ -1070,13 +1068,13 @@ function unsafeStringify(arr2, offset = 0) {
   return (byteToHex[arr2[offset + 0]] + byteToHex[arr2[offset + 1]] + byteToHex[arr2[offset + 2]] + byteToHex[arr2[offset + 3]] + "-" + byteToHex[arr2[offset + 4]] + byteToHex[arr2[offset + 5]] + "-" + byteToHex[arr2[offset + 6]] + byteToHex[arr2[offset + 7]] + "-" + byteToHex[arr2[offset + 8]] + byteToHex[arr2[offset + 9]] + "-" + byteToHex[arr2[offset + 10]] + byteToHex[arr2[offset + 11]] + byteToHex[arr2[offset + 12]] + byteToHex[arr2[offset + 13]] + byteToHex[arr2[offset + 14]] + byteToHex[arr2[offset + 15]]).toLowerCase();
 }
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/utils/uuid/src/rng.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/utils/uuid/src/rng.js
 var rnds8 = new Uint8Array(16);
 function rng() {
   return crypto.getRandomValues(rnds8);
 }
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/utils/uuid/src/v4.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/utils/uuid/src/v4.js
 function v4(options, buf, offset) {
   if (!buf && !options && crypto.randomUUID) {
     return crypto.randomUUID();
@@ -1105,7 +1103,7 @@ function _v4(options, buf, offset) {
 }
 var v4_default = v4;
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/utils/uuid/src/sha1.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/utils/uuid/src/sha1.js
 function f(s, x, y, z) {
   switch (s) {
     case 0:
@@ -1173,7 +1171,7 @@ function sha1(bytes) {
 }
 var sha1_default = sha1;
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/utils/uuid/src/v35.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/utils/uuid/src/v35.js
 function stringToBytes(str) {
   str = unescape(encodeURIComponent(str));
   const bytes = new Uint8Array(str.length);
@@ -1212,7 +1210,7 @@ function v35(version, hash, value, namespace, buf, offset) {
   return unsafeStringify(bytes);
 }
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/utils/uuid/src/v5.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/utils/uuid/src/v5.js
 function v5(value, namespace, buf, offset) {
   return v35(80, sha1_default, value, namespace, buf, offset);
 }
@@ -1220,7 +1218,7 @@ v5.DNS = DNS;
 v5.URL = URL2;
 var v5_default = v5;
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/utils/uuid/src/v7.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/utils/uuid/src/v7.js
 var _state = {};
 function v7(options, buf, offset) {
   let bytes;
@@ -1282,7 +1280,7 @@ function v7Bytes(rnds, msecs, seq, buf, offset = 0) {
 }
 var v7_default = v7;
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/experimental/otel/constants.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/experimental/otel/constants.js
 var GEN_AI_OPERATION_NAME = "gen_ai.operation.name";
 var GEN_AI_SYSTEM = "gen_ai.system";
 var GEN_AI_REQUEST_MODEL = "gen_ai.request.model";
@@ -1317,7 +1315,7 @@ var LANGSMITH_TAGS = "langsmith.span.tags";
 var LANGSMITH_REQUEST_STREAMING = "langsmith.request.streaming";
 var LANGSMITH_REQUEST_HEADERS = "langsmith.request.headers";
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/utils/env.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/utils/env.js
 var globalEnv;
 var isBrowser = () => typeof window !== "undefined" && typeof window.document !== "undefined";
 var isWebWorker = () => typeof globalThis === "object" && globalThis.constructor && globalThis.constructor.name === "DedicatedWorkerGlobalScope";
@@ -1478,7 +1476,7 @@ function resolveTracingMode(configValue) {
   return "langsmith";
 }
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/singletons/otel.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/singletons/otel.js
 var MockTracer = class {
   constructor() {
     Object.defineProperty(this, "hasWarned", {
@@ -1584,7 +1582,7 @@ function getDefaultOTLPTracerComponents() {
   return OTELProviderSingleton.getDefaultOTLPTracerComponents();
 }
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/experimental/otel/translator.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/experimental/otel/translator.js
 var WELL_KNOWN_OPERATION_NAMES = {
   llm: "chat",
   tool: "execute_tool",
@@ -1925,7 +1923,7 @@ var LangSmithToOTELTranslator = class {
   }
 };
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/utils/is-network-error/index.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/utils/is-network-error/index.js
 var objectToString = Object.prototype.toString;
 var isError = (value) => objectToString.call(value) === "[object Error]";
 var errorMessages = /* @__PURE__ */ new Set([
@@ -1964,7 +1962,7 @@ function isNetworkError(error2) {
   return errorMessages.has(message);
 }
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/utils/p-retry/index.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/utils/p-retry/index.js
 function validateRetries(retries) {
   if (typeof retries === "number") {
     if (retries < 0) {
@@ -2137,11 +2135,11 @@ async function pRetry(input, options = {}) {
   throw new Error("Retry attempts exhausted without throwing an error.");
 }
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/utils/p-queue.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/utils/p-queue.js
 var import_p_queue = __toESM(require_dist(), 1);
 var PQueue = "default" in import_p_queue.default ? import_p_queue.default.default : import_p_queue.default;
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/utils/async_caller.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/utils/async_caller.js
 var STATUS_RETRYABLE = [
   408,
   // Request Timeout
@@ -2269,7 +2267,7 @@ var AsyncCaller = class {
   }
 };
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/utils/messages.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/utils/messages.js
 function isLangChainMessage(message) {
   return typeof message?._getType === "function";
 }
@@ -2284,7 +2282,7 @@ function convertLangChainMessageToExample(message) {
   return converted;
 }
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/utils/warn.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/utils/warn.js
 var warnedMessages = {};
 function warnOnce(message) {
   if (!warnedMessages[message]) {
@@ -2293,7 +2291,7 @@ function warnOnce(message) {
   }
 }
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/utils/xxhash/xxhash.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/utils/xxhash/xxhash.js
 var n = (n2) => BigInt(n2);
 var PRIME32_1 = n("0x9E3779B1");
 var PRIME32_2 = n("0x85EBCA77");
@@ -2573,7 +2571,7 @@ function xxh128ToBytes(hash128) {
   return result;
 }
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/utils/_uuid.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/utils/_uuid.js
 var UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 function assertUuid(str, which) {
   if (!UUID_REGEX.test(str)) {
@@ -2635,7 +2633,7 @@ function nonCryptographicUuid7Deterministic(originalId, key) {
   return bytesToUuid(b);
 }
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/utils/error.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/utils/error.js
 function getInvalidPromptIdentifierMsg(identifier) {
   return `Invalid prompt identifier format: "${identifier}". Expected one of:
   - "prompt-name" (for private prompts)
@@ -2731,7 +2729,7 @@ function isConflictingEndpointsError(err) {
   return typeof err === "object" && err !== null && err.code === ERR_CONFLICTING_ENDPOINTS;
 }
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/utils/prompts.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/utils/prompts.js
 function parseHubIdentifier(identifier) {
   if (!identifier || identifier.split("/").length > 2 || identifier.startsWith("/") || identifier.endsWith("/") || identifier.split(":").length > 2) {
     throw new Error(getInvalidPromptIdentifierMsg(identifier));
@@ -2752,7 +2750,7 @@ function parseHubIdentifier(identifier) {
   }
 }
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/utils/fs.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/utils/fs.js
 import * as nodeFs from "node:fs";
 import * as nodeFsPromises from "node:fs/promises";
 import * as nodePath from "node:path";
@@ -2793,7 +2791,7 @@ function readFileSync4(filePath) {
   return nodeFs.readFileSync(filePath, "utf-8");
 }
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/utils/prompt_cache/index.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/utils/prompt_cache/index.js
 function isStale(entry, ttlSeconds) {
   if (ttlSeconds === null) {
     return false;
@@ -3067,7 +3065,7 @@ var PromptCache = class {
 };
 var promptCacheSingleton = new PromptCache();
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/singletons/fetch.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/singletons/fetch.js
 var DEFAULT_FETCH_IMPLEMENTATION = (...args) => fetch(...args);
 var globalFetchSupportsWebStreaming = void 0;
 var LANGSMITH_FETCH_IMPLEMENTATION_KEY = /* @__PURE__ */ Symbol.for("ls:fetch_implementation");
@@ -3092,7 +3090,7 @@ var _getFetchImplementation = (debug2) => {
   };
 };
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/utils/fast-safe-stringify/index.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/utils/fast-safe-stringify/index.js
 var LIMIT_REPLACE_NODE = "[...]";
 var CIRCULAR_REPLACE_NODE = { result: "[Circular]" };
 var arr = [];
@@ -3382,12 +3380,12 @@ function replaceGetterValues(replacer) {
   };
 }
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/utils/worker_threads.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/utils/worker_threads.js
 import { Worker as NodeWorker } from "node:worker_threads";
 var Worker = NodeWorker;
 var WORKER_THREADS_AVAILABLE = true;
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/utils/serialize_worker.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/utils/serialize_worker.js
 var WORKER_SOURCE = (
   /* js */
   `
@@ -3672,13 +3670,7 @@ function hasLargeString(value, threshold = LARGE_STRING_THRESHOLD, nodeBudget = 
   return false;
 }
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/client.js
-function assertPullPublicPromptAllowed(promptIdentifier, dangerouslyPullPublicPrompt) {
-  const [owner] = parseHubIdentifier(promptIdentifier);
-  if (owner !== "-" && !dangerouslyPullPublicPrompt) {
-    throw new Error("Pulling a public prompt by owner/name is disabled by default because prompts may contain untrusted serialized LangChain objects. If you trust this prompt, set `dangerouslyPullPublicPrompt: true` to acknowledge the risk.");
-  }
-}
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/client.js
 function _ensureUTCTimestamp(ts) {
   if (typeof ts === "string" && ts.length > 0 && !ts.includes("Z") && !ts.includes("+") && !ts.includes("-", 10)) {
     return ts + "Z";
@@ -3796,7 +3788,7 @@ var AutoBatchQueue = class {
     const itemPromise = new Promise((resolve) => {
       itemPromiseResolve = resolve;
     });
-    const size = estimateSerializedSize(item.item).size;
+    const size = getLangSmithEnvironmentVariable("PERF_OPTIMIZATION") === "true" ? estimateSerializedSize(item.item).size : serialize(item.item, `Serializing run with id: ${item.item.id}`).length;
     if (this.sizeBytes + size > this.maxSizeBytes && this.items.length > 0) {
       console.warn(`AutoBatchQueue size limit (${this.maxSizeBytes} bytes) exceeded. Dropping run with id: ${item.item.id}. Current queue size: ${this.sizeBytes} bytes, attempted addition: ${size} bytes.`);
       itemPromiseResolve();
@@ -3858,9 +3850,11 @@ var Client = class _Client {
   }
   /**
    * Serialize a payload for tracing, optionally offloading the work to a
-   * Node worker thread when the runtime supports worker_threads.
+   * Node worker thread when LANGSMITH_PERF_OPTIMIZATION=true and the runtime
+   * supports worker_threads.
    *
    * Falls back to synchronous serialization when:
+   *  - the perf flag is off
    *  - manualFlushMode is enabled (serverless: worker boot cost > benefit)
    *  - worker_threads is unavailable (non-Node runtimes)
    *  - the payload contains values that can't be structured-cloned across
@@ -3876,7 +3870,8 @@ var Client = class _Client {
     });
   }
   async _serializeBody(payload, errorContext) {
-    if (this.manualFlushMode) {
+    const perfOptIn = getLangSmithEnvironmentVariable("PERF_OPTIMIZATION") === "true";
+    if (!perfOptIn || this.manualFlushMode) {
       return serialize(payload, errorContext);
     }
     if (!hasLargeString(payload)) {
@@ -7819,24 +7814,7 @@ Message: ${Array.isArray(result.detail) ? result.detail.join("\n") : "Unspecifie
       hub_model_provider: result.model_provider
     };
   }
-  /**
-   * Pull a prompt commit from the LangSmith API.
-   *
-   * Public prompts referenced by owner/name cross a trust boundary because the
-   * prompt manifest may contain serialized LangChain objects and configuration
-   * that affect runtime behavior. For example, a prompt can intentionally
-   * configure a model with a custom base URL, headers, model name, or other
-   * constructor arguments. These are supported features, but they also mean the
-   * prompt contents should be treated as executable configuration rather than
-   * plain text.
-   *
-   * Set `dangerouslyPullPublicPrompt: true` only after reviewing and trusting
-   * the prompt contents, not merely the publishing account. Prompts from your
-   * own or your organization's account can still be unsafe if that account or
-   * prompt was compromised.
-   */
   async pullPromptCommit(promptIdentifier, options) {
-    assertPullPublicPromptAllowed(promptIdentifier, options?.dangerouslyPullPublicPrompt);
     const refreshFunc = this._fetchPromptFromApi.bind(this, promptIdentifier, options);
     if (!options?.skipCache && this._promptCache) {
       const cacheKey = this._getPromptCacheKey(promptIdentifier, options?.includeModel);
@@ -7853,26 +7831,12 @@ Message: ${Array.isArray(result.detail) ? result.detail.join("\n") : "Unspecifie
   /**
    * This method should not be used directly, use `import { pull } from "langchain/hub"` instead.
    * Using this method directly returns the JSON string of the prompt rather than a LangChain object.
-   *
-   * Public prompts referenced by owner/name cross a trust boundary because the
-   * prompt manifest may contain serialized LangChain objects and configuration
-   * that affect runtime behavior. For example, a prompt can intentionally
-   * configure a model with a custom base URL, headers, model name, or other
-   * constructor arguments. These are supported features, but they also mean the
-   * prompt contents should be treated as executable configuration rather than
-   * plain text.
-   *
-   * Set `dangerouslyPullPublicPrompt: true` only after reviewing and trusting
-   * the prompt contents, not merely the publishing account. Prompts from your
-   * own or your organization's account can still be unsafe if that account or
-   * prompt was compromised.
    * @private
    */
   async _pullPrompt(promptIdentifier, options) {
     const promptObject = await this.pullPromptCommit(promptIdentifier, {
       includeModel: options?.includeModel,
-      skipCache: options?.skipCache,
-      dangerouslyPullPublicPrompt: options?.dangerouslyPullPublicPrompt
+      skipCache: options?.skipCache
     });
     const prompt = JSON.stringify(promptObject.manifest);
     return prompt;
@@ -8294,7 +8258,7 @@ function isExampleCreate(input) {
   return "dataset_id" in input || "dataset_name" in input;
 }
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/env.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/env.js
 var isTracingEnabled = (tracingEnabled) => {
   if (tracingEnabled !== void 0) {
     return tracingEnabled;
@@ -8303,11 +8267,11 @@ var isTracingEnabled = (tracingEnabled) => {
   return !!envVars.find((envVar) => getLangSmithEnvironmentVariable(envVar) === "true");
 };
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/singletons/constants.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/singletons/constants.js
 var _LC_CONTEXT_VARIABLES_KEY = /* @__PURE__ */ Symbol.for("lc:context_variables");
 var _REPLICA_TRACE_ROOTS_KEY = /* @__PURE__ */ Symbol.for("langsmith:replica_trace_roots");
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/utils/context_vars.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/utils/context_vars.js
 function getContextVar(runTree, key) {
   if (_LC_CONTEXT_VARIABLES_KEY in runTree) {
     const contextVars = runTree[_LC_CONTEXT_VARIABLES_KEY];
@@ -8324,13 +8288,13 @@ function setContextVar(runTree, key, value) {
   runTree[_LC_CONTEXT_VARIABLES_KEY] = contextVars;
 }
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/utils/project.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/utils/project.js
 var getDefaultProjectName = () => {
   return getLangSmithEnvironmentVariable("PROJECT") ?? getEnvironmentVariable("LANGCHAIN_SESSION") ?? // TODO: Deprecate
   "default";
 };
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/run_trees.js
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/run_trees.js
 var TIMESTAMP_LENGTH = 36;
 var UUID_NAMESPACE_DNS = "6ba7b810-9dad-11d1-80b4-00c04fd430c8";
 function getReplicaKey(replica) {
@@ -9233,8 +9197,8 @@ function _checkEndpointEnvUnset(parsed) {
   }
 }
 
-// node_modules/.pnpm/langsmith@0.6.0/node_modules/langsmith/dist/index.js
-var __version__ = "0.6.0";
+// node_modules/.pnpm/langsmith@0.5.26/node_modules/langsmith/dist/index.js
+var __version__ = "0.5.26";
 
 // dist/metadata.js
 var LS_AGENT_KIND = "coding_agent";
@@ -9276,307 +9240,9 @@ function codingAgentMetadata(opts) {
   };
 }
 
-// dist/langsmith.js
-var client = void 0;
-var replicas = void 0;
-function initTracing(apiKey, apiUrl, providedReplicas, clientOverride) {
-  client = clientOverride ?? (apiKey ? new Client({ apiKey, apiUrl }) : void 0);
-  replicas = providedReplicas;
-  return client;
-}
-async function flushPendingTraces() {
-  debug("Awaiting pending trace batches...");
-  await Promise.all([
-    client?.awaitPendingTraceBatches(),
-    RunTree.getSharedClient().awaitPendingTraceBatches()
-  ]);
-  debug("Trace batches flushed");
-}
-function withSystem(messages, systemPrompt) {
-  return systemPrompt ? [{ role: "system", content: systemPrompt }, ...messages] : messages;
-}
-function userMessageContent(prompt, attachments) {
-  const textPart = prompt || attachments.length === 0 ? [{ type: "text", text: prompt }] : [];
-  return [...textPart, ...attachments];
-}
-function toolStartMs(tool) {
-  const durMs = (tool.duration ?? 0) * 1e3;
-  return Math.max(0, tool.endMs - durMs);
-}
-function toolResultText(tool) {
-  if (tool.error != null)
-    return tool.error;
-  const out = tool.output;
-  if (out == null)
-    return "";
-  return typeof out === "string" ? out : JSON.stringify(out);
-}
-function toolCall(t, floorMs) {
-  return {
-    startMs: Math.max(floorMs, toolStartMs(t)),
-    toolCallBlock: { type: "tool_call", name: t.name, args: t.input, id: t.tool_use_id },
-    resultMessage: {
-      role: "tool",
-      tool_call_id: t.tool_use_id,
-      content: [{ type: "text", text: toolResultText(t) }]
-    }
-  };
-}
-function orderedTurnCalls(buffer) {
-  const calls = [
-    ...buffer.tools.map((t) => toolCall(t, buffer.startMs)),
-    ...buffer.subagents.map((s) => ({
-      startMs: s.startMs,
-      toolCallBlock: {
-        type: "tool_call",
-        name: "Subagent",
-        args: { subagent_type: s.subagent_type, task: s.task },
-        id: s.subagent_id
-      },
-      resultMessage: {
-        role: "tool",
-        tool_call_id: s.subagent_id,
-        content: [{ type: "text", text: s.resultText ?? `status: ${s.status ?? "completed"}` }]
-      }
-    }))
-  ];
-  return calls.sort((a, b) => a.startMs - b.startMs);
-}
-async function buildTurnRuns(options) {
-  const { buffer, conversationId, turnNum, project, userEmail, customMetadata, systemPrompt } = options;
-  if (!client && !replicas) {
-    throw new Error("LangSmith client not initialized \u2014 call initTracing() first");
-  }
-  const ctx = {
-    threadId: conversationId,
-    base: { ...customMetadata, ...userEmail ? { user_email: userEmail } : {} },
-    turnId: buffer.generation_id,
-    turnNumber: turnNum,
-    runtimeVersion: options.runtimeVersion
-  };
-  const promptText = buffer.prompt ?? "";
-  const userContent = userMessageContent(promptText, options.attachments ?? []);
-  const toolEnds = buffer.tools.map((t) => t.endMs);
-  const subagentEnds = buffer.subagents.map((s) => s.endMs ?? s.startMs);
-  const turnEndMs = Math.max(buffer.startMs, ...toolEnds, ...subagentEnds, Date.now());
-  const turnName = `${TURN_RUN_NAME} ${turnNum}`;
-  const turnRun = new RunTree({
-    client,
-    replicas,
-    name: turnName,
-    run_type: "chain",
-    inputs: { messages: [{ role: "user", content: userContent }] },
-    project_name: project,
-    start_time: buffer.startMs,
-    tags: DEFAULT_TAGS,
-    extra: { metadata: codingAgentMetadata({ ...ctx, runSpecific: { model: buffer.model } }) }
-  });
-  await turnRun.postRun();
-  const { ls_model_name, ls_provider } = deriveModelInfo(buffer.model);
-  const llmName = ls_provider ?? ls_model_name;
-  const llmMeta = {
-    ls_provider,
-    ls_model_name,
-    ls_invocation_params: { model: ls_model_name }
-  };
-  const usageMetadata = buildUsageMetadata(buffer.usage);
-  const thinking = buffer.thoughts.map((t) => ({ type: "thinking", thinking: t.text }));
-  const finalTextBlocks = buffer.finalText ? [{ type: "text", text: buffer.finalText }] : [];
-  const calls = orderedTurnCalls(buffer);
-  if (calls.length === 0) {
-    const llmRun = turnRun.createChild({
-      name: llmName,
-      run_type: "llm",
-      inputs: { messages: withSystem([{ role: "user", content: userContent }], systemPrompt) },
-      outputs: { messages: [{ role: "assistant", content: [...thinking, ...finalTextBlocks] }] },
-      start_time: buffer.startMs,
-      end_time: turnEndMs,
-      extra: {
-        metadata: codingAgentMetadata({
-          ...ctx,
-          runSpecific: { ...llmMeta, usage_metadata: usageMetadata }
-        })
-      }
-    });
-    await llmRun.postRun();
-  } else {
-    const firstCallStart = Math.min(...calls.map((c) => c.startMs));
-    const lastCallEnd = Math.max(buffer.startMs, ...buffer.tools.map((t) => t.endMs), ...buffer.subagents.map((s) => s.endMs ?? s.startMs));
-    const assistantDecision = [...thinking, ...calls.map((c) => c.toolCallBlock)];
-    const decideRun = turnRun.createChild({
-      name: llmName,
-      run_type: "llm",
-      inputs: { messages: withSystem([{ role: "user", content: userContent }], systemPrompt) },
-      outputs: { messages: [{ role: "assistant", content: assistantDecision }] },
-      start_time: buffer.startMs,
-      end_time: Math.max(buffer.startMs, firstCallStart),
-      extra: { metadata: codingAgentMetadata({ ...ctx, runSpecific: { ...llmMeta } }) }
-    });
-    await decideRun.postRun();
-    for (const tool of buffer.tools)
-      await postToolRun(tool, turnRun, ctx);
-    for (const sub of buffer.subagents)
-      await postSubagentRun(sub, turnRun, ctx);
-    const answerRun = turnRun.createChild({
-      name: llmName,
-      run_type: "llm",
-      inputs: {
-        messages: withSystem([
-          { role: "user", content: userContent },
-          { role: "assistant", content: assistantDecision },
-          ...calls.map((c) => c.resultMessage)
-        ], systemPrompt)
-      },
-      outputs: { messages: [{ role: "assistant", content: finalTextBlocks }] },
-      start_time: lastCallEnd,
-      end_time: turnEndMs,
-      extra: {
-        metadata: codingAgentMetadata({
-          ...ctx,
-          runSpecific: { ...llmMeta, usage_metadata: usageMetadata }
-        })
-      }
-    });
-    await answerRun.postRun();
-  }
-  turnRun.end_time = turnEndMs;
-  turnRun.outputs = { text: buffer.finalText ?? "" };
-  turnRun.error = buffer.status && buffer.status !== "completed" ? buffer.status : void 0;
-  await turnRun.patchRun({ excludeInputs: true });
-  log(`Traced ${turnName} (conv=${conversationId}): ${buffer.tools.length} tool(s), ${buffer.subagents.length} subagent(s)`);
-}
-async function postToolRun(tool, parent, ctx, clearSubagent = false) {
-  const floorMs = typeof parent.start_time === "number" ? parent.start_time : 0;
-  const startMs = Math.max(floorMs, toolStartMs(tool));
-  const isError2 = tool.error != null;
-  const run = parent.createChild({
-    name: tool.name,
-    run_type: "tool",
-    inputs: { input: tool.input },
-    outputs: isError2 ? { error: tool.error } : { output: tool.output ?? "" },
-    error: isError2 ? tool.error : void 0,
-    start_time: startMs,
-    end_time: tool.endMs,
-    extra: {
-      metadata: codingAgentMetadata({
-        ...ctx,
-        clearSubagent,
-        // run name == native tool name, so ls_tool_name is omitted; tool_name kept as alias.
-        toolName: tool.name,
-        runName: tool.name,
-        runSpecific: {
-          tool_name: tool.name,
-          tool_use_id: tool.tool_use_id,
-          ...tool.failure_type ? { failure_type: tool.failure_type } : {}
-        }
-      })
-    }
-  });
-  await run.postRun();
-}
-async function postSubagentRun(sub, parent, ctx) {
-  const isError2 = sub.status != null && sub.status !== "completed";
-  const tools = sub.tools ?? [];
-  const startMs = sub.startMs;
-  const endMs = sub.endMs ?? sub.startMs;
-  const runName = sub.subagent_type ? `${sub.subagent_type} Subagent` : "Subagent";
-  const subModel = deriveModelInfo(sub.model);
-  const llmName = subModel.ls_provider ?? subModel.ls_model_name;
-  const llmMeta = {
-    ls_provider: subModel.ls_provider,
-    ls_model_name: subModel.ls_model_name,
-    ls_invocation_params: { model: subModel.ls_model_name }
-  };
-  const subagentRun = parent.createChild({
-    name: runName,
-    run_type: "chain",
-    inputs: {
-      subagent_type: sub.subagent_type,
-      ...sub.description ? { description: sub.description } : {},
-      task: sub.task
-    },
-    outputs: {
-      status: sub.status ?? "completed",
-      ...sub.resultText ? { result: sub.resultText } : {}
-    },
-    error: isError2 ? sub.status : void 0,
-    start_time: startMs,
-    end_time: endMs,
-    extra: {
-      metadata: codingAgentMetadata({
-        ...ctx,
-        subagentId: sub.subagent_id,
-        subagentType: sub.subagent_type,
-        runSpecific: {
-          ...sub.description ? { subagent_description: sub.description } : {},
-          ...sub.model ? { subagent_model: sub.model } : {},
-          ...subModel.ls_provider ? { subagent_provider: subModel.ls_provider } : {},
-          ...sub.is_parallel_worker != null ? { subagent_is_parallel_worker: sub.is_parallel_worker } : {},
-          ...sub.childConversationId ? { subagent_conversation_id: sub.childConversationId } : {},
-          // Tools we actually captured (authoritative) vs Cursor-reported counts (often 0).
-          subagent_tool_count: tools.length,
-          ...sub.message_count != null ? { reported_message_count: sub.message_count } : {},
-          ...sub.tool_call_count != null ? { reported_tool_call_count: sub.tool_call_count } : {},
-          ...sub.loop_count != null ? { reported_loop_count: sub.loop_count } : {}
-        }
-      })
-    }
-  });
-  await subagentRun.postRun();
-  const baseMessages = withSystem([{ role: "system", content: sub.task }], sub.systemPrompt);
-  const finalBlocks = sub.resultText ? [{ type: "text", text: sub.resultText }] : [];
-  const calls = tools.map((t) => toolCall(t, startMs)).sort((a, b) => a.startMs - b.startMs);
-  if (calls.length === 0) {
-    const llmRun = subagentRun.createChild({
-      name: llmName,
-      run_type: "llm",
-      inputs: { messages: baseMessages },
-      outputs: { messages: [{ role: "assistant", content: finalBlocks }] },
-      start_time: startMs,
-      end_time: endMs,
-      extra: {
-        metadata: codingAgentMetadata({ ...ctx, clearSubagent: true, runSpecific: { ...llmMeta } })
-      }
-    });
-    await llmRun.postRun();
-    return;
-  }
-  const firstCallStart = Math.min(...calls.map((c) => c.startMs));
-  const lastCallEnd = Math.max(startMs, ...tools.map((t) => t.endMs));
-  const assistantDecision = calls.map((c) => c.toolCallBlock);
-  const decideRun = subagentRun.createChild({
-    name: llmName,
-    run_type: "llm",
-    inputs: { messages: baseMessages },
-    outputs: { messages: [{ role: "assistant", content: assistantDecision }] },
-    start_time: startMs,
-    end_time: Math.max(startMs, firstCallStart),
-    extra: {
-      metadata: codingAgentMetadata({ ...ctx, clearSubagent: true, runSpecific: { ...llmMeta } })
-    }
-  });
-  await decideRun.postRun();
-  for (const tool of tools)
-    await postToolRun(tool, subagentRun, ctx, true);
-  const answerRun = subagentRun.createChild({
-    name: llmName,
-    run_type: "llm",
-    inputs: {
-      messages: [
-        ...baseMessages,
-        { role: "assistant", content: assistantDecision },
-        ...calls.map((c) => c.resultMessage)
-      ]
-    },
-    outputs: { messages: [{ role: "assistant", content: finalBlocks }] },
-    start_time: lastCallEnd,
-    end_time: endMs,
-    extra: {
-      metadata: codingAgentMetadata({ ...ctx, clearSubagent: true, runSpecific: { ...llmMeta } })
-    }
-  });
-  await answerRun.postRun();
-}
+// dist/conversation-steps.js
+import { DatabaseSync as DatabaseSync3 } from "node:sqlite";
+import { existsSync as existsSync5 } from "node:fs";
 
 // dist/attachments.js
 import { DatabaseSync } from "node:sqlite";
@@ -9874,6 +9540,651 @@ function resolveSystemPrompts(opts) {
   return result;
 }
 
+// dist/conversation-steps.js
+var STATE_TURNS_FIELD = 8;
+var TURN_AGENT_FIELD = 1;
+var AGENT_STEPS_FIELD = 2;
+var STEP_ASSISTANT_FIELD = 1;
+var STEP_TOOL_FIELD = 2;
+var STEP_THINKING_FIELD = 3;
+var MESSAGE_TEXT_FIELD = 1;
+var THINKING_DURATION_FIELD = 2;
+var TOOLCALL_TOOL_USE_ID_FIELD = 57;
+var TOOLCALL_HOOK_CONTEXTS_FIELD = 54;
+var TOOL_FIELD_NAMES = {
+  1: "Shell",
+  3: "Delete",
+  4: "Glob",
+  5: "Grep",
+  8: "Read",
+  9: "UpdateTodos",
+  10: "ReadTodos",
+  12: "Edit",
+  13: "Ls",
+  14: "ReadLints",
+  15: "MCP",
+  16: "SemSearch",
+  17: "CreatePlan",
+  18: "WebSearch",
+  19: "Task",
+  20: "ListMcpResources",
+  21: "ReadMcpResource",
+  22: "ApplyAgentDiff",
+  23: "AskQuestion",
+  24: "Fetch",
+  25: "SwitchMode",
+  28: "GenerateImage",
+  29: "RecordScreen",
+  30: "ComputerUse",
+  31: "WriteShellStdin",
+  32: "Reflect",
+  33: "SetupVmEnvironment",
+  34: "Truncated",
+  35: "StartGrindExecution",
+  36: "StartGrindPlanning",
+  37: "WebFetch",
+  38: "ReportBugfixResults",
+  39: "AiAttribution",
+  40: "PrManagement",
+  41: "McpAuth",
+  42: "Await",
+  43: "BlameByFilePath",
+  44: "GetMcpTools",
+  45: "ReportBug",
+  46: "SetActiveBranch",
+  48: "CommunicateUpdate",
+  49: "SendFinalSummary",
+  50: "UpdatePrCodeTour",
+  51: "ReplaceEnv",
+  52: "EditPrLabels",
+  53: "RecordCiInvestigationFindings",
+  55: "SendMessage",
+  58: "SendToUser"
+};
+function scanFields(buf) {
+  const out = [];
+  let p = 0;
+  const readVarint2 = () => {
+    let result = 0;
+    let shift = 1;
+    let byte;
+    do {
+      byte = buf[p++];
+      result += (byte & 127) * shift;
+      shift *= 128;
+    } while (byte & 128 && p < buf.length);
+    return result;
+  };
+  while (p < buf.length) {
+    const tag = readVarint2();
+    const field = tag >>> 3;
+    const wire = tag & 7;
+    if (field === 0)
+      return out;
+    switch (wire) {
+      case 0:
+        out.push({ field, num: readVarint2() });
+        break;
+      case 1:
+        p += 8;
+        break;
+      case 2: {
+        const len = readVarint2();
+        if (len < 0 || p + len > buf.length)
+          return out;
+        out.push({ field, bytes: buf.subarray(p, p + len) });
+        p += len;
+        break;
+      }
+      case 5:
+        p += 4;
+        break;
+      default:
+        return out;
+    }
+  }
+  return out;
+}
+function firstBytes(buf, field) {
+  for (const f2 of scanFields(buf))
+    if (f2.field === field && f2.bytes)
+      return f2.bytes;
+  return void 0;
+}
+function allBytes(buf, field) {
+  const out = [];
+  for (const f2 of scanFields(buf))
+    if (f2.field === field && f2.bytes)
+      out.push(f2.bytes);
+  return out;
+}
+function firstVarint(buf, field) {
+  for (const f2 of scanFields(buf))
+    if (f2.field === field && f2.num != null)
+      return f2.num;
+  return void 0;
+}
+function decodeStep(buf) {
+  const thinking = firstBytes(buf, STEP_THINKING_FIELD);
+  if (thinking) {
+    const text = firstBytes(thinking, MESSAGE_TEXT_FIELD)?.toString("utf-8");
+    const durationMs = firstVarint(thinking, THINKING_DURATION_FIELD);
+    return { kind: "thinking", text, durationMs };
+  }
+  const tool = firstBytes(buf, STEP_TOOL_FIELD);
+  if (tool) {
+    const toolUseId = firstBytes(tool, TOOLCALL_TOOL_USE_ID_FIELD)?.toString("utf-8");
+    let toolField;
+    for (const f2 of scanFields(tool)) {
+      if (f2.field === TOOLCALL_TOOL_USE_ID_FIELD || f2.field === TOOLCALL_HOOK_CONTEXTS_FIELD) {
+        continue;
+      }
+      toolField = f2.field;
+      break;
+    }
+    return {
+      kind: "tool",
+      toolUseId,
+      toolField,
+      toolName: toolField != null ? TOOL_FIELD_NAMES[toolField] : void 0
+    };
+  }
+  const assistant = firstBytes(buf, STEP_ASSISTANT_FIELD);
+  if (assistant) {
+    return { kind: "assistant", text: firstBytes(assistant, MESSAGE_TEXT_FIELD)?.toString("utf-8") };
+  }
+  return void 0;
+}
+function groupSteps(steps) {
+  const rounds = [];
+  let current;
+  const newRound = () => {
+    const r = { thinking: [], toolSteps: [] };
+    rounds.push(r);
+    return r;
+  };
+  for (const step of steps) {
+    if (step.kind === "tool") {
+      if (!current)
+        current = newRound();
+      current.toolSteps.push({
+        toolUseId: step.toolUseId,
+        toolField: step.toolField,
+        toolName: step.toolName
+      });
+      continue;
+    }
+    if (!current || current.toolSteps.length > 0)
+      current = newRound();
+    if (step.kind === "thinking") {
+      current.thinking.push({ text: step.text, durationMs: step.durationMs });
+    } else {
+      current.assistantText = current.assistantText ? `${current.assistantText}
+${step.text ?? ""}` : step.text;
+    }
+  }
+  return rounds;
+}
+function openDbReader2(dbPath) {
+  const db = new DatabaseSync3(dbPath, { readOnly: true });
+  const stmt = db.prepare("SELECT value FROM cursorDiskKV WHERE key = ?");
+  return {
+    get(key) {
+      const row = stmt.get(key);
+      const v = row?.value;
+      if (typeof v === "string")
+        return Buffer.from(v);
+      if (v instanceof Uint8Array)
+        return Buffer.from(v);
+      return void 0;
+    },
+    close: () => db.close()
+  };
+}
+var agentKvKey = (blobId) => `agentKv:blob:${blobId.toString("hex")}`;
+function decodeTurnSteps(reader, turnBlobId) {
+  const turnBlob = reader.get(agentKvKey(turnBlobId));
+  if (!turnBlob)
+    return void 0;
+  const agent = firstBytes(turnBlob, TURN_AGENT_FIELD);
+  if (!agent)
+    return void 0;
+  const steps = [];
+  for (const stepId of allBytes(agent, AGENT_STEPS_FIELD)) {
+    const stepBlob = reader.get(agentKvKey(stepId));
+    if (!stepBlob)
+      continue;
+    const step = decodeStep(stepBlob);
+    if (step)
+      steps.push(step);
+  }
+  return steps;
+}
+function resolveTurnSteps(opts) {
+  const wanted = new Set(opts.toolUseIds.filter(Boolean));
+  if (wanted.size === 0)
+    return void 0;
+  try {
+    const dbPath = opts.dbPath ?? defaultCursorDbPath();
+    if (!existsSync5(dbPath)) {
+      debug(`conversation-steps: no Cursor DB at ${dbPath}`);
+      return void 0;
+    }
+    const reader = (opts.openReader ?? openDbReader2)(dbPath);
+    try {
+      const composer = reader.get(`composerData:${opts.conversationId}`);
+      if (!composer)
+        return void 0;
+      const parsed = JSON.parse(composer.toString("utf-8"));
+      const blob = decodeConversationStateBlob(isRecord(parsed) ? parsed.conversationState : void 0);
+      if (!blob)
+        return void 0;
+      const turnIds = allBytes(blob, STATE_TURNS_FIELD);
+      for (let i = turnIds.length - 1; i >= 0; i--) {
+        const steps = decodeTurnSteps(reader, turnIds[i]);
+        if (!steps)
+          continue;
+        const overlap = steps.some((s) => s.kind === "tool" && s.toolUseId && wanted.has(s.toolUseId));
+        if (overlap) {
+          log(`conversation-steps: recovered ${steps.length} step(s) for ${opts.conversationId}`);
+          return steps;
+        }
+      }
+      debug(`conversation-steps: no turn matched buffered tools for ${opts.conversationId}`);
+      return void 0;
+    } finally {
+      reader.close();
+    }
+  } catch (err) {
+    warn(`conversation-steps: resolution failed for ${opts.conversationId}, skipping (${err})`);
+    return void 0;
+  }
+}
+
+// dist/langsmith.js
+var client = void 0;
+var replicas = void 0;
+function initTracing(apiKey, apiUrl, providedReplicas, clientOverride) {
+  client = clientOverride ?? (apiKey ? new Client({ apiKey, apiUrl }) : void 0);
+  replicas = providedReplicas;
+  return client;
+}
+async function flushPendingTraces() {
+  debug("Awaiting pending trace batches...");
+  await Promise.all([
+    client?.awaitPendingTraceBatches(),
+    RunTree.getSharedClient().awaitPendingTraceBatches()
+  ]);
+  debug("Trace batches flushed");
+}
+function withSystem(messages, systemPrompt) {
+  return systemPrompt ? [{ role: "system", content: systemPrompt }, ...messages] : messages;
+}
+function userMessageContent(prompt, attachments) {
+  const textPart = prompt || attachments.length === 0 ? [{ type: "text", text: prompt }] : [];
+  return [...textPart, ...attachments];
+}
+function toolStartMs(tool) {
+  const durMs = (tool.duration ?? 0) * 1e3;
+  return Math.max(0, tool.endMs - durMs);
+}
+function toolResultText(tool) {
+  if (tool.error != null)
+    return tool.error;
+  const out = tool.output;
+  if (out == null)
+    return "";
+  return typeof out === "string" ? out : JSON.stringify(out);
+}
+function toolCall(t, floorMs) {
+  return {
+    startMs: Math.max(floorMs, toolStartMs(t)),
+    toolCallBlock: { type: "tool_call", name: t.name, args: t.input, id: t.tool_use_id },
+    resultMessage: {
+      role: "tool",
+      tool_call_id: t.tool_use_id,
+      content: [{ type: "text", text: toolResultText(t) }]
+    }
+  };
+}
+function orderedTurnCalls(buffer) {
+  const calls = [
+    ...buffer.tools.map((t) => toolCall(t, buffer.startMs)),
+    ...buffer.subagents.map((s) => ({
+      startMs: s.startMs,
+      toolCallBlock: {
+        type: "tool_call",
+        name: "Subagent",
+        args: { subagent_type: s.subagent_type, task: s.task },
+        id: s.subagent_id
+      },
+      resultMessage: {
+        role: "tool",
+        tool_call_id: s.subagent_id,
+        content: [{ type: "text", text: s.resultText ?? `status: ${s.status ?? "completed"}` }]
+      }
+    }))
+  ];
+  return calls.sort((a, b) => a.startMs - b.startMs);
+}
+async function buildTurnRuns(options) {
+  const { buffer, conversationId, turnNum, project, userEmail, customMetadata, systemPrompt } = options;
+  if (!client && !replicas) {
+    throw new Error("LangSmith client not initialized \u2014 call initTracing() first");
+  }
+  const ctx = {
+    threadId: conversationId,
+    base: { ...customMetadata, ...userEmail ? { user_email: userEmail } : {} },
+    turnId: buffer.generation_id,
+    turnNumber: turnNum,
+    runtimeVersion: options.runtimeVersion
+  };
+  const promptText = buffer.prompt ?? "";
+  const userContent = userMessageContent(promptText, options.attachments ?? []);
+  const toolEnds = buffer.tools.map((t) => t.endMs);
+  const subagentEnds = buffer.subagents.map((s) => s.endMs ?? s.startMs);
+  const turnEndMs = Math.max(buffer.startMs, ...toolEnds, ...subagentEnds, Date.now());
+  const turnName = `${TURN_RUN_NAME} ${turnNum}`;
+  const turnRun = new RunTree({
+    client,
+    replicas,
+    name: turnName,
+    run_type: "chain",
+    inputs: { messages: [{ role: "user", content: userContent }] },
+    project_name: project,
+    start_time: buffer.startMs,
+    tags: DEFAULT_TAGS,
+    extra: { metadata: codingAgentMetadata({ ...ctx, runSpecific: { model: buffer.model } }) }
+  });
+  await turnRun.postRun();
+  const { ls_model_name, ls_provider } = deriveModelInfo(buffer.model);
+  const llmName = ls_provider ?? ls_model_name;
+  const llmMeta = {
+    ls_provider,
+    ls_model_name,
+    ls_invocation_params: { model: ls_model_name }
+  };
+  const usageMetadata = buildUsageMetadata(buffer.usage);
+  const thinking = buffer.thoughts.map((t) => ({ type: "thinking", thinking: t.text }));
+  const finalTextBlocks = buffer.finalText ? [{ type: "text", text: buffer.finalText }] : [];
+  const calls = orderedTurnCalls(buffer);
+  const interleaved = options.steps && options.steps.length > 0 ? await postInterleavedRounds({
+    turnRun,
+    ctx,
+    steps: options.steps,
+    buffer,
+    userContent,
+    systemPrompt,
+    llmName,
+    llmMeta,
+    usageMetadata,
+    finalTextBlocks,
+    turnEndMs
+  }) : false;
+  if (interleaved) {
+  } else if (calls.length === 0) {
+    const llmRun = turnRun.createChild({
+      name: llmName,
+      run_type: "llm",
+      inputs: { messages: withSystem([{ role: "user", content: userContent }], systemPrompt) },
+      outputs: { messages: [{ role: "assistant", content: [...thinking, ...finalTextBlocks] }] },
+      start_time: buffer.startMs,
+      end_time: turnEndMs,
+      extra: {
+        metadata: codingAgentMetadata({
+          ...ctx,
+          runSpecific: { ...llmMeta, usage_metadata: usageMetadata }
+        })
+      }
+    });
+    await llmRun.postRun();
+  } else {
+    const firstCallStart = Math.min(...calls.map((c) => c.startMs));
+    const lastCallEnd = Math.max(buffer.startMs, ...buffer.tools.map((t) => t.endMs), ...buffer.subagents.map((s) => s.endMs ?? s.startMs));
+    const assistantDecision = [...thinking, ...calls.map((c) => c.toolCallBlock)];
+    const decideRun = turnRun.createChild({
+      name: llmName,
+      run_type: "llm",
+      inputs: { messages: withSystem([{ role: "user", content: userContent }], systemPrompt) },
+      outputs: { messages: [{ role: "assistant", content: assistantDecision }] },
+      start_time: buffer.startMs,
+      end_time: Math.max(buffer.startMs, firstCallStart),
+      extra: { metadata: codingAgentMetadata({ ...ctx, runSpecific: { ...llmMeta } }) }
+    });
+    await decideRun.postRun();
+    for (const tool of buffer.tools)
+      await postToolRun(tool, turnRun, ctx);
+    for (const sub of buffer.subagents)
+      await postSubagentRun(sub, turnRun, ctx);
+    const answerRun = turnRun.createChild({
+      name: llmName,
+      run_type: "llm",
+      inputs: {
+        messages: withSystem([
+          { role: "user", content: userContent },
+          { role: "assistant", content: assistantDecision },
+          ...calls.map((c) => c.resultMessage)
+        ], systemPrompt)
+      },
+      outputs: { messages: [{ role: "assistant", content: finalTextBlocks }] },
+      start_time: lastCallEnd,
+      end_time: turnEndMs,
+      extra: {
+        metadata: codingAgentMetadata({
+          ...ctx,
+          runSpecific: { ...llmMeta, usage_metadata: usageMetadata }
+        })
+      }
+    });
+    await answerRun.postRun();
+  }
+  turnRun.end_time = turnEndMs;
+  turnRun.outputs = { text: buffer.finalText ?? "" };
+  turnRun.error = buffer.status && buffer.status !== "completed" ? buffer.status : void 0;
+  await turnRun.patchRun({ excludeInputs: true });
+  log(`Traced ${turnName} (conv=${conversationId}): ${buffer.tools.length} tool(s), ${buffer.subagents.length} subagent(s)`);
+}
+function thinkingBlocks(thinking) {
+  return thinking.flatMap((t) => t.text ? [{ type: "thinking", thinking: t.text }] : []);
+}
+async function postInterleavedRounds(p) {
+  const toolMap = /* @__PURE__ */ new Map();
+  for (const t of p.buffer.tools)
+    if (t.tool_use_id)
+      toolMap.set(t.tool_use_id, t);
+  const rounds = groupSteps(p.steps);
+  if (rounds.length === 0)
+    return false;
+  const last = rounds[rounds.length - 1];
+  const finalRound = last.toolSteps.length === 0 ? last : void 0;
+  const actionRounds = finalRound ? rounds.slice(0, -1) : rounds;
+  const anyMatched = actionRounds.some((r) => r.toolSteps.some((ts) => ts.toolUseId != null && toolMap.has(ts.toolUseId)));
+  if (!anyMatched)
+    return false;
+  const msgs = [{ role: "user", content: p.userContent }];
+  let cursorMs = p.buffer.startMs;
+  for (const round of actionRounds) {
+    const matched = round.toolSteps.map((ts) => ts.toolUseId != null ? toolMap.get(ts.toolUseId) : void 0).filter((t) => t != null);
+    const calls = matched.map((t) => toolCall(t, p.buffer.startMs));
+    const textBlocks = round.assistantText ? [{ type: "text", text: round.assistantText }] : [];
+    const assistantContent = [
+      ...thinkingBlocks(round.thinking),
+      ...textBlocks,
+      ...calls.map((c) => c.toolCallBlock)
+    ];
+    const llmStart = cursorMs;
+    const llmEnd = calls.length ? Math.max(cursorMs, Math.min(...calls.map((c) => c.startMs))) : cursorMs;
+    const llmRun = p.turnRun.createChild({
+      name: p.llmName,
+      run_type: "llm",
+      inputs: { messages: withSystem([...msgs], p.systemPrompt) },
+      outputs: { messages: [{ role: "assistant", content: assistantContent }] },
+      start_time: llmStart,
+      end_time: llmEnd,
+      extra: { metadata: codingAgentMetadata({ ...p.ctx, runSpecific: { ...p.llmMeta } }) }
+    });
+    await llmRun.postRun();
+    for (const t of matched)
+      await postToolRun(t, p.turnRun, p.ctx);
+    msgs.push({ role: "assistant", content: assistantContent });
+    for (const c of calls)
+      msgs.push(c.resultMessage);
+    if (matched.length)
+      cursorMs = Math.max(cursorMs, ...matched.map((t) => t.endMs));
+  }
+  for (const sub of p.buffer.subagents)
+    await postSubagentRun(sub, p.turnRun, p.ctx);
+  const answerContent = [...thinkingBlocks(finalRound?.thinking ?? []), ...p.finalTextBlocks];
+  const answerRun = p.turnRun.createChild({
+    name: p.llmName,
+    run_type: "llm",
+    inputs: { messages: withSystem([...msgs], p.systemPrompt) },
+    outputs: { messages: [{ role: "assistant", content: answerContent }] },
+    start_time: cursorMs,
+    end_time: p.turnEndMs,
+    extra: {
+      metadata: codingAgentMetadata({
+        ...p.ctx,
+        runSpecific: { ...p.llmMeta, usage_metadata: p.usageMetadata }
+      })
+    }
+  });
+  await answerRun.postRun();
+  return true;
+}
+async function postToolRun(tool, parent, ctx, clearSubagent = false) {
+  const floorMs = typeof parent.start_time === "number" ? parent.start_time : 0;
+  const startMs = Math.max(floorMs, toolStartMs(tool));
+  const isError2 = tool.error != null;
+  const run = parent.createChild({
+    name: tool.name,
+    run_type: "tool",
+    inputs: { input: tool.input },
+    outputs: isError2 ? { error: tool.error } : { output: tool.output ?? "" },
+    error: isError2 ? tool.error : void 0,
+    start_time: startMs,
+    end_time: tool.endMs,
+    extra: {
+      metadata: codingAgentMetadata({
+        ...ctx,
+        clearSubagent,
+        // run name == native tool name, so ls_tool_name is omitted; tool_name kept as alias.
+        toolName: tool.name,
+        runName: tool.name,
+        runSpecific: {
+          tool_name: tool.name,
+          tool_use_id: tool.tool_use_id,
+          ...tool.failure_type ? { failure_type: tool.failure_type } : {}
+        }
+      })
+    }
+  });
+  await run.postRun();
+}
+async function postSubagentRun(sub, parent, ctx) {
+  const isError2 = sub.status != null && sub.status !== "completed";
+  const tools = sub.tools ?? [];
+  const startMs = sub.startMs;
+  const endMs = sub.endMs ?? sub.startMs;
+  const runName = sub.subagent_type ? `${sub.subagent_type} Subagent` : "Subagent";
+  const subModel = deriveModelInfo(sub.model);
+  const llmName = subModel.ls_provider ?? subModel.ls_model_name;
+  const llmMeta = {
+    ls_provider: subModel.ls_provider,
+    ls_model_name: subModel.ls_model_name,
+    ls_invocation_params: { model: subModel.ls_model_name }
+  };
+  const subagentRun = parent.createChild({
+    name: runName,
+    run_type: "chain",
+    inputs: {
+      subagent_type: sub.subagent_type,
+      ...sub.description ? { description: sub.description } : {},
+      task: sub.task
+    },
+    outputs: {
+      status: sub.status ?? "completed",
+      ...sub.resultText ? { result: sub.resultText } : {}
+    },
+    error: isError2 ? sub.status : void 0,
+    start_time: startMs,
+    end_time: endMs,
+    extra: {
+      metadata: codingAgentMetadata({
+        ...ctx,
+        subagentId: sub.subagent_id,
+        subagentType: sub.subagent_type,
+        runSpecific: {
+          ...sub.description ? { subagent_description: sub.description } : {},
+          ...sub.model ? { subagent_model: sub.model } : {},
+          ...subModel.ls_provider ? { subagent_provider: subModel.ls_provider } : {},
+          ...sub.is_parallel_worker != null ? { subagent_is_parallel_worker: sub.is_parallel_worker } : {},
+          ...sub.childConversationId ? { subagent_conversation_id: sub.childConversationId } : {},
+          // Tools we actually captured (authoritative) vs Cursor-reported counts (often 0).
+          subagent_tool_count: tools.length,
+          ...sub.message_count != null ? { reported_message_count: sub.message_count } : {},
+          ...sub.tool_call_count != null ? { reported_tool_call_count: sub.tool_call_count } : {},
+          ...sub.loop_count != null ? { reported_loop_count: sub.loop_count } : {}
+        }
+      })
+    }
+  });
+  await subagentRun.postRun();
+  const baseMessages = withSystem([{ role: "system", content: sub.task }], sub.systemPrompt);
+  const finalBlocks = sub.resultText ? [{ type: "text", text: sub.resultText }] : [];
+  const calls = tools.map((t) => toolCall(t, startMs)).sort((a, b) => a.startMs - b.startMs);
+  if (calls.length === 0) {
+    const llmRun = subagentRun.createChild({
+      name: llmName,
+      run_type: "llm",
+      inputs: { messages: baseMessages },
+      outputs: { messages: [{ role: "assistant", content: finalBlocks }] },
+      start_time: startMs,
+      end_time: endMs,
+      extra: {
+        metadata: codingAgentMetadata({ ...ctx, clearSubagent: true, runSpecific: { ...llmMeta } })
+      }
+    });
+    await llmRun.postRun();
+    return;
+  }
+  const firstCallStart = Math.min(...calls.map((c) => c.startMs));
+  const lastCallEnd = Math.max(startMs, ...tools.map((t) => t.endMs));
+  const assistantDecision = calls.map((c) => c.toolCallBlock);
+  const decideRun = subagentRun.createChild({
+    name: llmName,
+    run_type: "llm",
+    inputs: { messages: baseMessages },
+    outputs: { messages: [{ role: "assistant", content: assistantDecision }] },
+    start_time: startMs,
+    end_time: Math.max(startMs, firstCallStart),
+    extra: {
+      metadata: codingAgentMetadata({ ...ctx, clearSubagent: true, runSpecific: { ...llmMeta } })
+    }
+  });
+  await decideRun.postRun();
+  for (const tool of tools)
+    await postToolRun(tool, subagentRun, ctx, true);
+  const answerRun = subagentRun.createChild({
+    name: llmName,
+    run_type: "llm",
+    inputs: {
+      messages: [
+        ...baseMessages,
+        { role: "assistant", content: assistantDecision },
+        ...calls.map((c) => c.resultMessage)
+      ]
+    },
+    outputs: { messages: [{ role: "assistant", content: finalBlocks }] },
+    start_time: lastCallEnd,
+    end_time: endMs,
+    extra: {
+      metadata: codingAgentMetadata({ ...ctx, clearSubagent: true, runSpecific: { ...llmMeta } })
+    }
+  });
+  await answerRun.postRun();
+}
+
 // dist/hooks/stop.js
 async function main() {
   const input = await readStdin();
@@ -9915,6 +10226,14 @@ async function main() {
         sub.systemPrompt = prompts.get(sub.childConversationId);
     }
   }
+  let steps;
+  if (config.stepFidelityEnabled) {
+    steps = resolveTurnSteps({
+      conversationId: input.conversation_id,
+      toolUseIds: toTrace.tools.map((t) => t.tool_use_id),
+      dbPath: config.cursorDbPath
+    });
+  }
   try {
     await buildTurnRuns({
       buffer: toTrace,
@@ -9926,7 +10245,8 @@ async function main() {
       customMetadata: config.customMetadata,
       runtimeVersion: input.cursor_version,
       attachments,
-      systemPrompt
+      systemPrompt,
+      steps
     });
   } catch (err) {
     error(`Failed to build turn runs: ${err}`);

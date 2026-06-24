@@ -24,6 +24,7 @@ function clearEnv(): void {
     "LANGSMITH_CURSOR_PROJECT",
     "LANGSMITH_CURSOR_DEBUG",
     "LANGSMITH_CURSOR_STATE_FILE",
+    "LANGSMITH_CURSOR_STEP_FIDELITY",
   ]) {
     vi.stubEnv(k, undefined as unknown as string);
   }
@@ -69,6 +70,17 @@ describe("loadConfig cascade", () => {
     const cfg = loadConfig({ cwd: home });
     expect(cfg.enabled).toBe(true);
     expect(cfg.apiKey).toBe("k");
+  });
+
+  it("defaults stepFidelityEnabled ON and honors the env opt-out", () => {
+    clearEnv();
+    const home = mkdtempSync(join(tmpdir(), "home-"));
+    vi.stubEnv("HOME", home);
+
+    expect(loadConfig({ cwd: home }).stepFidelityEnabled).toBe(true);
+
+    vi.stubEnv("LANGSMITH_CURSOR_STEP_FIDELITY", "off");
+    expect(loadConfig({ cwd: home }).stepFidelityEnabled).toBe(false);
   });
 
   it("attaches local_username identity metadata", () => {

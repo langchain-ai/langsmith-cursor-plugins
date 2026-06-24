@@ -44,6 +44,8 @@ export interface Config {
   attachmentsEnabled: boolean;
   /** Recover the turn's system prompt from Cursor's DB (default on). */
   systemPromptEnabled: boolean;
+  /** Render true interleaved per-step fidelity from Cursor's DB protobuf (default on). */
+  stepFidelityEnabled: boolean;
   /** Override the Cursor state.vscdb path used for DB enrichment. */
   cursorDbPath?: string;
 }
@@ -81,6 +83,7 @@ interface FileConfig {
   replicas?: Array<Record<string, unknown>>;
   attachments?: boolean;
   system_prompt?: boolean;
+  step_fidelity?: boolean;
   cursor_db_path?: string;
 }
 
@@ -221,6 +224,12 @@ export function loadConfig(options?: { cwd?: string }): Config {
     localFile?.system_prompt ??
     globalFile?.system_prompt ??
     true;
+  // Step-fidelity enrichment defaults ON; opt out via config or LANGSMITH_CURSOR_STEP_FIDELITY.
+  const stepFidelityEnabled =
+    parseBoolean(getEnv("STEP_FIDELITY")) ??
+    localFile?.step_fidelity ??
+    globalFile?.step_fidelity ??
+    true;
   const cursorDbPath = getEnv("DB_PATH") ?? localFile?.cursor_db_path ?? globalFile?.cursor_db_path;
 
   const stateFilePath =
@@ -264,6 +273,7 @@ export function loadConfig(options?: { cwd?: string }): Config {
     customMetadata,
     attachmentsEnabled,
     systemPromptEnabled,
+    stepFidelityEnabled,
     cursorDbPath,
   };
 }
