@@ -27,19 +27,34 @@ Cursor Turn N (chain)
 
 Requirements: Node.js ≥ 22.13 (uses the built-in `node:sqlite` module, with its read-only open option, for attachment enrichment).
 
-```bash
-pnpm install
-pnpm build              # tsc → esbuild → bundle/*.js
+The recommended way to install is directly from this GitHub repo in Cursor's settings — **Settings → Plugins → add via repo URL** (`https://github.com/langchain-ai/langsmith-cursor-plugins`). It's one step, requires no clone or build (the precompiled `bundle/` is committed), and is how most users should adopt this.
 
+Then **fully restart Cursor** so it reloads `hooks.json`.
+
+<details>
+<summary>Local / dev install (clone + script)</summary>
+
+For local development, or to install the hooks from a checkout, clone the repo and run the installer:
+
+```bash
 # install hooks (writes ~/.cursor/hooks.json by default; merges with existing)
 node scripts/install.mjs            # user-global (all projects)
 node scripts/install.mjs --project  # project-scoped (./.cursor/hooks.json)
 node scripts/install.mjs --print    # preview without writing
 ```
 
+The committed `bundle/` means this runs without a build step. Rebuild only after editing the TypeScript source:
+
+```bash
+pnpm install
+pnpm build              # tsc → esbuild → bundle/*.js
+```
+
 Then **fully restart Cursor** so it reloads `hooks.json`.
 
-> `bundle/` is committed on purpose — it lets the hooks (and the Cursor plugin install via `.cursor-plugin/`) run without a build step. Don't add it to `.gitignore`.
+</details>
+
+> `bundle/` is committed on purpose — it lets the plugin install (via `.cursor-plugin/`) and the local installer run without a build step. Don't add it to `.gitignore`.
 
 ## Configure
 
@@ -114,7 +129,7 @@ pnpm format      # oxfmt
 pnpm lint        # oxlint
 ```
 
-`diagnostics/` holds the throwaway hook-capture kit and real captures used as test fixtures.
+`test/fixtures/` holds captured hook logs and agent transcripts used as replay test fixtures.
 
 ## License
 
