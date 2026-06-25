@@ -9523,7 +9523,7 @@ async function postSubagentRun(sub, parent, ctx) {
     }
   });
   await subagentRun.postRun();
-  const baseMessages = withSystem([{ role: "user", content: sub.task }], sub.systemPrompt);
+  const baseMessages = withSystem([{ role: "system", content: sub.task }], sub.systemPrompt);
   const finalBlocks = sub.resultText ? [{ type: "text", text: sub.resultText }] : [];
   const calls = tools.map((t) => toolCall(t, startMs)).sort((a, b) => a.startMs - b.startMs);
   if (calls.length === 0) {
