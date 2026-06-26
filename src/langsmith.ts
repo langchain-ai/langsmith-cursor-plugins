@@ -394,7 +394,8 @@ async function postSubagentRun(sub: SubagentEvent, parent: RunTree, ctx: MetaCtx
   });
   await subagentRun.postRun();
 
-  const baseMessages = withSystem([{ role: "user", content: sub.task }], sub.systemPrompt);
+  // Role "system": the task is the orchestrator's instruction, not a human turn.
+  const baseMessages = withSystem([{ role: "system", content: sub.task }], sub.systemPrompt);
   const finalBlocks = sub.resultText ? [{ type: "text", text: sub.resultText }] : [];
   const calls = tools.map((t) => toolCall(t, startMs)).sort((a, b) => a.startMs - b.startMs);
 

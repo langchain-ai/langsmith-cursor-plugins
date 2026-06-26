@@ -144,6 +144,12 @@ describe("buildTurnRuns produces the expected LangSmith run tree", () => {
     // Subagent-only keys must NOT leak onto the subagent's llm/tool children.
     expect(nested.every((r) => meta(r).ls_subagent_id === undefined)).toBe(true);
     expect(nested.every((r) => meta(r).ls_subagent_type === undefined)).toBe(true);
+    // The subagent task is a system instruction, never a "user" turn.
+    const subInputs = nestedLlm.flatMap(
+      (r) => (r.inputs as { messages?: Array<{ role?: string }> }).messages ?? [],
+    );
+    expect(subInputs.some((m) => m.role === "system")).toBe(true);
+    expect(subInputs.some((m) => m.role === "user")).toBe(false);
   });
 
   it("emits tool_call content blocks in the llm assistant message", async () => {
