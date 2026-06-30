@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       langsmith:
-        specifier: ^0.6.0
-        version: 0.6.0
+        specifier: ^0.7.14
+        version: 0.7.14
     devDependencies:
       '@types/node':
         specifier: ^26.1.0
@@ -649,8 +649,8 @@ packages:
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
     os: [darwin]
 
-  langsmith@0.6.0:
-    resolution: {integrity: sha512-GGaj5IMRfLv2HXXFzGk9diISMYLTpSTh6fzCZGKxWYW/NqEztIFtnXLq6G/RVhzFRmCykLap1fuC67LVKoQLcg==}
+  langsmith@0.7.14:
+    resolution: {integrity: sha512-sy6KzzLpO/b1EiCF22A9u37IH1Er4Py9rqepHCuaSlsUjGDam0ez1vDS7sNdvWGADrvYE4mTRQ4ipO4LrD9Mcg==}
     peerDependencies:
       '@opentelemetry/api': '*'
       '@opentelemetry/exporter-trace-otlp-proto': '*'
@@ -1328,7 +1328,7 @@ snapshots:
   fsevents@2.3.3:
     optional: true
 
-  langsmith@0.6.0:
+  langsmith@0.7.14:
     dependencies:
       p-queue: 6.6.2
 

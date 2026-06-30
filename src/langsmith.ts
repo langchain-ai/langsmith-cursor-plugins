@@ -1,6 +1,8 @@
 /** LangSmith run construction: one trace per turn via RunTree, threaded by conversation_id. */
 
 import { Client, RunTree, type RunTreeConfig } from "langsmith";
+import { createSecretAnonymizer } from "langsmith/anonymizer";
+import type { StringNodeRule } from "langsmith/anonymizer";
 import type { TurnBuffer, ToolEvent, SubagentEvent, ContentPart } from "./types.js";
 import { buildUsageMetadata, deriveModelInfo } from "./normalize.js";
 import { DEFAULT_TAGS, TURN_RUN_NAME } from "./constants.js";
@@ -17,9 +19,22 @@ export function initTracing(
   apiKey?: string,
   apiUrl?: string,
   providedReplicas?: RunTreeConfig["replicas"],
+  redact: boolean = true,
+  extraRedactionRules?: StringNodeRule[],
   clientOverride?: Client,
 ): Client | undefined {
-  client = clientOverride ?? (apiKey ? new Client({ apiKey, apiUrl }) : undefined);
+  const anonymizer = redact
+    ? createSecretAnonymizer(extraRedactionRules ? { extraRules: extraRedactionRules } : undefined)
+    : undefined;
+
+  // Build a client even keyless when replicas exist, so replica posts stay anonymized.
+  if (clientOverride) {
+    client = clientOverride;
+  } else if (apiKey || (anonymizer && providedReplicas)) {
+    client = new Client({ apiKey: apiKey || undefined, apiUrl, anonymizer });
+  } else {
+    client = undefined;
+  }
   replicas = providedReplicas;
   return client;
 }

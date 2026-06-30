@@ -8,7 +8,8 @@ import { userInfo } from "node:os";
 import { join } from "node:path";
 import { execSync } from "node:child_process";
 import type { RunTreeConfig } from "langsmith";
-import { debug as logDebug } from "./logger.js";
+import type { StringNodeRule } from "langsmith/anonymizer";
+import { debug as logDebug, error as logError } from "./logger.js";
 import { DEFAULT_PROJECT } from "./constants.js";
 
 /**
@@ -46,6 +47,10 @@ export interface Config {
   systemPromptEnabled: boolean;
   /** Override the Cursor state.vscdb path used for DB enrichment. */
   cursorDbPath?: string;
+  /** Redact detected secrets from traced data before upload (default on). */
+  redact: boolean;
+  /** Extra user-supplied redaction rules (from LANGSMITH_CURSOR_REDACT_EXTRA). */
+  redactExtraRules?: StringNodeRule[];
 }
 
 const DEFAULT_API_URL = "https://api.smith.langchain.com";
@@ -70,6 +75,39 @@ function parseJson<T = Record<string, unknown>>(value: unknown): T | undefined {
   }
 }
 
+/** Parse a JSON array of { pattern, replace }; invalid rules are logged and skipped. */
+function parseRedactExtraRules(value: unknown): StringNodeRule[] | undefined {
+  const parsed = parseJson<unknown>(value);
+  if (parsed === undefined) return undefined;
+  if (!Array.isArray(parsed)) {
+    logError("LANGSMITH_CURSOR_REDACT_EXTRA must be a JSON array of { pattern, replace }.");
+    return undefined;
+  }
+  const valid: StringNodeRule[] = [];
+  for (const rule of parsed) {
+    if (
+      typeof rule !== "object" ||
+      rule === null ||
+      typeof (rule as StringNodeRule).pattern !== "string" ||
+      ((rule as StringNodeRule).replace !== undefined &&
+        typeof (rule as StringNodeRule).replace !== "string")
+    ) {
+      logError(`Skipping invalid LANGSMITH_CURSOR_REDACT_EXTRA rule: ${JSON.stringify(rule)}`);
+      continue;
+    }
+    try {
+      new RegExp((rule as StringNodeRule).pattern as string);
+    } catch {
+      logError(
+        `Skipping LANGSMITH_CURSOR_REDACT_EXTRA rule with an invalid regex: ${(rule as StringNodeRule).pattern}`,
+      );
+      continue;
+    }
+    valid.push(rule as StringNodeRule);
+  }
+  return valid.length > 0 ? valid : undefined;
+}
+
 // ─── Config file shape (snake_case on disk) ──────────────────────────────────
 
 interface FileConfig {
@@ -83,6 +121,7 @@ interface FileConfig {
   system_prompt?: boolean;
   step_fidelity?: boolean;
   cursor_db_path?: string;
+  redact?: boolean;
 }
 
 function readConfigFile(file: string): FileConfig | undefined {
@@ -224,6 +263,10 @@ export function loadConfig(options?: { cwd?: string }): Config {
     true;
   const cursorDbPath = getEnv("DB_PATH") ?? localFile?.cursor_db_path ?? globalFile?.cursor_db_path;
 
+  const redact =
+    parseBoolean(getEnv("REDACT")) ?? localFile?.redact ?? globalFile?.redact ?? true;
+  const redactExtraRules = parseRedactExtraRules(getEnv("REDACT_EXTRA"));
+
   const stateFilePath =
     process.env.LANGSMITH_CURSOR_STATE_FILE ?? join(home, ".cursor", "langsmith-state.json");
 
@@ -266,5 +309,7 @@ export function loadConfig(options?: { cwd?: string }): Config {
     attachmentsEnabled,
     systemPromptEnabled,
     cursorDbPath,
+    redact,
+    redactExtraRules,
   };
 }

@@ -89,7 +89,7 @@ function classify(run: Run): "root" | "interrupted" | "subagent" | "llm" | "tool
 describe("coding-agent-v1 contract on the produced run tree", () => {
   it("stamps required keys on every run type and never leaks scope-restricted keys", async () => {
     const { client, callSpy } = mockClient();
-    initTracing(undefined, undefined, undefined, client);
+    initTracing(undefined, undefined, undefined, true, undefined, client);
 
     const { finalized } = replayHookLog(CAPTURE);
     const turn = finalized.find((f) => f.buffer.subagents.length > 0)!; // exercises every run type

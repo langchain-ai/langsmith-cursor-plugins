@@ -24,6 +24,8 @@ function clearEnv(): void {
     "LANGSMITH_CURSOR_PROJECT",
     "LANGSMITH_CURSOR_DEBUG",
     "LANGSMITH_CURSOR_STATE_FILE",
+    "LANGSMITH_CURSOR_REDACT",
+    "LANGSMITH_CURSOR_REDACT_EXTRA",
   ]) {
     vi.stubEnv(k, undefined as unknown as string);
   }
@@ -69,6 +71,26 @@ describe("loadConfig cascade", () => {
     const cfg = loadConfig({ cwd: home });
     expect(cfg.enabled).toBe(true);
     expect(cfg.apiKey).toBe("k");
+  });
+
+  it("redaction defaults on; LANGSMITH_CURSOR_REDACT=false disables it", () => {
+    clearEnv();
+    const home = mkdtempSync(join(tmpdir(), "home-"));
+    vi.stubEnv("HOME", home);
+    expect(loadConfig({ cwd: home }).redact).toBe(true);
+    vi.stubEnv("LANGSMITH_CURSOR_REDACT", "false");
+    expect(loadConfig({ cwd: home }).redact).toBe(false);
+  });
+
+  it("parses LANGSMITH_CURSOR_REDACT_EXTRA; skips invalid rules", () => {
+    clearEnv();
+    const home = mkdtempSync(join(tmpdir(), "home-"));
+    vi.stubEnv("HOME", home);
+    vi.stubEnv(
+      "LANGSMITH_CURSOR_REDACT_EXTRA",
+      JSON.stringify([{ pattern: "sk-\\w+", replace: "X" }, { pattern: 42 }, { replace: "Y" }]),
+    );
+    expect(loadConfig({ cwd: home }).redactExtraRules).toEqual([{ pattern: "sk-\\w+", replace: "X" }]);
   });
 
   it("attaches local_username identity metadata", () => {
