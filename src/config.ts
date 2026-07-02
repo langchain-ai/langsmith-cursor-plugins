@@ -75,6 +75,13 @@ function parseJson<T = Record<string, unknown>>(value: unknown): T | undefined {
   }
 }
 
+/** Type guard for a user redaction rule: { pattern: string, replace?: string }. */
+function isRedactRule(rule: unknown): rule is StringNodeRule {
+  if (typeof rule !== "object" || rule === null) return false;
+  const r = rule as Record<string, unknown>;
+  return typeof r.pattern === "string" && (r.replace === undefined || typeof r.replace === "string");
+}
+
 /** Parse a JSON array of { pattern, replace }; invalid rules are logged and skipped. */
 function parseRedactExtraRules(value: unknown): StringNodeRule[] | undefined {
   const parsed = parseJson<unknown>(value);
@@ -85,25 +92,11 @@ function parseRedactExtraRules(value: unknown): StringNodeRule[] | undefined {
   }
   const valid: StringNodeRule[] = [];
   for (const rule of parsed) {
-    if (
-      typeof rule !== "object" ||
-      rule === null ||
-      typeof (rule as StringNodeRule).pattern !== "string" ||
-      ((rule as StringNodeRule).replace !== undefined &&
-        typeof (rule as StringNodeRule).replace !== "string")
-    ) {
+    if (!isRedactRule(rule)) {
       logError(`Skipping invalid LANGSMITH_CURSOR_REDACT_EXTRA rule: ${JSON.stringify(rule)}`);
       continue;
     }
-    try {
-      new RegExp((rule as StringNodeRule).pattern as string);
-    } catch {
-      logError(
-        `Skipping LANGSMITH_CURSOR_REDACT_EXTRA rule with an invalid regex: ${(rule as StringNodeRule).pattern}`,
-      );
-      continue;
-    }
-    valid.push(rule as StringNodeRule);
+    valid.push(rule);
   }
   return valid.length > 0 ? valid : undefined;
 }
