@@ -69,14 +69,11 @@ async function main(): Promise<void> {
   }
 
   // Best-effort interleaved step fidelity; undefined falls back to the hook-built shape.
-  let steps: Step[] | undefined;
-  if (config.stepFidelityEnabled) {
-    steps = resolveTurnSteps({
-      conversationId: input.conversation_id,
-      toolUseIds: toTrace.tools.map((t) => t.tool_use_id),
-      dbPath: config.cursorDbPath,
-    });
-  }
+  const steps = resolveTurnSteps({
+    conversationId: input.conversation_id,
+    toolUseIds: toTrace.tools.map((t) => t.tool_use_id),
+    dbPath: config.cursorDbPath,
+  });
 
   try {
     await buildTurnRuns({

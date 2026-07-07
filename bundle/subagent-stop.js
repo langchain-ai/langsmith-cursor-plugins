@@ -200,7 +200,6 @@ function loadConfig(options) {
   const replicas = normalizeReplicas(envReplicas ?? localFile?.replicas ?? globalFile?.replicas);
   const attachmentsEnabled = parseBoolean(getEnv("ATTACHMENTS")) ?? localFile?.attachments ?? globalFile?.attachments ?? true;
   const systemPromptEnabled = parseBoolean(getEnv("SYSTEM_PROMPT")) ?? localFile?.system_prompt ?? globalFile?.system_prompt ?? true;
-  const stepFidelityEnabled = parseBoolean(getEnv("STEP_FIDELITY")) ?? localFile?.step_fidelity ?? globalFile?.step_fidelity ?? true;
   const cursorDbPath = getEnv("DB_PATH") ?? localFile?.cursor_db_path ?? globalFile?.cursor_db_path;
   const stateFilePath = process.env.LANGSMITH_CURSOR_STATE_FILE ?? join(home, ".cursor", "langsmith-state.json");
   const baseMetadata = { cwd };
@@ -236,7 +235,6 @@ function loadConfig(options) {
     customMetadata,
     attachmentsEnabled,
     systemPromptEnabled,
-    stepFidelityEnabled,
     cursorDbPath
   };
 }

@@ -252,7 +252,7 @@ describe("buildTurnRuns produces the expected LangSmith run tree", () => {
 
     const { finalized } = replayHookLog(CAPTURE);
     const turn = finalized[0];
-    const imagePart = { type: "image", mime_type: "image/png", base64: "iVBORw0KGgo=" };
+    const imagePart = { type: "image" as const, mime_type: "image/png", base64: "iVBORw0KGgo=" };
 
     await buildTurnRuns({
       buffer: turn.buffer,
@@ -320,9 +320,30 @@ describe("buildTurnRuns interleaved step fidelity", () => {
     usage: { input_tokens: 100, output_tokens: 50 },
     status: "completed",
     tools: [
-      { tool_use_id: "tool_a", name: "Read", input: { path: "x" }, output: "data", duration: 1, endMs: 3000 },
-      { tool_use_id: "tool_b", name: "Grep", input: { q: "y" }, output: "hits", duration: 1, endMs: 4000 },
-      { tool_use_id: "tool_c", name: "Shell", input: { cmd: "ls" }, output: "files", duration: 1, endMs: 6000 },
+      {
+        tool_use_id: "tool_a",
+        name: "Read",
+        input: { path: "x" },
+        output: "data",
+        duration: 1,
+        endMs: 3000,
+      },
+      {
+        tool_use_id: "tool_b",
+        name: "Grep",
+        input: { q: "y" },
+        output: "hits",
+        duration: 1,
+        endMs: 4000,
+      },
+      {
+        tool_use_id: "tool_c",
+        name: "Shell",
+        input: { cmd: "ls" },
+        output: "files",
+        duration: 1,
+        endMs: 6000,
+      },
     ],
   };
   // thinking → assistant → [Read, Grep] | thinking → [Shell] | assistant(final)
@@ -356,19 +377,21 @@ describe("buildTurnRuns interleaved step fidelity", () => {
     const withUsage = llms.filter((r) => meta(r).usage_metadata != null);
     expect(withUsage.length).toBe(1);
     const answer = withUsage[0];
-    const answerContent = (answer.outputs as { messages: { content: Array<Record<string, unknown>> }[] })
-      .messages[0].content;
+    const answerContent = (
+      answer.outputs as { messages: { content: Array<Record<string, unknown>> }[] }
+    ).messages[0].content;
     expect(answerContent).toContainEqual({ type: "text", text: "all done" });
 
     // The first round's llm carries intermediate assistant text + its tool_call blocks.
     const round0 = llms.find((r) => {
-      const c = (r.outputs as { messages: { content: Array<Record<string, unknown>> }[] }).messages[0]
-        .content;
+      const c = (r.outputs as { messages: { content: Array<Record<string, unknown>> }[] })
+        .messages[0].content;
       return c.some((b) => b.type === "text" && b.text === "looking");
     })!;
     expect(round0).toBeDefined();
-    const r0Content = (round0.outputs as { messages: { content: Array<Record<string, unknown>> }[] })
-      .messages[0].content;
+    const r0Content = (
+      round0.outputs as { messages: { content: Array<Record<string, unknown>> }[] }
+    ).messages[0].content;
     const r0ToolCalls = r0Content.filter((b) => b.type === "tool_call").map((b) => b.id);
     expect(r0ToolCalls).toEqual(["tool_a", "tool_b"]);
   });
