@@ -81,6 +81,7 @@ interface FileConfig {
   replicas?: Array<Record<string, unknown>>;
   attachments?: boolean;
   system_prompt?: boolean;
+  step_fidelity?: boolean;
   cursor_db_path?: string;
 }
 

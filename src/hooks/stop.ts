@@ -11,6 +11,7 @@ import { reduceStop } from "../reducer.js";
 import { initTracing, buildTurnRuns, flushPendingTraces } from "../langsmith.js";
 import { resolveTurnAttachments } from "../attachments.js";
 import { resolveSystemPrompts } from "../system-prompt.js";
+import { resolveTurnSteps, type Step } from "../conversation-steps.js";
 import { error, debug, warn } from "../logger.js";
 import type { ContentPart, StopInput, TurnBuffer } from "../types.js";
 
@@ -67,6 +68,13 @@ async function main(): Promise<void> {
     }
   }
 
+  // Best-effort interleaved step fidelity; undefined falls back to the hook-built shape.
+  const steps = resolveTurnSteps({
+    conversationId: input.conversation_id,
+    toolUseIds: toTrace.tools.map((t) => t.tool_use_id),
+    dbPath: config.cursorDbPath,
+  });
+
   try {
     await buildTurnRuns({
       buffer: toTrace,
@@ -79,6 +87,7 @@ async function main(): Promise<void> {
       runtimeVersion: input.cursor_version,
       attachments,
       systemPrompt,
+      steps,
     });
   } catch (err) {
     error(`Failed to build turn runs: ${err}`);

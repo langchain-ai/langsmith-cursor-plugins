@@ -5,6 +5,8 @@ import { replayHookLog } from "./utils/replay.js";
 import { mockClient } from "./utils/mock_client.js";
 import { getAssumedTreeFromCalls } from "./utils/tree.js";
 import { initTracing, buildTurnRuns, flushPendingTraces } from "../src/langsmith.js";
+import type { TurnBuffer } from "../src/types.js";
+import type { Step } from "../src/conversation-steps.js";
 
 const CAPTURE = join(process.cwd(), "test/fixtures/cursor-hooks.jsonl");
 const PARENT_CONV = "6bd3db3e-e838-485e-befc-b5f0d05b18cd";
@@ -250,7 +252,7 @@ describe("buildTurnRuns produces the expected LangSmith run tree", () => {
 
     const { finalized } = replayHookLog(CAPTURE);
     const turn = finalized[0];
-    const imagePart = { type: "image", mime_type: "image/png", base64: "iVBORw0KGgo=" };
+    const imagePart = { type: "image" as const, mime_type: "image/png", base64: "iVBORw0KGgo=" };
 
     await buildTurnRuns({
       buffer: turn.buffer,
@@ -302,5 +304,120 @@ describe("buildTurnRuns produces the expected LangSmith run tree", () => {
     expect(meta(llm).ls_model_name).toBe("claude-sonnet-4-6"); // canonicalized
     expect(usage.total_tokens).toBeGreaterThan(0);
     expect(usage.total_cost).toBeUndefined(); // server-side pricing only
+  });
+});
+
+describe("buildTurnRuns interleaved step fidelity", () => {
+  const startMs = 1000;
+  const buffer: TurnBuffer = {
+    generation_id: "gen-1",
+    prompt: "do stuff",
+    model: "claude-4.6-sonnet",
+    startMs,
+    thoughts: [],
+    subagents: [],
+    finalText: "all done",
+    usage: { input_tokens: 100, output_tokens: 50 },
+    status: "completed",
+    tools: [
+      {
+        tool_use_id: "tool_a",
+        name: "Read",
+        input: { path: "x" },
+        output: "data",
+        duration: 1,
+        endMs: 3000,
+      },
+      {
+        tool_use_id: "tool_b",
+        name: "Grep",
+        input: { q: "y" },
+        output: "hits",
+        duration: 1,
+        endMs: 4000,
+      },
+      {
+        tool_use_id: "tool_c",
+        name: "Shell",
+        input: { cmd: "ls" },
+        output: "files",
+        duration: 1,
+        endMs: 6000,
+      },
+    ],
+  };
+  // thinking → assistant → [Read, Grep] | thinking → [Shell] | assistant(final)
+  const steps: Step[] = [
+    { kind: "thinking", text: "plan" },
+    { kind: "assistant", text: "looking" },
+    { kind: "tool", toolUseId: "tool_a", toolField: 8, toolName: "Read" },
+    { kind: "tool", toolUseId: "tool_b", toolField: 5, toolName: "Grep" },
+    { kind: "thinking", text: "next" },
+    { kind: "tool", toolUseId: "tool_c", toolField: 1, toolName: "Shell" },
+    { kind: "assistant", text: "all done" },
+  ];
+
+  it("renders one llm run per round plus a final answer, interleaved with tools", async () => {
+    const { client, callSpy } = mockClient();
+    initTracing(undefined, undefined, undefined, client);
+
+    await buildTurnRuns({ buffer, conversationId: "conv-x", turnNum: 1, project: "test", steps });
+    await flushPendingTraces();
+
+    const tree = await getAssumedTreeFromCalls(callSpy.mock.calls, client);
+    const llms = Object.values(tree.data).filter((r) => r.run_type === "llm");
+    const tools = Object.values(tree.data).filter((r) => r.run_type === "tool");
+
+    // Two action rounds + one final answer round = three llm runs.
+    expect(llms.length).toBe(3);
+    // Tool run set stays the hook-captured set (joined by tool_use_id), in true order.
+    expect(tools.map((t) => t.name).sort()).toEqual(["Grep", "Read", "Shell"]);
+
+    // Usage sits on exactly one llm run — the final answer.
+    const withUsage = llms.filter((r) => meta(r).usage_metadata != null);
+    expect(withUsage.length).toBe(1);
+    const answer = withUsage[0];
+    const answerContent = (
+      answer.outputs as { messages: { content: Array<Record<string, unknown>> }[] }
+    ).messages[0].content;
+    expect(answerContent).toContainEqual({ type: "text", text: "all done" });
+
+    // The first round's llm carries intermediate assistant text + its tool_call blocks.
+    const round0 = llms.find((r) => {
+      const c = (r.outputs as { messages: { content: Array<Record<string, unknown>> }[] })
+        .messages[0].content;
+      return c.some((b) => b.type === "text" && b.text === "looking");
+    })!;
+    expect(round0).toBeDefined();
+    const r0Content = (
+      round0.outputs as { messages: { content: Array<Record<string, unknown>> }[] }
+    ).messages[0].content;
+    const r0ToolCalls = r0Content.filter((b) => b.type === "tool_call").map((b) => b.id);
+    expect(r0ToolCalls).toEqual(["tool_a", "tool_b"]);
+  });
+
+  it("falls back to the decide/answer shape when steps don't match the buffered tools", async () => {
+    const { client, callSpy } = mockClient();
+    initTracing(undefined, undefined, undefined, client);
+
+    // Steps reference tool ids absent from the buffer → no anchor → fall back.
+    const orphanSteps: Step[] = [
+      { kind: "assistant", text: "looking" },
+      { kind: "tool", toolUseId: "tool_zzz", toolField: 8, toolName: "Read" },
+      { kind: "assistant", text: "all done" },
+    ];
+    await buildTurnRuns({
+      buffer,
+      conversationId: "conv-x",
+      turnNum: 1,
+      project: "test",
+      steps: orphanSteps,
+    });
+    await flushPendingTraces();
+
+    const tree = await getAssumedTreeFromCalls(callSpy.mock.calls, client);
+    const llms = Object.values(tree.data).filter((r) => r.run_type === "llm");
+    // Decide/answer shape: exactly two llm runs (not three rounds).
+    expect(llms.length).toBe(2);
   });
 });
