@@ -93,6 +93,30 @@ function parseJson(value) {
     return void 0;
   }
 }
+function isRedactRule(rule) {
+  if (typeof rule !== "object" || rule === null)
+    return false;
+  const r = rule;
+  return typeof r.pattern === "string" && (r.replace === void 0 || typeof r.replace === "string");
+}
+function parseRedactExtraRules(value) {
+  const parsed = parseJson(value);
+  if (parsed === void 0)
+    return void 0;
+  if (!Array.isArray(parsed)) {
+    error("LANGSMITH_CURSOR_REDACT_EXTRA must be a JSON array of { pattern, replace }.");
+    return void 0;
+  }
+  const valid = [];
+  for (const rule of parsed) {
+    if (!isRedactRule(rule)) {
+      error(`Skipping invalid LANGSMITH_CURSOR_REDACT_EXTRA rule: ${JSON.stringify(rule)}`);
+      continue;
+    }
+    valid.push(rule);
+  }
+  return valid.length > 0 ? valid : void 0;
+}
 function readConfigFile(file) {
   try {
     return JSON.parse(readFileSync(file, "utf-8"));
@@ -201,6 +225,8 @@ function loadConfig(options) {
   const attachmentsEnabled = parseBoolean(getEnv("ATTACHMENTS")) ?? localFile?.attachments ?? globalFile?.attachments ?? true;
   const systemPromptEnabled = parseBoolean(getEnv("SYSTEM_PROMPT")) ?? localFile?.system_prompt ?? globalFile?.system_prompt ?? true;
   const cursorDbPath = getEnv("DB_PATH") ?? localFile?.cursor_db_path ?? globalFile?.cursor_db_path;
+  const redact = parseBoolean(getEnv("REDACT")) ?? localFile?.redact ?? globalFile?.redact ?? true;
+  const redactExtraRules = parseRedactExtraRules(getEnv("REDACT_EXTRA"));
   const stateFilePath = process.env.LANGSMITH_CURSOR_STATE_FILE ?? join(home, ".cursor", "langsmith-state.json");
   const baseMetadata = { cwd };
   if (LS_INTEGRATION_VERSION)
@@ -235,7 +261,9 @@ function loadConfig(options) {
     customMetadata,
     attachmentsEnabled,
     systemPromptEnabled,
-    cursorDbPath
+    cursorDbPath,
+    redact,
+    redactExtraRules
   };
 }
 
