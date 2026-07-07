@@ -359,7 +359,7 @@ describe("buildTurnRuns interleaved step fidelity", () => {
 
   it("renders one llm run per round plus a final answer, interleaved with tools", async () => {
     const { client, callSpy } = mockClient();
-    initTracing(undefined, undefined, undefined, client);
+    initTracing(undefined, undefined, undefined, true, undefined, client);
 
     await buildTurnRuns({ buffer, conversationId: "conv-x", turnNum: 1, project: "test", steps });
     await flushPendingTraces();
@@ -398,7 +398,7 @@ describe("buildTurnRuns interleaved step fidelity", () => {
 
   it("falls back to the decide/answer shape when steps don't match the buffered tools", async () => {
     const { client, callSpy } = mockClient();
-    initTracing(undefined, undefined, undefined, client);
+    initTracing(undefined, undefined, undefined, true, undefined, client);
 
     // Steps reference tool ids absent from the buffer → no anchor → fall back.
     const orphanSteps: Step[] = [
