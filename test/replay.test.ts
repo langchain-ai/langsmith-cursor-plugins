@@ -69,7 +69,7 @@ describe("replay run2 hooks.jsonl through the event-buffer reducers", () => {
 describe("buildTurnRuns produces the expected LangSmith run tree", () => {
   it("builds Turn(chain) → llm with thread_id + usage_metadata", async () => {
     const { client, callSpy } = mockClient();
-    initTracing(undefined, undefined, undefined, client);
+    initTracing(undefined, undefined, undefined, true, undefined, client);
 
     const { finalized } = replayHookLog(CAPTURE);
     const turn = finalized[0]; // "hi" turn, has usage
@@ -99,7 +99,7 @@ describe("buildTurnRuns produces the expected LangSmith run tree", () => {
 
   it("renders a subagent as a Task tool child of the turn", async () => {
     const { client, callSpy } = mockClient();
-    initTracing(undefined, undefined, undefined, client);
+    initTracing(undefined, undefined, undefined, true, undefined, client);
 
     const { finalized } = replayHookLog(CAPTURE);
     const turn = finalized.find((f) => f.buffer.subagents.length > 0)!;
@@ -156,7 +156,7 @@ describe("buildTurnRuns produces the expected LangSmith run tree", () => {
 
   it("emits tool_call content blocks in the llm assistant message", async () => {
     const { client, callSpy } = mockClient();
-    initTracing(undefined, undefined, undefined, client);
+    initTracing(undefined, undefined, undefined, true, undefined, client);
 
     const { finalized } = replayHookLog(CAPTURE);
     // A turn whose assistant invoked at least one tool directly.
@@ -190,7 +190,7 @@ describe("buildTurnRuns produces the expected LangSmith run tree", () => {
 
   it("orders the decide llm first, then tools, then the answer llm", async () => {
     const { client, callSpy } = mockClient();
-    initTracing(undefined, undefined, undefined, client);
+    initTracing(undefined, undefined, undefined, true, undefined, client);
 
     const { finalized } = replayHookLog(CAPTURE);
     const turn = finalized.find((f) => f.buffer.tools.length > 0)!;
@@ -219,7 +219,7 @@ describe("buildTurnRuns produces the expected LangSmith run tree", () => {
 
   it("renders a subagent invocation as a Task tool_call block in the llm message", async () => {
     const { client, callSpy } = mockClient();
-    initTracing(undefined, undefined, undefined, client);
+    initTracing(undefined, undefined, undefined, true, undefined, client);
 
     const { finalized } = replayHookLog(CAPTURE);
     const turn = finalized.find((f) => f.buffer.subagents.length > 0)!;
@@ -248,7 +248,7 @@ describe("buildTurnRuns produces the expected LangSmith run tree", () => {
 
   it("emits attachment content parts on the llm + root inputs (inline-render shape)", async () => {
     const { client, callSpy } = mockClient();
-    initTracing(undefined, undefined, undefined, client);
+    initTracing(undefined, undefined, undefined, true, undefined, client);
 
     const { finalized } = replayHookLog(CAPTURE);
     const turn = finalized[0];
@@ -281,7 +281,7 @@ describe("buildTurnRuns produces the expected LangSmith run tree", () => {
 
   it("canonicalizes the model and emits tokens (cost left to LangSmith)", async () => {
     const { client, callSpy } = mockClient();
-    initTracing(undefined, undefined, undefined, client);
+    initTracing(undefined, undefined, undefined, true, undefined, client);
 
     const { finalized } = replayHookLog(CAPTURE);
     const turn = finalized.find((f) => (f.buffer.model ?? "").includes("claude"))!;
@@ -359,7 +359,7 @@ describe("buildTurnRuns interleaved step fidelity", () => {
 
   it("renders one llm run per round plus a final answer, interleaved with tools", async () => {
     const { client, callSpy } = mockClient();
-    initTracing(undefined, undefined, undefined, client);
+    initTracing(undefined, undefined, undefined, true, undefined, client);
 
     await buildTurnRuns({ buffer, conversationId: "conv-x", turnNum: 1, project: "test", steps });
     await flushPendingTraces();
@@ -398,7 +398,7 @@ describe("buildTurnRuns interleaved step fidelity", () => {
 
   it("falls back to the decide/answer shape when steps don't match the buffered tools", async () => {
     const { client, callSpy } = mockClient();
-    initTracing(undefined, undefined, undefined, client);
+    initTracing(undefined, undefined, undefined, true, undefined, client);
 
     // Steps reference tool ids absent from the buffer → no anchor → fall back.
     const orphanSteps: Step[] = [

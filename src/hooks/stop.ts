@@ -21,7 +21,7 @@ async function main(): Promise<void> {
   if (!config) return;
 
   debug(`stop conv=${input.conversation_id} gen=${input.generation_id} status=${input.status}`);
-  initTracing(config.apiKey, config.apiUrl, config.replicas);
+  initTracing(config.apiKey, config.apiUrl, config.replicas, config.redact, config.redactExtraRules);
 
   let toTrace: TurnBuffer | undefined;
   let turnNum = 0;

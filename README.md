@@ -83,6 +83,8 @@ Every `LANGSMITH_CURSOR_*` variable also accepts the `LANGSMITH_*` form (the `LA
 | `LANGSMITH_CURSOR_RUNS_ENDPOINTS` | `replicas`       | Additional replica destinations (JSON array).                         | —                                 |
 | `LANGSMITH_CURSOR_ATTACHMENTS`    | `attachments`    | Enrich turns with image/file attachment bytes from Cursor's DB.       | `true`                            |
 | `LANGSMITH_CURSOR_DB_PATH`        | `cursor_db_path` | Override the Cursor `state.vscdb` path used for attachments.          | platform default                  |
+| `LANGSMITH_CURSOR_REDACT`         | `redact`         | Redact detected secrets from traced data before upload.              | `true`                            |
+| `LANGSMITH_CURSOR_REDACT_EXTRA`   | —                | Extra redaction rules: JSON array of `{ pattern, replace }`; each `pattern` is case-sensitive and applied with the `g` flag. | —                                 |
 | `LANGSMITH_CURSOR_DEBUG`          | —                | Verbose hook logging.                                                 | `false`                           |
 | `LANGSMITH_CURSOR_STATE_FILE`     | —                | Override the on-disk event-buffer state file (no `LANGSMITH_*` form). | `~/.cursor/langsmith-state.json`  |
 | `LANGSMITH_CURSOR_LOG_FILE`       | —                | Override the hook log file (no `LANGSMITH_*` form).                   | `~/.cursor/langsmith-hook.log`    |
