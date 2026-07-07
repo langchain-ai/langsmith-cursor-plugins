@@ -11,7 +11,7 @@ import { reduceStop } from "../reducer.js";
 import { initTracing, buildTurnRuns, flushPendingTraces } from "../langsmith.js";
 import { resolveTurnAttachments } from "../attachments.js";
 import { resolveSystemPrompts } from "../system-prompt.js";
-import { resolveTurnSteps, type Step } from "../conversation-steps.js";
+import { resolveTurnSteps } from "../conversation-steps.js";
 import { error, debug, warn } from "../logger.js";
 import type { ContentPart, StopInput, TurnBuffer } from "../types.js";
 
@@ -21,7 +21,13 @@ async function main(): Promise<void> {
   if (!config) return;
 
   debug(`stop conv=${input.conversation_id} gen=${input.generation_id} status=${input.status}`);
-  initTracing(config.apiKey, config.apiUrl, config.replicas, config.redact, config.redactExtraRules);
+  initTracing(
+    config.apiKey,
+    config.apiUrl,
+    config.replicas,
+    config.redact,
+    config.redactExtraRules,
+  );
 
   let toTrace: TurnBuffer | undefined;
   let turnNum = 0;

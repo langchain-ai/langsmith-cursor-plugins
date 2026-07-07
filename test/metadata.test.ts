@@ -55,10 +55,12 @@ describe("codingAgentMetadata helper", () => {
   });
 
   it("emits ls_tool_name only when the native tool name differs from the run name", () => {
-    expect(codingAgentMetadata({ threadId: "c", toolName: "Bash", runName: "Bash" }).ls_tool_name)
-      .toBeUndefined();
-    expect(codingAgentMetadata({ threadId: "c", toolName: "Task", runName: "Agent" }).ls_tool_name)
-      .toBe("Task");
+    expect(
+      codingAgentMetadata({ threadId: "c", toolName: "Bash", runName: "Bash" }).ls_tool_name,
+    ).toBeUndefined();
+    expect(
+      codingAgentMetadata({ threadId: "c", toolName: "Task", runName: "Agent" }).ls_tool_name,
+    ).toBe("Task");
   });
 
   it("lets base (user config) win on key collision", () => {
@@ -102,7 +104,7 @@ describe("coding-agent-v1 contract on the produced run tree", () => {
       runtimeVersion: "3.7.19",
       userEmail: "dev@example.com",
       customMetadata: {
-        ls_integration_version: "0.2.0",
+        ls_integration_version: "0.3.0",
         repository_url: "https://github.com/langchain-ai/langsmith-cursor-plugins",
         repository_provider: "github",
         repository_name: "langchain-ai/langsmith-cursor-plugins",
@@ -133,7 +135,7 @@ describe("coding-agent-v1 contract on the produced run tree", () => {
       expect(md.turn_id).toBe(turn.buffer.generation_id);
       expect(md.turn_number).toBe(turn.turnNum);
       expect(md.ls_agent_runtime_version).toBe("3.7.19");
-      expect(md.ls_integration_version).toBe("0.2.0");
+      expect(md.ls_integration_version).toBe("0.3.0");
       expect(md.repository_url).toBeDefined();
       expect(md.git_commit_sha).toBe("deadbeef");
       expect(md.cwd).toBe("/repo");
@@ -141,7 +143,9 @@ describe("coding-agent-v1 contract on the produced run tree", () => {
       // Leak rule: subagent-only keys only on subagent runs.
       if (runType !== "subagent") {
         expect(md, `ls_subagent_id leaked onto ${runType}`).not.toHaveProperty("ls_subagent_id");
-        expect(md, `ls_subagent_type leaked onto ${runType}`).not.toHaveProperty("ls_subagent_type");
+        expect(md, `ls_subagent_type leaked onto ${runType}`).not.toHaveProperty(
+          "ls_subagent_type",
+        );
       } else {
         expect(md.ls_subagent_id).toBeDefined();
         expect(md.ls_subagent_type).toBe("explore");

@@ -1,7 +1,7 @@
 {
   "name": "langsmith-tracing",
   "displayName": "LangSmith Tracing for Cursor",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Traces Cursor agent turns — prompts, model responses, tool calls, token usage, and subagents — to LangSmith, grouped into threads per conversation.",
   "license": "MIT",
   "keywords": ["langsmith", "langchain", "tracing", "observability", "cursor"],
