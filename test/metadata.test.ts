@@ -104,7 +104,7 @@ describe("coding-agent-v1 contract on the produced run tree", () => {
       runtimeVersion: "3.7.19",
       userEmail: "dev@example.com",
       customMetadata: {
-        ls_integration_version: expect.stringContaining("."),
+        ls_integration_version: "0.3.0",
         repository_url: "https://github.com/langchain-ai/langsmith-cursor-plugins",
         repository_provider: "github",
         repository_name: "langchain-ai/langsmith-cursor-plugins",
@@ -135,7 +135,7 @@ describe("coding-agent-v1 contract on the produced run tree", () => {
       expect(md.turn_id).toBe(turn.buffer.generation_id);
       expect(md.turn_number).toBe(turn.turnNum);
       expect(md.ls_agent_runtime_version).toBe("3.7.19");
-      expect(md.ls_integration_version).toBe(expect.stringContaining("."));
+      expect(md.ls_integration_version).toBe("0.3.0");
       expect(md.repository_url).toBeDefined();
       expect(md.git_commit_sha).toBe("deadbeef");
       expect(md.cwd).toBe("/repo");
