@@ -150,7 +150,9 @@ describe("extractMcpError", () => {
   });
 
   it("ignores successful MCP calls (isError:false or absent)", () => {
-    expect(extractMcpError("MCP:foo", { content: [{ type: "text", text: "ok" }], isError: false })).toBeUndefined();
+    expect(
+      extractMcpError("MCP:foo", { content: [{ type: "text", text: "ok" }], isError: false }),
+    ).toBeUndefined();
     expect(extractMcpError("MCP:foo", { content: [] })).toBeUndefined();
   });
 

@@ -74,9 +74,7 @@ export function readProtoLenField(buf: Buffer, field: number): Buffer[] {
 /** Decode a composerData.conversationState value: "~"-prefixed base64, else hex. */
 export function decodeConversationStateBlob(raw: unknown): Buffer | undefined {
   if (typeof raw !== "string" || raw.length === 0) return undefined;
-  const buf = raw.startsWith("~")
-    ? Buffer.from(raw.slice(1), "base64")
-    : Buffer.from(raw, "hex");
+  const buf = raw.startsWith("~") ? Buffer.from(raw.slice(1), "base64") : Buffer.from(raw, "hex");
   return buf.length > 0 ? buf : undefined;
 }
 
@@ -125,7 +123,9 @@ function systemPromptFor(reader: BlobReader, conversationId: string): string | u
     if (!composer) return undefined;
 
     const parsed = JSON.parse(composer.toString("utf-8"));
-    const blob = decodeConversationStateBlob(isRecord(parsed) ? parsed.conversationState : undefined);
+    const blob = decodeConversationStateBlob(
+      isRecord(parsed) ? parsed.conversationState : undefined,
+    );
     if (!blob) return undefined;
 
     for (const id of readProtoLenField(blob, ROOT_PROMPT_MESSAGES_FIELD)) {

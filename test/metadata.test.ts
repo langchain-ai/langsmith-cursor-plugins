@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { join } from "node:path";
 import type { Run } from "langsmith";
-import { codingAgentMetadata } from "../src/metadata.js";
+import { codingAgentMetadata, type LSAgentType } from "../src/metadata.js";
 import { replayHookLog } from "./utils/replay.js";
 import { mockClient } from "./utils/mock_client.js";
 import { getAssumedTreeFromCalls } from "./utils/tree.js";
@@ -17,16 +17,27 @@ function meta(run: Run): Record<string, unknown> {
 
 describe("codingAgentMetadata helper", () => {
   it("always emits the identity block with the frozen cursor literals", () => {
-    const m = codingAgentMetadata({ threadId: "conv-1" });
-    expect(m.ls_agent_kind).toBe("coding_agent");
+    const m = codingAgentMetadata({ agentType: "root", threadId: "conv-1" });
+    expect(m.ls_agent_purpose).toBe("coding");
+    expect(m.ls_agent_type).toBe("root");
+    expect(m.ls_agent_kind).toBeUndefined();
     expect(m.ls_integration).toBe("cursor");
     expect(m.ls_agent_runtime).toBe("Cursor");
     expect(m.ls_trace_schema_version).toBe("coding-agent-v1");
     expect(m.thread_id).toBe("conv-1");
   });
 
+  it.each<LSAgentType>(["root", "subagent", "middleware", "compaction"])(
+    "supports the %s agent type",
+    (agentType) => {
+      const m = codingAgentMetadata({ agentType, threadId: "c" });
+      expect(m.ls_agent_type).toBe(agentType);
+    },
+  );
+
   it("emits turn + runtime version keys when known, omits when not", () => {
     const m = codingAgentMetadata({
+      agentType: "root",
       threadId: "c",
       turnId: "gen-9",
       turnNumber: 3,
@@ -36,18 +47,27 @@ describe("codingAgentMetadata helper", () => {
     expect(m.turn_number).toBe(3);
     expect(m.ls_agent_runtime_version).toBe("3.7.19");
 
-    const bare = codingAgentMetadata({ threadId: "c" });
+    const bare = codingAgentMetadata({ agentType: "root", threadId: "c" });
     expect("turn_id" in bare).toBe(false);
     expect("turn_number" in bare).toBe(false);
     expect("ls_agent_runtime_version" in bare).toBe(false);
   });
 
   it("emits subagent identity keys, and clearSubagent nulls them out (undefined)", () => {
-    const sub = codingAgentMetadata({ threadId: "c", subagentId: "s1", subagentType: "explore" });
+    const sub = codingAgentMetadata({
+      agentType: "subagent",
+      threadId: "c",
+      subagentId: "s1",
+      subagentType: "explore",
+    });
     expect(sub.ls_subagent_id).toBe("s1");
     expect(sub.ls_subagent_type).toBe("explore");
 
-    const child = codingAgentMetadata({ threadId: "c", clearSubagent: true });
+    const child = codingAgentMetadata({
+      agentType: "subagent",
+      threadId: "c",
+      clearSubagent: true,
+    });
     // Present-but-undefined → dropped on JSON serialization, never reaches the server.
     expect(child.ls_subagent_id).toBeUndefined();
     expect(child.ls_subagent_type).toBeUndefined();
@@ -56,15 +76,21 @@ describe("codingAgentMetadata helper", () => {
 
   it("emits ls_tool_name only when the native tool name differs from the run name", () => {
     expect(
-      codingAgentMetadata({ threadId: "c", toolName: "Bash", runName: "Bash" }).ls_tool_name,
+      codingAgentMetadata({ agentType: "root", threadId: "c", toolName: "Bash", runName: "Bash" })
+        .ls_tool_name,
     ).toBeUndefined();
     expect(
-      codingAgentMetadata({ threadId: "c", toolName: "Task", runName: "Agent" }).ls_tool_name,
+      codingAgentMetadata({ agentType: "root", threadId: "c", toolName: "Task", runName: "Agent" })
+        .ls_tool_name,
     ).toBe("Task");
   });
 
   it("lets base (user config) win on key collision", () => {
-    const m = codingAgentMetadata({ threadId: "c", base: { thread_id: "override", extra: 1 } });
+    const m = codingAgentMetadata({
+      agentType: "root",
+      threadId: "c",
+      base: { thread_id: "override", extra: 1 },
+    });
     expect(m.thread_id).toBe("override");
     expect(m.extra).toBe(1);
   });
@@ -74,7 +100,7 @@ describe("codingAgentMetadata helper", () => {
 // Mirrors validate-thread.mjs's classify + required-key/leak rules in-process.
 
 const ALWAYS = [
-  ["ls_agent_kind", "coding_agent"],
+  ["ls_agent_purpose", "coding"],
   ["ls_integration", "cursor"],
   ["ls_agent_runtime", "Cursor"],
   ["ls_trace_schema_version", "coding-agent-v1"],
@@ -118,6 +144,7 @@ describe("coding-agent-v1 contract on the produced run tree", () => {
 
     const tree = await getAssumedTreeFromCalls(callSpy.mock.calls, client);
     const runs = Object.values(tree.data);
+    const byId = new Map(runs.map((run) => [run.id, run]));
     expect(runs.length).toBeGreaterThan(3);
 
     // Serialize as the wire would, so undefined-valued keys are dropped.
@@ -129,6 +156,16 @@ describe("coding-agent-v1 contract on the produced run tree", () => {
 
       // Always-present identity keys with the frozen values.
       for (const [k, v] of ALWAYS) expect(md[k], `${k} on ${runType}`).toBe(v);
+      expect(md).not.toHaveProperty("ls_agent_kind");
+
+      let ownerType = runType === "subagent" ? "subagent" : "root";
+      let parent = run.parent_run_id ? byId.get(run.parent_run_id) : undefined;
+      while (parent) {
+        if (classify(parent) === "subagent") ownerType = "subagent";
+        parent = parent.parent_run_id ? byId.get(parent.parent_run_id) : undefined;
+      }
+      expect(md.ls_agent_type, `ls_agent_type on ${runType}`).toBe(ownerType);
+
       // thread_id groups the whole tree on the conversation id.
       expect(md.thread_id).toBe(turn.conversationId);
       // Turn markers + versions land on every run (Cursor exposes turns).

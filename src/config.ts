@@ -79,7 +79,9 @@ function parseJson<T = Record<string, unknown>>(value: unknown): T | undefined {
 function isRedactRule(rule: unknown): rule is StringNodeRule {
   if (typeof rule !== "object" || rule === null) return false;
   const r = rule as Record<string, unknown>;
-  return typeof r.pattern === "string" && (r.replace === undefined || typeof r.replace === "string");
+  return (
+    typeof r.pattern === "string" && (r.replace === undefined || typeof r.replace === "string")
+  );
 }
 
 /** Parse a JSON array of { pattern, replace }; invalid rules are logged and skipped. */
@@ -256,8 +258,7 @@ export function loadConfig(options?: { cwd?: string }): Config {
     true;
   const cursorDbPath = getEnv("DB_PATH") ?? localFile?.cursor_db_path ?? globalFile?.cursor_db_path;
 
-  const redact =
-    parseBoolean(getEnv("REDACT")) ?? localFile?.redact ?? globalFile?.redact ?? true;
+  const redact = parseBoolean(getEnv("REDACT")) ?? localFile?.redact ?? globalFile?.redact ?? true;
   const redactExtraRules = parseRedactExtraRules(getEnv("REDACT_EXTRA"));
 
   const stateFilePath =

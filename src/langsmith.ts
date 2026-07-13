@@ -6,7 +6,7 @@ import type { StringNodeRule } from "langsmith/anonymizer";
 import type { TurnBuffer, ToolEvent, SubagentEvent, ContentPart } from "./types.js";
 import { buildUsageMetadata, deriveModelInfo } from "./normalize.js";
 import { DEFAULT_TAGS, TURN_RUN_NAME } from "./constants.js";
-import { codingAgentMetadata } from "./metadata.js";
+import { codingAgentMetadata, type LSAgentType } from "./metadata.js";
 import { groupSteps, type Step } from "./conversation-steps.js";
 import * as logger from "./logger.js";
 
@@ -101,6 +101,7 @@ export interface BuildTurnOptions {
 
 /** Per-turn context shared by every run's coding-agent-v1 metadata. */
 interface MetaCtx {
+  agentType: LSAgentType;
   threadId: string;
   base?: Record<string, unknown>;
   turnId?: string;
@@ -192,6 +193,7 @@ export async function buildTurnRuns(options: BuildTurnOptions): Promise<void> {
   // coding-agent-v1 context, stamped on the root and propagated to children
   // via createChild. user_email (per-turn) joins the config base.
   const ctx: MetaCtx = {
+    agentType: "root",
     threadId: conversationId,
     base: { ...customMetadata, ...(userEmail ? { user_email: userEmail } : {}) },
     turnId: buffer.generation_id,
@@ -497,6 +499,7 @@ async function postSubagentRun(sub: SubagentEvent, parent: RunTree, ctx: MetaCtx
     ls_model_name: subModel.ls_model_name,
     ls_invocation_params: { model: subModel.ls_model_name },
   };
+  const subagentCtx: MetaCtx = { ...ctx, agentType: "subagent" };
 
   // Subagent = nested chain run (validator runType "subagent"); children clear
   // ls_subagent_id/type so they don't leak down.
@@ -517,7 +520,7 @@ async function postSubagentRun(sub: SubagentEvent, parent: RunTree, ctx: MetaCtx
     end_time: endMs,
     extra: {
       metadata: codingAgentMetadata({
-        ...ctx,
+        ...subagentCtx,
         subagentId: sub.subagent_id,
         subagentType: sub.subagent_type,
         runSpecific: {
@@ -554,7 +557,11 @@ async function postSubagentRun(sub: SubagentEvent, parent: RunTree, ctx: MetaCtx
       start_time: startMs,
       end_time: endMs,
       extra: {
-        metadata: codingAgentMetadata({ ...ctx, clearSubagent: true, runSpecific: { ...llmMeta } }),
+        metadata: codingAgentMetadata({
+          ...subagentCtx,
+          clearSubagent: true,
+          runSpecific: { ...llmMeta },
+        }),
       },
     });
     await llmRun.postRun();
@@ -574,12 +581,16 @@ async function postSubagentRun(sub: SubagentEvent, parent: RunTree, ctx: MetaCtx
     start_time: startMs,
     end_time: Math.max(startMs, firstCallStart),
     extra: {
-      metadata: codingAgentMetadata({ ...ctx, clearSubagent: true, runSpecific: { ...llmMeta } }),
+      metadata: codingAgentMetadata({
+        ...subagentCtx,
+        clearSubagent: true,
+        runSpecific: { ...llmMeta },
+      }),
     },
   });
   await decideRun.postRun();
 
-  for (const tool of tools) await postToolRun(tool, subagentRun, ctx, true);
+  for (const tool of tools) await postToolRun(tool, subagentRun, subagentCtx, true);
 
   const answerRun = subagentRun.createChild({
     name: llmName,
@@ -595,7 +606,11 @@ async function postSubagentRun(sub: SubagentEvent, parent: RunTree, ctx: MetaCtx
     start_time: lastCallEnd,
     end_time: endMs,
     extra: {
-      metadata: codingAgentMetadata({ ...ctx, clearSubagent: true, runSpecific: { ...llmMeta } }),
+      metadata: codingAgentMetadata({
+        ...subagentCtx,
+        clearSubagent: true,
+        runSpecific: { ...llmMeta },
+      }),
     },
   });
   await answerRun.postRun();

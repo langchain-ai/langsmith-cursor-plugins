@@ -73,21 +73,21 @@ Config resolves in this order (later overrides earlier): defaults → `~/.cursor
 
 Every `LANGSMITH_CURSOR_*` variable also accepts the `LANGSMITH_*` form (the `LANGSMITH_CURSOR_*` name wins when both are set).
 
-| Environment variable              | Config key       | Description                                                           | Default                           |
-| --------------------------------- | ---------------- | --------------------------------------------------------------------- | --------------------------------- |
-| `TRACE_TO_LANGSMITH`              | `enabled`        | Master switch — tracing runs only when truthy.                        | `false`                           |
-| `LANGSMITH_CURSOR_API_KEY`        | `api_key`        | LangSmith API key.                                                    | —                                 |
-| `LANGSMITH_CURSOR_ENDPOINT`       | `api_url`        | LangSmith API base URL.                                               | `https://api.smith.langchain.com` |
-| `LANGSMITH_CURSOR_PROJECT`        | `project`        | Target tracing project.                                               | `cursor`                          |
-| `LANGSMITH_CURSOR_METADATA`       | `metadata`       | Extra metadata attached to every run (JSON object).                   | —                                 |
-| `LANGSMITH_CURSOR_RUNS_ENDPOINTS` | `replicas`       | Additional replica destinations (JSON array).                         | —                                 |
-| `LANGSMITH_CURSOR_ATTACHMENTS`    | `attachments`    | Enrich turns with image/file attachment bytes from Cursor's DB.       | `true`                            |
-| `LANGSMITH_CURSOR_DB_PATH`        | `cursor_db_path` | Override the Cursor `state.vscdb` path used for attachments.          | platform default                  |
-| `LANGSMITH_CURSOR_REDACT`         | `redact`         | Redact detected secrets from traced data before upload.              | `true`                            |
+| Environment variable              | Config key       | Description                                                                                                                  | Default                           |
+| --------------------------------- | ---------------- | ---------------------------------------------------------------------------------------------------------------------------- | --------------------------------- |
+| `TRACE_TO_LANGSMITH`              | `enabled`        | Master switch — tracing runs only when truthy.                                                                               | `false`                           |
+| `LANGSMITH_CURSOR_API_KEY`        | `api_key`        | LangSmith API key.                                                                                                           | —                                 |
+| `LANGSMITH_CURSOR_ENDPOINT`       | `api_url`        | LangSmith API base URL.                                                                                                      | `https://api.smith.langchain.com` |
+| `LANGSMITH_CURSOR_PROJECT`        | `project`        | Target tracing project.                                                                                                      | `cursor`                          |
+| `LANGSMITH_CURSOR_METADATA`       | `metadata`       | Extra metadata attached to every run (JSON object).                                                                          | —                                 |
+| `LANGSMITH_CURSOR_RUNS_ENDPOINTS` | `replicas`       | Additional replica destinations (JSON array).                                                                                | —                                 |
+| `LANGSMITH_CURSOR_ATTACHMENTS`    | `attachments`    | Enrich turns with image/file attachment bytes from Cursor's DB.                                                              | `true`                            |
+| `LANGSMITH_CURSOR_DB_PATH`        | `cursor_db_path` | Override the Cursor `state.vscdb` path used for attachments.                                                                 | platform default                  |
+| `LANGSMITH_CURSOR_REDACT`         | `redact`         | Redact detected secrets from traced data before upload.                                                                      | `true`                            |
 | `LANGSMITH_CURSOR_REDACT_EXTRA`   | —                | Extra redaction rules: JSON array of `{ pattern, replace }`; each `pattern` is case-sensitive and applied with the `g` flag. | —                                 |
-| `LANGSMITH_CURSOR_DEBUG`          | —                | Verbose hook logging.                                                 | `false`                           |
-| `LANGSMITH_CURSOR_STATE_FILE`     | —                | Override the on-disk event-buffer state file (no `LANGSMITH_*` form). | `~/.cursor/langsmith-state.json`  |
-| `LANGSMITH_CURSOR_LOG_FILE`       | —                | Override the hook log file (no `LANGSMITH_*` form).                   | `~/.cursor/langsmith-hook.log`    |
+| `LANGSMITH_CURSOR_DEBUG`          | —                | Verbose hook logging.                                                                                                        | `false`                           |
+| `LANGSMITH_CURSOR_STATE_FILE`     | —                | Override the on-disk event-buffer state file (no `LANGSMITH_*` form).                                                        | `~/.cursor/langsmith-state.json`  |
+| `LANGSMITH_CURSOR_LOG_FILE`       | —                | Override the hook log file (no `LANGSMITH_*` form).                                                                          | `~/.cursor/langsmith-hook.log`    |
 
 Tracing only runs when `enabled` (or `TRACE_TO_LANGSMITH=true`) **and** an API key (or replicas) is set.
 
@@ -110,7 +110,7 @@ We don't compute cost locally. Instead, Cursor's model labels (e.g. `claude-4.6-
 
 Every run carries the shared [`coding-agent-v1`](https://github.com/langchain-ai/langsmith) coding-agent metadata contract on `run.extra.metadata`, built by one helper (`src/metadata.ts`) and propagated to child runs. This lets traces from any coding agent (Claude Code, Codex, Cursor, …) be identified, grouped, and attributed with the same stable keys.
 
-**Always present** (every run): `ls_agent_kind` (`"coding_agent"`), `ls_integration` (`"cursor"`), `ls_agent_runtime` (`"Cursor"`), `ls_trace_schema_version` (`"coding-agent-v1"`), `thread_id` (= `conversation_id`).
+**Always present** (every run): `ls_agent_purpose` (`"coding"`), `ls_agent_type` (`"root"` or `"subagent"` based on the owning agent), `ls_integration` (`"cursor"`), `ls_agent_runtime` (`"Cursor"`), `ls_trace_schema_version` (`"coding-agent-v1"`), `thread_id` (= `conversation_id`).
 
 **Present where known** (every run): `ls_integration_version` (plugin version, build-time injected), `ls_agent_runtime_version` (Cursor's `cursor_version`), `turn_id` (= `generation_id`), `turn_number`, `repository_url` / `repository_provider` / `repository_name`, `git_branch`, `git_commit_sha`, `cwd`.
 
