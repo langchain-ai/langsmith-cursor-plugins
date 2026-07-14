@@ -64,7 +64,7 @@ function debug(message) {
 var DEFAULT_PROJECT = "cursor";
 
 // dist/config.js
-var LS_INTEGRATION_VERSION = true ? "0.3.0" : process.env.LANGSMITH_CURSOR_INTEGRATION_VERSION || void 0;
+var LS_INTEGRATION_VERSION = true ? "0.3.1" : process.env.LANGSMITH_CURSOR_INTEGRATION_VERSION || void 0;
 var PROVIDER_HOSTS = {
   github: "github.com",
   gitlab: "gitlab.com",
