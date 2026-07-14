@@ -85,8 +85,12 @@ describe("systemContentOf", () => {
     expect(systemContentOf(buf)).toBe('[{"type":"text"}]');
   });
   it("ignores non-system messages, empty content, and malformed JSON", () => {
-    expect(systemContentOf(Buffer.from(JSON.stringify({ role: "user", content: "hi" })))).toBeUndefined();
-    expect(systemContentOf(Buffer.from(JSON.stringify({ role: "system", content: "" })))).toBeUndefined();
+    expect(
+      systemContentOf(Buffer.from(JSON.stringify({ role: "user", content: "hi" }))),
+    ).toBeUndefined();
+    expect(
+      systemContentOf(Buffer.from(JSON.stringify({ role: "system", content: "" }))),
+    ).toBeUndefined();
     expect(systemContentOf(Buffer.from("not json"))).toBeUndefined();
   });
 });
@@ -112,7 +116,10 @@ describe("resolveTurnSystemPrompt", () => {
     const map = new Map<string, Buffer>([
       ["composerData:conv1", Buffer.from(JSON.stringify({ conversationState }))],
       ["agentKv:blob:dead", Buffer.from(JSON.stringify({ role: "user", content: "hi" }))],
-      ["agentKv:blob:beef", Buffer.from(JSON.stringify({ role: "system", content: "SYSTEM PROMPT" }))],
+      [
+        "agentKv:blob:beef",
+        Buffer.from(JSON.stringify({ role: "system", content: "SYSTEM PROMPT" })),
+      ],
     ]);
 
     const got = resolveTurnSystemPrompt({
@@ -155,8 +162,7 @@ describe("resolveTurnSystemPrompt", () => {
   });
 
   it("resolveSystemPrompts opens ONE connection for many conversations (deduped)", () => {
-    const stateOf = (idByte: number) =>
-      "~" + lenField(1, Buffer.from([idByte])).toString("base64");
+    const stateOf = (idByte: number) => "~" + lenField(1, Buffer.from([idByte])).toString("base64");
     const map = new Map<string, Buffer>([
       ["composerData:a", Buffer.from(JSON.stringify({ conversationState: stateOf(0xa1) }))],
       ["composerData:b", Buffer.from(JSON.stringify({ conversationState: stateOf(0xb2) }))],

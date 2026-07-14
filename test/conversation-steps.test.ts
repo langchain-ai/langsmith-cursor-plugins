@@ -30,7 +30,11 @@ function varint(n: number): number[] {
   return bytes;
 }
 function lenField(field: number, value: Buffer): Buffer {
-  return Buffer.concat([Buffer.from(varint((field << 3) | 2)), Buffer.from(varint(value.length)), value]);
+  return Buffer.concat([
+    Buffer.from(varint((field << 3) | 2)),
+    Buffer.from(varint(value.length)),
+    value,
+  ]);
 }
 function varintField(field: number, value: number): Buffer {
   return Buffer.concat([Buffer.from(varint((field << 3) | 0)), Buffer.from(varint(value))]);
@@ -55,7 +59,10 @@ describe("decodeStep", () => {
       text: "pondering",
       durationMs: 82,
     });
-    expect(decodeStep(assistantStep("the answer"))).toEqual({ kind: "assistant", text: "the answer" });
+    expect(decodeStep(assistantStep("the answer"))).toEqual({
+      kind: "assistant",
+      text: "the answer",
+    });
     expect(decodeStep(toolStep(8, "tool_abc"))).toEqual({
       kind: "tool",
       toolUseId: "tool_abc",
@@ -65,7 +72,10 @@ describe("decodeStep", () => {
   });
 
   it("tolerates unmapped tool fields, unknown steps, and truncated blobs", () => {
-    expect(decodeStep(toolStep(999, "tool_xyz"))).toMatchObject({ toolField: 999, toolName: undefined });
+    expect(decodeStep(toolStep(999, "tool_xyz"))).toMatchObject({
+      toolField: 999,
+      toolName: undefined,
+    });
     expect(decodeStep(varintField(7, 1))).toBeUndefined();
     expect(scanFields(Buffer.from([(1 << 3) | 2, 50, 0x01, 0x02]))).toEqual([]);
   });

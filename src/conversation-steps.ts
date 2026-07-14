@@ -192,7 +192,10 @@ export function decodeStep(buf: Buffer): Step | undefined {
   }
   const assistant = firstBytes(buf, STEP_ASSISTANT_FIELD);
   if (assistant) {
-    return { kind: "assistant", text: firstBytes(assistant, MESSAGE_TEXT_FIELD)?.toString("utf-8") };
+    return {
+      kind: "assistant",
+      text: firstBytes(assistant, MESSAGE_TEXT_FIELD)?.toString("utf-8"),
+    };
   }
   return undefined;
 }
@@ -314,7 +317,9 @@ export function resolveTurnSteps(opts: ResolveTurnStepsOptions): Step[] | undefi
       for (let i = turnIds.length - 1; i >= 0; i--) {
         const steps = decodeTurnSteps(reader, turnIds[i]);
         if (!steps) continue;
-        const overlap = steps.some((s) => s.kind === "tool" && s.toolUseId && wanted.has(s.toolUseId));
+        const overlap = steps.some(
+          (s) => s.kind === "tool" && s.toolUseId && wanted.has(s.toolUseId),
+        );
         if (overlap) {
           logger.log(
             `conversation-steps: recovered ${steps.length} step(s) for ${opts.conversationId}`,
@@ -328,7 +333,9 @@ export function resolveTurnSteps(opts: ResolveTurnStepsOptions): Step[] | undefi
       reader.close();
     }
   } catch (err) {
-    logger.warn(`conversation-steps: resolution failed for ${opts.conversationId}, skipping (${err})`);
+    logger.warn(
+      `conversation-steps: resolution failed for ${opts.conversationId}, skipping (${err})`,
+    );
     return undefined;
   }
 }

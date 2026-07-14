@@ -12810,15 +12810,16 @@ function createSecretAnonymizer(options) {
 }
 
 // dist/metadata.js
-var LS_AGENT_KIND = "coding_agent";
+var LS_AGENT_PURPOSE = "coding";
 var LS_INTEGRATION = "cursor";
 var LS_AGENT_RUNTIME = "Cursor";
 var LS_TRACE_SCHEMA_VERSION = "coding-agent-v1";
 function codingAgentMetadata(opts) {
-  const { threadId, base, turnId, turnNumber, runtimeVersion, approvalPolicy, subagentId, subagentType, clearSubagent, toolName, runName, runSpecific } = opts;
+  const { agentType, threadId, base, turnId, turnNumber, runtimeVersion, approvalPolicy, subagentId, subagentType, clearSubagent, toolName, runName, runSpecific } = opts;
   const meta = {
     // Identity & grouping — always present.
-    ls_agent_kind: LS_AGENT_KIND,
+    ls_agent_purpose: LS_AGENT_PURPOSE,
+    ls_agent_type: agentType,
     ls_integration: LS_INTEGRATION,
     ls_agent_runtime: LS_AGENT_RUNTIME,
     ls_trace_schema_version: LS_TRACE_SCHEMA_VERSION,
@@ -13300,7 +13301,10 @@ function decodeStep(buf) {
   }
   const assistant = firstBytes(buf, STEP_ASSISTANT_FIELD);
   if (assistant) {
-    return { kind: "assistant", text: firstBytes(assistant, MESSAGE_TEXT_FIELD)?.toString("utf-8") };
+    return {
+      kind: "assistant",
+      text: firstBytes(assistant, MESSAGE_TEXT_FIELD)?.toString("utf-8")
+    };
   }
   return void 0;
 }
@@ -13489,6 +13493,7 @@ async function buildTurnRuns(options) {
     throw new Error("LangSmith client not initialized \u2014 call initTracing() first");
   }
   const ctx = {
+    agentType: "root",
     threadId: conversationId,
     base: { ...customMetadata, ...userEmail ? { user_email: userEmail } : {} },
     turnId: buffer.generation_id,
@@ -13710,6 +13715,7 @@ async function postSubagentRun(sub, parent, ctx) {
     ls_model_name: subModel.ls_model_name,
     ls_invocation_params: { model: subModel.ls_model_name }
   };
+  const subagentCtx = { ...ctx, agentType: "subagent" };
   const subagentRun = parent.createChild({
     name: runName,
     run_type: "chain",
@@ -13727,7 +13733,7 @@ async function postSubagentRun(sub, parent, ctx) {
     end_time: endMs,
     extra: {
       metadata: codingAgentMetadata({
-        ...ctx,
+        ...subagentCtx,
         subagentId: sub.subagent_id,
         subagentType: sub.subagent_type,
         runSpecific: {
@@ -13758,7 +13764,11 @@ async function postSubagentRun(sub, parent, ctx) {
       start_time: startMs,
       end_time: endMs,
       extra: {
-        metadata: codingAgentMetadata({ ...ctx, clearSubagent: true, runSpecific: { ...llmMeta } })
+        metadata: codingAgentMetadata({
+          ...subagentCtx,
+          clearSubagent: true,
+          runSpecific: { ...llmMeta }
+        })
       }
     });
     await llmRun.postRun();
@@ -13775,12 +13785,16 @@ async function postSubagentRun(sub, parent, ctx) {
     start_time: startMs,
     end_time: Math.max(startMs, firstCallStart),
     extra: {
-      metadata: codingAgentMetadata({ ...ctx, clearSubagent: true, runSpecific: { ...llmMeta } })
+      metadata: codingAgentMetadata({
+        ...subagentCtx,
+        clearSubagent: true,
+        runSpecific: { ...llmMeta }
+      })
     }
   });
   await decideRun.postRun();
   for (const tool of tools)
-    await postToolRun(tool, subagentRun, ctx, true);
+    await postToolRun(tool, subagentRun, subagentCtx, true);
   const answerRun = subagentRun.createChild({
     name: llmName,
     run_type: "llm",
@@ -13795,7 +13809,11 @@ async function postSubagentRun(sub, parent, ctx) {
     start_time: lastCallEnd,
     end_time: endMs,
     extra: {
-      metadata: codingAgentMetadata({ ...ctx, clearSubagent: true, runSpecific: { ...llmMeta } })
+      metadata: codingAgentMetadata({
+        ...subagentCtx,
+        clearSubagent: true,
+        runSpecific: { ...llmMeta }
+      })
     }
   });
   await answerRun.postRun();

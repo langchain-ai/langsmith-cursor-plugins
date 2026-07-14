@@ -5,7 +5,8 @@
 
 // ─── Frozen literals (identity block) ────────────────────────────────────────
 
-export const LS_AGENT_KIND = "coding_agent";
+export const LS_AGENT_PURPOSE = "coding";
+export type LSAgentType = "root" | "subagent" | "middleware" | "compaction";
 export const LS_INTEGRATION = "cursor";
 export const LS_AGENT_RUNTIME = "Cursor";
 export const LS_TRACE_SCHEMA_VERSION = "coding-agent-v1";
@@ -13,6 +14,9 @@ export const LS_TRACE_SCHEMA_VERSION = "coding-agent-v1";
 // ─── Helper input ─────────────────────────────────────────────────────────────
 
 export interface CodingAgentMetadataOptions {
+  /** Role of the run within the coding-agent trace. Required on every run. */
+  agentType: LSAgentType;
+
   /** Stable conversation id → `thread_id`. Required on every run. */
   threadId: string;
 
@@ -50,10 +54,9 @@ export interface CodingAgentMetadataOptions {
  * Build the coding-agent-v1 metadata for one run. Merge order (later wins):
  * identity → dynamic → runSpecific → base.
  */
-export function codingAgentMetadata(
-  opts: CodingAgentMetadataOptions,
-): Record<string, unknown> {
+export function codingAgentMetadata(opts: CodingAgentMetadataOptions): Record<string, unknown> {
   const {
+    agentType,
     threadId,
     base,
     turnId,
@@ -70,7 +73,8 @@ export function codingAgentMetadata(
 
   const meta: Record<string, unknown> = {
     // Identity & grouping — always present.
-    ls_agent_kind: LS_AGENT_KIND,
+    ls_agent_purpose: LS_AGENT_PURPOSE,
+    ls_agent_type: agentType,
     ls_integration: LS_INTEGRATION,
     ls_agent_runtime: LS_AGENT_RUNTIME,
     ls_trace_schema_version: LS_TRACE_SCHEMA_VERSION,

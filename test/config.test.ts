@@ -90,7 +90,9 @@ describe("loadConfig cascade", () => {
       "LANGSMITH_CURSOR_REDACT_EXTRA",
       JSON.stringify([{ pattern: "sk-\\w+", replace: "X" }, { pattern: 42 }, { replace: "Y" }]),
     );
-    expect(loadConfig({ cwd: home }).redactExtraRules).toEqual([{ pattern: "sk-\\w+", replace: "X" }]);
+    expect(loadConfig({ cwd: home }).redactExtraRules).toEqual([
+      { pattern: "sk-\\w+", replace: "X" },
+    ]);
   });
 
   it("attaches local_username identity metadata", () => {
