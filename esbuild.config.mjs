@@ -14,6 +14,7 @@ const entryPoints = [
   "dist/hooks/subagent-stop.js",
   "dist/hooks/stop.js",
   "dist/hooks/session-start.js",
+  "dist/hooks/guard.js",
 ];
 
 await build({
