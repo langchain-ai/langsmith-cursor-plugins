@@ -1,13 +1,13 @@
 {
   "version": 1,
   "hooks": {
-    "beforeSubmitPrompt": [{ "command": "node BUNDLE_DIR/before-submit-prompt.js" }],
-    "afterAgentResponse": [{ "command": "node BUNDLE_DIR/after-agent-response.js" }],
-    "postToolUse": [{ "command": "node BUNDLE_DIR/post-tool-use.js" }],
-    "postToolUseFailure": [{ "command": "node BUNDLE_DIR/post-tool-use-failure.js" }],
-    "subagentStart": [{ "command": "node BUNDLE_DIR/subagent-start.js" }],
-    "subagentStop": [{ "command": "node BUNDLE_DIR/subagent-stop.js" }],
-    "stop": [{ "command": "node BUNDLE_DIR/stop.js" }],
-    "sessionStart": [{ "command": "node BUNDLE_DIR/session-start.js" }]
+    "beforeSubmitPrompt": [{ "command": "node BUNDLE_DIR/guard.js before-submit-prompt" }],
+    "afterAgentResponse": [{ "command": "node BUNDLE_DIR/guard.js after-agent-response" }],
+    "postToolUse": [{ "command": "node BUNDLE_DIR/guard.js post-tool-use" }],
+    "postToolUseFailure": [{ "command": "node BUNDLE_DIR/guard.js post-tool-use-failure" }],
+    "subagentStart": [{ "command": "node BUNDLE_DIR/guard.js subagent-start" }],
+    "subagentStop": [{ "command": "node BUNDLE_DIR/guard.js subagent-stop" }],
+    "stop": [{ "command": "node BUNDLE_DIR/guard.js stop" }],
+    "sessionStart": [{ "command": "node BUNDLE_DIR/guard.js session-start" }]
   }
 }
