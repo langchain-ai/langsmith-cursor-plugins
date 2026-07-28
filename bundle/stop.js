@@ -13467,23 +13467,26 @@ function toolCall(t, floorMs) {
     }
   };
 }
+function subagentCall(s) {
+  return {
+    startMs: s.startMs,
+    toolCallBlock: {
+      type: "tool_call",
+      name: "Subagent",
+      args: { subagent_type: s.subagent_type, task: s.task },
+      id: s.subagent_id
+    },
+    resultMessage: {
+      role: "tool",
+      tool_call_id: s.subagent_id,
+      content: [{ type: "text", text: s.resultText ?? `status: ${s.status ?? "completed"}` }]
+    }
+  };
+}
 function orderedTurnCalls(buffer) {
   const calls = [
     ...buffer.tools.map((t) => toolCall(t, buffer.startMs)),
-    ...buffer.subagents.map((s) => ({
-      startMs: s.startMs,
-      toolCallBlock: {
-        type: "tool_call",
-        name: "Subagent",
-        args: { subagent_type: s.subagent_type, task: s.task },
-        id: s.subagent_id
-      },
-      resultMessage: {
-        role: "tool",
-        tool_call_id: s.subagent_id,
-        content: [{ type: "text", text: s.resultText ?? `status: ${s.status ?? "completed"}` }]
-      }
-    }))
+    ...buffer.subagents.map(subagentCall)
   ];
   return calls.sort((a, b) => a.startMs - b.startMs);
 }
@@ -13541,14 +13544,17 @@ async function buildTurnRuns(options) {
     usageMetadata,
     finalTextBlocks,
     turnEndMs
-  }) : false;
+  }) : null;
+  let turnMessages;
   if (interleaved) {
+    turnMessages = interleaved;
   } else if (calls.length === 0) {
+    const assistantContent = [...thinking, ...finalTextBlocks];
     const llmRun = turnRun.createChild({
       name: llmName,
       run_type: "llm",
       inputs: { messages: withSystem([{ role: "user", content: userContent }], systemPrompt) },
-      outputs: { messages: [{ role: "assistant", content: [...thinking, ...finalTextBlocks] }] },
+      outputs: { messages: [{ role: "assistant", content: assistantContent }] },
       start_time: buffer.startMs,
       end_time: turnEndMs,
       extra: {
@@ -13559,6 +13565,7 @@ async function buildTurnRuns(options) {
       }
     });
     await llmRun.postRun();
+    turnMessages = [{ role: "assistant", content: assistantContent }];
   } else {
     const firstCallStart = Math.min(...calls.map((c) => c.startMs));
     const lastCallEnd = Math.max(buffer.startMs, ...buffer.tools.map((t) => t.endMs), ...buffer.subagents.map((s) => s.endMs ?? s.startMs));
@@ -13598,9 +13605,14 @@ async function buildTurnRuns(options) {
       }
     });
     await answerRun.postRun();
+    turnMessages = [
+      { role: "assistant", content: assistantDecision },
+      ...calls.map((c) => c.resultMessage),
+      { role: "assistant", content: finalTextBlocks }
+    ];
   }
   turnRun.end_time = turnEndMs;
-  turnRun.outputs = { text: buffer.finalText ?? "" };
+  turnRun.outputs = { messages: turnMessages };
   turnRun.error = buffer.status && buffer.status !== "completed" ? buffer.status : void 0;
   await turnRun.patchRun({ excludeInputs: true });
   log(`Traced ${turnName} (conv=${conversationId}): ${buffer.tools.length} tool(s), ${buffer.subagents.length} subagent(s)`);
@@ -13615,13 +13627,13 @@ async function postInterleavedRounds(p) {
       toolMap.set(t.tool_use_id, t);
   const rounds = groupSteps(p.steps);
   if (rounds.length === 0)
-    return false;
+    return null;
   const last = rounds[rounds.length - 1];
   const finalRound = last.toolSteps.length === 0 ? last : void 0;
   const actionRounds = finalRound ? rounds.slice(0, -1) : rounds;
   const anyMatched = actionRounds.some((r) => r.toolSteps.some((ts) => ts.toolUseId != null && toolMap.has(ts.toolUseId)));
   if (!anyMatched)
-    return false;
+    return null;
   const msgs = [{ role: "user", content: p.userContent }];
   let cursorMs = p.buffer.startMs;
   for (const round of actionRounds) {
@@ -13653,8 +13665,14 @@ async function postInterleavedRounds(p) {
     if (matched.length)
       cursorMs = Math.max(cursorMs, ...matched.map((t) => t.endMs));
   }
+  const subCalls = p.buffer.subagents.map(subagentCall);
   for (const sub of p.buffer.subagents)
     await postSubagentRun(sub, p.turnRun, p.ctx);
+  if (subCalls.length > 0) {
+    msgs.push({ role: "assistant", content: subCalls.map((c) => c.toolCallBlock) });
+    for (const c of subCalls)
+      msgs.push(c.resultMessage);
+  }
   const answerContent = [...thinkingBlocks(finalRound?.thinking ?? []), ...p.finalTextBlocks];
   const answerRun = p.turnRun.createChild({
     name: p.llmName,
@@ -13671,7 +13689,8 @@ async function postInterleavedRounds(p) {
     }
   });
   await answerRun.postRun();
-  return true;
+  msgs.push({ role: "assistant", content: answerContent });
+  return msgs.slice(1);
 }
 async function postToolRun(tool, parent, ctx, clearSubagent = false) {
   const floorMs = typeof parent.start_time === "number" ? parent.start_time : 0;
