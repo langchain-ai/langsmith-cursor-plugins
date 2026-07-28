@@ -225,7 +225,7 @@ export function getGitInfo(cwd: string): { branch?: string; commit?: string } {
 
 export function loadConfig(options?: { cwd?: string }): Config {
   const home = process.env.HOME ?? process.env.USERPROFILE ?? "";
-  const cwd = options?.cwd ?? process.cwd();
+  const cwd = options?.cwd ?? process.env.CURSOR_PROJECT_DIR ?? process.cwd();
 
   const globalFile = readConfigFile(join(home, ".cursor", "langsmith.json"));
   const localFile = readConfigFile(join(cwd, ".cursor", "langsmith.json"));
