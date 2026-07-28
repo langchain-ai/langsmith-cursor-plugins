@@ -1,0 +1,35 @@
+src/langsmith.ts
+  s_d4e0ee31451181::t_2a254695b98da3 455-458
+  s_d4e0ee31451181::t_6f057820e0f639 477-480
+  s_d4e0ee31451181::t_5966a1b7e3dc1d 264-268,271-272,275,280
+  s_d4e0ee31451181::t_2e7884907f022e 449-453
+  s_d4e0ee31451181::t_5bac435ed7ff4b 248
+  s_d4e0ee31451181::t_261ce433c43539 162-183,188
+  s_d4e0ee31451181::t_1ec5b7988d253b 291
+  s_d4e0ee31451181::t_81a2045879e15b 353
+  s_d4e0ee31451181::t_77d76898420ee1 407
+  s_d4e0ee31451181::t_20c0c2b2fc2dc3 343-348
+  s_d4e0ee31451181::t_696e95e75445de 386-387,389-391,396
+test/replay.test.ts
+  s_d4e0ee31451181::t_f71db1b24b9a39 468-545,549-569
+  s_d4e0ee31451181::t_7bd5d12d484d8b 546-548
+  s_d4e0ee31451181::t_f446abeb20d303 100-168
+bundle/stop.js
+  s_d4e0ee31451181::t_ede88e95ebb2c1 13470-13485,13489,13547-13548,13550,13552,13557,13568,13608-13612,13615,13630,13636,13668,13671-13675,13692-13693
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "81bc29411ff7242efa7127f553ce37d7e408e6a0",
+  "prompts": {},
+  "sessions": {
+    "s_d4e0ee31451181": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b2a85f6b-613e-414e-9d50-b94c7a92a293",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Avi Kumar <avirath.kmr@gmail.com>"
+    }
+  }
+}
