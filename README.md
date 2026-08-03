@@ -120,7 +120,7 @@ Every run carries the shared [`coding-agent-v1`](https://github.com/langchain-ai
 
 ## Troubleshooting
 
-**Nothing shows up in LangSmith / `turn_count` stays 0.** Cursor launches hooks from a GUI context, so the `node` it runs is *not* your shell's version-managed node (nvm/mise/asdf) — it's whatever is on the system `PATH`, which is often an older node (or none). The hooks need **Node ≥ 22.13** (for `node:sqlite`).
+**Nothing shows up in LangSmith / `turn_count` stays 0.** Cursor launches hooks from a GUI context, where the `node` on `PATH` is often older than your shell's version-managed node (nvm/mise/asdf). The hook guard resolves Node through your interactive login shell and hands execution to it. The hooks need **Node ≥ 22.13** (for `node:sqlite`).
 
 The hooks run through a small version guard that fails loudly instead of silently. If your node is too old, you'll see a line in `~/.cursor/langsmith-hook.log` (and hook stderr) like:
 
@@ -128,7 +128,7 @@ The hooks run through a small version guard that fails loudly instead of silentl
 [langsmith] Node 20.11.0 at /usr/local/bin/node is too old for tracing (need >= 22.13 for node:sqlite). This turn was NOT traced. ...
 ```
 
-The path in that message is the exact node Cursor used. To fix, make a Node ≥ 22.13 available on the system `PATH` (note: upgrading your *shell's* nvm/mise node does **not** help a Dock/Finder-launched Cursor — that node isn't on the GUI `PATH`). Alternatives: install node ≥ 22.13 in a GUI-visible location (e.g. Homebrew on Intel symlinks into `/usr/local/bin`), or launch Cursor from a terminal (`cursor .`) so it inherits your shell environment.
+The path in that message is the exact node the guard ultimately used. To fix it, configure Node ≥ 22.13 in your login shell's startup files. If those files cannot be used non-manually, install Node ≥ 22.13 in a GUI-visible location or launch Cursor from a terminal (`cursor .`) so it inherits your shell environment.
 
 Tail the log to confirm activity: `tail -f ~/.cursor/langsmith-hook.log`.
 

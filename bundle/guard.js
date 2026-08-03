@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 
 // dist/hooks/guard.js
+import { execFileSync, spawnSync } from "node:child_process";
 import { appendFileSync } from "node:fs";
+import { userInfo } from "node:os";
 
 // dist/utils/node-version.js
 var MIN_NODE = [22, 13];
@@ -18,8 +20,42 @@ function nodeTooOld(version, min = MIN_NODE) {
 
 // dist/hooks/guard.js
 var hookName = process.argv[2];
+function resolveLoginShellNode() {
+  try {
+    const loginShell = userInfo().shell || process.env.SHELL || "/bin/sh";
+    const shellName = loginShell.split("/").pop();
+    const marker = "__LANGSMITH_SHELL_NODE_EXECUTABLE__";
+    const probe = `node -e 'process.stdout.write("${marker}" + process.execPath + "\\n")'`;
+    const shellArgs = shellName === "fish" ? ["--login", "--interactive", "--command", probe] : shellName === "bash" || shellName === "zsh" || shellName === "ksh" ? ["-l", "-i", "-c", probe] : ["-l", "-c", probe];
+    const output = execFileSync(loginShell, shellArgs, {
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"],
+      timeout: 1e4
+    });
+    const markedLine = output.split(/\r?\n/).find((line) => line.includes(marker));
+    const executable = markedLine?.slice(markedLine.indexOf(marker) + marker.length).trim();
+    return executable || void 0;
+  } catch {
+    return void 0;
+  }
+}
+if (!process.env.LANGSMITH_CURSOR_NODE_HANDOFF) {
+  const loginShellNode = resolveLoginShellNode();
+  if (loginShellNode && loginShellNode !== process.execPath) {
+    try {
+      const result = spawnSync(loginShellNode, process.argv.slice(1), {
+        env: { ...process.env, LANGSMITH_CURSOR_NODE_HANDOFF: "1" },
+        stdio: "inherit"
+      });
+      if (result.error)
+        throw result.error;
+      process.exit(result.status ?? 0);
+    } catch {
+    }
+  }
+}
 if (nodeTooOld(process.versions.node)) {
-  const msg = `[langsmith] Node ${process.versions.node} at ${process.execPath} is too old for tracing (need >= ${MIN_NODE[0]}.${MIN_NODE[1]} for node:sqlite). This turn was NOT traced. Cursor runs this node, not your shell's \u2014 install Node >= ${MIN_NODE[0]}.${MIN_NODE[1]} on the system PATH, or launch Cursor from a terminal. See README troubleshooting.`;
+  const msg = `[langsmith] Node ${process.versions.node} at ${process.execPath} is too old for tracing (need >= ${MIN_NODE[0]}.${MIN_NODE[1]} for node:sqlite). This turn was NOT traced. The Node configured by your login shell could not be used; install Node >= ${MIN_NODE[0]}.${MIN_NODE[1]} or check your shell startup files. See README troubleshooting.`;
   const logFile = process.env.LANGSMITH_CURSOR_LOG_FILE ?? `${process.env.HOME ?? ""}/.cursor/langsmith-hook.log`;
   try {
     appendFileSync(logFile, msg + "\n");
