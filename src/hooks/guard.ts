@@ -72,7 +72,7 @@ function resolveLoginShellNode(): string | undefined {
 
 // Re-run this guard under the login shell's Node. The environment marker makes
 // the handoff one-shot even if the two executable paths differ only by symlink.
-if (!process.env.LANGSMITH_CURSOR_NODE_HANDOFF) {
+if (!process.env.LANGSMITH_CURSOR_NODE_HANDOFF && nodeTooOld(process.versions.node)) {
   const loginShellNode = resolveLoginShellNode();
   if (loginShellNode && loginShellNode !== process.execPath) {
     try {

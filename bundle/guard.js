@@ -95,7 +95,7 @@ function resolveLoginShellNode() {
     return void 0;
   }
 }
-if (!process.env.LANGSMITH_CURSOR_NODE_HANDOFF) {
+if (!process.env.LANGSMITH_CURSOR_NODE_HANDOFF && nodeTooOld(process.versions.node)) {
   const loginShellNode = resolveLoginShellNode();
   if (loginShellNode && loginShellNode !== process.execPath) {
     try {
