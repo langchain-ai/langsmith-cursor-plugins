@@ -21,6 +21,11 @@ import { execFileSync, spawnSync } from "node:child_process";
 import { appendFileSync } from "node:fs";
 import { userInfo } from "node:os";
 import { MIN_NODE, nodeTooOld } from "../utils/node-version.js";
+import {
+  isNodePathValid,
+  readCachedNodePath,
+  writeCachedNodePath,
+} from "../utils/node-path-cache.js";
 
 const hookName = process.argv[2];
 
@@ -31,6 +36,9 @@ const hookName = process.argv[2];
  */
 function resolveLoginShellNode(): string | undefined {
   try {
+  const cachedNode = readCachedNodePath();
+  if (cachedNode && isNodePathValid(cachedNode)) return cachedNode;
+
     const loginShell = userInfo().shell || process.env.SHELL || "/bin/sh";
     const shellName = loginShell.split("/").pop();
     const marker = "__LANGSMITH_SHELL_NODE_EXECUTABLE__";
@@ -51,6 +59,7 @@ function resolveLoginShellNode(): string | undefined {
     });
     const markedLine = output.split(/\r?\n/).find((line) => line.includes(marker));
     const executable = markedLine?.slice(markedLine.indexOf(marker) + marker.length).trim();
+    if (executable) writeCachedNodePath(executable);
     return executable || undefined;
   } catch {
     // Best effort: if login-shell resolution fails, continue with the Node

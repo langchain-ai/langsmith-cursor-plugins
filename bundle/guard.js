@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 // dist/hooks/guard.js
-import { execFileSync, spawnSync } from "node:child_process";
+import { execFileSync, spawnSync as spawnSync2 } from "node:child_process";
 import { appendFileSync } from "node:fs";
 import { userInfo } from "node:os";
 
@@ -18,10 +18,54 @@ function nodeTooOld(version, min = MIN_NODE) {
   return (Number.isFinite(minor) ? minor : 0) < min[1];
 }
 
+// dist/utils/node-path-cache.js
+import { spawnSync } from "node:child_process";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { homedir } from "node:os";
+import { dirname, join } from "node:path";
+var NODE_PATH_CACHE_TTL_MS = 24 * 60 * 60 * 1e3;
+function nodePathCacheFile() {
+  return join(homedir(), ".cursor", "langsmith-node.json");
+}
+function readCachedNodePath(cacheFile = nodePathCacheFile(), now = Date.now()) {
+  try {
+    const cache = JSON.parse(readFileSync(cacheFile, "utf8"));
+    const expireAt = typeof cache.expire_at === "string" ? Date.parse(cache.expire_at) : NaN;
+    if (typeof cache.node_path !== "string" || !cache.node_path || !Number.isFinite(expireAt) || expireAt <= now || expireAt > now + NODE_PATH_CACHE_TTL_MS) {
+      return void 0;
+    }
+    return cache.node_path;
+  } catch {
+    return void 0;
+  }
+}
+function isNodePathValid(nodePath, spawn = spawnSync) {
+  try {
+    const result = spawn(nodePath, ["--version"]);
+    return !result.error && result.status === 0;
+  } catch {
+    return false;
+  }
+}
+function writeCachedNodePath(nodePath, cacheFile = nodePathCacheFile(), now = Date.now()) {
+  try {
+    mkdirSync(dirname(cacheFile), { recursive: true });
+    const cache = {
+      node_path: nodePath,
+      expire_at: new Date(now + NODE_PATH_CACHE_TTL_MS).toISOString()
+    };
+    writeFileSync(cacheFile, JSON.stringify(cache) + "\n", { mode: 384 });
+  } catch {
+  }
+}
+
 // dist/hooks/guard.js
 var hookName = process.argv[2];
 function resolveLoginShellNode() {
   try {
+    const cachedNode = readCachedNodePath();
+    if (cachedNode && isNodePathValid(cachedNode))
+      return cachedNode;
     const loginShell = userInfo().shell || process.env.SHELL || "/bin/sh";
     const shellName = loginShell.split("/").pop();
     const marker = "__LANGSMITH_SHELL_NODE_EXECUTABLE__";
@@ -34,6 +78,8 @@ function resolveLoginShellNode() {
     });
     const markedLine = output.split(/\r?\n/).find((line) => line.includes(marker));
     const executable = markedLine?.slice(markedLine.indexOf(marker) + marker.length).trim();
+    if (executable)
+      writeCachedNodePath(executable);
     return executable || void 0;
   } catch {
     return void 0;
@@ -43,7 +89,7 @@ if (!process.env.LANGSMITH_CURSOR_NODE_HANDOFF) {
   const loginShellNode = resolveLoginShellNode();
   if (loginShellNode && loginShellNode !== process.execPath) {
     try {
-      const result = spawnSync(loginShellNode, process.argv.slice(1), {
+      const result = spawnSync2(loginShellNode, process.argv.slice(1), {
         env: { ...process.env, LANGSMITH_CURSOR_NODE_HANDOFF: "1" },
         stdio: "inherit"
       });

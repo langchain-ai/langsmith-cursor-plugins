@@ -23,8 +23,3 @@ export function initHook(cwd?: string): Config | null {
 
   return config;
 }
-
-/** Expand a leading `~` to the user's home directory. */
-export function expandHome(path: string | undefined): string | undefined {
-  return path?.replace(/^~/, process.env.HOME ?? "");
-}

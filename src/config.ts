@@ -11,6 +11,7 @@ import type { RunTreeConfig } from "langsmith";
 import type { StringNodeRule } from "langsmith/anonymizer";
 import { debug as logDebug, error as logError } from "./logger.js";
 import { DEFAULT_PROJECT } from "./constants.js";
+import { homedir } from "node:os";
 
 /**
  * Plugin version, injected at build time by esbuild `define` (no runtime
@@ -224,10 +225,9 @@ export function getGitInfo(cwd: string): { branch?: string; commit?: string } {
 // ─── Main loader ─────────────────────────────────────────────────────────────
 
 export function loadConfig(options?: { cwd?: string }): Config {
-  const home = process.env.HOME ?? process.env.USERPROFILE ?? "";
   const cwd = options?.cwd ?? process.env.CURSOR_PROJECT_DIR ?? process.cwd();
 
-  const globalFile = readConfigFile(join(home, ".cursor", "langsmith.json"));
+  const globalFile = readConfigFile(join(homedir(), ".cursor", "langsmith.json"));
   const localFile = readConfigFile(join(cwd, ".cursor", "langsmith.json"));
 
   const envEnabled = parseBoolean(process.env.TRACE_TO_LANGSMITH);
@@ -262,7 +262,7 @@ export function loadConfig(options?: { cwd?: string }): Config {
   const redactExtraRules = parseRedactExtraRules(getEnv("REDACT_EXTRA"));
 
   const stateFilePath =
-    process.env.LANGSMITH_CURSOR_STATE_FILE ?? join(home, ".cursor", "langsmith-state.json");
+    process.env.LANGSMITH_CURSOR_STATE_FILE ?? join(homedir(), ".cursor", "langsmith-state.json");
 
   // coding-agent-v1 base metadata (later spreads win). Identity literals are
   // owned by codingAgentMetadata(), so they're not here.
