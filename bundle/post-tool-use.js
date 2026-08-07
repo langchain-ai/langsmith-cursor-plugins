@@ -26,8 +26,9 @@ import { execSync } from "node:child_process";
 // dist/logger.js
 import { appendFileSync, mkdirSync, statSync, renameSync } from "node:fs";
 import { dirname } from "node:path";
+import { homedir } from "node:os";
 var MAX_LOG_BYTES = 5 * 1024 * 1024;
-var LOG_FILE = process.env.LANGSMITH_CURSOR_LOG_FILE ?? `${process.env.HOME ?? ""}/.cursor/langsmith-hook.log`;
+var LOG_FILE = process.env.LANGSMITH_CURSOR_LOG_FILE ?? `${homedir()}/.cursor/langsmith-hook.log`;
 var debugEnabled = false;
 function initLogger(debug2) {
   debugEnabled = debug2;
@@ -64,7 +65,8 @@ function debug(message) {
 var DEFAULT_PROJECT = "cursor";
 
 // dist/config.js
-var LS_INTEGRATION_VERSION = true ? "0.3.3" : process.env.LANGSMITH_CURSOR_INTEGRATION_VERSION || void 0;
+import { homedir as homedir2 } from "node:os";
+var LS_INTEGRATION_VERSION = true ? "0.3.4" : process.env.LANGSMITH_CURSOR_INTEGRATION_VERSION || void 0;
 var PROVIDER_HOSTS = {
   github: "github.com",
   gitlab: "gitlab.com",
@@ -208,9 +210,8 @@ function getGitInfo(cwd) {
   return result;
 }
 function loadConfig(options) {
-  const home = process.env.HOME ?? process.env.USERPROFILE ?? "";
   const cwd = options?.cwd ?? process.env.CURSOR_PROJECT_DIR ?? process.cwd();
-  const globalFile = readConfigFile(join(home, ".cursor", "langsmith.json"));
+  const globalFile = readConfigFile(join(homedir2(), ".cursor", "langsmith.json"));
   const localFile = readConfigFile(join(cwd, ".cursor", "langsmith.json"));
   const envEnabled = parseBoolean(process.env.TRACE_TO_LANGSMITH);
   const envMetadata = parseJson(getEnv("METADATA"));
@@ -227,7 +228,7 @@ function loadConfig(options) {
   const cursorDbPath = getEnv("DB_PATH") ?? localFile?.cursor_db_path ?? globalFile?.cursor_db_path;
   const redact = parseBoolean(getEnv("REDACT")) ?? localFile?.redact ?? globalFile?.redact ?? true;
   const redactExtraRules = parseRedactExtraRules(getEnv("REDACT_EXTRA"));
-  const stateFilePath = process.env.LANGSMITH_CURSOR_STATE_FILE ?? join(home, ".cursor", "langsmith-state.json");
+  const stateFilePath = process.env.LANGSMITH_CURSOR_STATE_FILE ?? join(homedir2(), ".cursor", "langsmith-state.json");
   const baseMetadata = { cwd };
   if (LS_INTEGRATION_VERSION)
     baseMetadata.ls_integration_version = LS_INTEGRATION_VERSION;
