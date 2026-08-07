@@ -1,10 +1,11 @@
-import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   isNodePathValid,
   NODE_PATH_CACHE_TTL_MS,
+  NODE_PATH_VALIDATION_TIMEOUT_MS,
   readCachedNodePath,
   writeCachedNodePath,
 } from "../../src/utils/node-path-cache.js";
@@ -31,6 +32,18 @@ describe("node path cache", () => {
       expire_at: new Date(NOW + NODE_PATH_CACHE_TTL_MS).toISOString(),
     });
     expect(readCachedNodePath(file, NOW)).toBe("/opt/node/bin/node");
+    expect(readdirSync(dirname(file))).toEqual(["langsmith-node.json"]);
+  });
+
+  it("caches discovery failures", () => {
+    const file = cacheFile();
+    writeCachedNodePath(null, file, NOW);
+
+    expect(JSON.parse(readFileSync(file, "utf8"))).toEqual({
+      node_path: null,
+      expire_at: new Date(NOW + NODE_PATH_CACHE_TTL_MS).toISOString(),
+    });
+    expect(readCachedNodePath(file, NOW)).toBeNull();
   });
 
   it("ignores expired entries and entries lasting longer than a day", () => {
@@ -61,14 +74,16 @@ describe("node path cache", () => {
   });
 
   it("validates a cached path by spawning node --version", () => {
-    const calls: Array<[string, string[]]> = [];
-    const spawn = ((command: string, args: string[]) => {
-      calls.push([command, args]);
+    const calls: Array<[string, string[], { timeout: number }]> = [];
+    const spawn = ((command: string, args: string[], options: { timeout: number }) => {
+      calls.push([command, args, options]);
       return { error: undefined, status: 0 };
     }) as SpawnSync;
 
     expect(isNodePathValid("/opt/node/bin/node", spawn)).toBe(true);
-    expect(calls).toEqual([["/opt/node/bin/node", ["--version"]]]);
+    expect(calls).toEqual([
+      ["/opt/node/bin/node", ["--version"], { timeout: NODE_PATH_VALIDATION_TIMEOUT_MS }],
+    ]);
   });
 
   it("rejects cached paths that cannot be spawned successfully", () => {

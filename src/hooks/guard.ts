@@ -19,7 +19,7 @@
  */
 import { execFileSync, spawnSync } from "node:child_process";
 import { appendFileSync } from "node:fs";
-import { userInfo } from "node:os";
+import { userInfo, homedir } from "node:os";
 import { MIN_NODE, nodeTooOld } from "../utils/node-version.js";
 import {
   isNodePathValid,
@@ -35,10 +35,11 @@ const hookName = process.argv[2];
  * so the Node which starts this guard may not be the Node used in a terminal.
  */
 function resolveLoginShellNode(): string | undefined {
-  try {
   const cachedNode = readCachedNodePath();
+  if (cachedNode === null) return undefined;
   if (cachedNode && isNodePathValid(cachedNode)) return cachedNode;
 
+  try {
     const loginShell = userInfo().shell || process.env.SHELL || "/bin/sh";
     const shellName = loginShell.split("/").pop();
     const marker = "__LANGSMITH_SHELL_NODE_EXECUTABLE__";
@@ -62,6 +63,7 @@ function resolveLoginShellNode(): string | undefined {
     if (executable) writeCachedNodePath(executable);
     return executable || undefined;
   } catch {
+    writeCachedNodePath(null);
     // Best effort: if login-shell resolution fails, continue with the Node
     // which Cursor used to launch this guard and let the version check explain.
     return undefined;
@@ -94,7 +96,7 @@ if (nodeTooOld(process.versions.node)) {
     `The Node configured by your login shell could not be used; install Node >= ` +
     `${MIN_NODE[0]}.${MIN_NODE[1]} or check your shell startup files. See README troubleshooting.`;
   const logFile =
-    process.env.LANGSMITH_CURSOR_LOG_FILE ?? `${process.env.HOME ?? ""}/.cursor/langsmith-hook.log`;
+    process.env.LANGSMITH_CURSOR_LOG_FILE ?? `${homedir()}/.cursor/langsmith-hook.log`;
   try {
     appendFileSync(logFile, msg + "\n");
   } catch {
