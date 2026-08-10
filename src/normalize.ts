@@ -12,7 +12,7 @@ export function isRecord(value: unknown): value is Record<string, unknown> {
 // ─── Model / provider ────────────────────────────────────────────────────────
 
 /** Reasoning-effort / thinking suffixes Cursor appends to model labels. */
-const MODEL_SUFFIXES = new Set(["thinking", "minimal", "low", "medium", "high"]);
+const MODEL_SUFFIXES = new Set(["thinking", "minimal", "low", "medium", "high", "xhigh", "max"]);
 
 /** Explicit Cursor-label → canonical-id overrides for cases the regex can't derive. */
 export const CANONICAL_MODEL_MAP: Record<string, string> = {};
@@ -55,7 +55,10 @@ function providerFor(model: string): string | undefined {
 /** Strip trailing reasoning-effort/thinking suffixes from a model label. */
 export function stripModelSuffixes(model: string): string {
   const parts = model.split("-");
-  while (parts.length > 1 && MODEL_SUFFIXES.has(parts[parts.length - 1].toLowerCase())) {
+  while (parts.length > 1) {
+    const last = parts[parts.length - 1].toLowerCase();
+    if (!MODEL_SUFFIXES.has(last)) break;
+    if (last === "max" && !providerFor(parts.slice(0, -1).join("-"))) break;
     parts.pop();
   }
   return parts.join("-");
@@ -78,9 +81,13 @@ export function preferModel(
 /** Derive { ls_model_name, ls_provider } from a Cursor model label (suffix-stripped, canonical). */
 export function deriveModelInfo(model: string | undefined): ModelInfo {
   const raw = (model ?? "").trim() || "default";
+  const stripped = stripModelSuffixes(raw);
+  const deprefixed = stripped.replace(/^cursor-/i, "");
+  const upstream = providerFor(deprefixed);
+  const label = upstream && upstream !== "cursor" ? deprefixed : stripped;
   return {
-    ls_model_name: canonicalModelId(stripModelSuffixes(raw)),
-    ls_provider: providerFor(raw),
+    ls_model_name: canonicalModelId(label),
+    ls_provider: providerFor(label) ?? providerFor(raw),
   };
 }
 

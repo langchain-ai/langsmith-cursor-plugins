@@ -27,6 +27,21 @@ describe("deriveModelInfo / provider mapping", () => {
     expect(deriveModelInfo("gemini-2.5-pro")).toMatchObject({ ls_provider: "google" });
   });
 
+  it("strips Cursor's vendor prefix and resolves the underlying provider", () => {
+    expect(deriveModelInfo("cursor-grok-4.5")).toEqual({
+      ls_model_name: "grok-4.5",
+      ls_provider: "xai",
+    });
+    expect(deriveModelInfo("gpt-5.6-luna-max")).toEqual({
+      ls_model_name: "gpt-5.6-luna",
+      ls_provider: "openai",
+    });
+    expect(deriveModelInfo("cursor-small")).toEqual({
+      ls_model_name: "cursor-small",
+      ls_provider: "cursor",
+    });
+  });
+
   it("treats Auto-mode 'default' as the cursor provider", () => {
     expect(deriveModelInfo("default")).toEqual({ ls_model_name: "default", ls_provider: "cursor" });
     expect(deriveModelInfo(undefined)).toEqual({ ls_model_name: "default", ls_provider: "cursor" });
@@ -42,6 +57,8 @@ describe("stripModelSuffixes", () => {
     expect(stripModelSuffixes("gpt-5.5-medium")).toBe("gpt-5.5");
     expect(stripModelSuffixes("claude-4.6-sonnet-medium-thinking")).toBe("claude-4.6-sonnet");
     expect(stripModelSuffixes("gpt-5.5")).toBe("gpt-5.5");
+    expect(stripModelSuffixes("gpt-5.6-luna-max")).toBe("gpt-5.6-luna");
+    expect(stripModelSuffixes("gpt-5.6-xhigh")).toBe("gpt-5.6");
     expect(stripModelSuffixes("composer-2.5-fast")).toBe("composer-2.5-fast");
   });
 });

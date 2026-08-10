@@ -668,7 +668,7 @@ var DEFAULT_PROJECT = "cursor";
 
 // dist/config.js
 import { homedir as homedir2 } from "node:os";
-var LS_INTEGRATION_VERSION = true ? "0.3.4" : process.env.LANGSMITH_CURSOR_INTEGRATION_VERSION || void 0;
+var LS_INTEGRATION_VERSION = true ? "0.3.5" : process.env.LANGSMITH_CURSOR_INTEGRATION_VERSION || void 0;
 var PROVIDER_HOSTS = {
   github: "github.com",
   gitlab: "gitlab.com",
@@ -955,7 +955,7 @@ function pruneOldConversations(state, now = Date.now()) {
 function isRecord(value) {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
-var MODEL_SUFFIXES = /* @__PURE__ */ new Set(["thinking", "minimal", "low", "medium", "high"]);
+var MODEL_SUFFIXES = /* @__PURE__ */ new Set(["thinking", "minimal", "low", "medium", "high", "xhigh", "max"]);
 var CANONICAL_MODEL_MAP = {};
 function normKey(model) {
   return model.trim().toLowerCase().replace(/^[a-z]+\//, "");
@@ -988,7 +988,12 @@ function providerFor(model) {
 }
 function stripModelSuffixes(model) {
   const parts = model.split("-");
-  while (parts.length > 1 && MODEL_SUFFIXES.has(parts[parts.length - 1].toLowerCase())) {
+  while (parts.length > 1) {
+    const last = parts[parts.length - 1].toLowerCase();
+    if (!MODEL_SUFFIXES.has(last))
+      break;
+    if (last === "max" && !providerFor(parts.slice(0, -1).join("-")))
+      break;
     parts.pop();
   }
   return parts.join("-");
@@ -1000,9 +1005,13 @@ function preferModel(current, incoming) {
 }
 function deriveModelInfo(model) {
   const raw = (model ?? "").trim() || "default";
+  const stripped = stripModelSuffixes(raw);
+  const deprefixed = stripped.replace(/^cursor-/i, "");
+  const upstream = providerFor(deprefixed);
+  const label = upstream && upstream !== "cursor" ? deprefixed : stripped;
   return {
-    ls_model_name: canonicalModelId(stripModelSuffixes(raw)),
-    ls_provider: providerFor(raw)
+    ls_model_name: canonicalModelId(label),
+    ls_provider: providerFor(label) ?? providerFor(raw)
   };
 }
 function buildUsageMetadata(usage) {
