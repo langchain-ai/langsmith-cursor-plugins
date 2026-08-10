@@ -988,7 +988,12 @@ function providerFor(model) {
 }
 function stripModelSuffixes(model) {
   const parts = model.split("-");
-  while (parts.length > 1 && MODEL_SUFFIXES.has(parts[parts.length - 1].toLowerCase())) {
+  while (parts.length > 1) {
+    const last = parts[parts.length - 1].toLowerCase();
+    if (!MODEL_SUFFIXES.has(last))
+      break;
+    if (last === "max" && !providerFor(parts.slice(0, -1).join("-")))
+      break;
     parts.pop();
   }
   return parts.join("-");
@@ -1000,7 +1005,10 @@ function preferModel(current, incoming) {
 }
 function deriveModelInfo(model) {
   const raw = (model ?? "").trim() || "default";
-  const label = stripModelSuffixes(raw).replace(/^cursor-/i, "");
+  const stripped = stripModelSuffixes(raw);
+  const deprefixed = stripped.replace(/^cursor-/i, "");
+  const upstream = providerFor(deprefixed);
+  const label = upstream && upstream !== "cursor" ? deprefixed : stripped;
   return {
     ls_model_name: canonicalModelId(label),
     ls_provider: providerFor(label) ?? providerFor(raw)
