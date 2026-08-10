@@ -37,7 +37,7 @@ describe("deriveModelInfo / provider mapping", () => {
       ls_provider: "openai",
     });
     expect(deriveModelInfo("cursor-small")).toEqual({
-      ls_model_name: "small",
+      ls_model_name: "cursor-small",
       ls_provider: "cursor",
     });
   });
