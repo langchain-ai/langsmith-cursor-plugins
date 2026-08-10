@@ -12,7 +12,7 @@ export function isRecord(value: unknown): value is Record<string, unknown> {
 // ─── Model / provider ────────────────────────────────────────────────────────
 
 /** Reasoning-effort / thinking suffixes Cursor appends to model labels. */
-const MODEL_SUFFIXES = new Set(["thinking", "minimal", "low", "medium", "high"]);
+const MODEL_SUFFIXES = new Set(["thinking", "minimal", "low", "medium", "high", "xhigh", "max"]);
 
 /** Explicit Cursor-label → canonical-id overrides for cases the regex can't derive. */
 export const CANONICAL_MODEL_MAP: Record<string, string> = {};
@@ -78,9 +78,10 @@ export function preferModel(
 /** Derive { ls_model_name, ls_provider } from a Cursor model label (suffix-stripped, canonical). */
 export function deriveModelInfo(model: string | undefined): ModelInfo {
   const raw = (model ?? "").trim() || "default";
+  const label = stripModelSuffixes(raw).replace(/^cursor-/i, "");
   return {
-    ls_model_name: canonicalModelId(stripModelSuffixes(raw)),
-    ls_provider: providerFor(raw),
+    ls_model_name: canonicalModelId(label),
+    ls_provider: providerFor(label) ?? providerFor(raw),
   };
 }
 
