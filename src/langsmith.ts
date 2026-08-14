@@ -159,24 +159,33 @@ function toolCall(t: ToolEvent, floorMs: number): TurnCall {
   };
 }
 
+/**
+ * One subagent event → its TurnCall (Subagent tool_call block + result message).
+ * A spawn only ever arrives as preToolUse, which the plugin doesn't subscribe to, so a
+ * subagent never lands in buffer.tools — this is the only place it becomes a call.
+ */
+function subagentCall(s: SubagentEvent): TurnCall {
+  return {
+    startMs: s.startMs,
+    toolCallBlock: {
+      type: "tool_call",
+      name: "Subagent",
+      args: { subagent_type: s.subagent_type, task: s.task },
+      id: s.subagent_id,
+    },
+    resultMessage: {
+      role: "tool",
+      tool_call_id: s.subagent_id,
+      content: [{ type: "text", text: s.resultText ?? `status: ${s.status ?? "completed"}` }],
+    },
+  };
+}
+
 /** Tool/subagent calls this turn, ordered by start, each paired with its result message. */
 function orderedTurnCalls(buffer: TurnBuffer): TurnCall[] {
   const calls: TurnCall[] = [
     ...buffer.tools.map((t) => toolCall(t, buffer.startMs)),
-    ...buffer.subagents.map((s) => ({
-      startMs: s.startMs,
-      toolCallBlock: {
-        type: "tool_call",
-        name: "Subagent",
-        args: { subagent_type: s.subagent_type, task: s.task },
-        id: s.subagent_id,
-      },
-      resultMessage: {
-        role: "tool",
-        tool_call_id: s.subagent_id,
-        content: [{ type: "text", text: s.resultText ?? `status: ${s.status ?? "completed"}` }],
-      },
-    })),
+    ...buffer.subagents.map(subagentCall),
   ];
   return calls.sort((a, b) => a.startMs - b.startMs);
 }
@@ -236,7 +245,7 @@ export async function buildTurnRuns(options: BuildTurnOptions): Promise<void> {
   const finalTextBlocks = buffer.finalText ? [{ type: "text", text: buffer.finalText }] : [];
   const calls = orderedTurnCalls(buffer);
 
-  // Interleaved per-step fidelity from the DB; false → fall through to decide/answer.
+  // Interleaved per-step fidelity from the DB; null → fall through to decide/answer.
   const interleaved =
     options.steps && options.steps.length > 0
       ? await postInterleavedRounds({
@@ -252,17 +261,23 @@ export async function buildTurnRuns(options: BuildTurnOptions): Promise<void> {
           finalTextBlocks,
           turnEndMs,
         })
-      : false;
+      : null;
+
+  // The turn's assistant-side transcript → the root run's outputs.messages. Mirrors the
+  // Claude Code plugin, which posts every non-user message on its root turn run.
+  let turnMessages: Array<Record<string, unknown>>;
 
   if (interleaved) {
-    // Rendered above as per-round llm + tool runs.
+    // Rendered above as per-round llm + tool runs, which also built the transcript.
+    turnMessages = interleaved;
   } else if (calls.length === 0) {
     // No tools: a single llm run, user → assistant (thinking + final text).
+    const assistantContent = [...thinking, ...finalTextBlocks];
     const llmRun = turnRun.createChild({
       name: llmName,
       run_type: "llm",
       inputs: { messages: withSystem([{ role: "user", content: userContent }], systemPrompt) },
-      outputs: { messages: [{ role: "assistant", content: [...thinking, ...finalTextBlocks] }] },
+      outputs: { messages: [{ role: "assistant", content: assistantContent }] },
       start_time: buffer.startMs,
       end_time: turnEndMs,
       extra: {
@@ -273,6 +288,7 @@ export async function buildTurnRuns(options: BuildTurnOptions): Promise<void> {
       },
     });
     await llmRun.postRun();
+    turnMessages = [{ role: "assistant", content: assistantContent }];
   } else {
     // Agentic turn: "decide" llm → tool runs → "answer" llm fed the results.
     const firstCallStart = Math.min(...calls.map((c) => c.startMs));
@@ -324,11 +340,17 @@ export async function buildTurnRuns(options: BuildTurnOptions): Promise<void> {
       },
     });
     await answerRun.postRun();
+
+    turnMessages = [
+      { role: "assistant", content: assistantDecision },
+      ...calls.map((c) => c.resultMessage),
+      { role: "assistant", content: finalTextBlocks },
+    ];
   }
 
   // 5. Finalize the root turn run.
   turnRun.end_time = turnEndMs;
-  turnRun.outputs = { text: buffer.finalText ?? "" };
+  turnRun.outputs = { messages: turnMessages };
   turnRun.error = buffer.status && buffer.status !== "completed" ? buffer.status : undefined;
   await turnRun.patchRun({ excludeInputs: true });
 
@@ -361,14 +383,17 @@ function thinkingBlocks(
 
 /**
  * Render the turn as interleaved per-round llm + tool runs from the decoded steps.
- * Returns false when the steps don't line up with hook tools, so the caller falls back.
+ * Returns the turn's assistant-side transcript, or null when the steps don't line up
+ * with hook tools, so the caller falls back.
  */
-async function postInterleavedRounds(p: InterleaveOptions): Promise<boolean> {
+async function postInterleavedRounds(
+  p: InterleaveOptions,
+): Promise<Array<Record<string, unknown>> | null> {
   const toolMap = new Map<string, ToolEvent>();
   for (const t of p.buffer.tools) if (t.tool_use_id) toolMap.set(t.tool_use_id, t);
 
   const rounds = groupSteps(p.steps);
-  if (rounds.length === 0) return false;
+  if (rounds.length === 0) return null;
 
   // The trailing text-only round (if any) is the final answer; the rest emit tools.
   const last = rounds[rounds.length - 1];
@@ -379,7 +404,7 @@ async function postInterleavedRounds(p: InterleaveOptions): Promise<boolean> {
   const anyMatched = actionRounds.some((r) =>
     r.toolSteps.some((ts) => ts.toolUseId != null && toolMap.has(ts.toolUseId)),
   );
-  if (!anyMatched) return false;
+  if (!anyMatched) return null;
 
   const msgs: Array<Record<string, unknown>> = [{ role: "user", content: p.userContent }];
   let cursorMs = p.buffer.startMs;
@@ -421,8 +446,16 @@ async function postInterleavedRounds(p: InterleaveOptions): Promise<boolean> {
     if (matched.length) cursorMs = Math.max(cursorMs, ...matched.map((t) => t.endMs));
   }
 
-  // Subagents render as nested chains, ordered in the UI by their own start_time.
+  // Subagents render as nested chains, ordered in the UI by their own start_time. Their
+  // calls also join the transcript, grouped into one assistant message — matching how the
+  // decide/answer path emits every call in a single assistantDecision. Without this the
+  // root's messages would omit subagent calls whenever the interleaved path wins.
+  const subCalls = p.buffer.subagents.map(subagentCall);
   for (const sub of p.buffer.subagents) await postSubagentRun(sub, p.turnRun, p.ctx);
+  if (subCalls.length > 0) {
+    msgs.push({ role: "assistant", content: subCalls.map((c) => c.toolCallBlock) });
+    for (const c of subCalls) msgs.push(c.resultMessage);
+  }
 
   // Final answer llm — carries turn usage; folds in any trailing text-only round.
   const answerContent = [...thinkingBlocks(finalRound?.thinking ?? []), ...p.finalTextBlocks];
@@ -441,7 +474,10 @@ async function postInterleavedRounds(p: InterleaveOptions): Promise<boolean> {
     },
   });
   await answerRun.postRun();
-  return true;
+
+  // slice(1) drops the leading user message, leaving the assistant-side transcript.
+  msgs.push({ role: "assistant", content: answerContent });
+  return msgs.slice(1);
 }
 
 /** Post one tool run under `parent`. `clearSubagent` neutralizes inherited subagent keys. */

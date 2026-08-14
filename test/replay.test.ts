@@ -97,6 +97,75 @@ describe("buildTurnRuns produces the expected LangSmith run tree", () => {
     );
   });
 
+  it("emits the assistant transcript as root outputs.messages, never outputs.text", async () => {
+    const { client, callSpy } = mockClient();
+    initTracing(undefined, undefined, undefined, true, undefined, client);
+
+    const { finalized } = replayHookLog(CAPTURE);
+    // A turn with no tools and no subagents → the single-llm-run path.
+    const turn = finalized.find(
+      (f) => f.buffer.tools.length === 0 && f.buffer.subagents.length === 0,
+    )!;
+    expect(turn).toBeDefined();
+
+    await buildTurnRuns({
+      buffer: turn.buffer,
+      conversationId: turn.conversationId,
+      turnNum: turn.turnNum,
+      project: "test",
+    });
+    await flushPendingTraces();
+
+    const tree = await getAssumedTreeFromCalls(callSpy.mock.calls, client);
+    const root = Object.values(tree.data).find((r) => r.run_type === "chain")!;
+    const outputs = root.outputs as { messages?: unknown[]; text?: unknown };
+
+    // Parity with the Claude Code plugin: messages only, no bare text string. `text`
+    // cannot satisfy an `output.messages` evaluator mapping (strict literal key lookup).
+    expect(outputs.text).toBeUndefined();
+    expect(Array.isArray(outputs.messages)).toBe(true);
+    expect(outputs.messages!.length).toBe(1);
+
+    const msg = outputs.messages![0] as { role: string; content: Array<Record<string, unknown>> };
+    expect(msg.role).toBe("assistant");
+    expect(msg.content).toContainEqual({ type: "text", text: turn.buffer.finalText });
+  });
+
+  it("emits decide/results/answer as root outputs.messages on the fallback path", async () => {
+    const { client, callSpy } = mockClient();
+    initTracing(undefined, undefined, undefined, true, undefined, client);
+
+    const { finalized } = replayHookLog(CAPTURE);
+    // One tool, no subagents, and no steps passed → the decide/answer path.
+    const turn = finalized.find(
+      (f) => f.buffer.tools.length === 1 && f.buffer.subagents.length === 0,
+    )!;
+    expect(turn).toBeDefined();
+
+    await buildTurnRuns({
+      buffer: turn.buffer,
+      conversationId: turn.conversationId,
+      turnNum: turn.turnNum,
+      project: "test",
+    });
+    await flushPendingTraces();
+
+    const tree = await getAssumedTreeFromCalls(callSpy.mock.calls, client);
+    const root = Object.values(tree.data).find((r) => r.run_type === "chain")!;
+    const messages = (root.outputs as { messages: Array<{ role: string; content: unknown }> })
+      .messages;
+
+    // assistant(tool_call) → tool(result) → assistant(final text).
+    expect(messages.map((m) => m.role)).toEqual(["assistant", "tool", "assistant"]);
+    expect(messages[0].content as Array<Record<string, unknown>>).toContainEqual(
+      expect.objectContaining({ type: "tool_call", name: turn.buffer.tools[0].name }),
+    );
+    expect(messages[2].content as Array<Record<string, unknown>>).toContainEqual({
+      type: "text",
+      text: turn.buffer.finalText,
+    });
+  });
+
   it("renders a subagent as a Task tool child of the turn", async () => {
     const { client, callSpy } = mockClient();
     initTracing(undefined, undefined, undefined, true, undefined, client);
@@ -394,6 +463,108 @@ describe("buildTurnRuns interleaved step fidelity", () => {
     ).messages[0].content;
     const r0ToolCalls = r0Content.filter((b) => b.type === "tool_call").map((b) => b.id);
     expect(r0ToolCalls).toEqual(["tool_a", "tool_b"]);
+  });
+
+  it("threads the full interleaved transcript onto root outputs.messages", async () => {
+    const { client, callSpy } = mockClient();
+    initTracing(undefined, undefined, undefined, true, undefined, client);
+
+    await buildTurnRuns({ buffer, conversationId: "conv-x", turnNum: 1, project: "test", steps });
+    await flushPendingTraces();
+
+    const tree = await getAssumedTreeFromCalls(callSpy.mock.calls, client);
+    const root = Object.values(tree.data).find((r) => r.run_type === "chain")!;
+    const messages = (root.outputs as { messages: Array<{ role: string; content: unknown }> })
+      .messages;
+
+    // Round 1 (Read + Grep) → its two results → round 2 (Shell) → its result → answer.
+    expect(messages.map((m) => m.role)).toEqual([
+      "assistant",
+      "tool",
+      "tool",
+      "assistant",
+      "tool",
+      "assistant",
+    ]);
+
+    // Every tool_call the turn made is present at the root, in invocation order — this is
+    // what makes tool_call_count computable from the root run alone.
+    const toolCallIds = messages.flatMap((m) =>
+      Array.isArray(m.content)
+        ? (m.content as Array<Record<string, unknown>>)
+            .filter((b) => b.type === "tool_call")
+            .map((b) => b.id)
+        : [],
+    );
+    expect(toolCallIds).toEqual(["tool_a", "tool_b", "tool_c"]);
+
+    // The user message is not echoed into outputs; the last message is the final answer.
+    expect(messages.some((m) => m.role === "user")).toBe(false);
+    expect(messages[5].content as Array<Record<string, unknown>>).toContainEqual({
+      type: "text",
+      text: "all done",
+    });
+  });
+
+  it("includes subagent calls in root outputs.messages on the interleaved path", async () => {
+    const { client, callSpy } = mockClient();
+    initTracing(undefined, undefined, undefined, true, undefined, client);
+
+    // A subagent spawn only ever arrives as preToolUse, which the plugin doesn't
+    // subscribe to — so it lives in buffer.subagents and never in buffer.tools, and the
+    // interleaved renderer would otherwise drop it from the transcript entirely.
+    const withSubagent: TurnBuffer = {
+      ...buffer,
+      subagents: [
+        {
+          subagent_id: "sub_1",
+          subagent_type: "explore",
+          task: "look around",
+          startMs: 6500,
+          endMs: 7000,
+          status: "completed",
+          resultText: "found it",
+        },
+      ],
+    };
+
+    await buildTurnRuns({
+      buffer: withSubagent,
+      conversationId: "conv-x",
+      turnNum: 1,
+      project: "test",
+      steps,
+    });
+    await flushPendingTraces();
+
+    const tree = await getAssumedTreeFromCalls(callSpy.mock.calls, client);
+    const root = Object.values(tree.data).find((r) => r.run_type === "chain" && !r.parent_run_id)!;
+    const messages = (root.outputs as { messages: Array<{ role: string; content: unknown }> })
+      .messages;
+
+    const subCall = messages
+      .flatMap((m) =>
+        Array.isArray(m.content) ? (m.content as Array<Record<string, unknown>>) : [],
+      )
+      .find((b) => b.type === "tool_call" && b.name === "Subagent");
+    expect(subCall).toBeDefined();
+    expect((subCall!.args as { subagent_type?: string }).subagent_type).toBe("explore");
+
+    // Its result is threaded back in as a tool message keyed by the subagent id.
+    const subResult = messages.find(
+      (m) => m.role === "tool" && (m as { tool_call_id?: string }).tool_call_id === "sub_1",
+    );
+    expect(subResult).toBeDefined();
+    expect(subResult!.content as Array<Record<string, unknown>>).toContainEqual({
+      type: "text",
+      text: "found it",
+    });
+
+    // The final answer still lands last, after the subagent exchange.
+    expect(messages[messages.length - 1].content as Array<Record<string, unknown>>).toContainEqual({
+      type: "text",
+      text: "all done",
+    });
   });
 
   it("falls back to the decide/answer shape when steps don't match the buffered tools", async () => {
