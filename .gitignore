@@ -1,7 +1,8 @@
 # Node.js
 node_modules/
 dist/
-# bundle/ is checked in so the plugin works without a build step
+bin/
+# bundle/ is checked in so CI can verify the SEA input is reproducible
 
 # IDE
 .idea/
@@ -12,7 +13,16 @@ dist/
 
 # Environment variables
 .env
-.env.local
+.env.*
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+*.jks
+*.p8
+credentials.json
+token.json
 
 # Local LangSmith config (may contain API keys)
 langsmith.json
