@@ -12,16 +12,9 @@ import type { StringNodeRule } from "langsmith/anonymizer";
 import { debug as logDebug, error as logError } from "./logger.js";
 import { DEFAULT_PROJECT } from "./constants.js";
 import { homedir } from "node:os";
+import { LS_INTEGRATION_VERSION } from "./version.js";
 
-/**
- * Plugin version, injected at build time by esbuild `define` (no runtime
- * package.json); env is the fallback. → `ls_integration_version`.
- */
-declare const __LS_INTEGRATION_VERSION__: string;
-export const LS_INTEGRATION_VERSION: string | undefined =
-  typeof __LS_INTEGRATION_VERSION__ !== "undefined"
-    ? __LS_INTEGRATION_VERSION__
-    : process.env.LANGSMITH_CURSOR_INTEGRATION_VERSION || undefined;
+export { LS_INTEGRATION_VERSION } from "./version.js";
 
 /** Host used to build a canonical https `repository_url` from a parsed provider. */
 const PROVIDER_HOSTS: Record<string, string> = {
