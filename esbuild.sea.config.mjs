@@ -35,8 +35,8 @@ if (
 }
 
 const outfile = "bundle/sea.cjs";
-const executable = "bin/langsmith-tracing";
-const releaseName = "langsmith-tracing-darwin-arm64";
+const executable = "bin/langsmith-cursor-tracing";
+const releaseName = "langsmith-cursor-tracing-darwin-arm64";
 const releaseExecutable = `dist/${releaseName}`;
 const releaseArchive = `dist/${releaseName}.tar.gz`;
 const releaseEnvironment = [
@@ -324,9 +324,9 @@ try {
       "-czf",
       releaseArchive,
       executable,
-      "hooks/hooks.json",
+      "hooks/hooks.sea.json",
       ".cursor-plugin/plugin.json",
-      "scripts/install.mjs",
+      "scripts/install.sea.mjs",
       "README.md",
     ],
     { stdio: "inherit" },

@@ -1,7 +1,7 @@
 {
   "main": "bundle/sea.cjs",
   "mainFormat": "commonjs",
-  "output": "bin/langsmith-tracing",
+  "output": "bin/langsmith-cursor-tracing",
   "disableExperimentalSEAWarning": true,
   "useSnapshot": false,
   "useCodeCache": false,
