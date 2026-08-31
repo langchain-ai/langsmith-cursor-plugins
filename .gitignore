@@ -34,3 +34,5 @@ Thumbs.db
 
 # Project specific
 *.log
+
+bundle/sea.cjs
