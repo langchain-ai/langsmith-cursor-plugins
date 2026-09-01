@@ -144,13 +144,17 @@ async function scheduleWindowsReplacement(
 $source = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('${encodedSource}'))
 $target = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('${encodedTarget}'))
 $errorLog = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('${encodedErrorLog}'))
+$nativeMethods = Add-Type -Name NativeMethods -Namespace LangSmithUpdater -PassThru -MemberDefinition @'
+[System.Runtime.InteropServices.DllImport("kernel32.dll", CharSet = System.Runtime.InteropServices.CharSet.Unicode, SetLastError = true)]
+[return: System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.Bool)]
+public static extern bool MoveFileEx(string existingFileName, string newFileName, int flags);
+'@
 $lastError = $null
 for ($attempt = 0; $attempt -lt 60; $attempt++) {
   try {
-    if ([System.IO.File]::Exists($target)) {
-      [System.IO.File]::Replace($source, $target, $null)
-    } else {
-      [System.IO.File]::Move($source, $target)
+    if (-not $nativeMethods::MoveFileEx($source, $target, 9)) {
+      $errorCode = [Runtime.InteropServices.Marshal]::GetLastWin32Error()
+      throw ([System.ComponentModel.Win32Exception]::new($errorCode))
     }
     Remove-Item -LiteralPath $errorLog -Force -ErrorAction SilentlyContinue
     exit 0
