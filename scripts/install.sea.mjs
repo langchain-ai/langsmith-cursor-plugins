@@ -23,12 +23,13 @@ import {
 } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { homedir } from "node:os";
+import { homedir, platform } from "node:os";
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(scriptDir, "..");
-const sourceBin = join(repoRoot, "bin", "langsmith-cursor-tracing");
-const tracingBin = join(homedir(), ".langsmith", "langsmith-cursor-tracing");
+const executableName = `langsmith-cursor-tracing${platform() === "win32" ? ".exe" : ""}`;
+const sourceBin = join(repoRoot, "bin", executableName);
+const tracingBin = join(homedir(), ".langsmith", executableName);
 const manifest = JSON.parse(
   readFileSync(join(repoRoot, "hooks", "hooks.sea.json"), "utf-8"),
 );
@@ -40,6 +41,19 @@ if (
   Array.isArray(manifest.hooks)
 ) {
   throw new Error("hooks.sea.json is not a valid Cursor hooks manifest");
+}
+
+if (platform() === "win32") {
+  for (const hooks of Object.values(manifest.hooks)) {
+    for (const hook of hooks) {
+      if (typeof hook.command === "string") {
+        hook.command = hook.command.replace(
+          'langsmith-cursor-tracing"',
+          `${executableName}"`,
+        );
+      }
+    }
+  }
 }
 
 const args = process.argv.slice(2);
