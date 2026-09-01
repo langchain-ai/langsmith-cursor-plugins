@@ -5,8 +5,8 @@
   "type": "module",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc && node esbuild.config.mjs",
-    "build:sea": "tsc && node esbuild.sea.config.mjs",
+    "build": "tsc && node esbuild.config.mts",
+    "build:sea": "tsc && node esbuild.sea.config.mts",
     "dev": "tsc --watch",
     "format": "oxfmt --write",
     "test": "vitest run",

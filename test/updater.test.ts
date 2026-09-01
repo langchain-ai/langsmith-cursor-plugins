@@ -52,10 +52,7 @@ describe("getSeaReleaseTarget", () => {
       assetName: "langsmith-cursor-tracing-win32-arm64-0.3.5.exe",
       executableName: "langsmith-cursor-tracing.exe",
     });
-    expect(getSeaReleaseTarget("linux", "riscv64", "0.3.5")).toEqual({
-      assetName: "langsmith-cursor-tracing-linux-riscv64-0.3.5",
-      executableName: "langsmith-cursor-tracing",
-    });
+    expect(getSeaReleaseTarget("linux", "riscv64", "0.3.5")).toBeUndefined();
     expect(getSeaReleaseTarget("freebsd", "x64", "0.3.5")).toBeUndefined();
     expect(getSeaReleaseTarget("darwin", "x64", "0.3.5")).toBeUndefined();
     expect(getSeaReleaseTarget("linux", "s390x", "0.3.5")).toBeUndefined();
@@ -172,12 +169,17 @@ describe("updateFromGitHub", () => {
   });
 
   it("does not check releases when running outside the install path", async () => {
+    const installDir = mkdtempSync(join(tmpdir(), "langsmith-update-"));
+    const target = join(installDir, "langsmith-cursor-tracing");
+    const developmentBinary = join(installDir, "development-build");
+    writeFileSync(target, "installed binary");
+    writeFileSync(developmentBinary, "development binary");
     const fetchImpl = vi.fn<typeof fetch>();
     await expect(
       updateFromGitHub({
         currentVersion: "0.3.4",
-        installDir: "/tmp/not-the-current-binary",
-        executablePath: "/tmp/development-build",
+        installDir,
+        executablePath: developmentBinary,
         fetchImpl,
         runtimePlatform: "darwin",
         runtimeArch: "arm64",
