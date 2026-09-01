@@ -1,4 +1,4 @@
-import { execFile } from "node:child_process";
+import { execFile, spawn } from "node:child_process";
 import { createHash } from "node:crypto";
 import * as fs from "node:fs/promises";
 import * as os from "node:os";
@@ -182,16 +182,20 @@ exit 1
     `-RedirectStandardError $env:LANGSMITH_UPDATE_ERROR_LOG -WindowStyle Hidden`;
 
   await new Promise<void>((resolvePromise, reject) => {
-    execFile(
+    const launcher = spawn(
       "powershell.exe",
       ["-NoProfile", "-NonInteractive", "-Command", launchCommand],
       {
         env: environment,
-        timeout: 15_000,
+        stdio: "ignore",
         windowsHide: true,
       },
-      (error) => (error ? reject(error) : resolvePromise()),
     );
+    launcher.once("error", reject);
+    launcher.once("exit", (code) => {
+      if (code === 0) resolvePromise();
+      else reject(new Error(`Windows update launcher exited with code ${code ?? "unknown"}`));
+    });
   });
 }
 
