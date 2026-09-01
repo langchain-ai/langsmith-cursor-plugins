@@ -137,10 +137,13 @@ async function scheduleWindowsReplacement(
   installDir: string,
 ): Promise<void> {
   const errorLog = path.join(installDir, ".update-error.log");
+  const encodedSource = Buffer.from(source, "utf8").toString("base64");
+  const encodedTarget = Buffer.from(target, "utf8").toString("base64");
+  const encodedErrorLog = Buffer.from(errorLog, "utf8").toString("base64");
   const script = `
-$source = [Environment]::GetEnvironmentVariable('LANGSMITH_UPDATE_SOURCE')
-$target = [Environment]::GetEnvironmentVariable('LANGSMITH_UPDATE_TARGET')
-$errorLog = [Environment]::GetEnvironmentVariable('LANGSMITH_UPDATE_ERROR_LOG')
+$source = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('${encodedSource}'))
+$target = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('${encodedTarget}'))
+$errorLog = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('${encodedErrorLog}'))
 $lastError = $null
 for ($attempt = 0; $attempt -lt 60; $attempt++) {
   try {
@@ -171,8 +174,6 @@ exit 1
 
   const environment = {
     ...process.env,
-    LANGSMITH_UPDATE_SOURCE: source,
-    LANGSMITH_UPDATE_TARGET: target,
     LANGSMITH_UPDATE_ERROR_LOG: errorLog,
   };
   const launchCommand =
