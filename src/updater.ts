@@ -135,69 +135,62 @@ async function scheduleWindowsReplacement(
   source: string,
   target: string,
   installDir: string,
-  now: number,
 ): Promise<void> {
-  const script = path.join(installDir, `.update.${process.pid}.${now}.ps1`);
   const errorLog = path.join(installDir, ".update-error.log");
-  await fs.writeFile(
-    script,
-    `param([string]$Source, [string]$Target, [string]$ErrorLog)
+  const script = `
+$source = [Environment]::GetEnvironmentVariable('LANGSMITH_UPDATE_SOURCE')
+$target = [Environment]::GetEnvironmentVariable('LANGSMITH_UPDATE_TARGET')
+$errorLog = [Environment]::GetEnvironmentVariable('LANGSMITH_UPDATE_ERROR_LOG')
 $lastError = $null
-try {
-  for ($attempt = 0; $attempt -lt 60; $attempt++) {
-    try {
-      if ([System.IO.File]::Exists($Target)) {
-        [System.IO.File]::Replace($Source, $Target, $null)
-      } else {
-        [System.IO.File]::Move($Source, $Target)
-      }
-      Remove-Item -LiteralPath $ErrorLog -Force -ErrorAction SilentlyContinue
-      exit 0
-    } catch {
-      $lastError = $_
-      Start-Sleep -Milliseconds 500
+for ($attempt = 0; $attempt -lt 60; $attempt++) {
+  try {
+    if ([System.IO.File]::Exists($target)) {
+      [System.IO.File]::Replace($source, $target, $null)
+    } else {
+      [System.IO.File]::Move($source, $target)
     }
+    Remove-Item -LiteralPath $errorLog -Force -ErrorAction SilentlyContinue
+    exit 0
+  } catch {
+    $lastError = $_
+    Start-Sleep -Milliseconds 500
   }
-  if ($null -ne $lastError) {
-    [Console]::Error.WriteLine($lastError.ToString())
-  }
-  exit 1
-} finally {
-  Remove-Item -LiteralPath $PSCommandPath -Force -ErrorAction SilentlyContinue
 }
-`,
-    { mode: 0o600 },
-  );
+if ($null -ne $lastError) {
+  [Console]::Error.WriteLine($lastError.ToString())
+}
+exit 1
+`;
+  const encodedScript = Buffer.from(script, "utf16le").toString("base64");
 
   const errorHandle = await fs.open(errorLog, "w", 0o600);
   let child: ReturnType<typeof spawn> | undefined;
   try {
-    child = spawn(
+    const spawned = spawn(
       "powershell.exe",
       [
         "-NoProfile",
         "-NonInteractive",
-        "-ExecutionPolicy",
-        "Bypass",
-        "-File",
-        script,
-        source,
-        target,
-        errorLog,
+        "-EncodedCommand",
+        encodedScript,
       ],
       {
         detached: true,
+        env: {
+          ...process.env,
+          LANGSMITH_UPDATE_SOURCE: source,
+          LANGSMITH_UPDATE_TARGET: target,
+          LANGSMITH_UPDATE_ERROR_LOG: errorLog,
+        },
         stdio: ["ignore", "ignore", errorHandle.fd],
         windowsHide: true,
       },
     );
+    child = spawned;
     await new Promise<void>((resolvePromise, reject) => {
-      child?.once("spawn", resolvePromise);
-      child?.once("error", reject);
+      spawned.once("spawn", resolvePromise);
+      spawned.once("error", reject);
     });
-  } catch (error) {
-    await fs.unlink(script).catch(() => undefined);
-    throw error;
   } finally {
     await errorHandle.close();
   }
@@ -391,7 +384,7 @@ export async function updateFromGitHub(options: UpdateOptions = {}): Promise<Upd
     await verifySignature?.(tmpFile);
 
     if (runtimePlatform === "win32") {
-      await scheduleWindowsReplacement(tmpFile, target, installDir, now);
+      await scheduleWindowsReplacement(tmpFile, target, installDir);
       tmpFile = undefined;
       return { status: "scheduled", version };
     }
