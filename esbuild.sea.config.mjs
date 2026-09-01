@@ -37,7 +37,7 @@ if (!/^\d+\.\d+\.\d+$/.test(version)) {
 const releaseApiUrl = new URL(releaseApi);
 if (
   internalReleaseApi &&
-  (!(["http:", "https:"].includes(releaseApiUrl.protocol)) ||
+  (!["http:", "https:"].includes(releaseApiUrl.protocol) ||
     !["127.0.0.1", "[::1]", "localhost"].includes(releaseApiUrl.hostname))
 ) {
   throw new Error("The internal release API must use an HTTP(S) loopback URL");
@@ -78,15 +78,21 @@ const missingReleaseEnvironment = releaseEnvironment.filter(
   (name) => !process.env[name],
 );
 const isReleaseBuild = missingReleaseEnvironment.length === 0;
+const hasPartialReleaseEnvironment =
+  missingReleaseEnvironment.length > 0 &&
+  missingReleaseEnvironment.length < releaseEnvironment.length;
 
 if (
   !isReleaseBuild &&
-  (process.env.GITHUB_ACTIONS ||
-    missingReleaseEnvironment.length !== releaseEnvironment.length)
+  (process.env.GITHUB_ACTIONS || hasPartialReleaseEnvironment)
 ) {
   throw new Error(
     `Missing release environment variables: ${missingReleaseEnvironment.join(", ")}`,
   );
+}
+
+if (process.env.GITHUB_REF_TYPE === "tag" && !isReleaseBuild) {
+  throw new Error(`Tagged releases require: ${releaseEnvironment.join(", ")}`);
 }
 
 async function materializeSecret(value, path, name) {
