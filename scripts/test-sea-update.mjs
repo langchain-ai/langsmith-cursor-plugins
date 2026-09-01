@@ -273,7 +273,10 @@ async function runTest() {
       const hookLog = await fs
         .readFile(childEnvironment.LANGSMITH_CURSOR_LOG_FILE, "utf-8")
         .catch(() => "<no hook log>");
-      throw new Error(`${error.message}\nHook log:\n${hookLog}`, {
+      const updateError = await fs
+        .readFile(join(testHome, ".langsmith", ".update-error.log"), "utf-8")
+        .catch(() => "<no replacement-worker error>");
+      throw new Error(`${error.message}\nHook log:\n${hookLog}\nWorker error:\n${updateError}`, {
         cause: error,
       });
     }

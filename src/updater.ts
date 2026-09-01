@@ -138,18 +138,29 @@ async function scheduleWindowsReplacement(
   now: number,
 ): Promise<void> {
   const script = path.join(installDir, `.update.${process.pid}.${now}.ps1`);
+  const errorLog = path.join(installDir, ".update-error.log");
   await fs.writeFile(
     script,
-    `param([string]$Source, [string]$Target, [int]$ParentPid)
+    `param([string]$Source, [string]$Target, [int]$ParentPid, [string]$ErrorLog)
+$lastError = $null
 try {
   Wait-Process -Id $ParentPid -ErrorAction SilentlyContinue
   for ($attempt = 0; $attempt -lt 30; $attempt++) {
     try {
-      Move-Item -LiteralPath $Source -Destination $Target -Force -ErrorAction Stop
+      if ([System.IO.File]::Exists($Target)) {
+        [System.IO.File]::Replace($Source, $Target, $null)
+      } else {
+        [System.IO.File]::Move($Source, $Target)
+      }
+      Remove-Item -LiteralPath $ErrorLog -Force -ErrorAction SilentlyContinue
       exit 0
     } catch {
+      $lastError = $_
       Start-Sleep -Milliseconds 500
     }
+  }
+  if ($null -ne $lastError) {
+    $lastError | Out-String | Set-Content -LiteralPath $ErrorLog
   }
   exit 1
 } finally {
@@ -171,6 +182,7 @@ try {
       source,
       target,
       String(process.pid),
+      errorLog,
     ],
     { detached: true, stdio: "ignore", windowsHide: true },
   );
