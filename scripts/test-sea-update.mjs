@@ -264,6 +264,7 @@ async function runTest() {
     });
 
     try {
+      if (platform() === "win32") await delay(1_000);
       await waitForVersion(installedBinary, newVersion, {
         cwd: testHome,
         env: childEnvironment,

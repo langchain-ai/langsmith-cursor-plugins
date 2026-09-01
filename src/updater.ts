@@ -145,7 +145,7 @@ try {
   Wait-Process -Id $ParentPid -ErrorAction SilentlyContinue
   for ($attempt = 0; $attempt -lt 30; $attempt++) {
     try {
-      Move-Item -LiteralPath $Source -Destination $Target -Force
+      Move-Item -LiteralPath $Source -Destination $Target -Force -ErrorAction Stop
       exit 0
     } catch {
       Start-Sleep -Milliseconds 500
