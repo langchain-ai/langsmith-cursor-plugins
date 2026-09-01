@@ -159,7 +159,7 @@ try {
     }
   }
   if ($null -ne $lastError) {
-    $lastError | Out-String | Set-Content -LiteralPath $ErrorLog
+    [Console]::Error.WriteLine($lastError.ToString())
   }
   exit 1
 } finally {
@@ -169,31 +169,39 @@ try {
     { mode: 0o600 },
   );
 
-  const child = spawn(
-    "powershell.exe",
-    [
-      "-NoProfile",
-      "-NonInteractive",
-      "-ExecutionPolicy",
-      "Bypass",
-      "-File",
-      script,
-      source,
-      target,
-      errorLog,
-    ],
-    { detached: true, stdio: "ignore", windowsHide: true },
-  );
+  const errorHandle = await fs.open(errorLog, "w", 0o600);
+  let child: ReturnType<typeof spawn> | undefined;
   try {
+    child = spawn(
+      "powershell.exe",
+      [
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        script,
+        source,
+        target,
+        errorLog,
+      ],
+      {
+        detached: true,
+        stdio: ["ignore", "ignore", errorHandle.fd],
+        windowsHide: true,
+      },
+    );
     await new Promise<void>((resolvePromise, reject) => {
-      child.once("spawn", resolvePromise);
-      child.once("error", reject);
+      child?.once("spawn", resolvePromise);
+      child?.once("error", reject);
     });
   } catch (error) {
     await fs.unlink(script).catch(() => undefined);
     throw error;
+  } finally {
+    await errorHandle.close();
   }
-  child.unref();
+  child?.unref();
 }
 
 async function acquireLock(path: string, now: number) {
