@@ -1,4 +1,4 @@
-import { execFile, spawn } from "node:child_process";
+import { execFile } from "node:child_process";
 import { createHash } from "node:crypto";
 import * as fs from "node:fs/promises";
 import * as os from "node:os";
@@ -162,39 +162,36 @@ if ($null -ne $lastError) {
 exit 1
 `;
   const encodedScript = Buffer.from(script, "utf16le").toString("base64");
-
   const errorHandle = await fs.open(errorLog, "w", 0o600);
-  let child: ReturnType<typeof spawn> | undefined;
   try {
-    const spawned = spawn(
-      "powershell.exe",
-      [
-        "-NoProfile",
-        "-NonInteractive",
-        "-EncodedCommand",
-        encodedScript,
-      ],
-      {
-        detached: true,
-        env: {
-          ...process.env,
-          LANGSMITH_UPDATE_SOURCE: source,
-          LANGSMITH_UPDATE_TARGET: target,
-          LANGSMITH_UPDATE_ERROR_LOG: errorLog,
-        },
-        stdio: ["ignore", "ignore", errorHandle.fd],
-        windowsHide: true,
-      },
-    );
-    child = spawned;
-    await new Promise<void>((resolvePromise, reject) => {
-      spawned.once("spawn", resolvePromise);
-      spawned.once("error", reject);
-    });
+    await errorHandle.sync();
   } finally {
     await errorHandle.close();
   }
-  child?.unref();
+
+  const environment = {
+    ...process.env,
+    LANGSMITH_UPDATE_SOURCE: source,
+    LANGSMITH_UPDATE_TARGET: target,
+    LANGSMITH_UPDATE_ERROR_LOG: errorLog,
+  };
+  const launchCommand =
+    `Start-Process -FilePath 'powershell.exe' ` +
+    `-ArgumentList @('-NoProfile','-NonInteractive','-EncodedCommand','${encodedScript}') ` +
+    `-RedirectStandardError $env:LANGSMITH_UPDATE_ERROR_LOG -WindowStyle Hidden`;
+
+  await new Promise<void>((resolvePromise, reject) => {
+    execFile(
+      "powershell.exe",
+      ["-NoProfile", "-NonInteractive", "-Command", launchCommand],
+      {
+        env: environment,
+        timeout: 15_000,
+        windowsHide: true,
+      },
+      (error) => (error ? reject(error) : resolvePromise()),
+    );
+  });
 }
 
 async function acquireLock(path: string, now: number) {
