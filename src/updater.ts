@@ -7,16 +7,16 @@ import { debug } from "./logger.js";
 import { LS_INTEGRATION_VERSION } from "./version.js";
 
 declare const __LS_RELEASE_API__: string;
+declare const __LS_MAC_TEAM_ID__: string;
 
 const DEFAULT_RELEASE_API =
   "https://api.github.com/repos/langchain-ai/langsmith-cursor-plugins/releases/latest";
 const RELEASE_API =
   typeof __LS_RELEASE_API__ !== "undefined" ? __LS_RELEASE_API__ : DEFAULT_RELEASE_API;
+const MAC_TEAM_ID = typeof __LS_MAC_TEAM_ID__ !== "undefined" ? __LS_MAC_TEAM_ID__ : "";
 const EXECUTABLE_NAME = "langsmith-cursor-tracing";
 const SUPPORTED_TARGETS: Readonly<Record<string, ReadonlySet<string>>> = {
   darwin: new Set(["arm64"]),
-  linux: new Set(["arm64", "x64"]),
-  win32: new Set(["arm64", "x64"]),
 };
 
 const CHECK_INTERVAL_MS = 60 * 60 * 1000;
@@ -107,17 +107,72 @@ function parseRelease(value: unknown): GitHubRelease {
   return { tag_name: release.tag_name, assets };
 }
 
-function expectedSha256(asset: GitHubAsset): string {
-  const match = /^sha256:([a-f0-9]{64})$/i.exec(asset.digest ?? "");
-  if (!match) throw new Error(`release asset ${asset.name} has no valid SHA-256 digest`);
+function parseSha256(value: string | null | undefined): string | undefined {
+  const match = /^sha256:([a-f0-9]{64})$/i.exec(value ?? "");
+  return match?.[1].toLowerCase();
+}
+
+function validateDownloadUrl(asset: GitHubAsset, releaseApi: string): URL {
+  const downloadUrl = new URL(asset.browser_download_url);
+  const isProductionReleaseApi = releaseApi === DEFAULT_RELEASE_API;
+  const isAllowedDownload = isProductionReleaseApi
+    ? downloadUrl.origin === "https://github.com" &&
+      downloadUrl.pathname.startsWith("/langchain-ai/langsmith-cursor-plugins/releases/download/")
+    : downloadUrl.origin === new URL(releaseApi).origin;
+  if (!isAllowedDownload) {
+    throw new Error("release asset has an unexpected download URL");
+  }
+  return downloadUrl;
+}
+
+async function expectedSha256(
+  asset: GitHubAsset,
+  sidecar: GitHubAsset | undefined,
+  fetchImpl: typeof fetch,
+  currentVersion: string,
+  releaseApi: string,
+): Promise<string> {
+  const digest = parseSha256(asset.digest);
+  if (digest) return digest;
+  if (!sidecar) {
+    throw new Error(`release asset ${asset.name} has no valid SHA-256 digest`);
+  }
+  if (sidecar.size <= 0 || sidecar.size > 1024 * 1024) {
+    throw new Error(
+      `release asset checksum sidecar size ${sidecar.size} is outside the allowed range`,
+    );
+  }
+
+  const response = await fetchImpl(validateDownloadUrl(sidecar, releaseApi), {
+    headers: { "User-Agent": `langsmith-cursor/${currentVersion}` },
+    signal: AbortSignal.timeout(15_000),
+  });
+  if (!response.ok) {
+    throw new Error(`failed to download release asset checksum: HTTP ${response.status}`);
+  }
+  const sidecarText = await response.text();
+  const match = /^([a-f0-9]{64})\s+[* ]?([^\s]+)\s*$/im.exec(sidecarText);
+  if (!match || path.basename(match[2]) !== asset.name) {
+    throw new Error(`release asset ${asset.name} has an invalid SHA-256 sidecar`);
+  }
   return match[1].toLowerCase();
 }
 
 async function verifyMacSignature(path: string): Promise<void> {
+  if (!/^[A-Z0-9]{10}$/.test(MAC_TEAM_ID)) {
+    throw new Error("macOS update verification is missing the expected Developer ID team ID");
+  }
   await new Promise<void>((resolvePromise, reject) => {
     execFile(
       "/usr/bin/codesign",
-      ["--verify", "--deep", "--strict", path],
+      [
+        "--verify",
+        "--deep",
+        "--strict",
+        "-R",
+        `anchor apple generic and certificate leaf[subject.OU] = ${MAC_TEAM_ID}`,
+        path,
+      ],
       { timeout: 15_000 },
       (error) => (error ? reject(error) : resolvePromise()),
     );
@@ -222,6 +277,7 @@ async function openUpdateCheck(path: string): Promise<fs.FileHandle> {
 
 async function downloadAsset(
   asset: GitHubAsset,
+  checksumSidecar: GitHubAsset | undefined,
   destination: string,
   fetchImpl: typeof fetch,
   currentVersion: string,
@@ -230,16 +286,14 @@ async function downloadAsset(
   if (asset.size <= 0 || asset.size > MAX_BINARY_BYTES) {
     throw new Error(`release asset size ${asset.size} is outside the allowed range`);
   }
-  const downloadUrl = new URL(asset.browser_download_url);
-  const isProductionReleaseApi = releaseApi === DEFAULT_RELEASE_API;
-  const isAllowedDownload = isProductionReleaseApi
-    ? downloadUrl.origin === "https://github.com" &&
-      downloadUrl.pathname.startsWith("/langchain-ai/langsmith-cursor-plugins/releases/download/")
-    : downloadUrl.origin === new URL(releaseApi).origin;
-  if (!isAllowedDownload) {
-    throw new Error("release asset has an unexpected download URL");
-  }
-  const expectedDigest = expectedSha256(asset);
+  const downloadUrl = validateDownloadUrl(asset, releaseApi);
+  const expectedDigest = await expectedSha256(
+    asset,
+    checksumSidecar,
+    fetchImpl,
+    currentVersion,
+    releaseApi,
+  );
 
   const response = await fetchImpl(downloadUrl, {
     headers: { "User-Agent": `langsmith-cursor/${currentVersion}` },
@@ -293,10 +347,10 @@ export async function updateFromGitHub(options: UpdateOptions = {}): Promise<Upd
   const target = path.join(installDir, installedTarget.executableName);
   const executablePath = options.executablePath ?? process.execPath;
   const [canonicalExecutablePath, canonicalTarget] = await Promise.all([
-    fs.realpath(executablePath),
-    fs.realpath(target),
+    fs.realpath(executablePath).catch(() => undefined),
+    fs.realpath(target).catch(() => undefined),
   ]);
-  if (canonicalExecutablePath !== canonicalTarget) {
+  if (!canonicalExecutablePath || !canonicalTarget || canonicalExecutablePath !== canonicalTarget) {
     debug(`Skipping auto-update outside install path: ${executablePath} != ${target}`);
     return { status: "not-installed" };
   }
@@ -356,12 +410,15 @@ export async function updateFromGitHub(options: UpdateOptions = {}): Promise<Upd
     if (!asset) {
       throw new Error(`GitHub release ${release.tag_name} has no ${releaseTarget.assetName} asset`);
     }
+    const checksumSidecar = release.assets.find(
+      (candidate) => candidate.name === `${asset.name}.sha256`,
+    );
 
     tmpFile = path.join(
       installDir,
       `.${EXECUTABLE_NAME}.${process.pid}.${now}.tmp${runtimePlatform === "win32" ? ".exe" : ""}`,
     );
-    await downloadAsset(asset, tmpFile, fetchImpl, currentVersion, RELEASE_API);
+    await downloadAsset(asset, checksumSidecar, tmpFile, fetchImpl, currentVersion, RELEASE_API);
     await fs.chmod(tmpFile, 0o755);
     const verifySignature = options.verifySignature ?? defaultSignatureVerifier(runtimePlatform);
     await verifySignature?.(tmpFile);

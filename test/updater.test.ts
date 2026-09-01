@@ -5,6 +5,7 @@ import {
   readFileSync,
   readdirSync,
   symlinkSync,
+  utimesSync,
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
@@ -24,18 +25,29 @@ function digest(body: Uint8Array): string {
 function releaseResponse(
   version: string,
   body: Uint8Array,
-  overrideDigest?: string,
+  overrideDigest?: string | null,
   assetName = `langsmith-cursor-tracing-darwin-arm64-${version}`,
 ): Response {
+  const asset = {
+    name: assetName,
+    browser_download_url: `https://github.com/langchain-ai/langsmith-cursor-plugins/releases/download/v${version}/${assetName}`,
+    size: body.byteLength,
+    digest: overrideDigest === undefined ? digest(body) : overrideDigest,
+  };
   return Response.json({
     tag_name: `v${version}`,
     assets: [
-      {
-        name: assetName,
-        browser_download_url: `https://github.com/langchain-ai/langsmith-cursor-plugins/releases/download/v${version}/${assetName}`,
-        size: body.byteLength,
-        digest: overrideDigest ?? digest(body),
-      },
+      asset,
+      ...(overrideDigest === null
+        ? [
+            {
+              name: `${assetName}.sha256`,
+              browser_download_url: `${asset.browser_download_url}.sha256`,
+              size: 74,
+              digest: null,
+            },
+          ]
+        : []),
     ],
   });
 }
@@ -56,14 +68,8 @@ describe("getSeaReleaseTarget", () => {
       assetName: "langsmith-cursor-tracing-darwin-arm64-0.3.5",
       executableName: "langsmith-cursor-tracing",
     });
-    expect(getSeaReleaseTarget("linux", "x64", "v0.3.5")).toEqual({
-      assetName: "langsmith-cursor-tracing-linux-x64-0.3.5",
-      executableName: "langsmith-cursor-tracing",
-    });
-    expect(getSeaReleaseTarget("win32", "arm64", "0.3.5")).toEqual({
-      assetName: "langsmith-cursor-tracing-win32-arm64-0.3.5.exe",
-      executableName: "langsmith-cursor-tracing.exe",
-    });
+    expect(getSeaReleaseTarget("linux", "x64", "v0.3.5")).toBeUndefined();
+    expect(getSeaReleaseTarget("win32", "arm64", "0.3.5")).toBeUndefined();
     expect(getSeaReleaseTarget("linux", "riscv64", "0.3.5")).toBeUndefined();
     expect(getSeaReleaseTarget("freebsd", "x64", "0.3.5")).toBeUndefined();
     expect(getSeaReleaseTarget("darwin", "x64", "0.3.5")).toBeUndefined();
@@ -102,16 +108,19 @@ describe("updateFromGitHub", () => {
     expect(verifySignature).toHaveBeenCalledOnce();
   });
 
-  it("selects and installs the matching Linux asset", async () => {
+  it("falls back to the published checksum sidecar", async () => {
     const installDir = mkdtempSync(join(tmpdir(), "langsmith-update-"));
     const target = join(installDir, "langsmith-cursor-tracing");
-    const binary = new TextEncoder().encode("new Linux binary");
-    const assetName = "langsmith-cursor-tracing-linux-x64-0.3.5";
+    const binary = new TextEncoder().encode("new binary with sidecar checksum");
+    const assetName = "langsmith-cursor-tracing-darwin-arm64-0.3.5";
     writeFileSync(target, "old binary");
 
     const fetchImpl = vi
       .fn<typeof fetch>()
-      .mockResolvedValueOnce(releaseResponse("0.3.5", binary, undefined, assetName))
+      .mockResolvedValueOnce(releaseResponse("0.3.5", binary, null, assetName))
+      .mockResolvedValueOnce(
+        new Response(`${createHash("sha256").update(binary).digest("hex")}  ${assetName}\n`),
+      )
       .mockResolvedValueOnce(new Response(binary));
 
     await expect(
@@ -120,73 +129,13 @@ describe("updateFromGitHub", () => {
         installDir,
         executablePath: target,
         fetchImpl,
+        verifySignature: vi.fn(),
         checkIntervalMs: 0,
-        runtimePlatform: "linux",
-        runtimeArch: "x64",
+        runtimePlatform: "darwin",
+        runtimeArch: "arm64",
       }),
     ).resolves.toEqual({ status: "updated", version: "0.3.5" });
     expect(readFileSync(target)).toEqual(Buffer.from(binary));
-  });
-
-  it("replaces a Windows executable without launching a script", async () => {
-    const installDir = mkdtempSync(join(tmpdir(), "langsmith-update-"));
-    const target = join(installDir, "langsmith-cursor-tracing.exe");
-    const binary = new TextEncoder().encode("new Windows binary");
-    const assetName = "langsmith-cursor-tracing-win32-x64-0.3.5.exe";
-    writeFileSync(target, "old Windows binary");
-
-    const fetchImpl = vi
-      .fn<typeof fetch>()
-      .mockResolvedValueOnce(releaseResponse("0.3.5", binary, undefined, assetName))
-      .mockResolvedValueOnce(new Response(binary));
-
-    await expect(
-      updateFromGitHub({
-        currentVersion: "0.3.4",
-        installDir,
-        executablePath: target,
-        fetchImpl,
-        checkIntervalMs: 0,
-        runtimePlatform: "win32",
-        runtimeArch: "x64",
-        now: () => 1234,
-      }),
-    ).resolves.toEqual({ status: "updated", version: "0.3.5" });
-    expect(readFileSync(target)).toEqual(Buffer.from(binary));
-    expect(
-      readFileSync(
-        join(installDir, `.langsmith-cursor-tracing.old-${process.pid}-1234.exe`),
-        "utf8",
-      ),
-    ).toBe("old Windows binary");
-  });
-
-  it("only cleans up updater-owned Windows replacement files", async () => {
-    const installDir = mkdtempSync(join(tmpdir(), "langsmith-update-"));
-    const target = join(installDir, "langsmith-cursor-tracing.exe");
-    const oldExecutable = join(installDir, ".langsmith-cursor-tracing.old-123-456.exe");
-    const unrelatedFile = join(installDir, ".langsmith-cursor-tracing.old-custom.exe");
-    writeFileSync(target, "installed binary");
-    writeFileSync(oldExecutable, "old binary");
-    writeFileSync(unrelatedFile, "unrelated");
-
-    const fetchImpl = vi
-      .fn<typeof fetch>()
-      .mockResolvedValueOnce(releaseResponse("0.3.5", new Uint8Array([1])));
-
-    await expect(
-      updateFromGitHub({
-        currentVersion: "0.3.5",
-        installDir,
-        executablePath: target,
-        fetchImpl,
-        checkIntervalMs: 0,
-        runtimePlatform: "win32",
-        runtimeArch: "x64",
-      }),
-    ).resolves.toEqual({ status: "current" });
-    expect(readdirSync(installDir)).not.toContain(".langsmith-cursor-tracing.old-123-456.exe");
-    expect(readFileSync(unrelatedFile, "utf8")).toBe("unrelated");
   });
 
   it("keeps the installed binary when checksum verification fails", async () => {
@@ -258,6 +207,75 @@ describe("updateFromGitHub", () => {
         runtimeArch: "arm64",
       }),
     ).resolves.toEqual({ status: "not-installed" });
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+
+  it("returns not-installed when the canonical target is absent", async () => {
+    const installDir = mkdtempSync(join(tmpdir(), "langsmith-update-"));
+    const executablePath = join(installDir, "development-build");
+    writeFileSync(executablePath, "development binary");
+    const fetchImpl = vi.fn<typeof fetch>();
+
+    await expect(
+      updateFromGitHub({
+        currentVersion: "0.3.4",
+        installDir,
+        executablePath,
+        fetchImpl,
+        runtimePlatform: "darwin",
+        runtimeArch: "arm64",
+      }),
+    ).resolves.toEqual({ status: "not-installed" });
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+
+  it("throttles a recent release check", async () => {
+    const installDir = mkdtempSync(join(tmpdir(), "langsmith-update-"));
+    const target = join(installDir, "langsmith-cursor-tracing");
+    const checkedFile = join(installDir, ".last-update-check");
+    const now = Date.now();
+    writeFileSync(target, "installed binary");
+    writeFileSync(checkedFile, "0.3.4");
+    utimesSync(checkedFile, new Date(now - 1_000), new Date(now - 1_000));
+    const fetchImpl = vi.fn<typeof fetch>();
+
+    await expect(
+      updateFromGitHub({
+        currentVersion: "0.3.4",
+        installDir,
+        executablePath: target,
+        fetchImpl,
+        now: () => now,
+        checkIntervalMs: 10_000,
+        runtimePlatform: "darwin",
+        runtimeArch: "arm64",
+      }),
+    ).resolves.toEqual({ status: "throttled" });
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+
+  it("returns busy while another updater owns the lock", async () => {
+    const installDir = mkdtempSync(join(tmpdir(), "langsmith-update-"));
+    const target = join(installDir, "langsmith-cursor-tracing");
+    const lockFile = join(installDir, ".update.lock");
+    const now = Date.now();
+    writeFileSync(target, "installed binary");
+    writeFileSync(lockFile, "another updater");
+    utimesSync(lockFile, new Date(now), new Date(now));
+    const fetchImpl = vi.fn<typeof fetch>();
+
+    await expect(
+      updateFromGitHub({
+        currentVersion: "0.3.4",
+        installDir,
+        executablePath: target,
+        fetchImpl,
+        now: () => now,
+        checkIntervalMs: 0,
+        runtimePlatform: "darwin",
+        runtimeArch: "arm64",
+      }),
+    ).resolves.toEqual({ status: "busy" });
     expect(fetchImpl).not.toHaveBeenCalled();
   });
 

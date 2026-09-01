@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import assert from "node:assert/strict";
-import { execFileSync, execSync, fork } from "node:child_process";
+import { execFileSync, execSync, fork, spawnSync } from "node:child_process";
 import { createHash, randomUUID } from "node:crypto";
 import { createReadStream } from "node:fs";
 import * as fs from "node:fs/promises";
@@ -38,13 +38,8 @@ async function runServer() {
 
   const server = createServer((request, response) => {
     const requestUrl = new URL(request.url ?? "/", releaseApi.origin);
-    console.log(
-      `[sea-update-e2e] ${request.method ?? "UNKNOWN"} ${requestUrl.pathname}`,
-    );
-    if (
-      request.method === "GET" &&
-      requestUrl.pathname === releaseApi.pathname
-    ) {
+    console.log(`[sea-update-e2e] ${request.method ?? "UNKNOWN"} ${requestUrl.pathname}`);
+    if (request.method === "GET" && requestUrl.pathname === releaseApi.pathname) {
       response.setHeader("Content-Type", "application/json");
       response.end(
         JSON.stringify({
@@ -76,8 +71,7 @@ async function runServer() {
 
   await new Promise((resolve, reject) => {
     server.once("error", reject);
-    const hostname =
-      releaseApi.hostname === "[::1]" ? "::1" : releaseApi.hostname;
+    const hostname = releaseApi.hostname === "[::1]" ? "::1" : releaseApi.hostname;
     server.listen(Number(releaseApi.port), hostname, resolve);
   });
 
@@ -87,10 +81,7 @@ async function runServer() {
 
 function waitForServer(child) {
   return new Promise((resolve, reject) => {
-    const timeout = setTimeout(
-      () => reject(new Error("Release server did not start")),
-      10_000,
-    );
+    const timeout = setTimeout(() => reject(new Error("Release server did not start")), 10_000);
     child.once("message", (message) => {
       if (message !== "ready") return;
       clearTimeout(timeout);
@@ -102,9 +93,7 @@ function waitForServer(child) {
     });
     child.once("exit", (code) => {
       clearTimeout(timeout);
-      reject(
-        new Error(`Release server exited before startup with code ${code}`),
-      );
+      reject(new Error(`Release server exited before startup with code ${code}`));
     });
   });
 }
@@ -133,9 +122,28 @@ function extractArchive(archive, destination) {
   run("/usr/bin/ditto", ["-x", "-k", archive, destination]);
 }
 
-function verifyMacSignature(binary) {
+function getMacTeamId(binary) {
+  const result = spawnSync("/usr/bin/codesign", ["--display", "--verbose=4", binary], {
+    encoding: "utf-8",
+  });
+  assert.equal(result.status, 0, `Could not inspect macOS signature for ${binary}`);
+  const teamId = /TeamIdentifier=([A-Z0-9]{10})/.exec(`${result.stdout}${result.stderr}`)?.[1];
+  assert.match(teamId ?? "", /^[A-Z0-9]{10}$/, "Signature has no Developer ID team ID");
+  return teamId;
+}
+
+function verifyMacSignature(binary, expectedTeamId) {
   if (platform() !== "darwin") return;
-  run("/usr/bin/codesign", ["--verify", "--deep", "--strict", binary]);
+  const teamId = getMacTeamId(binary);
+  assert.equal(teamId, expectedTeamId, "SEA binaries were signed by different teams");
+  run("/usr/bin/codesign", [
+    "--verify",
+    "--deep",
+    "--strict",
+    "-R",
+    `anchor apple generic and certificate leaf[subject.OU] = ${teamId}`,
+    binary,
+  ]);
 }
 
 async function waitForVersion(binary, expectedVersion, options) {
@@ -166,20 +174,14 @@ async function runTest() {
   const newVersion = option("--new-version");
   const releaseApi = new URL(option("--release-api"));
 
-  assert.equal(
-    releaseApi.protocol,
-    "http:",
-    "The E2E server must use HTTP loopback",
-  );
+  assert.equal(releaseApi.protocol, "http:", "The E2E server must use HTTP loopback");
   assert.ok(
     ["127.0.0.1", "[::1]", "localhost"].includes(releaseApi.hostname),
     "The E2E server must bind to loopback",
   );
   assert.ok(releaseApi.port, "The E2E release API must specify a port");
 
-  const testRoot = await fs.mkdtemp(
-    join(tmpdir(), "langsmith-sea-update-e2e-"),
-  );
+  const testRoot = await fs.mkdtemp(join(tmpdir(), "langsmith-sea-update-e2e-"));
   const testHome = join(testRoot, "home");
   const oldPackage = join(testRoot, "old-package");
   await fs.mkdir(testHome, { recursive: true });
@@ -212,10 +214,10 @@ async function runTest() {
       await fs.readFile(join(testHome, ".cursor", "hooks.json"), "utf-8"),
     );
     const stopCommand = installedHooks.hooks?.stop?.[0]?.command;
-    assert.equal(
-      typeof stopCommand,
-      "string",
-      "The installer must configure the Stop hook",
+    assert.equal(typeof stopCommand, "string", "The installer must configure the Stop hook");
+    assert.ok(
+      !stopCommand.includes("${HOME}"),
+      "The installer must resolve the SEA path for the generated hooks.json",
     );
     assert.equal(
       run(installedBinary, ["--version"], {
@@ -224,8 +226,9 @@ async function runTest() {
       }),
       oldVersion,
     );
-    verifyMacSignature(installedBinary);
-    verifyMacSignature(newBinary);
+    const macTeamId = platform() === "darwin" ? getMacTeamId(installedBinary) : undefined;
+    verifyMacSignature(installedBinary, macTeamId);
+    verifyMacSignature(newBinary, macTeamId);
 
     serverProcess = fork(
       fileURLToPath(import.meta.url),
@@ -257,7 +260,7 @@ async function runTest() {
       transcript_path: null,
     });
 
-    runCommand(stopCommand.replaceAll("${HOME}", testHome), {
+    runCommand(stopCommand, {
       cwd: testHome,
       env: childEnvironment,
       input: stopPayload,
@@ -293,7 +296,7 @@ async function runTest() {
         { cause: error },
       );
     }
-    verifyMacSignature(installedBinary);
+    verifyMacSignature(installedBinary, macTeamId);
     console.log(`SEA auto-update E2E passed: ${oldVersion} -> ${newVersion}`);
   } finally {
     serverProcess?.kill("SIGTERM");

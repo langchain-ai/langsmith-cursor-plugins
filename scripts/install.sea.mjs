@@ -43,18 +43,22 @@ if (
   throw new Error("hooks.sea.json is not a valid Cursor hooks manifest");
 }
 
-if (platform() === "win32") {
-  for (const hooks of Object.values(manifest.hooks)) {
-    for (const hook of hooks) {
-      if (typeof hook.command === "string") {
-        hook.command = hook.command.replace(
-          'langsmith-cursor-tracing"',
-          `${executableName}"`,
-        );
-      }
-    }
-  }
-}
+const resolvedManifestHooks = Object.fromEntries(
+  Object.entries(manifest.hooks).map(([event, hooks]) => [
+    event,
+    hooks.map((hook) => ({
+      ...hook,
+      ...(typeof hook.command === "string"
+        ? {
+            command: hook.command.replace(
+              '"${HOME}/.langsmith/langsmith-cursor-tracing"',
+              `"${tracingBin}"`,
+            ),
+          }
+        : {}),
+    })),
+  ]),
+);
 
 const args = process.argv.slice(2);
 const project = args.includes("--project");
@@ -80,9 +84,23 @@ try {
   existing = { version: 1, hooks: {} };
 }
 
+const mergedHooks = { ...existing.hooks };
+for (const [event, manifestHooks] of Object.entries(resolvedManifestHooks)) {
+  const existingHooks = Array.isArray(existing.hooks[event])
+    ? existing.hooks[event]
+    : [];
+  const seenCommands = new Set();
+  mergedHooks[event] = [...existingHooks, ...manifestHooks].filter((hook) => {
+    if (typeof hook.command !== "string") return true;
+    if (seenCommands.has(hook.command)) return false;
+    seenCommands.add(hook.command);
+    return true;
+  });
+}
+
 const merged = {
   version: existing.version ?? manifest.version,
-  hooks: { ...existing.hooks, ...manifest.hooks },
+  hooks: mergedHooks,
 };
 
 const json = JSON.stringify(merged, null, 2);
