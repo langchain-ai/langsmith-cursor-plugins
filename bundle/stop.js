@@ -668,7 +668,11 @@ var DEFAULT_PROJECT = "cursor";
 
 // dist/config.js
 import { homedir as homedir2 } from "node:os";
+
+// dist/version.js
 var LS_INTEGRATION_VERSION = true ? "0.3.5" : process.env.LANGSMITH_CURSOR_INTEGRATION_VERSION || void 0;
+
+// dist/config.js
 var PROVIDER_HOSTS = {
   github: "github.com",
   gitlab: "gitlab.com",
@@ -14539,10 +14543,13 @@ async function main() {
   }
   await flushPendingTraces();
 }
-main().catch((err) => {
+var completion = main().catch((err) => {
   try {
     warn(`stop hook error: ${err}`);
   } catch {
   }
-  process.exit(1);
+  process.exitCode = 1;
 });
+export {
+  completion
+};

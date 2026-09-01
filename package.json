@@ -5,8 +5,8 @@
   "type": "module",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc && pnpm bundle",
-    "bundle": "node esbuild.config.mjs",
+    "build": "tsc && node esbuild.config.mts",
+    "build:sea": "tsc && node esbuild.sea.config.mts",
     "dev": "tsc --watch",
     "format": "oxfmt --write",
     "test": "vitest run",
@@ -15,7 +15,7 @@
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
     "install-hooks": "node scripts/install.mjs",
-    "clean": "rm -rf dist bundle"
+    "clean": "rm -rf dist bundle bin"
   },
   "dependencies": {
     "langsmith": "^0.8.9"
