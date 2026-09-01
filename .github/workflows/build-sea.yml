@@ -25,7 +25,13 @@ jobs:
         with:
           mode: firewall-free
       - run: pnpm install --frozen-lockfile
+      - name: Build unsigned artifact for PR validation
+        if: ${{ github.event_name == 'pull_request' }}
+        run: pnpm build:sea
+        env:
+          LANGSMITH_CURSOR_UNSIGNED_BUILD: "true"
       - name: Build signed and notarized artifact
+        if: ${{ github.event_name != 'pull_request' }}
         run: pnpm build:sea
         env:
           APPLE_API_KEY: ${{ secrets.APPLE_API_KEY }}

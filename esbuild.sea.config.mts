@@ -301,11 +301,16 @@ const releaseEnvironment =
 
 const missingReleaseEnvironment = releaseEnvironment.filter((name) => !process.env[name]);
 const isReleaseBuild = missingReleaseEnvironment.length === 0;
+const isUnsignedCiBuild = process.env.LANGSMITH_CURSOR_UNSIGNED_BUILD === "true";
 const hasPartialReleaseEnvironment =
   missingReleaseEnvironment.length > 0 &&
   missingReleaseEnvironment.length < releaseEnvironment.length;
 
-if (!isReleaseBuild && (process.env.GITHUB_ACTIONS || hasPartialReleaseEnvironment)) {
+if (
+  !isReleaseBuild &&
+  !isUnsignedCiBuild &&
+  (process.env.GITHUB_ACTIONS || hasPartialReleaseEnvironment)
+) {
   throw new Error(`Missing release environment variables: ${missingReleaseEnvironment.join(", ")}`);
 }
 
@@ -385,7 +390,73 @@ function execFileWithSecrets(file: string, args: string[], errorMessage: string)
   }
 }
 
+async function inferMacTeamIdFromSigningCertificate(): Promise<string> {
+  let tmpDir: string | undefined;
+  let keychain: string | undefined;
+  try {
+    tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "langsmith-sea-team-id-"));
+    const certPath = await materializeSecret(
+      process.env.CSC_LINK,
+      path.join(tmpDir, "developer-id-application.p12"),
+      "CSC_LINK",
+    );
+    keychain = path.join(tmpDir, "team-id.keychain-db");
+    const password = randomBytes(32).toString("hex");
+    execFileWithSecrets(
+      "/usr/bin/security",
+      ["create-keychain", "-p", password, keychain],
+      "Failed to create the temporary team-ID keychain",
+    );
+    execFileWithSecrets(
+      "/usr/bin/security",
+      ["unlock-keychain", "-p", password, keychain],
+      "Failed to unlock the temporary team-ID keychain",
+    );
+    execFileWithSecrets(
+      "/usr/bin/security",
+      [
+        "import",
+        certPath,
+        "-P",
+        process.env.CSC_KEY_PASSWORD,
+        "-T",
+        "/usr/bin/codesign",
+        "-f",
+        "pkcs12",
+        "-k",
+        keychain,
+      ],
+      "Failed to import CSC_LINK while inferring the Developer ID team ID",
+    );
+
+    const identities = execFileSync(
+      "/usr/bin/security",
+      ["find-identity", "-v", "-p", "codesigning", keychain],
+      { encoding: "utf-8" },
+    );
+    const identity = [...identities.matchAll(/^\s*\d+\)\s+[0-9A-Fa-f]{40}\s+"([^"]+)"$/gm)]
+      .map((match) => match[1])
+      .find((name) => name.startsWith("Developer ID Application:"));
+    const teamId = identity && /\(([A-Z0-9]{10})\)$/.exec(identity)?.[1];
+    if (!teamId) {
+      throw new Error("CSC_LINK does not contain a Developer ID Application team ID");
+    }
+    return teamId;
+  } finally {
+    if (keychain) {
+      try {
+        execFileSync("/usr/bin/security", ["delete-keychain", keychain]);
+      } catch {
+        // Preserve the original build error if cleanup also fails.
+      }
+    }
+    if (tmpDir) await fs.rm(tmpDir, { force: true, recursive: true });
+  }
+}
+
 // Perform the SEA build in a temporary directory to avoid polluting the source tree with intermediate artifacts.
+const macTeamId =
+  os.platform() === "darwin" && isReleaseBuild ? await inferMacTeamIdFromSigningCertificate() : "";
 await fs.mkdir("bundle", { recursive: true });
 await fs.rm(outfile, { force: true });
 
@@ -403,6 +474,7 @@ await build({
     // config.ts via `typeof __LS_INTEGRATION_VERSION__` → ls_integration_version.
     __LS_INTEGRATION_VERSION__: JSON.stringify(version),
     __LS_RELEASE_API__: JSON.stringify(releaseApi),
+    __LS_MAC_TEAM_ID__: JSON.stringify(macTeamId),
   },
 });
 
@@ -431,7 +503,15 @@ try {
   await fs.rm(seaConfigDir, { force: true, recursive: true });
 }
 
-if (os.platform() === "darwin") {
+if (os.platform() === "darwin" && !isReleaseBuild) {
+  // macOS refuses to execute an injected SEA without at least an ad-hoc
+  // signature. Release builds replace this with the Developer ID signature.
+  execFileSync("/usr/bin/codesign", ["--force", "--sign", "-", executable], {
+    stdio: "inherit",
+  });
+}
+
+if (os.platform() === "darwin" && isReleaseBuild) {
   await cscNotarizeMacOS();
 }
 

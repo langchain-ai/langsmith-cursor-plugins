@@ -6,6 +6,7 @@
  * one CommonJS file embedded in the SEA.
  */
 
+import { spawn } from "node:child_process";
 import { LS_INTEGRATION_VERSION } from "./version.js";
 
 const hooks: Record<string, () => Promise<unknown>> = {
@@ -23,10 +24,42 @@ const hooks: Record<string, () => Promise<unknown>> = {
 };
 
 const hookName = process.argv[2];
-const runHook = hookName ? hooks[hookName] : undefined;
+const runHook = hookName && Object.hasOwn(hooks, hookName) ? hooks[hookName] : undefined;
+
+async function runAutomaticUpdate(): Promise<void> {
+  const { debug, log, warn } = await import("./logger.js");
+  try {
+    const { updateFromGitHub } = await import("./updater.js");
+    const update = await updateFromGitHub();
+    debug(`Automatic update result: ${update.status}`);
+    if (update.status === "updated") {
+      log(`Updated LangSmith tracing binary to ${update.version}`);
+    }
+  } catch (err) {
+    warn(`Automatic update failed: ${err}`);
+  }
+}
+
+function spawnAutomaticUpdate(): void {
+  try {
+    const child = spawn(process.execPath, ["--background-update"], {
+      detached: true,
+      stdio: "ignore",
+      windowsHide: true,
+    });
+    child.once("error", (err) => {
+      console.error(`[langsmith] could not start automatic update: ${err}`);
+    });
+    child.unref();
+  } catch (err) {
+    console.error(`[langsmith] could not start automatic update: ${err}`);
+  }
+}
 
 if (hookName === "--version") {
   console.log(LS_INTEGRATION_VERSION ?? "development");
+} else if (hookName === "--background-update") {
+  void runAutomaticUpdate();
 } else if (!runHook) {
   const supported = Object.keys(hooks).join(", ");
   console.error(
@@ -43,17 +76,7 @@ if (hookName === "--version") {
       process.exitCode = 1;
     } finally {
       if (hookName === "stop") {
-        const { debug, log, warn } = await import("./logger.js");
-        try {
-          const { updateFromGitHub } = await import("./updater.js");
-          const update = await updateFromGitHub();
-          debug(`Automatic update result: ${update.status}`);
-          if (update.status === "updated") {
-            log(`Updated LangSmith tracing binary to ${update.version}`);
-          }
-        } catch (err) {
-          warn(`Automatic update failed: ${err}`);
-        }
+        spawnAutomaticUpdate();
       }
     }
   })();
