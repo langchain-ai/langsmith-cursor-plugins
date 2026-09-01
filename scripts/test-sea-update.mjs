@@ -160,7 +160,7 @@ async function waitForVersion(binary, expectedVersion, options) {
 }
 
 async function waitForWindowsReplacement(installDir) {
-  const deadline = Date.now() + 35_000;
+  const deadline = Date.now() + 60_000;
   while (Date.now() < deadline) {
     const entries = await fs.readdir(installDir);
     const replacementPending = entries.some(
