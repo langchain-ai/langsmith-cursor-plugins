@@ -133,20 +133,8 @@ function extractArchive(archive, destination) {
   run("/usr/bin/ditto", ["-x", "-k", archive, destination]);
 }
 
-function verifySignature(binary) {
-  if (platform() === "win32") {
-    run(
-      "powershell.exe",
-      [
-        "-NoProfile",
-        "-NonInteractive",
-        "-Command",
-        "$signature = Get-AuthenticodeSignature -LiteralPath $env:LANGSMITH_UPDATE_PATH; if ($signature.Status -ne 'Valid') { exit 1 }",
-      ],
-      { env: { ...process.env, LANGSMITH_UPDATE_PATH: binary } },
-    );
-    return;
-  }
+function verifyMacSignature(binary) {
+  if (platform() !== "darwin") return;
   run("/usr/bin/codesign", ["--verify", "--deep", "--strict", binary]);
 }
 
@@ -236,8 +224,8 @@ async function runTest() {
       }),
       oldVersion,
     );
-    verifySignature(installedBinary);
-    verifySignature(newBinary);
+    verifyMacSignature(installedBinary);
+    verifyMacSignature(newBinary);
 
     serverProcess = fork(
       fileURLToPath(import.meta.url),
@@ -288,7 +276,7 @@ async function runTest() {
         cause: error,
       });
     }
-    verifySignature(installedBinary);
+    verifyMacSignature(installedBinary);
     console.log(`SEA auto-update E2E passed: ${oldVersion} -> ${newVersion}`);
   } finally {
     serverProcess?.kill("SIGTERM");

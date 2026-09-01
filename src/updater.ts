@@ -124,31 +124,10 @@ async function verifyMacSignature(path: string): Promise<void> {
   });
 }
 
-async function verifyWindowsSignature(path: string): Promise<void> {
-  await new Promise<void>((resolvePromise, reject) => {
-    execFile(
-      "powershell.exe",
-      [
-        "-NoProfile",
-        "-NonInteractive",
-        "-Command",
-        "$signature = Get-AuthenticodeSignature -LiteralPath $env:LANGSMITH_UPDATE_PATH; if ($signature.Status -ne 'Valid') { exit 1 }",
-      ],
-      {
-        env: { ...process.env, LANGSMITH_UPDATE_PATH: path },
-        timeout: 15_000,
-        windowsHide: true,
-      },
-      (error) => (error ? reject(error) : resolvePromise()),
-    );
-  });
-}
-
 function defaultSignatureVerifier(
   runtimePlatform: NodeJS.Platform,
 ): ((path: string) => Promise<void>) | undefined {
   if (runtimePlatform === "darwin") return verifyMacSignature;
-  if (runtimePlatform === "win32") return verifyWindowsSignature;
   return undefined;
 }
 
