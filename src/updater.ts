@@ -1,10 +1,8 @@
-/** Best-effort, verified self-update support for SEA release binaries. */
-
 import { execFile, spawn } from "node:child_process";
 import { createHash } from "node:crypto";
-import { chmod, mkdir, open, realpath, rename, stat, unlink, writeFile } from "node:fs/promises";
-import { homedir, arch as hostArch, platform as hostPlatform } from "node:os";
-import { join, resolve } from "node:path";
+import * as fs from "node:fs/promises";
+import * as os from "node:os";
+import * as path from "node:path";
 import { debug } from "./logger.js";
 import { LS_INTEGRATION_VERSION } from "./version.js";
 
@@ -17,20 +15,8 @@ const RELEASE_API =
 const EXECUTABLE_NAME = "langsmith-cursor-tracing";
 const SUPPORTED_TARGETS: Readonly<Record<string, ReadonlySet<string>>> = {
   darwin: new Set(["arm64"]),
-  linux: new Set([
-    "arm",
-    "arm64",
-    "ia32",
-    "loong64",
-    "mips",
-    "mipsel",
-    "ppc",
-    "ppc64",
-    "riscv64",
-    "s390",
-    "x64",
-  ]),
-  win32: new Set(["arm64", "ia32", "x64"]),
+  linux: new Set(["arm64", "x64"]),
+  win32: new Set(["arm64", "x64"]),
 };
 
 const CHECK_INTERVAL_MS = 60 * 60 * 1000;
@@ -166,22 +152,14 @@ function defaultSignatureVerifier(
   return undefined;
 }
 
-async function canonicalPath(path: string): Promise<string> {
-  try {
-    return await realpath(path);
-  } catch {
-    return resolve(path);
-  }
-}
-
 async function scheduleWindowsReplacement(
   source: string,
   target: string,
   installDir: string,
   now: number,
 ): Promise<void> {
-  const script = join(installDir, `.update.${process.pid}.${now}.ps1`);
-  await writeFile(
+  const script = path.join(installDir, `.update.${process.pid}.${now}.ps1`);
+  await fs.writeFile(
     script,
     `param([string]$Source, [string]$Target, [int]$ParentPid)
 try {
@@ -223,7 +201,7 @@ try {
       child.once("error", reject);
     });
   } catch (error) {
-    await unlink(script).catch(() => undefined);
+    await fs.unlink(script).catch(() => undefined);
     throw error;
   }
   child.unref();
@@ -231,18 +209,42 @@ try {
 
 async function acquireLock(path: string, now: number) {
   try {
-    return await open(path, "wx", 0o600);
+    return await fs.open(path, "wx", 0o600);
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code !== "EEXIST") throw error;
   }
 
+  let existingLock: fs.FileHandle | undefined;
   try {
-    const lockStat = await stat(path);
+    existingLock = await fs.open(path, "r");
+    const lockStat = await existingLock.stat();
     if (now - lockStat.mtimeMs <= LOCK_MAX_AGE_MS) return undefined;
-    await unlink(path);
-    return await open(path, "wx", 0o600);
   } catch {
     return undefined;
+  } finally {
+    await existingLock?.close().catch(() => undefined);
+  }
+
+  try {
+    await fs.unlink(path);
+    return await fs.open(path, "wx", 0o600);
+  } catch {
+    return undefined;
+  }
+}
+
+async function openUpdateCheck(path: string): Promise<fs.FileHandle> {
+  try {
+    return await fs.open(path, "r+");
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+  }
+
+  try {
+    return await fs.open(path, "wx+", 0o600);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== "EEXIST") throw error;
+    return await fs.open(path, "r+");
   }
 }
 
@@ -275,7 +277,7 @@ async function downloadAsset(
     throw new Error(`failed to download release asset: HTTP ${response.status}`);
   }
 
-  const handle = await open(destination, "wx", 0o700);
+  const handle = await fs.open(destination, "wx", 0o700);
   const hash = createHash("sha256");
   let bytesWritten = 0;
   try {
@@ -310,17 +312,17 @@ export async function updateFromGitHub(options: UpdateOptions = {}): Promise<Upd
   const currentVersion = options.currentVersion ?? LS_INTEGRATION_VERSION;
   if (!currentVersion) return { status: "current" };
 
-  const runtimePlatform = options.runtimePlatform ?? hostPlatform();
-  const runtimeArch = options.runtimeArch ?? hostArch();
+  const runtimePlatform = options.runtimePlatform ?? os.platform();
+  const runtimeArch = options.runtimeArch ?? os.arch();
   const installedTarget = getSeaReleaseTarget(runtimePlatform, runtimeArch, currentVersion);
   if (!installedTarget) return { status: "unsupported" };
 
-  const installDir = options.installDir ?? join(homedir(), ".langsmith");
-  const target = join(installDir, installedTarget.executableName);
+  const installDir = options.installDir ?? path.join(os.homedir(), ".langsmith");
+  const target = path.join(installDir, installedTarget.executableName);
   const executablePath = options.executablePath ?? process.execPath;
   const [canonicalExecutablePath, canonicalTarget] = await Promise.all([
-    canonicalPath(executablePath),
-    canonicalPath(target),
+    fs.realpath(executablePath),
+    fs.realpath(target),
   ]);
   if (canonicalExecutablePath !== canonicalTarget) {
     debug(`Skipping auto-update outside install path: ${executablePath} != ${target}`);
@@ -329,23 +331,36 @@ export async function updateFromGitHub(options: UpdateOptions = {}): Promise<Upd
 
   const now = (options.now ?? Date.now)();
   const checkIntervalMs = options.checkIntervalMs ?? CHECK_INTERVAL_MS;
-  const checkedFile = join(installDir, ".last-update-check");
-  const lockFile = join(installDir, ".update.lock");
-  await mkdir(installDir, { recursive: true, mode: 0o700 });
+  const checkedFile = path.join(installDir, ".last-update-check");
+  const lockFile = path.join(installDir, ".update.lock");
+  await fs.mkdir(installDir, { recursive: true, mode: 0o700 });
 
+  let checkedHandle: fs.FileHandle | undefined;
   try {
-    const checked = await stat(checkedFile);
-    if (now - checked.mtimeMs < checkIntervalMs) return { status: "throttled" };
+    checkedHandle = await fs.open(checkedFile, "r+");
+    const checked = await checkedHandle.stat();
+    if (now - checked.mtimeMs < checkIntervalMs) {
+      await checkedHandle.close();
+      return { status: "throttled" };
+    }
   } catch {
+    await checkedHandle?.close().catch(() => undefined);
+    checkedHandle = undefined;
     // First check.
   }
 
   const lock = await acquireLock(lockFile, now);
-  if (!lock) return { status: "busy" };
+  if (!lock) {
+    await checkedHandle?.close().catch(() => undefined);
+    return { status: "busy" };
+  }
 
-  let temporaryFile: string | undefined;
+  let tmpFile: string | undefined;
   try {
-    await writeFile(checkedFile, `${currentVersion}\n`, { mode: 0o600 });
+    checkedHandle ??= await openUpdateCheck(checkedFile);
+    await checkedHandle.truncate(0);
+    await checkedHandle.writeFile(`${currentVersion}\n`);
+    await checkedHandle.sync();
     const fetchImpl = options.fetchImpl ?? fetch;
     const releaseResponse = await fetchImpl(RELEASE_API, {
       headers: {
@@ -369,27 +384,28 @@ export async function updateFromGitHub(options: UpdateOptions = {}): Promise<Upd
       throw new Error(`GitHub release ${release.tag_name} has no ${releaseTarget.assetName} asset`);
     }
 
-    temporaryFile = join(
+    tmpFile = path.join(
       installDir,
       `.${EXECUTABLE_NAME}.${process.pid}.${now}.tmp${runtimePlatform === "win32" ? ".exe" : ""}`,
     );
-    await downloadAsset(asset, temporaryFile, fetchImpl, currentVersion, RELEASE_API);
-    await chmod(temporaryFile, 0o755);
+    await downloadAsset(asset, tmpFile, fetchImpl, currentVersion, RELEASE_API);
+    await fs.chmod(tmpFile, 0o755);
     const verifySignature = options.verifySignature ?? defaultSignatureVerifier(runtimePlatform);
-    await verifySignature?.(temporaryFile);
+    await verifySignature?.(tmpFile);
 
     if (runtimePlatform === "win32") {
-      await scheduleWindowsReplacement(temporaryFile, target, installDir, now);
-      temporaryFile = undefined;
+      await scheduleWindowsReplacement(tmpFile, target, installDir, now);
+      tmpFile = undefined;
       return { status: "scheduled", version };
     }
 
-    await rename(temporaryFile, target);
-    temporaryFile = undefined;
+    await fs.rename(tmpFile, target);
+    tmpFile = undefined;
     return { status: "updated", version };
   } finally {
+    await checkedHandle?.close().catch(() => undefined);
     await lock.close().catch(() => undefined);
-    await unlink(lockFile).catch(() => undefined);
-    if (temporaryFile) await unlink(temporaryFile).catch(() => undefined);
+    await fs.unlink(lockFile).catch(() => undefined);
+    if (tmpFile) await fs.unlink(tmpFile).catch(() => undefined);
   }
 }
