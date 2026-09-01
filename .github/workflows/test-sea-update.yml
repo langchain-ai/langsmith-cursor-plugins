@@ -1,21 +1,9 @@
 name: Test SEA auto-update
 
 on:
-  workflow_dispatch:
   push:
-    branches:
-      - main
-    paths:
-      - ".github/workflows/test-sea-update.yml"
-      - "esbuild.sea.config.mjs"
-      - "hooks/hooks.sea.json"
-      - "macos-entitlements.plist"
-      - "package.json"
-      - "pnpm-lock.yaml"
-      - "scripts/install.sea.mjs"
-      - "scripts/test-sea-update.mjs"
-      - "sea-config.json"
-      - "src/**"
+    branches: [main]
+  pull_request:
 
 permissions:
   contents: read
