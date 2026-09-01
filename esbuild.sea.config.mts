@@ -71,6 +71,7 @@ if (process.env.GITHUB_REF_TYPE === "tag" && process.env.GITHUB_REF_NAME !== `v$
 async function cscNotarizeMacOS() {
   let tmpDir: string | undefined;
   let keychain: string | undefined;
+  let originalKeychains: string[] | undefined;
 
   if (!/^[A-Za-z0-9]+$/.test(process.env.APPLE_API_KEY_ID)) {
     throw new Error("APPLE_API_KEY_ID must be alphanumeric");
@@ -95,12 +96,25 @@ async function cscNotarizeMacOS() {
 
     keychain = path.join(tmpDir, "app-signing.keychain-db");
     const password = randomBytes(32).toString("hex");
+    originalKeychains = [
+      ...execFileSync("/usr/bin/security", ["list-keychains", "-d", "user"], {
+        encoding: "utf-8",
+      }).matchAll(/"([^"]+)"/g),
+    ].map((match) => match[1]);
 
     execFileWithSecrets(
       "/usr/bin/security",
       ["create-keychain", "-p", password, keychain],
       "Failed to create the temporary signing keychain",
     );
+    execFileSync("/usr/bin/security", [
+      "list-keychains",
+      "-d",
+      "user",
+      "-s",
+      keychain,
+      ...originalKeychains,
+    ]);
 
     execFileSync("/usr/bin/security", ["set-keychain-settings", "-lut", "21600", keychain]);
     execFileWithSecrets(
@@ -207,6 +221,19 @@ async function cscNotarizeMacOS() {
     // Notarization tickets cannot be stapled to standalone Mach-O executables.
     // Apple associates this ticket with the signed executable's code directory.
   } finally {
+    if (originalKeychains) {
+      try {
+        execFileSync("/usr/bin/security", [
+          "list-keychains",
+          "-d",
+          "user",
+          "-s",
+          ...originalKeychains,
+        ]);
+      } catch {
+        // Preserve the original build error if search-list cleanup also fails.
+      }
+    }
     if (keychain) {
       try {
         execFileSync("/usr/bin/security", ["delete-keychain", keychain]);
