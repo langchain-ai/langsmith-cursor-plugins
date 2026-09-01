@@ -247,86 +247,6 @@ async function cscNotarizeMacOS() {
   }
 }
 
-async function cscSignWindows() {
-  let tmpDir: string | undefined;
-
-  try {
-    const signTool = await findSignTool();
-    tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "langsmith-sea-release-"));
-    const certPath = await materializeSecret(
-      process.env.CSC_LINK,
-      path.join(tmpDir, "code-signing.pfx"),
-      "CSC_LINK",
-    );
-
-    execFileWithSecrets(
-      signTool,
-      [
-        "sign",
-        "/a",
-        "/fd",
-        "SHA256",
-        "/td",
-        "SHA256",
-        "/tr",
-        "http://timestamp.digicert.com",
-        "/f",
-        certPath,
-        "/p",
-        process.env.CSC_KEY_PASSWORD,
-        executable,
-      ],
-      "Failed to Authenticode-sign the Windows executable",
-    );
-
-    execFileSync(signTool, ["verify", "/pa", executable], { stdio: "inherit" });
-  } finally {
-    if (tmpDir) {
-      await fs.rm(tmpDir, { force: true, recursive: true });
-    }
-  }
-}
-
-async function findSignTool() {
-  try {
-    const match = execFileSync("where.exe", ["signtool.exe"], { encoding: "utf-8" })
-      .split(/\r?\n/)
-      .find(Boolean);
-    if (match) return match;
-  } catch {
-    // Search the standard Windows SDK installation below.
-  }
-
-  const programFiles = process.env["ProgramFiles(x86)"] ?? process.env.ProgramFiles;
-  if (programFiles) {
-    const sdkBin = path.join(programFiles, "Windows Kits", "10", "bin");
-    const versions = await fs
-      .readdir(sdkBin, { withFileTypes: true })
-      .then((entries) =>
-        entries
-          .filter((entry) => entry.isDirectory())
-          .map((entry) => entry.name)
-          .sort((left, right) => right.localeCompare(left, undefined, { numeric: true })),
-      )
-      .catch(() => []);
-    const toolArchitectures = buildTarget.endsWith("-arm64") ? ["arm64", "x64"] : ["x64"];
-
-    for (const version of versions) {
-      for (const toolArch of toolArchitectures) {
-        const candidate = path.join(sdkBin, version, toolArch, "signtool.exe");
-        try {
-          await fs.access(candidate);
-          return candidate;
-        } catch {
-          // Try the next installed SDK or host architecture.
-        }
-      }
-    }
-  }
-
-  throw new Error("signtool.exe was not found in PATH or the Windows SDK");
-}
-
 async function packageRelease() {
   const packageInputs = [
     executable,
@@ -374,23 +294,10 @@ const releaseName = `${releaseStem}${executableExt}`;
 const releaseExecutable = `dist/${releaseName}`;
 const releaseArchive = `dist/${releaseStem}.zip`;
 
-const releaseEnvironment = (() => {
-  if (os.platform() === "darwin") {
-    return [
-      "APPLE_API_KEY",
-      "APPLE_API_KEY_ID",
-      "APPLE_API_ISSUER",
-      "CSC_LINK",
-      "CSC_KEY_PASSWORD",
-    ];
-  }
-
-  if (os.platform() === "win32") {
-    return ["CSC_LINK", "CSC_KEY_PASSWORD"];
-  }
-
-  return [];
-})();
+const releaseEnvironment =
+  os.platform() === "darwin"
+    ? ["APPLE_API_KEY", "APPLE_API_KEY_ID", "APPLE_API_ISSUER", "CSC_LINK", "CSC_KEY_PASSWORD"]
+    : [];
 
 const missingReleaseEnvironment = releaseEnvironment.filter((name) => !process.env[name]);
 const isReleaseBuild = missingReleaseEnvironment.length === 0;
@@ -526,8 +433,6 @@ try {
 
 if (os.platform() === "darwin") {
   await cscNotarizeMacOS();
-} else if (os.platform() === "win32") {
-  await cscSignWindows();
 }
 
 const builtVersion = execFileSync(executable, ["--version"], { encoding: "utf-8" }).trim();
