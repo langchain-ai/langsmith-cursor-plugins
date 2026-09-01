@@ -35,11 +35,7 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: langsmith-cursor-tracing-darwin-arm64
-          path: |
-            dist/langsmith-cursor-tracing-darwin-arm64.tar.gz
-            dist/langsmith-cursor-tracing-darwin-arm64.tar.gz.sha256
-            dist/langsmith-cursor-tracing-darwin-arm64
-            dist/langsmith-cursor-tracing-darwin-arm64.sha256
+          path: dist/langsmith-cursor-tracing-darwin-arm64-*
           if-no-files-found: error
       - name: Publish release assets
         if: ${{ startsWith(github.ref, 'refs/tags/') }}
@@ -48,17 +44,11 @@ jobs:
         run: |
           if gh release view "$GITHUB_REF_NAME" > /dev/null 2>&1; then
             gh release upload "$GITHUB_REF_NAME" \
-              dist/langsmith-cursor-tracing-darwin-arm64 \
-              dist/langsmith-cursor-tracing-darwin-arm64.sha256 \
-              dist/langsmith-cursor-tracing-darwin-arm64.tar.gz \
-              dist/langsmith-cursor-tracing-darwin-arm64.tar.gz.sha256 \
+              dist/langsmith-cursor-tracing-darwin-arm64-* \
               --clobber
           else
             gh release create "$GITHUB_REF_NAME" \
-              dist/langsmith-cursor-tracing-darwin-arm64 \
-              dist/langsmith-cursor-tracing-darwin-arm64.sha256 \
-              dist/langsmith-cursor-tracing-darwin-arm64.tar.gz \
-              dist/langsmith-cursor-tracing-darwin-arm64.tar.gz.sha256 \
+              dist/langsmith-cursor-tracing-darwin-arm64-* \
               --verify-tag \
               --generate-notes
           fi

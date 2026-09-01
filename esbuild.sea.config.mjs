@@ -36,9 +36,9 @@ if (
 
 const outfile = "bundle/sea.cjs";
 const executable = "bin/langsmith-cursor-tracing";
-const releaseName = "langsmith-cursor-tracing-darwin-arm64";
+const releaseName = `langsmith-cursor-tracing-darwin-arm64-${version}`;
 const releaseExecutable = `dist/${releaseName}`;
-const releaseArchive = `dist/${releaseName}.tar.gz`;
+const releaseArchive = `dist/${releaseName}.zip`;
 const releaseEnvironment = [
   "APPLE_API_KEY",
   "APPLE_API_KEY_ID",
@@ -125,8 +125,8 @@ function execFileWithSecrets(file, args, errorMessage) {
   }
 }
 
-await fs.rm("bundle", { force: true, recursive: true });
 await fs.mkdir("bundle", { recursive: true });
+await fs.rm(outfile, { force: true });
 
 await build({
   entryPoints: ["dist/sea.js"],
@@ -318,10 +318,12 @@ try {
   }
 
   await fs.copyFile(executable, releaseExecutable);
+  await fs.rm(releaseArchive, { force: true });
   execFileSync(
-    "/usr/bin/tar",
+    "/usr/bin/zip",
     [
-      "-czf",
+      "-q",
+      "-r",
       releaseArchive,
       executable,
       "hooks/hooks.sea.json",
