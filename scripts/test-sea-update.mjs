@@ -6,8 +6,9 @@ import { createHash, randomUUID } from "node:crypto";
 import { createReadStream } from "node:fs";
 import * as fs from "node:fs/promises";
 import { createServer } from "node:http";
-import { tmpdir } from "node:os";
+import { platform, tmpdir } from "node:os";
 import { basename, join } from "node:path";
+import { setTimeout as delay } from "node:timers/promises";
 import { fileURLToPath } from "node:url";
 
 const SERVER_MODE = "--serve";
@@ -124,6 +125,52 @@ function runCommand(command, options = {}) {
   }).trim();
 }
 
+function extractArchive(archive, destination) {
+  if (platform() === "win32") {
+    run("tar.exe", ["-x", "-f", archive, "-C", destination]);
+    return;
+  }
+  run("/usr/bin/ditto", ["-x", "-k", archive, destination]);
+}
+
+function verifySignature(binary) {
+  if (platform() === "win32") {
+    run(
+      "powershell.exe",
+      [
+        "-NoProfile",
+        "-NonInteractive",
+        "-Command",
+        "$signature = Get-AuthenticodeSignature -LiteralPath $env:LANGSMITH_UPDATE_PATH; if ($signature.Status -ne 'Valid') { exit 1 }",
+      ],
+      { env: { ...process.env, LANGSMITH_UPDATE_PATH: binary } },
+    );
+    return;
+  }
+  run("/usr/bin/codesign", ["--verify", "--deep", "--strict", binary]);
+}
+
+async function waitForVersion(binary, expectedVersion, options) {
+  const deadline = Date.now() + 30_000;
+  let observedVersion;
+  let lastError;
+
+  while (Date.now() < deadline) {
+    try {
+      observedVersion = run(binary, ["--version"], options);
+      if (observedVersion === expectedVersion) return;
+    } catch (error) {
+      lastError = error;
+    }
+    await delay(250);
+  }
+
+  throw new Error(
+    `Installed SEA version is ${observedVersion ?? "unavailable"}, expected ${expectedVersion}`,
+    { cause: lastError },
+  );
+}
+
 async function runTest() {
   const oldArchive = option("--old-archive");
   const newBinary = option("--new-binary");
@@ -153,6 +200,7 @@ async function runTest() {
   const childEnvironment = {
     ...process.env,
     HOME: testHome,
+    USERPROFILE: testHome,
     TRACE_TO_LANGSMITH: "false",
     LANGSMITH_CURSOR_DEBUG: "true",
     LANGSMITH_CURSOR_LOG_FILE: join(testHome, ".cursor", "langsmith-hook.log"),
@@ -160,16 +208,17 @@ async function runTest() {
 
   let serverProcess;
   try {
-    run("/usr/bin/ditto", ["-x", "-k", oldArchive, oldPackage]);
+    extractArchive(oldArchive, oldPackage);
     run(process.execPath, [join(oldPackage, "scripts", "install.sea.mjs")], {
       cwd: oldPackage,
       env: childEnvironment,
     });
 
+    const executableExtension = platform() === "win32" ? ".exe" : "";
     const installedBinary = join(
       testHome,
       ".langsmith",
-      "langsmith-cursor-tracing",
+      `langsmith-cursor-tracing${executableExtension}`,
     );
     const installedHooks = JSON.parse(
       await fs.readFile(join(testHome, ".cursor", "hooks.json"), "utf-8"),
@@ -187,13 +236,8 @@ async function runTest() {
       }),
       oldVersion,
     );
-    run("/usr/bin/codesign", [
-      "--verify",
-      "--deep",
-      "--strict",
-      installedBinary,
-    ]);
-    run("/usr/bin/codesign", ["--verify", "--deep", "--strict", newBinary]);
+    verifySignature(installedBinary);
+    verifySignature(newBinary);
 
     serverProcess = fork(
       fileURLToPath(import.meta.url),
@@ -225,34 +269,35 @@ async function runTest() {
       transcript_path: null,
     });
 
-    runCommand(stopCommand, {
+    runCommand(stopCommand.replaceAll("${HOME}", testHome), {
       cwd: testHome,
       env: childEnvironment,
       input: stopPayload,
     });
 
-    const installedVersion = run(installedBinary, ["--version"], {
-      cwd: testHome,
-      env: childEnvironment,
-    });
-    if (installedVersion !== newVersion) {
+    try {
+      await waitForVersion(installedBinary, newVersion, {
+        cwd: testHome,
+        env: childEnvironment,
+      });
+    } catch (error) {
       const hookLog = await fs
         .readFile(childEnvironment.LANGSMITH_CURSOR_LOG_FILE, "utf-8")
         .catch(() => "<no hook log>");
-      throw new Error(
-        `Installed SEA version is ${installedVersion}, expected ${newVersion}\nHook log:\n${hookLog}`,
-      );
+      throw new Error(`${error.message}\nHook log:\n${hookLog}`, {
+        cause: error,
+      });
     }
-    run("/usr/bin/codesign", [
-      "--verify",
-      "--deep",
-      "--strict",
-      installedBinary,
-    ]);
+    verifySignature(installedBinary);
     console.log(`SEA auto-update E2E passed: ${oldVersion} -> ${newVersion}`);
   } finally {
     serverProcess?.kill("SIGTERM");
-    await fs.rm(testRoot, { recursive: true, force: true });
+    await fs.rm(testRoot, {
+      recursive: true,
+      force: true,
+      maxRetries: 5,
+      retryDelay: 200,
+    });
   }
 }
 

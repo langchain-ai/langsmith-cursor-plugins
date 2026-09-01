@@ -22,6 +22,18 @@ jobs:
           - runner: macos-26
             platform: darwin
             arch: arm64
+            executable_ext: ""
+            csc_link_secret: CSC_LINK
+            csc_key_password_secret: CSC_KEY_PASSWORD
+            old_version: 0.0.1
+            new_version: 0.0.2
+            release_api: http://127.0.0.1:43119/releases/latest
+          - runner: windows-2025
+            platform: win32
+            arch: x64
+            executable_ext: .exe
+            csc_link_secret: WINDOWS_CSC_LINK
+            csc_key_password_secret: WINDOWS_CSC_KEY_PASSWORD
             old_version: 0.0.1
             new_version: 0.0.2
             release_api: http://127.0.0.1:43119/releases/latest
@@ -40,7 +52,7 @@ jobs:
           mode: firewall-free
       - run: pnpm install --frozen-lockfile
 
-      - name: Build, sign, and notarize old SEA
+      - name: Build old SEA
         run: pnpm build:sea
         env:
           LANGSMITH_CURSOR_INTERNAL_VERSION: ${{ matrix.old_version }}
@@ -48,10 +60,10 @@ jobs:
           APPLE_API_KEY: ${{ secrets.APPLE_API_KEY }}
           APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
           APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
-          CSC_LINK: ${{ secrets.CSC_LINK }}
-          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+          CSC_LINK: ${{ secrets[matrix.csc_link_secret] }}
+          CSC_KEY_PASSWORD: ${{ secrets[matrix.csc_key_password_secret] }}
 
-      - name: Build, sign, and notarize new SEA
+      - name: Build new SEA
         run: pnpm build:sea
         env:
           LANGSMITH_CURSOR_INTERNAL_VERSION: ${{ matrix.new_version }}
@@ -59,14 +71,14 @@ jobs:
           APPLE_API_KEY: ${{ secrets.APPLE_API_KEY }}
           APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
           APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
-          CSC_LINK: ${{ secrets.CSC_LINK }}
-          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+          CSC_LINK: ${{ secrets[matrix.csc_link_secret] }}
+          CSC_KEY_PASSWORD: ${{ secrets[matrix.csc_key_password_secret] }}
 
       - name: Exercise Stop-hook auto-update
         run: >-
           node scripts/test-sea-update.mjs
           --old-archive dist/langsmith-cursor-tracing-${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.old_version }}.zip
-          --new-binary dist/langsmith-cursor-tracing-${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.new_version }}
+          --new-binary dist/langsmith-cursor-tracing-${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.new_version }}${{ matrix.executable_ext }}
           --old-version ${{ matrix.old_version }}
           --new-version ${{ matrix.new_version }}
           --release-api ${{ matrix.release_api }}
