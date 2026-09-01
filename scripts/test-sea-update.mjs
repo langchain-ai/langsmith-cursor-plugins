@@ -159,21 +159,6 @@ async function waitForVersion(binary, expectedVersion, options) {
   );
 }
 
-async function waitForWindowsReplacement(installDir) {
-  const deadline = Date.now() + 60_000;
-  while (Date.now() < deadline) {
-    const entries = await fs.readdir(installDir);
-    const replacementPending = entries.some(
-      (entry) =>
-        entry.startsWith(".langsmith-cursor-tracing.") &&
-        entry.endsWith(".tmp.exe"),
-    );
-    if (!replacementPending) return;
-    await delay(100);
-  }
-  throw new Error("Windows replacement worker did not consume the downloaded executable");
-}
-
 async function runTest() {
   const oldArchive = option("--old-archive");
   const newBinary = option("--new-binary");
@@ -279,9 +264,6 @@ async function runTest() {
     });
 
     try {
-      if (platform() === "win32") {
-        await waitForWindowsReplacement(join(testHome, ".langsmith"));
-      }
       await waitForVersion(installedBinary, newVersion, {
         cwd: testHome,
         env: childEnvironment,
@@ -290,16 +272,13 @@ async function runTest() {
       const hookLog = await fs
         .readFile(childEnvironment.LANGSMITH_CURSOR_LOG_FILE, "utf-8")
         .catch(() => "<no hook log>");
-      const updateError = await fs
-        .readFile(join(testHome, ".langsmith", ".update-error.log"), "utf-8")
-        .catch(() => "<no replacement-worker error>");
       const updateFiles = await fs
         .readdir(join(testHome, ".langsmith"))
         .then((entries) => entries.join("\n"))
         .catch(() => "<could not list updater files>");
       const processes =
         platform() === "win32"
-          ? ["langsmith-cursor-tracing.exe", "powershell.exe"]
+          ? ["langsmith-cursor-tracing.exe"]
               .map((image) => {
                 try {
                   return run("tasklist.exe", ["/FI", `IMAGENAME eq ${image}`]);
@@ -310,7 +289,7 @@ async function runTest() {
               .join("\n")
           : "<not Windows>";
       throw new Error(
-        `${error.message}\nHook log:\n${hookLog}\nWorker error:\n${updateError}\nUpdater files:\n${updateFiles}\nProcesses:\n${processes}`,
+        `${error.message}\nHook log:\n${hookLog}\nUpdater files:\n${updateFiles}\nProcesses:\n${processes}`,
         { cause: error },
       );
     }

@@ -50,10 +50,6 @@ if (hookName === "--version") {
           debug(`Automatic update result: ${update.status}`);
           if (update.status === "updated") {
             log(`Updated LangSmith tracing binary to ${update.version}`);
-          } else if (update.status === "scheduled") {
-            log(
-              `Downloaded LangSmith tracing ${update.version}; it will be installed after this process exits`,
-            );
           }
         } catch (err) {
           warn(`Automatic update failed: ${err}`);
