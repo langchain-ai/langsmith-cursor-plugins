@@ -26,10 +26,10 @@ if (major < 25 || (major === 25 && minor < 5)) {
   throw new Error("Building the SEA requires Node.js >= 25.5.0 (--build-sea support)");
 }
 
-if (os.platform() !== "darwin" || os.arch() !== "arm64") {
-  throw new Error(
-    `The release binary must be built on darwin-arm64, got ${os.platform()}-${os.arch()}`,
-  );
+const buildTarget = `${os.platform()}-${os.arch()}`;
+const supportedBuildTargets = new Set(["darwin-arm64", "win32-arm64", "win32-x64"]);
+if (!supportedBuildTargets.has(buildTarget)) {
+  throw new Error(`Unsupported SEA build target: ${buildTarget}`);
 }
 
 const packageJson = JSON.parse(
@@ -136,7 +136,6 @@ async function cscNotarizeMacOS() {
       { encoding: "utf-8" },
     );
 
-    console.log("identities:", identities);
     identity = [...identities.matchAll(/^\s*\d+\)\s+[0-9A-Fa-f]{40}\s+"([^"]+)"$/gm)]
       .map((match) => match[1])
       .find((name) => name.startsWith("Developer ID Application:"));
@@ -169,12 +168,6 @@ async function cscNotarizeMacOS() {
       ["--verify", "--deep", "--strict", "--verbose=2", executable],
       { stdio: "inherit" },
     );
-
-    const builtVersion = execFileSync(executable, ["--version"], { encoding: "utf-8" }).trim();
-
-    if (builtVersion !== version) {
-      throw new Error(`Built executable reports version ${builtVersion}, expected ${version}`);
-    }
 
     const notarizationArchive = path.join(tmpDir, `${releaseName}-notarization.zip`);
 
@@ -213,34 +206,6 @@ async function cscNotarizeMacOS() {
 
     // Notarization tickets cannot be stapled to standalone Mach-O executables.
     // Apple associates this ticket with the signed executable's code directory.
-    await fs.copyFile(executable, releaseExecutable);
-    await fs.rm(releaseArchive, { force: true });
-    execFileSync(
-      "/usr/bin/zip",
-      [
-        "-q",
-        "-r",
-        releaseArchive,
-        executable,
-        "hooks/hooks.sea.json",
-        ".cursor-plugin/plugin.json",
-        "scripts/install.sea.mjs",
-        "README.md",
-      ],
-      { stdio: "inherit" },
-    );
-
-    await Promise.all(
-      [releaseExecutable, releaseArchive].map(async (input) => {
-        const hash = createHash("sha256");
-        for await (const chunk of createReadStream(input)) {
-          hash.update(chunk);
-        }
-        await fs.writeFile(`${input}.sha256`, `${hash.digest("hex")}  ${path.basename(input)}\n`);
-      }),
-    );
-
-    console.log(`Built, signed${isReleaseBuild ? ", notarized" : ""}, and packaged ${releaseName}`);
   } finally {
     if (keychain) {
       try {
@@ -255,18 +220,110 @@ async function cscNotarizeMacOS() {
   }
 }
 
+async function cscSignWindows() {
+  let tmpDir: string | undefined;
+
+  try {
+    tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "langsmith-sea-release-"));
+    const certPath = await materializeSecret(
+      process.env.CSC_LINK,
+      path.join(tmpDir, "code-signing.pfx"),
+      "CSC_LINK",
+    );
+
+    execFileWithSecrets(
+      "signtool.exe",
+      [
+        "sign",
+        "/a",
+        "/fd",
+        "SHA256",
+        "/td",
+        "SHA256",
+        "/tr",
+        "http://timestamp.digicert.com",
+        "/f",
+        certPath,
+        "/p",
+        process.env.CSC_KEY_PASSWORD,
+        executable,
+      ],
+      "Failed to Authenticode-sign the Windows executable",
+    );
+
+    execFileSync("signtool.exe", ["verify", "/pa", executable], { stdio: "inherit" });
+  } finally {
+    if (tmpDir) {
+      await fs.rm(tmpDir, { force: true, recursive: true });
+    }
+  }
+}
+
+async function packageRelease() {
+  const packageInputs = [
+    executable,
+    "hooks/hooks.sea.json",
+    ".cursor-plugin/plugin.json",
+    "scripts/install.sea.mjs",
+    "README.md",
+  ];
+
+  await fs.mkdir("dist", { recursive: true });
+  await fs.copyFile(executable, releaseExecutable);
+  await fs.rm(releaseArchive, { force: true });
+
+  if (os.platform() === "win32") {
+    execFileSync("tar.exe", ["-a", "-c", "-f", releaseArchive, ...packageInputs], {
+      stdio: "inherit",
+    });
+  } else if (os.platform() === "darwin") {
+    execFileSync("/usr/bin/zip", ["-q", "-r", releaseArchive, ...packageInputs], {
+      stdio: "inherit",
+    });
+  }
+
+  await Promise.all(
+    [releaseExecutable, releaseArchive].map(async (input) => {
+      const hash = createHash("sha256");
+      for await (const chunk of createReadStream(input)) {
+        hash.update(chunk);
+      }
+      await fs.writeFile(`${input}.sha256`, `${hash.digest("hex")}  ${path.basename(input)}\n`);
+    }),
+  );
+
+  console.log(`Built packaged ${releaseName}`);
+}
+
 const outfile = "bundle/sea.cjs";
-const executable = "bin/langsmith-cursor-tracing";
-const releaseName = `langsmith-cursor-tracing-darwin-arm64-${version}`;
+
+const executableExt = os.platform() === "win32" ? ".exe" : "";
+const executable = `bin/langsmith-cursor-tracing${executableExt}`;
+
+const releaseStem = `langsmith-cursor-tracing-${os.platform()}-${os.arch()}-${version}`;
+const releaseName = `${releaseStem}${executableExt}`;
+
 const releaseExecutable = `dist/${releaseName}`;
-const releaseArchive = `dist/${releaseName}.zip`;
-const releaseEnvironment = [
-  "APPLE_API_KEY",
-  "APPLE_API_KEY_ID",
-  "APPLE_API_ISSUER",
-  "CSC_LINK",
-  "CSC_KEY_PASSWORD",
-];
+const releaseArchive = `dist/${releaseStem}.zip`;
+
+const releaseEnvironment = (() => {
+  if (os.platform() === "darwin") {
+    return [
+      "APPLE_API_KEY",
+      "APPLE_API_KEY_ID",
+      "APPLE_API_ISSUER",
+      "CSC_LINK",
+      "CSC_KEY_PASSWORD",
+    ];
+  }
+
+  if (os.platform() === "win32") {
+    return ["CSC_LINK", "CSC_KEY_PASSWORD"];
+  }
+
+  return [];
+})();
+
 const missingReleaseEnvironment = releaseEnvironment.filter((name) => !process.env[name]);
 const isReleaseBuild = missingReleaseEnvironment.length === 0;
 const hasPartialReleaseEnvironment =
@@ -283,21 +340,33 @@ if (process.env.GITHUB_REF_TYPE === "tag" && !isReleaseBuild) {
 
 async function materializeSecret(value: string, path: string, name: string) {
   let resolvedPath = value;
+  const isExplicitPath = value.startsWith("file://");
 
-  if (value.startsWith("file://")) {
+  if (isExplicitPath) {
     resolvedPath = url.fileURLToPath(value);
   }
 
+  let sourceHandle: fs.FileHandle | undefined;
+  let contents: Buffer | undefined;
   try {
-    if ((await fs.stat(resolvedPath)).isFile()) {
-      return value;
+    sourceHandle = await fs.open(resolvedPath, "r");
+    const sourceStat = await sourceHandle.stat();
+    if (!sourceStat.isFile() && !sourceStat.isFIFO() && !sourceStat.isCharacterDevice()) {
+      throw new Error(`${name} filesystem input is not a readable file`);
     }
-  } catch {
+    contents = await sourceHandle.readFile();
+  } catch (error) {
+    if (isExplicitPath) {
+      throw new Error(`${name} filesystem input could not be read`, { cause: error });
+    }
     // The value contains the secret itself rather than a file path.
+  } finally {
+    await sourceHandle?.close().catch(() => undefined);
   }
 
-  let contents;
-  if (value.startsWith("data:")) {
+  if (contents) {
+    // Descriptor-backed inputs have already been copied into memory.
+  } else if (value.startsWith("data:")) {
     const separator = value.indexOf(",");
     if (separator === -1) {
       throw new Error(`${name} contains an invalid data URL`);
@@ -321,7 +390,14 @@ async function materializeSecret(value: string, path: string, name: string) {
   if (contents.length === 0) {
     throw new Error(`${name} is empty or invalid`);
   }
-  await fs.writeFile(path, contents, { mode: 0o600 });
+
+  const destinationHandle = await fs.open(path, "wx", 0o600);
+  try {
+    await destinationHandle.writeFile(contents);
+    await destinationHandle.sync();
+  } finally {
+    await destinationHandle.close();
+  }
   return path;
 }
 
@@ -334,6 +410,7 @@ function execFileWithSecrets(file: string, args: string[], errorMessage: string)
   }
 }
 
+// Perform the SEA build in a temporary directory to avoid polluting the source tree with intermediate artifacts.
 await fs.mkdir("bundle", { recursive: true });
 await fs.rm(outfile, { force: true });
 
@@ -358,12 +435,36 @@ await fs.chmod(outfile, 0o755);
 await fs.mkdir("bin", { recursive: true });
 await fs.rm(executable, { force: true });
 
-execFileSync(
-  process.execPath,
-  ["--build-sea", url.fileURLToPath(new URL("./sea-config.json", import.meta.url))],
-  { stdio: "inherit" },
-);
+const seaConfigDir = await fs.mkdtemp(path.join(os.tmpdir(), "langsmith-sea-config-"));
+try {
+  const seaConfigPath = path.join(seaConfigDir, "sea-config.json");
+  await fs.writeFile(
+    seaConfigPath,
+    await (async () => {
+      const config = JSON.parse(
+        await fs.readFile(new URL("./sea-config.json", import.meta.url), "utf-8"),
+      );
+
+      config.main = path.resolve(config.main);
+      config.output = path.resolve(executable);
+
+      return `${JSON.stringify(config, null, 2)}\n`;
+    })(),
+  );
+  execFileSync(process.execPath, ["--build-sea", seaConfigPath], { stdio: "inherit" });
+} finally {
+  await fs.rm(seaConfigDir, { force: true, recursive: true });
+}
 
 if (os.platform() === "darwin") {
   await cscNotarizeMacOS();
+} else if (os.platform() === "win32") {
+  await cscSignWindows();
 }
+
+const builtVersion = execFileSync(executable, ["--version"], { encoding: "utf-8" }).trim();
+if (builtVersion !== version) {
+  throw new Error(`Built executable reports version ${builtVersion}, expected ${version}`);
+}
+
+await packageRelease();
