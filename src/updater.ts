@@ -1,4 +1,4 @@
-import { execFile, spawn } from "node:child_process";
+import { execFile } from "node:child_process";
 import { createHash } from "node:crypto";
 import * as fs from "node:fs/promises";
 import * as os from "node:os";
@@ -37,7 +37,7 @@ interface GitHubRelease {
 
 export type UpdateResult =
   | { status: "not-installed" | "unsupported" | "throttled" | "busy" | "current" }
-  | { status: "updated" | "scheduled"; version: string };
+  | { status: "updated"; version: string };
 
 export interface SeaReleaseTarget {
   assetName: string;
@@ -131,76 +131,52 @@ function defaultSignatureVerifier(
   return undefined;
 }
 
-async function scheduleWindowsReplacement(
+const WINDOWS_OLD_EXECUTABLE_PATTERN = /^\.langsmith-cursor-tracing\.old-\d+-\d+\.exe$/;
+
+async function cleanupWindowsReplacements(installDir: string): Promise<void> {
+  const entries = await fs.readdir(installDir, { withFileTypes: true }).catch(() => undefined);
+  if (!entries) return;
+
+  await Promise.all(
+    entries
+      .filter((entry) => entry.isFile() && WINDOWS_OLD_EXECUTABLE_PATTERN.test(entry.name))
+      .map(async (entry) => {
+        const oldExecutable = path.join(installDir, entry.name);
+        try {
+          await fs.unlink(oldExecutable);
+        } catch (error) {
+          debug(`Could not remove previous Windows executable ${oldExecutable}: ${error}`);
+        }
+      }),
+  );
+}
+
+/**
+ * Windows does not allow a running executable to be overwritten or unlinked,
+ * but it does allow the image to be renamed. Move the running image aside and
+ * put the downloaded executable at the canonical path. The renamed image is
+ * removed by a later update check, after this process has exited.
+ */
+export async function replaceWindowsExecutable(
   source: string,
   target: string,
-  installDir: string,
+  uniqueId = `${process.pid}-${Date.now()}`,
 ): Promise<void> {
-  const errorLog = path.join(installDir, ".update-error.log");
-  const encodedSource = Buffer.from(source, "utf8").toString("base64");
-  const encodedTarget = Buffer.from(target, "utf8").toString("base64");
-  const encodedErrorLog = Buffer.from(errorLog, "utf8").toString("base64");
-  const script = `
-$source = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('${encodedSource}'))
-$target = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('${encodedTarget}'))
-$errorLog = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('${encodedErrorLog}'))
-$nativeMethods = Add-Type -Name NativeMethods -Namespace LangSmithUpdater -PassThru -MemberDefinition @'
-[System.Runtime.InteropServices.DllImport("kernel32.dll", CharSet = System.Runtime.InteropServices.CharSet.Unicode, SetLastError = true)]
-[return: System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.Bool)]
-public static extern bool MoveFileEx(string existingFileName, string newFileName, int flags);
-'@
-$lastError = $null
-for ($attempt = 0; $attempt -lt 60; $attempt++) {
+  const oldExecutable = path.join(path.dirname(target), `.${EXECUTABLE_NAME}.old-${uniqueId}.exe`);
+  await fs.rename(target, oldExecutable);
   try {
-    if (-not $nativeMethods::MoveFileEx($source, $target, 9)) {
-      $errorCode = [Runtime.InteropServices.Marshal]::GetLastWin32Error()
-      throw ([System.ComponentModel.Win32Exception]::new($errorCode))
+    await fs.rename(source, target);
+  } catch (installError) {
+    try {
+      await fs.rename(oldExecutable, target);
+    } catch (rollbackError) {
+      throw new AggregateError(
+        [installError, rollbackError],
+        `Could not install the Windows update or restore ${target}`,
+      );
     }
-    Remove-Item -LiteralPath $errorLog -Force -ErrorAction SilentlyContinue
-    exit 0
-  } catch {
-    $lastError = $_
-    Start-Sleep -Milliseconds 500
+    throw installError;
   }
-}
-if ($null -ne $lastError) {
-  [Console]::Error.WriteLine($lastError.ToString())
-}
-exit 1
-`;
-  const encodedScript = Buffer.from(script, "utf16le").toString("base64");
-  const errorHandle = await fs.open(errorLog, "w", 0o600);
-  try {
-    await errorHandle.sync();
-  } finally {
-    await errorHandle.close();
-  }
-
-  const environment = {
-    ...process.env,
-    LANGSMITH_UPDATE_ERROR_LOG: errorLog,
-  };
-  const launchCommand =
-    `Start-Process -FilePath 'powershell.exe' ` +
-    `-ArgumentList @('-NoProfile','-NonInteractive','-EncodedCommand','${encodedScript}') ` +
-    `-RedirectStandardError $env:LANGSMITH_UPDATE_ERROR_LOG -WindowStyle Hidden`;
-
-  await new Promise<void>((resolvePromise, reject) => {
-    const launcher = spawn(
-      "powershell.exe",
-      ["-NoProfile", "-NonInteractive", "-Command", launchCommand],
-      {
-        env: environment,
-        stdio: "ignore",
-        windowsHide: true,
-      },
-    );
-    launcher.once("error", reject);
-    launcher.once("exit", (code) => {
-      if (code === 0) resolvePromise();
-      else reject(new Error(`Windows update launcher exited with code ${code ?? "unknown"}`));
-    });
-  });
 }
 
 async function acquireLock(path: string, now: number) {
@@ -330,6 +306,7 @@ export async function updateFromGitHub(options: UpdateOptions = {}): Promise<Upd
   const checkedFile = path.join(installDir, ".last-update-check");
   const lockFile = path.join(installDir, ".update.lock");
   await fs.mkdir(installDir, { recursive: true, mode: 0o700 });
+  if (runtimePlatform === "win32") await cleanupWindowsReplacements(installDir);
 
   let checkedHandle: fs.FileHandle | undefined;
   try {
@@ -390,9 +367,9 @@ export async function updateFromGitHub(options: UpdateOptions = {}): Promise<Upd
     await verifySignature?.(tmpFile);
 
     if (runtimePlatform === "win32") {
-      await scheduleWindowsReplacement(tmpFile, target, installDir);
+      await replaceWindowsExecutable(tmpFile, target, `${process.pid}-${now}`);
       tmpFile = undefined;
-      return { status: "scheduled", version };
+      return { status: "updated", version };
     }
 
     await fs.rename(tmpFile, target);
