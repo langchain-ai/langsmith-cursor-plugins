@@ -293,9 +293,26 @@ async function runTest() {
       const updateError = await fs
         .readFile(join(testHome, ".langsmith", ".update-error.log"), "utf-8")
         .catch(() => "<no replacement-worker error>");
-      throw new Error(`${error.message}\nHook log:\n${hookLog}\nWorker error:\n${updateError}`, {
-        cause: error,
-      });
+      const updateFiles = await fs
+        .readdir(join(testHome, ".langsmith"))
+        .then((entries) => entries.join("\n"))
+        .catch(() => "<could not list updater files>");
+      const processes =
+        platform() === "win32"
+          ? ["langsmith-cursor-tracing.exe", "powershell.exe"]
+              .map((image) => {
+                try {
+                  return run("tasklist.exe", ["/FI", `IMAGENAME eq ${image}`]);
+                } catch (taskError) {
+                  return `Could not list ${image}: ${taskError}`;
+                }
+              })
+              .join("\n")
+          : "<not Windows>";
+      throw new Error(
+        `${error.message}\nHook log:\n${hookLog}\nWorker error:\n${updateError}\nUpdater files:\n${updateFiles}\nProcesses:\n${processes}`,
+        { cause: error },
+      );
     }
     verifyMacSignature(installedBinary);
     console.log(`SEA auto-update E2E passed: ${oldVersion} -> ${newVersion}`);
