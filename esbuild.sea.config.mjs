@@ -191,6 +191,7 @@ execFileSync(
 
 let temporaryDirectory;
 let keychain;
+let originalKeychains;
 
 try {
   let identity = "-";
@@ -217,11 +218,24 @@ try {
 
     keychain = join(temporaryDirectory, "app-signing.keychain-db");
     const keychainPassword = randomBytes(32).toString("hex");
+    originalKeychains = [
+      ...execFileSync("/usr/bin/security", ["list-keychains", "-d", "user"], {
+        encoding: "utf-8",
+      }).matchAll(/"([^"]+)"/g),
+    ].map((match) => match[1]);
     execFileWithSecrets(
       "/usr/bin/security",
       ["create-keychain", "-p", keychainPassword, keychain],
       "Failed to create the temporary signing keychain",
     );
+    execFileSync("/usr/bin/security", [
+      "list-keychains",
+      "-d",
+      "user",
+      "-s",
+      keychain,
+      ...originalKeychains,
+    ]);
     execFileSync("/usr/bin/security", [
       "set-keychain-settings",
       "-lut",
@@ -242,8 +256,6 @@ try {
         process.env.CSC_KEY_PASSWORD,
         "-T",
         "/usr/bin/codesign",
-        "-t",
-        "cert",
         "-f",
         "pkcs12",
         "-k",
@@ -257,6 +269,7 @@ try {
         "set-key-partition-list",
         "-S",
         "apple-tool:,apple:",
+        "-s",
         "-k",
         keychainPassword,
         keychain,
@@ -264,13 +277,20 @@ try {
       "Failed to configure the temporary signing keychain",
     );
 
-    identity = execFileSync(
+    const identities = execFileSync(
       "/usr/bin/security",
       ["find-identity", "-v", "-p", "codesigning", keychain],
       { encoding: "utf-8" },
-    ).match(/\b[0-9A-Fa-f]{40}\b/)?.[0];
+    );
+    identity = [
+      ...identities.matchAll(/^\s*\d+\)\s+[0-9A-Fa-f]{40}\s+"([^"]+)"$/gm),
+    ]
+      .map((match) => match[1])
+      .find((name) => name.startsWith("Developer ID Application:"));
     if (!identity) {
-      throw new Error("CSC_LINK does not contain a valid signing identity");
+      throw new Error(
+        "CSC_LINK does not contain a valid Developer ID Application identity",
+      );
     }
   }
 
@@ -386,6 +406,19 @@ try {
     `Built, signed${isReleaseBuild ? ", notarized" : ""}, and packaged ${releaseName}`,
   );
 } finally {
+  if (originalKeychains) {
+    try {
+      execFileSync("/usr/bin/security", [
+        "list-keychains",
+        "-d",
+        "user",
+        "-s",
+        ...originalKeychains,
+      ]);
+    } catch {
+      // Preserve the original build error if search-list cleanup also fails.
+    }
+  }
   if (keychain) {
     try {
       execFileSync("/usr/bin/security", ["delete-keychain", keychain]);
