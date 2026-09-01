@@ -15,7 +15,10 @@ const hooks: Record<string, () => Promise<unknown>> = {
   "post-tool-use-failure": () => import("./hooks/post-tool-use-failure.js"),
   "subagent-start": () => import("./hooks/subagent-start.js"),
   "subagent-stop": () => import("./hooks/subagent-stop.js"),
-  stop: () => import("./hooks/stop.js"),
+  stop: async () => {
+    const { completion } = await import("./hooks/stop.js");
+    await completion;
+  },
   "session-start": () => import("./hooks/session-start.js"),
 };
 
@@ -32,8 +35,30 @@ if (hookName === "--version") {
       : `[langsmith] missing hook name (expected one of: ${supported})`,
   );
 } else {
-  void runHook().catch((err: unknown) => {
-    console.error(`[langsmith] hook ${hookName} failed:`, err);
-    process.exitCode = 1;
-  });
+  void (async () => {
+    try {
+      await runHook();
+    } catch (err) {
+      console.error(`[langsmith] hook ${hookName} failed:`, err);
+      process.exitCode = 1;
+    } finally {
+      if (hookName === "stop") {
+        const { debug, log, warn } = await import("./logger.js");
+        try {
+          const { updateFromGitHub } = await import("./updater.js");
+          const update = await updateFromGitHub();
+          debug(`Automatic update result: ${update.status}`);
+          if (update.status === "updated") {
+            log(`Updated LangSmith tracing binary to ${update.version}`);
+          } else if (update.status === "scheduled") {
+            log(
+              `Downloaded LangSmith tracing ${update.version}; it will be installed after this process exits`,
+            );
+          }
+        } catch (err) {
+          warn(`Automatic update failed: ${err}`);
+        }
+      }
+    }
+  })();
 }

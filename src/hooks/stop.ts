@@ -102,12 +102,12 @@ async function main(): Promise<void> {
   await flushPendingTraces();
 }
 
-main().catch((err) => {
+export const completion = main().catch((err) => {
   try {
     warn(`stop hook error: ${err}`);
   } catch {
     /* last resort */
   }
   // Non-zero exit (never 2 = "block") tells Cursor the hook failed.
-  process.exit(1);
+  process.exitCode = 1;
 });

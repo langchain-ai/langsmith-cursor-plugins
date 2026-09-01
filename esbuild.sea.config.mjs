@@ -20,10 +20,38 @@ if (platform() !== "darwin" || arch() !== "arm64") {
   );
 }
 
-// Inject the plugin version at build time (the bundle has no runtime package.json) via esbuild `define`.
-const { version } = JSON.parse(
+const packageJson = JSON.parse(
   await fs.readFile(new URL("./package.json", import.meta.url), "utf-8"),
 );
+const version =
+  process.env.LANGSMITH_CURSOR_INTERNAL_VERSION ?? packageJson.version;
+const internalReleaseApi = process.env.LANGSMITH_CURSOR_INTERNAL_RELEASE_API;
+const releaseApi =
+  internalReleaseApi ??
+  "https://api.github.com/repos/langchain-ai/langsmith-cursor-plugins/releases/latest";
+
+if (!/^\d+\.\d+\.\d+$/.test(version)) {
+  throw new Error(`Invalid SEA version: ${version}`);
+}
+
+const releaseApiUrl = new URL(releaseApi);
+if (
+  internalReleaseApi &&
+  (!(["http:", "https:"].includes(releaseApiUrl.protocol)) ||
+    !["127.0.0.1", "[::1]", "localhost"].includes(releaseApiUrl.hostname))
+) {
+  throw new Error("The internal release API must use an HTTP(S) loopback URL");
+}
+
+if (
+  process.env.GITHUB_REF_TYPE === "tag" &&
+  (process.env.LANGSMITH_CURSOR_INTERNAL_VERSION ||
+    process.env.LANGSMITH_CURSOR_INTERNAL_RELEASE_API)
+) {
+  throw new Error(
+    "Internal SEA build overrides cannot be used for a tagged release",
+  );
+}
 
 if (
   process.env.GITHUB_REF_TYPE === "tag" &&
@@ -141,6 +169,7 @@ await build({
     // Build-time injection of the plugin (integration) version. Consumed by
     // config.ts via `typeof __LS_INTEGRATION_VERSION__` → ls_integration_version.
     __LS_INTEGRATION_VERSION__: JSON.stringify(version),
+    __LS_RELEASE_API__: JSON.stringify(releaseApi),
   },
 });
 
