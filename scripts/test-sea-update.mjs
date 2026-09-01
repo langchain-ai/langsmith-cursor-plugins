@@ -159,6 +159,21 @@ async function waitForVersion(binary, expectedVersion, options) {
   );
 }
 
+async function waitForWindowsReplacement(installDir) {
+  const deadline = Date.now() + 35_000;
+  while (Date.now() < deadline) {
+    const entries = await fs.readdir(installDir);
+    const replacementPending = entries.some(
+      (entry) =>
+        entry.startsWith(".langsmith-cursor-tracing.") &&
+        entry.endsWith(".tmp.exe"),
+    );
+    if (!replacementPending) return;
+    await delay(100);
+  }
+  throw new Error("Windows replacement worker did not consume the downloaded executable");
+}
+
 async function runTest() {
   const oldArchive = option("--old-archive");
   const newBinary = option("--new-binary");
@@ -264,7 +279,9 @@ async function runTest() {
     });
 
     try {
-      if (platform() === "win32") await delay(1_000);
+      if (platform() === "win32") {
+        await waitForWindowsReplacement(join(testHome, ".langsmith"));
+      }
       await waitForVersion(installedBinary, newVersion, {
         cwd: testHome,
         env: childEnvironment,
