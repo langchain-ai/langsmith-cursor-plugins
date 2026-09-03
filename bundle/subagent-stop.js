@@ -66,7 +66,7 @@ var DEFAULT_PROJECT = "cursor";
 
 // dist/config.js
 import { homedir as homedir2 } from "node:os";
-var LS_INTEGRATION_VERSION = true ? "0.3.5" : process.env.LANGSMITH_CURSOR_INTEGRATION_VERSION || void 0;
+var LS_INTEGRATION_VERSION = true ? "0.4.0" : process.env.LANGSMITH_CURSOR_INTEGRATION_VERSION || void 0;
 var PROVIDER_HOSTS = {
   github: "github.com",
   gitlab: "gitlab.com",
@@ -119,11 +119,21 @@ function parseRedactExtraRules(value) {
   }
   return valid.length > 0 ? valid : void 0;
 }
+function isRecord(value) {
+  return value != null && typeof value === "object" && !Array.isArray(value);
+}
+function isFileConfig(value) {
+  if (!isRecord(value))
+    return false;
+  const optional = (key, type) => value[key] === void 0 || typeof value[key] === type;
+  return optional("enabled", "boolean") && optional("api_key", "string") && optional("api_url", "string") && optional("project", "string") && optional("attachments", "boolean") && optional("system_prompt", "boolean") && optional("step_fidelity", "boolean") && optional("cursor_db_path", "string") && optional("redact", "boolean") && (value.metadata === void 0 || isRecord(value.metadata)) && (value.replicas === void 0 || Array.isArray(value.replicas) && value.replicas.every(isRecord));
+}
 function readConfigFile(file) {
   try {
-    return JSON.parse(readFileSync(file, "utf-8"));
-  } catch {
-    return void 0;
+    const parsed = JSON.parse(readFileSync(file, "utf-8"));
+    return isFileConfig(parsed) ? { present: true, value: parsed } : { present: true };
+  } catch (error2) {
+    return error2.code === "ENOENT" ? { present: false } : { present: true };
   }
 }
 function getEnv(suffix) {
@@ -211,13 +221,16 @@ function getGitInfo(cwd) {
 }
 function loadConfig(options) {
   const cwd = options?.cwd ?? process.env.CURSOR_PROJECT_DIR ?? process.cwd();
-  const globalFile = readConfigFile(join(homedir2(), ".cursor", "langsmith.json"));
-  const localFile = readConfigFile(join(cwd, ".cursor", "langsmith.json"));
+  const globalResult = readConfigFile(join(homedir2(), ".cursor", "langsmith.json"));
+  const localResult = readConfigFile(join(cwd, ".cursor", "langsmith.json"));
+  const globalFile = globalResult.value;
+  const localFile = localResult.value;
+  const traceEnvPresent = Object.hasOwn(process.env, "TRACE_TO_LANGSMITH");
   const envEnabled = parseBoolean(process.env.TRACE_TO_LANGSMITH);
   const envMetadata = parseJson(getEnv("METADATA"));
   const envReplicas = parseJson(getEnv("RUNS_ENDPOINTS"));
   const envDebug = parseBoolean(getEnv("DEBUG"));
-  const enabled = envEnabled ?? localFile?.enabled ?? globalFile?.enabled ?? false;
+  const enabled = traceEnvPresent ? envEnabled ?? false : localResult.present && !localFile ? false : localFile?.enabled ?? globalFile?.enabled ?? false;
   const apiKey = getEnv("API_KEY") ?? localFile?.api_key ?? globalFile?.api_key ?? "";
   const apiUrl = getEnv("ENDPOINT") ?? localFile?.api_url ?? globalFile?.api_url ?? DEFAULT_API_URL;
   const project = getEnv("PROJECT") ?? localFile?.project ?? globalFile?.project ?? DEFAULT_PROJECT;
@@ -283,54 +296,223 @@ function initHook(cwd) {
 }
 
 // dist/state.js
-import { readFileSync as readFileSync2, writeFileSync, mkdirSync as mkdirSync2, openSync, closeSync, unlinkSync } from "node:fs";
+import { readFileSync as readFileSync2, writeFileSync, mkdirSync as mkdirSync2, openSync, closeSync, unlinkSync, renameSync as renameSync2, statSync as statSync2 } from "node:fs";
 import { dirname as dirname2 } from "node:path";
+import { randomUUID } from "node:crypto";
 var LOCK_TIMEOUT_MS = 5e3;
 var LOCK_RETRY_MS = 20;
+var MALFORMED_LOCK_MAX_AGE_MS = LOCK_TIMEOUT_MS * 2;
+var CORRUPT_STATE_KEY = "__langsmith_corrupt_state__";
 function lockPath(stateFilePath) {
   return `${stateFilePath}.lock`;
 }
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
-async function acquireLock(stateFilePath) {
-  const lock = lockPath(stateFilePath);
-  const deadline = Date.now() + LOCK_TIMEOUT_MS;
-  mkdirSync2(dirname2(stateFilePath), { recursive: true });
-  while (Date.now() < deadline) {
+function processIsDead(pid) {
+  try {
+    process.kill(pid, 0);
+    return false;
+  } catch (error2) {
+    return error2.code === "ESRCH";
+  }
+}
+function removeRecoverableLock(lock) {
+  try {
+    const owner = JSON.parse(readFileSync2(lock, "utf-8"));
+    if (typeof owner.pid !== "number" || typeof owner.id !== "string" || typeof owner.createdAt !== "number" || !processIsDead(owner.pid)) {
+      return false;
+    }
+  } catch {
     try {
-      const fd = openSync(lock, "wx");
-      closeSync(fd);
-      return;
+      if (Date.now() - statSync2(lock).mtimeMs < MALFORMED_LOCK_MAX_AGE_MS)
+        return false;
     } catch {
-      await sleep(LOCK_RETRY_MS);
+      return false;
     }
   }
   try {
     unlinkSync(lock);
+    return true;
   } catch {
+    return false;
   }
 }
-function releaseLock(stateFilePath) {
+async function acquireLock(stateFilePath) {
+  const lock = lockPath(stateFilePath);
+  const owner = { pid: process.pid, id: randomUUID(), createdAt: Date.now() };
+  const serialized = JSON.stringify(owner);
+  const deadline = Date.now() + LOCK_TIMEOUT_MS;
+  mkdirSync2(dirname2(stateFilePath), { recursive: true });
+  while (Date.now() < deadline) {
+    try {
+      const fd = openSync(lock, "wx", 384);
+      try {
+        writeFileSync(fd, serialized);
+      } finally {
+        closeSync(fd);
+      }
+      return serialized;
+    } catch (error2) {
+      if (error2.code !== "EEXIST")
+        throw error2;
+      if (removeRecoverableLock(lock))
+        continue;
+      await sleep(LOCK_RETRY_MS);
+    }
+  }
+  throw new Error("Timed out acquiring LangSmith state lock");
+}
+function releaseLock(stateFilePath, owner) {
   try {
-    unlinkSync(lockPath(stateFilePath));
+    if (readFileSync2(lockPath(stateFilePath), "utf-8") === owner)
+      unlinkSync(lockPath(stateFilePath));
   } catch {
   }
 }
 async function atomicUpdateState(stateFilePath, fn) {
-  await acquireLock(stateFilePath);
+  const owner = await acquireLock(stateFilePath);
   try {
-    const state = loadState(stateFilePath);
-    writeFileSync(stateFilePath, JSON.stringify(fn(state), null, 2));
+    saveState(stateFilePath, fn(loadState(stateFilePath)));
   } finally {
-    releaseLock(stateFilePath);
+    releaseLock(stateFilePath, owner);
   }
 }
+function corruptState(policies = {}) {
+  return {
+    ...policies,
+    [CORRUPT_STATE_KEY]: { turns: {}, turn_count: 0, updated: "", tracing: "metadata" }
+  };
+}
+function stickyMetadataPolicies(value) {
+  const policies = {};
+  for (const [id, entry] of Object.entries(value)) {
+    if (id === CORRUPT_STATE_KEY || !record(entry) || entry.tracing !== "metadata")
+      continue;
+    policies[id] = {
+      turns: {},
+      turn_count: typeof entry.turn_count === "number" && Number.isInteger(entry.turn_count) ? Math.max(0, entry.turn_count) : 0,
+      updated: typeof entry.updated === "string" ? entry.updated : "",
+      tracing: "metadata"
+    };
+  }
+  return policies;
+}
+function record(value) {
+  return value != null && typeof value === "object" && !Array.isArray(value);
+}
+function validUsage(value) {
+  if (value === void 0)
+    return true;
+  if (!record(value))
+    return false;
+  return Object.values(value).every((entry) => entry === void 0 || typeof entry === "number");
+}
+function validTool(value) {
+  if (!record(value))
+    return false;
+  return typeof value.tool_use_id === "string" && typeof value.name === "string" && record(value.input) && typeof value.endMs === "number" && (value.failed === void 0 || typeof value.failed === "boolean") && (value.error === void 0 || typeof value.error === "string") && (value.failure_type === void 0 || typeof value.failure_type === "string") && (value.duration === void 0 || typeof value.duration === "number");
+}
+function validSubagent(value) {
+  if (!record(value))
+    return false;
+  return typeof value.subagent_id === "string" && typeof value.subagent_type === "string" && typeof value.task === "string" && typeof value.startMs === "number" && (value.endMs === void 0 || typeof value.endMs === "number") && (value.tools === void 0 || Array.isArray(value.tools) && value.tools.every(validTool));
+}
+function validTurn(value) {
+  if (!record(value))
+    return false;
+  return typeof value.generation_id === "string" && (value.tracing_mode === "full" || value.tracing_mode === "metadata") && typeof value.startMs === "number" && (value.endMs === void 0 || typeof value.endMs === "number") && Array.isArray(value.tools) && value.tools.every(validTool) && Array.isArray(value.thoughts) && value.thoughts.every((thought) => record(thought) && typeof thought.text === "string" && (thought.duration_ms === void 0 || typeof thought.duration_ms === "number")) && Array.isArray(value.subagents) && value.subagents.every(validSubagent) && validUsage(value.usage) && (value.prompt === void 0 || typeof value.prompt === "string") && (value.model === void 0 || typeof value.model === "string") && (value.finalText === void 0 || typeof value.finalText === "string") && (value.status === void 0 || typeof value.status === "string");
+}
+function validConversation(value) {
+  if (!record(value) || !record(value.turns))
+    return false;
+  return Object.values(value.turns).every(validTurn) && typeof value.turn_count === "number" && Number.isInteger(value.turn_count) && value.turn_count >= 0 && typeof value.updated === "string" && (value.tracing === void 0 || value.tracing === "metadata") && (value.parent_conversation_id === void 0 || typeof value.parent_conversation_id === "string") && (value.parent_generation_id === void 0 || typeof value.parent_generation_id === "string");
+}
+function metadataStatus(status) {
+  if (status == null)
+    return void 0;
+  return status === "completed" ? "completed" : "error";
+}
+function sanitizeMetadataTurn(turn) {
+  turn.tracing_mode = "metadata";
+  delete turn.prompt;
+  delete turn.finalText;
+  turn.status = metadataStatus(turn.status);
+  turn.thoughts = [];
+  turn.tools = turn.tools.map((tool) => ({
+    tool_use_id: "",
+    name: tool.name,
+    input: {},
+    failed: tool.failed ?? tool.error != null,
+    duration: tool.duration,
+    endMs: tool.endMs
+  }));
+  turn.subagents = turn.subagents.map((subagent) => ({
+    subagent_id: "",
+    subagent_type: subagent.subagent_type,
+    task: "",
+    model: subagent.model,
+    is_parallel_worker: subagent.is_parallel_worker,
+    status: metadataStatus(subagent.status),
+    duration_ms: subagent.duration_ms,
+    message_count: subagent.message_count,
+    tool_call_count: subagent.tool_call_count,
+    loop_count: subagent.loop_count,
+    startMs: subagent.startMs,
+    endMs: subagent.endMs,
+    tools: subagent.tools?.map((tool) => ({
+      tool_use_id: "",
+      name: tool.name,
+      input: {},
+      failed: tool.failed ?? tool.error != null,
+      duration: tool.duration,
+      endMs: tool.endMs
+    }))
+  }));
+  return turn;
+}
+function enforceConversationTracing(conv) {
+  if (conv.tracing === "metadata") {
+    for (const turn of Object.values(conv.turns))
+      sanitizeMetadataTurn(turn);
+  }
+  return conv;
+}
 function loadState(stateFilePath) {
+  let parsed;
   try {
-    return JSON.parse(readFileSync2(stateFilePath, "utf-8"));
+    parsed = JSON.parse(readFileSync2(stateFilePath, "utf-8"));
   } catch {
-    return {};
+    try {
+      readFileSync2(stateFilePath, "utf-8");
+      return corruptState();
+    } catch {
+      return {};
+    }
+  }
+  if (!record(parsed))
+    return corruptState();
+  const state = {};
+  for (const [id, value] of Object.entries(parsed)) {
+    if (id === CORRUPT_STATE_KEY || !validConversation(value)) {
+      return corruptState(stickyMetadataPolicies(parsed));
+    }
+    state[id] = enforceConversationTracing(value);
+  }
+  return state;
+}
+function saveState(stateFilePath, state) {
+  mkdirSync2(dirname2(stateFilePath), { recursive: true });
+  const temp = `${stateFilePath}.${process.pid}.${randomUUID()}.tmp`;
+  try {
+    writeFileSync(temp, JSON.stringify(state, null, 2), { mode: 384 });
+    renameSync2(temp, stateFilePath);
+  } catch (error2) {
+    try {
+      unlinkSync(temp);
+    } catch {
+    }
+    throw error2;
   }
 }
 function getConversationState(state, conversationId) {
@@ -339,7 +521,7 @@ function getConversationState(state, conversationId) {
 var CONVERSATION_MAX_AGE_MS = 24 * 60 * 60 * 1e3;
 
 // dist/normalize.js
-function isRecord(value) {
+function isRecord2(value) {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 var SUBAGENT_PSEUDO_TOOLS = /* @__PURE__ */ new Set(["UpdateCurrentStep"]);
@@ -347,19 +529,19 @@ function parseSubagentTranscript(rows) {
   const toolCalls = [];
   let resultText;
   for (const row of rows) {
-    if (!isRecord(row) || row.role !== "assistant")
+    if (!isRecord2(row) || row.role !== "assistant")
       continue;
-    const message = isRecord(row.message) ? row.message : void 0;
+    const message = isRecord2(row.message) ? row.message : void 0;
     const content = message?.content;
     if (!Array.isArray(content))
       continue;
     for (const part of content) {
-      if (!isRecord(part))
+      if (!isRecord2(part))
         continue;
       if (part.type === "tool_use" && typeof part.name === "string") {
         if (SUBAGENT_PSEUDO_TOOLS.has(part.name))
           continue;
-        toolCalls.push({ name: part.name, input: isRecord(part.input) ? part.input : {} });
+        toolCalls.push({ name: part.name, input: isRecord2(part.input) ? part.input : {} });
       } else if (part.type === "text" && typeof part.text === "string" && part.text.trim()) {
         resultText = part.text;
       }
@@ -371,6 +553,48 @@ function parseSubagentTranscript(rows) {
 // dist/reducer.js
 function touch(conv) {
   conv.updated = (/* @__PURE__ */ new Date()).toISOString();
+}
+function safeStatus(status) {
+  if (status == null)
+    return void 0;
+  return status === "completed" ? "completed" : "error";
+}
+function openSubagentParent(state, childConversationId) {
+  const candidates = [];
+  for (const [conversationId, conv] of Object.entries(state)) {
+    if (conversationId === childConversationId)
+      continue;
+    for (const turn of Object.values(conv.turns)) {
+      if (turn.subagents.some((subagent) => subagent.endMs == null)) {
+        candidates.push({
+          conversationId,
+          generationId: turn.generation_id,
+          mode: turn.tracing_mode
+        });
+      }
+    }
+  }
+  if (candidates.length === 1)
+    return candidates[0];
+  if (candidates.length > 1) {
+    return {
+      conversationId: "__unresolved_subagent__",
+      generationId: "__unresolved_subagent__",
+      mode: "metadata"
+    };
+  }
+  return void 0;
+}
+function conversationForEvent(state, conversationId) {
+  const conv = enforceConversationTracing(getConversationState(state, conversationId));
+  if (conv.tracing === "metadata" || conv.parent_conversation_id)
+    return conv;
+  const parent = openSubagentParent(state, conversationId);
+  if (parent) {
+    conv.tracing = "metadata";
+    enforceConversationTracing(conv);
+  }
+  return conv;
 }
 function collectTools(conv) {
   const tools = [];
@@ -407,7 +631,7 @@ function transcriptToolEvent(call, index, count, startMs, endMs) {
 }
 function reduceSubagentStop(state, input, nowMs, resolved) {
   const parentConv = input.parent_conversation_id ?? input.conversation_id;
-  const conv = getConversationState(state, parentConv);
+  const conv = conversationForEvent(state, parentConv);
   let target;
   for (const turn of Object.values(conv.turns)) {
     const sub = turn.subagents.find((s) => s.subagent_id === input.subagent_id && s.endMs == null);
@@ -420,23 +644,34 @@ function reduceSubagentStop(state, input, nowMs, resolved) {
     touch(conv);
     return { ...state, [parentConv]: conv };
   }
-  target.status = input.status;
+  const targetTurn = Object.values(conv.turns).find((turn) => turn.subagents.includes(target));
+  const metadataOnly = targetTurn?.tracing_mode === "metadata";
+  target.status = metadataOnly ? safeStatus(input.status) : input.status;
   target.duration_ms = input.duration_ms;
-  target.description = input.description;
   target.message_count = input.message_count;
   target.tool_call_count = input.tool_call_count;
   target.loop_count = input.loop_count;
   target.endMs = nowMs;
-  if (resolved?.resultText)
-    target.resultText = resolved.resultText;
+  if (!metadataOnly) {
+    target.description = input.description;
+    if (resolved?.resultText)
+      target.resultText = resolved.resultText;
+  }
   let next = { ...state, [parentConv]: conv };
   const childConv = resolved?.childConversationId ?? findChildConversation(next, parentConv, target.startMs, nowMs);
   if (childConv && next[childConv]) {
     target.childConversationId = childConv;
-    target.tools = collectTools(next[childConv]);
+    target.tools = metadataOnly ? collectTools(next[childConv]).map((tool) => ({
+      tool_use_id: "",
+      name: tool.name,
+      input: {},
+      failed: tool.failed ?? tool.error != null,
+      duration: tool.duration,
+      endMs: tool.endMs
+    })) : collectTools(next[childConv]);
     const { [childConv]: _consumed, ...rest } = next;
     next = rest;
-  } else if (resolved?.toolCalls?.length) {
+  } else if (!metadataOnly && resolved?.toolCalls?.length) {
     const calls = resolved.toolCalls;
     target.childConversationId = resolved.childConversationId;
     target.tools = calls.map((c, i) => transcriptToolEvent(c, i, calls.length, target.startMs, nowMs));
@@ -446,7 +681,7 @@ function reduceSubagentStop(state, input, nowMs, resolved) {
 }
 
 // dist/subagent-transcript.js
-import { readFileSync as readFileSync3, readdirSync, statSync as statSync2 } from "node:fs";
+import { readFileSync as readFileSync3, readdirSync, statSync as statSync3 } from "node:fs";
 import { dirname as dirname3, join as join2, basename } from "node:path";
 function normalizeWs(text) {
   return text.replace(/\s+/g, " ").trim();
@@ -466,12 +701,12 @@ function readJsonl(path) {
 }
 function firstUserText(rows) {
   for (const row of rows) {
-    if (!isRecord(row) || row.role !== "user")
+    if (!isRecord2(row) || row.role !== "user")
       continue;
-    const content = isRecord(row.message) ? row.message.content : void 0;
+    const content = isRecord2(row.message) ? row.message.content : void 0;
     if (!Array.isArray(content))
       continue;
-    return content.filter((p) => isRecord(p) && p.type === "text").map((p) => typeof p.text === "string" ? p.text : "").join("");
+    return content.filter((p) => isRecord2(p) && p.type === "text").map((p) => typeof p.text === "string" ? p.text : "").join("");
   }
   return "";
 }
@@ -485,7 +720,7 @@ function resolveSubagentTranscript(parentTranscriptPath, task) {
       return void 0;
     const candidates = files.map((f) => {
       const full = join2(dir, f);
-      return { full, child: basename(f, ".jsonl"), mtime: statSync2(full).mtimeMs };
+      return { full, child: basename(f, ".jsonl"), mtime: statSync3(full).mtimeMs };
     });
     const wanted = task ? normalizeWs(task).slice(0, 120) : "";
     let chosen;
@@ -511,7 +746,19 @@ async function main() {
   if (!config)
     return;
   debug(`subagentStop ${input.subagent_type} (${input.subagent_id})`);
-  const resolved = resolveSubagentTranscript(input.transcript_path, input.task);
+  let metadataOnly = false;
+  await atomicUpdateState(config.stateFilePath, (state) => {
+    const conv = state[input.parent_conversation_id ?? input.conversation_id];
+    for (const turn of Object.values(conv?.turns ?? {})) {
+      const subagent = turn.subagents.find((sub) => sub.subagent_id === input.subagent_id);
+      if (subagent) {
+        metadataOnly = turn.tracing_mode === "metadata";
+        break;
+      }
+    }
+    return state;
+  });
+  const resolved = metadataOnly ? void 0 : resolveSubagentTranscript(input.transcript_path, input.task);
   if (resolved) {
     debug(`resolved subagent transcript: child=${resolved.childConversationId}, ${resolved.toolCalls.length} tool call(s)`);
   }

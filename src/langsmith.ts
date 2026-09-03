@@ -15,6 +15,17 @@ import * as logger from "./logger.js";
 let client: Client | undefined = undefined;
 let replicas: RunTreeConfig["replicas"] | undefined = undefined;
 
+export function metadataReplicas(): RunTreeConfig["replicas"] | undefined {
+  return replicas?.map((replica) => {
+    const routing = replica as unknown as Record<string, unknown>;
+    return {
+      ...(routing.apiUrl ? { apiUrl: routing.apiUrl } : {}),
+      ...(routing.apiKey ? { apiKey: routing.apiKey } : {}),
+      ...(routing.projectName ? { projectName: routing.projectName } : {}),
+    };
+  }) as RunTreeConfig["replicas"] | undefined;
+}
+
 export function initTracing(
   apiKey?: string,
   apiUrl?: string,
@@ -189,6 +200,10 @@ export async function buildTurnRuns(options: BuildTurnOptions): Promise<void> {
   if (!client && !replicas) {
     throw new Error("LangSmith client not initialized — call initTracing() first");
   }
+  if (buffer.tracing_mode === "metadata") {
+    await buildMetadataTurnRuns(options);
+    return;
+  }
 
   // coding-agent-v1 context, stamped on the root and propagated to children
   // via createChild. user_email (per-turn) joins the config base.
@@ -206,7 +221,12 @@ export async function buildTurnRuns(options: BuildTurnOptions): Promise<void> {
   // Turn end = latest event time we know about, falling back to now.
   const toolEnds = buffer.tools.map((t) => t.endMs);
   const subagentEnds = buffer.subagents.map((s) => s.endMs ?? s.startMs);
-  const turnEndMs = Math.max(buffer.startMs, ...toolEnds, ...subagentEnds, Date.now());
+  const turnEndMs = Math.max(
+    buffer.startMs,
+    ...toolEnds,
+    ...subagentEnds,
+    buffer.endMs ?? buffer.startMs,
+  );
 
   // 1. Root turn run. createChild derives ids, trace_id and dotted_order for children.
   const turnName = `${TURN_RUN_NAME} ${turnNum}`;
@@ -614,4 +634,205 @@ async function postSubagentRun(sub: SubagentEvent, parent: RunTree, ctx: MetaCtx
     },
   });
   await answerRun.postRun();
+}
+
+function safeStatus(status: string | undefined): "completed" | "error" | undefined {
+  if (status == null) return undefined;
+  return status === "completed" ? "completed" : "error";
+}
+
+function metadataRunMetadata(
+  conversationId: string,
+  turnNum: number,
+  agentType: LSAgentType,
+  extra: Record<string, unknown> = {},
+): Record<string, unknown> {
+  return {
+    thread_id: conversationId,
+    turn_number: turnNum,
+    ls_agent_purpose: "coding",
+    ls_agent_type: agentType,
+    ls_agent_runtime: "Cursor",
+    ls_tracing_mode: "metadata",
+    ...extra,
+  };
+}
+
+async function postMetadataLlm(
+  parent: RunTree,
+  conversationId: string,
+  turnNum: number,
+  model: string | undefined,
+  startMs: number,
+  endMs: number,
+  usage?: ReturnType<typeof buildUsageMetadata>,
+  agentType: LSAgentType = "root",
+): Promise<void> {
+  const info = deriveModelInfo(model);
+  const run = parent.createChild({
+    name: info.ls_provider ?? info.ls_model_name,
+    run_type: "llm",
+    inputs: {},
+    outputs: {},
+    start_time: startMs,
+    end_time: endMs,
+    extra: {
+      metadata: metadataRunMetadata(conversationId, turnNum, agentType, {
+        ...(info.ls_model_name ? { ls_model_name: info.ls_model_name } : {}),
+        ...(usage ? { usage_metadata: usage } : {}),
+      }),
+    },
+  });
+  await run.postRun();
+}
+
+async function postMetadataTool(
+  parent: RunTree,
+  conversationId: string,
+  turnNum: number,
+  tool: ToolEvent,
+  agentType: LSAgentType = "root",
+): Promise<void> {
+  const run = parent.createChild({
+    name: tool.name,
+    run_type: "tool",
+    inputs: {},
+    outputs: {},
+    start_time: Math.max(
+      typeof parent.start_time === "number" ? parent.start_time : 0,
+      toolStartMs(tool),
+    ),
+    end_time: tool.endMs,
+    extra: {
+      metadata: metadataRunMetadata(conversationId, turnNum, agentType, {
+        ls_tool_name: tool.name,
+        status: tool.failed || tool.error ? "error" : "completed",
+      }),
+    },
+  });
+  await run.postRun();
+}
+
+async function postMetadataSubagent(
+  parent: RunTree,
+  conversationId: string,
+  turnNum: number,
+  sub: SubagentEvent,
+): Promise<void> {
+  const endMs = sub.endMs ?? sub.startMs;
+  const run = parent.createChild({
+    name: sub.subagent_type ? `${sub.subagent_type} Subagent` : "Subagent",
+    run_type: "chain",
+    inputs: {},
+    outputs: {},
+    start_time: sub.startMs,
+    end_time: endMs,
+    extra: {
+      metadata: metadataRunMetadata(conversationId, turnNum, "subagent", {
+        status: safeStatus(sub.status),
+      }),
+    },
+  });
+  await run.postRun();
+  const tools = sub.tools ?? [];
+  if (tools.length === 0) {
+    await postMetadataLlm(
+      run,
+      conversationId,
+      turnNum,
+      sub.model,
+      sub.startMs,
+      endMs,
+      undefined,
+      "subagent",
+    );
+    return;
+  }
+  const firstStart = Math.min(...tools.map(toolStartMs));
+  await postMetadataLlm(
+    run,
+    conversationId,
+    turnNum,
+    sub.model,
+    sub.startMs,
+    firstStart,
+    undefined,
+    "subagent",
+  );
+  for (const tool of tools) await postMetadataTool(run, conversationId, turnNum, tool, "subagent");
+  await postMetadataLlm(
+    run,
+    conversationId,
+    turnNum,
+    sub.model,
+    Math.max(...tools.map((tool) => tool.endMs)),
+    endMs,
+    undefined,
+    "subagent",
+  );
+}
+
+async function buildMetadataTurnRuns(options: BuildTurnOptions): Promise<void> {
+  const { buffer, conversationId, turnNum, project } = options;
+  const endMs = Math.max(
+    buffer.startMs,
+    ...buffer.tools.map((tool) => tool.endMs),
+    ...buffer.subagents.map((sub) => sub.endMs ?? sub.startMs),
+    buffer.endMs ?? buffer.startMs,
+  );
+  const root = new RunTree({
+    client,
+    replicas: metadataReplicas(),
+    name: `${TURN_RUN_NAME} ${turnNum}`,
+    run_type: "chain",
+    inputs: {},
+    project_name: project,
+    start_time: buffer.startMs,
+    extra: {
+      metadata: metadataRunMetadata(conversationId, turnNum, "root", {
+        status: safeStatus(buffer.status),
+      }),
+    },
+  });
+  await root.postRun();
+  const calls = [
+    ...buffer.tools.map((tool) => ({ startMs: toolStartMs(tool), endMs: tool.endMs })),
+    ...buffer.subagents.map((sub) => ({ startMs: sub.startMs, endMs: sub.endMs ?? sub.startMs })),
+  ];
+  const usage = buildUsageMetadata(buffer.usage);
+  if (calls.length === 0) {
+    await postMetadataLlm(
+      root,
+      conversationId,
+      turnNum,
+      buffer.model,
+      buffer.startMs,
+      endMs,
+      usage,
+    );
+  } else {
+    await postMetadataLlm(
+      root,
+      conversationId,
+      turnNum,
+      buffer.model,
+      buffer.startMs,
+      Math.min(...calls.map((call) => call.startMs)),
+    );
+    for (const tool of buffer.tools) await postMetadataTool(root, conversationId, turnNum, tool);
+    for (const sub of buffer.subagents)
+      await postMetadataSubagent(root, conversationId, turnNum, sub);
+    await postMetadataLlm(
+      root,
+      conversationId,
+      turnNum,
+      buffer.model,
+      Math.max(...calls.map((call) => call.endMs)),
+      endMs,
+      usage,
+    );
+  }
+  root.end_time = endMs;
+  root.outputs = {};
+  await root.patchRun({ excludeInputs: true });
 }

@@ -18,9 +18,21 @@ async function main(): Promise<void> {
 
   debug(`subagentStop ${input.subagent_type} (${input.subagent_id})`);
 
-  // Best-effort: recover the subagent's child conversation id and final answer
-  // from its transcript; reducer falls back to temporal linking.
-  const resolved = resolveSubagentTranscript(input.transcript_path, input.task);
+  let metadataOnly = false;
+  await atomicUpdateState(config.stateFilePath, (state) => {
+    const conv = state[input.parent_conversation_id ?? input.conversation_id];
+    for (const turn of Object.values(conv?.turns ?? {})) {
+      const subagent = turn.subagents.find((sub) => sub.subagent_id === input.subagent_id);
+      if (subagent) {
+        metadataOnly = turn.tracing_mode === "metadata";
+        break;
+      }
+    }
+    return state;
+  });
+  const resolved = metadataOnly
+    ? undefined
+    : resolveSubagentTranscript(input.transcript_path, input.task);
   if (resolved) {
     debug(
       `resolved subagent transcript: child=${resolved.childConversationId}, ${resolved.toolCalls.length} tool call(s)`,

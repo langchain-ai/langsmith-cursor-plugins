@@ -136,6 +136,7 @@ export interface ToolEvent {
   error?: string;
   failure_type?: string;
   duration?: number;
+  failed?: boolean;
   /** Wall-clock ms when the hook fired (tool end). */
   endMs: number;
 }
@@ -177,9 +178,12 @@ export interface ThoughtEvent {
   duration_ms?: number;
 }
 
+export type TracingMode = "full" | "metadata";
+
 /** Buffered events for one in-progress turn (one generation_id). */
 export interface TurnBuffer {
   generation_id: string;
+  tracing_mode: TracingMode;
   prompt?: string;
   /** Best model label seen for this turn (from beforeSubmitPrompt / stop). */
   model?: string;
@@ -194,16 +198,20 @@ export interface TurnBuffer {
   usage?: UsageFields;
   /** Turn status from stop. */
   status?: string;
+  endMs?: number;
 }
 
 /** State for one conversation (thread). */
 export interface ConversationState {
   /** In-progress turn buffers keyed by generation_id. */
   turns: Record<string, TurnBuffer>;
+  tracing?: "metadata";
   /** Number of turns already finalized (for "Cursor Turn N" naming). */
   turn_count: number;
   /** ISO timestamp of last update (for pruning). */
   updated: string;
+  parent_conversation_id?: string;
+  parent_generation_id?: string;
 }
 
 export interface TracingState {

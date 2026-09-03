@@ -46,8 +46,9 @@ async function main(): Promise<void> {
 
   // Best-effort attachment enrichment (read-only DB + disk); never throws, and an
   // empty result leaves the turn unchanged.
+  const metadataOnly = toTrace.tracing_mode === "metadata";
   let attachments: ContentPart[] = [];
-  if (config.attachmentsEnabled) {
+  if (!metadataOnly && config.attachmentsEnabled) {
     attachments = resolveTurnAttachments({
       conversationId: input.conversation_id,
       prompt: toTrace.prompt,
@@ -58,7 +59,7 @@ async function main(): Promise<void> {
   // Best-effort system-prompt enrichment (read-only DB + protobuf field decode);
   // never throws, and undefined leaves the llm runs unchanged.
   let systemPrompt: string | undefined;
-  if (config.systemPromptEnabled) {
+  if (!metadataOnly && config.systemPromptEnabled) {
     // Resolve the main turn + every subagent's child conversation over ONE DB
     // connection (avoids an open-per-subagent explosion with many subagents).
     const childIds = toTrace.subagents
@@ -75,11 +76,13 @@ async function main(): Promise<void> {
   }
 
   // Best-effort interleaved step fidelity; undefined falls back to the hook-built shape.
-  const steps = resolveTurnSteps({
-    conversationId: input.conversation_id,
-    toolUseIds: toTrace.tools.map((t) => t.tool_use_id),
-    dbPath: config.cursorDbPath,
-  });
+  const steps = metadataOnly
+    ? undefined
+    : resolveTurnSteps({
+        conversationId: input.conversation_id,
+        toolUseIds: toTrace.tools.map((t) => t.tool_use_id),
+        dbPath: config.cursorDbPath,
+      });
 
   try {
     await buildTurnRuns({

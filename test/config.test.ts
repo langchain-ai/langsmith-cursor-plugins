@@ -73,6 +73,39 @@ describe("loadConfig cascade", () => {
     expect(cfg.apiKey).toBe("k");
   });
 
+  it("fails closed when a present higher-precedence project config is malformed", () => {
+    clearEnv();
+    const home = mkdtempSync(join(tmpdir(), "home-"));
+    const proj = mkdtempSync(join(tmpdir(), "proj-"));
+    vi.stubEnv("HOME", home);
+    writeCursorConfig(home, { enabled: true });
+    mkdirSync(join(proj, ".cursor"), { recursive: true });
+    writeFileSync(join(proj, ".cursor", "langsmith.json"), "{malformed");
+
+    expect(loadConfig({ cwd: proj }).enabled).toBe(false);
+  });
+
+  it("fails closed when a higher-precedence config has wrong field types", () => {
+    clearEnv();
+    const home = mkdtempSync(join(tmpdir(), "home-"));
+    const proj = mkdtempSync(join(tmpdir(), "proj-"));
+    vi.stubEnv("HOME", home);
+    writeCursorConfig(home, { enabled: true });
+    writeCursorConfig(proj, { enabled: "true" });
+
+    expect(loadConfig({ cwd: proj }).enabled).toBe(false);
+  });
+
+  it("fails closed when present TRACE_TO_LANGSMITH is invalid", () => {
+    clearEnv();
+    const home = mkdtempSync(join(tmpdir(), "home-"));
+    vi.stubEnv("HOME", home);
+    writeCursorConfig(home, { enabled: true });
+    vi.stubEnv("TRACE_TO_LANGSMITH", "definitely");
+
+    expect(loadConfig({ cwd: home }).enabled).toBe(false);
+  });
+
   it("redaction defaults on; LANGSMITH_CURSOR_REDACT=false disables it", () => {
     clearEnv();
     const home = mkdtempSync(join(tmpdir(), "home-"));
