@@ -44,10 +44,8 @@ describe("replay run2 hooks.jsonl through the event-buffer reducers", () => {
     const names = new Set(sub.tools!.map((t) => t.name));
     expect(names).toContain("Read");
     expect(names).toContain("Grep");
-    // Rich tool I/O: outputs and durations carried from postToolUse hooks.
-    expect(sub.tools!.some((t) => t.output != null)).toBe(true);
-    // A failed tool is captured too (a Read of a missing file).
-    expect(sub.tools!.some((t) => t.error != null)).toBe(true);
+    expect(sub.tools!.every((t) => t.output == null && t.error == null)).toBe(true);
+    expect(sub.tools!.some((t) => t.failed)).toBe(true);
   });
 
   it("captures per-turn usage and a concrete model where available", () => {
@@ -57,9 +55,8 @@ describe("replay run2 hooks.jsonl through the event-buffer reducers", () => {
     expect(finalized.some((f) => f.buffer.model && f.buffer.model !== "default")).toBe(true);
   });
 
-  it("consumes the subagent's child conversation (no orphan left behind)", () => {
-    // The child conversation holding the subagent's tools is spliced into the
-    // parent's Task run at subagentStop and removed from state.
+  it("maps, sanitizes, and consumes the fixture child without an independent upload", () => {
+    expect(finalized.some((turn) => turn.conversationId === CHILD_CONV)).toBe(false);
     expect(Object.keys(finalState)).not.toContain(CHILD_CONV);
     const orphanConvs = Object.keys(finalState).filter((c) => c !== PARENT_CONV);
     expect(orphanConvs.length).toBe(0);

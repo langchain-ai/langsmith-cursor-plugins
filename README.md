@@ -89,7 +89,17 @@ Every `LANGSMITH_CURSOR_*` variable also accepts the `LANGSMITH_*` form (the `LA
 | `LANGSMITH_CURSOR_STATE_FILE`     | —                | Override the on-disk event-buffer state file (no `LANGSMITH_*` form).                                                        | `~/.cursor/langsmith-state.json`  |
 | `LANGSMITH_CURSOR_LOG_FILE`       | —                | Override the hook log file (no `LANGSMITH_*` form).                                                                          | `~/.cursor/langsmith-hook.log`    |
 
-Tracing only runs when `enabled` (or `TRACE_TO_LANGSMITH=true`) **and** an API key (or replicas) is set.
+Tracing only runs when `enabled` (or `TRACE_TO_LANGSMITH=true`) **and** an API key (or replicas) is set. This master switch is dominant: thread commands can save a preference while it is disabled, but cannot make tracing effective until the master switch is enabled.
+
+### Per-thread trace controls
+
+Enter exactly one lowercase command as the complete prompt:
+
+- `/trace on` stores full tracing for the thread.
+- `/trace off` stores metadata-only tracing for the thread.
+- `/trace status` reports the stored mode and reports separately when the master switch is disabled.
+
+The preference is stored in `~/.cursor/langsmith-state.json` (or `LANGSMITH_CURSOR_STATE_FILE`) and survives restarts. Full mode records prompts, responses, thoughts, tool I/O, attachments, system prompts, and subagent content. Metadata-only mode preserves timing, topology, model/tool names, usage, and safe status values, but does not persist or upload prompts, responses, thoughts, tool I/O/errors, attachment/system-prompt content, subagent tasks/descriptions/results, custom metadata, or replica `updates`. Corrupt state fails closed to metadata-only mode; `/trace on` or `/trace off` safely rebuilds the usable state and clears that condition. State and temporary files use mode `0600`.
 
 Verify activity: `tail -f ~/.cursor/langsmith-hook.log`.
 
@@ -135,6 +145,7 @@ Tail the log to confirm activity: `tail -f ~/.cursor/langsmith-hook.log`.
 ## Known limitations
 
 - **Subagent token usage** is not available — Cursor exposes no per-subagent usage breakdown via hooks or its local DB, so a subagent's `Task` run carries its tool calls but no token counts.
+- **Subagent child identity** is not present on `subagentStart`. The plugin links child conversations only when transcript data or a single unambiguous active parent resolves them; child stops are never uploaded independently, and unresolved child buffers remain fail-closed when inherited mode cannot be established.
 
 ## Development
 

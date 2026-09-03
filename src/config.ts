@@ -120,11 +120,43 @@ interface FileConfig {
   redact?: boolean;
 }
 
-function readConfigFile(file: string): FileConfig | undefined {
+interface ConfigFileResult {
+  present: boolean;
+  value?: FileConfig;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value != null && typeof value === "object" && !Array.isArray(value);
+}
+
+function isFileConfig(value: unknown): value is FileConfig {
+  if (!isRecord(value)) return false;
+  const optional = (key: string, type: "string" | "boolean") =>
+    value[key] === undefined || typeof value[key] === type;
+  return (
+    optional("enabled", "boolean") &&
+    optional("api_key", "string") &&
+    optional("api_url", "string") &&
+    optional("project", "string") &&
+    optional("attachments", "boolean") &&
+    optional("system_prompt", "boolean") &&
+    optional("step_fidelity", "boolean") &&
+    optional("cursor_db_path", "string") &&
+    optional("redact", "boolean") &&
+    (value.metadata === undefined || isRecord(value.metadata)) &&
+    (value.replicas === undefined ||
+      (Array.isArray(value.replicas) && value.replicas.every(isRecord)))
+  );
+}
+
+function readConfigFile(file: string): ConfigFileResult {
   try {
-    return JSON.parse(readFileSync(file, "utf-8")) as FileConfig;
-  } catch {
-    return undefined;
+    const parsed: unknown = JSON.parse(readFileSync(file, "utf-8"));
+    return isFileConfig(parsed) ? { present: true, value: parsed } : { present: true };
+  } catch (error) {
+    return (error as NodeJS.ErrnoException).code === "ENOENT"
+      ? { present: false }
+      : { present: true };
   }
 }
 
@@ -227,16 +259,23 @@ export function getGitInfo(cwd: string): { branch?: string; commit?: string } {
 export function loadConfig(options?: { cwd?: string }): Config {
   const cwd = options?.cwd ?? process.env.CURSOR_PROJECT_DIR ?? process.cwd();
 
-  const globalFile = readConfigFile(join(homedir(), ".cursor", "langsmith.json"));
-  const localFile = readConfigFile(join(cwd, ".cursor", "langsmith.json"));
+  const globalResult = readConfigFile(join(homedir(), ".cursor", "langsmith.json"));
+  const localResult = readConfigFile(join(cwd, ".cursor", "langsmith.json"));
+  const globalFile = globalResult.value;
+  const localFile = localResult.value;
 
+  const traceEnvPresent = Object.hasOwn(process.env, "TRACE_TO_LANGSMITH");
   const envEnabled = parseBoolean(process.env.TRACE_TO_LANGSMITH);
   const envMetadata = parseJson(getEnv("METADATA"));
   const envReplicas = parseJson<Array<Record<string, unknown>>>(getEnv("RUNS_ENDPOINTS"));
   const envDebug = parseBoolean(getEnv("DEBUG"));
 
   // Merge file layers then env (env wins).
-  const enabled = envEnabled ?? localFile?.enabled ?? globalFile?.enabled ?? false;
+  const enabled = traceEnvPresent
+    ? (envEnabled ?? false)
+    : localResult.present && !localFile
+      ? false
+      : (localFile?.enabled ?? globalFile?.enabled ?? false);
   const apiKey = getEnv("API_KEY") ?? localFile?.api_key ?? globalFile?.api_key ?? "";
   const apiUrl = getEnv("ENDPOINT") ?? localFile?.api_url ?? globalFile?.api_url ?? DEFAULT_API_URL;
   const project = getEnv("PROJECT") ?? localFile?.project ?? globalFile?.project ?? DEFAULT_PROJECT;

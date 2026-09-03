@@ -66,7 +66,7 @@ var DEFAULT_PROJECT = "cursor";
 
 // dist/config.js
 import { homedir as homedir2 } from "node:os";
-var LS_INTEGRATION_VERSION = true ? "0.3.5" : process.env.LANGSMITH_CURSOR_INTEGRATION_VERSION || void 0;
+var LS_INTEGRATION_VERSION = true ? "0.4.0" : process.env.LANGSMITH_CURSOR_INTEGRATION_VERSION || void 0;
 var PROVIDER_HOSTS = {
   github: "github.com",
   gitlab: "gitlab.com",
@@ -119,11 +119,21 @@ function parseRedactExtraRules(value) {
   }
   return valid.length > 0 ? valid : void 0;
 }
+function isRecord(value) {
+  return value != null && typeof value === "object" && !Array.isArray(value);
+}
+function isFileConfig(value) {
+  if (!isRecord(value))
+    return false;
+  const optional = (key, type) => value[key] === void 0 || typeof value[key] === type;
+  return optional("enabled", "boolean") && optional("api_key", "string") && optional("api_url", "string") && optional("project", "string") && optional("attachments", "boolean") && optional("system_prompt", "boolean") && optional("step_fidelity", "boolean") && optional("cursor_db_path", "string") && optional("redact", "boolean") && (value.metadata === void 0 || isRecord(value.metadata)) && (value.replicas === void 0 || Array.isArray(value.replicas) && value.replicas.every(isRecord));
+}
 function readConfigFile(file) {
   try {
-    return JSON.parse(readFileSync(file, "utf-8"));
-  } catch {
-    return void 0;
+    const parsed = JSON.parse(readFileSync(file, "utf-8"));
+    return isFileConfig(parsed) ? { present: true, value: parsed } : { present: true };
+  } catch (error2) {
+    return error2.code === "ENOENT" ? { present: false } : { present: true };
   }
 }
 function getEnv(suffix) {
@@ -211,13 +221,16 @@ function getGitInfo(cwd) {
 }
 function loadConfig(options) {
   const cwd = options?.cwd ?? process.env.CURSOR_PROJECT_DIR ?? process.cwd();
-  const globalFile = readConfigFile(join(homedir2(), ".cursor", "langsmith.json"));
-  const localFile = readConfigFile(join(cwd, ".cursor", "langsmith.json"));
+  const globalResult = readConfigFile(join(homedir2(), ".cursor", "langsmith.json"));
+  const localResult = readConfigFile(join(cwd, ".cursor", "langsmith.json"));
+  const globalFile = globalResult.value;
+  const localFile = localResult.value;
+  const traceEnvPresent = Object.hasOwn(process.env, "TRACE_TO_LANGSMITH");
   const envEnabled = parseBoolean(process.env.TRACE_TO_LANGSMITH);
   const envMetadata = parseJson(getEnv("METADATA"));
   const envReplicas = parseJson(getEnv("RUNS_ENDPOINTS"));
   const envDebug = parseBoolean(getEnv("DEBUG"));
-  const enabled = envEnabled ?? localFile?.enabled ?? globalFile?.enabled ?? false;
+  const enabled = traceEnvPresent ? envEnabled ?? false : localResult.present && !localFile ? false : localFile?.enabled ?? globalFile?.enabled ?? false;
   const apiKey = getEnv("API_KEY") ?? localFile?.api_key ?? globalFile?.api_key ?? "";
   const apiUrl = getEnv("ENDPOINT") ?? localFile?.api_url ?? globalFile?.api_url ?? DEFAULT_API_URL;
   const project = getEnv("PROJECT") ?? localFile?.project ?? globalFile?.project ?? DEFAULT_PROJECT;
@@ -268,77 +281,233 @@ function loadConfig(options) {
   };
 }
 
-// dist/utils/hook-init.js
-function initHook(cwd) {
-  const config = loadConfig({ cwd });
-  initLogger(config.debug);
-  if (!config.enabled) {
-    return null;
-  }
-  if (!config.apiKey && (!config.replicas || config.replicas.length === 0)) {
-    error("Tracing enabled but no API key set (langsmith.json api_key, LANGSMITH_CURSOR_API_KEY, or LANGSMITH_API_KEY) and no replicas configured");
-    return null;
-  }
-  return config;
-}
-
 // dist/state.js
-import { readFileSync as readFileSync2, writeFileSync, mkdirSync as mkdirSync2, openSync, closeSync, unlinkSync } from "node:fs";
+import { readFileSync as readFileSync2, writeFileSync, mkdirSync as mkdirSync2, openSync, closeSync, unlinkSync, renameSync as renameSync2, statSync as statSync2 } from "node:fs";
 import { dirname as dirname2 } from "node:path";
+import { randomUUID } from "node:crypto";
 var LOCK_TIMEOUT_MS = 5e3;
 var LOCK_RETRY_MS = 20;
+var MALFORMED_LOCK_MAX_AGE_MS = LOCK_TIMEOUT_MS * 2;
+var CORRUPT_STATE_KEY = "__langsmith_corrupt_state__";
 function lockPath(stateFilePath) {
   return `${stateFilePath}.lock`;
 }
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
-async function acquireLock(stateFilePath) {
-  const lock = lockPath(stateFilePath);
-  const deadline = Date.now() + LOCK_TIMEOUT_MS;
-  mkdirSync2(dirname2(stateFilePath), { recursive: true });
-  while (Date.now() < deadline) {
+function processIsDead(pid) {
+  try {
+    process.kill(pid, 0);
+    return false;
+  } catch (error2) {
+    return error2.code === "ESRCH";
+  }
+}
+function removeRecoverableLock(lock) {
+  try {
+    const owner = JSON.parse(readFileSync2(lock, "utf-8"));
+    if (typeof owner.pid !== "number" || typeof owner.id !== "string" || typeof owner.createdAt !== "number" || !processIsDead(owner.pid)) {
+      return false;
+    }
+  } catch {
     try {
-      const fd = openSync(lock, "wx");
-      closeSync(fd);
-      return;
+      if (Date.now() - statSync2(lock).mtimeMs < MALFORMED_LOCK_MAX_AGE_MS)
+        return false;
     } catch {
-      await sleep(LOCK_RETRY_MS);
+      return false;
     }
   }
   try {
     unlinkSync(lock);
+    return true;
   } catch {
+    return false;
   }
 }
-function releaseLock(stateFilePath) {
+async function acquireLock(stateFilePath) {
+  const lock = lockPath(stateFilePath);
+  const owner = { pid: process.pid, id: randomUUID(), createdAt: Date.now() };
+  const serialized = JSON.stringify(owner);
+  const deadline = Date.now() + LOCK_TIMEOUT_MS;
+  mkdirSync2(dirname2(stateFilePath), { recursive: true });
+  while (Date.now() < deadline) {
+    try {
+      const fd = openSync(lock, "wx", 384);
+      try {
+        writeFileSync(fd, serialized);
+      } finally {
+        closeSync(fd);
+      }
+      return serialized;
+    } catch (error2) {
+      if (error2.code !== "EEXIST")
+        throw error2;
+      if (removeRecoverableLock(lock))
+        continue;
+      await sleep(LOCK_RETRY_MS);
+    }
+  }
+  throw new Error("Timed out acquiring LangSmith state lock");
+}
+function releaseLock(stateFilePath, owner) {
   try {
-    unlinkSync(lockPath(stateFilePath));
+    if (readFileSync2(lockPath(stateFilePath), "utf-8") === owner)
+      unlinkSync(lockPath(stateFilePath));
   } catch {
   }
 }
 async function atomicUpdateState(stateFilePath, fn) {
-  await acquireLock(stateFilePath);
+  const owner = await acquireLock(stateFilePath);
   try {
-    const state = loadState(stateFilePath);
-    writeFileSync(stateFilePath, JSON.stringify(fn(state), null, 2));
+    saveState(stateFilePath, fn(loadState(stateFilePath)));
   } finally {
-    releaseLock(stateFilePath);
+    releaseLock(stateFilePath, owner);
   }
 }
+function corruptState(policies = {}) {
+  return {
+    ...policies,
+    [CORRUPT_STATE_KEY]: { turns: {}, turn_count: 0, updated: "", tracing: "metadata" }
+  };
+}
+function stickyMetadataPolicies(value) {
+  const policies = {};
+  for (const [id, entry] of Object.entries(value)) {
+    if (id === CORRUPT_STATE_KEY || !record(entry) || entry.tracing !== "metadata")
+      continue;
+    policies[id] = {
+      turns: {},
+      turn_count: typeof entry.turn_count === "number" && Number.isInteger(entry.turn_count) ? Math.max(0, entry.turn_count) : 0,
+      updated: typeof entry.updated === "string" ? entry.updated : "",
+      tracing: "metadata"
+    };
+  }
+  return policies;
+}
+function record(value) {
+  return value != null && typeof value === "object" && !Array.isArray(value);
+}
+function validUsage(value) {
+  if (value === void 0)
+    return true;
+  if (!record(value))
+    return false;
+  return Object.values(value).every((entry) => entry === void 0 || typeof entry === "number");
+}
+function validTool(value) {
+  if (!record(value))
+    return false;
+  return typeof value.tool_use_id === "string" && typeof value.name === "string" && record(value.input) && typeof value.endMs === "number" && (value.failed === void 0 || typeof value.failed === "boolean") && (value.error === void 0 || typeof value.error === "string") && (value.failure_type === void 0 || typeof value.failure_type === "string") && (value.duration === void 0 || typeof value.duration === "number");
+}
+function validSubagent(value) {
+  if (!record(value))
+    return false;
+  return typeof value.subagent_id === "string" && typeof value.subagent_type === "string" && typeof value.task === "string" && typeof value.startMs === "number" && (value.endMs === void 0 || typeof value.endMs === "number") && (value.tools === void 0 || Array.isArray(value.tools) && value.tools.every(validTool));
+}
+function validTurn(value) {
+  if (!record(value))
+    return false;
+  return typeof value.generation_id === "string" && (value.tracing_mode === "full" || value.tracing_mode === "metadata") && typeof value.startMs === "number" && (value.endMs === void 0 || typeof value.endMs === "number") && Array.isArray(value.tools) && value.tools.every(validTool) && Array.isArray(value.thoughts) && value.thoughts.every((thought) => record(thought) && typeof thought.text === "string" && (thought.duration_ms === void 0 || typeof thought.duration_ms === "number")) && Array.isArray(value.subagents) && value.subagents.every(validSubagent) && validUsage(value.usage) && (value.prompt === void 0 || typeof value.prompt === "string") && (value.model === void 0 || typeof value.model === "string") && (value.finalText === void 0 || typeof value.finalText === "string") && (value.status === void 0 || typeof value.status === "string");
+}
+function validConversation(value) {
+  if (!record(value) || !record(value.turns))
+    return false;
+  return Object.values(value.turns).every(validTurn) && typeof value.turn_count === "number" && Number.isInteger(value.turn_count) && value.turn_count >= 0 && typeof value.updated === "string" && (value.tracing === void 0 || value.tracing === "metadata") && (value.parent_conversation_id === void 0 || typeof value.parent_conversation_id === "string") && (value.parent_generation_id === void 0 || typeof value.parent_generation_id === "string");
+}
+function metadataStatus(status) {
+  if (status == null)
+    return void 0;
+  return status === "completed" ? "completed" : "error";
+}
+function sanitizeMetadataTurn(turn) {
+  turn.tracing_mode = "metadata";
+  delete turn.prompt;
+  delete turn.finalText;
+  turn.status = metadataStatus(turn.status);
+  turn.thoughts = [];
+  turn.tools = turn.tools.map((tool) => ({
+    tool_use_id: "",
+    name: tool.name,
+    input: {},
+    failed: tool.failed ?? tool.error != null,
+    duration: tool.duration,
+    endMs: tool.endMs
+  }));
+  turn.subagents = turn.subagents.map((subagent) => ({
+    subagent_id: "",
+    subagent_type: subagent.subagent_type,
+    task: "",
+    model: subagent.model,
+    is_parallel_worker: subagent.is_parallel_worker,
+    status: metadataStatus(subagent.status),
+    duration_ms: subagent.duration_ms,
+    message_count: subagent.message_count,
+    tool_call_count: subagent.tool_call_count,
+    loop_count: subagent.loop_count,
+    startMs: subagent.startMs,
+    endMs: subagent.endMs,
+    tools: subagent.tools?.map((tool) => ({
+      tool_use_id: "",
+      name: tool.name,
+      input: {},
+      failed: tool.failed ?? tool.error != null,
+      duration: tool.duration,
+      endMs: tool.endMs
+    }))
+  }));
+  return turn;
+}
+function enforceConversationTracing(conv) {
+  if (conv.tracing === "metadata") {
+    for (const turn of Object.values(conv.turns))
+      sanitizeMetadataTurn(turn);
+  }
+  return conv;
+}
 function loadState(stateFilePath) {
+  let parsed;
   try {
-    return JSON.parse(readFileSync2(stateFilePath, "utf-8"));
+    parsed = JSON.parse(readFileSync2(stateFilePath, "utf-8"));
   } catch {
-    return {};
+    try {
+      readFileSync2(stateFilePath, "utf-8");
+      return corruptState();
+    } catch {
+      return {};
+    }
+  }
+  if (!record(parsed))
+    return corruptState();
+  const state = {};
+  for (const [id, value] of Object.entries(parsed)) {
+    if (id === CORRUPT_STATE_KEY || !validConversation(value)) {
+      return corruptState(stickyMetadataPolicies(parsed));
+    }
+    state[id] = enforceConversationTracing(value);
+  }
+  return state;
+}
+function saveState(stateFilePath, state) {
+  mkdirSync2(dirname2(stateFilePath), { recursive: true });
+  const temp = `${stateFilePath}.${process.pid}.${randomUUID()}.tmp`;
+  try {
+    writeFileSync(temp, JSON.stringify(state, null, 2), { mode: 384 });
+    renameSync2(temp, stateFilePath);
+  } catch (error2) {
+    try {
+      unlinkSync(temp);
+    } catch {
+    }
+    throw error2;
   }
 }
 function getConversationState(state, conversationId) {
   return state[conversationId] ?? { turns: {}, turn_count: 0, updated: "" };
 }
-function newTurnBuffer(generationId, startMs) {
+function newTurnBuffer(generationId, startMs, tracingMode2 = "full") {
   return {
     generation_id: generationId,
+    tracing_mode: tracingMode2,
     startMs,
     tools: [],
     thoughts: [],
@@ -350,22 +519,104 @@ function pruneOldConversations(state, now = Date.now()) {
   const cutoff = now - CONVERSATION_MAX_AGE_MS;
   const pruned = {};
   for (const [conversationId, conv] of Object.entries(state)) {
-    const updatedMs = conv.updated ? new Date(conv.updated).getTime() : 0;
-    if (updatedMs >= cutoff) {
+    if (conversationId === CORRUPT_STATE_KEY) {
       pruned[conversationId] = conv;
+      continue;
+    }
+    const updatedMs = conv.updated ? new Date(conv.updated).getTime() : 0;
+    if (updatedMs >= cutoff || conv.tracing === "metadata") {
+      pruned[conversationId] = updatedMs >= cutoff ? conv : { ...conv, turns: {}, updated: new Date(now).toISOString() };
     }
   }
   return pruned;
+}
+
+// dist/trace-control.js
+function parseTraceCommand(prompt) {
+  const match = prompt.match(/^\/trace (on|off|status)$/);
+  return match?.[1];
+}
+function applyTraceCommand(state, conversationId, command) {
+  if (command === "status")
+    return state;
+  const conv = getConversationState(state, conversationId);
+  if (command === "off") {
+    conv.tracing = "metadata";
+    enforceConversationTracing(conv);
+  }
+  if (command === "on")
+    delete conv.tracing;
+  conv.updated = (/* @__PURE__ */ new Date()).toISOString();
+  const { [CORRUPT_STATE_KEY]: _corrupt, ...recovered } = state;
+  return { ...recovered, [conversationId]: conv };
+}
+function tracingMode(state, conversationId) {
+  return state[CORRUPT_STATE_KEY] || getConversationState(state, conversationId).tracing === "metadata" ? "metadata" : "full";
+}
+function traceCommandMessage(command, mode, masterEnabled = true) {
+  if (!masterEnabled) {
+    return `LangSmith tracing is disabled by the master switch. Thread preference is ${mode === "metadata" ? "off (metadata only)" : "on"}; it will apply when the master switch is enabled.`;
+  }
+  if (command === "off" || mode === "metadata") {
+    return "LangSmith tracing is off for this thread (metadata only).";
+  }
+  return "LangSmith tracing is on for this thread.";
 }
 
 // dist/reducer.js
 function touch(conv) {
   conv.updated = (/* @__PURE__ */ new Date()).toISOString();
 }
+function openSubagentParent(state, childConversationId) {
+  const candidates = [];
+  for (const [conversationId, conv] of Object.entries(state)) {
+    if (conversationId === childConversationId)
+      continue;
+    for (const turn of Object.values(conv.turns)) {
+      if (turn.subagents.some((subagent) => subagent.endMs == null)) {
+        candidates.push({
+          conversationId,
+          generationId: turn.generation_id,
+          mode: turn.tracing_mode
+        });
+      }
+    }
+  }
+  if (candidates.length === 1)
+    return candidates[0];
+  if (candidates.length > 1) {
+    return {
+      conversationId: "__unresolved_subagent__",
+      generationId: "__unresolved_subagent__",
+      mode: "metadata"
+    };
+  }
+  return void 0;
+}
+function conversationForEvent(state, conversationId) {
+  const conv = enforceConversationTracing(getConversationState(state, conversationId));
+  if (conv.tracing === "metadata" || conv.parent_conversation_id)
+    return conv;
+  const parent = openSubagentParent(state, conversationId);
+  if (parent) {
+    conv.tracing = "metadata";
+    enforceConversationTracing(conv);
+  }
+  return conv;
+}
+function eventTracingMode(state, conversationId, conv) {
+  if (conv.tracing === "metadata")
+    return "metadata";
+  if (conv.parent_conversation_id && conv.parent_generation_id) {
+    return state[conv.parent_conversation_id]?.turns[conv.parent_generation_id]?.tracing_mode ?? "metadata";
+  }
+  return tracingMode(state, conversationId);
+}
 function reduceBeforeSubmitPrompt(state, input, nowMs) {
-  const conv = getConversationState(state, input.conversation_id);
-  const turn = newTurnBuffer(input.generation_id, nowMs);
-  turn.prompt = input.prompt;
+  const conv = conversationForEvent(state, input.conversation_id);
+  const turn = conv.turns[input.generation_id] ?? newTurnBuffer(input.generation_id, nowMs, eventTracingMode(state, input.conversation_id, conv));
+  if (turn.tracing_mode === "full")
+    turn.prompt = input.prompt;
   turn.model = input.model;
   conv.turns[input.generation_id] = turn;
   touch(conv);
@@ -375,11 +626,27 @@ function reduceBeforeSubmitPrompt(state, input, nowMs) {
 // dist/hooks/before-submit-prompt.js
 async function main() {
   const input = await readStdin();
-  const config = initHook(input.workspace_roots?.[0]);
-  if (!config)
+  const config = loadConfig({ cwd: input.workspace_roots?.[0] });
+  initLogger(config.debug);
+  const command = parseTraceCommand(input.prompt);
+  if (command) {
+    let mode = "full";
+    await atomicUpdateState(config.stateFilePath, (state) => {
+      const next = applyTraceCommand(state, input.conversation_id, command);
+      mode = tracingMode(next, input.conversation_id);
+      return next;
+    });
+    process.stdout.write(JSON.stringify({
+      continue: false,
+      user_message: traceCommandMessage(command, mode, config.enabled)
+    }));
     return;
+  }
+  if (!config.enabled || !config.apiKey && (!config.replicas || config.replicas.length === 0)) {
+    return;
+  }
   debug(`beforeSubmitPrompt conv=${input.conversation_id} gen=${input.generation_id}`);
-  await atomicUpdateState(config.stateFilePath, (s) => reduceBeforeSubmitPrompt(s, input, Date.now()));
+  await atomicUpdateState(config.stateFilePath, (state) => reduceBeforeSubmitPrompt(state, input, Date.now()));
 }
 main().catch((err) => {
   try {

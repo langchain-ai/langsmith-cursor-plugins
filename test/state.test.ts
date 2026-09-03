@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { mkdtempSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, statSync, utimesSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
@@ -38,10 +38,71 @@ describe("loadState / saveState", () => {
     expect(loadState(file)).toEqual(state);
   });
 
-  it("returns {} for malformed JSON", () => {
+  it("fails closed for malformed JSON or any malformed nested entry", () => {
     const file = tmpStateFile();
     writeFileSync(file, "{not json");
-    expect(loadState(file)).toEqual({});
+    expect(loadState(file)).toMatchObject({ __langsmith_corrupt_state__: { tracing: "metadata" } });
+    writeFileSync(
+      file,
+      JSON.stringify({
+        good: { turns: {}, turn_count: 0, updated: "t" },
+        bad: {
+          turns: {
+            generation: {
+              generation_id: "generation",
+              tracing_mode: "full",
+              startMs: 1,
+              tools: [{ name: "Read" }],
+              thoughts: [],
+              subagents: [],
+            },
+          },
+          turn_count: 0,
+          updated: "t",
+        },
+      }),
+    );
+    expect(loadState(file)).toMatchObject({ __langsmith_corrupt_state__: { tracing: "metadata" } });
+  });
+
+  it("discards all buffers on a corrupt sentinel and retains only sticky metadata policies", () => {
+    const file = tmpStateFile();
+    writeFileSync(
+      file,
+      JSON.stringify({
+        full: {
+          turns: {
+            generation: {
+              generation_id: "generation",
+              tracing_mode: "full",
+              startMs: 1,
+              prompt: "secret prompt",
+              finalText: "secret answer",
+              tools: [],
+              thoughts: [{ text: "secret thought" }],
+              subagents: [],
+            },
+          },
+          turn_count: 2,
+          updated: "t",
+        },
+        muted: { turns: {}, turn_count: 3, updated: "u", tracing: "metadata" },
+        __langsmith_corrupt_state__: { tracing: "metadata" },
+      }),
+    );
+
+    const state = loadState(file);
+    expect(state).toEqual({
+      muted: { turns: {}, turn_count: 3, updated: "u", tracing: "metadata" },
+      __langsmith_corrupt_state__: { turns: {}, turn_count: 0, updated: "", tracing: "metadata" },
+    });
+    expect(JSON.stringify(state)).not.toContain("secret");
+  });
+
+  it("writes state files with private permissions", () => {
+    const file = tmpStateFile();
+    saveState(file, { thread: { turns: {}, turn_count: 0, updated: "t" } });
+    expect(statSync(file).mode & 0o777).toBe(0o600);
   });
 });
 
@@ -59,6 +120,34 @@ describe("atomicUpdateState", () => {
     const state = loadState(file);
     expect(Object.keys(state).length).toBe(10);
   });
+
+  it("recovers an old malformed legacy lock and keeps the lock private", async () => {
+    const file = tmpStateFile();
+    const lock = `${file}.lock`;
+    writeFileSync(lock, "", { mode: 0o600 });
+    const old = new Date(Date.now() - 20_000);
+    utimesSync(lock, old, old);
+
+    await atomicUpdateState(file, (state) => ({
+      ...state,
+      recovered: { turns: {}, turn_count: 0, updated: "t" },
+    }));
+
+    expect(loadState(file).recovered).toBeDefined();
+    expect(existsSync(lock)).toBe(false);
+    expect(statSync(file).mode & 0o777).toBe(0o600);
+  });
+
+  it("does not steal a fresh create-before-write lock", async () => {
+    const file = tmpStateFile();
+    const lock = `${file}.lock`;
+    writeFileSync(lock, "", { mode: 0o600 });
+
+    const update = atomicUpdateState(file, (state) => state);
+    await expect(update).rejects.toThrow("Timed out acquiring LangSmith state lock");
+    expect(existsSync(lock)).toBe(true);
+    expect(statSync(lock).mode & 0o777).toBe(0o600);
+  }, 7_000);
 });
 
 describe("pruneOldConversations", () => {
