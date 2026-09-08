@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "hooks": {
+    "beforeSubmitPrompt": [
+      {
+        "command": "\"${HOME}/.langsmith/langsmith-cursor-tracing\" before-submit-prompt"
+      }
+    ],
+    "afterAgentResponse": [
+      {
+        "command": "\"${HOME}/.langsmith/langsmith-cursor-tracing\" after-agent-response"
+      }
+    ],
+    "postToolUse": [
+      {
+        "command": "\"${HOME}/.langsmith/langsmith-cursor-tracing\" post-tool-use"
+      }
+    ],
+    "postToolUseFailure": [
+      {
+        "command": "\"${HOME}/.langsmith/langsmith-cursor-tracing\" post-tool-use-failure"
+      }
+    ],
+    "subagentStart": [
+      {
+        "command": "\"${HOME}/.langsmith/langsmith-cursor-tracing\" subagent-start"
+      }
+    ],
+    "subagentStop": [
+      {
+        "command": "\"${HOME}/.langsmith/langsmith-cursor-tracing\" subagent-stop"
+      }
+    ],
+    "stop": [
+      { "command": "\"${HOME}/.langsmith/langsmith-cursor-tracing\" stop" }
+    ],
+    "sessionStart": [
+      {
+        "command": "\"${HOME}/.langsmith/langsmith-cursor-tracing\" session-start"
+      }
+    ]
+  }
+}
