@@ -27,8 +27,10 @@ const hookName = process.argv[2];
 const runHook = hookName && Object.hasOwn(hooks, hookName) ? hooks[hookName] : undefined;
 
 async function runAutomaticUpdate(): Promise<void> {
-  const { debug, log, warn } = await import("./logger.js");
+  const { debug, initLogger, log, warn } = await import("./logger.js");
   try {
+    const { loadConfig } = await import("./config.js");
+    initLogger(loadConfig().debug);
     const { updateFromGitHub } = await import("./updater.js");
     const update = await updateFromGitHub();
     debug(`Automatic update result: ${update.status}`);

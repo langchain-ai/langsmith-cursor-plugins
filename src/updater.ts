@@ -17,6 +17,7 @@ const MAC_TEAM_ID = typeof __LS_MAC_TEAM_ID__ !== "undefined" ? __LS_MAC_TEAM_ID
 const EXECUTABLE_NAME = "langsmith-cursor-tracing";
 const SUPPORTED_TARGETS: Readonly<Record<string, ReadonlySet<string>>> = {
   darwin: new Set(["arm64"]),
+  win32: new Set(["arm64", "x64"]),
 };
 
 const CHECK_INTERVAL_MS = 60 * 60 * 1000;
