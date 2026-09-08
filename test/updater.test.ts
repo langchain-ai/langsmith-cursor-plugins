@@ -69,15 +69,86 @@ describe("getSeaReleaseTarget", () => {
       executableName: "langsmith-cursor-tracing",
     });
     expect(getSeaReleaseTarget("linux", "x64", "v0.3.5")).toBeUndefined();
-    expect(getSeaReleaseTarget("win32", "arm64", "0.3.5")).toBeUndefined();
     expect(getSeaReleaseTarget("linux", "riscv64", "0.3.5")).toBeUndefined();
     expect(getSeaReleaseTarget("freebsd", "x64", "0.3.5")).toBeUndefined();
     expect(getSeaReleaseTarget("darwin", "x64", "0.3.5")).toBeUndefined();
     expect(getSeaReleaseTarget("linux", "s390x", "0.3.5")).toBeUndefined();
   });
+
+  it.each(["x64", "arm64"])("maps Windows %s to an executable release asset", (arch) => {
+    expect(getSeaReleaseTarget("win32", arch, "v0.3.5")).toEqual({
+      assetName: `langsmith-cursor-tracing-win32-${arch}-0.3.5.exe`,
+      executableName: "langsmith-cursor-tracing.exe",
+    });
+  });
 });
 
 describe("updateFromGitHub", () => {
+  it.each(["x64", "arm64"])(
+    "replaces a Windows %s executable without launching a script",
+    async (arch) => {
+      const installDir = mkdtempSync(join(tmpdir(), "langsmith-update-"));
+      const target = join(installDir, "langsmith-cursor-tracing.exe");
+      const binary = new TextEncoder().encode("new Windows binary");
+      const assetName = `langsmith-cursor-tracing-win32-${arch}-0.3.5.exe`;
+      writeFileSync(target, "old Windows binary");
+
+      const fetchImpl = vi
+        .fn<typeof fetch>()
+        .mockResolvedValueOnce(releaseResponse("0.3.5", binary, undefined, assetName))
+        .mockResolvedValueOnce(new Response(binary));
+
+      await expect(
+        updateFromGitHub({
+          currentVersion: "0.3.4",
+          installDir,
+          executablePath: target,
+          fetchImpl,
+          checkIntervalMs: 0,
+          runtimePlatform: "win32",
+          runtimeArch: arch,
+          now: () => 1234,
+        }),
+      ).resolves.toEqual({ status: "updated", version: "0.3.5" });
+      expect(fetchImpl).toHaveBeenCalledTimes(2);
+      expect(readFileSync(target)).toEqual(Buffer.from(binary));
+      expect(
+        readFileSync(
+          join(installDir, `.langsmith-cursor-tracing.old-${process.pid}-1234.exe`),
+          "utf8",
+        ),
+      ).toBe("old Windows binary");
+    },
+  );
+
+  it("only cleans up updater-owned Windows replacement files", async () => {
+    const installDir = mkdtempSync(join(tmpdir(), "langsmith-update-"));
+    const target = join(installDir, "langsmith-cursor-tracing.exe");
+    const oldExecutable = join(installDir, ".langsmith-cursor-tracing.old-123-456.exe");
+    const unrelatedFile = join(installDir, ".langsmith-cursor-tracing.old-custom.exe");
+    writeFileSync(target, "installed binary");
+    writeFileSync(oldExecutable, "old binary");
+    writeFileSync(unrelatedFile, "unrelated");
+
+    const fetchImpl = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(releaseResponse("0.3.5", new Uint8Array([1])));
+
+    await expect(
+      updateFromGitHub({
+        currentVersion: "0.3.5",
+        installDir,
+        executablePath: target,
+        fetchImpl,
+        checkIntervalMs: 0,
+        runtimePlatform: "win32",
+        runtimeArch: "x64",
+      }),
+    ).resolves.toEqual({ status: "current" });
+    expect(readdirSync(installDir)).not.toContain(".langsmith-cursor-tracing.old-123-456.exe");
+    expect(readFileSync(unrelatedFile, "utf8")).toBe("unrelated");
+  });
+
   it("downloads, verifies, and atomically replaces an installed binary", async () => {
     const installDir = mkdtempSync(join(tmpdir(), "langsmith-update-"));
     const target = join(installDir, "langsmith-cursor-tracing");
