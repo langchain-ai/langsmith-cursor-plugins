@@ -141,7 +141,7 @@ function verifyMacSignature(binary, expectedTeamId) {
     "--deep",
     "--strict",
     "-R",
-    `anchor apple generic and certificate leaf[subject.OU] = ${teamId}`,
+    `=anchor apple generic and certificate leaf[subject.OU] = ${teamId}`,
     binary,
   ]);
 }

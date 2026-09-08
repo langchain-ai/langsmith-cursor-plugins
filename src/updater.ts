@@ -171,7 +171,7 @@ async function verifyMacSignature(path: string): Promise<void> {
         "--deep",
         "--strict",
         "-R",
-        `anchor apple generic and certificate leaf[subject.OU] = ${MAC_TEAM_ID}`,
+        `=anchor apple generic and certificate leaf[subject.OU] = ${MAC_TEAM_ID}`,
         path,
       ],
       { timeout: 15_000 },
