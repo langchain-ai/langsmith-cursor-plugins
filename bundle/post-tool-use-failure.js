@@ -52,6 +52,9 @@ function write(level, message) {
   } catch {
   }
 }
+function warn(message) {
+  write("WARN", message);
+}
 function error(message) {
   write("ERROR", message);
 }
@@ -283,10 +286,11 @@ function initHook(cwd) {
 }
 
 // dist/state.js
-import { readFileSync as readFileSync2, writeFileSync, mkdirSync as mkdirSync2, openSync, closeSync, unlinkSync } from "node:fs";
+import { readFileSync as readFileSync2, writeFileSync, mkdirSync as mkdirSync2, openSync, closeSync, unlinkSync, rmdirSync, renameSync as renameSync2, fsyncSync } from "node:fs";
+import { randomUUID } from "node:crypto";
+import { performance } from "node:perf_hooks";
 import { dirname as dirname2 } from "node:path";
-var LOCK_TIMEOUT_MS = 5e3;
-var LOCK_RETRY_MS = 20;
+var LOCK_TIMEOUT_MS = 2e3;
 function lockPath(stateFilePath) {
   return `${stateFilePath}.lock`;
 }
@@ -295,33 +299,33 @@ function sleep(ms) {
 }
 async function acquireLock(stateFilePath) {
   const lock = lockPath(stateFilePath);
-  const deadline = Date.now() + LOCK_TIMEOUT_MS;
-  mkdirSync2(dirname2(stateFilePath), { recursive: true });
-  while (Date.now() < deadline) {
+  const deadline = performance.now() + LOCK_TIMEOUT_MS;
+  mkdirSync2(dirname2(stateFilePath), { recursive: true, mode: 448 });
+  while (true) {
     try {
-      const fd = openSync(lock, "wx");
-      closeSync(fd);
+      mkdirSync2(lock, { mode: 448 });
       return;
-    } catch {
-      await sleep(LOCK_RETRY_MS);
+    } catch (error2) {
+      if (error2.code !== "EEXIST")
+        throw error2;
+      if (performance.now() >= deadline)
+        throw new Error("Timed out waiting for turn-state lock; confirm no writer is running before removing it");
+      await sleep(10 + Math.random() * 20);
     }
-  }
-  try {
-    unlinkSync(lock);
-  } catch {
   }
 }
 function releaseLock(stateFilePath) {
   try {
-    unlinkSync(lockPath(stateFilePath));
+    rmdirSync(lockPath(stateFilePath));
   } catch {
+    warn("Turn-state lock cleanup failed; confirm no writer is running before removing it");
   }
 }
 async function atomicUpdateState(stateFilePath, fn) {
   await acquireLock(stateFilePath);
   try {
     const state = loadState(stateFilePath);
-    writeFileSync(stateFilePath, JSON.stringify(fn(state), null, 2));
+    saveState(stateFilePath, fn(state));
   } finally {
     releaseLock(stateFilePath);
   }
@@ -331,6 +335,39 @@ function loadState(stateFilePath) {
     return JSON.parse(readFileSync2(stateFilePath, "utf-8"));
   } catch {
     return {};
+  }
+}
+function saveState(stateFilePath, state) {
+  mkdirSync2(dirname2(stateFilePath), { recursive: true, mode: 448 });
+  const temp = `${stateFilePath}.${process.pid}.${randomUUID()}.tmp`;
+  let committed = false;
+  try {
+    const fd = openSync(temp, "wx", 384);
+    try {
+      writeFileSync(fd, JSON.stringify(state, null, 2));
+      fsyncSync(fd);
+    } finally {
+      closeSync(fd);
+    }
+    renameSync2(temp, stateFilePath);
+    committed = true;
+    try {
+      const fd2 = openSync(dirname2(stateFilePath), "r");
+      try {
+        fsyncSync(fd2);
+      } finally {
+        closeSync(fd2);
+      }
+    } catch {
+      warn("Turn snapshot saved, but crash durability could not be confirmed");
+    }
+  } finally {
+    if (!committed) {
+      try {
+        unlinkSync(temp);
+      } catch {
+      }
+    }
   }
 }
 function getConversationState(state, conversationId) {
@@ -360,6 +397,8 @@ function touch(conv) {
 }
 function reducePostToolUseFailure(state, input, nowMs) {
   const conv = getConversationState(state, input.conversation_id);
+  if (conv.completedOffGenerations?.includes(input.generation_id))
+    return state;
   const turn = conv.turns[input.generation_id] ?? newTurnBuffer(input.generation_id, nowMs);
   turn.model = preferModel(turn.model, input.model);
   turn.tools.push({

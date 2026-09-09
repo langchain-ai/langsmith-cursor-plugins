@@ -310,6 +310,7 @@ describe("buildTurnRuns produces the expected LangSmith run tree", () => {
 describe("buildTurnRuns interleaved step fidelity", () => {
   const startMs = 1000;
   const buffer: TurnBuffer = {
+    tracingMode: "full",
     generation_id: "gen-1",
     prompt: "do stuff",
     model: "claude-4.6-sonnet",

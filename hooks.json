@@ -1,7 +1,13 @@
 {
   "version": 1,
   "hooks": {
-    "beforeSubmitPrompt": [{ "command": "node BUNDLE_DIR/guard.js before-submit-prompt" }],
+    "beforeSubmitPrompt": [
+      {
+        "command": "node BUNDLE_DIR/guard.js before-submit-prompt",
+        "failClosed": true,
+        "timeout": 15
+      }
+    ],
     "afterAgentResponse": [{ "command": "node BUNDLE_DIR/guard.js after-agent-response" }],
     "postToolUse": [{ "command": "node BUNDLE_DIR/guard.js post-tool-use" }],
     "postToolUseFailure": [{ "command": "node BUNDLE_DIR/guard.js post-tool-use-failure" }],

@@ -6,6 +6,7 @@
 
 import { readStdin } from "../utils/stdin.js";
 import { initHook } from "../utils/hook-init.js";
+import { loadConfig } from "../config.js";
 import { atomicUpdateState } from "../state.js";
 import { reduceStop } from "../reducer.js";
 import { initTracing, buildTurnRuns, flushPendingTraces } from "../langsmith.js";
@@ -18,17 +19,19 @@ import type { ContentPart, StopInput, TurnBuffer } from "../types.js";
 async function main(): Promise<void> {
   const input = await readStdin<StopInput>();
   const config = initHook(input.workspace_roots?.[0]);
-  if (!config) return;
+  if (!config) {
+    // Prompt submission records off launches even without upload credentials.
+    // Consume only those snapshots; leave the pre-existing enabled-turn lifecycle alone.
+    const local = loadConfig({ cwd: input.workspace_roots?.[0] });
+    await atomicUpdateState(local.stateFilePath, (s) =>
+      s[input.conversation_id]?.turns[input.generation_id]?.tracingMode === "off"
+        ? reduceStop(s, input, Date.now()).state
+        : s,
+    );
+    return;
+  }
 
   debug(`stop conv=${input.conversation_id} gen=${input.generation_id} status=${input.status}`);
-  initTracing(
-    config.apiKey,
-    config.apiUrl,
-    config.replicas,
-    config.redact,
-    config.redactExtraRules,
-  );
-
   let toTrace: TurnBuffer | undefined;
   let turnNum = 0;
 
@@ -44,10 +47,20 @@ async function main(): Promise<void> {
     return;
   }
 
+  if (toTrace.tracingMode === "off") return;
+
+  initTracing(
+    config.apiKey,
+    config.apiUrl,
+    config.replicas,
+    config.redact,
+    config.redactExtraRules,
+  );
+
   // Best-effort attachment enrichment (read-only DB + disk); never throws, and an
   // empty result leaves the turn unchanged.
   let attachments: ContentPart[] = [];
-  if (config.attachmentsEnabled) {
+  if (config.attachmentsEnabled && toTrace.tracingMode === "full") {
     attachments = resolveTurnAttachments({
       conversationId: input.conversation_id,
       prompt: toTrace.prompt,
@@ -58,7 +71,7 @@ async function main(): Promise<void> {
   // Best-effort system-prompt enrichment (read-only DB + protobuf field decode);
   // never throws, and undefined leaves the llm runs unchanged.
   let systemPrompt: string | undefined;
-  if (config.systemPromptEnabled) {
+  if (config.systemPromptEnabled && toTrace.tracingMode === "full") {
     // Resolve the main turn + every subagent's child conversation over ONE DB
     // connection (avoids an open-per-subagent explosion with many subagents).
     const childIds = toTrace.subagents

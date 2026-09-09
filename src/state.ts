@@ -3,14 +3,26 @@
  * posts the trace and clears the turn. File-locked.
  */
 
-import { readFileSync, writeFileSync, mkdirSync, openSync, closeSync, unlinkSync } from "node:fs";
+import {
+  readFileSync,
+  writeFileSync,
+  mkdirSync,
+  openSync,
+  closeSync,
+  unlinkSync,
+  rmdirSync,
+  renameSync,
+  fsyncSync,
+} from "node:fs";
+import { randomUUID } from "node:crypto";
+import { performance } from "node:perf_hooks";
+import { warn } from "./logger.js";
 import { dirname } from "node:path";
 import type { TracingState, ConversationState, TurnBuffer } from "./types.js";
 
 // ─── Atomic read-modify-write ────────────────────────────────────────────────
 
-const LOCK_TIMEOUT_MS = 5_000;
-const LOCK_RETRY_MS = 20;
+const LOCK_TIMEOUT_MS = 2_000;
 
 function lockPath(stateFilePath: string): string {
   return `${stateFilePath}.lock`;
@@ -22,31 +34,28 @@ function sleep(ms: number): Promise<void> {
 
 async function acquireLock(stateFilePath: string): Promise<void> {
   const lock = lockPath(stateFilePath);
-  const deadline = Date.now() + LOCK_TIMEOUT_MS;
-  mkdirSync(dirname(stateFilePath), { recursive: true });
-  while (Date.now() < deadline) {
+  const deadline = performance.now() + LOCK_TIMEOUT_MS;
+  mkdirSync(dirname(stateFilePath), { recursive: true, mode: 0o700 });
+  while (true) {
     try {
-      // O_EXCL | O_CREAT: fails atomically if the file already exists.
-      const fd = openSync(lock, "wx");
-      closeSync(fd);
+      mkdirSync(lock, { mode: 0o700 });
       return;
-    } catch {
-      await sleep(LOCK_RETRY_MS);
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== "EEXIST") throw error;
+      if (performance.now() >= deadline)
+        throw new Error(
+          "Timed out waiting for turn-state lock; confirm no writer is running before removing it",
+        );
+      await sleep(10 + Math.random() * 20);
     }
-  }
-  // Stale lock — remove it and proceed rather than deadlocking.
-  try {
-    unlinkSync(lock);
-  } catch {
-    /* ignore */
   }
 }
 
 function releaseLock(stateFilePath: string): void {
   try {
-    unlinkSync(lockPath(stateFilePath));
+    rmdirSync(lockPath(stateFilePath));
   } catch {
-    /* ignore */
+    warn("Turn-state lock cleanup failed; confirm no writer is running before removing it");
   }
 }
 
@@ -58,7 +67,7 @@ export async function atomicUpdateState(
   await acquireLock(stateFilePath);
   try {
     const state = loadState(stateFilePath);
-    writeFileSync(stateFilePath, JSON.stringify(fn(state), null, 2));
+    saveState(stateFilePath, fn(state));
   } finally {
     releaseLock(stateFilePath);
   }
@@ -75,8 +84,38 @@ export function loadState(stateFilePath: string): TracingState {
 }
 
 export function saveState(stateFilePath: string, state: TracingState): void {
-  mkdirSync(dirname(stateFilePath), { recursive: true });
-  writeFileSync(stateFilePath, JSON.stringify(state, null, 2));
+  mkdirSync(dirname(stateFilePath), { recursive: true, mode: 0o700 });
+  const temp = `${stateFilePath}.${process.pid}.${randomUUID()}.tmp`;
+  let committed = false;
+  try {
+    const fd = openSync(temp, "wx", 0o600);
+    try {
+      writeFileSync(fd, JSON.stringify(state, null, 2));
+      fsyncSync(fd);
+    } finally {
+      closeSync(fd);
+    }
+    renameSync(temp, stateFilePath);
+    committed = true;
+    try {
+      const fd = openSync(dirname(stateFilePath), "r");
+      try {
+        fsyncSync(fd);
+      } finally {
+        closeSync(fd);
+      }
+    } catch {
+      warn("Turn snapshot saved, but crash durability could not be confirmed");
+    }
+  } finally {
+    if (!committed) {
+      try {
+        unlinkSync(temp);
+      } catch {
+        /* best effort */
+      }
+    }
+  }
 }
 
 export function getConversationState(

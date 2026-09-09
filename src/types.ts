@@ -142,6 +142,8 @@ export interface ToolEvent {
 
 /** A subagent invocation, rendered as a Task tool run with nested tool children. */
 export interface SubagentEvent {
+  /** Privacy-only launch snapshot; independent of the latest-turn topology join. */
+  tracingMode?: TracingMode;
   subagent_id: string;
   subagent_type: string;
   task: string;
@@ -179,6 +181,8 @@ export interface ThoughtEvent {
 
 /** Buffered events for one in-progress turn (one generation_id). */
 export interface TurnBuffer {
+  /** Immutable prompt-launch snapshot; absent/legacy evidence is metadata-only. */
+  tracingMode?: TurnMode;
   generation_id: string;
   prompt?: string;
   /** Best model label seen for this turn (from beforeSubmitPrompt / stop). */
@@ -198,6 +202,8 @@ export interface TurnBuffer {
 
 /** State for one conversation (thread). */
 export interface ConversationState {
+  /** Content-free tombstones: late events must not resurrect completed off launches. */
+  completedOffGenerations?: string[];
   /** In-progress turn buffers keyed by generation_id. */
   turns: Record<string, TurnBuffer>;
   /** Number of turns already finalized (for "Cursor Turn N" naming). */
@@ -209,3 +215,6 @@ export interface ConversationState {
 export interface TracingState {
   [conversationId: string]: ConversationState;
 }
+
+export type TracingMode = "full" | "metadata";
+export type TurnMode = TracingMode | "off";

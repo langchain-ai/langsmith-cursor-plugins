@@ -5,6 +5,7 @@
 
 import type {
   TracingState,
+  TurnMode,
   ConversationState,
   TurnBuffer,
   ToolEvent,
@@ -46,10 +47,15 @@ export function reduceBeforeSubmitPrompt(
   state: TracingState,
   input: BeforeSubmitPromptInput,
   nowMs: number,
+  mode: TurnMode = "full",
 ): TracingState {
   const conv = getConversationState(state, input.conversation_id);
+  if (conv.completedOffGenerations?.includes(input.generation_id)) return state;
+  // Duplicate delivery must not change a running generation or its snapshot.
+  if (conv.turns[input.generation_id]) return state;
   const turn = newTurnBuffer(input.generation_id, nowMs);
-  turn.prompt = input.prompt;
+  turn.tracingMode = mode;
+  turn.prompt = mode === "off" ? undefined : input.prompt;
   turn.model = input.model;
   conv.turns[input.generation_id] = turn;
   touch(conv);
@@ -62,6 +68,7 @@ export function reducePostToolUse(
   nowMs: number,
 ): TracingState {
   const conv = getConversationState(state, input.conversation_id);
+  if (conv.completedOffGenerations?.includes(input.generation_id)) return state;
   const turn = conv.turns[input.generation_id] ?? newTurnBuffer(input.generation_id, nowMs);
   turn.model = preferModel(turn.model, input.model);
   const output = parseToolOutput(input.tool_output);
@@ -87,6 +94,7 @@ export function reducePostToolUseFailure(
   nowMs: number,
 ): TracingState {
   const conv = getConversationState(state, input.conversation_id);
+  if (conv.completedOffGenerations?.includes(input.generation_id)) return state;
   const turn = conv.turns[input.generation_id] ?? newTurnBuffer(input.generation_id, nowMs);
   turn.model = preferModel(turn.model, input.model);
   turn.tools.push({
@@ -109,6 +117,7 @@ export function reduceAfterAgentResponse(
   nowMs: number,
 ): TracingState {
   const conv = getConversationState(state, input.conversation_id);
+  if (conv.completedOffGenerations?.includes(input.generation_id)) return state;
   const turn = conv.turns[input.generation_id] ?? newTurnBuffer(input.generation_id, nowMs);
   turn.finalText = input.text;
   turn.model = preferModel(turn.model, input.model);
@@ -123,6 +132,31 @@ export function reduceAfterAgentResponse(
   return { ...state, [input.conversation_id]: conv };
 }
 
+/** Resolve privacy evidence only; never change the existing latest-turn parentage. */
+function subagentLaunchMode(
+  conv: ConversationState,
+  input: SubagentStartInput,
+): "full" | "metadata" {
+  const candidates = Object.values(conv.turns);
+  // Captured Cursor launches often repeat the conversation ID as generation_id.
+  // Only a distinct, actually buffered generation is explicit ownership evidence.
+  const generation = ![
+    input.conversation_id,
+    input.parent_conversation_id,
+    input.session_id,
+  ].includes(input.generation_id)
+    ? conv.turns[input.generation_id]
+    : undefined;
+  const linked = input.tool_call_id
+    ? candidates.filter((t) => t.tools.some((tool) => tool.tool_use_id === input.tool_call_id))
+    : [];
+  const proven = generation ? [generation, ...linked] : linked;
+  const possible = proven.length ? proven : candidates;
+  return possible.length > 0 && possible.every((t) => t.tracingMode === "full")
+    ? "full"
+    : "metadata";
+}
+
 export function reduceSubagentStart(
   state: TracingState,
   input: SubagentStartInput,
@@ -130,9 +164,12 @@ export function reduceSubagentStart(
 ): TracingState {
   const parentConv = input.parent_conversation_id ?? input.conversation_id;
   const conv = getConversationState(state, parentConv);
+  if (conv.completedOffGenerations?.includes(input.generation_id)) return state;
+  const tracingMode = subagentLaunchMode(conv, input);
   const turnId = latestTurnId(conv.turns);
   const turn = turnId ? conv.turns[turnId] : newTurnBuffer(input.generation_id, nowMs);
   turn.subagents.push({
+    tracingMode,
     subagent_id: input.subagent_id,
     subagent_type: input.subagent_type,
     task: input.task,
@@ -287,6 +324,9 @@ export function reduceStop(state: TracingState, input: StopInput, nowMs: number)
   turn.model = preferModel(turn.model, input.model);
 
   const turnNum = conv.turn_count + 1;
+  if (turn.tracingMode === "off") {
+    (conv.completedOffGenerations ??= []).push(input.generation_id);
+  }
   delete conv.turns[input.generation_id];
   conv.turn_count += 1;
   touch(conv);

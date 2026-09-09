@@ -1,3 +1,14 @@
+import { LS_INTEGRATION_VERSION } from "./config.js";
+
+const TRUSTED_METADATA = Symbol("cursor.trustedMetadata");
+export function trustedCodingAgentMetadata(
+  metadata?: Record<string, unknown>,
+): Record<string, unknown> | undefined {
+  return metadata
+    ? (metadata as Record<symbol, Record<string, unknown>>)[TRUSTED_METADATA]
+    : undefined;
+}
+
 /**
  * coding-agent-v1 trace metadata for the Cursor integration. See
  * ../../coding-agent-v1/validator.json for the contract.
@@ -103,9 +114,15 @@ export function codingAgentMetadata(opts: CodingAgentMetadataOptions): Record<st
   // Tool runs: ls_tool_name only when the native name differs from the run name.
   if (toolName && runName && toolName !== runName) meta.ls_tool_name = toolName;
 
-  return {
-    ...meta,
-    ...runSpecific,
-    ...base,
-  };
+  const result = { ...meta, ...runSpecific, ...base };
+  // Never trust custom base collisions, including token counts or structural IDs.
+  Object.defineProperty(result, TRUSTED_METADATA, {
+    value: {
+      ...meta,
+      ...runSpecific,
+      ...(toolName ? { ls_tool_name: toolName } : {}),
+      ...(LS_INTEGRATION_VERSION ? { ls_integration_version: LS_INTEGRATION_VERSION } : {}),
+    },
+  });
+  return result;
 }

@@ -1,5 +1,6 @@
 /** LangSmith run construction: one trace per turn via RunTree, threaded by conversation_id. */
 
+import { createRunTree, createChildRun, MUTED_TRACE_CONTENT } from "./privacy.js";
 import { Client, RunTree, type RunTreeConfig } from "langsmith";
 import { createSecretAnonymizer } from "langsmith/anonymizer";
 import type { StringNodeRule } from "langsmith/anonymizer";
@@ -27,14 +28,8 @@ export function initTracing(
     ? createSecretAnonymizer(extraRedactionRules ? { extraRules: extraRedactionRules } : undefined)
     : undefined;
 
-  // Build a client even keyless when replicas exist, so replica posts stay anonymized.
-  if (clientOverride) {
-    client = clientOverride;
-  } else if (apiKey || (anonymizer && providedReplicas)) {
-    client = new Client({ apiKey: apiKey || undefined, apiUrl, anonymizer });
-  } else {
-    client = undefined;
-  }
+  // Always retain the configured endpoint, including keyless, unredacted replica-only tracing.
+  client = clientOverride ?? new Client({ apiKey: apiKey || undefined, apiUrl, anonymizer });
   replicas = providedReplicas;
   return client;
 }
@@ -168,13 +163,24 @@ function orderedTurnCalls(buffer: TurnBuffer): TurnCall[] {
       toolCallBlock: {
         type: "tool_call",
         name: "Subagent",
-        args: { subagent_type: s.subagent_type, task: s.task },
+        args: {
+          subagent_type: s.subagent_type,
+          task: s.tracingMode === "full" ? s.task : MUTED_TRACE_CONTENT,
+        },
         id: s.subagent_id,
       },
       resultMessage: {
         role: "tool",
         tool_call_id: s.subagent_id,
-        content: [{ type: "text", text: s.resultText ?? `status: ${s.status ?? "completed"}` }],
+        content: [
+          {
+            type: "text",
+            text:
+              s.tracingMode === "full"
+                ? (s.resultText ?? `status: ${s.status ?? "completed"}`)
+                : MUTED_TRACE_CONTENT,
+          },
+        ],
       },
     })),
   ];
@@ -183,6 +189,8 @@ function orderedTurnCalls(buffer: TurnBuffer): TurnCall[] {
 
 /** Build and submit the full LangSmith trace for one finalized turn. */
 export async function buildTurnRuns(options: BuildTurnOptions): Promise<void> {
+  if (options.buffer.tracingMode === "off") return;
+  const mode = options.buffer.tracingMode === "full" ? "full" : "metadata";
   const { buffer, conversationId, turnNum, project, userEmail, customMetadata, systemPrompt } =
     options;
 
@@ -210,17 +218,20 @@ export async function buildTurnRuns(options: BuildTurnOptions): Promise<void> {
 
   // 1. Root turn run. createChild derives ids, trace_id and dotted_order for children.
   const turnName = `${TURN_RUN_NAME} ${turnNum}`;
-  const turnRun = new RunTree({
-    client,
-    replicas,
-    name: turnName,
-    run_type: "chain",
-    inputs: { messages: [{ role: "user", content: userContent }] },
-    project_name: project,
-    start_time: buffer.startMs,
-    tags: DEFAULT_TAGS,
-    extra: { metadata: codingAgentMetadata({ ...ctx, runSpecific: { model: buffer.model } }) },
-  });
+  const turnRun = createRunTree(
+    {
+      client,
+      replicas,
+      name: turnName,
+      run_type: "chain",
+      inputs: { messages: [{ role: "user", content: userContent }] },
+      project_name: project,
+      start_time: buffer.startMs,
+      tags: DEFAULT_TAGS,
+      extra: { metadata: codingAgentMetadata({ ...ctx, runSpecific: { model: buffer.model } }) },
+    },
+    mode,
+  );
   await turnRun.postRun();
 
   // 2. llm + tool runs, created in invocation order. Turn-level usage goes on one llm run.
@@ -503,43 +514,51 @@ async function postSubagentRun(sub: SubagentEvent, parent: RunTree, ctx: MetaCtx
 
   // Subagent = nested chain run (validator runType "subagent"); children clear
   // ls_subagent_id/type so they don't leak down.
-  const subagentRun = parent.createChild({
-    name: runName,
-    run_type: "chain",
-    inputs: {
-      subagent_type: sub.subagent_type,
-      ...(sub.description ? { description: sub.description } : {}),
-      task: sub.task,
+  const subagentRun = createChildRun(
+    parent,
+    {
+      name: runName,
+      run_type: "chain",
+      inputs: {
+        subagent_type: sub.subagent_type,
+        ...(sub.description ? { description: sub.description } : {}),
+        task: sub.task,
+      },
+      outputs: {
+        status: sub.status ?? "completed",
+        ...(sub.resultText ? { result: sub.resultText } : {}),
+      },
+      error: isError ? sub.status : undefined,
+      start_time: startMs,
+      end_time: endMs,
+      extra: {
+        metadata: codingAgentMetadata({
+          ...subagentCtx,
+          subagentId: sub.subagent_id,
+          subagentType: sub.subagent_type,
+          runSpecific: {
+            ...(sub.description ? { subagent_description: sub.description } : {}),
+            ...(sub.model ? { subagent_model: sub.model } : {}),
+            ...(subModel.ls_provider ? { subagent_provider: subModel.ls_provider } : {}),
+            ...(sub.is_parallel_worker != null
+              ? { subagent_is_parallel_worker: sub.is_parallel_worker }
+              : {}),
+            ...(sub.childConversationId
+              ? { subagent_conversation_id: sub.childConversationId }
+              : {}),
+            // Tools we actually captured (authoritative) vs Cursor-reported counts (often 0).
+            subagent_tool_count: tools.length,
+            ...(sub.message_count != null ? { reported_message_count: sub.message_count } : {}),
+            ...(sub.tool_call_count != null
+              ? { reported_tool_call_count: sub.tool_call_count }
+              : {}),
+            ...(sub.loop_count != null ? { reported_loop_count: sub.loop_count } : {}),
+          },
+        }),
+      },
     },
-    outputs: {
-      status: sub.status ?? "completed",
-      ...(sub.resultText ? { result: sub.resultText } : {}),
-    },
-    error: isError ? sub.status : undefined,
-    start_time: startMs,
-    end_time: endMs,
-    extra: {
-      metadata: codingAgentMetadata({
-        ...subagentCtx,
-        subagentId: sub.subagent_id,
-        subagentType: sub.subagent_type,
-        runSpecific: {
-          ...(sub.description ? { subagent_description: sub.description } : {}),
-          ...(sub.model ? { subagent_model: sub.model } : {}),
-          ...(subModel.ls_provider ? { subagent_provider: subModel.ls_provider } : {}),
-          ...(sub.is_parallel_worker != null
-            ? { subagent_is_parallel_worker: sub.is_parallel_worker }
-            : {}),
-          ...(sub.childConversationId ? { subagent_conversation_id: sub.childConversationId } : {}),
-          // Tools we actually captured (authoritative) vs Cursor-reported counts (often 0).
-          subagent_tool_count: tools.length,
-          ...(sub.message_count != null ? { reported_message_count: sub.message_count } : {}),
-          ...(sub.tool_call_count != null ? { reported_tool_call_count: sub.tool_call_count } : {}),
-          ...(sub.loop_count != null ? { reported_loop_count: sub.loop_count } : {}),
-        },
-      }),
-    },
-  });
+    sub.tracingMode === "full" ? "full" : "metadata",
+  );
   await subagentRun.postRun();
 
   // Role "system": the task is the orchestrator's instruction, not a human turn.
