@@ -39,32 +39,50 @@ it("projects trusted metadata despite custom collisions and drops untyped values
   expect(JSON.stringify(safe)).not.toContain("PRIVATE");
   expect(JSON.stringify(safe)).not.toContain("9000");
   expect(
-    metadataForMode(
-      {
-        thread_id: {},
-        ls_model_name: [],
-        turn_number: Infinity,
-        usage_metadata: {
-          input_tokens: 1,
-          output_tokens: "PRIVATE",
-          total_tokens: NaN,
-          input_token_details: { cache_read: 2, cache_creation: -1, private: "PRIVATE" },
-          output_token_details: { reasoning: 3, private: "PRIVATE" },
-          extra: "PRIVATE",
-        },
-      },
-      "metadata",
-    ),
-  ).toEqual({
+    metadataForMode({ thread_id: {}, ls_model_name: [], turn_number: Infinity }, "metadata"),
+  ).toEqual({ status: "running", ls_tracing_mode: "metadata" });
+});
+
+it.each([
+  {},
+  {
+    input_tokens: 1,
+    output_tokens: "allowed annotation",
+    total_tokens: NaN,
+    input_cost: 0.001,
+    output_cost: -1,
+    input_token_details: { cache_read: 2, image: { tiles: 4, annotation: "allowed image" } },
+    output_token_details: { reasoning: 3, video: [1, "allowed video", null, {}] },
+    costs: { currency: "USD", estimated: true, breakdown: {} },
+    annotation: "ALLOWED_USAGE_MARKER",
+    optional: null,
+  },
+])("preserves an open usage object unchanged: %j", (usage) => {
+  const metadata = { usage_metadata: usage, custom: "PRIVATE", cwd: "PRIVATE" };
+  const safe = metadataForMode(metadata, "metadata")!;
+  expect(safe.usage_metadata).toBe(usage);
+  expect(safe).toEqual({
+    usage_metadata: usage,
     status: "running",
     ls_tracing_mode: "metadata",
-    usage_metadata: {
-      input_tokens: 1,
-      input_token_details: { cache_read: 2 },
-      output_token_details: { reasoning: 3 },
-    },
   });
+  const config = runConfigForMode({ extra: { metadata } }, "metadata");
+  expect(config.extra.metadata.usage_metadata).toBe(usage);
+  expect(JSON.parse(JSON.stringify(config)).extra.metadata.usage_metadata).toEqual(
+    JSON.parse(JSON.stringify(usage)),
+  );
+  expect(JSON.stringify(config)).not.toContain("PRIVATE");
 });
+
+it.each([undefined, null, [], [1], "tokens", 42, false])(
+  "rejects non-object outer usage metadata: %j",
+  (usage) => {
+    expect(metadataForMode({ usage_metadata: usage }, "metadata")).toEqual({
+      status: "running",
+      ls_tracing_mode: "metadata",
+    });
+  },
+);
 
 it("creates independent normal placeholder messages and preserves empty-error failure status", () => {
   const input = {

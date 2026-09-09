@@ -47,7 +47,9 @@ export async function handlePromptSubmit(
         s,
         input,
         Date.now(),
-        enabled ? getThreadTracingMode(tracingPolicyPath(), input.conversation_id) : "off",
+        enabled
+          ? getThreadTracingMode(tracingPolicyPath(), input.conversation_id, config.defaultMuted)
+          : "off",
       ),
     );
     return { continue: true };

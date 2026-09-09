@@ -58,7 +58,7 @@ Then **fully restart Cursor** so it reloads `hooks.json`.
 
 ## Configure
 
-Create `~/.cursor/langsmith.json` (global) or `./.cursor/langsmith.json` (project):
+Create `~/.langsmith-plugins.json` (shared home baseline), `~/.cursor/langsmith.json` (Cursor user), `./langsmith-plugins.json` (shared root project), or `./.cursor/langsmith.json` (Cursor-specific project):
 
 ```json
 {
@@ -69,27 +69,69 @@ Create `~/.cursor/langsmith.json` (global) or `./.cursor/langsmith.json` (projec
 }
 ```
 
-Config resolves in this order (later overrides earlier): defaults → `~/.cursor/langsmith.json` → `./.cursor/langsmith.json` → environment variables.
+The shared home filename is `~/.langsmith-plugins.json`; the shared project filename remains `cwd/langsmith-plugins.json`. The old `~/langsmith-plugins.json` is not read as a home baseline (no fallback). If `cwd` is the home directory, that visible file is still read as project config. Root `langsmith.json` is ignored (no backward-compatible alias), even if malformed or containing `enabled: false`. User and project `.cursor/langsmith.json` filenames are unchanged.
 
-Every `LANGSMITH_CURSOR_*` variable also accepts the `LANGSMITH_*` form (the `LANGSMITH_CURSOR_*` name wins when both are set).
+### Shared plugin config contract
 
-| Environment variable              | Config key       | Description                                                                                                                  | Default                           |
-| --------------------------------- | ---------------- | ---------------------------------------------------------------------------------------------------------------------------- | --------------------------------- |
-| `TRACE_TO_LANGSMITH`              | `enabled`        | Master switch — tracing runs only when truthy.                                                                               | `false`                           |
-| `LANGSMITH_CURSOR_API_KEY`        | `api_key`        | LangSmith API key.                                                                                                           | —                                 |
-| `LANGSMITH_CURSOR_ENDPOINT`       | `api_url`        | LangSmith API base URL.                                                                                                      | `https://api.smith.langchain.com` |
-| `LANGSMITH_CURSOR_PROJECT`        | `project`        | Target tracing project.                                                                                                      | `cursor`                          |
-| `LANGSMITH_CURSOR_METADATA`       | `metadata`       | Extra metadata attached to every run (JSON object).                                                                          | —                                 |
-| `LANGSMITH_CURSOR_RUNS_ENDPOINTS` | `replicas`       | Additional replica destinations (JSON array).                                                                                | —                                 |
-| `LANGSMITH_CURSOR_ATTACHMENTS`    | `attachments`    | Enrich turns with image/file attachment bytes from Cursor's DB.                                                              | `true`                            |
-| `LANGSMITH_CURSOR_DB_PATH`        | `cursor_db_path` | Override the Cursor `state.vscdb` path used for attachments.                                                                 | platform default                  |
-| `LANGSMITH_CURSOR_REDACT`         | `redact`         | Redact detected secrets from traced data before upload.                                                                      | `true`                            |
-| `LANGSMITH_CURSOR_REDACT_EXTRA`   | —                | Extra redaction rules: JSON array of `{ pattern, replace }`; each `pattern` is case-sensitive and applied with the `g` flag. | —                                 |
-| `LANGSMITH_CURSOR_DEBUG`          | —                | Verbose hook logging.                                                                                                        | `false`                           |
-| `LANGSMITH_CURSOR_STATE_FILE`     | —                | Override the on-disk event-buffer state file (no `LANGSMITH_*` form).                                                        | `~/.cursor/langsmith-state.json`  |
-| `LANGSMITH_CURSOR_LOG_FILE`       | —                | Override the hook log file (no `LANGSMITH_*` form).                                                                          | `~/.cursor/langsmith-hook.log`    |
+> **Security: trust repository tracing configuration before using this plugin.** Project `langsmith-plugins.json` and `.cursor/langsmith.json` can enable tracing, choose upload endpoints and replicas, supply credentials, and disable secret redaction. A malicious configuration can send conversation messages, file contents, and tool arguments/outputs to a third party. Review these files before using the plugin in an unfamiliar repository. Also review native `.cursor/hooks.json`: it can run commands. Secret redaction is not a guarantee that uploaded content is safe to share. To prevent this plugin from uploading, disable it.
 
-Tracing only runs when `enabled` (or `TRACE_TO_LANGSMITH=true`) **and** an API key (or replicas) is set.
+All four locations accept exactly these common keys (unknown keys are ignored by the common parser):
+
+| Common key           | JSON type        | Default / meaning                                                                                              |
+| -------------------- | ---------------- | -------------------------------------------------------------------------------------------------------------- |
+| `enabled`            | boolean          | `false`; master tracing switch                                                                                 |
+| `defaultMuted`       | boolean          | `false`; metadata-only default for threads without overrides                                                   |
+| `api_key`            | string           | Empty; LangSmith credential                                                                                    |
+| `api_url`            | string           | `https://api.smith.langchain.com`                                                                              |
+| `project`            | string           | `cursor`                                                                                                       |
+| `replicas`           | array of objects | Unset; optional `api_url`, `api_key`, `project` strings and `updates` object per replica                       |
+| `metadata`           | object           | Unset; arbitrary user metadata, shallow-merged per key                                                         |
+| `redact`             | boolean          | `true`; secret redaction (not the mute switch)                                                                 |
+| `redact_extra_rules` | array of objects | Unset; required string `pattern`, optional string `replace`; valid regex, case-sensitive global (`g`) matching |
+
+**Precedence is per field for all common settings, including `enabled` and `defaultMuted`: environment > `cwd/.cursor/langsmith.json` > `cwd/langsmith-plugins.json` > `~/.cursor/langsmith.json` > `~/.langsmith-plugins.json` > defaults.** Missing fields fall through; explicit environment values override even opposing or unhealthy files. Metadata shallow-merges per key in reverse order: **defaults → home root → Cursor user → project root → project Cursor → environment**. Later keys win; nested objects replace rather than recursively merge. An empty metadata object does not clear inherited keys. File metadata, including user-file values that collide with structural keys, remains untrusted custom metadata for muted serialization.
+
+Strings are preserved verbatim, including empty strings. Empty file replica/rule arrays override lower sources. An explicit environment `LANGSMITH_CURSOR_REDACT_EXTRA=[]` (or generic `LANGSMITH_REDACT_EXTRA=[]`) also clears inherited file rules; malformed environment values retain the existing file fallback. File replica aliases `apiUrl`, `apiKey`, `projectName` are accepted; a canonical **own property** wins even when empty, and an invalid canonical value never falls back to its alias. File replicas convert to SDK camelCase at the adapter boundary. Unknown replica/rule keys are stripped; `updates` remains an arbitrary object. Legacy SDK `[projectName, updates]` tuples are environment-only, not valid file replicas.
+
+**Invalid config policy:** a wrong-type present `enabled` restricts only that field to `false`; wrong-type `defaultMuted` restricts only that field to `true`. An invalid recognized ordinary common field (including `redact`, metadata, any replica or regex rule) discards **all common ordinary values in that file** and supplies `enabled: false`, `defaultMuted: true`. Malformed/non-object JSON, unreadable files and nonregular targets (directories/devices/FIFOs) have that same policy. Only a genuinely missing file falls through as absent. **Readable symlinks to regular config files are accepted**; dangling/unreadable links are invalid. Ordinary values may then inherit from lower sources, and explicit higher-priority boolean fields still win. Diagnostics contain fixed messages, not raw values or secrets. This config symlink policy does not change the stricter sticky privacy-file policy below.
+
+The project is the first `workspace_roots` entry when supplied by Cursor, not the hook installation directory. Otherwise the loader uses `CURSOR_PROJECT_DIR`, then the process cwd. Both project files are read only in that directory; ancestors are never searched. The master environment switch `TRACE_TO_LANGSMITH` retains its historical case-insensitive, whitespace-trimming parser: `1`/`true`/`yes`/`on` enable, `0`/`false`/`no`/`off` disable, and unrecognized values leave tracing disabled. `LANGSMITH_CURSOR_DEFAULT_MUTED` accepts case-insensitive `true`/`false` **without trimming**; any other present value means muted. JSON-file `enabled` and `defaultMuted` still require actual booleans, not these environment aliases. Existing credential/enrichment environment aliases and parsers remain separate from file validation.
+
+**Credentials are secrets.** Prefer environment variables or an untracked, permission-restricted user config for API keys; do not commit keys in either project file (including replica keys). Review repository-supplied destinations, credentials, replica updates and redaction settings before enabling tracing: they can route full content elsewhere or disable redaction. `redact: false` never disables metadata-only privacy filtering. Mute does not encrypt local config/state or protect against local file tampering.
+
+### Cursor-only extensions
+
+These are not common keys and are validated separately, per field, in all four files:
+
+| Extension        | JSON type | Default                             |
+| ---------------- | --------- | ----------------------------------- |
+| `attachments`    | boolean   | `true`; DB attachment enrichment    |
+| `system_prompt`  | boolean   | `true`; DB system-prompt enrichment |
+| `cursor_db_path` | string    | Platform default DB path            |
+
+Each wrong-type extension is omitted with a fixed diagnostic and falls through to lower sources; it **never disables valid common configuration** or discards another extension. Unknown harness-specific fields (including legacy `step_fidelity`) are ignored. Extensions use environment > project `.cursor` > project root > Cursor user > home root > defaults precedence. They do not override muted enrichment restrictions.
+
+The credential/enrichment variables below also accept the `LANGSMITH_*` form (the `LANGSMITH_CURSOR_*` name wins when both are set). Default mute and the explicit state/privacy/log paths use only their listed harness-specific names.
+
+| Environment variable              | Config key           | Description                                                                                                                             | Default                           |
+| --------------------------------- | -------------------- | --------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------- |
+| `TRACE_TO_LANGSMITH`              | `enabled`            | Master switch; when present, overrides file `enabled` values.                                                                           | `false`                           |
+| `LANGSMITH_CURSOR_DEFAULT_MUTED`  | `defaultMuted`       | Default metadata-only tracing for threads without an override; case-insensitive `true`/`false`, invalid values mute (no generic alias). | `false`                           |
+| `LANGSMITH_CURSOR_API_KEY`        | `api_key`            | LangSmith API key.                                                                                                                      | —                                 |
+| `LANGSMITH_CURSOR_ENDPOINT`       | `api_url`            | LangSmith API base URL.                                                                                                                 | `https://api.smith.langchain.com` |
+| `LANGSMITH_CURSOR_PROJECT`        | `project`            | Target tracing project.                                                                                                                 | `cursor`                          |
+| `LANGSMITH_CURSOR_METADATA`       | `metadata`           | Extra metadata attached to every run (JSON object).                                                                                     | —                                 |
+| `LANGSMITH_CURSOR_RUNS_ENDPOINTS` | `replicas`           | Additional replica destinations (JSON array).                                                                                           | —                                 |
+| `LANGSMITH_CURSOR_ATTACHMENTS`    | `attachments`        | Enrich turns with image/file attachment bytes from Cursor's DB.                                                                         | `true`                            |
+| `LANGSMITH_CURSOR_SYSTEM_PROMPT`  | `system_prompt`      | Recover the system prompt from Cursor’s DB.                                                                                             | `true`                            |
+| `LANGSMITH_CURSOR_DB_PATH`        | `cursor_db_path`     | Override the Cursor `state.vscdb` path used for attachments.                                                                            | platform default                  |
+| `LANGSMITH_CURSOR_REDACT`         | `redact`             | Redact detected secrets from traced data before upload.                                                                                 | `true`                            |
+| `LANGSMITH_CURSOR_REDACT_EXTRA`   | `redact_extra_rules` | Extra redaction rules: JSON array of `{ pattern, replace }`; each `pattern` is case-sensitive and applied with the `g` flag.            | —                                 |
+| `LANGSMITH_CURSOR_DEBUG`          | —                    | Verbose hook logging.                                                                                                                   | `false`                           |
+| `LANGSMITH_CURSOR_STATE_FILE`     | —                    | Override the on-disk event-buffer state file (no `LANGSMITH_*` form).                                                                   | `~/.cursor/langsmith-state.json`  |
+| `LANGSMITH_CURSOR_LOG_FILE`       | —                    | Override the hook log file (no `LANGSMITH_*` form).                                                                                     | `~/.cursor/langsmith-hook.log`    |
+
+Tracing only runs when the resolved master switch is enabled **and** an API key (or replicas) is set. Thread controls never enable master tracing.
 
 Verify activity: `tail -f ~/.cursor/langsmith-hook.log`.
 
@@ -106,18 +148,42 @@ No leading slash, arguments, surrounding whitespace, or additional lines. Other 
 
 These are deterministic `beforeSubmitPrompt` command-hook controls, not LLM skills or Markdown slash commands. The hook writes the preference and returns `{"continue":false,"user_message":"…"}` with exit 0: the control is acknowledged locally and is not submitted to the model or recorded as a tracing turn. Controls work even when tracing is off or no API key is configured. We have not verified Cursor UI slash forwarding, so slash-prefixed variants are deliberately unsupported.
 
-- **Default:** threads without overrides trace full content when master tracing is enabled.
+- **Default:** threads without overrides trace full content when master tracing is enabled, unless default mute is configured below.
 - **Next turn only:** each ordinary prompt snapshots `off`, `full`, or `metadata` into its `generation_id` buffer. Muting/unmuting leaves already active or queued generations unchanged, including tools and nested subagents launched by those turns. Duplicate prompt delivery does not replace an existing snapshot.
 - **Sticky:** the preference follows native `conversation_id` across turns and local restarts, independent of workspace paths and the transient buffer’s 24-hour pruning. It does not automatically follow a new/forked conversation ID, another machine, or a cloud VM.
 - **Muted traces:** retain topology, structural IDs, run types/names, times, safe status, model name, native tool name, coding-agent schema/integration/runtime versions, and trusted numeric token usage. Every run has `ls_tracing_mode: "metadata"`. Normal message-shaped inputs and outputs contain `[LangSmith system notice: content omitted because tracing is muted.]`.
 - **Not sent in muted runs:** prompts, tool arguments/results, assistant text/thoughts, attachments, raw errors, cwd/file/user/repository details, arbitrary custom metadata, tags/events, replica content overrides, or SDK runtime/environment enrichment. Attachment and system-prompt enrichment is skipped. Step decoding and subagent transcript reads may still occur locally to preserve the existing trace structure and joins; the central serialization boundary removes their content.
 - **No retroactive changes:** mute does not purge existing LangSmith traces or Cursor history. Unmute never fills in old muted runs. A later full turn may repeat private material in its context or output; this is accepted and there is no content-tracking policy. Use a new conversation if that is unsuitable.
 
-The strict privacy schema is `{ "threads": { "conversation-id": "metadata" } }`, with only `"full"` or `"metadata"` values and no other top-level fields. Reads never create or modify this file; controls save only an explicit thread override, including while master tracing is off.
+#### Default mute configuration
+
+To start threads in metadata-only mode without a command in each thread:
+
+```bash
+export LANGSMITH_CURSOR_DEFAULT_MUTED="true"
+# Set "false" to return to the full-content default.
+```
+
+Or set JSON booleans in project `.cursor/langsmith.json`, root project `langsmith-plugins.json`, user `~/.cursor/langsmith.json`, or shared home `~/.langsmith-plugins.json`:
+
+```json
+{
+  "enabled": true,
+  "defaultMuted": true
+}
+```
+
+Credentials are still required. You can omit `enabled` to inherit it from a lower-priority source.
+
+Precedence is **`LANGSMITH_CURSOR_DEFAULT_MUTED` > project `.cursor/langsmith.json` > project `langsmith-plugins.json` > `~/.cursor/langsmith.json` > `~/.langsmith-plugins.json` > false (unmuted)**, independently of `enabled`. An `enabled`-only file does not hide lower-priority default mute; a `defaultMuted`-only file does not hide lower-priority master enablement. Missing fields fall through. Invalid present JSON booleans (strings, null, numbers, etc.) use the restrictive value: `enabled: false`, `defaultMuted: true`. An unhealthy file restricts both fields rather than falling through, unless an explicit higher-priority source overrides them. Environment `true`/`false` are case-insensitive **without whitespace trimming**; any other present default-mute value, including an empty string, means muted. Unset falls through to files, then the unmuted default. The environment variable uses Cursor’s existing `LANGSMITH_CURSOR_` prefix, with no generic alias.
+
+Explicit sticky thread overrides always win: an unmute overrides default mute, and a mute survives changing the default to full. Configuration changes affect the next new generation of threads without overrides, not active/queued turns, duplicate prompts, tools, or saved subagent launch snapshots. Missing launch evidence still falls back to metadata-only, never upgraded by an unmuted config or a later unmute. The existing conservative subagent ownership checks remain unchanged.
+
+Configuration alone owns the fallback default. The strict privacy schema is `{ "threads": { "conversation-id": "metadata" } }`, with only `"full"` or `"metadata"` values and no other top-level fields. Reads never create or modify this file; controls save only an explicit thread override, including while master tracing is off. Removing the privacy file removes overrides and returns to the configured default.
 
 #### State and safe fallback
 
-The durable preferences file is `~/.cursor/langsmith-state.privacy.json`, resolved with Node’s platform-appropriate `os.homedir()`. `LANGSMITH_CURSOR_PRIVACY_FILE` can override it explicitly. It is **independent** of `LANGSMITH_CURSOR_STATE_FILE` (default `~/.cursor/langsmith-state.json`). Changing/deleting the transient buffer does not clear mute. Changing/deleting the privacy file does: an absent privacy file uses the full-content default. Do not delete it as a troubleshooting shortcut.
+The durable preferences file is `~/.cursor/langsmith-state.privacy.json`, resolved with Node’s platform-appropriate `os.homedir()`. `LANGSMITH_CURSOR_PRIVACY_FILE` can override it explicitly. It is **independent** of `LANGSMITH_CURSOR_STATE_FILE` (default `~/.cursor/langsmith-state.json`). Changing/deleting the transient buffer does not clear mute. Changing/deleting the privacy file does: an absent privacy file uses the configured default (full when unset). Do not delete it as a troubleshooting shortcut.
 
 Only controls write the shared preference file. Unlike integrations that replay whole transcripts at Stop, Cursor consumes one generation buffer at `stop`; launch evidence belongs in that existing buffer, not in a second unbounded turn-history ledger. A missing launch snapshot is metadata-only; no buffer means no trace. An `off` snapshot never becomes full merely because master tracing is enabled before Stop. Current master-off still suppresses sends.
 
@@ -187,7 +253,7 @@ pnpm format      # oxfmt
 pnpm lint        # oxlint
 ```
 
-`test/fixtures/` holds captured hook logs and agent transcripts used as replay test fixtures. `test/privacy.integration.test.ts` exercises real SDK wire privacy, routing/auth, replicas and muted adversarial metadata. `test/prompt-control.test.ts` exercises the registered bundles; rebuild before running it after source changes.
+`test/fixtures/` holds captured hook logs and agent transcripts used as replay test fixtures. `test/shared-config.test.ts` is the canonical shared-contract fixture suite (only its import path differs). `test/privacy.integration.test.ts` exercises project and home root config through real prompt snapshots, stop reduction, builders and SDK wire serialization, including routing/auth, replicas, file regex rules and muted adversarial metadata. `test/config.test.ts` covers per-field privacy precedence (env > project `.cursor/langsmith.json` > project `langsmith-plugins.json` > Cursor user > home root > defaults), restrictive file handling, cwd selection, and env-first credential/enrichment overlays. `test/prompt-control.test.ts` exercises workspace-root config through the registered bundles; rebuild before running it after source changes.
 
 ## License
 

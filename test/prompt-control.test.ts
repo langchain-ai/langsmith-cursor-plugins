@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, it } from "vitest";
-import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
@@ -256,3 +256,163 @@ it("a newly muted preference does not mute an explicitly proven full subagent la
   expect(turn.subagents[0].tracingMode).toBe("full");
   expect(getThreadTracingMode(env.LANGSMITH_CURSOR_PRIVACY_FILE!, "thread")).toBe("metadata");
 });
+
+it("config changes affect only new unoverridden generations and preserve child launches", () => {
+  env.TRACE_TO_LANGSMITH = "true";
+  env.LANGSMITH_API_KEY = "test";
+  env.LANGSMITH_CURSOR_DEFAULT_MUTED = "true";
+  submit("private", "one");
+  event("subagentStart", "one", { subagent_id: "muted-sub", subagent_type: "explore" });
+  env.LANGSMITH_CURSOR_DEFAULT_MUTED = "false";
+  submit("duplicate", "one");
+  submit("public", "two");
+  env.LANGSMITH_CURSOR_DEFAULT_MUTED = "true";
+  event("subagentStart", "two", { subagent_id: "full-sub", subagent_type: "explore" });
+  const turns = loadState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns;
+  expect(turns.one.tracingMode).toBe("metadata");
+  expect(turns.one.subagents[0].tracingMode).toBe("metadata");
+  expect(turns.two.tracingMode).toBe("full");
+  expect(turns.two.subagents[0].tracingMode).toBe("full");
+  expect(existsSync(env.LANGSMITH_CURSOR_PRIVACY_FILE!)).toBe(false);
+
+  submit("langsmith-tracing:unmute", "control");
+  submit("explicit full", "three");
+  expect(loadState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns.three.tracingMode).toBe("full");
+  submit("langsmith-tracing:mute", "control");
+  env.LANGSMITH_CURSOR_DEFAULT_MUTED = "false";
+  submit("explicit mute", "four");
+  expect(loadState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns.four.tracingMode).toBe(
+    "metadata",
+  );
+  expect(JSON.parse(readFileSync(env.LANGSMITH_CURSOR_PRIVACY_FILE!, "utf8"))).toEqual({
+    threads: { thread: "metadata" },
+  });
+});
+
+it("uses payload workspace config rather than hook cwd, with per-field env fallthrough", () => {
+  env.TRACE_TO_LANGSMITH = "true";
+  env.LANGSMITH_API_KEY = "test";
+  delete env.LANGSMITH_CURSOR_DEFAULT_MUTED;
+  mkdirSync(join(dir, ".cursor"));
+  writeFileSync(join(dir, ".cursor", "langsmith.json"), JSON.stringify({ defaultMuted: true }));
+  const hookCwd = join(dir, "hook-install");
+  mkdirSync(hookCwd);
+  expect(submit("project mute", "generation", hookCwd).continue).toBe(true);
+  expect(loadState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns.generation.tracingMode).toBe(
+    "metadata",
+  );
+  expect(existsSync(env.LANGSMITH_CURSOR_PRIVACY_FILE!)).toBe(false);
+});
+
+it("registered hooks honor workspace root master-off over user and harness over root without env", () => {
+  delete env.TRACE_TO_LANGSMITH;
+  env.LANGSMITH_API_KEY = "test";
+  delete env.LANGSMITH_CURSOR_DEFAULT_MUTED;
+  const userHome = join(dir, "user");
+  mkdirSync(join(userHome, ".cursor"), { recursive: true });
+  env.HOME = userHome;
+  env.USERPROFILE = userHome;
+  writeFileSync(join(userHome, ".cursor", "langsmith.json"), JSON.stringify({ enabled: true }));
+  const rootConfig = join(dir, "langsmith-plugins.json");
+  writeFileSync(rootConfig, JSON.stringify({ enabled: false, defaultMuted: true }));
+  const hookCwd = join(dir, "hook-install");
+  mkdirSync(hookCwd);
+  writeFileSync(
+    join(hookCwd, "langsmith-plugins.json"),
+    JSON.stringify({ enabled: true, defaultMuted: false }),
+  );
+  env.CURSOR_PROJECT_DIR = hookCwd;
+  expect(submit("root off", "off", hookCwd).continue).toBe(true);
+  expect(loadState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns.off.tracingMode).toBe("off");
+  // Root master-off must suppress Stop uploads as well as prompt snapshots.
+  const tripwire = join(dir, "root-tripwire.mjs");
+  writeFileSync(
+    tripwire,
+    `
+    import { appendFileSync } from "node:fs";
+    globalThis.fetch = () => { appendFileSync(${JSON.stringify(join(dir, "unexpected-upload"))}, "upload"); throw new Error("Unexpected upload"); };
+  `,
+  );
+  env.NODE_OPTIONS = `--import=${tripwire}`;
+  event("stop", "off", { status: "completed" });
+  expect(loadState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns).toEqual({});
+  mkdirSync(join(dir, ".cursor"));
+  writeFileSync(join(dir, ".cursor", "langsmith.json"), JSON.stringify({ enabled: true }));
+  submit("root default mute", "muted", hookCwd);
+  expect(loadState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns.muted.tracingMode).toBe(
+    "metadata",
+  );
+  writeFileSync(
+    join(dir, ".cursor", "langsmith.json"),
+    JSON.stringify({ enabled: true, defaultMuted: false }),
+  );
+  submit("harness wins", "full", hookCwd);
+  expect(loadState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns.full.tracingMode).toBe("full");
+  rmSync(join(dir, ".cursor", "langsmith.json"));
+  const beforeStop = loadState(env.LANGSMITH_CURSOR_STATE_FILE!);
+  event("stop", "full", { status: "completed" });
+  expect(loadState(env.LANGSMITH_CURSOR_STATE_FILE!)).toEqual(beforeStop);
+  expect(existsSync(join(dir, "unexpected-upload"))).toBe(false);
+});
+
+it.each([JSON.stringify({ enabled: false, defaultMuted: true }), "{malformed"])(
+  "registered prompt hook ignores old root langsmith.json: %s",
+  (raw) => {
+    env.TRACE_TO_LANGSMITH = "true";
+    env.LANGSMITH_API_KEY = "test";
+    env.LANGSMITH_CURSOR_DEFAULT_MUTED = "false";
+    writeFileSync(join(dir, "langsmith.json"), raw);
+    submit("old app config ignored", "old");
+    expect(loadState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns.old.tracingMode).toBe("full");
+    writeFileSync(join(dir, "langsmith-plugins.json"), JSON.stringify({ enabled: false }));
+    submit("environment intentionally overrides root", "env");
+    expect(loadState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns.env.tracingMode).toBe("full");
+    delete env.TRACE_TO_LANGSMITH;
+    submit("new root honored", "root");
+    expect(loadState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns.root.tracingMode).toBe("off");
+    mkdirSync(join(dir, ".cursor"));
+    writeFileSync(join(dir, ".cursor", "langsmith.json"), JSON.stringify({ enabled: true }));
+    submit("harness overrides root", "harness");
+    expect(loadState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns.harness.tracingMode).toBe(
+      "full",
+    );
+  },
+);
+
+it.each([JSON.stringify({ enabled: true, defaultMuted: true }), "{malformed"])(
+  "registered prompt hook uses hidden home only, preserving the cascade: %s",
+  (raw) => {
+    delete env.TRACE_TO_LANGSMITH;
+    delete env.LANGSMITH_CURSOR_DEFAULT_MUTED;
+    env.LANGSMITH_API_KEY = "test";
+    const home = join(dir, "user-home");
+    mkdirSync(home);
+    env.HOME = home;
+    env.USERPROFILE = home;
+    writeFileSync(join(home, "langsmith-plugins.json"), raw);
+    const mode = (generation: string) =>
+      loadState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns[generation].tracingMode;
+    submit("old home ignored", "old-home");
+    expect(mode("old-home")).toBe("off");
+    writeFileSync(
+      join(home, ".langsmith-plugins.json"),
+      JSON.stringify({ enabled: true, defaultMuted: true }),
+    );
+    submit("hidden home honored", "hidden-home");
+    expect(mode("hidden-home")).toBe("metadata");
+    mkdirSync(join(home, ".cursor"));
+    writeFileSync(join(home, ".cursor", "langsmith.json"), JSON.stringify({ defaultMuted: false }));
+    submit("Cursor user wins", "user");
+    expect(mode("user")).toBe("full");
+    writeFileSync(join(dir, "langsmith-plugins.json"), JSON.stringify({ defaultMuted: true }));
+    submit("visible project wins", "project");
+    expect(mode("project")).toBe("metadata");
+    mkdirSync(join(dir, ".cursor"));
+    writeFileSync(join(dir, ".cursor", "langsmith.json"), JSON.stringify({ defaultMuted: false }));
+    submit("Cursor project wins", "harness");
+    expect(mode("harness")).toBe("full");
+    env.LANGSMITH_CURSOR_DEFAULT_MUTED = "true";
+    submit("environment wins", "env");
+    expect(mode("env")).toBe("metadata");
+  },
+);

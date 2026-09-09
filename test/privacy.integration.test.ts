@@ -37,6 +37,20 @@ let requests: RequestBody[];
 let transport: Transport;
 let allowedOrigins: string[];
 
+// Usage content is explicitly allowed, unlike general custom metadata/content.
+const allowedUsage = {
+  input_tokens: 2,
+  output_tokens: 3,
+  total_tokens: 5,
+  input_cost: 0.001,
+  output_cost: 0.002,
+  input_token_details: { cache_read: 4, image: { tiles: 2, annotation: "ALLOWED_IMAGE" } },
+  output_token_details: { video: { frames: 8, annotations: ["ALLOWED_VIDEO", null, {}] } },
+  costs: { currency: "USD", estimated: true, breakdown: {} },
+  annotation: "ALLOWED_USAGE_MARKER",
+  optional: null,
+};
+
 const allowedMetadata = {
   thread_id: "thread",
   turn_id: "turn",
@@ -50,7 +64,7 @@ const allowedMetadata = {
   ls_trace_schema_version: "coding-agent-v1",
   ls_model_name: SECRET,
   ls_tool_name: "Bash",
-  usage_metadata: { input_tokens: 2, output_tokens: 3, total_tokens: 5 },
+  usage_metadata: allowedUsage,
   ls_subagent_id: "subagent",
   ls_subagent_type: "Explore",
 };
@@ -116,7 +130,9 @@ beforeEach(async () => {
   // isolate its shared client/cache from other cases (and ambient tracing env).
   vi.resetModules();
   for (const key of Object.keys(process.env)) {
-    if (/^(LANGCHAIN_|LANGSMITH_|CC_LANGSMITH_)/.test(key)) vi.stubEnv(key, undefined);
+    if (/^(LANGCHAIN_|LANGSMITH_|CC_LANGSMITH_)/.test(key) || key === "TRACE_TO_LANGSMITH") {
+      vi.stubEnv(key, undefined);
+    }
   }
   vi.stubEnv("LANGCHAIN_REVISION_ID", REVISION);
   vi.stubEnv("LANGSMITH_WORKSPACE_ID", WORKSPACE);
@@ -275,6 +291,40 @@ function replicaUpdates(): Payload {
 }
 
 describe.each(transports)("real SDK privacy over %s", (selectedTransport) => {
+  it.each([{}, { ...allowedUsage, annotation: SECRET }])(
+    "preserves open usage objects through post/patch and anonymization: %j",
+    async (usage) => {
+      transport = selectedTransport;
+      const client = makeClient();
+      const initial = config(client);
+      initial.extra!.metadata!.usage_metadata = usage;
+      const run = createRunTree(initial, "metadata");
+      await run.postRun();
+      await flush();
+      run.end_time = Date.parse("2025-01-01T00:00:01Z");
+      await run.patchRun();
+      await flush();
+      const operations = expectTransport(2);
+      expect(operations.map(({ action }) => action)).toEqual(["post", "patch"]);
+      for (const { action, payload } of operations) {
+        expectMutedContent(payload);
+        expect(payload.extra).toEqual({
+          metadata: {
+            ...allowedMetadata,
+            ls_model_name: REDACTED,
+            usage_metadata: "annotation" in usage ? { ...usage, annotation: REDACTED } : {},
+            status: action === "post" ? "running" : "completed",
+            ls_tracing_mode: "metadata",
+          },
+        });
+      }
+      for (const request of requests) {
+        expect(request.raw).not.toContain(FORBIDDEN);
+        expect(request.raw).not.toContain(SECRET);
+      }
+    },
+  );
+
   it.each(["base"] as const)(
     "projects custom %s collisions using explicit builder provenance at the wire",
     async () => {
@@ -293,12 +343,7 @@ describe.each(transports)("real SDK privacy over %s", (selectedTransport) => {
         base: collisions,
         runSpecific: {
           ls_model_name: SECRET,
-          usage_metadata: {
-            input_tokens: 7,
-            output_tokens: 3,
-            total_tokens: 10,
-            input_token_details: { cache_read: 4, cache_creation: 1, custom: FORBIDDEN },
-          },
+          usage_metadata: allowedUsage,
         },
       });
       const client = makeClient();
@@ -327,12 +372,7 @@ describe.each(transports)("real SDK privacy over %s", (selectedTransport) => {
             ls_integration_version: "plugin-version",
             ls_trace_schema_version: "coding-agent-v1",
             ls_model_name: REDACTED,
-            usage_metadata: {
-              input_tokens: 7,
-              output_tokens: 3,
-              total_tokens: 10,
-              input_token_details: { cache_read: 4, cache_creation: 1 },
-            },
+            usage_metadata: allowedUsage,
             status: action === "post" ? "running" : "completed",
             ls_tracing_mode: "metadata",
           },
@@ -801,14 +841,14 @@ describe.each(transports)("overlapping Cursor launch privacy over %s", (selected
   });
 });
 
-// Baseline project/user Cursor file -> real prompt snapshot -> existing stop reducer -> actual builder/SDK wire.
+// Project/home root file -> real prompt snapshot -> existing stop reducer -> actual builder/SDK wire.
 // No injected Client: credentials, destinations and anonymizer all come from loadConfig.
-describe.each(["project", "home"] as const)("baseline %s Cursor config", (scope) => {
+describe.each(["project", "home"] as const)("common %s root config", (scope) => {
   describe.each(transports)("at the wire over %s", (selectedTransport) => {
     it.each([
       "muted-redact-off",
       "full-redact-off",
-      "full-env-rules",
+      "full-file-rules",
       "keyless-muted-redact-off",
       "keyless-full-redact-off",
     ] as const)("%s", async (scenario) => {
@@ -826,7 +866,7 @@ describe.each(["project", "home"] as const)("baseline %s Cursor config", (scope)
       mkdirSync(join(home, ".cursor"));
       const keyless = scenario.startsWith("keyless-");
       const muted = scenario.includes("muted-redact-off");
-      const rules = scenario === "full-env-rules";
+      const rules = scenario === "full-file-rules";
       const collisions = Object.fromEntries(
         Object.keys(allowedMetadata).map((key) => [key, `${FORBIDDEN}_${key}`]),
       );
@@ -836,29 +876,33 @@ describe.each(["project", "home"] as const)("baseline %s Cursor config", (scope)
           metadata: { ...collisions, userOnly: FORBIDDEN, nested: { user: true } },
         }),
       );
-      mkdirSync(join(cwd, ".cursor"));
-      if (rules) {
-        vi.stubEnv(
-          "LANGSMITH_CURSOR_REDACT_EXTRA",
-          JSON.stringify([{ pattern: "file-sensitive-[0-9]+", replace: "[file-redacted]" }]),
+      // The retired home filename must not affect routing, privacy or file validity.
+      if (scope === "home") {
+        writeFileSync(
+          join(home, "langsmith-plugins.json"),
+          rules
+            ? "{malformed"
+            : JSON.stringify({ enabled: false, defaultMuted: !muted, api_url: "http://old.test" }),
         );
       }
+      // Unrelated application config must not disable tracing or invalidate plugin settings.
+      writeFileSync(
+        join(cwd, "langsmith.json"),
+        rules ? "{malformed" : JSON.stringify({ enabled: false, defaultMuted: !muted }),
+      );
       writeFileSync(
         scope === "home"
-          ? join(home, ".cursor", "langsmith.json")
-          : join(cwd, ".cursor", "langsmith.json"),
+          ? join(home, ".langsmith-plugins.json")
+          : join(cwd, "langsmith-plugins.json"),
         JSON.stringify({
           enabled: true,
+          defaultMuted: muted,
           ...(keyless ? {} : { api_key: "primary-file-key" }),
           api_url: API,
           project: "primary-file-project",
           redact: rules,
-          metadata: {
-            ...collisions,
-            userOnly: FORBIDDEN,
-            rootOnly: FORBIDDEN,
-            nested: { root: true },
-          },
+          redact_extra_rules: [{ pattern: "file-sensitive-[0-9]+", replace: "[file-redacted]" }],
+          metadata: { ...collisions, rootOnly: FORBIDDEN, nested: { root: true } },
           replicas: [
             // The keyless primary's replica must inherit the private file URL, not the SDK default.
             keyless
@@ -889,10 +933,6 @@ describe.each(["project", "home"] as const)("baseline %s Cursor config", (scope)
           hook_event_name: "beforeSubmitPrompt" as const,
           prompt: `${FORBIDDEN}_prompt file-sensitive-123 file-sensitive-456`,
         };
-        if (muted) {
-          const response = await handlePromptSubmit({ ...input, prompt: "langsmith-tracing:mute" });
-          expect(response.continue).toBe(false);
-        }
         expect(await handlePromptSubmit(input)).toEqual({ continue: true });
         const cfg = loadConfig({ cwd });
         const { initHook } = await import("../src/utils/hook-init.js");
@@ -903,7 +943,7 @@ describe.each(["project", "home"] as const)("baseline %s Cursor config", (scope)
         expect(cfg.customMetadata).toMatchObject({
           userOnly: FORBIDDEN,
           rootOnly: FORBIDDEN,
-          nested: { root: true },
+          nested: scope === "home" ? { user: true } : { root: true },
         });
         const state = loadState(cfg.stateFilePath);
         const stopped = reduceStop(
@@ -962,11 +1002,11 @@ describe.each(["project", "home"] as const)("baseline %s Cursor config", (scope)
         const wire = requests.map((r) => r.raw).join("\n");
         if (muted) {
           expect(wire).not.toContain(FORBIDDEN);
-          expect(wire).not.toMatch(/file-sensitive-[0-9]+/);
+          expect(wire).not.toContain("file-sensitive-");
         } else {
           expect(wire).toContain(FORBIDDEN);
           if (rules) {
-            expect(wire).not.toMatch(/file-sensitive-[0-9]+/);
+            expect(wire).not.toContain("file-sensitive-");
             expect(wire).toContain("[file-redacted]");
           } else expect(wire).toContain("file-sensitive-123");
         }
