@@ -1317,16 +1317,16 @@ function reduceStop(state, input, nowMs) {
   return { state: nextState, buffer: turn, turnNum };
 }
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/utils/uuid/src/regex.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/utils/uuid/src/regex.js
 var regex_default = /^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$/i;
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/utils/uuid/src/validate.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/utils/uuid/src/validate.js
 function validate(uuid) {
   return typeof uuid === "string" && regex_default.test(uuid);
 }
 var validate_default = validate;
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/utils/uuid/src/parse.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/utils/uuid/src/parse.js
 function parse(uuid) {
   if (!validate_default(uuid)) {
     throw TypeError("Invalid UUID");
@@ -1358,7 +1358,7 @@ function parse(uuid) {
 }
 var parse_default = parse;
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/utils/uuid/src/stringify.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/utils/uuid/src/stringify.js
 var byteToHex = [];
 for (let i = 0; i < 256; ++i) {
   byteToHex.push((i + 256).toString(16).slice(1));
@@ -1367,13 +1367,13 @@ function unsafeStringify(arr2, offset = 0) {
   return (byteToHex[arr2[offset + 0]] + byteToHex[arr2[offset + 1]] + byteToHex[arr2[offset + 2]] + byteToHex[arr2[offset + 3]] + "-" + byteToHex[arr2[offset + 4]] + byteToHex[arr2[offset + 5]] + "-" + byteToHex[arr2[offset + 6]] + byteToHex[arr2[offset + 7]] + "-" + byteToHex[arr2[offset + 8]] + byteToHex[arr2[offset + 9]] + "-" + byteToHex[arr2[offset + 10]] + byteToHex[arr2[offset + 11]] + byteToHex[arr2[offset + 12]] + byteToHex[arr2[offset + 13]] + byteToHex[arr2[offset + 14]] + byteToHex[arr2[offset + 15]]).toLowerCase();
 }
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/utils/uuid/src/rng.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/utils/uuid/src/rng.js
 var rnds8 = new Uint8Array(16);
 function rng() {
   return crypto.getRandomValues(rnds8);
 }
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/utils/uuid/src/v4.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/utils/uuid/src/v4.js
 function v4(options, buf, offset) {
   if (!buf && !options && crypto.randomUUID) {
     return crypto.randomUUID();
@@ -1402,7 +1402,7 @@ function _v4(options, buf, offset) {
 }
 var v4_default = v4;
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/utils/uuid/src/sha1.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/utils/uuid/src/sha1.js
 function f(s, x, y, z) {
   switch (s) {
     case 0:
@@ -1470,7 +1470,7 @@ function sha1(bytes) {
 }
 var sha1_default = sha1;
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/utils/uuid/src/v35.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/utils/uuid/src/v35.js
 function stringToBytes(str) {
   str = unescape(encodeURIComponent(str));
   const bytes = new Uint8Array(str.length);
@@ -1509,7 +1509,7 @@ function v35(version, hash, value, namespace, buf, offset) {
   return unsafeStringify(bytes);
 }
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/utils/uuid/src/v5.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/utils/uuid/src/v5.js
 function v5(value, namespace, buf, offset) {
   return v35(80, sha1_default, value, namespace, buf, offset);
 }
@@ -1517,7 +1517,7 @@ v5.DNS = DNS;
 v5.URL = URL2;
 var v5_default = v5;
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/utils/uuid/src/v7.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/utils/uuid/src/v7.js
 var _state = {};
 function v7(options, buf, offset) {
   let bytes;
@@ -1579,7 +1579,7 @@ function v7Bytes(rnds, msecs, seq, buf, offset = 0) {
 }
 var v7_default = v7;
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/experimental/otel/constants.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/experimental/otel/constants.js
 var GEN_AI_OPERATION_NAME = "gen_ai.operation.name";
 var GEN_AI_SYSTEM = "gen_ai.system";
 var GEN_AI_REQUEST_MODEL = "gen_ai.request.model";
@@ -1615,7 +1615,7 @@ var LANGSMITH_REQUEST_STREAMING = "langsmith.request.streaming";
 var LANGSMITH_REQUEST_HEADERS = "langsmith.request.headers";
 var LANGSMITH_USAGE_METADATA = "langsmith.usage_metadata";
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/utils/env.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/utils/env.js
 var globalEnv;
 var isBrowser = () => typeof window !== "undefined" && typeof window.document !== "undefined";
 var isWebWorker = () => typeof globalThis === "object" && globalThis.constructor && globalThis.constructor.name === "DedicatedWorkerGlobalScope";
@@ -1658,6 +1658,20 @@ function getRuntimeEnvironment() {
   }
   return runtimeEnvironment;
 }
+var EXCLUDED_SUBSTRINGS = [
+  "key",
+  "secret",
+  "token",
+  "password",
+  "passwd",
+  "pwd",
+  "credential",
+  "email"
+];
+function isSensitiveEnvVarName(key) {
+  const lowered = key.toLowerCase();
+  return EXCLUDED_SUBSTRINGS.some((sub) => lowered.includes(sub));
+}
 function getLangSmithEnvVarsMetadata() {
   const allEnvVars = getLangSmithEnvironmentVariables();
   const envVars = {};
@@ -1675,7 +1689,7 @@ function getLangSmithEnvVarsMetadata() {
     "LANGSMITH_SESSION"
   ];
   for (const [key, value] of Object.entries(allEnvVars)) {
-    if (typeof value === "string" && !excluded.includes(key) && !key.toLowerCase().includes("key") && !key.toLowerCase().includes("secret") && !key.toLowerCase().includes("token")) {
+    if (typeof value === "string" && !excluded.includes(key) && !isSensitiveEnvVarName(key)) {
       if (key === "LANGCHAIN_REVISION_ID") {
         envVars["revision_id"] = value;
       } else {
@@ -1691,7 +1705,7 @@ function getLangSmithEnvironmentVariables() {
     if (typeof process !== "undefined" && process.env) {
       for (const [key, value] of Object.entries(process.env)) {
         if ((key.startsWith("LANGCHAIN_") || key.startsWith("LANGSMITH_")) && value != null) {
-          if ((key.toLowerCase().includes("key") || key.toLowerCase().includes("secret") || key.toLowerCase().includes("token")) && typeof value === "string") {
+          if (isSensitiveEnvVarName(key) && typeof value === "string") {
             envVars[key] = value.slice(0, 2) + "*".repeat(value.length - 4) + value.slice(-2);
           } else {
             envVars[key] = value;
@@ -1777,7 +1791,7 @@ function resolveTracingMode(configValue) {
   return "langsmith";
 }
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/singletons/otel.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/singletons/otel.js
 var MockTracer = class {
   constructor() {
     Object.defineProperty(this, "hasWarned", {
@@ -1883,7 +1897,7 @@ function getDefaultOTLPTracerComponents() {
   return OTELProviderSingleton.getDefaultOTLPTracerComponents();
 }
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/experimental/otel/translator.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/experimental/otel/translator.js
 var WELL_KNOWN_OPERATION_NAMES = {
   llm: "chat",
   tool: "execute_tool",
@@ -2231,7 +2245,7 @@ var LangSmithToOTELTranslator = class {
   }
 };
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/utils/is-network-error/index.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/utils/is-network-error/index.js
 var objectToString = Object.prototype.toString;
 var isError = (value) => objectToString.call(value) === "[object Error]";
 var errorMessages = /* @__PURE__ */ new Set([
@@ -2270,7 +2284,7 @@ function isNetworkError(error2) {
   return errorMessages.has(message);
 }
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/utils/p-retry/index.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/utils/p-retry/index.js
 function validateRetries(retries) {
   if (typeof retries === "number") {
     if (retries < 0) {
@@ -2443,11 +2457,11 @@ async function pRetry(input, options = {}) {
   throw new Error("Retry attempts exhausted without throwing an error.");
 }
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/utils/p-queue.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/utils/p-queue.js
 var import_p_queue = __toESM(require_dist(), 1);
 var PQueue = "default" in import_p_queue.default ? import_p_queue.default.default : import_p_queue.default;
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/utils/async_caller.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/utils/async_caller.js
 var STATUS_RETRYABLE = [
   408,
   // Request Timeout
@@ -2575,7 +2589,7 @@ var AsyncCaller = class {
   }
 };
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/utils/messages.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/utils/messages.js
 function isLangChainMessage(message) {
   return typeof message?._getType === "function";
 }
@@ -2590,7 +2604,7 @@ function convertLangChainMessageToExample(message) {
   return converted;
 }
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/_openapi_client/internal/utils/uuid.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/_openapi_client/internal/utils/uuid.js
 var uuid4 = function() {
   const { crypto: crypto2 } = globalThis;
   if (crypto2?.randomUUID) {
@@ -2602,7 +2616,7 @@ var uuid4 = function() {
   return "10000000-1000-4000-8000-100000000000".replace(/[018]/g, (c) => (+c ^ randomByte() & 15 >> +c / 4).toString(16));
 };
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/_openapi_client/internal/errors.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/_openapi_client/internal/errors.js
 function isAbortError(err) {
   return typeof err === "object" && err !== null && // Spec-compliant fetch implementations
   ("name" in err && err.name === "AbortError" || // Expo fetch
@@ -2633,7 +2647,7 @@ var castToError = (err) => {
   return new Error(err);
 };
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/_openapi_client/core/error.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/_openapi_client/core/error.js
 var LangsmithError = class extends Error {
 };
 var APIError = class _APIError extends LangsmithError {
@@ -2740,7 +2754,7 @@ var RateLimitError = class extends APIError {
 var InternalServerError = class extends APIError {
 };
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/_openapi_client/internal/utils/values.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/_openapi_client/internal/utils/values.js
 var startsWithSchemeRegexp = /^[a-z][a-z0-9+.-]*:/i;
 var isAbsoluteURL = (url) => {
   return startsWithSchemeRegexp.test(url);
@@ -2780,13 +2794,13 @@ var safeJSON = (text) => {
   }
 };
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/_openapi_client/internal/utils/sleep.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/_openapi_client/internal/utils/sleep.js
 var sleep2 = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/_openapi_client/version.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/_openapi_client/version.js
 var VERSION = "0.0.1";
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/_openapi_client/internal/detect-platform.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/_openapi_client/internal/detect-platform.js
 function getDetectedPlatform() {
   if (typeof Deno !== "undefined" && Deno.build != null) {
     return "deno";
@@ -2912,7 +2926,7 @@ var getPlatformHeaders = () => {
   return _platformHeaders ??= getPlatformProperties();
 };
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/_openapi_client/internal/shims.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/_openapi_client/internal/shims.js
 function getDefaultFetch() {
   if (typeof fetch !== "undefined") {
     return fetch;
@@ -2957,7 +2971,7 @@ async function CancelReadableStream(stream) {
   await cancelPromise;
 }
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/_openapi_client/internal/request-options.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/_openapi_client/internal/request-options.js
 var FallbackEncoder = ({ headers, body }) => {
   return {
     bodyHeaders: {
@@ -2967,7 +2981,7 @@ var FallbackEncoder = ({ headers, body }) => {
   };
 };
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/_openapi_client/internal/qs/formats.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/_openapi_client/internal/qs/formats.js
 var default_format = "RFC3986";
 var default_formatter = (v) => String(v);
 var formatters = {
@@ -2976,7 +2990,7 @@ var formatters = {
 };
 var RFC1738 = "RFC1738";
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/_openapi_client/internal/qs/utils.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/_openapi_client/internal/qs/utils.js
 var has = (obj, key) => (has = Object.hasOwn ?? Function.prototype.call.bind(Object.prototype.hasOwnProperty), has(obj, key));
 var hex_table = /* @__PURE__ */ (() => {
   const array = [];
@@ -3055,7 +3069,7 @@ function maybe_map(val, fn) {
   return fn(val);
 }
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/_openapi_client/internal/qs/stringify.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/_openapi_client/internal/qs/stringify.js
 var array_prefix_generators = {
   brackets(prefix) {
     return String(prefix) + "[]";
@@ -3098,7 +3112,7 @@ function is_non_nullish_primitive(v) {
   return typeof v === "string" || typeof v === "number" || typeof v === "boolean" || typeof v === "symbol" || typeof v === "bigint";
 }
 var sentinel = {};
-function inner_stringify(object2, prefix, generateArrayPrefix, commaRoundTrip, allowEmptyArrays, strictNullHandling, skipNulls, encodeDotInKeys, encoder2, filter, sort, allowDots, serializeDate, format, formatter, encodeValuesOnly, charset, sideChannel) {
+function inner_stringify(object2, prefix, generateArrayPrefix, commaRoundTrip, allowEmptyArrays, strictNullHandling, skipNulls, encodeDotInKeys, encoder3, filter, sort, allowDots, serializeDate, format, formatter, encodeValuesOnly, charset, sideChannel) {
   let obj = object2;
   let tmp_sc = sideChannel;
   let step = 0;
@@ -3131,19 +3145,19 @@ function inner_stringify(object2, prefix, generateArrayPrefix, commaRoundTrip, a
   }
   if (obj === null) {
     if (strictNullHandling) {
-      return encoder2 && !encodeValuesOnly ? (
+      return encoder3 && !encodeValuesOnly ? (
         // @ts-expect-error
-        encoder2(prefix, defaults.encoder, charset, "key", format)
+        encoder3(prefix, defaults.encoder, charset, "key", format)
       ) : prefix;
     }
     obj = "";
   }
   if (is_non_nullish_primitive(obj) || is_buffer(obj)) {
-    if (encoder2) {
-      const key_value = encodeValuesOnly ? prefix : encoder2(prefix, defaults.encoder, charset, "key", format);
+    if (encoder3) {
+      const key_value = encodeValuesOnly ? prefix : encoder3(prefix, defaults.encoder, charset, "key", format);
       return [
         formatter?.(key_value) + "=" + // @ts-expect-error
-        formatter?.(encoder2(obj, defaults.encoder, charset, "value", format))
+        formatter?.(encoder3(obj, defaults.encoder, charset, "value", format))
       ];
     }
     return [formatter?.(prefix) + "=" + formatter?.(String(obj))];
@@ -3154,8 +3168,8 @@ function inner_stringify(object2, prefix, generateArrayPrefix, commaRoundTrip, a
   }
   let obj_keys;
   if (generateArrayPrefix === "comma" && isArray(obj)) {
-    if (encodeValuesOnly && encoder2) {
-      obj = maybe_map(obj, encoder2);
+    if (encodeValuesOnly && encoder3) {
+      obj = maybe_map(obj, encoder3);
     }
     obj_keys = [{ value: obj.length > 0 ? obj.join(",") || null : void 0 }];
   } else if (isArray(filter)) {
@@ -3193,7 +3207,7 @@ function inner_stringify(object2, prefix, generateArrayPrefix, commaRoundTrip, a
       skipNulls,
       encodeDotInKeys,
       // @ts-ignore
-      generateArrayPrefix === "comma" && encodeValuesOnly && isArray(obj) ? null : encoder2,
+      generateArrayPrefix === "comma" && encodeValuesOnly && isArray(obj) ? null : encoder3,
       filter,
       sort,
       allowDots,
@@ -3333,12 +3347,12 @@ function stringify(object2, opts = {}) {
   return joined.length > 0 ? prefix + joined : "";
 }
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/_openapi_client/internal/utils/query.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/_openapi_client/internal/utils/query.js
 function stringifyQuery(query) {
   return stringify(query, { arrayFormat: "repeat" });
 }
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/_openapi_client/internal/utils/log.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/_openapi_client/internal/utils/log.js
 var levelNumbers = {
   off: 0,
   error: 200,
@@ -3411,7 +3425,7 @@ var formatRequestDetails = (details) => {
   return details;
 };
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/_openapi_client/internal/parse.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/_openapi_client/internal/parse.js
 async function defaultParseResponse(client2, props) {
   const { response, requestLogID, retryOfRequestLogID, startTime } = props;
   const body = await (async () => {
@@ -3445,7 +3459,7 @@ async function defaultParseResponse(client2, props) {
   return body;
 }
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/_openapi_client/core/api-promise.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/_openapi_client/core/api-promise.js
 var __classPrivateFieldSet = function(receiver, state, value, kind, f2) {
   if (kind === "m") throw new TypeError("Private method is not writable");
   if (kind === "a" && !f2) throw new TypeError("Private accessor was defined without a setter");
@@ -3533,7 +3547,7 @@ var APIPromise = class _APIPromise extends Promise {
 };
 _APIPromise_client = /* @__PURE__ */ new WeakMap();
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/_openapi_client/core/pagination.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/_openapi_client/core/pagination.js
 var __classPrivateFieldSet2 = function(receiver, state, value, kind, f2) {
   if (kind === "m") throw new TypeError("Private method is not writable");
   if (kind === "a" && !f2) throw new TypeError("Private accessor was defined without a setter");
@@ -3778,7 +3792,7 @@ var ItemsCursorGetPagination = class extends AbstractPage {
   }
 };
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/_openapi_client/internal/uploads.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/_openapi_client/internal/uploads.js
 var checkFileSupport = () => {
   if (typeof File === "undefined") {
     const { process: process2 } = globalThis;
@@ -3795,7 +3809,7 @@ function getName(value) {
 }
 var isAsyncIterable = (value) => value != null && typeof value === "object" && typeof value[Symbol.asyncIterator] === "function";
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/_openapi_client/internal/to-file.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/_openapi_client/internal/to-file.js
 var isBlobLike = (value) => value != null && typeof value === "object" && typeof value.size === "number" && typeof value.type === "string" && typeof value.text === "function" && typeof value.slice === "function" && typeof value.arrayBuffer === "function";
 var isFileLike = (value) => value != null && typeof value === "object" && typeof value.name === "string" && typeof value.lastModified === "number" && isBlobLike(value);
 var isResponseLike = (value) => value != null && typeof value === "object" && typeof value.url === "string" && typeof value.blob === "function";
@@ -3847,7 +3861,7 @@ function propsForError(value) {
   return `; props: [${props.map((p) => `"${p}"`).join(", ")}]`;
 }
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/_openapi_client/core/resource.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/_openapi_client/core/resource.js
 var APIResource = class {
   constructor(client2) {
     Object.defineProperty(this, "_client", {
@@ -3860,7 +3874,7 @@ var APIResource = class {
   }
 };
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/_openapi_client/internal/utils/path.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/_openapi_client/internal/utils/path.js
 function encodeURIPath(str) {
   return str.replace(/[^A-Za-z0-9\-._~!$&'()*+,;=:@]+/g, encodeURIComponent);
 }
@@ -3915,7 +3929,7 @@ ${underline}`);
 };
 var path = /* @__PURE__ */ createPathTagFunction(encodeURIPath);
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/_openapi_client/resources/annotation-queues/items.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/_openapi_client/resources/annotation-queues/items.js
 var Items = class extends APIResource {
   /**
    * Add RUN or THREAD items to a single annotation queue. RUN items require run_id
@@ -3992,7 +4006,7 @@ var Items = class extends APIResource {
   }
 };
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/_openapi_client/resources/annotation-queues/runs.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/_openapi_client/resources/annotation-queues/runs.js
 var Runs = class extends APIResource {
   /**
    * Add Runs To Annotation Queue
@@ -4059,7 +4073,7 @@ var Runs = class extends APIResource {
   }
 };
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/_openapi_client/resources/annotation-queues/annotation-queues.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/_openapi_client/resources/annotation-queues/annotation-queues.js
 var AnnotationQueues = class extends APIResource {
   constructor() {
     super(...arguments);
@@ -4172,7 +4186,7 @@ var AnnotationQueues = class extends APIResource {
 AnnotationQueues.Runs = Runs;
 AnnotationQueues.Items = Items;
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/_openapi_client/resources/datasets/experiment-runs.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/_openapi_client/resources/datasets/experiment-runs.js
 var ExperimentRuns = class extends APIResource {
   /**
    * Returns a paginated page of dataset examples with runs from the requested
@@ -4185,7 +4199,7 @@ var ExperimentRuns = class extends APIResource {
   }
 };
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/_openapi_client/resources/datasets/datasets.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/_openapi_client/resources/datasets/datasets.js
 var Datasets = class extends APIResource {
   constructor() {
     super(...arguments);
@@ -4199,7 +4213,7 @@ var Datasets = class extends APIResource {
 };
 Datasets.ExperimentRuns = ExperimentRuns;
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/_openapi_client/resources/info.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/_openapi_client/resources/info.js
 var Info = class extends APIResource {
   /**
    * Returns information about the current LangSmith deployment: version, instance
@@ -4211,7 +4225,7 @@ var Info = class extends APIResource {
   }
 };
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/_openapi_client/resources/issues.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/_openapi_client/resources/issues.js
 var Issues = class extends APIResource {
   /**
    * **Beta:** This endpoint is in active development and may change without notice.
@@ -4225,7 +4239,7 @@ var Issues = class extends APIResource {
    * **Beta:** This endpoint is in active development and may change without notice.
    *
    * Returns issues for the authenticated tenant, optionally filtered by session,
-   * status, severity, tag, or last modified time.
+   * status, severity, tag, linked trace, or last modified time.
    */
   list(query = {}, options) {
     return this._client.getAPIList("/api/v1/platform/issues", OffsetPaginationIssues, {
@@ -4235,7 +4249,7 @@ var Issues = class extends APIResource {
   }
 };
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/_openapi_client/internal/headers.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/_openapi_client/internal/headers.js
 var brand_privateNullableHeaders = /* @__PURE__ */ Symbol("brand.privateNullableHeaders");
 function* iterateHeaders(headers) {
   if (!headers)
@@ -4298,7 +4312,7 @@ var buildHeaders = (newHeaders) => {
   return { [brand_privateNullableHeaders]: true, values: targetHeaders, nulls: nullHeaders };
 };
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/_openapi_client/resources/online-evaluators.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/_openapi_client/resources/online-evaluators.js
 var OnlineEvaluators = class extends APIResource {
   /**
    * Create a new LLM or code evaluator for the current workspace.
@@ -4352,15 +4366,15 @@ var OnlineEvaluators = class extends APIResource {
   /**
    * Returns per-day LLM evaluator spend for the requested 7-day period, grouped by
    * evaluator, resource, or run rule. Exactly one of group_by, evaluator_id,
-   * session_id, or dataset_id is required. resource_id, type, and feedback_key may
-   * be supplied with group_by to narrow listing aggregations.
+   * session_id, or dataset_id is required. resource_id, type, feedback_key, and
+   * tag_value_id may be supplied with group_by to narrow listing aggregations.
    */
   spend(query, options) {
     return this._client.get("/api/v1/platform/evaluators/spend", { query, ...options });
   }
 };
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/_openapi_client/resources/public/runs.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/_openapi_client/resources/public/runs.js
 var Runs2 = class extends APIResource {
   /**
    * Returns one run within the trace identified by the share token. The request
@@ -4411,7 +4425,7 @@ var Runs2 = class extends APIResource {
   }
 };
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/_openapi_client/resources/public/public.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/_openapi_client/resources/public/public.js
 var Public = class extends APIResource {
   constructor() {
     super(...arguments);
@@ -4425,7 +4439,7 @@ var Public = class extends APIResource {
 };
 Public.Runs = Runs2;
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/_openapi_client/resources/runs/share.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/_openapi_client/resources/runs/share.js
 var Share = class extends APIResource {
   /**
    * Creates or returns a share token for a run. Child runs share their trace root.
@@ -4464,7 +4478,7 @@ var Share = class extends APIResource {
   }
 };
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/_openapi_client/resources/runs/runs.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/_openapi_client/resources/runs/runs.js
 var Runs3 = class extends APIResource {
   constructor() {
     super(...arguments);
@@ -4554,11 +4568,13 @@ var Runs3 = class extends APIResource {
 };
 Runs3.Share = Share;
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/_openapi_client/resources/sandboxes/boxes.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/_openapi_client/resources/sandboxes/boxes.js
 var Boxes = class extends APIResource {
   /**
    * Create a new sandbox from a snapshot. Provide at most one of `snapshot_id` or
    * `snapshot_name`; if neither is provided, the server uses the default snapshot.
+   * `snapshot_name` accepts a Docker-style `name` or `name:tag` reference (a bare
+   * name resolves to `name:latest`).
    */
   create(body, options) {
     return this._client.post("/api/v2/sandboxes/boxes", { body, ...options });
@@ -4570,17 +4586,22 @@ var Boxes = class extends APIResource {
     return this._client.get(path`/api/v2/sandboxes/boxes/${name}`, options);
   }
   /**
-   * Update a sandbox's display name. The name must be unique within the tenant.
+   * Update a sandbox's display name, retention, resources, tags, or proxy
+   * configuration. The name must be unique within the tenant. Proxy configuration
+   * sent to a sandbox that is not running is stored and applied when it next starts.
    */
   update(name, body, options) {
     return this._client.patch(path`/api/v2/sandboxes/boxes/${name}`, { body, ...options });
   }
   /**
    * List sandboxes for the authenticated tenant, with optional filtering, sorting,
-   * and pagination.
+   * and pagination. Page with page_size and cursor: replay the response's
+   * next_cursor until it comes back null, which is the only signal that no pages
+   * remain. Cursors are opaque and only valid on this endpoint; do not parse or
+   * construct one.
    */
   list(query = {}, options) {
-    return this._client.get("/api/v2/sandboxes/boxes", { query, ...options });
+    return this._client.getAPIList("/api/v2/sandboxes/boxes", ItemsCursorGetPagination, { query, ...options });
   }
   /**
    * Delete a sandbox by name or UUID. Tears down the sandbox runtime and removes the
@@ -4598,6 +4619,17 @@ var Boxes = class extends APIResource {
    */
   createSnapshot(name, body, options) {
     return this._client.post(path`/api/v2/sandboxes/boxes/${name}/snapshot`, { body, ...options });
+  }
+  /**
+   * Generate a tokenized link that downloads a single file from a sandbox with no
+   * further authentication. This mints a token rather than creating an addressable
+   * resource, so it returns 200 with no Location header. The token pins the sandbox,
+   * the file path, and the response content type and disposition, so a link cannot
+   * be repointed at another file. Links never expire unless expires_in_seconds is
+   * set. The link is served from the sandbox service domain, not the API host.
+   */
+  generateDownloadURL(name, body, options) {
+    return this._client.post(path`/api/v2/sandboxes/boxes/${name}/download-url`, { body, ...options });
   }
   /**
    * Create a short-lived JWT for accessing an HTTP service running on a specific
@@ -4632,7 +4664,7 @@ var Boxes = class extends APIResource {
   }
 };
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/_openapi_client/resources/sandboxes/registries.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/_openapi_client/resources/sandboxes/registries.js
 var Registries = class extends APIResource {
   /**
    * Create a sandbox registry for pulling private images.
@@ -4669,7 +4701,7 @@ var Registries = class extends APIResource {
   }
 };
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/_openapi_client/resources/sandboxes/snapshots.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/_openapi_client/resources/sandboxes/snapshots.js
 var Snapshots = class extends APIResource {
   /**
    * Create a snapshot from a Docker image (async build).
@@ -4678,20 +4710,26 @@ var Snapshots = class extends APIResource {
     return this._client.post("/api/v2/sandboxes/snapshots", { body, ...options });
   }
   /**
-   * Get a sandbox snapshot by ID.
+   * Get a sandbox snapshot by ID or by a Docker-style reference. A bare name means
+   * name:latest, falling back to the newest ready untagged snapshot of that name. To
+   * list the tags under a name, use /api/v2/sandboxes/snapshots-by-name/{name}.
    */
   retrieve(snapshotID, options) {
     return this._client.get(path`/api/v2/sandboxes/snapshots/${snapshotID}`, options);
   }
   /**
    * List sandbox snapshots for the authenticated tenant, with optional filtering,
-   * sorting, and pagination.
+   * sorting, and pagination. Page with page_size and cursor: replay the response's
+   * next_cursor until it comes back null, which is the only signal that no pages
+   * remain. Cursors are opaque and only valid on this endpoint; do not parse or
+   * construct one.
    */
   list(query = {}, options) {
-    return this._client.get("/api/v2/sandboxes/snapshots", { query, ...options });
+    return this._client.getAPIList("/api/v2/sandboxes/snapshots", ItemsCursorGetPagination, { query, ...options });
   }
   /**
-   * Delete a snapshot by ID. The underlying storage is reclaimed asynchronously.
+   * Delete a snapshot by ID or by a Docker-style name[:tag] reference. The
+   * underlying storage is reclaimed asynchronously.
    */
   delete(snapshotID, options) {
     return this._client.delete(path`/api/v2/sandboxes/snapshots/${snapshotID}`, {
@@ -4699,9 +4737,16 @@ var Snapshots = class extends APIResource {
       headers: buildHeaders([{ Accept: "*/*" }, options?.headers])
     });
   }
+  /**
+   * Get a snapshot name and every tag under it, with the snapshot each tag resolves
+   * to. To fetch one snapshot, use /api/v2/sandboxes/snapshots/{snapshot_id}.
+   */
+  retrieveByName(name, options) {
+    return this._client.get(path`/api/v2/sandboxes/snapshots-by-name/${name}`, options);
+  }
 };
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/_openapi_client/resources/sandboxes/sandboxes.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/_openapi_client/resources/sandboxes/sandboxes.js
 var Sandboxes = class extends APIResource {
   constructor() {
     super(...arguments);
@@ -4729,7 +4774,7 @@ Sandboxes.Boxes = Boxes;
 Sandboxes.Registries = Registries;
 Sandboxes.Snapshots = Snapshots;
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/_openapi_client/resources/threads.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/_openapi_client/resources/threads.js
 var Threads = class extends APIResource {
   /**
    * Retrieve all traces belonging to a specific thread within a project.
@@ -4752,7 +4797,7 @@ var Threads = class extends APIResource {
   }
   /**
    * Query threads within a project (session), with cursor-based pagination. Returns
-   * threads matching the given time range and optional filter.
+   * threads matching the given time range and optional filters.
    *
    * Self-hosted deployments require LangSmith `v0.16` or later.
    *
@@ -4793,7 +4838,7 @@ var Threads = class extends APIResource {
   }
 };
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/_openapi_client/resources/traces.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/_openapi_client/resources/traces.js
 var Traces = class extends APIResource {
   /**
    * Returns runs for a trace ID within min/max start time. Optional `filter`;
@@ -4849,7 +4894,7 @@ var Traces = class extends APIResource {
   }
 };
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/_openapi_client/internal/utils/env.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/_openapi_client/internal/utils/env.js
 var readEnv = (env) => {
   if (typeof globalThis.process !== "undefined") {
     return globalThis.process.env?.[env]?.trim() || void 0;
@@ -4860,7 +4905,7 @@ var readEnv = (env) => {
   return void 0;
 };
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/_openapi_client/client.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/_openapi_client/client.js
 var __classPrivateFieldSet3 = function(receiver, state, value, kind, f2) {
   if (kind === "m") throw new TypeError("Private method is not writable");
   if (kind === "a" && !f2) throw new TypeError("Private accessor was defined without a setter");
@@ -5522,7 +5567,7 @@ Langsmith.Info = Info;
 Langsmith.Issues = Issues;
 Langsmith.Sandboxes = Sandboxes;
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/utils/warn.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/utils/warn.js
 var warnedMessages = {};
 function warnOnce(message, options) {
   const key = options?.code ?? message;
@@ -5538,7 +5583,7 @@ function warnOnce(message, options) {
   }
 }
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/utils/xxhash/xxhash.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/utils/xxhash/xxhash.js
 var n = (n2) => BigInt(n2);
 var PRIME32_1 = n("0x9E3779B1");
 var PRIME32_2 = n("0x85EBCA77");
@@ -5818,7 +5863,7 @@ function xxh128ToBytes(hash128) {
   return result;
 }
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/utils/_uuid.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/utils/_uuid.js
 var UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 function assertUuid(str, which) {
   if (!UUID_REGEX.test(str)) {
@@ -5865,13 +5910,7 @@ function nonCryptographicUuid7Deterministic(originalId, key) {
     const originalBytes = uuidToBytes(originalId);
     b.set(originalBytes.slice(0, 6), 0);
   } else {
-    const msecs = Date.now();
-    b[0] = msecs / 1099511627776 & 255;
-    b[1] = msecs / 4294967296 & 255;
-    b[2] = msecs / 16777216 & 255;
-    b[3] = msecs / 65536 & 255;
-    b[4] = msecs / 256 & 255;
-    b[5] = msecs & 255;
+    b.set(h.slice(10, 16), 0);
   }
   b[6] = 112 | h[0] & 15;
   b[7] = h[1];
@@ -5880,7 +5919,24 @@ function nonCryptographicUuid7Deterministic(originalId, key) {
   return bytesToUuid(b);
 }
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/utils/v2_migration.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/utils/sampling.js
+var SAMPLING_HASH_MODULUS = 1000000n;
+var encoder = new TextEncoder();
+var isSampledById = (identifier, samplingRate) => {
+  if (samplingRate === void 0 || samplingRate >= 1) {
+    return true;
+  }
+  if (samplingRate <= 0) {
+    return false;
+  }
+  if (identifier == null) {
+    return true;
+  }
+  const bucket = XXH3_128(encoder.encode(identifier.toLowerCase())) % SAMPLING_HASH_MODULUS;
+  return Number(bucket) / Number(SAMPLING_HASH_MODULUS) < samplingRate;
+};
+
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/utils/v2_migration.js
 var QueryBackend = {
   CLICKHOUSE_ONLY: "clickhouse_only",
   SMITHDB_ONLY: "smithdb_only",
@@ -5897,7 +5953,7 @@ function getQueryBackend(instanceFlags) {
   return QueryBackend.CLICKHOUSE_ONLY;
 }
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/utils/error.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/utils/error.js
 function getInvalidPromptIdentifierMsg(identifier) {
   return `Invalid prompt identifier format: "${identifier}". Expected one of:
   - "prompt-name" (for private prompts)
@@ -5993,7 +6049,7 @@ function isConflictingEndpointsError(err) {
   return typeof err === "object" && err !== null && err.code === ERR_CONFLICTING_ENDPOINTS;
 }
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/utils/prompts.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/utils/prompts.js
 function parseHubIdentifier(identifier) {
   if (!identifier || identifier.split("/").length > 2 || identifier.startsWith("/") || identifier.endsWith("/") || identifier.split(":").length > 2) {
     throw new Error(getInvalidPromptIdentifierMsg(identifier));
@@ -6014,7 +6070,7 @@ function parseHubIdentifier(identifier) {
   }
 }
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/utils/fs.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/utils/fs.js
 import * as nodeFs from "node:fs";
 import * as nodeFsPromises from "node:fs/promises";
 import * as nodePath from "node:path";
@@ -6068,7 +6124,7 @@ async function rmRecursive(filePath) {
   await nodeFsPromises.rm(filePath, { recursive: true, force: true });
 }
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/utils/prompt_cache/index.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/utils/prompt_cache/index.js
 function isStale(entry, ttlSeconds) {
   if (ttlSeconds === null) {
     return false;
@@ -6342,7 +6398,7 @@ var PromptCache = class {
 };
 var promptCacheSingleton = new PromptCache();
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/singletons/fetch.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/singletons/fetch.js
 var DEFAULT_FETCH_IMPLEMENTATION = (...args) => fetch(...args);
 var globalFetchSupportsWebStreaming = void 0;
 var LANGSMITH_FETCH_IMPLEMENTATION_KEY = /* @__PURE__ */ Symbol.for("ls:fetch_implementation");
@@ -6367,7 +6423,7 @@ var _getFetchImplementation = (debug2) => {
   };
 };
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/utils/profile-lock.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/utils/profile-lock.js
 var LOCK_POLL_INTERVAL_MS = 10;
 var LOCK_STALE_AFTER_MS = 1e4;
 var LOCK_METADATA_FILE = "created_at";
@@ -6450,11 +6506,13 @@ ${owner}
   };
 }
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/utils/profiles.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/utils/profiles.js
 var DEFAULT_API_URL2 = "https://api.smith.langchain.com";
 var OAUTH_CLIENT_ID = "langsmith-cli";
 var TOKEN_REFRESH_LEEWAY_MS = 6e4;
 var TOKEN_REFRESH_TIMEOUT_MS = 1e4;
+var OAUTH_DISCOVERY_TIMEOUT_MS = 5e3;
+var WELL_KNOWN_OAUTH_PATH = "/.well-known/oauth-authorization-server";
 function isBrowserLikeRuntime() {
   const env = getEnv2();
   return env === "browser" || env === "webworker";
@@ -6533,6 +6591,93 @@ function normalizeConfigUrl(apiUrl) {
   }
   const apiV1Suffix = "/api/v1";
   return normalized.endsWith(apiV1Suffix) ? normalized.slice(0, -apiV1Suffix.length) : normalized;
+}
+function oauthDiscoveryCandidates(apiUrl) {
+  const given = normalizeConfigUrl(apiUrl);
+  const origin = given.endsWith("/api") ? given.slice(0, -"/api".length) : given;
+  const candidates = [];
+  for (const candidate of [given, `${origin}/api`, origin]) {
+    if (candidate && candidate !== "/api" && !candidates.includes(candidate)) {
+      candidates.push(candidate);
+    }
+  }
+  return candidates;
+}
+function isTrustedOAuthMetadata(doc, base) {
+  const { issuer } = doc;
+  if (typeof issuer !== "string" || issuer.replace(/\/+$/, "") !== base.replace(/\/+$/, "")) {
+    return false;
+  }
+  let issuerUrl;
+  try {
+    issuerUrl = new URL(issuer);
+  } catch {
+    return false;
+  }
+  for (const endpoint of [
+    doc.device_authorization_endpoint,
+    doc.token_endpoint
+  ]) {
+    if (typeof endpoint !== "string" || !endpoint) {
+      return false;
+    }
+    try {
+      const url = new URL(endpoint);
+      if (url.protocol !== issuerUrl.protocol || url.host !== issuerUrl.host) {
+        return false;
+      }
+    } catch {
+      return false;
+    }
+  }
+  return true;
+}
+function oauthMetadataUrls(base) {
+  const appended = `${base}${WELL_KNOWN_OAUTH_PATH}`;
+  let inserted;
+  try {
+    const url = new URL(base);
+    inserted = `${url.origin}${WELL_KNOWN_OAUTH_PATH}${url.pathname === "/" ? "" : url.pathname}`;
+  } catch {
+    return [appended];
+  }
+  return inserted === appended ? [inserted] : [inserted, appended];
+}
+async function fetchOAuthMetadata(url, base, fetchImplementation) {
+  let response;
+  try {
+    response = await fetchImplementation(url, {
+      method: "GET",
+      headers: { Accept: "application/json" },
+      signal: AbortSignal.timeout(OAUTH_DISCOVERY_TIMEOUT_MS)
+    });
+  } catch {
+    return void 0;
+  }
+  if (!response.ok) {
+    return void 0;
+  }
+  let doc;
+  try {
+    doc = await response.json();
+  } catch {
+    return void 0;
+  }
+  if (!doc || typeof doc !== "object" || !isTrustedOAuthMetadata(doc, base)) {
+    return void 0;
+  }
+  return doc;
+}
+async function resolveTokenEndpoint(apiUrl, fetchImplementation) {
+  for (const base of oauthDiscoveryCandidates(apiUrl)) {
+    for (const url of oauthMetadataUrls(base)) {
+      const doc = await fetchOAuthMetadata(url, base, fetchImplementation);
+      if (doc) {
+        return doc.token_endpoint;
+      }
+    }
+  }
+  return `${normalizeConfigUrl(apiUrl)}/oauth/token`;
 }
 function applyTokenResponse(profile, token) {
   profile.oauth ??= {};
@@ -6666,7 +6811,8 @@ var ProfileAuth = class {
         client_id: OAUTH_CLIENT_ID,
         refresh_token: this.state.profile.oauth?.refresh_token ?? refreshToken
       });
-      const response = await fetchImplementation(`${normalizeConfigUrl(refreshApiUrl)}/oauth/token`, {
+      const tokenEndpoint = await resolveTokenEndpoint(refreshApiUrl, fetchImplementation);
+      const response = await fetchImplementation(tokenEndpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded"
@@ -6718,12 +6864,12 @@ function authHeaderFromProfile(profile) {
   return void 0;
 }
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/utils/fast-safe-stringify/index.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/utils/fast-safe-stringify/index.js
 var LIMIT_REPLACE_NODE = "[...]";
 var CIRCULAR_REPLACE_NODE = { result: "[Circular]" };
 var arr = [];
 var replacerStack = [];
-var encoder = new TextEncoder();
+var encoder2 = new TextEncoder();
 function defaultOptions() {
   return {
     depthLimit: Number.MAX_SAFE_INTEGER,
@@ -6731,7 +6877,7 @@ function defaultOptions() {
   };
 }
 function encodeString(str) {
-  return encoder.encode(str);
+  return encoder2.encode(str);
 }
 function serializeWellKnownTypes(val) {
   if (val && typeof val === "object" && val !== null) {
@@ -7008,12 +7154,12 @@ function replaceGetterValues(replacer) {
   };
 }
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/utils/worker_threads.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/utils/worker_threads.js
 import { Worker as NodeWorker } from "node:worker_threads";
 var Worker = NodeWorker;
 var WORKER_THREADS_AVAILABLE = true;
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/utils/serialize_worker.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/utils/serialize_worker.js
 var WORKER_SOURCE = (
   /* js */
   `
@@ -7298,7 +7444,7 @@ function hasLargeString(value, threshold = LARGE_STRING_THRESHOLD, nodeBudget = 
   return false;
 }
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/client.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/client.js
 function assertPullPublicPromptAllowed(promptIdentifier, dangerouslyPullPublicPrompt) {
   const [owner] = parseHubIdentifier(promptIdentifier);
   if (owner !== "-" && !dangerouslyPullPublicPrompt) {
@@ -7792,12 +7938,6 @@ var Client = class _Client {
       writable: true,
       value: void 0
     });
-    Object.defineProperty(this, "filteredPostUuids", {
-      enumerable: true,
-      configurable: true,
-      writable: true,
-      value: /* @__PURE__ */ new Set()
-    });
     Object.defineProperty(this, "autoBatchTracing", {
       enumerable: true,
       configurable: true,
@@ -8035,7 +8175,7 @@ var Client = class _Client {
     });
     this.hideInputs = config.hideInputs ?? config.anonymizer ?? defaultConfig.hideInputs;
     this.hideOutputs = config.hideOutputs ?? config.anonymizer ?? defaultConfig.hideOutputs;
-    this.hideMetadata = config.hideMetadata ?? defaultConfig.hideMetadata;
+    this.hideMetadata = config.hideMetadata ?? config.anonymizer ?? defaultConfig.hideMetadata;
     this.anonymizer = config.anonymizer;
     this.omitTracedRuntimeInfo = config.omitTracedRuntimeInfo ?? false;
     this.autoBatchTracing = config.autoBatchTracing ?? this.autoBatchTracing;
@@ -8179,14 +8319,18 @@ var Client = class _Client {
     return headers;
   }
   /**
-   * The auth options and caller headers to build the generated client with.
+   * The options to build the generated client with: its auth, and the headers
+   * it should send on every request.
    *
    * The generated client applies `defaultHeaders` *after* its own auth headers,
    * so the ones this SDK sets are already dropped from `_callerHeaders` to keep
    * the precedence of `_mergedHeaders`, where required headers win.
    */
-  get _openAPIAuth() {
+  get _openAPIClientOptions() {
     const headers = { ...this._callerHeaders };
+    if (!Object.keys(headers).some((name) => name.toLowerCase() === "user-agent")) {
+      headers["User-Agent"] = `langsmith-js/${__version__}`;
+    }
     const callerApiKeyName = Object.keys(headers).find((name) => name.toLowerCase() === "x-api-key");
     let apiKey = this.apiKey;
     if (apiKey === void 0 && callerApiKeyName !== void 0) {
@@ -8232,24 +8376,24 @@ var Client = class _Client {
    * its token is refreshed.
    */
   get openAPIClient() {
-    const auth = this._openAPIAuth;
-    const signature = JSON.stringify([auth.apiKey, auth.defaultHeaders]);
+    const options = this._openAPIClientOptions;
+    const signature = JSON.stringify([options.apiKey, options.defaultHeaders]);
     if (this._openAPIClient === void 0 || this._openAPIClientSignature !== signature) {
       this._openAPIClientSignature = signature;
-      this._openAPIClient = this._newOpenAPIClient(auth);
+      this._openAPIClient = this._newOpenAPIClient(options);
     }
     return this._openAPIClient;
   }
-  _newOpenAPIClient(auth = this._openAPIAuth) {
+  _newOpenAPIClient(options = this._openAPIClientOptions) {
     const { method: _method, body: _body, signal: _signal, ...openAPIFetchOptions } = this.fetchOptions;
     return new Langsmith({
-      apiKey: auth.apiKey,
+      apiKey: options.apiKey,
       tenantID: this.workspaceId,
       baseURL: this._getOpenAPIBaseUrl(),
       timeout: this.timeout_ms,
       fetch: this._fetch,
       fetchOptions: openAPIFetchOptions,
-      defaultHeaders: auth.defaultHeaders
+      defaultHeaders: options.defaultHeaders
     });
   }
   _getPlatformEndpointPath(path3) {
@@ -8471,45 +8615,11 @@ var Client = class _Client {
     }
   }
   // Allows mocking for tests
-  _shouldSample() {
-    if (this.tracingSampleRate === void 0) {
-      return true;
-    }
-    return Math.random() < this.tracingSampleRate;
+  _shouldSample(identifier) {
+    return isSampledById(identifier, this.tracingSampleRate);
   }
-  _filterForSampling(runs, patch = false) {
-    if (this.tracingSampleRate === void 0) {
-      return runs;
-    }
-    if (patch) {
-      const sampled = [];
-      for (const run of runs) {
-        if (!this.filteredPostUuids.has(run.trace_id)) {
-          sampled.push(run);
-        } else if (run.id === run.trace_id) {
-          this.filteredPostUuids.delete(run.trace_id);
-        }
-      }
-      return sampled;
-    } else {
-      const sampled = [];
-      for (const run of runs) {
-        const traceId = run.trace_id ?? run.id;
-        if (this.filteredPostUuids.has(traceId)) {
-          continue;
-        }
-        if (run.id === traceId) {
-          if (this._shouldSample()) {
-            sampled.push(run);
-          } else {
-            this.filteredPostUuids.add(traceId);
-          }
-        } else {
-          sampled.push(run);
-        }
-      }
-      return sampled;
-    }
+  _filterForSampling(runs) {
+    return runs.filter((run) => this._shouldSample(run.trace_id ?? run.dotted_order?.split(".", 1)[0].split("Z")[1] ?? run.id));
   }
   async _getBatchSizeLimitBytes() {
     const serverInfo = await this._ensureServerInfo();
@@ -8622,6 +8732,9 @@ var Client = class _Client {
     const batchSizeBytes = batch.reduce((sum, item) => sum + (item.size ?? 0), 0);
     try {
       if (this.langSmithToOTELTranslator !== void 0) {
+        for (const item of batch) {
+          item.item = await this._maskRunMetadata(item.item);
+        }
         this._sendBatchToOTELTranslator(batch);
       } else {
         const ingestParams = {
@@ -8686,6 +8799,25 @@ var Client = class _Client {
       }
       this.langSmithToOTELTranslator.exportBatch(operations, otelContextMap);
     }
+  }
+  async _maskRunMetadata(run) {
+    if (run.extra?.metadata == null) {
+      return run;
+    }
+    return {
+      ...run,
+      extra: {
+        ...run.extra,
+        metadata: await this.processMetadata(run.extra.metadata)
+      }
+    };
+  }
+  async _mergeRuntimeEnvAndMaskMetadata(run) {
+    const merged = mergeRuntimeEnvIntoRun(run, this.cachedLSEnvVarsForMetadata, this.omitTracedRuntimeInfo);
+    if (this.omitTracedRuntimeInfo) {
+      return merged;
+    }
+    return this._maskRunMetadata(merged);
   }
   async processRunOperation(item) {
     clearTimeout(this.autoBatchTimeout);
@@ -8769,7 +8901,7 @@ var Client = class _Client {
    * feedback has no sessionId.
    */
   async _checkFeedbackSessionId() {
-    const docs = "https://docs.langchain.com/langsmith/smithdb-sdk-migration#feedback-create";
+    const docs = "https://docs.langchain.com/langsmith/smithdb-sdk-migration-feedback#feedback-create";
     const serverInfo = await this._ensureServerInfo();
     if (getQueryBackend(serverInfo.instance_flags) === QueryBackend.SMITHDB_ONLY) {
       throw new Error(`sessionId must be provided when creating feedback for a run: this deployment cannot locate the run without it. See ${docs}`);
@@ -8831,7 +8963,7 @@ var Client = class _Client {
       }).catch(console.error);
       return;
     }
-    const mergedRunCreateParam = mergeRuntimeEnvIntoRun(runCreate, this.cachedLSEnvVarsForMetadata, this.omitTracedRuntimeInfo);
+    const mergedRunCreateParam = await this._mergeRuntimeEnvAndMaskMetadata(runCreate);
     if (options?.apiKey !== void 0) {
       headers["x-api-key"] = options.apiKey;
     }
@@ -9073,12 +9205,12 @@ var Client = class _Client {
     return arrayBuffer;
   }
   async _createMultipartStream(parts, boundary) {
-    const encoder2 = new TextEncoder();
+    const encoder3 = new TextEncoder();
     const stream = new ReadableStream({
       async start(controller) {
         const writeChunk = async (chunk) => {
           if (typeof chunk === "string") {
-            controller.enqueue(encoder2.encode(chunk));
+            controller.enqueue(encoder3.encode(chunk));
           } else {
             controller.enqueue(chunk);
           }
@@ -9195,7 +9327,7 @@ Context: ${context}`);
       run.events = this._filterNewTokenEvents(run.events);
     }
     const data = { ...run, id: runId };
-    if (!this._filterForSampling([data], true).length) {
+    if (!this._filterForSampling([data]).length) {
       return;
     }
     if (this.autoBatchTracing && data.trace_id !== void 0 && data.dotted_order !== void 0) {
@@ -9245,9 +9377,9 @@ Context: ${context}`);
       return res;
     });
   }
-  /** @deprecated Use `client.runs.retrieve()` instead. See https://docs.langchain.com/langsmith/smithdb-sdk-migration#runs-retrieve for the migration guide. Will be removed after Jan 31, 2027. */
+  /** @deprecated Use `client.runs.retrieve()` instead. See https://docs.langchain.com/langsmith/smithdb-sdk-migration-runs#runs-retrieve for the migration guide. Will be removed after Jan 31, 2027. */
   async readRun(runId, { loadChildRuns } = { loadChildRuns: false }) {
-    warnOnce("readRun() is deprecated and will be removed after Jan 31, 2027. Use client.runs.retrieve() instead. See https://docs.langchain.com/langsmith/smithdb-sdk-migration#runs-retrieve for the migration guide.", { type: "DeprecationWarning", code: "LANGSMITH_DEPRECATED_READ_RUN" });
+    warnOnce("readRun() is deprecated and will be removed after Jan 31, 2027. Use client.runs.retrieve() instead. See https://docs.langchain.com/langsmith/smithdb-sdk-migration-runs#runs-retrieve for the migration guide.", { type: "DeprecationWarning", code: "LANGSMITH_DEPRECATED_READ_RUN" });
     return this._readRun(runId, { loadChildRuns });
   }
   /**
@@ -9266,9 +9398,9 @@ Context: ${context}`);
     }
     return run;
   }
-  /** @deprecated Use `client.runs.getURL()` instead. See https://docs.langchain.com/langsmith/smithdb-sdk-migration#runs-get-url for the migration guide. Will be removed after Jan 31, 2027. */
+  /** @deprecated Use `client.runs.getURL()` instead. See https://docs.langchain.com/langsmith/smithdb-sdk-migration-runs#runs-get-url for the migration guide. Will be removed after Jan 31, 2027. */
   async getRunUrl({ runId, run, projectOpts }) {
-    warnOnce("getRunUrl() is deprecated and will be removed after Jan 31, 2027. Use client.runs.getURL() instead. See https://docs.langchain.com/langsmith/smithdb-sdk-migration#runs-get-url for the migration guide.", { type: "DeprecationWarning", code: "LANGSMITH_DEPRECATED_GET_RUN_URL" });
+    warnOnce("getRunUrl() is deprecated and will be removed after Jan 31, 2027. Use client.runs.getURL() instead. See https://docs.langchain.com/langsmith/smithdb-sdk-migration-runs#runs-get-url for the migration guide.", { type: "DeprecationWarning", code: "LANGSMITH_DEPRECATED_GET_RUN_URL" });
     if (run !== void 0) {
       let sessionId;
       if (run.session_id) {
@@ -9327,7 +9459,7 @@ Context: ${context}`);
   }
   /**
    * List runs from the LangSmith server.
-   * @deprecated Use `client.runs.query()` instead. See https://docs.langchain.com/langsmith/smithdb-sdk-migration#runs-query for the migration guide. Will be removed after Jan 31, 2027.
+   * @deprecated Use `client.runs.query()` instead. See https://docs.langchain.com/langsmith/smithdb-sdk-migration-query-runs#runs-query for the migration guide. Will be removed after Jan 31, 2027.
    * @param projectId - The ID of the project to filter by.
    * @param projectName - The name of the project to filter by.
    * @param parentRunId - The ID of the parent run to filter by.
@@ -9409,7 +9541,7 @@ Context: ${context}`);
    * });
    */
   async *listRuns(props) {
-    warnOnce("listRuns() is deprecated and will be removed after Jan 31, 2027. Use client.runs.query() instead. See https://docs.langchain.com/langsmith/smithdb-sdk-migration#runs-query for the migration guide.", { type: "DeprecationWarning", code: "LANGSMITH_DEPRECATED_LIST_RUNS" });
+    warnOnce("listRuns() is deprecated and will be removed after Jan 31, 2027. Use client.runs.query() instead. See https://docs.langchain.com/langsmith/smithdb-sdk-migration-query-runs#runs-query for the migration guide.", { type: "DeprecationWarning", code: "LANGSMITH_DEPRECATED_LIST_RUNS" });
     yield* this._listRuns(props);
   }
   /**
@@ -9550,9 +9682,9 @@ Context: ${context}`);
       }
     }
   }
-  /** @deprecated Use `client.threads.listTraces()` instead. See https://docs.langchain.com/langsmith/smithdb-sdk-migration#threads-list-traces for the migration guide. Will be removed after Jan 31, 2027. */
+  /** @deprecated Use `client.threads.listTraces()` instead. See https://docs.langchain.com/langsmith/smithdb-sdk-migration-threads#threads-list-traces for the migration guide. Will be removed after Jan 31, 2027. */
   async *readThread(props) {
-    warnOnce("readThread() is deprecated and will be removed after Jan 31, 2027. Use client.threads.listTraces() instead. See https://docs.langchain.com/langsmith/smithdb-sdk-migration#threads-list-traces for the migration guide.", { type: "DeprecationWarning", code: "LANGSMITH_DEPRECATED_READ_THREAD" });
+    warnOnce("readThread() is deprecated and will be removed after Jan 31, 2027. Use client.threads.listTraces() instead. See https://docs.langchain.com/langsmith/smithdb-sdk-migration-threads#threads-list-traces for the migration guide.", { type: "DeprecationWarning", code: "LANGSMITH_DEPRECATED_READ_THREAD" });
     const { threadId, projectId, projectName, isRoot = true, limit: limit2, filter: userFilter, order = "asc" } = props;
     if (!projectId && !projectName) {
       throw new Error("threadId requires projectId or projectName");
@@ -9568,9 +9700,9 @@ Context: ${context}`);
       order
     });
   }
-  /** @deprecated Use `client.threads.query()` instead. See https://docs.langchain.com/langsmith/smithdb-sdk-migration#threads-query for the migration guide. Will be removed after Jan 31, 2027. */
+  /** @deprecated Use `client.threads.query()` instead. See https://docs.langchain.com/langsmith/smithdb-sdk-migration-threads#threads-query for the migration guide. Will be removed after Jan 31, 2027. */
   async listThreads(props) {
-    warnOnce("listThreads() is deprecated and will be removed after Jan 31, 2027. Use client.threads.query() instead. See https://docs.langchain.com/langsmith/smithdb-sdk-migration#threads-query for the migration guide.", { type: "DeprecationWarning", code: "LANGSMITH_DEPRECATED_LIST_THREADS" });
+    warnOnce("listThreads() is deprecated and will be removed after Jan 31, 2027. Use client.threads.query() instead. See https://docs.langchain.com/langsmith/smithdb-sdk-migration-threads#threads-query for the migration guide.", { type: "DeprecationWarning", code: "LANGSMITH_DEPRECATED_LIST_THREADS" });
     const { projectId, projectName, limit: limit2, offset = 0, filter, startTime, isRoot = true } = props;
     if (!projectId && !projectName) {
       throw new Error("Either projectId or projectName must be provided");
@@ -9715,9 +9847,9 @@ Context: ${context}`);
     const result = await response.json();
     return result;
   }
-  /** @deprecated Use `client.runs.share.create()` instead. See https://docs.langchain.com/langsmith/smithdb-sdk-migration#share-and-read-public-runs for the migration guide. Will be removed after Jan 31, 2027. */
+  /** @deprecated Use `client.runs.share.create()` instead. See https://docs.langchain.com/langsmith/smithdb-sdk-migration-feedback#share-and-read-public-runs for the migration guide. Will be removed after Jan 31, 2027. */
   async shareRun(runId, { shareId } = {}) {
-    warnOnce("shareRun() is deprecated and will be removed after Jan 31, 2027. Use client.runs.share.create() instead. See https://docs.langchain.com/langsmith/smithdb-sdk-migration#share-and-read-public-runs for the migration guide.", { type: "DeprecationWarning", code: "LANGSMITH_DEPRECATED_SHARE_RUN" });
+    warnOnce("shareRun() is deprecated and will be removed after Jan 31, 2027. Use client.runs.share.create() instead. See https://docs.langchain.com/langsmith/smithdb-sdk-migration-feedback#share-and-read-public-runs for the migration guide.", { type: "DeprecationWarning", code: "LANGSMITH_DEPRECATED_SHARE_RUN" });
     const data = {
       run_id: runId,
       share_token: shareId || v4_default()
@@ -9741,9 +9873,9 @@ Context: ${context}`);
     }
     return `${this.getHostUrl()}/public/${result["share_token"]}/r`;
   }
-  /** @deprecated Use `client.runs.share.delete()` instead. See https://docs.langchain.com/langsmith/smithdb-sdk-migration#share-and-read-public-runs for the migration guide. Will be removed after Jan 31, 2027. */
+  /** @deprecated Use `client.runs.share.delete()` instead. See https://docs.langchain.com/langsmith/smithdb-sdk-migration-feedback#share-and-read-public-runs for the migration guide. Will be removed after Jan 31, 2027. */
   async unshareRun(runId) {
-    warnOnce("unshareRun() is deprecated and will be removed after Jan 31, 2027. Use client.runs.share.delete() instead. See https://docs.langchain.com/langsmith/smithdb-sdk-migration#share-and-read-public-runs for the migration guide.", { type: "DeprecationWarning", code: "LANGSMITH_DEPRECATED_UNSHARE_RUN" });
+    warnOnce("unshareRun() is deprecated and will be removed after Jan 31, 2027. Use client.runs.share.delete() instead. See https://docs.langchain.com/langsmith/smithdb-sdk-migration-feedback#share-and-read-public-runs for the migration guide.", { type: "DeprecationWarning", code: "LANGSMITH_DEPRECATED_UNSHARE_RUN" });
     assertUuid(runId);
     await this.caller.call(async () => {
       const res = await this._fetch(`${this.apiUrl}/runs/${runId}/share`, {
@@ -9756,9 +9888,9 @@ Context: ${context}`);
       return res;
     });
   }
-  /** @deprecated Use `client.runs.retrieve({ selects: ["SHARE_URL"] })` instead. See https://docs.langchain.com/langsmith/smithdb-sdk-migration#share-and-read-public-runs for the migration guide. Will be removed after Jan 31, 2027. */
+  /** @deprecated Use `client.runs.retrieve({ selects: ["SHARE_URL"] })` instead. See https://docs.langchain.com/langsmith/smithdb-sdk-migration-feedback#share-and-read-public-runs for the migration guide. Will be removed after Jan 31, 2027. */
   async readRunSharedLink(runId) {
-    warnOnce('readRunSharedLink() is deprecated and will be removed after Jan 31, 2027. Use client.runs.retrieve({ selects: ["SHARE_URL"] }) instead. See https://docs.langchain.com/langsmith/smithdb-sdk-migration#share-and-read-public-runs for the migration guide.', {
+    warnOnce('readRunSharedLink() is deprecated and will be removed after Jan 31, 2027. Use client.runs.retrieve({ selects: ["SHARE_URL"] }) instead. See https://docs.langchain.com/langsmith/smithdb-sdk-migration-feedback#share-and-read-public-runs for the migration guide.', {
       type: "DeprecationWarning",
       code: "LANGSMITH_DEPRECATED_READ_RUN_SHARED_LINK"
     });
@@ -9779,9 +9911,9 @@ Context: ${context}`);
     }
     return `${this.getHostUrl()}/public/${result["share_token"]}/r`;
   }
-  /** @deprecated Use `client.public.runs.query()` instead. See https://docs.langchain.com/langsmith/smithdb-sdk-migration#share-and-read-public-runs for the migration guide. Will be removed after Jan 31, 2027. */
+  /** @deprecated Use `client.public.runs.query()` instead. See https://docs.langchain.com/langsmith/smithdb-sdk-migration-feedback#share-and-read-public-runs for the migration guide. Will be removed after Jan 31, 2027. */
   async listSharedRuns(shareToken, { runIds } = {}) {
-    warnOnce("listSharedRuns() is deprecated and will be removed after Jan 31, 2027. Use client.public.runs.query() instead. See https://docs.langchain.com/langsmith/smithdb-sdk-migration#share-and-read-public-runs for the migration guide.", {
+    warnOnce("listSharedRuns() is deprecated and will be removed after Jan 31, 2027. Use client.public.runs.query() instead. See https://docs.langchain.com/langsmith/smithdb-sdk-migration-feedback#share-and-read-public-runs for the migration guide.", {
       type: "DeprecationWarning",
       code: "LANGSMITH_DEPRECATED_LIST_SHARED_RUNS"
     });
@@ -9931,7 +10063,7 @@ Message: ${Array.isArray(result.detail) ? result.detail.join("\n") : "Unspecifie
       _hostUrl: this.getHostUrl()
     }));
   }
-  async createProject({ projectName, description = null, metadata = null, upsert = false, projectExtra = null, referenceDatasetId = null, numExamples = null, numRepetitions = null, evaluatorKeys = null }) {
+  async createProject({ projectName, description = null, metadata = null, upsert = false, projectExtra = null, referenceDatasetId = null, numExamples = null, numRepetitions = null, evaluatorKeys = null, tagValueIds = null }) {
     const upsert_ = upsert ? `?upsert=true` : "";
     const endpoint = `${this.apiUrl}/sessions${upsert_}`;
     const extra = projectExtra || {};
@@ -9954,6 +10086,9 @@ Message: ${Array.isArray(result.detail) ? result.detail.join("\n") : "Unspecifie
     }
     if (evaluatorKeys != null && evaluatorKeys.length > 0) {
       body["evaluator_keys"] = evaluatorKeys;
+    }
+    if (tagValueIds !== null) {
+      body["tag_value_ids"] = tagValueIds;
     }
     const serializedBody = JSON.stringify(body);
     const response = await this.caller.call(async () => {
@@ -10181,7 +10316,7 @@ Message: ${Array.isArray(result.detail) ? result.detail.join("\n") : "Unspecifie
     const result = await response.json();
     return result;
   }
-  async createDataset(name, { description, dataType, inputsSchema, outputsSchema, metadata } = {}) {
+  async createDataset(name, { description, dataType, inputsSchema, outputsSchema, metadata, tagValueIds } = {}) {
     const body = {
       name,
       description,
@@ -10195,6 +10330,9 @@ Message: ${Array.isArray(result.detail) ? result.detail.join("\n") : "Unspecifie
     }
     if (outputsSchema) {
       body.outputs_schema_definition = outputsSchema;
+    }
+    if (tagValueIds !== void 0) {
+      body.tag_value_ids = tagValueIds;
     }
     const serializedBody = JSON.stringify(body);
     const response = await this.caller.call(async () => {
@@ -10775,7 +10913,7 @@ Message: ${Array.isArray(result.detail) ? result.detail.join("\n") : "Unspecifie
     });
   }
   async createFeedback(runIdOrParams, keyArg, optionsArg) {
-    const { runId = null, key, score, value, correction, comment, sourceInfo, feedbackSourceType = "api", sourceRunId, feedbackId, feedbackConfig, projectId, comparativeExperimentId, sessionId, startTime, extendTraceRetention } = typeof runIdOrParams === "object" && runIdOrParams !== null ? runIdOrParams : { runId: runIdOrParams, key: keyArg, ...optionsArg };
+    const { runId = null, key, score, value, correction, comment, sourceInfo, feedbackSourceType = "api", sourceRunId, feedbackId, feedbackConfig, projectId, traceId, comparativeExperimentId, sessionId, startTime, extendTraceRetention } = typeof runIdOrParams === "object" && runIdOrParams !== null ? runIdOrParams : { runId: runIdOrParams, key: keyArg, ...optionsArg };
     if (!runId && !projectId) {
       throw new Error("One of runId or projectId must be provided");
     }
@@ -10798,6 +10936,7 @@ Message: ${Array.isArray(result.detail) ? result.detail.join("\n") : "Unspecifie
     const feedback = {
       id: feedbackId ?? v7_default(),
       run_id: runId,
+      trace_id: traceId,
       key,
       score: _formatFeedbackScore(score),
       value,
@@ -10810,6 +10949,10 @@ Message: ${Array.isArray(result.detail) ? result.detail.join("\n") : "Unspecifie
       start_time: startTime,
       extend_trace_retention: extendTraceRetention
     };
+    const samplingId = traceId ?? runId;
+    if (samplingId != null && !this._shouldSample(samplingId)) {
+      return feedback;
+    }
     const body = JSON.stringify(feedback);
     const url = `${this.apiUrl}/feedback`;
     await this.caller.call(async () => {
@@ -11025,7 +11168,10 @@ Message: ${Array.isArray(result.detail) ? result.detail.join("\n") : "Unspecifie
         feedbackConfig: res.feedbackConfig,
         feedbackSourceType: "model",
         sessionId: run?.session_id ?? sessionId,
-        startTime: run?.start_time
+        startTime: run?.start_time,
+        // If an evaluator result targets a different run, we can't
+        // guarantee to know its trace ID.
+        traceId: runId_ === run?.id ? run?.trace_id : void 0
       }));
     }
     return [evalResults, feedbacks];
@@ -11289,7 +11435,7 @@ Message: ${Array.isArray(result.detail) ? result.detail.join("\n") : "Unspecifie
    *   by SmithDB; routes to `POST /runs/by-key`.
    * - `string[]`: a plain list of run IDs. **Deprecated**: this path will be
    *   removed after Jan 31, 2027; prefer the key form. Routes to `POST /runs`.
-   *   See https://docs.langchain.com/langsmith/smithdb-sdk-migration#annotation-queues-add-runs.
+   *   See https://docs.langchain.com/langsmith/smithdb-sdk-migration-feedback#annotation-queues-add-runs.
    *
    * If every element is a string (or the list is empty) it is treated as run
    * IDs; otherwise the list is treated as `RunKey` objects.
@@ -11316,7 +11462,7 @@ Message: ${Array.isArray(result.detail) ? result.detail.join("\n") : "Unspecifie
         return serialized;
       }));
     } else {
-      warnOnce("Passing run IDs as strings to addRunsToAnnotationQueue() is deprecated and will be removed after Jan 31, 2027. Use RunKey[] instead. See https://docs.langchain.com/langsmith/smithdb-sdk-migration#annotation-queues-add-runs for the migration guide.", {
+      warnOnce("Passing run IDs as strings to addRunsToAnnotationQueue() is deprecated and will be removed after Jan 31, 2027. Use RunKey[] instead. See https://docs.langchain.com/langsmith/smithdb-sdk-migration-feedback#annotation-queues-add-runs for the migration guide.", {
         type: "DeprecationWarning",
         code: "LANGSMITH_DEPRECATED_ADD_RUNS_STRING_IDS"
       });
@@ -12523,7 +12669,7 @@ function isExampleCreate(input) {
   return "dataset_id" in input || "dataset_name" in input;
 }
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/env.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/env.js
 var isEnvTracingEnabled = (tracingEnabled) => {
   if (tracingEnabled !== void 0) {
     return tracingEnabled;
@@ -12532,11 +12678,11 @@ var isEnvTracingEnabled = (tracingEnabled) => {
   return !!envVars.find((envVar) => getLangSmithEnvironmentVariable(envVar) === "true");
 };
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/singletons/constants.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/singletons/constants.js
 var _LC_CONTEXT_VARIABLES_KEY = /* @__PURE__ */ Symbol.for("lc:context_variables");
 var _REPLICA_TRACE_ROOTS_KEY = /* @__PURE__ */ Symbol.for("langsmith:replica_trace_roots");
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/utils/context_vars.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/utils/context_vars.js
 function getContextVar(runTree, key) {
   if (_LC_CONTEXT_VARIABLES_KEY in runTree) {
     const contextVars = runTree[_LC_CONTEXT_VARIABLES_KEY];
@@ -12553,13 +12699,13 @@ function setContextVar(runTree, key, value) {
   runTree[_LC_CONTEXT_VARIABLES_KEY] = contextVars;
 }
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/utils/project.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/utils/project.js
 var getDefaultProjectName = () => {
   return getLangSmithEnvironmentVariable("PROJECT") ?? getEnvironmentVariable("LANGCHAIN_SESSION") ?? // TODO: Deprecate
   "default";
 };
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/run_trees.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/run_trees.js
 var TIMESTAMP_LENGTH = 36;
 var UUID_NAMESPACE_DNS = "6ba7b810-9dad-11d1-80b4-00c04fd430c8";
 function getReplicaKey(replica) {
@@ -12671,6 +12817,10 @@ var Baggage = class _Baggage {
     return items.join(",");
   }
 };
+function getExcludeInputsOnPatch() {
+  const value = getLangSmithEnvironmentVariable("EXCLUDE_INPUTS_ON_PATCH");
+  return value === void 0 || value.toLowerCase() === "true" || value === "1";
+}
 var RunTree = class _RunTree {
   constructor(originalConfig) {
     Object.defineProperty(this, "id", {
@@ -13186,7 +13336,20 @@ var RunTree = class _RunTree {
       console.error(`Error in postRun for run ${this.id}:`, error2);
     }
   }
+  /**
+   * Patch the run tree to the API.
+   *
+   * @param options.excludeInputs - Whether to exclude inputs from the patch
+   * request. Defaults to the value of `LANGSMITH_EXCLUDE_INPUTS_ON_PATCH`
+   * (or its `LANGCHAIN_` equivalent), which itself defaults to `true`.
+   * An explicit value overrides the environment variable for this call.
+   *
+   * Unless the environment variable is disabled, inputs added after the
+   * initial `postRun()` are not persisted unless this option is explicitly set
+   * to `false`.
+   */
   async patchRun(options) {
+    const excludeInputs = options?.excludeInputs ?? getExcludeInputsOnPatch();
     if (this.replicas && this.replicas.length > 0) {
       for (const { projectName, primary, apiKey, apiUrl, workspaceId, updates, reroot, client: replicaClient } of this.replicas) {
         const runData = this._remapForProject({
@@ -13219,7 +13382,7 @@ var RunTree = class _RunTree {
           attachments: this.attachments,
           ...updates
         };
-        if (!options?.excludeInputs) {
+        if (!excludeInputs) {
           updatePayload.inputs = runData.inputs;
         }
         const targetClient = replicaClient ?? this.client;
@@ -13248,7 +13411,7 @@ var RunTree = class _RunTree {
           attachments: this.attachments,
           session_name: this.project_name
         };
-        if (!options?.excludeInputs) {
+        if (!excludeInputs) {
           runUpdate.inputs = this.inputs;
         }
         await this.client.updateRun(this.id, runUpdate);
@@ -13485,7 +13648,7 @@ function _checkEndpointEnvUnset(parsed) {
   }
 }
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/singletons/traceable.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/singletons/traceable.js
 var MockAsyncLocalStorage = class {
   getStore() {
     return void 0;
@@ -13508,8 +13671,8 @@ var AsyncLocalStorageProvider = class {
 };
 var AsyncLocalStorageProviderSingleton = new AsyncLocalStorageProvider();
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/index.js
-var __version__ = "0.8.9";
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/index.js
+var __version__ = "0.10.2";
 
 // dist/metadata.js
 var TRUSTED_METADATA = /* @__PURE__ */ Symbol("cursor.trustedMetadata");
@@ -13718,17 +13881,15 @@ function protectRun(run, mode, metadata) {
   return run;
 }
 
-// node_modules/.pnpm/langsmith@0.8.9/node_modules/langsmith/dist/anonymizer/index.js
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/anonymizer/index.js
 function extractStringNodes(data, options) {
   const parsedOptions = { ...options, maxDepth: options.maxDepth ?? 10 };
   const queue = [[data, 0, "", null, ""]];
   let nextId = 0;
   const result = [];
-  while (queue.length > 0) {
-    const task = queue.shift();
-    if (task == null)
-      continue;
-    const [value, depth, path3, parent, key] = task;
+  let head = 0;
+  while (head < queue.length) {
+    const [value, depth, path3, parent, key] = queue[head++];
     if (typeof value === "string") {
       result.push({
         value,
