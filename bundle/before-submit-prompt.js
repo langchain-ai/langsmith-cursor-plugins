@@ -52,6 +52,9 @@ function write(level, message) {
   } catch {
   }
 }
+function warn(message) {
+  write("WARN", message);
+}
 function error(message) {
   write("ERROR", message);
 }
@@ -268,25 +271,12 @@ function loadConfig(options) {
   };
 }
 
-// dist/utils/hook-init.js
-function initHook(cwd) {
-  const config = loadConfig({ cwd });
-  initLogger(config.debug);
-  if (!config.enabled) {
-    return null;
-  }
-  if (!config.apiKey && (!config.replicas || config.replicas.length === 0)) {
-    error("Tracing enabled but no API key set (langsmith.json api_key, LANGSMITH_CURSOR_API_KEY, or LANGSMITH_API_KEY) and no replicas configured");
-    return null;
-  }
-  return config;
-}
-
 // dist/state.js
-import { readFileSync as readFileSync2, writeFileSync, mkdirSync as mkdirSync2, openSync, closeSync, unlinkSync } from "node:fs";
+import { readFileSync as readFileSync2, writeFileSync, mkdirSync as mkdirSync2, openSync, closeSync, unlinkSync, rmdirSync, renameSync as renameSync2, fsyncSync } from "node:fs";
+import { randomUUID } from "node:crypto";
+import { performance } from "node:perf_hooks";
 import { dirname as dirname2 } from "node:path";
-var LOCK_TIMEOUT_MS = 5e3;
-var LOCK_RETRY_MS = 20;
+var LOCK_TIMEOUT_MS = 2e3;
 function lockPath(stateFilePath) {
   return `${stateFilePath}.lock`;
 }
@@ -295,33 +285,33 @@ function sleep(ms) {
 }
 async function acquireLock(stateFilePath) {
   const lock = lockPath(stateFilePath);
-  const deadline = Date.now() + LOCK_TIMEOUT_MS;
-  mkdirSync2(dirname2(stateFilePath), { recursive: true });
-  while (Date.now() < deadline) {
+  const deadline = performance.now() + LOCK_TIMEOUT_MS;
+  mkdirSync2(dirname2(stateFilePath), { recursive: true, mode: 448 });
+  while (true) {
     try {
-      const fd = openSync(lock, "wx");
-      closeSync(fd);
+      mkdirSync2(lock, { mode: 448 });
       return;
-    } catch {
-      await sleep(LOCK_RETRY_MS);
+    } catch (error2) {
+      if (error2.code !== "EEXIST")
+        throw error2;
+      if (performance.now() >= deadline)
+        throw new Error("Timed out waiting for turn-state lock; confirm no writer is running before removing it");
+      await sleep(10 + Math.random() * 20);
     }
-  }
-  try {
-    unlinkSync(lock);
-  } catch {
   }
 }
 function releaseLock(stateFilePath) {
   try {
-    unlinkSync(lockPath(stateFilePath));
+    rmdirSync(lockPath(stateFilePath));
   } catch {
+    warn("Turn-state lock cleanup failed; confirm no writer is running before removing it");
   }
 }
 async function atomicUpdateState(stateFilePath, fn) {
   await acquireLock(stateFilePath);
   try {
     const state = loadState(stateFilePath);
-    writeFileSync(stateFilePath, JSON.stringify(fn(state), null, 2));
+    saveState(stateFilePath, fn(state));
   } finally {
     releaseLock(stateFilePath);
   }
@@ -331,6 +321,39 @@ function loadState(stateFilePath) {
     return JSON.parse(readFileSync2(stateFilePath, "utf-8"));
   } catch {
     return {};
+  }
+}
+function saveState(stateFilePath, state) {
+  mkdirSync2(dirname2(stateFilePath), { recursive: true, mode: 448 });
+  const temp = `${stateFilePath}.${process.pid}.${randomUUID()}.tmp`;
+  let committed = false;
+  try {
+    const fd = openSync(temp, "wx", 384);
+    try {
+      writeFileSync(fd, JSON.stringify(state, null, 2));
+      fsyncSync(fd);
+    } finally {
+      closeSync(fd);
+    }
+    renameSync2(temp, stateFilePath);
+    committed = true;
+    try {
+      const fd2 = openSync(dirname2(stateFilePath), "r");
+      try {
+        fsyncSync(fd2);
+      } finally {
+        closeSync(fd2);
+      }
+    } catch {
+      warn("Turn snapshot saved, but crash durability could not be confirmed");
+    }
+  } finally {
+    if (!committed) {
+      try {
+        unlinkSync(temp);
+      } catch {
+      }
+    }
   }
 }
 function getConversationState(state, conversationId) {
@@ -362,29 +385,186 @@ function pruneOldConversations(state, now = Date.now()) {
 function touch(conv) {
   conv.updated = (/* @__PURE__ */ new Date()).toISOString();
 }
-function reduceBeforeSubmitPrompt(state, input, nowMs) {
+function reduceBeforeSubmitPrompt(state, input, nowMs, mode = "full") {
   const conv = getConversationState(state, input.conversation_id);
+  if (conv.completedOffGenerations?.includes(input.generation_id))
+    return state;
+  if (conv.turns[input.generation_id])
+    return state;
   const turn = newTurnBuffer(input.generation_id, nowMs);
-  turn.prompt = input.prompt;
+  turn.tracingMode = mode;
+  turn.prompt = mode === "off" ? void 0 : input.prompt;
   turn.model = input.model;
   conv.turns[input.generation_id] = turn;
   touch(conv);
   return pruneOldConversations({ ...state, [input.conversation_id]: conv });
 }
 
+// dist/tracing-policy.js
+import { randomUUID as randomUUID2 } from "node:crypto";
+import { lstatSync, readFileSync as readFileSync3 } from "node:fs";
+import { mkdir, open, rename, rmdir, unlink } from "node:fs/promises";
+import { dirname as dirname3 } from "node:path";
+import { performance as performance2 } from "node:perf_hooks";
+import { setTimeout as delay } from "node:timers/promises";
+import { homedir as homedir3 } from "node:os";
+import { join as join2 } from "node:path";
+function isMode(value) {
+  return value === "full" || value === "metadata";
+}
+function isObject(value) {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+function hasCode(error2, code) {
+  return isObject(error2) && error2.code === code;
+}
+function readPolicy(path) {
+  let raw;
+  try {
+    if (!lstatSync(path).isFile())
+      throw new Error("Tracing preferences must be a regular, non-symlink file");
+    raw = readFileSync3(path, "utf8");
+  } catch (error2) {
+    if (hasCode(error2, "ENOENT")) {
+      try {
+        lstatSync(path);
+      } catch (statError) {
+        if (hasCode(statError, "ENOENT"))
+          return { threads: {} };
+        throw statError;
+      }
+    }
+    throw error2;
+  }
+  const value = JSON.parse(raw);
+  if (!isObject(value) || !isObject(value.threads) || Object.values(value.threads).some((mode) => !isMode(mode)) || Object.keys(value).some((key) => key !== "threads")) {
+    throw new Error("Invalid tracing preference format");
+  }
+  return value;
+}
+function tracingPolicyPath() {
+  return process.env.LANGSMITH_CURSOR_PRIVACY_FILE ?? join2(homedir3(), ".cursor", "langsmith-state.privacy.json");
+}
+function getThreadTracingMode(path, sessionId) {
+  try {
+    const policy = readPolicy(path);
+    if (Object.hasOwn(policy.threads, sessionId))
+      return policy.threads[sessionId];
+    return "full";
+  } catch {
+    return "metadata";
+  }
+}
+function parseTracingCommand(prompt) {
+  if (prompt === "langsmith-tracing:mute")
+    return "mute";
+  if (prompt === "langsmith-tracing:unmute")
+    return "unmute";
+  return void 0;
+}
+async function setThreadTracingMode(path, sessionId, mode) {
+  if (typeof sessionId !== "string" || !sessionId || !isMode(mode)) {
+    throw new Error("A nonempty session ID and a full/metadata tracing mode are required");
+  }
+  const lockPath2 = `${path}.lock`;
+  await mkdir(dirname3(path), { recursive: true, mode: 448 });
+  const deadline = performance2.now() + 2e3;
+  let locked = false;
+  while (!locked) {
+    try {
+      await mkdir(lockPath2, { mode: 448 });
+      locked = true;
+    } catch (error2) {
+      if (!hasCode(error2, "EEXIST"))
+        throw error2;
+      if (performance2.now() >= deadline) {
+        throw new Error(`Timed out waiting for tracing preference lock ${lockPath2}. Retry; if it persists, remove the lock only after confirming no preference writer is running.`);
+      }
+      await delay(10 + Math.random() * 20);
+    }
+  }
+  const warnings = [];
+  async function bestEffort(action, message) {
+    try {
+      await action();
+    } catch (error2) {
+      warnings.push(`${message}: ${error2 instanceof Error ? error2.message : String(error2)}`);
+    }
+  }
+  let tempPath;
+  try {
+    let policy;
+    try {
+      policy = readPolicy(path);
+    } catch (error2) {
+      throw new Error(`Cannot read tracing preferences at ${path}. Refusing to overwrite them; repair the file or its permissions before retrying. No preferences were changed.`, { cause: error2 });
+    }
+    policy.threads = { ...policy.threads, [sessionId]: mode };
+    tempPath = `${path}.${process.pid}.${randomUUID2()}.tmp`;
+    const temp = await open(tempPath, "wx", 384);
+    try {
+      await temp.writeFile(`${JSON.stringify(policy)}
+`, "utf8");
+      await temp.sync();
+    } catch (error2) {
+      await bestEffort(() => temp.close(), "Temporary file close failed");
+      throw error2;
+    }
+    await temp.close();
+    await rename(tempPath, path);
+    tempPath = void 0;
+    await bestEffort(async () => {
+      const directory = await open(dirname3(path), "r");
+      try {
+        await directory.sync();
+      } finally {
+        await bestEffort(() => directory.close(), "Directory close cleanup failed");
+      }
+    }, "Preference is effective, but crash durability could not be confirmed; retry saving");
+  } finally {
+    if (tempPath) {
+      await bestEffort(() => unlink(tempPath), "Temporary file cleanup failed");
+    }
+    await bestEffort(() => rmdir(lockPath2), `Preference lock cleanup failed at ${lockPath2}. Before retrying, remove the lock only after confirming no preference writer is running`);
+  }
+  return warnings.length ? { warning: warnings.join("; ") } : {};
+}
+
+// dist/prompt-control.js
+async function handlePromptSubmit(input) {
+  const command = parseTracingCommand(input.prompt);
+  try {
+    if (!input.conversation_id || typeof input.conversation_id !== "string" || !input.generation_id || typeof input.generation_id !== "string") {
+      throw new Error("Nonempty native conversation_id and generation_id required; update Cursor");
+    }
+    const config = loadConfig({ cwd: input.workspace_roots?.[0] });
+    initLogger(config.debug);
+    if (command) {
+      const result = await setThreadTracingMode(tracingPolicyPath(), input.conversation_id, command === "mute" ? "metadata" : "full");
+      return {
+        continue: false,
+        user_message: `Thread tracing ${command === "mute" ? "muted (metadata-only)" : "unmuted (full content)"}. Preference saved for the next turn; the current turn is unchanged.` + (!config.enabled ? " Master tracing is disabled; this does not enable it." : "") + (result.warning ? ` Warning: ${result.warning}` : "")
+      };
+    }
+    const enabled = config.enabled && !!(config.apiKey || config.replicas?.length);
+    await atomicUpdateState(config.stateFilePath, (s) => reduceBeforeSubmitPrompt(s, input, Date.now(), enabled ? getThreadTracingMode(tracingPolicyPath(), input.conversation_id) : "off"));
+    return { continue: true };
+  } catch (error2) {
+    return {
+      continue: false,
+      user_message: `Could not save tracing preference/turn snapshot: ${error2 instanceof Error ? error2.message : String(error2)}. Submission blocked; repair local state/permissions and retry.`
+    };
+  }
+}
+
 // dist/hooks/before-submit-prompt.js
 async function main() {
   const input = await readStdin();
-  const config = initHook(input.workspace_roots?.[0]);
-  if (!config)
-    return;
-  debug(`beforeSubmitPrompt conv=${input.conversation_id} gen=${input.generation_id}`);
-  await atomicUpdateState(config.stateFilePath, (s) => reduceBeforeSubmitPrompt(s, input, Date.now()));
+  process.stdout.write(JSON.stringify(await handlePromptSubmit(input)) + "\n");
 }
-main().catch((err) => {
-  try {
-    error(`beforeSubmitPrompt hook error: ${err}`);
-  } catch {
-  }
-  process.exit(1);
+main().catch(() => {
+  process.stdout.write(JSON.stringify({
+    continue: false,
+    user_message: "Tracing prompt hook failed. Submission blocked; repair hooks and retry."
+  }) + "\n");
 });

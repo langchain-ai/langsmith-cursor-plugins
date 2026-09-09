@@ -50,7 +50,12 @@ function q(p) {
 // Build our hook entries.
 const ourHooks = {};
 for (const [event, file] of Object.entries(EVENT_TO_HOOK)) {
-  ourHooks[event] = [{ command: `${q(nodeBin)} ${q(join(bundleDir, file))}` }];
+  ourHooks[event] = [
+    {
+      command: `${q(nodeBin)} ${q(join(bundleDir, file))}`,
+      ...(event === "beforeSubmitPrompt" ? { failClosed: true, timeout: 15 } : {}),
+    },
+  ];
 }
 
 const target = project

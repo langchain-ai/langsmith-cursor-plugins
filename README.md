@@ -93,6 +93,48 @@ Tracing only runs when `enabled` (or `TRACE_TO_LANGSMITH=true`) **and** an API k
 
 Verify activity: `tail -f ~/.cursor/langsmith-hook.log`.
 
+### Sticky per-thread mute
+
+Send one of these **exact messages**, by itself, in Cursor Agent Chat:
+
+```text
+langsmith-tracing:mute
+langsmith-tracing:unmute
+```
+
+No leading slash, arguments, surrounding whitespace, or additional lines. Other spellings are ordinary prompts, **not privacy controls**. Wait for the local hook acknowledgment before submitting private work. A successful acknowledgment says the preference was saved; a blocked submission reporting failure is **not** a successful mute/unmute.
+
+These are deterministic `beforeSubmitPrompt` command-hook controls, not LLM skills or Markdown slash commands. The hook writes the preference and returns `{"continue":false,"user_message":"…"}` with exit 0: the control is acknowledged locally and is not submitted to the model or recorded as a tracing turn. Controls work even when tracing is off or no API key is configured. We have not verified Cursor UI slash forwarding, so slash-prefixed variants are deliberately unsupported.
+
+- **Default:** threads without overrides trace full content when master tracing is enabled.
+- **Next turn only:** each ordinary prompt snapshots `off`, `full`, or `metadata` into its `generation_id` buffer. Muting/unmuting leaves already active or queued generations unchanged, including tools and nested subagents launched by those turns. Duplicate prompt delivery does not replace an existing snapshot.
+- **Sticky:** the preference follows native `conversation_id` across turns and local restarts, independent of workspace paths and the transient buffer’s 24-hour pruning. It does not automatically follow a new/forked conversation ID, another machine, or a cloud VM.
+- **Muted traces:** retain topology, structural IDs, run types/names, times, safe status, model name, native tool name, coding-agent schema/integration/runtime versions, and trusted numeric token usage. Every run has `ls_tracing_mode: "metadata"`. Normal message-shaped inputs and outputs contain `[LangSmith system notice: content omitted because tracing is muted.]`.
+- **Not sent in muted runs:** prompts, tool arguments/results, assistant text/thoughts, attachments, raw errors, cwd/file/user/repository details, arbitrary custom metadata, tags/events, replica content overrides, or SDK runtime/environment enrichment. Attachment and system-prompt enrichment is skipped. Step decoding and subagent transcript reads may still occur locally to preserve the existing trace structure and joins; the central serialization boundary removes their content.
+- **No retroactive changes:** mute does not purge existing LangSmith traces or Cursor history. Unmute never fills in old muted runs. A later full turn may repeat private material in its context or output; this is accepted and there is no content-tracking policy. Use a new conversation if that is unsuitable.
+
+The strict privacy schema is `{ "threads": { "conversation-id": "metadata" } }`, with only `"full"` or `"metadata"` values and no other top-level fields. Reads never create or modify this file; controls save only an explicit thread override, including while master tracing is off.
+
+#### State and safe fallback
+
+The durable preferences file is `~/.cursor/langsmith-state.privacy.json`, resolved with Node’s platform-appropriate `os.homedir()`. `LANGSMITH_CURSOR_PRIVACY_FILE` can override it explicitly. It is **independent** of `LANGSMITH_CURSOR_STATE_FILE` (default `~/.cursor/langsmith-state.json`). Changing/deleting the transient buffer does not clear mute. Changing/deleting the privacy file does: an absent privacy file uses the full-content default. Do not delete it as a troubleshooting shortcut.
+
+Only controls write the shared preference file. Unlike integrations that replay whole transcripts at Stop, Cursor consumes one generation buffer at `stop`; launch evidence belongs in that existing buffer, not in a second unbounded turn-history ledger. A missing launch snapshot is metadata-only; no buffer means no trace. An `off` snapshot never becomes full merely because master tracing is enabled before Stop. Current master-off still suppresses sends.
+
+Malformed, unreadable, or symlinked privacy files cause ordinary enabled turns to snapshot metadata-only. Both controls refuse to overwrite an unhealthy preference file; repair its contents/permissions and retry. Local state remains local data, **not an encrypted store**: muted hook content can be buffered on disk until Stop/pruning, and Cursor keeps its own history. Protect your account and state directories. Structural IDs, model labels and tool names themselves are not anonymized by mute.
+
+Writers use private directory locks (`0700`), retry for up to about 2 seconds with 10–30 ms jitter, and never steal an old lock. Preferences use a `0600` exclusive temporary file, fsync and atomic rename. Rename is the commit point: subsequent directory-durability/cleanup failures are warnings, not claims that the preference was unchanged. A crashed writer’s `.lock` requires manual removal **only after confirming no writer is running**. Turn buffers use the same bounded lock/atomic-write discipline; a prompt whose snapshot cannot be saved is blocked.
+
+#### Cursor support and trust
+
+The [current official hooks reference](https://cursor.com/docs/hooks#reference) defines `conversation_id` as stable across many turns and `generation_id` as changing with every user message. It documents `beforeSubmitPrompt` as running before the backend request, with enforced `continue` and a `user_message` shown when blocked. By contrast, `sessionStart` is fire-and-forget and does not enforce blocking; it is intentionally not used for controls. The installed prompt hook uses `failClosed: true` and a 15-second timeout.
+
+Use an up-to-date **Cursor desktop Agent Chat**, a trusted workspace, and Node ≥22.13. This implementation has automated registered/bundled hook-contract and real-SDK wire tests, **not a live Cursor UI verification or an established minimum Cursor version**. Older builds, CLI surfaces with missing hooks, read-only cloud exploratory turns, disabled/untrusted hooks, or conflicting higher-priority hooks can invalidate interception. The official docs describe cloud hooks only once a writable environment is available; local user preferences are not available there. Verify a visible successful acknowledgment in your actual client before relying on mute. If unsupported, disable master tracing explicitly and do not send private work assuming a control was intercepted.
+
+Existing subagent transcript/temporal joins and Stop completion behavior are unchanged: ambiguous or missing hook events can still misattribute or omit runs, and Stop removes its buffer before upload (an upload failure can lose that trace). Orphan runs without launch evidence fall back to metadata-only rather than guessing full.
+
+This controls only this plugin’s LangSmith uploads, not Cursor/model-provider data handling, other plugins, arbitrary hooks, logs, or already uploaded history. Config files, hook payload structural fields, installed SDK/code and local filesystem ownership are trusted; this is not protection against another process that can rewrite those files.
+
 ### Cost / pricing
 
 We don't compute cost locally. Instead, Cursor's model labels (e.g. `claude-4.6-sonnet`) are normalized to canonical provider ids (e.g. `claude-sonnet-4-6`) as `ls_model_name`, and the token breakdown is sent as `usage_metadata`. LangSmith's server-side model price table matches the canonical id and renders cost in the UI. Auto mode reports `default` (provider `cursor`), which LangSmith can't price.
@@ -145,7 +187,7 @@ pnpm format      # oxfmt
 pnpm lint        # oxlint
 ```
 
-`test/fixtures/` holds captured hook logs and agent transcripts used as replay test fixtures.
+`test/fixtures/` holds captured hook logs and agent transcripts used as replay test fixtures. `test/privacy.integration.test.ts` exercises real SDK wire privacy, routing/auth, replicas and muted adversarial metadata. `test/prompt-control.test.ts` exercises the registered bundles; rebuild before running it after source changes.
 
 ## License
 

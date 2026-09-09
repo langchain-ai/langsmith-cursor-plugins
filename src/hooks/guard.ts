@@ -104,6 +104,9 @@ if (nodeTooOld(process.versions.node)) {
   }
   console.error(msg);
   // Exit 0: a non-zero exit would make Cursor surface a hook failure every turn.
+  if (hookName === "before-submit-prompt") {
+    console.log(JSON.stringify({ continue: false, user_message: msg }));
+  }
   process.exit(0);
 }
 
@@ -116,5 +119,14 @@ if (!hookName) {
 // Resolve relative to this file so it works regardless of cwd.
 await import(new URL(`./${hookName}.js`, import.meta.url).href).catch((err: unknown) => {
   console.error(`[langsmith] hook ${hookName} failed:`, err);
+  if (hookName === "before-submit-prompt") {
+    console.log(
+      JSON.stringify({
+        continue: false,
+        user_message:
+          "Tracing prompt hook could not load. Submission blocked; repair installation.",
+      }),
+    );
+  }
   process.exit(0);
 });

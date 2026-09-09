@@ -1,11 +1,23 @@
 {
   "version": 1,
   "hooks": {
-    "beforeSubmitPrompt": [{ "command": "node \"${CURSOR_PLUGIN_ROOT}/bundle/guard.js\" before-submit-prompt" }],
-    "afterAgentResponse": [{ "command": "node \"${CURSOR_PLUGIN_ROOT}/bundle/guard.js\" after-agent-response" }],
+    "beforeSubmitPrompt": [
+      {
+        "command": "node \"${CURSOR_PLUGIN_ROOT}/bundle/guard.js\" before-submit-prompt",
+        "failClosed": true,
+        "timeout": 15
+      }
+    ],
+    "afterAgentResponse": [
+      { "command": "node \"${CURSOR_PLUGIN_ROOT}/bundle/guard.js\" after-agent-response" }
+    ],
     "postToolUse": [{ "command": "node \"${CURSOR_PLUGIN_ROOT}/bundle/guard.js\" post-tool-use" }],
-    "postToolUseFailure": [{ "command": "node \"${CURSOR_PLUGIN_ROOT}/bundle/guard.js\" post-tool-use-failure" }],
-    "subagentStart": [{ "command": "node \"${CURSOR_PLUGIN_ROOT}/bundle/guard.js\" subagent-start" }],
+    "postToolUseFailure": [
+      { "command": "node \"${CURSOR_PLUGIN_ROOT}/bundle/guard.js\" post-tool-use-failure" }
+    ],
+    "subagentStart": [
+      { "command": "node \"${CURSOR_PLUGIN_ROOT}/bundle/guard.js\" subagent-start" }
+    ],
     "subagentStop": [{ "command": "node \"${CURSOR_PLUGIN_ROOT}/bundle/guard.js\" subagent-stop" }],
     "stop": [{ "command": "node \"${CURSOR_PLUGIN_ROOT}/bundle/guard.js\" stop" }],
     "sessionStart": [{ "command": "node \"${CURSOR_PLUGIN_ROOT}/bundle/guard.js\" session-start" }]
