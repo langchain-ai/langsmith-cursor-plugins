@@ -1,6 +1,6 @@
 {
   "name": "@langchain/langsmith-cursor-plugins",
-  "version": "0.3.5",
+  "version": "0.4.0",
   "description": "Cursor hooks integration for LangSmith tracing",
   "type": "module",
   "main": "dist/index.js",
