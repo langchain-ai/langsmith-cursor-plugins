@@ -612,7 +612,7 @@ function readStdin() {
 }
 
 // dist/shared-config.js
-import { lstatSync, readFileSync, statSync } from "node:fs";
+import { closeSync, constants, fstatSync, lstatSync, openSync, readFileSync } from "node:fs";
 var COMMON_BOOLEAN_SETTINGS = {
   enabled: { default: false, restrictive: false },
   defaultMuted: { default: false, restrictive: true }
@@ -723,8 +723,16 @@ function parseCommonConfig(value) {
 }
 function readCommonConfigFile(path3) {
   try {
-    if (!statSync(path3).isFile())
+    const fd = openSync(path3, constants.O_RDONLY | constants.O_NONBLOCK);
+    try {
+      if (!fstatSync(fd).isFile())
+        return invalid();
+      return parseCommonConfig(JSON.parse(readFileSync(fd, "utf8")));
+    } catch {
       return invalid();
+    } finally {
+      closeSync(fd);
+    }
   } catch (error2) {
     if (error2.code === "ENOENT") {
       try {
@@ -735,11 +743,6 @@ function readCommonConfigFile(path3) {
         }
       }
     }
-    return invalid();
-  }
-  try {
-    return parseCommonConfig(JSON.parse(readFileSync(path3, "utf8")));
-  } catch {
     return invalid();
   }
 }
@@ -781,7 +784,7 @@ import { join } from "node:path";
 import { execSync } from "node:child_process";
 
 // dist/logger.js
-import { appendFileSync, mkdirSync, statSync as statSync2, renameSync } from "node:fs";
+import { appendFileSync, mkdirSync, statSync, renameSync } from "node:fs";
 import { dirname } from "node:path";
 import { homedir } from "node:os";
 var MAX_LOG_BYTES = 5 * 1024 * 1024;
@@ -793,7 +796,7 @@ function initLogger(debug2) {
 }
 function rotateIfNeeded() {
   try {
-    if (statSync2(LOG_FILE).size >= MAX_LOG_BYTES) {
+    if (statSync(LOG_FILE).size >= MAX_LOG_BYTES) {
       renameSync(LOG_FILE, `${LOG_FILE}.1`);
     }
   } catch {
@@ -1107,7 +1110,7 @@ function initHook(cwd) {
 }
 
 // dist/state.js
-import { readFileSync as readFileSync2, writeFileSync, mkdirSync as mkdirSync2, openSync, closeSync, unlinkSync, rmdirSync, renameSync as renameSync2, fsyncSync } from "node:fs";
+import { readFileSync as readFileSync2, writeFileSync, mkdirSync as mkdirSync2, openSync as openSync2, closeSync as closeSync2, unlinkSync, rmdirSync, renameSync as renameSync2, fsyncSync } from "node:fs";
 import { randomUUID } from "node:crypto";
 import { performance as performance2 } from "node:perf_hooks";
 import { dirname as dirname2 } from "node:path";
@@ -1163,21 +1166,21 @@ function saveState(stateFilePath, state) {
   const temp = `${stateFilePath}.${process.pid}.${randomUUID()}.tmp`;
   let committed = false;
   try {
-    const fd = openSync(temp, "wx", 384);
+    const fd = openSync2(temp, "wx", 384);
     try {
       writeFileSync(fd, JSON.stringify(state, null, 2));
       fsyncSync(fd);
     } finally {
-      closeSync(fd);
+      closeSync2(fd);
     }
     renameSync2(temp, stateFilePath);
     committed = true;
     try {
-      const fd2 = openSync(dirname2(stateFilePath), "r");
+      const fd2 = openSync2(dirname2(stateFilePath), "r");
       try {
         fsyncSync(fd2);
       } finally {
-        closeSync(fd2);
+        closeSync2(fd2);
       }
     } catch {
       warn("Turn snapshot saved, but crash durability could not be confirmed");
@@ -13936,7 +13939,7 @@ import { existsSync as existsSync5 } from "node:fs";
 
 // dist/attachments.js
 import { DatabaseSync } from "node:sqlite";
-import { existsSync as existsSync3, readFileSync as readFileSync5, statSync as statSync4 } from "node:fs";
+import { existsSync as existsSync3, readFileSync as readFileSync5, statSync as statSync3 } from "node:fs";
 import { homedir as homedir3, platform } from "node:os";
 import { basename, join as join2 } from "node:path";
 var MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024;
@@ -14046,7 +14049,7 @@ function placeholder(text) {
 function fileToContentPart(path3) {
   const name = basename(path3);
   try {
-    const st = statSync4(path3);
+    const st = statSync3(path3);
     if (!st.isFile()) {
       warn(`attachments: not a file, skipping: ${path3}`);
       return placeholder(`[attachment skipped: ${name} \u2014 not a file]`);
