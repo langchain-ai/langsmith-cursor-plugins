@@ -98,6 +98,7 @@ describe("standalone tracing preference", () => {
 
   it("defaults absent/new healthy threads to full and persists only selected threads", async () => {
     expect(getThreadTracingMode(policy, "new")).toBe("full");
+    expect(getThreadTracingMode(policy, "new", true)).toBe("metadata");
     expect(existsSync(policy)).toBe(false);
     await setThreadTracingMode(policy, "a", "metadata");
     expect(getThreadTracingMode(policy, "a")).toBe("metadata");
@@ -126,6 +127,18 @@ describe("standalone tracing preference", () => {
     expect(getThreadTracingMode(policy, id)).toBe("full");
     await setThreadTracingMode(policy, id, "metadata");
     expect(getThreadTracingMode(policy, id)).toBe("metadata");
+  });
+
+  it("honors the configured default without losing explicit preferences", async () => {
+    writeFileSync(policy, JSON.stringify({ threads: { a: "metadata" } }));
+    await setThreadTracingMode(policy, "b", "full");
+    expect(getThreadTracingMode(policy, "unknown", true)).toBe("metadata");
+    expect(getThreadTracingMode(policy, "unknown", false)).toBe("full");
+    expect(getThreadTracingMode(policy, "a")).toBe("metadata");
+    expect(getThreadTracingMode(policy, "b", true)).toBe("full");
+    expect(JSON.parse(readFileSync(policy, "utf8"))).toEqual({
+      threads: { a: "metadata", b: "full" },
+    });
   });
 
   it.each([

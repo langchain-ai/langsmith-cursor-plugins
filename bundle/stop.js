@@ -611,14 +611,177 @@ function readStdin() {
   });
 }
 
+// dist/shared-config.js
+import { lstatSync, readFileSync, statSync } from "node:fs";
+var COMMON_BOOLEAN_SETTINGS = {
+  enabled: { default: false, restrictive: false },
+  defaultMuted: { default: false, restrictive: true }
+};
+function object(value) {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+function invalid(raw) {
+  return {
+    status: "invalid",
+    common: { enabled: false, defaultMuted: true },
+    ...raw === void 0 ? {} : { raw },
+    diagnostics: [
+      "Invalid or unreadable common config; ordinary fields discarded, privacy switches restricted."
+    ]
+  };
+}
+function parseReplica(value) {
+  if (!object(value))
+    return void 0;
+  const replica = {};
+  for (const [canonical, alias] of [
+    ["api_url", "apiUrl"],
+    ["api_key", "apiKey"],
+    ["project", "projectName"]
+  ]) {
+    const selected = Object.hasOwn(value, canonical) ? canonical : alias;
+    if (Object.hasOwn(value, selected)) {
+      const entry = value[selected];
+      if (typeof entry !== "string")
+        return void 0;
+      replica[canonical] = entry;
+    }
+  }
+  if (Object.hasOwn(value, "updates")) {
+    if (!object(value.updates))
+      return void 0;
+    replica.updates = value.updates;
+  }
+  return replica;
+}
+function parseCommonConfig(value) {
+  if (!object(value))
+    return invalid();
+  const common = {};
+  const diagnostics = [];
+  for (const field of ["enabled", "defaultMuted"]) {
+    if (!Object.hasOwn(value, field))
+      continue;
+    const entry = value[field];
+    common[field] = typeof entry === "boolean" ? entry : COMMON_BOOLEAN_SETTINGS[field].restrictive;
+    if (typeof entry !== "boolean")
+      diagnostics.push(`Invalid ${field}; using restrictive value.`);
+  }
+  for (const field of ["api_key", "api_url", "project"]) {
+    if (!Object.hasOwn(value, field))
+      continue;
+    if (typeof value[field] !== "string")
+      return invalid(value);
+    common[field] = value[field];
+  }
+  if (Object.hasOwn(value, "redact")) {
+    if (typeof value.redact !== "boolean")
+      return invalid(value);
+    common.redact = value.redact;
+  }
+  if (Object.hasOwn(value, "metadata")) {
+    if (!object(value.metadata))
+      return invalid(value);
+    common.metadata = value.metadata;
+  }
+  if (Object.hasOwn(value, "replicas")) {
+    if (!Array.isArray(value.replicas))
+      return invalid(value);
+    const replicas2 = [];
+    for (const entry of value.replicas) {
+      const replica = parseReplica(entry);
+      if (replica === void 0)
+        return invalid(value);
+      replicas2.push(replica);
+    }
+    common.replicas = replicas2;
+  }
+  if (Object.hasOwn(value, "redact_extra_rules")) {
+    if (!Array.isArray(value.redact_extra_rules))
+      return invalid(value);
+    const rules = [];
+    for (const rule of value.redact_extra_rules) {
+      if (!object(rule) || typeof rule.pattern !== "string" || !Object.hasOwn(rule, "pattern")) {
+        return invalid(value);
+      }
+      const hasReplace = Object.hasOwn(rule, "replace");
+      if (hasReplace && typeof rule.replace !== "string")
+        return invalid(value);
+      try {
+        new RegExp(rule.pattern, "g");
+      } catch {
+        return invalid(value);
+      }
+      rules.push({
+        pattern: rule.pattern,
+        ...hasReplace ? { replace: rule.replace } : {}
+      });
+    }
+    common.redact_extra_rules = rules;
+  }
+  return { status: "valid", common, raw: value, diagnostics };
+}
+function readCommonConfigFile(path3) {
+  try {
+    if (!statSync(path3).isFile())
+      return invalid();
+  } catch (error2) {
+    if (error2.code === "ENOENT") {
+      try {
+        lstatSync(path3);
+      } catch (lstatError) {
+        if (lstatError.code === "ENOENT") {
+          return { status: "absent", common: {}, diagnostics: [] };
+        }
+      }
+    }
+    return invalid();
+  }
+  try {
+    return parseCommonConfig(JSON.parse(readFileSync(path3, "utf8")));
+  } catch {
+    return invalid();
+  }
+}
+function resolveField(sources, field) {
+  return sources.find((source) => source[field] !== void 0)?.[field];
+}
+function mergeCommonConfig(sources, options = {}) {
+  const { harness = {}, root = {}, user = {}, userRoot = {}, env = {}, defaults: defaults2 = {} } = sources;
+  const files = [harness, root, user, userRoot];
+  const precedence = [env, ...files, defaults2];
+  const switches = options.envFirst ? precedence : [...files, env, defaults2];
+  const merged = { enabled: false, defaultMuted: false, redact: true };
+  for (const field of ["enabled", "defaultMuted"]) {
+    merged[field] = resolveField(switches, field) ?? COMMON_BOOLEAN_SETTINGS[field].default;
+  }
+  merged.api_key = resolveField(precedence, "api_key");
+  merged.api_url = resolveField(precedence, "api_url");
+  merged.project = resolveField(precedence, "project");
+  merged.replicas = resolveField(precedence, "replicas");
+  merged.redact = resolveField(precedence, "redact") ?? true;
+  merged.redact_extra_rules = resolveField(precedence, "redact_extra_rules");
+  if (precedence.some((source) => source.metadata !== void 0)) {
+    merged.metadata = [...precedence].reverse().reduce((metadata, source) => ({ ...metadata, ...source.metadata }), {});
+  }
+  return merged;
+}
+function toSdkReplicas(replicas2) {
+  return replicas2?.map((replica) => ({
+    ...replica.api_url === void 0 ? {} : { apiUrl: replica.api_url },
+    ...replica.api_key === void 0 ? {} : { apiKey: replica.api_key },
+    ...replica.project === void 0 ? {} : { projectName: replica.project },
+    ...replica.updates === void 0 ? {} : { updates: replica.updates }
+  }));
+}
+
 // dist/config.js
-import { readFileSync } from "node:fs";
 import { userInfo } from "node:os";
 import { join } from "node:path";
 import { execSync } from "node:child_process";
 
 // dist/logger.js
-import { appendFileSync, mkdirSync, statSync, renameSync } from "node:fs";
+import { appendFileSync, mkdirSync, statSync as statSync2, renameSync } from "node:fs";
 import { dirname } from "node:path";
 import { homedir } from "node:os";
 var MAX_LOG_BYTES = 5 * 1024 * 1024;
@@ -630,7 +793,7 @@ function initLogger(debug2) {
 }
 function rotateIfNeeded() {
   try {
-    if (statSync(LOG_FILE).size >= MAX_LOG_BYTES) {
+    if (statSync2(LOG_FILE).size >= MAX_LOG_BYTES) {
       renameSync(LOG_FILE, `${LOG_FILE}.1`);
     }
   } catch {
@@ -714,32 +877,75 @@ function parseRedactExtraRules(value) {
   const valid = [];
   for (const rule of parsed) {
     if (!isRedactRule(rule)) {
-      error(`Skipping invalid LANGSMITH_CURSOR_REDACT_EXTRA rule: ${JSON.stringify(rule)}`);
+      error("Skipping invalid LANGSMITH_CURSOR_REDACT_EXTRA rule.");
       continue;
     }
     valid.push(rule);
   }
-  return valid.length > 0 ? valid : void 0;
+  return parsed.length === 0 || valid.length > 0 ? valid : void 0;
 }
 function readConfigFile(file) {
-  try {
-    return JSON.parse(readFileSync(file, "utf-8"));
-  } catch {
-    return void 0;
+  const result = readCommonConfigFile(file);
+  for (const diagnostic of result.diagnostics)
+    error(diagnostic);
+  const extensions = {};
+  const raw = result.raw;
+  if (raw) {
+    for (const field of ["attachments", "system_prompt"]) {
+      if (!Object.hasOwn(raw, field))
+        continue;
+      if (typeof raw[field] === "boolean")
+        extensions[field] = raw[field];
+      else
+        error(`Invalid Cursor config extension ${field}; ignoring field.`);
+    }
+    if (Object.hasOwn(raw, "cursor_db_path")) {
+      if (typeof raw.cursor_db_path === "string")
+        extensions.cursor_db_path = raw.cursor_db_path;
+      else
+        error("Invalid Cursor config extension cursor_db_path; ignoring field.");
+    }
   }
+  return { common: result.common, extensions };
+}
+function parseStrictBoolean(value) {
+  if (value.toLowerCase() === "true")
+    return true;
+  if (value.toLowerCase() === "false")
+    return false;
+  return void 0;
+}
+var BOOLEAN_SETTINGS = {
+  enabled: {
+    env: "TRACE_TO_LANGSMITH",
+    parse: parseBoolean,
+    ...COMMON_BOOLEAN_SETTINGS.enabled
+  },
+  defaultMuted: {
+    env: "LANGSMITH_CURSOR_DEFAULT_MUTED",
+    parse: parseStrictBoolean,
+    ...COMMON_BOOLEAN_SETTINGS.defaultMuted
+  }
+};
+function envBoolean(field) {
+  const setting = BOOLEAN_SETTINGS[field];
+  const env = process.env[setting.env];
+  if (env === void 0)
+    return void 0;
+  return setting.parse(env) ?? setting.restrictive;
 }
 function getEnv(suffix) {
   return process.env[`LANGSMITH_CURSOR_${suffix}`] ?? process.env[`LANGSMITH_${suffix}`];
 }
 function normalizeReplicas(replicas2) {
-  if (!Array.isArray(replicas2))
+  if (!Array.isArray(replicas2) || replicas2.some((r) => !r || typeof r !== "object"))
     return void 0;
-  return replicas2.map((r) => ({
+  return replicas2.map((r) => Array.isArray(r) ? r : {
     ...r.api_url || r.apiUrl ? { apiUrl: r.api_url ?? r.apiUrl } : {},
     ...r.api_key || r.apiKey ? { apiKey: r.api_key ?? r.apiKey } : {},
     ...r.project || r.projectName ? { projectName: r.project ?? r.projectName } : {},
     ...r.updates ? { updates: r.updates } : {}
-  }));
+  });
 }
 var GIT_PROVIDERS_REGEX = {
   github: /[@/](?:github\.com)[:/](.+?)(?:\.git)?\s/,
@@ -813,23 +1019,39 @@ function getGitInfo(cwd) {
 }
 function loadConfig(options) {
   const cwd = options?.cwd ?? process.env.CURSOR_PROJECT_DIR ?? process.cwd();
+  const userRootFile = readConfigFile(join(homedir2(), ".langsmith-plugins.json"));
   const globalFile = readConfigFile(join(homedir2(), ".cursor", "langsmith.json"));
+  const rootFile = readConfigFile(join(cwd, "langsmith-plugins.json"));
   const localFile = readConfigFile(join(cwd, ".cursor", "langsmith.json"));
-  const envEnabled = parseBoolean(process.env.TRACE_TO_LANGSMITH);
   const envMetadata = parseJson(getEnv("METADATA"));
   const envReplicas = parseJson(getEnv("RUNS_ENDPOINTS"));
   const envDebug = parseBoolean(getEnv("DEBUG"));
-  const enabled = envEnabled ?? localFile?.enabled ?? globalFile?.enabled ?? false;
-  const apiKey = getEnv("API_KEY") ?? localFile?.api_key ?? globalFile?.api_key ?? "";
-  const apiUrl = getEnv("ENDPOINT") ?? localFile?.api_url ?? globalFile?.api_url ?? DEFAULT_API_URL;
-  const project = getEnv("PROJECT") ?? localFile?.project ?? globalFile?.project ?? DEFAULT_PROJECT;
+  const common = mergeCommonConfig({
+    harness: localFile.common,
+    root: rootFile.common,
+    user: globalFile.common,
+    userRoot: userRootFile.common,
+    env: {
+      enabled: envBoolean("enabled"),
+      defaultMuted: envBoolean("defaultMuted"),
+      api_key: getEnv("API_KEY"),
+      api_url: getEnv("ENDPOINT"),
+      project: getEnv("PROJECT"),
+      metadata: envMetadata,
+      redact: parseBoolean(getEnv("REDACT"))
+    },
+    defaults: { api_key: "", api_url: DEFAULT_API_URL, project: DEFAULT_PROJECT }
+  }, { envFirst: true });
+  const { enabled, defaultMuted, redact } = common;
+  const apiKey = common.api_key;
+  const apiUrl = common.api_url;
+  const project = common.project;
   const debug2 = envDebug ?? false;
-  const replicas2 = normalizeReplicas(envReplicas ?? localFile?.replicas ?? globalFile?.replicas);
-  const attachmentsEnabled = parseBoolean(getEnv("ATTACHMENTS")) ?? localFile?.attachments ?? globalFile?.attachments ?? true;
-  const systemPromptEnabled = parseBoolean(getEnv("SYSTEM_PROMPT")) ?? localFile?.system_prompt ?? globalFile?.system_prompt ?? true;
-  const cursorDbPath = getEnv("DB_PATH") ?? localFile?.cursor_db_path ?? globalFile?.cursor_db_path;
-  const redact = parseBoolean(getEnv("REDACT")) ?? localFile?.redact ?? globalFile?.redact ?? true;
-  const redactExtraRules = parseRedactExtraRules(getEnv("REDACT_EXTRA"));
+  const replicas2 = normalizeReplicas(envReplicas) ?? toSdkReplicas(common.replicas);
+  const attachmentsEnabled = parseBoolean(getEnv("ATTACHMENTS")) ?? localFile.extensions.attachments ?? rootFile.extensions.attachments ?? globalFile.extensions.attachments ?? userRootFile.extensions.attachments ?? true;
+  const systemPromptEnabled = parseBoolean(getEnv("SYSTEM_PROMPT")) ?? localFile.extensions.system_prompt ?? rootFile.extensions.system_prompt ?? globalFile.extensions.system_prompt ?? userRootFile.extensions.system_prompt ?? true;
+  const cursorDbPath = getEnv("DB_PATH") ?? localFile.extensions.cursor_db_path ?? rootFile.extensions.cursor_db_path ?? globalFile.extensions.cursor_db_path ?? userRootFile.extensions.cursor_db_path;
+  const redactExtraRules = parseRedactExtraRules(getEnv("REDACT_EXTRA")) ?? common.redact_extra_rules;
   const stateFilePath = process.env.LANGSMITH_CURSOR_STATE_FILE ?? join(homedir2(), ".cursor", "langsmith-state.json");
   const baseMetadata = { cwd };
   if (LS_INTEGRATION_VERSION)
@@ -848,13 +1070,13 @@ function loadConfig(options) {
   if (git.commit)
     baseMetadata.git_commit_sha = git.commit;
   baseMetadata.local_username = userInfo().username;
-  const fileMetadata = { ...globalFile?.metadata, ...localFile?.metadata };
-  const customMetadata = { ...baseMetadata, ...fileMetadata, ...envMetadata };
+  const customMetadata = { ...baseMetadata, ...common.metadata };
   if (enabled && !apiKey && (!replicas2 || replicas2.length === 0)) {
     debug("Config enabled but no API key / replicas resolved");
   }
   return {
     enabled,
+    defaultMuted,
     apiKey,
     apiUrl,
     project,
@@ -878,7 +1100,7 @@ function initHook(cwd) {
     return null;
   }
   if (!config.apiKey && (!config.replicas || config.replicas.length === 0)) {
-    error("Tracing enabled but no API key set (langsmith.json api_key, LANGSMITH_CURSOR_API_KEY, or LANGSMITH_API_KEY) and no replicas configured");
+    error("Tracing enabled but no API key set (langsmith-plugins.json or .cursor/langsmith.json api_key, LANGSMITH_CURSOR_API_KEY, or LANGSMITH_API_KEY) and no replicas configured");
     return null;
   }
   return config;
@@ -2876,13 +3098,13 @@ function is_non_nullish_primitive(v) {
   return typeof v === "string" || typeof v === "number" || typeof v === "boolean" || typeof v === "symbol" || typeof v === "bigint";
 }
 var sentinel = {};
-function inner_stringify(object, prefix, generateArrayPrefix, commaRoundTrip, allowEmptyArrays, strictNullHandling, skipNulls, encodeDotInKeys, encoder2, filter, sort, allowDots, serializeDate, format, formatter, encodeValuesOnly, charset, sideChannel) {
-  let obj = object;
+function inner_stringify(object2, prefix, generateArrayPrefix, commaRoundTrip, allowEmptyArrays, strictNullHandling, skipNulls, encodeDotInKeys, encoder2, filter, sort, allowDots, serializeDate, format, formatter, encodeValuesOnly, charset, sideChannel) {
+  let obj = object2;
   let tmp_sc = sideChannel;
   let step = 0;
   let find_flag = false;
   while ((tmp_sc = tmp_sc.get(sentinel)) !== void 0 && !find_flag) {
-    const pos = tmp_sc.get(object);
+    const pos = tmp_sc.get(object2);
     step += 1;
     if (typeof pos !== "undefined") {
       if (pos === step) {
@@ -2958,7 +3180,7 @@ function inner_stringify(object, prefix, generateArrayPrefix, commaRoundTrip, al
     }
     const encoded_key = allowDots && encodeDotInKeys ? key.replace(/\./g, "%2E") : key;
     const key_prefix = isArray(obj) ? typeof generateArrayPrefix === "function" ? generateArrayPrefix(adjusted_prefix, encoded_key) : adjusted_prefix : adjusted_prefix + (allowDots ? "." + encoded_key : "[" + encoded_key + "]");
-    sideChannel.set(object, step);
+    sideChannel.set(object2, step);
     const valueSideChannel = /* @__PURE__ */ new WeakMap();
     valueSideChannel.set(sentinel, sideChannel);
     push_to_array(values, inner_stringify(
@@ -3047,8 +3269,8 @@ function normalize_stringify_options(opts = defaults) {
     strictNullHandling: typeof opts.strictNullHandling === "boolean" ? opts.strictNullHandling : defaults.strictNullHandling
   };
 }
-function stringify(object, opts = {}) {
-  let obj = object;
+function stringify(object2, opts = {}) {
+  let obj = object2;
   const options = normalize_stringify_options(opts);
   let obj_keys;
   let filter;
@@ -11532,14 +11754,14 @@ Message: ${Array.isArray(result.detail) ? result.detail.join("\n") : "Unspecifie
    * });
    * ```
    */
-  async createCommit(promptIdentifier, object, options) {
+  async createCommit(promptIdentifier, object2, options) {
     if (!await this.promptExists(promptIdentifier)) {
       throw new Error("Prompt does not exist, you must create it first.");
     }
     const [owner, promptName, _] = parseHubIdentifier(promptIdentifier);
     const resolvedParentCommitHash = options?.parentCommitHash === "latest" || !options?.parentCommitHash ? await this._getLatestCommitHash(`${owner}/${promptName}`) : options?.parentCommitHash;
     const payload = {
-      manifest: JSON.parse(JSON.stringify(object)),
+      manifest: JSON.parse(JSON.stringify(object2)),
       parent_commit: resolvedParentCommitHash,
       ...options?.description !== void 0 && {
         description: options.description
@@ -13739,7 +13961,7 @@ import { existsSync as existsSync5 } from "node:fs";
 
 // dist/attachments.js
 import { DatabaseSync } from "node:sqlite";
-import { existsSync as existsSync3, readFileSync as readFileSync5, statSync as statSync3 } from "node:fs";
+import { existsSync as existsSync3, readFileSync as readFileSync5, statSync as statSync4 } from "node:fs";
 import { homedir as homedir3, platform } from "node:os";
 import { basename, join as join2 } from "node:path";
 var MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024;
@@ -13849,7 +14071,7 @@ function placeholder(text) {
 function fileToContentPart(path3) {
   const name = basename(path3);
   try {
-    const st = statSync3(path3);
+    const st = statSync4(path3);
     if (!st.isFile()) {
       warn(`attachments: not a file, skipping: ${path3}`);
       return placeholder(`[attachment skipped: ${name} \u2014 not a file]`);

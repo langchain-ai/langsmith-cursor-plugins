@@ -62,11 +62,15 @@ export function tracingPolicyPath(): string {
   );
 }
 
-export function getThreadTracingMode(path: string, sessionId: string): TracingMode {
+export function getThreadTracingMode(
+  path: string,
+  sessionId: string,
+  defaultMuted = false,
+): TracingMode {
   try {
     const policy = readPolicy(path);
     if (Object.hasOwn(policy.threads, sessionId)) return policy.threads[sessionId];
-    return "full";
+    return defaultMuted ? "metadata" : "full";
   } catch {
     return "metadata";
   }

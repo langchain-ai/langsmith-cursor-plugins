@@ -801,14 +801,14 @@ describe.each(transports)("overlapping Cursor launch privacy over %s", (selected
   });
 });
 
-// Baseline project/user Cursor file -> real prompt snapshot -> existing stop reducer -> actual builder/SDK wire.
+// Project/home root file -> real prompt snapshot -> existing stop reducer -> actual builder/SDK wire.
 // No injected Client: credentials, destinations and anonymizer all come from loadConfig.
-describe.each(["project", "home"] as const)("baseline %s Cursor config", (scope) => {
+describe.each(["project", "home"] as const)("common %s root config", (scope) => {
   describe.each(transports)("at the wire over %s", (selectedTransport) => {
     it.each([
       "muted-redact-off",
       "full-redact-off",
-      "full-env-rules",
+      "full-file-rules",
       "keyless-muted-redact-off",
       "keyless-full-redact-off",
     ] as const)("%s", async (scenario) => {
@@ -826,7 +826,7 @@ describe.each(["project", "home"] as const)("baseline %s Cursor config", (scope)
       mkdirSync(join(home, ".cursor"));
       const keyless = scenario.startsWith("keyless-");
       const muted = scenario.includes("muted-redact-off");
-      const rules = scenario === "full-env-rules";
+      const rules = scenario === "full-file-rules";
       const collisions = Object.fromEntries(
         Object.keys(allowedMetadata).map((key) => [key, `${FORBIDDEN}_${key}`]),
       );
@@ -836,29 +836,33 @@ describe.each(["project", "home"] as const)("baseline %s Cursor config", (scope)
           metadata: { ...collisions, userOnly: FORBIDDEN, nested: { user: true } },
         }),
       );
-      mkdirSync(join(cwd, ".cursor"));
-      if (rules) {
-        vi.stubEnv(
-          "LANGSMITH_CURSOR_REDACT_EXTRA",
-          JSON.stringify([{ pattern: "file-sensitive-[0-9]+", replace: "[file-redacted]" }]),
+      // The retired home filename must not affect routing, privacy or file validity.
+      if (scope === "home") {
+        writeFileSync(
+          join(home, "langsmith-plugins.json"),
+          rules
+            ? "{malformed"
+            : JSON.stringify({ enabled: false, defaultMuted: !muted, api_url: "http://old.test" }),
         );
       }
+      // Unrelated application config must not disable tracing or invalidate plugin settings.
+      writeFileSync(
+        join(cwd, "langsmith.json"),
+        rules ? "{malformed" : JSON.stringify({ enabled: false, defaultMuted: !muted }),
+      );
       writeFileSync(
         scope === "home"
-          ? join(home, ".cursor", "langsmith.json")
-          : join(cwd, ".cursor", "langsmith.json"),
+          ? join(home, ".langsmith-plugins.json")
+          : join(cwd, "langsmith-plugins.json"),
         JSON.stringify({
           enabled: true,
+          defaultMuted: muted,
           ...(keyless ? {} : { api_key: "primary-file-key" }),
           api_url: API,
           project: "primary-file-project",
           redact: rules,
-          metadata: {
-            ...collisions,
-            userOnly: FORBIDDEN,
-            rootOnly: FORBIDDEN,
-            nested: { root: true },
-          },
+          redact_extra_rules: [{ pattern: "file-sensitive-[0-9]+", replace: "[file-redacted]" }],
+          metadata: { ...collisions, rootOnly: FORBIDDEN, nested: { root: true } },
           replicas: [
             // The keyless primary's replica must inherit the private file URL, not the SDK default.
             keyless
@@ -889,10 +893,6 @@ describe.each(["project", "home"] as const)("baseline %s Cursor config", (scope)
           hook_event_name: "beforeSubmitPrompt" as const,
           prompt: `${FORBIDDEN}_prompt file-sensitive-123 file-sensitive-456`,
         };
-        if (muted) {
-          const response = await handlePromptSubmit({ ...input, prompt: "langsmith-tracing:mute" });
-          expect(response.continue).toBe(false);
-        }
         expect(await handlePromptSubmit(input)).toEqual({ continue: true });
         const cfg = loadConfig({ cwd });
         const { initHook } = await import("../src/utils/hook-init.js");
@@ -903,7 +903,7 @@ describe.each(["project", "home"] as const)("baseline %s Cursor config", (scope)
         expect(cfg.customMetadata).toMatchObject({
           userOnly: FORBIDDEN,
           rootOnly: FORBIDDEN,
-          nested: { root: true },
+          nested: scope === "home" ? { user: true } : { root: true },
         });
         const state = loadState(cfg.stateFilePath);
         const stopped = reduceStop(
@@ -962,11 +962,11 @@ describe.each(["project", "home"] as const)("baseline %s Cursor config", (scope)
         const wire = requests.map((r) => r.raw).join("\n");
         if (muted) {
           expect(wire).not.toContain(FORBIDDEN);
-          expect(wire).not.toMatch(/file-sensitive-[0-9]+/);
+          expect(wire).not.toContain("file-sensitive-");
         } else {
           expect(wire).toContain(FORBIDDEN);
           if (rules) {
-            expect(wire).not.toMatch(/file-sensitive-[0-9]+/);
+            expect(wire).not.toContain("file-sensitive-");
             expect(wire).toContain("[file-redacted]");
           } else expect(wire).toContain("file-sensitive-123");
         }

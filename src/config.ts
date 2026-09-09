@@ -1,9 +1,15 @@
 /**
- * Configuration loading. Cascade (later wins): defaults → global file → local
- * file → environment (LANGSMITH_CURSOR_* / LANGSMITH_*).
+ * Configuration loading, per field (later wins): defaults → home root → user
+ * .cursor → project root → project .cursor → environment. All common fields,
+ * including the master switch and default mute, use environment-first precedence.
  */
 
-import { readFileSync } from "node:fs";
+import {
+  COMMON_BOOLEAN_SETTINGS,
+  mergeCommonConfig,
+  readCommonConfigFile,
+  toSdkReplicas,
+} from "./shared-config.js";
 import { userInfo } from "node:os";
 import { join } from "node:path";
 import { execSync } from "node:child_process";
@@ -34,6 +40,8 @@ const PROVIDER_HOSTS: Record<string, string> = {
 export interface Config {
   /** Master switch — tracing only runs when true. */
   enabled: boolean;
+  /** Fallback for threads without an explicit override; independent of enabled. */
+  defaultMuted: boolean;
   apiKey: string;
   apiUrl: string;
   project: string;
@@ -50,7 +58,7 @@ export interface Config {
   cursorDbPath?: string;
   /** Redact detected secrets from traced data before upload (default on). */
   redact: boolean;
-  /** Extra user-supplied redaction rules (from LANGSMITH_CURSOR_REDACT_EXTRA). */
+  /** Extra user-supplied redaction rules (environment or common file config). */
   redactExtraRules?: StringNodeRule[];
 }
 
@@ -96,36 +104,69 @@ function parseRedactExtraRules(value: unknown): StringNodeRule[] | undefined {
   const valid: StringNodeRule[] = [];
   for (const rule of parsed) {
     if (!isRedactRule(rule)) {
-      logError(`Skipping invalid LANGSMITH_CURSOR_REDACT_EXTRA rule: ${JSON.stringify(rule)}`);
+      logError("Skipping invalid LANGSMITH_CURSOR_REDACT_EXTRA rule.");
       continue;
     }
     valid.push(rule);
   }
-  return valid.length > 0 ? valid : undefined;
+  // An explicit empty array clears file rules; malformed nonempty arrays still fall through.
+  return parsed.length === 0 || valid.length > 0 ? valid : undefined;
 }
 
-// ─── Config file shape (snake_case on disk) ──────────────────────────────────
+// ─── Cursor extensions are validated independently of the common contract ─────
 
-interface FileConfig {
-  enabled?: boolean;
-  api_key?: string;
-  api_url?: string;
-  project?: string;
-  metadata?: Record<string, unknown>;
-  replicas?: Array<Record<string, unknown>>;
+interface CursorExtensions {
   attachments?: boolean;
   system_prompt?: boolean;
-  step_fidelity?: boolean;
   cursor_db_path?: string;
-  redact?: boolean;
 }
 
-function readConfigFile(file: string): FileConfig | undefined {
-  try {
-    return JSON.parse(readFileSync(file, "utf-8")) as FileConfig;
-  } catch {
-    return undefined;
+function readConfigFile(file: string) {
+  const result = readCommonConfigFile(file);
+  for (const diagnostic of result.diagnostics) logError(diagnostic);
+  const extensions: CursorExtensions = {};
+  const raw = result.raw;
+  if (raw) {
+    for (const field of ["attachments", "system_prompt"] as const) {
+      if (!Object.hasOwn(raw, field)) continue;
+      if (typeof raw[field] === "boolean") extensions[field] = raw[field];
+      else logError(`Invalid Cursor config extension ${field}; ignoring field.`);
+    }
+    if (Object.hasOwn(raw, "cursor_db_path")) {
+      if (typeof raw.cursor_db_path === "string") extensions.cursor_db_path = raw.cursor_db_path;
+      else logError("Invalid Cursor config extension cursor_db_path; ignoring field.");
+    }
   }
+  return { common: result.common, extensions };
+}
+
+/** Default mute accepts only untrimmed true/false; other present values fail closed. */
+function parseStrictBoolean(value: string): boolean | undefined {
+  if (value.toLowerCase() === "true") return true;
+  if (value.toLowerCase() === "false") return false;
+  return undefined;
+}
+
+const BOOLEAN_SETTINGS = {
+  enabled: {
+    env: "TRACE_TO_LANGSMITH",
+    parse: parseBoolean,
+    ...COMMON_BOOLEAN_SETTINGS.enabled,
+  },
+  defaultMuted: {
+    env: "LANGSMITH_CURSOR_DEFAULT_MUTED",
+    parse: parseStrictBoolean,
+    ...COMMON_BOOLEAN_SETTINGS.defaultMuted,
+  },
+} as const;
+type BooleanSetting = keyof typeof BOOLEAN_SETTINGS;
+
+/** Environment parsers retain their historical behavior, separate from strict file booleans. */
+function envBoolean(field: BooleanSetting): boolean | undefined {
+  const setting = BOOLEAN_SETTINGS[field];
+  const env = process.env[setting.env];
+  if (env === undefined) return undefined;
+  return setting.parse(env) ?? setting.restrictive;
 }
 
 /** Read LANGSMITH_CURSOR_<suffix>, falling back to LANGSMITH_<suffix>. */
@@ -133,17 +174,24 @@ function getEnv(suffix: string): string | undefined {
   return process.env[`LANGSMITH_CURSOR_${suffix}`] ?? process.env[`LANGSMITH_${suffix}`];
 }
 
-/** Normalize a snake_case or camelCase replica entry to the LangSmith SDK shape. */
+/** Legacy environment parser only: keep SDK tuples and existing snake/camel aliases. */
 function normalizeReplicas(
   replicas: Array<Record<string, unknown>> | undefined,
 ): RunTreeConfig["replicas"] | undefined {
-  if (!Array.isArray(replicas)) return undefined;
-  return replicas.map((r) => ({
-    ...(r.api_url || r.apiUrl ? { apiUrl: (r.api_url ?? r.apiUrl) as string } : {}),
-    ...(r.api_key || r.apiKey ? { apiKey: (r.api_key ?? r.apiKey) as string } : {}),
-    ...(r.project || r.projectName ? { projectName: (r.project ?? r.projectName) as string } : {}),
-    ...(r.updates ? { updates: r.updates as Record<string, unknown> } : {}),
-  })) as RunTreeConfig["replicas"];
+  if (!Array.isArray(replicas) || replicas.some((r) => !r || typeof r !== "object"))
+    return undefined;
+  return replicas.map((r) =>
+    Array.isArray(r)
+      ? r
+      : {
+          ...(r.api_url || r.apiUrl ? { apiUrl: (r.api_url ?? r.apiUrl) as string } : {}),
+          ...(r.api_key || r.apiKey ? { apiKey: (r.api_key ?? r.apiKey) as string } : {}),
+          ...(r.project || r.projectName
+            ? { projectName: (r.project ?? r.projectName) as string }
+            : {}),
+          ...(r.updates ? { updates: r.updates as Record<string, unknown> } : {}),
+        },
+  ) as RunTreeConfig["replicas"];
 }
 
 // ─── Git repo metadata (ported from the Claude Code integration) ─────────────
@@ -227,39 +275,67 @@ export function getGitInfo(cwd: string): { branch?: string; commit?: string } {
 export function loadConfig(options?: { cwd?: string }): Config {
   const cwd = options?.cwd ?? process.env.CURSOR_PROJECT_DIR ?? process.cwd();
 
+  const userRootFile = readConfigFile(join(homedir(), ".langsmith-plugins.json"));
   const globalFile = readConfigFile(join(homedir(), ".cursor", "langsmith.json"));
+  const rootFile = readConfigFile(join(cwd, "langsmith-plugins.json"));
   const localFile = readConfigFile(join(cwd, ".cursor", "langsmith.json"));
 
-  const envEnabled = parseBoolean(process.env.TRACE_TO_LANGSMITH);
   const envMetadata = parseJson(getEnv("METADATA"));
   const envReplicas = parseJson<Array<Record<string, unknown>>>(getEnv("RUNS_ENDPOINTS"));
   const envDebug = parseBoolean(getEnv("DEBUG"));
 
-  // Merge file layers then env (env wins).
-  const enabled = envEnabled ?? localFile?.enabled ?? globalFile?.enabled ?? false;
-  const apiKey = getEnv("API_KEY") ?? localFile?.api_key ?? globalFile?.api_key ?? "";
-  const apiUrl = getEnv("ENDPOINT") ?? localFile?.api_url ?? globalFile?.api_url ?? DEFAULT_API_URL;
-  const project = getEnv("PROJECT") ?? localFile?.project ?? globalFile?.project ?? DEFAULT_PROJECT;
+  const common = mergeCommonConfig(
+    {
+      harness: localFile.common,
+      root: rootFile.common,
+      user: globalFile.common,
+      userRoot: userRootFile.common,
+      env: {
+        enabled: envBoolean("enabled"),
+        defaultMuted: envBoolean("defaultMuted"),
+        api_key: getEnv("API_KEY"),
+        api_url: getEnv("ENDPOINT"),
+        project: getEnv("PROJECT"),
+        metadata: envMetadata,
+        redact: parseBoolean(getEnv("REDACT")),
+      },
+      defaults: { api_key: "", api_url: DEFAULT_API_URL, project: DEFAULT_PROJECT },
+    },
+    { envFirst: true },
+  );
+  const { enabled, defaultMuted, redact } = common;
+  const apiKey = common.api_key!;
+  const apiUrl = common.api_url!;
+  const project = common.project!;
   const debug = envDebug ?? false;
-
-  const replicas = normalizeReplicas(envReplicas ?? localFile?.replicas ?? globalFile?.replicas);
+  // File replicas are canonical and strict. Do not reparse legacy environment values as files.
+  const replicas = normalizeReplicas(envReplicas) ?? toSdkReplicas(common.replicas);
 
   // Attachment enrichment defaults ON; opt out via config or LANGSMITH_CURSOR_ATTACHMENTS.
   const attachmentsEnabled =
     parseBoolean(getEnv("ATTACHMENTS")) ??
-    localFile?.attachments ??
-    globalFile?.attachments ??
+    localFile.extensions.attachments ??
+    rootFile.extensions.attachments ??
+    globalFile.extensions.attachments ??
+    userRootFile.extensions.attachments ??
     true;
   // System-prompt enrichment defaults ON; opt out via config or LANGSMITH_CURSOR_SYSTEM_PROMPT.
   const systemPromptEnabled =
     parseBoolean(getEnv("SYSTEM_PROMPT")) ??
-    localFile?.system_prompt ??
-    globalFile?.system_prompt ??
+    localFile.extensions.system_prompt ??
+    rootFile.extensions.system_prompt ??
+    globalFile.extensions.system_prompt ??
+    userRootFile.extensions.system_prompt ??
     true;
-  const cursorDbPath = getEnv("DB_PATH") ?? localFile?.cursor_db_path ?? globalFile?.cursor_db_path;
+  const cursorDbPath =
+    getEnv("DB_PATH") ??
+    localFile.extensions.cursor_db_path ??
+    rootFile.extensions.cursor_db_path ??
+    globalFile.extensions.cursor_db_path ??
+    userRootFile.extensions.cursor_db_path;
 
-  const redact = parseBoolean(getEnv("REDACT")) ?? localFile?.redact ?? globalFile?.redact ?? true;
-  const redactExtraRules = parseRedactExtraRules(getEnv("REDACT_EXTRA"));
+  const redactExtraRules =
+    parseRedactExtraRules(getEnv("REDACT_EXTRA")) ?? common.redact_extra_rules;
 
   const stateFilePath =
     process.env.LANGSMITH_CURSOR_STATE_FILE ?? join(homedir(), ".cursor", "langsmith-state.json");
@@ -284,8 +360,8 @@ export function loadConfig(options?: { cwd?: string }): Config {
   // user_id is not exposed by Cursor's hooks; user_email is added per-turn in buildTurnRuns.
   baseMetadata.local_username = userInfo().username;
 
-  const fileMetadata = { ...globalFile?.metadata, ...localFile?.metadata };
-  const customMetadata = { ...baseMetadata, ...fileMetadata, ...envMetadata };
+  // All file/environment metadata stays user-supplied, never builder-trusted provenance.
+  const customMetadata = { ...baseMetadata, ...common.metadata };
 
   if (enabled && !apiKey && (!replicas || replicas.length === 0)) {
     logDebug("Config enabled but no API key / replicas resolved");
@@ -293,6 +369,7 @@ export function loadConfig(options?: { cwd?: string }): Config {
 
   return {
     enabled,
+    defaultMuted,
     apiKey,
     apiUrl,
     project,

@@ -17,14 +17,177 @@ function readStdin() {
   });
 }
 
+// dist/shared-config.js
+import { lstatSync, readFileSync, statSync } from "node:fs";
+var COMMON_BOOLEAN_SETTINGS = {
+  enabled: { default: false, restrictive: false },
+  defaultMuted: { default: false, restrictive: true }
+};
+function object(value) {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+function invalid(raw) {
+  return {
+    status: "invalid",
+    common: { enabled: false, defaultMuted: true },
+    ...raw === void 0 ? {} : { raw },
+    diagnostics: [
+      "Invalid or unreadable common config; ordinary fields discarded, privacy switches restricted."
+    ]
+  };
+}
+function parseReplica(value) {
+  if (!object(value))
+    return void 0;
+  const replica = {};
+  for (const [canonical, alias] of [
+    ["api_url", "apiUrl"],
+    ["api_key", "apiKey"],
+    ["project", "projectName"]
+  ]) {
+    const selected = Object.hasOwn(value, canonical) ? canonical : alias;
+    if (Object.hasOwn(value, selected)) {
+      const entry = value[selected];
+      if (typeof entry !== "string")
+        return void 0;
+      replica[canonical] = entry;
+    }
+  }
+  if (Object.hasOwn(value, "updates")) {
+    if (!object(value.updates))
+      return void 0;
+    replica.updates = value.updates;
+  }
+  return replica;
+}
+function parseCommonConfig(value) {
+  if (!object(value))
+    return invalid();
+  const common = {};
+  const diagnostics = [];
+  for (const field of ["enabled", "defaultMuted"]) {
+    if (!Object.hasOwn(value, field))
+      continue;
+    const entry = value[field];
+    common[field] = typeof entry === "boolean" ? entry : COMMON_BOOLEAN_SETTINGS[field].restrictive;
+    if (typeof entry !== "boolean")
+      diagnostics.push(`Invalid ${field}; using restrictive value.`);
+  }
+  for (const field of ["api_key", "api_url", "project"]) {
+    if (!Object.hasOwn(value, field))
+      continue;
+    if (typeof value[field] !== "string")
+      return invalid(value);
+    common[field] = value[field];
+  }
+  if (Object.hasOwn(value, "redact")) {
+    if (typeof value.redact !== "boolean")
+      return invalid(value);
+    common.redact = value.redact;
+  }
+  if (Object.hasOwn(value, "metadata")) {
+    if (!object(value.metadata))
+      return invalid(value);
+    common.metadata = value.metadata;
+  }
+  if (Object.hasOwn(value, "replicas")) {
+    if (!Array.isArray(value.replicas))
+      return invalid(value);
+    const replicas = [];
+    for (const entry of value.replicas) {
+      const replica = parseReplica(entry);
+      if (replica === void 0)
+        return invalid(value);
+      replicas.push(replica);
+    }
+    common.replicas = replicas;
+  }
+  if (Object.hasOwn(value, "redact_extra_rules")) {
+    if (!Array.isArray(value.redact_extra_rules))
+      return invalid(value);
+    const rules = [];
+    for (const rule of value.redact_extra_rules) {
+      if (!object(rule) || typeof rule.pattern !== "string" || !Object.hasOwn(rule, "pattern")) {
+        return invalid(value);
+      }
+      const hasReplace = Object.hasOwn(rule, "replace");
+      if (hasReplace && typeof rule.replace !== "string")
+        return invalid(value);
+      try {
+        new RegExp(rule.pattern, "g");
+      } catch {
+        return invalid(value);
+      }
+      rules.push({
+        pattern: rule.pattern,
+        ...hasReplace ? { replace: rule.replace } : {}
+      });
+    }
+    common.redact_extra_rules = rules;
+  }
+  return { status: "valid", common, raw: value, diagnostics };
+}
+function readCommonConfigFile(path) {
+  try {
+    if (!statSync(path).isFile())
+      return invalid();
+  } catch (error2) {
+    if (error2.code === "ENOENT") {
+      try {
+        lstatSync(path);
+      } catch (lstatError) {
+        if (lstatError.code === "ENOENT") {
+          return { status: "absent", common: {}, diagnostics: [] };
+        }
+      }
+    }
+    return invalid();
+  }
+  try {
+    return parseCommonConfig(JSON.parse(readFileSync(path, "utf8")));
+  } catch {
+    return invalid();
+  }
+}
+function resolveField(sources, field) {
+  return sources.find((source) => source[field] !== void 0)?.[field];
+}
+function mergeCommonConfig(sources, options = {}) {
+  const { harness = {}, root = {}, user = {}, userRoot = {}, env = {}, defaults = {} } = sources;
+  const files = [harness, root, user, userRoot];
+  const precedence = [env, ...files, defaults];
+  const switches = options.envFirst ? precedence : [...files, env, defaults];
+  const merged = { enabled: false, defaultMuted: false, redact: true };
+  for (const field of ["enabled", "defaultMuted"]) {
+    merged[field] = resolveField(switches, field) ?? COMMON_BOOLEAN_SETTINGS[field].default;
+  }
+  merged.api_key = resolveField(precedence, "api_key");
+  merged.api_url = resolveField(precedence, "api_url");
+  merged.project = resolveField(precedence, "project");
+  merged.replicas = resolveField(precedence, "replicas");
+  merged.redact = resolveField(precedence, "redact") ?? true;
+  merged.redact_extra_rules = resolveField(precedence, "redact_extra_rules");
+  if (precedence.some((source) => source.metadata !== void 0)) {
+    merged.metadata = [...precedence].reverse().reduce((metadata, source) => ({ ...metadata, ...source.metadata }), {});
+  }
+  return merged;
+}
+function toSdkReplicas(replicas) {
+  return replicas?.map((replica) => ({
+    ...replica.api_url === void 0 ? {} : { apiUrl: replica.api_url },
+    ...replica.api_key === void 0 ? {} : { apiKey: replica.api_key },
+    ...replica.project === void 0 ? {} : { projectName: replica.project },
+    ...replica.updates === void 0 ? {} : { updates: replica.updates }
+  }));
+}
+
 // dist/config.js
-import { readFileSync } from "node:fs";
 import { userInfo } from "node:os";
 import { join } from "node:path";
 import { execSync } from "node:child_process";
 
 // dist/logger.js
-import { appendFileSync, mkdirSync, statSync, renameSync } from "node:fs";
+import { appendFileSync, mkdirSync, statSync as statSync2, renameSync } from "node:fs";
 import { dirname } from "node:path";
 import { homedir } from "node:os";
 var MAX_LOG_BYTES = 5 * 1024 * 1024;
@@ -36,7 +199,7 @@ function initLogger(debug2) {
 }
 function rotateIfNeeded() {
   try {
-    if (statSync(LOG_FILE).size >= MAX_LOG_BYTES) {
+    if (statSync2(LOG_FILE).size >= MAX_LOG_BYTES) {
       renameSync(LOG_FILE, `${LOG_FILE}.1`);
     }
   } catch {
@@ -115,32 +278,75 @@ function parseRedactExtraRules(value) {
   const valid = [];
   for (const rule of parsed) {
     if (!isRedactRule(rule)) {
-      error(`Skipping invalid LANGSMITH_CURSOR_REDACT_EXTRA rule: ${JSON.stringify(rule)}`);
+      error("Skipping invalid LANGSMITH_CURSOR_REDACT_EXTRA rule.");
       continue;
     }
     valid.push(rule);
   }
-  return valid.length > 0 ? valid : void 0;
+  return parsed.length === 0 || valid.length > 0 ? valid : void 0;
 }
 function readConfigFile(file) {
-  try {
-    return JSON.parse(readFileSync(file, "utf-8"));
-  } catch {
-    return void 0;
+  const result = readCommonConfigFile(file);
+  for (const diagnostic of result.diagnostics)
+    error(diagnostic);
+  const extensions = {};
+  const raw = result.raw;
+  if (raw) {
+    for (const field of ["attachments", "system_prompt"]) {
+      if (!Object.hasOwn(raw, field))
+        continue;
+      if (typeof raw[field] === "boolean")
+        extensions[field] = raw[field];
+      else
+        error(`Invalid Cursor config extension ${field}; ignoring field.`);
+    }
+    if (Object.hasOwn(raw, "cursor_db_path")) {
+      if (typeof raw.cursor_db_path === "string")
+        extensions.cursor_db_path = raw.cursor_db_path;
+      else
+        error("Invalid Cursor config extension cursor_db_path; ignoring field.");
+    }
   }
+  return { common: result.common, extensions };
+}
+function parseStrictBoolean(value) {
+  if (value.toLowerCase() === "true")
+    return true;
+  if (value.toLowerCase() === "false")
+    return false;
+  return void 0;
+}
+var BOOLEAN_SETTINGS = {
+  enabled: {
+    env: "TRACE_TO_LANGSMITH",
+    parse: parseBoolean,
+    ...COMMON_BOOLEAN_SETTINGS.enabled
+  },
+  defaultMuted: {
+    env: "LANGSMITH_CURSOR_DEFAULT_MUTED",
+    parse: parseStrictBoolean,
+    ...COMMON_BOOLEAN_SETTINGS.defaultMuted
+  }
+};
+function envBoolean(field) {
+  const setting = BOOLEAN_SETTINGS[field];
+  const env = process.env[setting.env];
+  if (env === void 0)
+    return void 0;
+  return setting.parse(env) ?? setting.restrictive;
 }
 function getEnv(suffix) {
   return process.env[`LANGSMITH_CURSOR_${suffix}`] ?? process.env[`LANGSMITH_${suffix}`];
 }
 function normalizeReplicas(replicas) {
-  if (!Array.isArray(replicas))
+  if (!Array.isArray(replicas) || replicas.some((r) => !r || typeof r !== "object"))
     return void 0;
-  return replicas.map((r) => ({
+  return replicas.map((r) => Array.isArray(r) ? r : {
     ...r.api_url || r.apiUrl ? { apiUrl: r.api_url ?? r.apiUrl } : {},
     ...r.api_key || r.apiKey ? { apiKey: r.api_key ?? r.apiKey } : {},
     ...r.project || r.projectName ? { projectName: r.project ?? r.projectName } : {},
     ...r.updates ? { updates: r.updates } : {}
-  }));
+  });
 }
 var GIT_PROVIDERS_REGEX = {
   github: /[@/](?:github\.com)[:/](.+?)(?:\.git)?\s/,
@@ -214,23 +420,39 @@ function getGitInfo(cwd) {
 }
 function loadConfig(options) {
   const cwd = options?.cwd ?? process.env.CURSOR_PROJECT_DIR ?? process.cwd();
+  const userRootFile = readConfigFile(join(homedir2(), ".langsmith-plugins.json"));
   const globalFile = readConfigFile(join(homedir2(), ".cursor", "langsmith.json"));
+  const rootFile = readConfigFile(join(cwd, "langsmith-plugins.json"));
   const localFile = readConfigFile(join(cwd, ".cursor", "langsmith.json"));
-  const envEnabled = parseBoolean(process.env.TRACE_TO_LANGSMITH);
   const envMetadata = parseJson(getEnv("METADATA"));
   const envReplicas = parseJson(getEnv("RUNS_ENDPOINTS"));
   const envDebug = parseBoolean(getEnv("DEBUG"));
-  const enabled = envEnabled ?? localFile?.enabled ?? globalFile?.enabled ?? false;
-  const apiKey = getEnv("API_KEY") ?? localFile?.api_key ?? globalFile?.api_key ?? "";
-  const apiUrl = getEnv("ENDPOINT") ?? localFile?.api_url ?? globalFile?.api_url ?? DEFAULT_API_URL;
-  const project = getEnv("PROJECT") ?? localFile?.project ?? globalFile?.project ?? DEFAULT_PROJECT;
+  const common = mergeCommonConfig({
+    harness: localFile.common,
+    root: rootFile.common,
+    user: globalFile.common,
+    userRoot: userRootFile.common,
+    env: {
+      enabled: envBoolean("enabled"),
+      defaultMuted: envBoolean("defaultMuted"),
+      api_key: getEnv("API_KEY"),
+      api_url: getEnv("ENDPOINT"),
+      project: getEnv("PROJECT"),
+      metadata: envMetadata,
+      redact: parseBoolean(getEnv("REDACT"))
+    },
+    defaults: { api_key: "", api_url: DEFAULT_API_URL, project: DEFAULT_PROJECT }
+  }, { envFirst: true });
+  const { enabled, defaultMuted, redact } = common;
+  const apiKey = common.api_key;
+  const apiUrl = common.api_url;
+  const project = common.project;
   const debug2 = envDebug ?? false;
-  const replicas = normalizeReplicas(envReplicas ?? localFile?.replicas ?? globalFile?.replicas);
-  const attachmentsEnabled = parseBoolean(getEnv("ATTACHMENTS")) ?? localFile?.attachments ?? globalFile?.attachments ?? true;
-  const systemPromptEnabled = parseBoolean(getEnv("SYSTEM_PROMPT")) ?? localFile?.system_prompt ?? globalFile?.system_prompt ?? true;
-  const cursorDbPath = getEnv("DB_PATH") ?? localFile?.cursor_db_path ?? globalFile?.cursor_db_path;
-  const redact = parseBoolean(getEnv("REDACT")) ?? localFile?.redact ?? globalFile?.redact ?? true;
-  const redactExtraRules = parseRedactExtraRules(getEnv("REDACT_EXTRA"));
+  const replicas = normalizeReplicas(envReplicas) ?? toSdkReplicas(common.replicas);
+  const attachmentsEnabled = parseBoolean(getEnv("ATTACHMENTS")) ?? localFile.extensions.attachments ?? rootFile.extensions.attachments ?? globalFile.extensions.attachments ?? userRootFile.extensions.attachments ?? true;
+  const systemPromptEnabled = parseBoolean(getEnv("SYSTEM_PROMPT")) ?? localFile.extensions.system_prompt ?? rootFile.extensions.system_prompt ?? globalFile.extensions.system_prompt ?? userRootFile.extensions.system_prompt ?? true;
+  const cursorDbPath = getEnv("DB_PATH") ?? localFile.extensions.cursor_db_path ?? rootFile.extensions.cursor_db_path ?? globalFile.extensions.cursor_db_path ?? userRootFile.extensions.cursor_db_path;
+  const redactExtraRules = parseRedactExtraRules(getEnv("REDACT_EXTRA")) ?? common.redact_extra_rules;
   const stateFilePath = process.env.LANGSMITH_CURSOR_STATE_FILE ?? join(homedir2(), ".cursor", "langsmith-state.json");
   const baseMetadata = { cwd };
   if (LS_INTEGRATION_VERSION)
@@ -249,13 +471,13 @@ function loadConfig(options) {
   if (git.commit)
     baseMetadata.git_commit_sha = git.commit;
   baseMetadata.local_username = userInfo().username;
-  const fileMetadata = { ...globalFile?.metadata, ...localFile?.metadata };
-  const customMetadata = { ...baseMetadata, ...fileMetadata, ...envMetadata };
+  const customMetadata = { ...baseMetadata, ...common.metadata };
   if (enabled && !apiKey && (!replicas || replicas.length === 0)) {
     debug("Config enabled but no API key / replicas resolved");
   }
   return {
     enabled,
+    defaultMuted,
     apiKey,
     apiUrl,
     project,
@@ -402,7 +624,7 @@ function reduceBeforeSubmitPrompt(state, input, nowMs, mode = "full") {
 
 // dist/tracing-policy.js
 import { randomUUID as randomUUID2 } from "node:crypto";
-import { lstatSync, readFileSync as readFileSync3 } from "node:fs";
+import { lstatSync as lstatSync2, readFileSync as readFileSync3 } from "node:fs";
 import { mkdir, open, rename, rmdir, unlink } from "node:fs/promises";
 import { dirname as dirname3 } from "node:path";
 import { performance as performance2 } from "node:perf_hooks";
@@ -421,13 +643,13 @@ function hasCode(error2, code) {
 function readPolicy(path) {
   let raw;
   try {
-    if (!lstatSync(path).isFile())
+    if (!lstatSync2(path).isFile())
       throw new Error("Tracing preferences must be a regular, non-symlink file");
     raw = readFileSync3(path, "utf8");
   } catch (error2) {
     if (hasCode(error2, "ENOENT")) {
       try {
-        lstatSync(path);
+        lstatSync2(path);
       } catch (statError) {
         if (hasCode(statError, "ENOENT"))
           return { threads: {} };
@@ -445,12 +667,12 @@ function readPolicy(path) {
 function tracingPolicyPath() {
   return process.env.LANGSMITH_CURSOR_PRIVACY_FILE ?? join2(homedir3(), ".cursor", "langsmith-state.privacy.json");
 }
-function getThreadTracingMode(path, sessionId) {
+function getThreadTracingMode(path, sessionId, defaultMuted = false) {
   try {
     const policy = readPolicy(path);
     if (Object.hasOwn(policy.threads, sessionId))
       return policy.threads[sessionId];
-    return "full";
+    return defaultMuted ? "metadata" : "full";
   } catch {
     return "metadata";
   }
@@ -547,7 +769,7 @@ async function handlePromptSubmit(input) {
       };
     }
     const enabled = config.enabled && !!(config.apiKey || config.replicas?.length);
-    await atomicUpdateState(config.stateFilePath, (s) => reduceBeforeSubmitPrompt(s, input, Date.now(), enabled ? getThreadTracingMode(tracingPolicyPath(), input.conversation_id) : "off"));
+    await atomicUpdateState(config.stateFilePath, (s) => reduceBeforeSubmitPrompt(s, input, Date.now(), enabled ? getThreadTracingMode(tracingPolicyPath(), input.conversation_id, config.defaultMuted) : "off"));
     return { continue: true };
   } catch (error2) {
     return {
