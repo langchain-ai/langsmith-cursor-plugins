@@ -302,7 +302,7 @@ describe.each(transports)("real SDK privacy over %s", (selectedTransport) => {
       await run.postRun();
       await flush();
       run.end_time = Date.parse("2025-01-01T00:00:01Z");
-      await run.patchRun();
+      await run.patchRun({ excludeInputs: false });
       await flush();
       const operations = expectTransport(2);
       expect(operations.map(({ action }) => action)).toEqual(["post", "patch"]);
@@ -399,7 +399,7 @@ describe.each(transports)("real SDK privacy over %s", (selectedTransport) => {
     await createRunTree(
       { ...initial, end_time: "2025-01-01T00:00:01Z", error: `${FORBIDDEN}_failure` },
       "metadata",
-    ).patchRun();
+    ).patchRun({ excludeInputs: false });
     await flush();
     const operations = expectTransport(2);
     expect(operations.map(({ action }) => action)).toEqual(["post", "patch"]);
@@ -441,7 +441,7 @@ describe.each(transports)("real SDK privacy over %s", (selectedTransport) => {
       await createRunTree(
         config(client, i === 2 ? "completed" : "error", ids[i]),
         modes[i],
-      ).patchRun();
+      ).patchRun({ excludeInputs: false });
     }
     await flush();
     const operations = expectTransport(transport === "non-batched" ? 6 : 2);
@@ -508,7 +508,7 @@ describe.each(transports)("real SDK privacy over %s", (selectedTransport) => {
       await createRunTree(
         { ...config(primary, "error", initial.id), replicas },
         "metadata",
-      ).patchRun();
+      ).patchRun({ excludeInputs: false });
       await flush();
       const operations = expectTransport(2);
       expect(operations.map(({ action }) => action)).toEqual(["post", "patch"]);
@@ -532,7 +532,9 @@ describe.each(["json-batch", "multipart"] as const)(
       const client = makeClient();
       const initial = config(client);
       await createRunTree(initial, "metadata").postRun();
-      await createRunTree(config(client, "completed", initial.id), "metadata").patchRun();
+      await createRunTree(config(client, "completed", initial.id), "metadata").patchRun({
+        excludeInputs: false,
+      });
       await flush();
       const operations = expectTransport(1);
       expect(operations).toHaveLength(1);
@@ -562,7 +564,7 @@ describe("environment and shared SDK clients", () => {
     await createRunTree(
       { ...initial, ...config(undefined, "completed", initial.id) },
       "metadata",
-    ).patchRun();
+    ).patchRun({ excludeInputs: false });
     await flush();
     const operations = expectTransport(2);
     expect(operations.map(({ action }) => action)).toEqual(["post", "patch"]);
@@ -604,7 +606,7 @@ describe("environment and shared SDK clients", () => {
       await createRunTree(
         { ...config(client, "error", initial.id), replicas },
         "metadata",
-      ).patchRun();
+      ).patchRun({ excludeInputs: false });
       await flush();
       const operations = expectTransport(2);
       expect(operations.map(({ action }) => action)).toEqual(["post", "patch"]);
@@ -652,7 +654,7 @@ describe.each(transports)("Cursor child boundary over %s", (selectedTransport) =
     root.outputs = { private: FORBIDDEN };
     root.error = FORBIDDEN;
     root.end_time = Date.parse("2025-01-01T00:00:02Z");
-    await root.patchRun();
+    await root.patchRun({ excludeInputs: false });
     await flush();
     const operations = requests.flatMap((r) => r.operations);
     expect(operations).toHaveLength(3);
