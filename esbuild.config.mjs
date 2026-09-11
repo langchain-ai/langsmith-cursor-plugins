@@ -15,6 +15,7 @@ const entryPoints = [
   "dist/hooks/stop.js",
   "dist/hooks/session-start.js",
   "dist/hooks/guard.js",
+  "dist/hooks/report-old-node.js",
 ];
 
 await build({
