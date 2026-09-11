@@ -120,6 +120,15 @@ if (nodeTooOld(process.versions.node)) {
   console.error(msg);
   if (hookName === "before-submit-prompt") {
     console.log(JSON.stringify({ continue: false, user_message: msg }));
+    try {
+      const reporter = await import(new URL("./report-old-node.js", import.meta.url).href);
+      await reporter.reportOldNode({
+        message: msg,
+        version: process.versions.node,
+        execPath: process.execPath
+      });
+    } catch {
+    }
   }
   process.exit(0);
 }

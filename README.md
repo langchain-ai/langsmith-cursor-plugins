@@ -238,6 +238,8 @@ The hooks run through a small version guard that fails loudly instead of silentl
 
 The path in that message is the exact node the guard ultimately used. To fix it, configure Node ≥ 22.13 in your login shell's startup files. If those files cannot be used non-manually, install Node ≥ 22.13 in a GUI-visible location or launch Cursor from a terminal (`cursor .`) so it inherits your shell environment.
 
+When tracing is enabled and credentials are configured, the guard also posts that message to your LangSmith project as a `Cursor Tracing Unavailable` error run. Only the prompt hook reports, so you get one run per blocked prompt and not one per hook. It carries the Node version and the node path, but no prompt or response content.
+
 Tail the log to confirm activity: `tail -f ~/.cursor/langsmith-hook.log`.
 
 ## Known limitations

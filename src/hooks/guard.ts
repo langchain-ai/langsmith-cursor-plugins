@@ -103,10 +103,26 @@ if (nodeTooOld(process.versions.node)) {
     // best effort — logging must not itself throw
   }
   console.error(msg);
-  // Exit 0: a non-zero exit would make Cursor surface a hook failure every turn.
+  // Only the prompt hook blocks and reports. It runs once at the start of a
+  // turn, so the turn's other seven hooks can't turn one failure into eight
+  // traces. The reporter is imported dynamically, so the LangSmith SDK is not
+  // bundled into this file and parsed on every hook run.
   if (hookName === "before-submit-prompt") {
     console.log(JSON.stringify({ continue: false, user_message: msg }));
+    try {
+      const reporter = (await import(
+        new URL("./report-old-node.js", import.meta.url).href
+      )) as typeof import("./report-old-node.js");
+      await reporter.reportOldNode({
+        message: msg,
+        version: process.versions.node,
+        execPath: process.execPath,
+      });
+    } catch {
+      // Best effort: the local log and stderr message are the guarantee.
+    }
   }
+  // Exit 0: a non-zero exit would make Cursor surface a hook failure every turn.
   process.exit(0);
 }
 
