@@ -826,6 +826,7 @@ function debug(message) {
 
 // dist/constants.js
 var TURN_RUN_NAME = "Cursor Turn";
+var SKILL_RUN_NAME = "Skill";
 var DEFAULT_TAGS = ["cursor", "coding-agent"];
 var DEFAULT_PROJECT = "cursor";
 
@@ -14956,12 +14957,45 @@ async function postToolRun(tool, parent, ctx, clearSubagent = false) {
         // run name == native tool name, so ls_tool_name is omitted; tool_name kept as alias.
         toolName: tool.name,
         runName: tool.name,
-        skillName: skillNameFromTool(tool.name, tool.input),
         runSpecific: {
           tool_name: tool.name,
           tool_use_id: tool.tool_use_id,
           ...tool.failure_type ? { failure_type: tool.failure_type } : {}
         }
+      })
+    }
+  });
+  await run.postRun();
+  const skillName = skillNameFromTool(tool.name, tool.input);
+  if (skillName) {
+    await postSkillRun(parent, ctx, clearSubagent, {
+      skillName,
+      // A failure hook with no message leaves `error` unset, so `isError` alone would miss it.
+      success: tool.error == null && tool.failure_type == null,
+      startMs,
+      endMs: tool.endMs
+    });
+  }
+}
+async function postSkillRun(parent, ctx, clearSubagent, opts) {
+  const run = parent.createChild({
+    name: SKILL_RUN_NAME,
+    run_type: "tool",
+    // Wrapped like every tool run, so the fields sit where Claude Code's Skill tool puts them.
+    inputs: { input: { skill: opts.skillName } },
+    outputs: { output: { commandName: opts.skillName, success: opts.success } },
+    start_time: opts.startMs,
+    end_time: opts.endMs,
+    extra: {
+      metadata: codingAgentMetadata({
+        ...ctx,
+        clearSubagent,
+        // Claude Code's native Skill tool; equal names keep ls_tool_name off.
+        toolName: SKILL_RUN_NAME,
+        runName: SKILL_RUN_NAME,
+        skillName: opts.skillName,
+        // No tool_use_id: Cursor issued no such call.
+        runSpecific: { tool_name: SKILL_RUN_NAME }
       })
     }
   });
