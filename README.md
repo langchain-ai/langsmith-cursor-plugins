@@ -222,7 +222,7 @@ Every run carries the shared [`coding-agent-v1`](https://github.com/langchain-ai
 
 **Present where known** (every run): `ls_integration_version` (plugin version, build-time injected), `ls_agent_runtime_version` (Cursor's `cursor_version`), `turn_id` (= `generation_id`), `turn_number`, `repository_url` / `repository_provider` / `repository_name`, `git_branch`, `git_commit_sha`, `cwd`.
 
-**Contextual:** `local_username`, `user_email` (provisional). On **subagent** runs only: `ls_subagent_id`, `ls_subagent_type`. On **tool** runs only: `ls_tool_name` (emitted only when the run name differs from the native tool name). `ls_provider` / `ls_model_name` / `ls_invocation_params` / `usage_metadata` remain on model/tool runs as before.
+**Contextual:** `local_username`, `user_email` (provisional). On **subagent** runs only: `ls_subagent_id`, `ls_subagent_type`. On **tool** runs only: `ls_tool_name` (emitted only when the run name differs from the native tool name), `ls_skill_name` (the skill directory of a `skills/…/<name>/SKILL.md` read, so per-skill usage is queryable in run stats — Cursor has no Skill tool, so this is a heuristic that also tags reads of a `SKILL.md` made for any other reason). `ls_provider` / `ls_model_name` / `ls_invocation_params` / `usage_metadata` remain on model/tool runs as before.
 
 `user_id`, `sandbox_type`, and `approval_policy` are omitted — Cursor's hooks expose no stable source for them.
 
