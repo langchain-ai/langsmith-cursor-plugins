@@ -156,15 +156,18 @@ describe("skillNameFromTool", () => {
 });
 
 describe("the Skill run", () => {
+  /** Traces the first turn of a capture. Every case here needs the whole run tree. */
+  const replay = (capture: string) => tracedRuns(replayHookLog(capture).finalized[0]);
+  const named = (runs: Run[], name: string) => runs.filter((r) => r.name === name);
+
   it("stands beside the read that loaded it, once per skill read", async () => {
-    const { finalized } = replayHookLog(SKILL_CAPTURE);
-    const runs = await tracedRuns(finalized[0]);
+    const runs = await replay(SKILL_CAPTURE);
     const root = runs.find((r) => !r.parent_run_id)!;
-    const skillRuns = runs.filter((r) => r.name === "Skill");
+    const skillRuns = named(runs, "Skill");
 
     // The glob and the ordinary read are decoys, and both trace.
-    expect(runs.some((r) => r.name === "glob_file_search")).toBe(true);
-    expect(runs.filter((r) => r.name === "read_file_v2")).toHaveLength(3);
+    expect(named(runs, "glob_file_search")).toHaveLength(1);
+    expect(named(runs, "read_file_v2")).toHaveLength(3);
     // Two reads of one skill are two invocations; Claude Code does not dedup either.
     expect(skillRuns).toHaveLength(2);
     for (const run of skillRuns) {
@@ -177,61 +180,61 @@ describe("the Skill run", () => {
     }
   });
 
-  it("spans the same window as the read, so it sorts beside it", async () => {
+  it("spans the same window as its read", async () => {
     // start_time feeds dotted_order, so a wrong one parks the run at the front of the trace.
-    const { finalized } = replayHookLog(SKILL_CAPTURE);
-    const runs = await tracedRuns(finalized[0]);
+    const runs = await replay(SKILL_CAPTURE);
     // The SDK disambiguates equal timestamps by microsecond, so compare in ms.
     const ms = (t: unknown) => (typeof t === "number" ? t : Date.parse(t as string));
     const window = (r: Run) => [ms(r.start_time), ms(r.end_time)];
     const byStart = (a: Run, b: Run) => ms(a.start_time) - ms(b.start_time);
-    const skillReads = runs
-      .filter((r) => r.name === "read_file_v2" && meta(r).tool_use_id !== "toolu_read_source")
+    const skillReads = named(runs, "read_file_v2")
+      .filter((r) => meta(r).tool_use_id !== "toolu_read_source")
       .sort(byStart);
-    const skillRuns = runs.filter((r) => r.name === "Skill").sort(byStart);
+    const skillRuns = named(runs, "Skill").sort(byStart);
 
     expect(skillRuns).toHaveLength(2);
     expect(skillRuns.map(window)).toEqual(skillReads.map(window));
   });
 
-  it("hangs off the subagent run, with the subagent keys cleared", async () => {
-    const { finalized } = replayHookLog(SUBAGENT_SKILL_CAPTURE);
-    const runs = await tracedRuns(finalized[0]);
-    const subagentRun = runs.find((r) => r.name === "explore Subagent")!;
-    const skillRuns = runs.filter((r) => r.name === "Skill");
+  it("hangs off the subagent run when the read happened there", async () => {
+    const runs = await replay(SUBAGENT_SKILL_CAPTURE);
+    const skillRuns = named(runs, "Skill");
 
     // One skill read and one ordinary read, both inside the subagent.
-    expect(runs.filter((r) => r.name === "read_file_v2")).toHaveLength(2);
+    expect(named(runs, "read_file_v2")).toHaveLength(2);
     expect(skillRuns).toHaveLength(1);
     // Sibling of the read wherever the read lives, which here is the subagent.
-    expect(skillRuns[0].parent_run_id).toBe(subagentRun.id);
+    expect(skillRuns[0].parent_run_id).toBe(named(runs, "explore Subagent")[0].id);
     expect(meta(skillRuns[0]).ls_skill_name).toBe("code-insights");
+  });
+
+  it("carries no subagent identity of its own", async () => {
+    const runs = await replay(SUBAGENT_SKILL_CAPTURE);
+    const skillMeta = JSON.parse(JSON.stringify(meta(named(runs, "Skill")[0])));
     // Subagent identity belongs to the subagent run alone.
-    expect(meta(subagentRun).ls_subagent_id).toBeDefined();
-    expect(JSON.parse(JSON.stringify(meta(skillRuns[0])))).not.toHaveProperty("ls_subagent_id");
-    expect(JSON.parse(JSON.stringify(meta(skillRuns[0])))).not.toHaveProperty("ls_subagent_type");
+    expect(meta(named(runs, "explore Subagent")[0]).ls_subagent_id).toBeDefined();
+    expect(skillMeta).not.toHaveProperty("ls_subagent_id");
+    expect(skillMeta).not.toHaveProperty("ls_subagent_type");
   });
 
   it("is the only run carrying ls_skill_name", async () => {
-    const { finalized } = replayHookLog(SKILL_CAPTURE);
-    const runs = await tracedRuns(finalized[0]);
+    const runs = await replay(SKILL_CAPTURE);
     expect(
       runs.filter((r) => meta(r).ls_skill_name).map((r) => [r.name, meta(r).ls_skill_name]),
     ).toEqual([
       ["Skill", "code-insights"],
       ["Skill", "code-insights"],
     ]);
-    for (const read of runs.filter((r) => r.name === "read_file_v2")) {
+    for (const read of named(runs, "read_file_v2")) {
       expect(meta(read)).not.toHaveProperty("ls_skill_name");
     }
   });
 
-  it("reports success: false when the read that loaded the skill failed", async () => {
-    const { finalized } = replayHookLog(FAILED_SKILL_CAPTURE);
-    const runs = await tracedRuns(finalized[0]);
-    const skillRuns = runs.filter((r) => r.name === "Skill");
+  it("reports success: false when the read failed", async () => {
+    const runs = await replay(FAILED_SKILL_CAPTURE);
+    const skillRuns = named(runs, "Skill");
     // The reads failed, so the runs that stand for them must not claim success.
-    expect(runs.some((r) => r.name === "read_file_v2" && r.error)).toBe(true);
+    expect(named(runs, "read_file_v2").some((r) => r.error)).toBe(true);
     expect(skillRuns.map((r) => r.outputs)).toEqual([
       { output: { commandName: "code-insights", success: false } },
       // A failure hook with no message: `error` is unset, only failure_type says it failed.
@@ -242,20 +245,16 @@ describe("the Skill run", () => {
 
   it("does not inherit the turn's token counts", async () => {
     // createChild merges parent metadata down, and usage_metadata lives on the sibling llm runs.
-    const { finalized } = replayHookLog(SKILL_CAPTURE);
-    const runs = await tracedRuns(finalized[0]);
+    const runs = await replay(SKILL_CAPTURE);
     expect(runs.some((r) => meta(r).usage_metadata)).toBe(true);
-    for (const run of runs.filter((r) => r.name === "Skill")) {
-      expect(meta(run)).not.toHaveProperty("usage_metadata");
-    }
+    for (const run of named(runs, "Skill")) expect(meta(run)).not.toHaveProperty("usage_metadata");
   });
 
-  it("is absent from a capture whose reads are all ordinary files", async () => {
-    const { finalized } = replayHookLog(CAPTURE);
+  it("is absent when no read names a skill", async () => {
     const runs: Run[] = [];
-    for (const turn of finalized) runs.push(...(await tracedRuns(turn)));
-    expect(runs.some((r) => r.name === "Read")).toBe(true);
-    expect(runs.filter((r) => r.name === "Skill")).toEqual([]);
+    for (const turn of replayHookLog(CAPTURE).finalized) runs.push(...(await tracedRuns(turn)));
+    expect(named(runs, "Read").length).toBeGreaterThan(0);
+    expect(named(runs, "Skill")).toEqual([]);
     expect(runs.filter((r) => meta(r).ls_skill_name)).toEqual([]);
   });
 });
