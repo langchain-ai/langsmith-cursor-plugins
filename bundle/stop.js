@@ -13684,7 +13684,7 @@ var LS_INTEGRATION = "cursor";
 var LS_AGENT_RUNTIME = "Cursor";
 var LS_TRACE_SCHEMA_VERSION = "coding-agent-v1";
 function codingAgentMetadata(opts) {
-  const { agentType, threadId, base, turnId, turnNumber, runtimeVersion, approvalPolicy, subagentId, subagentType, clearSubagent, toolName, runName, runSpecific } = opts;
+  const { agentType, threadId, base, turnId, turnNumber, runtimeVersion, approvalPolicy, subagentId, subagentType, clearSubagent, toolName, runName, skillName, runSpecific } = opts;
   const meta = {
     // Identity & grouping — always present.
     ls_agent_purpose: LS_AGENT_PURPOSE,
@@ -13712,6 +13712,8 @@ function codingAgentMetadata(opts) {
   }
   if (toolName && runName && toolName !== runName)
     meta.ls_tool_name = toolName;
+  if (skillName)
+    meta.ls_skill_name = skillName;
   const result = { ...meta, ...runSpecific, ...base };
   Object.defineProperty(result, TRUSTED_METADATA, {
     value: {
@@ -13722,6 +13724,21 @@ function codingAgentMetadata(opts) {
     }
   });
   return result;
+}
+var READ_TOOLS = /* @__PURE__ */ new Set(["read_file_v2", "Read"]);
+var SKILL_DIR = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
+function skillNameFromTool(toolName, toolInput) {
+  if (!READ_TOOLS.has(toolName))
+    return void 0;
+  const input = toolInput;
+  const filePath = input?.path ?? input?.file_path;
+  if (typeof filePath !== "string")
+    return void 0;
+  const segments = filePath.split(/[/\\]/);
+  if (segments.pop() !== "SKILL.md")
+    return void 0;
+  const name = segments.pop() ?? "";
+  return SKILL_DIR.test(name) && segments.includes("skills") ? name : void 0;
 }
 
 // dist/privacy.js
@@ -14938,6 +14955,7 @@ async function postToolRun(tool, parent, ctx, clearSubagent = false) {
         // run name == native tool name, so ls_tool_name is omitted; tool_name kept as alias.
         toolName: tool.name,
         runName: tool.name,
+        skillName: skillNameFromTool(tool.name, tool.input),
         runSpecific: {
           tool_name: tool.name,
           tool_use_id: tool.tool_use_id,

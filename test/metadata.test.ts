@@ -1,16 +1,36 @@
 import { describe, it, expect } from "vitest";
 import { join } from "node:path";
 import type { Run } from "langsmith";
-import { codingAgentMetadata, type LSAgentType } from "../src/metadata.js";
-import { replayHookLog } from "./utils/replay.js";
+import { codingAgentMetadata, type LSAgentType, skillNameFromTool } from "../src/metadata.js";
+import { replayHookLog, type FinalizedTurn } from "./utils/replay.js";
 import { mockClient } from "./utils/mock_client.js";
 import { getAssumedTreeFromCalls } from "./utils/tree.js";
 import { initTracing, buildTurnRuns, flushPendingTraces } from "../src/langsmith.js";
 
 const CAPTURE = join(process.cwd(), "test/fixtures/cursor-hooks.jsonl");
+const SKILL_CAPTURE = join(process.cwd(), "test/fixtures/cursor-skill-read.jsonl");
 
 function meta(run: Run): Record<string, unknown> {
   return (run.extra as { metadata?: Record<string, unknown> })?.metadata ?? {};
+}
+
+/** Traces one replayed turn against a mock client and returns the runs it posted. */
+async function tracedRuns(
+  turn: FinalizedTurn,
+  extra: Partial<Parameters<typeof buildTurnRuns>[0]> = {},
+): Promise<Run[]> {
+  const { client, callSpy } = mockClient();
+  initTracing(undefined, undefined, undefined, true, undefined, client);
+  await buildTurnRuns({
+    buffer: turn.buffer,
+    conversationId: turn.conversationId,
+    turnNum: turn.turnNum,
+    project: "test",
+    ...extra,
+  });
+  await flushPendingTraces();
+  const tree = await getAssumedTreeFromCalls(callSpy.mock.calls, client);
+  return Object.values(tree.data);
 }
 
 // ─── Helper unit tests ────────────────────────────────────────────────────────
@@ -96,6 +116,105 @@ describe("codingAgentMetadata helper", () => {
   });
 });
 
+// ─── Skill detection ──────────────────────────────────────────────────────────
+
+describe("skillNameFromTool", () => {
+  it.each<[string, string, unknown, string | undefined]>([
+    [
+      "names the skill a posix SKILL.md read loaded",
+      "read_file_v2",
+      { path: "/Users/u/.cursor/skills/langster/code-insights/SKILL.md" },
+      "code-insights",
+    ],
+    [
+      "names the skill a windows SKILL.md read loaded",
+      "read_file_v2",
+      { path: "C:\\repo\\skills\\pr-creation\\SKILL.md" },
+      "pr-creation",
+    ],
+    [
+      "still reads the pre-3.20 tool and path key",
+      "Read",
+      { file_path: "/repo/.claude/skills/deploy/SKILL.md" },
+      "deploy",
+    ],
+    [
+      "ignores a glob that names SKILL.md while hunting for it",
+      "glob_file_search",
+      { globPattern: "**/code-insights/SKILL.md" },
+      undefined,
+    ],
+    [
+      "ignores a search whose args carry a skill path",
+      "Grep",
+      { pattern: "x", file_path: "/repo/skills/deploy/SKILL.md" },
+      undefined,
+    ],
+    [
+      "ignores an ordinary source read",
+      "read_file_v2",
+      { path: "/repo/src/metadata.ts" },
+      undefined,
+    ],
+    [
+      "ignores a SKILL.md outside any skills directory",
+      "read_file_v2",
+      { path: "/repo/SKILL.md" },
+      undefined,
+    ],
+    [
+      "ignores a SKILL.md with no skill directory of its own",
+      "read_file_v2",
+      { path: "/repo/skills/SKILL.md" },
+      undefined,
+    ],
+    [
+      "ignores a backup alongside a SKILL.md",
+      "read_file_v2",
+      { path: "/repo/skills/deploy/SKILL.md.bak" },
+      undefined,
+    ],
+    [
+      "ignores a traversal segment in place of the skill name",
+      "read_file_v2",
+      { path: "/repo/skills/deploy/../SKILL.md" },
+      undefined,
+    ],
+    ["ignores a non-string path", "read_file_v2", { path: 42 }, undefined],
+    ["ignores a call with no input", "read_file_v2", undefined, undefined],
+  ])("%s", (_case, toolName, toolInput, expected) => {
+    expect(skillNameFromTool(toolName, toolInput)).toBe(expected);
+  });
+
+  it("stays fast on a path crafted to make a backtracking matcher blow up", () => {
+    // CodeQL's js/polynomial-redos input. A backtracking path matcher needs
+    // seconds here; splitting needs about a millisecond.
+    const hostile = `/skills/${"/skills/!".repeat(20_000)}`;
+    const started = performance.now();
+    expect(skillNameFromTool("read_file_v2", { path: hostile })).toBeUndefined();
+    expect(performance.now() - started).toBeLessThan(100);
+  });
+});
+
+describe("ls_skill_name on the produced run tree", () => {
+  it("tags only the skill read in a turn that also globbed for SKILL.md", async () => {
+    const { finalized } = replayHookLog(SKILL_CAPTURE);
+    const runs = await tracedRuns(finalized[0]);
+    expect(runs.some((r) => r.name === "glob_file_search")).toBe(true);
+    expect(
+      runs.filter((r) => meta(r).ls_skill_name).map((r) => [r.name, meta(r).ls_skill_name]),
+    ).toEqual([["read_file_v2", "langster-code-insights"]]);
+  });
+
+  it("tags nothing in a capture whose reads are all ordinary files", async () => {
+    const { finalized } = replayHookLog(CAPTURE);
+    const runs: Run[] = [];
+    for (const turn of finalized) runs.push(...(await tracedRuns(turn)));
+    expect(runs.some((r) => r.name === "Read")).toBe(true);
+    expect(runs.filter((r) => meta(r).ls_skill_name)).toEqual([]);
+  });
+});
+
 // ─── Contract gate against a real fixture replay ──────────────────────────────
 // Mirrors validate-thread.mjs's classify + required-key/leak rules in-process.
 
@@ -116,17 +235,10 @@ function classify(run: Run): "root" | "interrupted" | "subagent" | "llm" | "tool
 
 describe("coding-agent-v1 contract on the produced run tree", () => {
   it("stamps required keys on every run type and never leaks scope-restricted keys", async () => {
-    const { client, callSpy } = mockClient();
-    initTracing(undefined, undefined, undefined, true, undefined, client);
-
     const { finalized } = replayHookLog(CAPTURE);
     const turn = finalized.find((f) => f.buffer.subagents.length > 0)!; // exercises every run type
 
-    await buildTurnRuns({
-      buffer: turn.buffer,
-      conversationId: turn.conversationId,
-      turnNum: turn.turnNum,
-      project: "test",
+    const runs = await tracedRuns(turn, {
       runtimeVersion: "3.7.19",
       userEmail: "dev@example.com",
       customMetadata: {
@@ -140,10 +252,6 @@ describe("coding-agent-v1 contract on the produced run tree", () => {
         local_username: "dev",
       },
     });
-    await flushPendingTraces();
-
-    const tree = await getAssumedTreeFromCalls(callSpy.mock.calls, client);
-    const runs = Object.values(tree.data);
     const byId = new Map(runs.map((run) => [run.id, run]));
     expect(runs.length).toBeGreaterThan(3);
 
