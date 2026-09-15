@@ -55,6 +55,9 @@ export interface CodingAgentMetadataOptions {
   /** Run `name`, used to decide whether `ls_tool_name` is needed. */
   runName?: string;
 
+  /** Skill invoked on this tool run (`ls_skill_name`). See `skillNameFromTool`. */
+  skillName?: string;
+
   /** Run-type-specific keys (ls_provider, ls_model_name, usage_metadata, …). */
   runSpecific?: Record<string, unknown>;
 }
@@ -79,6 +82,7 @@ export function codingAgentMetadata(opts: CodingAgentMetadataOptions): Record<st
     clearSubagent,
     toolName,
     runName,
+    skillName,
     runSpecific,
   } = opts;
 
@@ -114,6 +118,9 @@ export function codingAgentMetadata(opts: CodingAgentMetadataOptions): Record<st
   // Tool runs: ls_tool_name only when the native name differs from the run name.
   if (toolName && runName && toolName !== runName) meta.ls_tool_name = toolName;
 
+  // Skill usage, queryable via RunQueryStats (group_by metadata path=ls_skill_name).
+  if (skillName) meta.ls_skill_name = skillName;
+
   const result = { ...meta, ...runSpecific, ...base };
   // Never trust custom base collisions, including token counts or structural IDs.
   Object.defineProperty(result, TRUSTED_METADATA, {
@@ -125,4 +132,36 @@ export function codingAgentMetadata(opts: CodingAgentMetadataOptions): Record<st
     },
   });
   return result;
+}
+
+// ─── Skill detection ──────────────────────────────────────────────────────────
+
+/** Cursor's file-read tools. `read_file_v2` is current, `Read` the pre-3.20 spelling. */
+const READ_TOOLS = new Set(["read_file_v2", "Read"]);
+
+/** Rejects `.`, `..` and dotfiles, so a traversal segment is never read as a skill name. */
+const SKILL_DIR = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
+
+/**
+ * Skill invoked by a tool call, taken from a `skills/…/<name>/SKILL.md` read.
+ *
+ * Cursor marks invocations nowhere, so this is a heuristic: reading a SKILL.md
+ * is indistinguishable from opening that file for any other reason. Read tools
+ * only — Cursor locates a skill with several `glob_file_search` calls whose args
+ * also name SKILL.md, which would turn one invocation into many detections.
+ */
+export function skillNameFromTool(toolName: string, toolInput: unknown): string | undefined {
+  if (!READ_TOOLS.has(toolName)) return undefined;
+  // `path` is current; `file_path` is the pre-3.20 key.
+  const input = toolInput as { path?: unknown; file_path?: unknown } | null | undefined;
+  const filePath = input?.path ?? input?.file_path;
+  if (typeof filePath !== "string") return undefined;
+
+  // Split rather than match one path regex: such a regex needs an intermediate
+  // segment that can span separators, and backtracks quadratically on a hostile
+  // path (CodeQL `js/polynomial-redos`). Narrowing the segment stays quadratic.
+  const segments = filePath.split(/[/\\]/);
+  if (segments.pop() !== "SKILL.md") return undefined;
+  const name = segments.pop() ?? "";
+  return SKILL_DIR.test(name) && segments.includes("skills") ? name : undefined;
 }

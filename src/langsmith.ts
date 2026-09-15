@@ -7,7 +7,7 @@ import type { StringNodeRule } from "langsmith/anonymizer";
 import type { TurnBuffer, ToolEvent, SubagentEvent, ContentPart } from "./types.js";
 import { buildUsageMetadata, deriveModelInfo } from "./normalize.js";
 import { DEFAULT_TAGS, TURN_RUN_NAME } from "./constants.js";
-import { codingAgentMetadata, type LSAgentType } from "./metadata.js";
+import { codingAgentMetadata, type LSAgentType, skillNameFromTool } from "./metadata.js";
 import { groupSteps, type Step } from "./conversation-steps.js";
 import * as logger from "./logger.js";
 
@@ -483,6 +483,7 @@ async function postToolRun(
         // run name == native tool name, so ls_tool_name is omitted; tool_name kept as alias.
         toolName: tool.name,
         runName: tool.name,
+        skillName: skillNameFromTool(tool.name, tool.input),
         runSpecific: {
           tool_name: tool.name,
           tool_use_id: tool.tool_use_id,
