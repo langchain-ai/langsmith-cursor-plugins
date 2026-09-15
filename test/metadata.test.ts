@@ -115,8 +115,7 @@ describe("skillNameFromTool", () => {
     ["posix", "/Users/u/.cursor/skills/example-pack/code-insights/SKILL.md", "code-insights"],
     ["windows", "C:\\repo\\skills\\pr-creation\\SKILL.md", "pr-creation"],
     ["non-ascii name", "/repo/skills/日本語/SKILL.md", "日本語"],
-    // These two are redundant one at a time but not together: each alone proves
-    // the `skills` ancestor is required.
+    // Neither row can be cut alone: each on its own proves the `skills` ancestor is required.
     ["outside any skills directory", "/repo/SKILL.md", undefined],
     ["no skill directory of its own", "/repo/skills/SKILL.md", undefined],
     ["a backup beside the real one", "/repo/skills/deploy/SKILL.md.bak", undefined],

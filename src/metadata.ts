@@ -147,8 +147,7 @@ export function skillNameFromTool(toolName: string, toolInput: unknown): string 
   const filePath = input?.path ?? input?.file_path;
   if (typeof filePath !== "string") return undefined;
 
-  // Not a regex: any path regex backtracks quadratically on a hostile path
-  // (CodeQL `js/polynomial-redos`), however narrow.
+  // Not a regex: any path regex backtracks quadratically here (CodeQL `js/polynomial-redos`).
   const segments = filePath.split(/[/\\]/);
   const file = segments.pop();
   const name = segments.pop();
