@@ -55,7 +55,7 @@ export interface CodingAgentMetadataOptions {
   /** Run `name`, used to decide whether `ls_tool_name` is needed. */
   runName?: string;
 
-  /** Skill invoked on this tool run (`ls_skill_name`). See `skillNameFromTool`. */
+  /** Skill this run represents, as found by `skillNameFromTool`. */
   skillName?: string;
 
   /** Run-type-specific keys (ls_provider, ls_model_name, usage_metadata, …). */
@@ -118,7 +118,7 @@ export function codingAgentMetadata(opts: CodingAgentMetadataOptions): Record<st
   // Tool runs: ls_tool_name only when the native name differs from the run name.
   if (toolName && runName && toolName !== runName) meta.ls_tool_name = toolName;
 
-  // Skill usage; LangSmith groups runs on this key to count invocations.
+  // LangSmith groups runs on this key to count skill invocations.
   if (skillName) meta.ls_skill_name = skillName;
 
   const result = { ...meta, ...runSpecific, ...base };
@@ -136,16 +136,10 @@ export function codingAgentMetadata(opts: CodingAgentMetadataOptions): Record<st
 
 // ─── Skill detection ──────────────────────────────────────────────────────────
 
-/** Cursor's read tools. Older captures and subagent transcripts spell it Read or ReadFile. */
+/** Read tools only, so a glob or grep naming SKILL.md is not counted as an invocation. */
 const READ_TOOLS = new Set(["read_file_v2", "ReadFile", "Read"]);
 
-/**
- * Skill behind a `skills/…/<name>/SKILL.md` read, or undefined.
- *
- * A heuristic: Cursor has no Skill tool, so an invocation is indistinguishable
- * from someone opening the file. Read tools only — `glob_file_search` calls name
- * SKILL.md too, and would count one invocation many times.
- */
+/** Skill behind a `skills/…/<name>/SKILL.md` read; a heuristic, as Cursor has no Skill tool. */
 export function skillNameFromTool(toolName: string, toolInput: unknown): string | undefined {
   if (!READ_TOOLS.has(toolName)) return undefined;
   // Older captures use `file_path`.
@@ -153,8 +147,8 @@ export function skillNameFromTool(toolName: string, toolInput: unknown): string 
   const filePath = input?.path ?? input?.file_path;
   if (typeof filePath !== "string") return undefined;
 
-  // Do not fold this back into a path regex: any such regex backtracks
-  // quadratically on a hostile path (CodeQL `js/polynomial-redos`), narrowed or not.
+  // Not a regex: any path regex backtracks quadratically on a hostile path
+  // (CodeQL `js/polynomial-redos`), however narrow.
   const segments = filePath.split(/[/\\]/);
   const file = segments.pop();
   const name = segments.pop();
