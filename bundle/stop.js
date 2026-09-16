@@ -14970,7 +14970,7 @@ async function postToolRun(tool, parent, ctx, clearSubagent = false) {
   if (skillName) {
     await postSkillRun(parent, ctx, clearSubagent, {
       skillName,
-      // A failure hook with no message leaves `error` unset, so `isError` alone would miss it.
+      // A failure hook may carry no message, so failure_type is the surer signal.
       success: tool.error == null && tool.failure_type == null,
       startMs,
       endMs: tool.endMs
@@ -14981,7 +14981,7 @@ async function postSkillRun(parent, ctx, clearSubagent, opts) {
   const run = parent.createChild({
     name: SKILL_RUN_NAME,
     run_type: "tool",
-    // Wrapped like every tool run, so the fields sit where Claude Code's Skill tool puts them.
+    // The `input`/`output` wrapper puts these fields where Claude Code's are.
     inputs: { input: { skill: opts.skillName } },
     outputs: { output: { commandName: opts.skillName, success: opts.success } },
     start_time: opts.startMs,
@@ -14990,7 +14990,7 @@ async function postSkillRun(parent, ctx, clearSubagent, opts) {
       metadata: codingAgentMetadata({
         ...ctx,
         clearSubagent,
-        // Claude Code's native Skill tool; equal names keep ls_tool_name off.
+        // Equal names are what suppress `ls_tool_name`.
         toolName: SKILL_RUN_NAME,
         runName: SKILL_RUN_NAME,
         skillName: opts.skillName,

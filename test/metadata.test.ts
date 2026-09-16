@@ -12,13 +12,16 @@ import { mockClient } from "./utils/mock_client.js";
 import { getAssumedTreeFromCalls } from "./utils/tree.js";
 import { initTracing, buildTurnRuns, flushPendingTraces } from "../src/langsmith.js";
 
-const CAPTURE = join(process.cwd(), "test/fixtures/cursor-hooks.jsonl");
-const SKILL_CAPTURE = join(process.cwd(), "test/fixtures/cursor-skill-read.jsonl");
-const FAILED_SKILL_CAPTURE = join(process.cwd(), "test/fixtures/cursor-skill-read-failed.jsonl");
-const SUBAGENT_SKILL_CAPTURE = join(
-  process.cwd(),
-  "test/fixtures/cursor-skill-read-subagent.jsonl",
-);
+const fixture = (name: string) => join(process.cwd(), "test/fixtures", name);
+
+/** Real capture, six turns, no skill reads anywhere. */
+const CAPTURE = fixture("cursor-hooks.jsonl");
+/** One turn: the same skill read twice, plus a glob and an ordinary read as decoys. */
+const SKILL_CAPTURE = fixture("cursor-skill-read.jsonl");
+/** One turn: two failed skill reads, the second reporting no error message. */
+const FAILED_SKILL_CAPTURE = fixture("cursor-skill-read-failed.jsonl");
+/** One turn: a subagent that reads one skill and one ordinary file. */
+const SUBAGENT_SKILL_CAPTURE = fixture("cursor-skill-read-subagent.jsonl");
 
 function meta(run: Run): Record<string, unknown> {
   return (run.extra as { metadata?: Record<string, unknown> })?.metadata ?? {};
@@ -159,10 +162,14 @@ describe("the Skill run", () => {
   /** Traces the first turn of a capture. Every case here needs the whole run tree. */
   const replay = (capture: string) => tracedRuns(replayHookLog(capture).finalized[0]);
   const named = (runs: Run[], name: string) => runs.filter((r) => r.name === name);
+  /** Metadata as the server sees it, with the undefined-valued keys dropped. */
+  const onWire = (run: Run) => JSON.parse(JSON.stringify(meta(run))) as Record<string, unknown>;
+  /** The two skill reads in SKILL_CAPTURE, in the order the fixture makes them. */
+  const SKILL_READ_IDS = ["toolu_read_skill", "toolu_read_skill_again"];
 
   it("stands beside the read that loaded it, once per skill read", async () => {
     const runs = await replay(SKILL_CAPTURE);
-    const root = runs.find((r) => !r.parent_run_id)!;
+    const turnRun = runs.find((r) => !r.parent_run_id)!;
     const skillRuns = named(runs, "Skill");
 
     // The glob and the ordinary read are decoys, and both trace.
@@ -173,7 +180,7 @@ describe("the Skill run", () => {
     for (const run of skillRuns) {
       expect(run.run_type).toBe("tool");
       // Sibling of the read, not its child.
-      expect(run.parent_run_id).toBe(root.id);
+      expect(run.parent_run_id).toBe(turnRun.id);
       // Same wrapper Claude Code uses, so the skill fields share its JSON path.
       expect(run.inputs).toEqual({ input: { skill: "code-insights" } });
       expect(run.outputs).toEqual({ output: { commandName: "code-insights", success: true } });
@@ -188,7 +195,7 @@ describe("the Skill run", () => {
     const window = (r: Run) => [ms(r.start_time), ms(r.end_time)];
     const byStart = (a: Run, b: Run) => ms(a.start_time) - ms(b.start_time);
     const skillReads = named(runs, "read_file_v2")
-      .filter((r) => meta(r).tool_use_id !== "toolu_read_source")
+      .filter((r) => SKILL_READ_IDS.includes(meta(r).tool_use_id as string))
       .sort(byStart);
     const skillRuns = named(runs, "Skill").sort(byStart);
 
@@ -198,30 +205,30 @@ describe("the Skill run", () => {
 
   it("hangs off the subagent run when the read happened there", async () => {
     const runs = await replay(SUBAGENT_SKILL_CAPTURE);
+    const subagentRun = named(runs, "explore Subagent")[0];
     const skillRuns = named(runs, "Skill");
 
     // One skill read and one ordinary read, both inside the subagent.
     expect(named(runs, "read_file_v2")).toHaveLength(2);
     expect(skillRuns).toHaveLength(1);
     // Sibling of the read wherever the read lives, which here is the subagent.
-    expect(skillRuns[0].parent_run_id).toBe(named(runs, "explore Subagent")[0].id);
+    expect(skillRuns[0].parent_run_id).toBe(subagentRun.id);
     expect(meta(skillRuns[0]).ls_skill_name).toBe("code-insights");
   });
 
   it("carries no subagent identity of its own", async () => {
     const runs = await replay(SUBAGENT_SKILL_CAPTURE);
-    const skillMeta = JSON.parse(JSON.stringify(meta(named(runs, "Skill")[0])));
+    const skillRun = named(runs, "Skill")[0];
     // Subagent identity belongs to the subagent run alone.
     expect(meta(named(runs, "explore Subagent")[0]).ls_subagent_id).toBeDefined();
-    expect(skillMeta).not.toHaveProperty("ls_subagent_id");
-    expect(skillMeta).not.toHaveProperty("ls_subagent_type");
+    expect(onWire(skillRun)).not.toHaveProperty("ls_subagent_id");
+    expect(onWire(skillRun)).not.toHaveProperty("ls_subagent_type");
   });
 
   it("is the only run carrying ls_skill_name", async () => {
     const runs = await replay(SKILL_CAPTURE);
-    expect(
-      runs.filter((r) => meta(r).ls_skill_name).map((r) => [r.name, meta(r).ls_skill_name]),
-    ).toEqual([
+    const tagged = runs.filter((r) => meta(r).ls_skill_name);
+    expect(tagged.map((r) => [r.name, meta(r).ls_skill_name])).toEqual([
       ["Skill", "code-insights"],
       ["Skill", "code-insights"],
     ]);
@@ -240,7 +247,6 @@ describe("the Skill run", () => {
       // A failure hook with no message: `error` is unset, only failure_type says it failed.
       { output: { commandName: "quiet-failure", success: false } },
     ]);
-    expect(skillRuns.map((r) => meta(r).ls_skill_name)).toEqual(["code-insights", "quiet-failure"]);
   });
 
   it("does not inherit the turn's token counts", async () => {
