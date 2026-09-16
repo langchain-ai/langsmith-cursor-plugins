@@ -139,7 +139,7 @@ export function codingAgentMetadata(opts: CodingAgentMetadataOptions): Record<st
 /** Read tools only, so a glob or grep naming SKILL.md is not counted as an invocation. */
 const READ_TOOLS = new Set(["read_file_v2", "ReadFile", "Read"]);
 
-/** Skill behind a `skills/…/<name>/SKILL.md` read; a heuristic, as Cursor has no Skill tool. */
+/** A heuristic: Cursor has no Skill tool, so a skill read looks like any other read. */
 export function skillNameFromTool(toolName: string, toolInput: unknown): string | undefined {
   if (!READ_TOOLS.has(toolName)) return undefined;
   // Older captures use `file_path`.
@@ -153,6 +153,6 @@ export function skillNameFromTool(toolName: string, toolInput: unknown): string 
   const name = segments.pop();
   // A leading dot would let "." or ".." stand in for the skill name.
   if (file !== "SKILL.md" || !name || name.startsWith(".")) return undefined;
-  // Both pops leave `segments` holding only the directories above the skill.
+  // `segments` now holds only the directories above the skill.
   return segments.includes("skills") ? name : undefined;
 }

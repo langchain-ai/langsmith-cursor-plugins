@@ -79,7 +79,7 @@ describe("codingAgentMetadata helper", () => {
 
   it("clears the subagent keys on a child run without deleting them", () => {
     const child = withOpts({ clearSubagent: true });
-    // Present-but-undefined shadows the parent's value; an absent key would not.
+    // Present-but-undefined is what shadows the value inherited from the parent.
     expect("ls_subagent_id" in child).toBe(true);
     expect("ls_subagent_type" in child).toBe(true);
     expect(child.ls_subagent_id).toBeUndefined();
@@ -110,12 +110,12 @@ const SKILL_PATH = "/repo/skills/deploy/SKILL.md";
 describe("skillNameFromTool", () => {
   const read = (input: unknown) => skillNameFromTool("read_file_v2", input);
 
-  // The path is the whole subject, so each row is one path and what it yields.
+  // Each row is one path and the skill it yields.
   it.each<[string, string, string | undefined]>([
     ["posix", "/Users/u/.cursor/skills/example-pack/code-insights/SKILL.md", "code-insights"],
     ["windows", "C:\\repo\\skills\\pr-creation\\SKILL.md", "pr-creation"],
     ["non-ascii name", "/repo/skills/日本語/SKILL.md", "日本語"],
-    // Neither row can be cut alone: each on its own proves the `skills` ancestor is required.
+    // Neither row can be cut alone.
     ["outside any skills directory", "/repo/SKILL.md", undefined],
     ["no skill directory of its own", "/repo/skills/SKILL.md", undefined],
     ["a backup beside the real one", "/repo/skills/deploy/SKILL.md.bak", undefined],
@@ -124,7 +124,7 @@ describe("skillNameFromTool", () => {
     expect(read({ path })).toBe(expected);
   });
 
-  // Only the tool and the input key vary; every row carries the same valid path.
+  // Only the tool and the input key vary here.
   it.each<[string, string, unknown, string | undefined]>([
     ["older captures spell it Read, keyed file_path", "Read", { file_path: SKILL_PATH }, "deploy"],
     ["subagent transcripts spell it ReadFile", "ReadFile", { path: SKILL_PATH }, "deploy"],
@@ -142,7 +142,7 @@ describe("skillNameFromTool", () => {
   });
 
   it("stays fast on a path crafted to make a backtracking matcher blow up", () => {
-    // CodeQL's js/polynomial-redos input: seconds for a regex, about 1ms split.
+    // CodeQL's js/polynomial-redos input, which takes seconds against a regex.
     const hostile = `/skills/${"/skills/!".repeat(20_000)}`;
     const started = performance.now();
     expect(skillNameFromTool("read_file_v2", { path: hostile })).toBeUndefined();
@@ -154,7 +154,7 @@ describe("ls_skill_name on the produced run tree", () => {
   it("tags the skill read and neither decoy beside it", async () => {
     const { finalized } = replayHookLog(SKILL_CAPTURE);
     const runs = await tracedRuns(finalized[0]);
-    // Both decoys trace: the glob names SKILL.md, the second read is the same tool.
+    // The glob and the ordinary read are decoys, and both trace.
     expect(runs.some((r) => r.name === "glob_file_search")).toBe(true);
     expect(runs.filter((r) => r.name === "read_file_v2")).toHaveLength(2);
     expect(
