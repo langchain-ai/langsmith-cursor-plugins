@@ -1,98 +1,173 @@
 import { describe, it, expect } from "vitest";
 import { join } from "node:path";
 import type { Run } from "langsmith";
-import { codingAgentMetadata, type LSAgentType } from "../src/metadata.js";
-import { replayHookLog } from "./utils/replay.js";
+import {
+  codingAgentMetadata,
+  type CodingAgentMetadataOptions,
+  type LSAgentType,
+  skillNameFromTool,
+} from "../src/metadata.js";
+import { replayHookLog, type FinalizedTurn } from "./utils/replay.js";
 import { mockClient } from "./utils/mock_client.js";
 import { getAssumedTreeFromCalls } from "./utils/tree.js";
 import { initTracing, buildTurnRuns, flushPendingTraces } from "../src/langsmith.js";
 
 const CAPTURE = join(process.cwd(), "test/fixtures/cursor-hooks.jsonl");
+const SKILL_CAPTURE = join(process.cwd(), "test/fixtures/cursor-skill-read.jsonl");
 
 function meta(run: Run): Record<string, unknown> {
   return (run.extra as { metadata?: Record<string, unknown> })?.metadata ?? {};
 }
 
+/** Traces one replayed turn against a mock client and returns the runs it posted. */
+async function tracedRuns(
+  turn: FinalizedTurn,
+  extra: Partial<Parameters<typeof buildTurnRuns>[0]> = {},
+): Promise<Run[]> {
+  const { client, callSpy } = mockClient();
+  initTracing(undefined, undefined, undefined, true, undefined, client);
+  await buildTurnRuns({
+    buffer: turn.buffer,
+    conversationId: turn.conversationId,
+    turnNum: turn.turnNum,
+    project: "test",
+    ...extra,
+  });
+  await flushPendingTraces();
+  const tree = await getAssumedTreeFromCalls(callSpy.mock.calls, client);
+  return Object.values(tree.data);
+}
+
 // ─── Helper unit tests ────────────────────────────────────────────────────────
 
 describe("codingAgentMetadata helper", () => {
-  it("always emits the identity block with the frozen cursor literals", () => {
-    const m = codingAgentMetadata({ agentType: "root", threadId: "conv-1" });
-    expect(m.ls_agent_purpose).toBe("coding");
-    expect(m.ls_agent_type).toBe("root");
-    expect(m.ls_agent_kind).toBeUndefined();
-    expect(m.ls_integration).toBe("cursor");
-    expect(m.ls_agent_runtime).toBe("Cursor");
-    expect(m.ls_trace_schema_version).toBe("coding-agent-v1");
-    expect(m.thread_id).toBe("conv-1");
+  const bare = () => codingAgentMetadata({ agentType: "root", threadId: "conv-1" });
+  const withOpts = (opts: Partial<CodingAgentMetadataOptions>) =>
+    codingAgentMetadata({ agentType: "root", threadId: "c", ...opts });
+
+  it("stamps the frozen cursor identity block on every run", () => {
+    expect(bare()).toMatchObject({
+      ls_agent_purpose: "coding",
+      ls_agent_type: "root",
+      ls_integration: "cursor",
+      ls_agent_runtime: "Cursor",
+      ls_trace_schema_version: "coding-agent-v1",
+      thread_id: "conv-1",
+    });
+    expect(bare()).not.toHaveProperty("ls_agent_kind");
   });
 
   it.each<LSAgentType>(["root", "subagent", "middleware", "compaction"])(
     "supports the %s agent type",
     (agentType) => {
-      const m = codingAgentMetadata({ agentType, threadId: "c" });
-      expect(m.ls_agent_type).toBe(agentType);
+      expect(codingAgentMetadata({ agentType, threadId: "c" }).ls_agent_type).toBe(agentType);
     },
   );
 
-  it("emits turn + runtime version keys when known, omits when not", () => {
-    const m = codingAgentMetadata({
-      agentType: "root",
-      threadId: "c",
-      turnId: "gen-9",
-      turnNumber: 3,
-      runtimeVersion: "3.7.19",
-    });
-    expect(m.turn_id).toBe("gen-9");
-    expect(m.turn_number).toBe(3);
-    expect(m.ls_agent_runtime_version).toBe("3.7.19");
-
-    const bare = codingAgentMetadata({ agentType: "root", threadId: "c" });
-    expect("turn_id" in bare).toBe(false);
-    expect("turn_number" in bare).toBe(false);
-    expect("ls_agent_runtime_version" in bare).toBe(false);
+  it.each<[string, Partial<CodingAgentMetadataOptions>, unknown]>([
+    ["turn_id", { turnId: "gen-9" }, "gen-9"],
+    ["turn_number", { turnNumber: 3 }, 3],
+    ["ls_agent_runtime_version", { runtimeVersion: "3.7.19" }, "3.7.19"],
+    ["approval_policy", { approvalPolicy: "auto" }, "auto"],
+    ["ls_subagent_id", { subagentId: "s1" }, "s1"],
+    ["ls_subagent_type", { subagentType: "explore" }, "explore"],
+    ["ls_skill_name", { skillName: "code-insights" }, "code-insights"],
+  ])("emits %s when supplied, and omits the key when not", (key, opts, expected) => {
+    expect(withOpts(opts)[key]).toBe(expected);
+    expect(bare()).not.toHaveProperty(key);
   });
 
-  it("emits subagent identity keys, and clearSubagent nulls them out (undefined)", () => {
-    const sub = codingAgentMetadata({
-      agentType: "subagent",
-      threadId: "c",
-      subagentId: "s1",
-      subagentType: "explore",
-    });
-    expect(sub.ls_subagent_id).toBe("s1");
-    expect(sub.ls_subagent_type).toBe("explore");
-
-    const child = codingAgentMetadata({
-      agentType: "subagent",
-      threadId: "c",
-      clearSubagent: true,
-    });
-    // Present-but-undefined → dropped on JSON serialization, never reaches the server.
+  it("clears the subagent keys on a child run without deleting them", () => {
+    const child = withOpts({ clearSubagent: true });
+    // Present-but-undefined is what shadows the value inherited from the parent.
+    expect("ls_subagent_id" in child).toBe(true);
+    expect("ls_subagent_type" in child).toBe(true);
     expect(child.ls_subagent_id).toBeUndefined();
     expect(child.ls_subagent_type).toBeUndefined();
     expect(JSON.parse(JSON.stringify(child))).not.toHaveProperty("ls_subagent_id");
+    expect(JSON.parse(JSON.stringify(child))).not.toHaveProperty("ls_subagent_type");
   });
 
-  it("emits ls_tool_name only when the native tool name differs from the run name", () => {
-    expect(
-      codingAgentMetadata({ agentType: "root", threadId: "c", toolName: "Bash", runName: "Bash" })
-        .ls_tool_name,
-    ).toBeUndefined();
-    expect(
-      codingAgentMetadata({ agentType: "root", threadId: "c", toolName: "Task", runName: "Agent" })
-        .ls_tool_name,
-    ).toBe("Task");
+  it.each<[string, string, string, string | undefined]>([
+    ["omits ls_tool_name when the run name is the tool name", "Bash", "Bash", undefined],
+    ["emits ls_tool_name when they differ", "Task", "Agent", "Task"],
+  ])("%s", (_case, toolName, runName, expected) => {
+    expect(withOpts({ toolName, runName }).ls_tool_name).toBe(expected);
   });
 
-  it("lets base (user config) win on key collision", () => {
-    const m = codingAgentMetadata({
-      agentType: "root",
-      threadId: "c",
-      base: { thread_id: "override", extra: 1 },
-    });
+  it("lets base config win on a key collision", () => {
+    const m = withOpts({ base: { thread_id: "override", extra: 1 } });
     expect(m.thread_id).toBe("override");
     expect(m.extra).toBe(1);
+  });
+});
+
+// ─── Skill detection ──────────────────────────────────────────────────────────
+
+/** One valid skill read, reused wherever the path is not what a case is testing. */
+const SKILL_PATH = "/repo/skills/deploy/SKILL.md";
+
+describe("skillNameFromTool", () => {
+  const read = (input: unknown) => skillNameFromTool("read_file_v2", input);
+
+  // Each row is one path and the skill it yields.
+  it.each<[string, string, string | undefined]>([
+    ["posix", "/Users/u/.cursor/skills/example-pack/code-insights/SKILL.md", "code-insights"],
+    ["windows", "C:\\repo\\skills\\pr-creation\\SKILL.md", "pr-creation"],
+    ["non-ascii name", "/repo/skills/日本語/SKILL.md", "日本語"],
+    // Neither row can be cut alone.
+    ["outside any skills directory", "/repo/SKILL.md", undefined],
+    ["no skill directory of its own", "/repo/skills/SKILL.md", undefined],
+    ["a backup beside the real one", "/repo/skills/deploy/SKILL.md.bak", undefined],
+    ["traversal in place of the name", "/repo/skills/deploy/../SKILL.md", undefined],
+  ])("%s: %s → %s", (_case, path, expected) => {
+    expect(read({ path })).toBe(expected);
+  });
+
+  // Only the tool and the input key vary here.
+  it.each<[string, string, unknown, string | undefined]>([
+    ["older captures spell it Read, keyed file_path", "Read", { file_path: SKILL_PATH }, "deploy"],
+    ["subagent transcripts spell it ReadFile", "ReadFile", { path: SKILL_PATH }, "deploy"],
+    ["a glob is not a read", "glob_file_search", { path: SKILL_PATH }, undefined],
+    ["a grep is not a read", "Grep", { file_path: SKILL_PATH }, undefined],
+  ])("%s", (_case, toolName, input, expected) => {
+    expect(skillNameFromTool(toolName, input)).toBe(expected);
+  });
+
+  it.each<[string, unknown]>([
+    ["a non-string path", { path: 42 }],
+    ["no input at all", undefined],
+  ])("yields nothing for %s", (_case, input) => {
+    expect(read(input)).toBeUndefined();
+  });
+
+  it("stays fast on a path crafted to make a backtracking matcher blow up", () => {
+    // CodeQL's js/polynomial-redos input, which takes seconds against a regex.
+    const hostile = `/skills/${"/skills/!".repeat(20_000)}`;
+    const started = performance.now();
+    expect(skillNameFromTool("read_file_v2", { path: hostile })).toBeUndefined();
+    expect(performance.now() - started).toBeLessThan(1000);
+  });
+});
+
+describe("ls_skill_name on the produced run tree", () => {
+  it("tags the skill read and neither decoy beside it", async () => {
+    const { finalized } = replayHookLog(SKILL_CAPTURE);
+    const runs = await tracedRuns(finalized[0]);
+    // The glob and the ordinary read are decoys, and both trace.
+    expect(runs.some((r) => r.name === "glob_file_search")).toBe(true);
+    expect(runs.filter((r) => r.name === "read_file_v2")).toHaveLength(2);
+    expect(
+      runs.filter((r) => meta(r).ls_skill_name).map((r) => [r.name, meta(r).ls_skill_name]),
+    ).toEqual([["read_file_v2", "code-insights"]]);
+  });
+
+  it("tags nothing in a capture whose reads are all ordinary files", async () => {
+    const { finalized } = replayHookLog(CAPTURE);
+    const runs: Run[] = [];
+    for (const turn of finalized) runs.push(...(await tracedRuns(turn)));
+    expect(runs.some((r) => r.name === "Read")).toBe(true);
+    expect(runs.filter((r) => meta(r).ls_skill_name)).toEqual([]);
   });
 });
 
@@ -116,17 +191,10 @@ function classify(run: Run): "root" | "interrupted" | "subagent" | "llm" | "tool
 
 describe("coding-agent-v1 contract on the produced run tree", () => {
   it("stamps required keys on every run type and never leaks scope-restricted keys", async () => {
-    const { client, callSpy } = mockClient();
-    initTracing(undefined, undefined, undefined, true, undefined, client);
-
     const { finalized } = replayHookLog(CAPTURE);
     const turn = finalized.find((f) => f.buffer.subagents.length > 0)!; // exercises every run type
 
-    await buildTurnRuns({
-      buffer: turn.buffer,
-      conversationId: turn.conversationId,
-      turnNum: turn.turnNum,
-      project: "test",
+    const runs = await tracedRuns(turn, {
       runtimeVersion: "3.7.19",
       userEmail: "dev@example.com",
       customMetadata: {
@@ -140,10 +208,6 @@ describe("coding-agent-v1 contract on the produced run tree", () => {
         local_username: "dev",
       },
     });
-    await flushPendingTraces();
-
-    const tree = await getAssumedTreeFromCalls(callSpy.mock.calls, client);
-    const runs = Object.values(tree.data);
     const byId = new Map(runs.map((run) => [run.id, run]));
     expect(runs.length).toBeGreaterThan(3);
 

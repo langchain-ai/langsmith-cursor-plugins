@@ -55,6 +55,9 @@ export interface CodingAgentMetadataOptions {
   /** Run `name`, used to decide whether `ls_tool_name` is needed. */
   runName?: string;
 
+  /** Skill this run represents, as found by `skillNameFromTool`. */
+  skillName?: string;
+
   /** Run-type-specific keys (ls_provider, ls_model_name, usage_metadata, …). */
   runSpecific?: Record<string, unknown>;
 }
@@ -79,6 +82,7 @@ export function codingAgentMetadata(opts: CodingAgentMetadataOptions): Record<st
     clearSubagent,
     toolName,
     runName,
+    skillName,
     runSpecific,
   } = opts;
 
@@ -114,6 +118,9 @@ export function codingAgentMetadata(opts: CodingAgentMetadataOptions): Record<st
   // Tool runs: ls_tool_name only when the native name differs from the run name.
   if (toolName && runName && toolName !== runName) meta.ls_tool_name = toolName;
 
+  // LangSmith groups runs on this key to count skill invocations.
+  if (skillName) meta.ls_skill_name = skillName;
+
   const result = { ...meta, ...runSpecific, ...base };
   // Never trust custom base collisions, including token counts or structural IDs.
   Object.defineProperty(result, TRUSTED_METADATA, {
@@ -125,4 +132,27 @@ export function codingAgentMetadata(opts: CodingAgentMetadataOptions): Record<st
     },
   });
   return result;
+}
+
+// ─── Skill detection ──────────────────────────────────────────────────────────
+
+/** Read tools only, so a glob or grep naming SKILL.md is not counted as an invocation. */
+const READ_TOOLS = new Set(["read_file_v2", "ReadFile", "Read"]);
+
+/** A heuristic: Cursor has no Skill tool, so a skill read looks like any other read. */
+export function skillNameFromTool(toolName: string, toolInput: unknown): string | undefined {
+  if (!READ_TOOLS.has(toolName)) return undefined;
+  // Older captures use `file_path`.
+  const input = toolInput as { path?: unknown; file_path?: unknown } | null | undefined;
+  const filePath = input?.path ?? input?.file_path;
+  if (typeof filePath !== "string") return undefined;
+
+  // Not a regex: any path regex backtracks quadratically here (CodeQL `js/polynomial-redos`).
+  const segments = filePath.split(/[/\\]/);
+  const file = segments.pop();
+  const name = segments.pop();
+  // A leading dot would let "." or ".." stand in for the skill name.
+  if (file !== "SKILL.md" || !name || name.startsWith(".")) return undefined;
+  // `segments` now holds only the directories above the skill.
+  return segments.includes("skills") ? name : undefined;
 }
