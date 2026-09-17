@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 var __create = Object.create;
 var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
@@ -594,23 +593,6 @@ var require_dist = __commonJS({
   }
 });
 
-// dist/utils/stdin.js
-function readStdin() {
-  return new Promise((resolve, reject) => {
-    let data = "";
-    process.stdin.setEncoding("utf-8");
-    process.stdin.on("data", (chunk) => data += chunk);
-    process.stdin.on("end", () => {
-      try {
-        resolve(JSON.parse(data));
-      } catch (err) {
-        reject(new Error(`Failed to parse hook input: ${err}`));
-      }
-    });
-    process.stdin.on("error", reject);
-  });
-}
-
 // dist/shared-config.js
 import { lstatSync, readFileSync, statSync } from "node:fs";
 var COMMON_BOOLEAN_SETTINGS = {
@@ -687,14 +669,14 @@ function parseCommonConfig(value) {
   if (Object.hasOwn(value, "replicas")) {
     if (!Array.isArray(value.replicas))
       return invalid(value);
-    const replicas2 = [];
+    const replicas = [];
     for (const entry of value.replicas) {
       const replica = parseReplica(entry);
       if (replica === void 0)
         return invalid(value);
-      replicas2.push(replica);
+      replicas.push(replica);
     }
-    common.replicas = replicas2;
+    common.replicas = replicas;
   }
   if (Object.hasOwn(value, "redact_extra_rules")) {
     if (!Array.isArray(value.redact_extra_rules))
@@ -766,8 +748,8 @@ function mergeCommonConfig(sources, options = {}) {
   }
   return merged;
 }
-function toSdkReplicas(replicas2) {
-  return replicas2?.map((replica) => ({
+function toSdkReplicas(replicas) {
+  return replicas?.map((replica) => ({
     ...replica.api_url === void 0 ? {} : { apiUrl: replica.api_url },
     ...replica.api_key === void 0 ? {} : { apiKey: replica.api_key },
     ...replica.project === void 0 ? {} : { projectName: replica.project },
@@ -809,12 +791,6 @@ function write(level, message) {
   } catch {
   }
 }
-function log(message) {
-  write("INFO", message);
-}
-function warn(message) {
-  write("WARN", message);
-}
 function error(message) {
   write("ERROR", message);
 }
@@ -825,7 +801,6 @@ function debug(message) {
 }
 
 // dist/constants.js
-var TURN_RUN_NAME = "Cursor Turn";
 var DEFAULT_TAGS = ["cursor", "coding-agent"];
 var DEFAULT_PROJECT = "cursor";
 
@@ -937,10 +912,10 @@ function envBoolean(field) {
 function getEnv(suffix) {
   return process.env[`LANGSMITH_CURSOR_${suffix}`] ?? process.env[`LANGSMITH_${suffix}`];
 }
-function normalizeReplicas(replicas2) {
-  if (!Array.isArray(replicas2) || replicas2.some((r) => !r || typeof r !== "object"))
+function normalizeReplicas(replicas) {
+  if (!Array.isArray(replicas) || replicas.some((r) => !r || typeof r !== "object"))
     return void 0;
-  return replicas2.map((r) => Array.isArray(r) ? r : {
+  return replicas.map((r) => Array.isArray(r) ? r : {
     ...r.api_url || r.apiUrl ? { apiUrl: r.api_url ?? r.apiUrl } : {},
     ...r.api_key || r.apiKey ? { apiKey: r.api_key ?? r.apiKey } : {},
     ...r.project || r.projectName ? { projectName: r.project ?? r.projectName } : {},
@@ -1047,7 +1022,7 @@ function loadConfig(options) {
   const apiUrl = common.api_url;
   const project = common.project;
   const debug2 = envDebug ?? false;
-  const replicas2 = normalizeReplicas(envReplicas) ?? toSdkReplicas(common.replicas);
+  const replicas = normalizeReplicas(envReplicas) ?? toSdkReplicas(common.replicas);
   const attachmentsEnabled = parseBoolean(getEnv("ATTACHMENTS")) ?? localFile.extensions.attachments ?? rootFile.extensions.attachments ?? globalFile.extensions.attachments ?? userRootFile.extensions.attachments ?? true;
   const systemPromptEnabled = parseBoolean(getEnv("SYSTEM_PROMPT")) ?? localFile.extensions.system_prompt ?? rootFile.extensions.system_prompt ?? globalFile.extensions.system_prompt ?? userRootFile.extensions.system_prompt ?? true;
   const cursorDbPath = getEnv("DB_PATH") ?? localFile.extensions.cursor_db_path ?? rootFile.extensions.cursor_db_path ?? globalFile.extensions.cursor_db_path ?? userRootFile.extensions.cursor_db_path;
@@ -1071,7 +1046,7 @@ function loadConfig(options) {
     baseMetadata.git_commit_sha = git.commit;
   baseMetadata.local_username = userInfo().username;
   const customMetadata = { ...baseMetadata, ...common.metadata };
-  if (enabled && !apiKey && (!replicas2 || replicas2.length === 0)) {
+  if (enabled && !apiKey && (!replicas || replicas.length === 0)) {
     debug("Config enabled but no API key / replicas resolved");
   }
   return {
@@ -1082,7 +1057,7 @@ function loadConfig(options) {
     project,
     debug: debug2,
     stateFilePath,
-    replicas: replicas2,
+    replicas,
     customMetadata,
     attachmentsEnabled,
     systemPromptEnabled,
@@ -1104,217 +1079,6 @@ function initHook(cwd) {
     return null;
   }
   return config;
-}
-
-// dist/state.js
-import { readFileSync as readFileSync2, writeFileSync, mkdirSync as mkdirSync2, openSync, closeSync, unlinkSync, rmdirSync, renameSync as renameSync2, fsyncSync } from "node:fs";
-import { randomUUID } from "node:crypto";
-import { performance as performance2 } from "node:perf_hooks";
-import { dirname as dirname2 } from "node:path";
-var LOCK_TIMEOUT_MS = 2e3;
-function lockPath(stateFilePath) {
-  return `${stateFilePath}.lock`;
-}
-function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-async function acquireLock(stateFilePath) {
-  const lock = lockPath(stateFilePath);
-  const deadline = performance2.now() + LOCK_TIMEOUT_MS;
-  mkdirSync2(dirname2(stateFilePath), { recursive: true, mode: 448 });
-  while (true) {
-    try {
-      mkdirSync2(lock, { mode: 448 });
-      return;
-    } catch (error2) {
-      if (error2.code !== "EEXIST")
-        throw error2;
-      if (performance2.now() >= deadline)
-        throw new Error("Timed out waiting for turn-state lock; confirm no writer is running before removing it");
-      await sleep(10 + Math.random() * 20);
-    }
-  }
-}
-function releaseLock(stateFilePath) {
-  try {
-    rmdirSync(lockPath(stateFilePath));
-  } catch {
-    warn("Turn-state lock cleanup failed; confirm no writer is running before removing it");
-  }
-}
-async function atomicUpdateState(stateFilePath, fn) {
-  await acquireLock(stateFilePath);
-  try {
-    const state = loadState(stateFilePath);
-    saveState(stateFilePath, fn(state));
-  } finally {
-    releaseLock(stateFilePath);
-  }
-}
-function loadState(stateFilePath) {
-  try {
-    return JSON.parse(readFileSync2(stateFilePath, "utf-8"));
-  } catch {
-    return {};
-  }
-}
-function saveState(stateFilePath, state) {
-  mkdirSync2(dirname2(stateFilePath), { recursive: true, mode: 448 });
-  const temp = `${stateFilePath}.${process.pid}.${randomUUID()}.tmp`;
-  let committed = false;
-  try {
-    const fd = openSync(temp, "wx", 384);
-    try {
-      writeFileSync(fd, JSON.stringify(state, null, 2));
-      fsyncSync(fd);
-    } finally {
-      closeSync(fd);
-    }
-    renameSync2(temp, stateFilePath);
-    committed = true;
-    try {
-      const fd2 = openSync(dirname2(stateFilePath), "r");
-      try {
-        fsyncSync(fd2);
-      } finally {
-        closeSync(fd2);
-      }
-    } catch {
-      warn("Turn snapshot saved, but crash durability could not be confirmed");
-    }
-  } finally {
-    if (!committed) {
-      try {
-        unlinkSync(temp);
-      } catch {
-      }
-    }
-  }
-}
-function getConversationState(state, conversationId) {
-  return state[conversationId] ?? { turns: {}, turn_count: 0, updated: "" };
-}
-var CONVERSATION_MAX_AGE_MS = 24 * 60 * 60 * 1e3;
-function pruneOldConversations(state, now = Date.now()) {
-  const cutoff = now - CONVERSATION_MAX_AGE_MS;
-  const pruned = {};
-  for (const [conversationId, conv] of Object.entries(state)) {
-    const updatedMs = conv.updated ? new Date(conv.updated).getTime() : 0;
-    if (updatedMs >= cutoff) {
-      pruned[conversationId] = conv;
-    }
-  }
-  return pruned;
-}
-
-// dist/normalize.js
-function isRecord(value) {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-var MODEL_SUFFIXES = /* @__PURE__ */ new Set(["thinking", "minimal", "low", "medium", "high", "xhigh", "max"]);
-var CANONICAL_MODEL_MAP = {};
-function normKey(model) {
-  return model.trim().toLowerCase().replace(/^[a-z]+\//, "");
-}
-function canonicalModelId(model) {
-  const key = normKey(model);
-  if (CANONICAL_MODEL_MAP[key])
-    return CANONICAL_MODEL_MAP[key];
-  const m = key.match(/^claude-(\d+)\.(\d+)-(sonnet|opus|haiku)$/);
-  if (m) {
-    const [, major, minor, tier] = m;
-    return Number(major) >= 4 ? `claude-${tier}-${major}-${minor}` : `claude-${major}-${minor}-${tier}`;
-  }
-  return model;
-}
-function providerFor(model) {
-  const m = model.toLowerCase();
-  if (m === "default" || m === "auto" || m.startsWith("composer") || m.startsWith("cursor")) {
-    return "cursor";
-  }
-  if (m.startsWith("claude"))
-    return "anthropic";
-  if (/^(gpt|o\d)/.test(m))
-    return "openai";
-  if (m.startsWith("gemini"))
-    return "google";
-  if (m.startsWith("grok"))
-    return "xai";
-  return void 0;
-}
-function stripModelSuffixes(model) {
-  const parts = model.split("-");
-  while (parts.length > 1) {
-    const last = parts[parts.length - 1].toLowerCase();
-    if (!MODEL_SUFFIXES.has(last))
-      break;
-    if (last === "max" && !providerFor(parts.slice(0, -1).join("-")))
-      break;
-    parts.pop();
-  }
-  return parts.join("-");
-}
-function preferModel(current, incoming) {
-  if (incoming && incoming.toLowerCase() !== "default")
-    return incoming;
-  return current ?? incoming;
-}
-function deriveModelInfo(model) {
-  const raw = (model ?? "").trim() || "default";
-  const stripped = stripModelSuffixes(raw);
-  const deprefixed = stripped.replace(/^cursor-/i, "");
-  const upstream = providerFor(deprefixed);
-  const label = upstream && upstream !== "cursor" ? deprefixed : stripped;
-  return {
-    ls_model_name: canonicalModelId(label),
-    ls_provider: providerFor(label) ?? providerFor(raw)
-  };
-}
-function buildUsageMetadata(usage) {
-  if (!usage)
-    return void 0;
-  const cacheRead = usage.cache_read_tokens ?? 0;
-  const cacheWrite = usage.cache_write_tokens ?? 0;
-  const input_tokens = (usage.input_tokens ?? 0) + cacheRead + cacheWrite;
-  const output_tokens = usage.output_tokens ?? 0;
-  const total_tokens = input_tokens + output_tokens;
-  if (total_tokens === 0)
-    return void 0;
-  return {
-    input_tokens,
-    output_tokens,
-    total_tokens,
-    input_token_details: { cache_read: cacheRead, cache_creation: cacheWrite }
-  };
-}
-
-// dist/reducer.js
-function touch(conv) {
-  conv.updated = (/* @__PURE__ */ new Date()).toISOString();
-}
-function reduceStop(state, input, nowMs) {
-  const conv = getConversationState(state, input.conversation_id);
-  const turn = conv.turns[input.generation_id];
-  if (!turn) {
-    return { state, turnNum: 0 };
-  }
-  turn.usage = {
-    input_tokens: input.input_tokens,
-    output_tokens: input.output_tokens,
-    cache_read_tokens: input.cache_read_tokens,
-    cache_write_tokens: input.cache_write_tokens
-  };
-  turn.status = input.status;
-  turn.model = preferModel(turn.model, input.model);
-  const turnNum = conv.turn_count + 1;
-  if (turn.tracingMode === "off") {
-    (conv.completedOffGenerations ??= []).push(input.generation_id);
-  }
-  delete conv.turns[input.generation_id];
-  conv.turn_count += 1;
-  touch(conv);
-  const nextState = pruneOldConversations({ ...state, [input.conversation_id]: conv }, nowMs);
-  return { state: nextState, buffer: turn, turnNum };
 }
 
 // node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/utils/uuid/src/regex.js
@@ -2795,7 +2559,7 @@ var safeJSON = (text) => {
 };
 
 // node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/_openapi_client/internal/utils/sleep.js
-var sleep2 = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+var sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/_openapi_client/version.js
 var VERSION = "0.0.1";
@@ -2901,24 +2665,24 @@ var normalizeArch = (arch) => {
     return `other:${arch}`;
   return "unknown";
 };
-var normalizePlatform = (platform2) => {
-  platform2 = platform2.toLowerCase();
-  if (platform2.includes("ios"))
+var normalizePlatform = (platform) => {
+  platform = platform.toLowerCase();
+  if (platform.includes("ios"))
     return "iOS";
-  if (platform2 === "android")
+  if (platform === "android")
     return "Android";
-  if (platform2 === "darwin")
+  if (platform === "darwin")
     return "MacOS";
-  if (platform2 === "win32")
+  if (platform === "win32")
     return "Windows";
-  if (platform2 === "freebsd")
+  if (platform === "freebsd")
     return "FreeBSD";
-  if (platform2 === "openbsd")
+  if (platform === "openbsd")
     return "OpenBSD";
-  if (platform2 === "linux")
+  if (platform === "linux")
     return "Linux";
-  if (platform2)
-    return `Other:${platform2}`;
+  if (platform)
+    return `Other:${platform}`;
   return "Unknown";
 };
 var _platformHeaders;
@@ -3360,14 +3124,14 @@ var levelNumbers = {
   info: 400,
   debug: 500
 };
-var parseLogLevel = (maybeLevel, sourceName, client2) => {
+var parseLogLevel = (maybeLevel, sourceName, client) => {
   if (!maybeLevel) {
     return void 0;
   }
   if (hasOwn(levelNumbers, maybeLevel)) {
     return maybeLevel;
   }
-  loggerFor(client2).warn(`${sourceName} was set to ${JSON.stringify(maybeLevel)}, expected one of ${JSON.stringify(Object.keys(levelNumbers))}`);
+  loggerFor(client).warn(`${sourceName} was set to ${JSON.stringify(maybeLevel)}, expected one of ${JSON.stringify(Object.keys(levelNumbers))}`);
   return void 0;
 };
 function noop() {
@@ -3386,9 +3150,9 @@ var noopLogger = {
   debug: noop
 };
 var cachedLoggers = /* @__PURE__ */ new WeakMap();
-function loggerFor(client2) {
-  const logger = client2.logger;
-  const logLevel = client2.logLevel ?? "off";
+function loggerFor(client) {
+  const logger = client.logger;
+  const logLevel = client.logLevel ?? "off";
   if (!logger) {
     return noopLogger;
   }
@@ -3426,7 +3190,7 @@ var formatRequestDetails = (details) => {
 };
 
 // node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/_openapi_client/internal/parse.js
-async function defaultParseResponse(client2, props) {
+async function defaultParseResponse(client, props) {
   const { response, requestLogID, retryOfRequestLogID, startTime } = props;
   const body = await (async () => {
     if (response.status === 204) {
@@ -3449,7 +3213,7 @@ async function defaultParseResponse(client2, props) {
     const text = await response.text();
     return text;
   })();
-  loggerFor(client2).debug(`[${requestLogID}] response parsed`, formatRequestDetails({
+  loggerFor(client).debug(`[${requestLogID}] response parsed`, formatRequestDetails({
     retryOfRequestLogID,
     url: response.url,
     status: response.status,
@@ -3473,7 +3237,7 @@ var __classPrivateFieldGet = function(receiver, state, kind, f2) {
 };
 var _APIPromise_client;
 var APIPromise = class _APIPromise extends Promise {
-  constructor(client2, responsePromise, parseResponse = defaultParseResponse) {
+  constructor(client, responsePromise, parseResponse = defaultParseResponse) {
     super((resolve) => {
       resolve(null);
     });
@@ -3496,10 +3260,10 @@ var APIPromise = class _APIPromise extends Promise {
       value: void 0
     });
     _APIPromise_client.set(this, void 0);
-    __classPrivateFieldSet(this, _APIPromise_client, client2, "f");
+    __classPrivateFieldSet(this, _APIPromise_client, client, "f");
   }
   _thenUnwrap(transform) {
-    return new _APIPromise(__classPrivateFieldGet(this, _APIPromise_client, "f"), this.responsePromise, async (client2, props) => transform(await this.parseResponse(client2, props), props));
+    return new _APIPromise(__classPrivateFieldGet(this, _APIPromise_client, "f"), this.responsePromise, async (client, props) => transform(await this.parseResponse(client, props), props));
   }
   /**
    * Gets the raw `Response` instance instead of parsing the response
@@ -3561,7 +3325,7 @@ var __classPrivateFieldGet2 = function(receiver, state, kind, f2) {
 };
 var _AbstractPage_client;
 var AbstractPage = class {
-  constructor(client2, response, body, options) {
+  constructor(client, response, body, options) {
     _AbstractPage_client.set(this, void 0);
     Object.defineProperty(this, "options", {
       enumerable: true,
@@ -3581,7 +3345,7 @@ var AbstractPage = class {
       writable: true,
       value: void 0
     });
-    __classPrivateFieldSet2(this, _AbstractPage_client, client2, "f");
+    __classPrivateFieldSet2(this, _AbstractPage_client, client, "f");
     this.options = options;
     this.response = response;
     this.body = body;
@@ -3616,8 +3380,8 @@ var AbstractPage = class {
   }
 };
 var PagePromise = class extends APIPromise {
-  constructor(client2, request, Page) {
-    super(client2, request, async (client3, props) => new Page(client3, props.response, await defaultParseResponse(client3, props), props.options));
+  constructor(client, request, Page) {
+    super(client, request, async (client2, props) => new Page(client2, props.response, await defaultParseResponse(client2, props), props.options));
   }
   /**
    * Allow auto-paginating iteration on an unawaited list call, eg:
@@ -3634,8 +3398,8 @@ var PagePromise = class extends APIPromise {
   }
 };
 var OffsetPaginationTopLevelArray = class extends AbstractPage {
-  constructor(client2, response, body, options) {
-    super(client2, response, body, options);
+  constructor(client, response, body, options) {
+    super(client, response, body, options);
     Object.defineProperty(this, "items", {
       enumerable: true,
       configurable: true,
@@ -3661,8 +3425,8 @@ var OffsetPaginationTopLevelArray = class extends AbstractPage {
   }
 };
 var OffsetPaginationIssues = class extends AbstractPage {
-  constructor(client2, response, body, options) {
-    super(client2, response, body, options);
+  constructor(client, response, body, options) {
+    super(client, response, body, options);
     Object.defineProperty(this, "items", {
       enumerable: true,
       configurable: true,
@@ -3688,8 +3452,8 @@ var OffsetPaginationIssues = class extends AbstractPage {
   }
 };
 var OffsetPaginationOnlineEvaluators = class extends AbstractPage {
-  constructor(client2, response, body, options) {
-    super(client2, response, body, options);
+  constructor(client, response, body, options) {
+    super(client, response, body, options);
     Object.defineProperty(this, "evaluators", {
       enumerable: true,
       configurable: true,
@@ -3722,8 +3486,8 @@ var OffsetPaginationOnlineEvaluators = class extends AbstractPage {
   }
 };
 var ItemsCursorPostPagination = class extends AbstractPage {
-  constructor(client2, response, body, options) {
-    super(client2, response, body, options);
+  constructor(client, response, body, options) {
+    super(client, response, body, options);
     Object.defineProperty(this, "items", {
       enumerable: true,
       configurable: true,
@@ -3757,8 +3521,8 @@ var ItemsCursorPostPagination = class extends AbstractPage {
   }
 };
 var ItemsCursorGetPagination = class extends AbstractPage {
-  constructor(client2, response, body, options) {
-    super(client2, response, body, options);
+  constructor(client, response, body, options) {
+    super(client, response, body, options);
     Object.defineProperty(this, "items", {
       enumerable: true,
       configurable: true,
@@ -3863,14 +3627,14 @@ function propsForError(value) {
 
 // node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/_openapi_client/core/resource.js
 var APIResource = class {
-  constructor(client2) {
+  constructor(client) {
     Object.defineProperty(this, "_client", {
       enumerable: true,
       configurable: true,
       writable: true,
       value: void 0
     });
-    this._client = client2;
+    this._client = client;
   }
 };
 
@@ -5099,7 +4863,7 @@ var Langsmith = class {
    * Create a new client instance re-using the same options given to the current client with optional overriding.
    */
   withOptions(options) {
-    const client2 = new this.constructor({
+    const client = new this.constructor({
       ...this._options,
       baseURL: this.baseURL,
       maxRetries: this.maxRetries,
@@ -5112,7 +4876,7 @@ var Langsmith = class {
       tenantID: this.tenantID,
       ...options
     });
-    return client2;
+    return client;
   }
   defaultQuery() {
     return this._options.defaultQuery;
@@ -5372,7 +5136,7 @@ var Langsmith = class {
       const maxRetries = options.maxRetries ?? this.maxRetries;
       timeoutMillis = this.calculateDefaultRetryTimeoutMillis(retriesRemaining, maxRetries);
     }
-    await sleep2(timeoutMillis);
+    await sleep(timeoutMillis);
     return this.makeRequest(options, retriesRemaining - 1, requestLogID);
   }
   calculateDefaultRetryTimeoutMillis(retriesRemaining, maxRetries) {
@@ -6095,19 +5859,19 @@ async function stat2(filePath) {
 function existsSync2(p) {
   return nodeFs.existsSync(p);
 }
-function mkdirSync4(dir) {
+function mkdirSync3(dir) {
   nodeFs.mkdirSync(dir, { recursive: true });
 }
-function writeFileSync3(filePath, content) {
+function writeFileSync2(filePath, content) {
   nodeFs.writeFileSync(filePath, content);
 }
-function renameSync4(oldPath, newPath) {
+function renameSync3(oldPath, newPath) {
   nodeFs.renameSync(oldPath, newPath);
 }
-function unlinkSync3(filePath) {
+function unlinkSync2(filePath) {
   nodeFs.unlinkSync(filePath);
 }
-function readFileSync4(filePath) {
+function readFileSync3(filePath) {
   return nodeFs.readFileSync(filePath, "utf-8");
 }
 async function mkdirExclusive(dir) {
@@ -6289,15 +6053,15 @@ var PromptCache = class {
     }
     const dir = path2.dirname(filePath);
     if (!existsSync2(dir)) {
-      mkdirSync4(dir);
+      mkdirSync3(dir);
     }
     const tempPath = `${filePath}.tmp`;
     try {
-      writeFileSync3(tempPath, JSON.stringify({ entries }, null, 2));
-      renameSync4(tempPath, filePath);
+      writeFileSync2(tempPath, JSON.stringify({ entries }, null, 2));
+      renameSync3(tempPath, filePath);
     } catch (e) {
       if (existsSync2(tempPath)) {
-        unlinkSync3(tempPath);
+        unlinkSync2(tempPath);
       }
       throw e;
     }
@@ -6315,7 +6079,7 @@ var PromptCache = class {
     }
     let entries;
     try {
-      const content = readFileSync4(filePath);
+      const content = readFileSync3(filePath);
       const data = JSON.parse(content);
       entries = data.entries ?? null;
     } catch {
@@ -6427,7 +6191,7 @@ var _getFetchImplementation = (debug2) => {
 var LOCK_POLL_INTERVAL_MS = 10;
 var LOCK_STALE_AFTER_MS = 1e4;
 var LOCK_METADATA_FILE = "created_at";
-function sleep3(ms) {
+function sleep2(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 function isEEXIST(err) {
@@ -6435,7 +6199,7 @@ function isEEXIST(err) {
 }
 function lockMetadataLines(lockDir) {
   try {
-    return readFileSync4(path2.join(lockDir, LOCK_METADATA_FILE)).split("\n");
+    return readFileSync3(path2.join(lockDir, LOCK_METADATA_FILE)).split("\n");
   } catch {
     return void 0;
   }
@@ -6483,7 +6247,7 @@ async function acquireOAuthRefreshLock(configPath, deadline) {
         if (Date.now() >= deadline) {
           throw new Error("timed out acquiring OAuth refresh lock");
         }
-        await sleep3(Math.min(LOCK_POLL_INTERVAL_MS, Math.max(0, deadline - Date.now())));
+        await sleep2(Math.min(LOCK_POLL_INTERVAL_MS, Math.max(0, deadline - Date.now())));
       }
       continue;
     }
@@ -6550,7 +6314,7 @@ function loadProfileState() {
     return void 0;
   }
   try {
-    const config = JSON.parse(readFileSync4(configPath));
+    const config = JSON.parse(readFileSync3(configPath));
     const profileName = resolveProfileName(config);
     const profile = profileName ? config.profiles?.[profileName] : void 0;
     if (!profileName || !profile) {
@@ -6780,7 +6544,7 @@ var ProfileAuth = class {
   }
   reloadProfile() {
     try {
-      const config = JSON.parse(readFileSync4(this.state.configPath));
+      const config = JSON.parse(readFileSync3(this.state.configPath));
       const profile = config.profiles?.[this.state.profileName];
       if (!profile) {
         return void 0;
@@ -12746,7 +12510,7 @@ function filterReplicaForHeaders(replica) {
   return filtered;
 }
 var Baggage = class _Baggage {
-  constructor(metadata, tags, project_name, replicas2) {
+  constructor(metadata, tags, project_name, replicas) {
     Object.defineProperty(this, "metadata", {
       enumerable: true,
       configurable: true,
@@ -12774,14 +12538,14 @@ var Baggage = class _Baggage {
     this.metadata = metadata;
     this.tags = tags;
     this.project_name = project_name;
-    this.replicas = replicas2;
+    this.replicas = replicas;
   }
   static fromHeader(value) {
     const items = value.split(",");
     let metadata = {};
     let tags = [];
     let project_name;
-    let replicas2;
+    let replicas;
     for (const item of items) {
       const [key, uriValue] = item.split("=");
       const value2 = decodeURIComponent(uriValue);
@@ -12793,7 +12557,7 @@ var Baggage = class _Baggage {
         project_name = value2;
       } else if (key === "langsmith-replicas") {
         const parsed = JSON.parse(value2);
-        replicas2 = parsed.map((replica) => {
+        replicas = parsed.map((replica) => {
           if (Array.isArray(replica)) {
             return replica;
           }
@@ -12801,7 +12565,7 @@ var Baggage = class _Baggage {
         });
       }
     }
-    return new _Baggage(metadata, tags, project_name, replicas2);
+    return new _Baggage(metadata, tags, project_name, replicas);
   }
   toHeader() {
     const items = [];
@@ -12997,7 +12761,7 @@ var RunTree = class _RunTree {
     }
     const defaultConfig = _RunTree.getDefaultConfig();
     const { metadata, ...config } = originalConfig;
-    const client2 = config.client ?? _RunTree.getSharedClient();
+    const client = config.client ?? _RunTree.getSharedClient();
     const dedupedMetadata = {
       ...metadata,
       ...config?.extra?.metadata
@@ -13006,7 +12770,7 @@ var RunTree = class _RunTree {
     if ("id" in config && config.id == null) {
       delete config.id;
     }
-    Object.assign(this, { ...defaultConfig, ...config, client: client2 });
+    Object.assign(this, { ...defaultConfig, ...config, client });
     this.execution_order ??= 1;
     this.child_execution_order ??= 1;
     if (!this.dotted_order) {
@@ -13449,20 +13213,20 @@ var RunTree = class _RunTree {
     const callbackManager = parentConfig?.callbacks;
     let parentRun;
     let projectName;
-    let client2;
+    let client;
     let tracingEnabled = isEnvTracingEnabled();
     if (callbackManager) {
       const parentRunId = callbackManager?.getParentRunId?.() ?? "";
       const langChainTracer = callbackManager?.handlers?.find((handler) => handler?.name == "langchain_tracer");
       parentRun = langChainTracer?.getRun?.(parentRunId);
       projectName = langChainTracer?.projectName;
-      client2 = langChainTracer?.client;
+      client = langChainTracer?.client;
       tracingEnabled = tracingEnabled || !!langChainTracer;
     }
     if (!parentRun) {
       return new _RunTree({
         ...props,
-        client: client2,
+        client,
         tracingEnabled,
         project_name: projectName
       });
@@ -13472,7 +13236,7 @@ var RunTree = class _RunTree {
       id: parentRun.id,
       trace_id: parentRun.trace_id,
       dotted_order: parentRun.dotted_order,
-      client: client2,
+      client,
       tracingEnabled,
       project_name: projectName,
       tags: [
@@ -13569,7 +13333,7 @@ function _getWriteReplicasFromEnv() {
   try {
     const parsed = JSON.parse(envVar);
     if (Array.isArray(parsed)) {
-      const replicas2 = [];
+      const replicas = [];
       for (const item of parsed) {
         if (typeof item !== "object" || item === null) {
           console.warn(`Invalid item type in LANGSMITH_RUNS_ENDPOINTS: expected object, got ${typeof item}`);
@@ -13591,21 +13355,21 @@ function _getWriteReplicasFromEnv() {
           console.warn(`Invalid primary type in LANGSMITH_RUNS_ENDPOINTS: expected boolean, got ${typeof item.primary}`);
           continue;
         }
-        replicas2.push({
+        replicas.push({
           apiUrl: item.api_url.replace(/\/$/, ""),
           apiKey: item.api_key,
           projectName: item.project_name ?? void 0,
           primary: item.primary ?? void 0
         });
       }
-      return replicas2;
+      return replicas;
     } else if (typeof parsed === "object" && parsed !== null) {
       _checkEndpointEnvUnset(parsed);
-      const replicas2 = [];
+      const replicas = [];
       for (const [url, key] of Object.entries(parsed)) {
         const cleanUrl = url.replace(/\/$/, "");
         if (typeof key === "string") {
-          replicas2.push({
+          replicas.push({
             apiUrl: cleanUrl,
             apiKey: key
           });
@@ -13614,7 +13378,7 @@ function _getWriteReplicasFromEnv() {
           continue;
         }
       }
-      return replicas2;
+      return replicas;
     } else {
       console.warn(`Invalid LANGSMITH_RUNS_ENDPOINTS \u2013 must be valid JSON array of objects with api_url and api_key properties, or object mapping url->apiKey, got ${typeof parsed}`);
       return [];
@@ -13627,8 +13391,8 @@ function _getWriteReplicasFromEnv() {
     return [];
   }
 }
-function _ensureWriteReplicas(replicas2) {
-  const ensured = replicas2 ? replicas2.map((replica) => {
+function _ensureWriteReplicas(replicas) {
+  const ensured = replicas ? replicas.map((replica) => {
     if (Array.isArray(replica)) {
       return {
         projectName: replica[0],
@@ -13673,231 +13437,6 @@ var AsyncLocalStorageProviderSingleton = new AsyncLocalStorageProvider();
 
 // node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/index.js
 var __version__ = "0.10.2";
-
-// dist/metadata.js
-var TRUSTED_METADATA = /* @__PURE__ */ Symbol("cursor.trustedMetadata");
-function trustedCodingAgentMetadata(metadata) {
-  return metadata ? metadata[TRUSTED_METADATA] : void 0;
-}
-var LS_AGENT_PURPOSE = "coding";
-var LS_INTEGRATION = "cursor";
-var LS_AGENT_RUNTIME = "Cursor";
-var LS_TRACE_SCHEMA_VERSION = "coding-agent-v1";
-function codingAgentMetadata(opts) {
-  const { agentType, threadId, base, turnId, turnNumber, runtimeVersion, approvalPolicy, subagentId, subagentType, clearSubagent, toolName, runName, skillName, runSpecific } = opts;
-  const meta = {
-    // Identity & grouping — always present.
-    ls_agent_purpose: LS_AGENT_PURPOSE,
-    ls_agent_type: agentType,
-    ls_integration: LS_INTEGRATION,
-    ls_agent_runtime: LS_AGENT_RUNTIME,
-    ls_trace_schema_version: LS_TRACE_SCHEMA_VERSION,
-    thread_id: threadId
-  };
-  if (turnId)
-    meta.turn_id = turnId;
-  if (typeof turnNumber === "number")
-    meta.turn_number = turnNumber;
-  if (runtimeVersion)
-    meta.ls_agent_runtime_version = runtimeVersion;
-  if (approvalPolicy)
-    meta.approval_policy = approvalPolicy;
-  if (subagentId)
-    meta.ls_subagent_id = subagentId;
-  if (subagentType)
-    meta.ls_subagent_type = subagentType;
-  if (clearSubagent) {
-    meta.ls_subagent_id = void 0;
-    meta.ls_subagent_type = void 0;
-  }
-  if (toolName && runName && toolName !== runName)
-    meta.ls_tool_name = toolName;
-  if (skillName)
-    meta.ls_skill_name = skillName;
-  const result = { ...meta, ...runSpecific, ...base };
-  Object.defineProperty(result, TRUSTED_METADATA, {
-    value: {
-      ...meta,
-      ...runSpecific,
-      ...toolName ? { ls_tool_name: toolName } : {},
-      ...LS_INTEGRATION_VERSION ? { ls_integration_version: LS_INTEGRATION_VERSION } : {}
-    }
-  });
-  return result;
-}
-var READ_TOOLS = /* @__PURE__ */ new Set(["read_file_v2", "ReadFile", "Read"]);
-function skillNameFromTool(toolName, toolInput) {
-  if (!READ_TOOLS.has(toolName))
-    return void 0;
-  const input = toolInput;
-  const filePath = input?.path ?? input?.file_path;
-  if (typeof filePath !== "string")
-    return void 0;
-  const segments = filePath.split(/[/\\]/);
-  const file = segments.pop();
-  const name = segments.pop();
-  if (file !== "SKILL.md" || !name || name.startsWith("."))
-    return void 0;
-  return segments.includes("skills") ? name : void 0;
-}
-
-// dist/privacy.js
-var MUTED_TRACE_CONTENT = "[LangSmith system notice: content omitted because tracing is muted.]";
-var METADATA_KEYS = /* @__PURE__ */ new Set([
-  "thread_id",
-  "turn_number",
-  "turn_id",
-  "status",
-  "ls_tracing_mode",
-  "ls_agent_purpose",
-  "ls_agent_type",
-  "ls_agent_runtime",
-  "ls_agent_runtime_version",
-  "ls_integration",
-  "ls_integration_version",
-  "ls_trace_schema_version",
-  "ls_model_name",
-  "ls_tool_name",
-  "ls_skill_name",
-  "usage_metadata",
-  "ls_subagent_id",
-  "ls_subagent_type"
-]);
-function usageForMetadata(value) {
-  if (!value || typeof value !== "object" || Array.isArray(value))
-    return void 0;
-  return value;
-}
-function projectMetadata(metadata, status) {
-  const safe = {};
-  for (const [key, value] of Object.entries(metadata ?? {})) {
-    if (!METADATA_KEYS.has(key))
-      continue;
-    if (key === "usage_metadata") {
-      const usage = usageForMetadata(value);
-      if (usage)
-        safe[key] = usage;
-    } else if (key === "turn_number") {
-      if (typeof value === "number" && Number.isSafeInteger(value) && value >= 1)
-        safe[key] = value;
-    } else if (typeof value === "string" && value.length) {
-      safe[key] = value;
-    }
-  }
-  safe.status = status === "error" || status === "completed" ? status : "running";
-  safe.ls_tracing_mode = "metadata";
-  return safe;
-}
-function metadataForMode(metadata, mode = "full", status) {
-  if (mode === "full")
-    return metadata;
-  return projectMetadata(trustedCodingAgentMetadata(metadata) ?? metadata, status);
-}
-function sanitizeReplica(replica, mode) {
-  if (mode === "full" || !replica || typeof replica !== "object")
-    return replica;
-  if (Array.isArray(replica))
-    return { projectName: replica[0] };
-  const { updates: _updates, ...safe } = replica;
-  return safe;
-}
-function runConfigForMode(config, mode = "full") {
-  if (mode === "full")
-    return config;
-  const status = config.error != null ? "error" : config.end_time != null ? "completed" : "running";
-  const extra = config.extra;
-  const safe = {};
-  for (const key of [
-    "client",
-    "id",
-    "name",
-    "run_type",
-    "project_name",
-    "start_time",
-    "end_time",
-    "parent_run_id",
-    "parent_run",
-    "distributedParentId",
-    "trace_id",
-    "dotted_order"
-  ]) {
-    if (key in config && config[key] !== void 0)
-      safe[key] = config[key];
-  }
-  if (Array.isArray(config.replicas)) {
-    safe.replicas = config.replicas.map((replica) => sanitizeReplica(replica, mode));
-  }
-  safe.inputs = { messages: [{ role: "user", content: MUTED_TRACE_CONTENT }] };
-  safe.outputs = { messages: [{ role: "assistant", content: MUTED_TRACE_CONTENT }] };
-  safe.extra = {
-    metadata: metadataForMode(extra?.metadata, mode, status),
-    // RunTree and Client both enrich extra AFTER construction. A client-level
-    // omitTracedRuntimeInfo flag alone does not suppress RunTree's additions,
-    // and replicas may use their own clients. Keep this method enumerable so it
-    // survives SDK object spreads and filters at the REST serialization boundary
-    // (including multipart .extra parts). Wire-payload tests guard this SDK behavior.
-    toJSON() {
-      return {
-        // Read the current metadata, not the constructor's copy: the client may
-        // have anonymized allowlisted values, which must not be restored here.
-        metadata: projectMetadata(this.metadata, typeof this.metadata?.status === "string" ? this.metadata.status : status)
-      };
-    }
-  };
-  return safe;
-}
-function createRunTree(config, mode = "full") {
-  const safe = runConfigForMode(config, mode);
-  return protectRun(new RunTree(safe), mode, safe.extra?.metadata);
-}
-function createChildRun(parent, config, mode) {
-  const safe = runConfigForMode(config, mode);
-  return protectRun(parent.createChild(safe), mode, safe.extra?.metadata);
-}
-function protectRun(run, mode, metadata) {
-  if (mode === "full")
-    return run;
-  const trusted = metadata;
-  let failed = trusted?.status === "error";
-  const sanitize = () => {
-    failed ||= run.error != null;
-    const safe = runConfigForMode({
-      inputs: run.inputs,
-      outputs: run.outputs,
-      error: failed ? "error" : void 0,
-      end_time: run.end_time,
-      extra: { metadata: trusted },
-      replicas: run.replicas
-    }, mode);
-    run.inputs = safe.inputs;
-    run.outputs = safe.outputs;
-    run.error = void 0;
-    run.extra = safe.extra;
-    run.replicas = safe.replicas;
-    run.tags = [];
-    run.events = void 0;
-    run.attachments = void 0;
-    run.serialized = {};
-    run.reference_example_id = void 0;
-  };
-  const createChild = run.createChild.bind(run);
-  run.createChild = (config) => {
-    const safe = runConfigForMode(config, mode);
-    return protectRun(createChild(safe), mode, safe.extra?.metadata);
-  };
-  const post = run.postRun.bind(run);
-  run.postRun = async (...args) => {
-    sanitize();
-    return post(...args);
-  };
-  const patch = run.patchRun.bind(run);
-  run.patchRun = async (...args) => {
-    sanitize();
-    return patch(...args);
-  };
-  sanitize();
-  return run;
-}
 
 // node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/anonymizer/index.js
 function extractStringNodes(data, options) {
@@ -14115,1054 +13654,206 @@ function createTracingClient(apiKey, apiUrl, redact = true, extraRedactionRules)
   return new Client({ apiKey: apiKey || void 0, apiUrl, anonymizer });
 }
 
-// dist/conversation-steps.js
-import { DatabaseSync as DatabaseSync3 } from "node:sqlite";
-import { existsSync as existsSync5 } from "node:fs";
+// dist/metadata.js
+var TRUSTED_METADATA = /* @__PURE__ */ Symbol("cursor.trustedMetadata");
+function trustedCodingAgentMetadata(metadata) {
+  return metadata ? metadata[TRUSTED_METADATA] : void 0;
+}
+var LS_AGENT_PURPOSE = "coding";
+var LS_INTEGRATION = "cursor";
+var LS_AGENT_RUNTIME = "Cursor";
+var LS_TRACE_SCHEMA_VERSION = "coding-agent-v1";
 
-// dist/attachments.js
-import { DatabaseSync } from "node:sqlite";
-import { existsSync as existsSync3, readFileSync as readFileSync5, statSync as statSync4 } from "node:fs";
-import { homedir as homedir3, platform } from "node:os";
-import { basename, join as join2 } from "node:path";
-var MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024;
-function defaultCursorDbPath() {
-  const home = homedir3();
-  const tail = ["Cursor", "User", "globalStorage", "state.vscdb"];
-  switch (platform()) {
-    case "darwin":
-      return join2(home, "Library", "Application Support", ...tail);
-    case "win32":
-      return join2(process.env.APPDATA ?? join2(home, "AppData", "Roaming"), ...tail);
-    default:
-      return join2(process.env.XDG_CONFIG_HOME ?? join2(home, ".config"), ...tail);
-  }
-}
-function normalizeWs(text) {
-  return text.replace(/\s+/g, " ").trim();
-}
-function queryBubbles(dbPath, conversationId) {
-  const like = `bubbleId:${conversationId}:%`;
-  const db = new DatabaseSync(dbPath, { readOnly: true });
-  try {
-    const rows = db.prepare("SELECT value FROM cursorDiskKV WHERE key LIKE ?").all(like);
-    const bubbles = [];
-    for (const row of rows) {
-      const text = typeof row.value === "string" ? row.value : row.value instanceof Uint8Array ? Buffer.from(row.value).toString("utf-8") : void 0;
-      if (text === void 0)
-        continue;
-      try {
-        bubbles.push(JSON.parse(text));
-      } catch {
-      }
-    }
-    return bubbles;
-  } finally {
-    db.close();
-  }
-}
-function selectedAttachmentPaths(bubbles, prompt) {
-  const want = prompt ? normalizeWs(prompt) : "";
-  const userImageBubbles = bubbles.filter((b) => isRecord(b) && b.type === 1).map((b) => ({
-    text: typeof b.text === "string" ? normalizeWs(b.text) : "",
-    paths: imagePathsOf(b)
-  })).filter((b) => b.paths.length > 0);
-  let matched;
-  if (want !== "") {
-    matched = userImageBubbles.filter((b) => b.text === want);
-  } else {
-    const empties = userImageBubbles.filter((b) => b.text === "");
-    matched = empties.length === 1 ? empties : [];
-  }
-  const seen = /* @__PURE__ */ new Set();
-  const paths = [];
-  for (const b of matched) {
-    for (const p of b.paths) {
-      if (!seen.has(p)) {
-        seen.add(p);
-        paths.push(p);
-      }
-    }
-  }
-  return paths;
-}
-function imagePathsOf(bubble) {
-  const ctx = isRecord(bubble.context) ? bubble.context : void 0;
-  const imgs = ctx && Array.isArray(ctx.selectedImages) ? ctx.selectedImages : [];
-  const paths = [];
-  for (const im of imgs) {
-    if (isRecord(im) && typeof im.path === "string" && im.path)
-      paths.push(im.path);
-  }
-  return paths;
-}
-function sniffMime(buf, path3) {
-  if (buf.length >= 8 && buf[0] === 137 && buf[1] === 80 && buf[2] === 78 && buf[3] === 71) {
-    return "image/png";
-  }
-  if (buf.length >= 3 && buf[0] === 255 && buf[1] === 216 && buf[2] === 255)
-    return "image/jpeg";
-  if (buf.length >= 6) {
-    const sig = buf.toString("ascii", 0, 6);
-    if (sig === "GIF87a" || sig === "GIF89a")
-      return "image/gif";
-  }
-  if (buf.length >= 12 && buf.toString("ascii", 0, 4) === "RIFF" && buf.toString("ascii", 8, 12) === "WEBP") {
-    return "image/webp";
-  }
-  if (buf.length >= 5 && buf.toString("ascii", 0, 5) === "%PDF-")
-    return "application/pdf";
-  const ext = path3.toLowerCase().split(".").pop() ?? "";
-  const byExt = {
-    png: "image/png",
-    jpg: "image/jpeg",
-    jpeg: "image/jpeg",
-    gif: "image/gif",
-    webp: "image/webp",
-    svg: "image/svg+xml",
-    pdf: "application/pdf",
-    txt: "text/plain",
-    md: "text/markdown"
-  };
-  return byExt[ext] ?? "application/octet-stream";
-}
-function placeholder(text) {
-  return { type: "text", text };
-}
-function fileToContentPart(path3) {
-  const name = basename(path3);
-  try {
-    const st = statSync4(path3);
-    if (!st.isFile()) {
-      warn(`attachments: not a file, skipping: ${path3}`);
-      return placeholder(`[attachment skipped: ${name} \u2014 not a file]`);
-    }
-    if (st.size > MAX_ATTACHMENT_BYTES) {
-      warn(`attachments: too large (${st.size} bytes), skipping: ${path3}`);
-      return placeholder(`[attachment too large: ${name} (${st.size} bytes)]`);
-    }
-    const buf = readFileSync5(path3);
-    const mime = sniffMime(buf, path3);
-    const base64 = buf.toString("base64");
-    if (mime.startsWith("image/"))
-      return { type: "image", mime_type: mime, base64 };
-    return { type: "file", mime_type: mime, base64, filename: name };
-  } catch (err) {
-    warn(`attachments: read failed, skipping: ${path3} (${err})`);
-    return placeholder(`[attachment unavailable: ${name}]`);
-  }
-}
-function resolveTurnAttachments(opts) {
-  try {
-    const dbPath = opts.dbPath ?? defaultCursorDbPath();
-    if (!existsSync3(dbPath)) {
-      debug(`attachments: no Cursor DB at ${dbPath}`);
-      return [];
-    }
-    const read = opts.readBubbles ?? queryBubbles;
-    const bubbles = read(dbPath, opts.conversationId);
-    const paths = selectedAttachmentPaths(bubbles, opts.prompt);
-    if (paths.length === 0)
-      return [];
-    const parts = paths.map(fileToContentPart);
-    if (parts.length > 0) {
-      log(`attachments: enriched turn with ${parts.length} attachment(s)`);
-    }
-    return parts;
-  } catch (err) {
-    warn(`attachments: enrichment failed, skipping (${err})`);
-    return [];
-  }
-}
-
-// dist/system-prompt.js
-import { DatabaseSync as DatabaseSync2 } from "node:sqlite";
-import { existsSync as existsSync4 } from "node:fs";
-var ROOT_PROMPT_MESSAGES_FIELD = 1;
-function readVarint(buf, c) {
-  let result = 0;
-  let shift = 1;
-  let byte;
-  do {
-    byte = buf[c.p++];
-    result += (byte & 127) * shift;
-    shift *= 128;
-  } while (byte & 128 && c.p < buf.length);
-  return result;
-}
-function skipVarint(buf, c) {
-  while (c.p < buf.length && buf[c.p++] & 128)
-    ;
-}
-function readProtoLenField(buf, field) {
-  const out = [];
-  const c = { p: 0 };
-  while (c.p < buf.length) {
-    const tag = readVarint(buf, c);
-    const fieldNumber = tag >>> 3;
-    const wireType = tag & 7;
-    switch (wireType) {
-      case 0:
-        skipVarint(buf, c);
-        break;
-      case 1:
-        c.p += 8;
-        break;
-      case 2: {
-        const len = readVarint(buf, c);
-        if (len < 0 || c.p + len > buf.length)
-          return out;
-        if (fieldNumber === field)
-          out.push(buf.subarray(c.p, c.p + len));
-        c.p += len;
-        break;
-      }
-      case 5:
-        c.p += 4;
-        break;
-      default:
-        return out;
-    }
-  }
-  return out;
-}
-function decodeConversationStateBlob(raw) {
-  if (typeof raw !== "string" || raw.length === 0)
+// dist/privacy.js
+var MUTED_TRACE_CONTENT = "[LangSmith system notice: content omitted because tracing is muted.]";
+var METADATA_KEYS = /* @__PURE__ */ new Set([
+  "thread_id",
+  "turn_number",
+  "turn_id",
+  "status",
+  "ls_tracing_mode",
+  "ls_agent_purpose",
+  "ls_agent_type",
+  "ls_agent_runtime",
+  "ls_agent_runtime_version",
+  "ls_integration",
+  "ls_integration_version",
+  "ls_trace_schema_version",
+  "ls_model_name",
+  "ls_tool_name",
+  "usage_metadata",
+  "ls_subagent_id",
+  "ls_subagent_type"
+]);
+function usageForMetadata(value) {
+  if (!value || typeof value !== "object" || Array.isArray(value))
     return void 0;
-  const buf = raw.startsWith("~") ? Buffer.from(raw.slice(1), "base64") : Buffer.from(raw, "hex");
-  return buf.length > 0 ? buf : void 0;
+  return value;
 }
-function systemContentOf(buf) {
-  let msg;
-  try {
-    msg = JSON.parse(buf.toString("utf-8"));
-  } catch {
-    return void 0;
-  }
-  if (!isRecord(msg) || msg.role !== "system")
-    return void 0;
-  const content = msg.content;
-  if (typeof content === "string")
-    return content || void 0;
-  if (content == null)
-    return void 0;
-  return JSON.stringify(content);
-}
-function openDbReader(dbPath) {
-  const db = new DatabaseSync2(dbPath, { readOnly: true });
-  const stmt = db.prepare("SELECT value FROM cursorDiskKV WHERE key = ?");
-  return {
-    get(key) {
-      const row = stmt.get(key);
-      const v = row?.value;
-      if (typeof v === "string")
-        return Buffer.from(v);
-      if (v instanceof Uint8Array)
-        return Buffer.from(v);
-      return void 0;
-    },
-    close: () => db.close()
-  };
-}
-function systemPromptFor(reader, conversationId) {
-  try {
-    const composer = reader.get(`composerData:${conversationId}`);
-    if (!composer)
-      return void 0;
-    const parsed = JSON.parse(composer.toString("utf-8"));
-    const blob = decodeConversationStateBlob(isRecord(parsed) ? parsed.conversationState : void 0);
-    if (!blob)
-      return void 0;
-    for (const id of readProtoLenField(blob, ROOT_PROMPT_MESSAGES_FIELD)) {
-      const msg = reader.get(`agentKv:blob:${id.toString("hex")}`);
-      if (!msg)
-        continue;
-      const system = systemContentOf(msg);
-      if (system) {
-        log(`system-prompt: recovered for ${conversationId} (${system.length} chars)`);
-        return system;
-      }
-    }
-    return void 0;
-  } catch (err) {
-    warn(`system-prompt: resolution failed for ${conversationId}, skipping (${err})`);
-    return void 0;
-  }
-}
-function resolveSystemPrompts(opts) {
-  const result = /* @__PURE__ */ new Map();
-  const ids = [...new Set(opts.conversationIds)].filter(Boolean);
-  if (ids.length === 0)
-    return result;
-  try {
-    const dbPath = opts.dbPath ?? defaultCursorDbPath();
-    if (!existsSync4(dbPath)) {
-      debug(`system-prompt: no Cursor DB at ${dbPath}`);
-      return result;
-    }
-    const reader = (opts.openReader ?? openDbReader)(dbPath);
-    try {
-      for (const id of ids) {
-        const system = systemPromptFor(reader, id);
-        if (system)
-          result.set(id, system);
-      }
-    } finally {
-      reader.close();
-    }
-  } catch (err) {
-    warn(`system-prompt: resolution failed, skipping (${err})`);
-  }
-  return result;
-}
-
-// dist/conversation-steps.js
-var STATE_TURNS_FIELD = 8;
-var TURN_AGENT_FIELD = 1;
-var AGENT_STEPS_FIELD = 2;
-var STEP_ASSISTANT_FIELD = 1;
-var STEP_TOOL_FIELD = 2;
-var STEP_THINKING_FIELD = 3;
-var MESSAGE_TEXT_FIELD = 1;
-var THINKING_DURATION_FIELD = 2;
-var TOOLCALL_TOOL_USE_ID_FIELD = 57;
-var TOOLCALL_HOOK_CONTEXTS_FIELD = 54;
-var TOOL_FIELD_NAMES = {
-  1: "Shell",
-  3: "Delete",
-  4: "Glob",
-  5: "Grep",
-  8: "Read",
-  9: "UpdateTodos",
-  10: "ReadTodos",
-  12: "Edit",
-  13: "Ls",
-  14: "ReadLints",
-  15: "MCP",
-  16: "SemSearch",
-  17: "CreatePlan",
-  18: "WebSearch",
-  19: "Task",
-  20: "ListMcpResources",
-  21: "ReadMcpResource",
-  22: "ApplyAgentDiff",
-  23: "AskQuestion",
-  24: "Fetch",
-  25: "SwitchMode",
-  28: "GenerateImage",
-  29: "RecordScreen",
-  30: "ComputerUse",
-  31: "WriteShellStdin",
-  32: "Reflect",
-  33: "SetupVmEnvironment",
-  34: "Truncated",
-  35: "StartGrindExecution",
-  36: "StartGrindPlanning",
-  37: "WebFetch",
-  38: "ReportBugfixResults",
-  39: "AiAttribution",
-  40: "PrManagement",
-  41: "McpAuth",
-  42: "Await",
-  43: "BlameByFilePath",
-  44: "GetMcpTools",
-  45: "ReportBug",
-  46: "SetActiveBranch",
-  48: "CommunicateUpdate",
-  49: "SendFinalSummary",
-  50: "UpdatePrCodeTour",
-  51: "ReplaceEnv",
-  52: "EditPrLabels",
-  53: "RecordCiInvestigationFindings",
-  55: "SendMessage",
-  58: "SendToUser"
-};
-function scanFields(buf) {
-  const out = [];
-  let p = 0;
-  const readVarint2 = () => {
-    let result = 0;
-    let shift = 1;
-    let byte;
-    do {
-      byte = buf[p++];
-      result += (byte & 127) * shift;
-      shift *= 128;
-    } while (byte & 128 && p < buf.length);
-    return result;
-  };
-  while (p < buf.length) {
-    const tag = readVarint2();
-    const field = tag >>> 3;
-    const wire = tag & 7;
-    if (field === 0)
-      return out;
-    switch (wire) {
-      case 0:
-        out.push({ field, num: readVarint2() });
-        break;
-      case 1:
-        p += 8;
-        break;
-      case 2: {
-        const len = readVarint2();
-        if (len < 0 || p + len > buf.length)
-          return out;
-        out.push({ field, bytes: buf.subarray(p, p + len) });
-        p += len;
-        break;
-      }
-      case 5:
-        p += 4;
-        break;
-      default:
-        return out;
-    }
-  }
-  return out;
-}
-function firstBytes(buf, field) {
-  for (const f2 of scanFields(buf))
-    if (f2.field === field && f2.bytes)
-      return f2.bytes;
-  return void 0;
-}
-function allBytes(buf, field) {
-  const out = [];
-  for (const f2 of scanFields(buf))
-    if (f2.field === field && f2.bytes)
-      out.push(f2.bytes);
-  return out;
-}
-function firstVarint(buf, field) {
-  for (const f2 of scanFields(buf))
-    if (f2.field === field && f2.num != null)
-      return f2.num;
-  return void 0;
-}
-function decodeStep(buf) {
-  const thinking = firstBytes(buf, STEP_THINKING_FIELD);
-  if (thinking) {
-    const text = firstBytes(thinking, MESSAGE_TEXT_FIELD)?.toString("utf-8");
-    const durationMs = firstVarint(thinking, THINKING_DURATION_FIELD);
-    return { kind: "thinking", text, durationMs };
-  }
-  const tool = firstBytes(buf, STEP_TOOL_FIELD);
-  if (tool) {
-    const toolUseId = firstBytes(tool, TOOLCALL_TOOL_USE_ID_FIELD)?.toString("utf-8");
-    let toolField;
-    for (const f2 of scanFields(tool)) {
-      if (f2.field === TOOLCALL_TOOL_USE_ID_FIELD || f2.field === TOOLCALL_HOOK_CONTEXTS_FIELD) {
-        continue;
-      }
-      toolField = f2.field;
-      break;
-    }
-    return {
-      kind: "tool",
-      toolUseId,
-      toolField,
-      toolName: toolField != null ? TOOL_FIELD_NAMES[toolField] : void 0
-    };
-  }
-  const assistant = firstBytes(buf, STEP_ASSISTANT_FIELD);
-  if (assistant) {
-    return {
-      kind: "assistant",
-      text: firstBytes(assistant, MESSAGE_TEXT_FIELD)?.toString("utf-8")
-    };
-  }
-  return void 0;
-}
-function groupSteps(steps) {
-  const rounds = [];
-  let current;
-  const newRound = () => {
-    const r = { thinking: [], toolSteps: [] };
-    rounds.push(r);
-    return r;
-  };
-  for (const step of steps) {
-    if (step.kind === "tool") {
-      if (!current)
-        current = newRound();
-      current.toolSteps.push({
-        toolUseId: step.toolUseId,
-        toolField: step.toolField,
-        toolName: step.toolName
-      });
+function projectMetadata(metadata, status) {
+  const safe = {};
+  for (const [key, value] of Object.entries(metadata ?? {})) {
+    if (!METADATA_KEYS.has(key))
       continue;
-    }
-    if (!current || current.toolSteps.length > 0)
-      current = newRound();
-    if (step.kind === "thinking") {
-      current.thinking.push({ text: step.text, durationMs: step.durationMs });
-    } else {
-      current.assistantText = current.assistantText ? `${current.assistantText}
-${step.text ?? ""}` : step.text;
+    if (key === "usage_metadata") {
+      const usage = usageForMetadata(value);
+      if (usage)
+        safe[key] = usage;
+    } else if (key === "turn_number") {
+      if (typeof value === "number" && Number.isSafeInteger(value) && value >= 1)
+        safe[key] = value;
+    } else if (typeof value === "string" && value.length) {
+      safe[key] = value;
     }
   }
-  return rounds;
+  safe.status = status === "error" || status === "completed" ? status : "running";
+  safe.ls_tracing_mode = "metadata";
+  return safe;
 }
-function openDbReader2(dbPath) {
-  const db = new DatabaseSync3(dbPath, { readOnly: true });
-  const stmt = db.prepare("SELECT value FROM cursorDiskKV WHERE key = ?");
-  return {
-    get(key) {
-      const row = stmt.get(key);
-      const v = row?.value;
-      if (typeof v === "string")
-        return Buffer.from(v);
-      if (v instanceof Uint8Array)
-        return Buffer.from(v);
-      return void 0;
-    },
-    close: () => db.close()
+function metadataForMode(metadata, mode = "full", status) {
+  if (mode === "full")
+    return metadata;
+  return projectMetadata(trustedCodingAgentMetadata(metadata) ?? metadata, status);
+}
+function sanitizeReplica(replica, mode) {
+  if (mode === "full" || !replica || typeof replica !== "object")
+    return replica;
+  if (Array.isArray(replica))
+    return { projectName: replica[0] };
+  const { updates: _updates, ...safe } = replica;
+  return safe;
+}
+function runConfigForMode(config, mode = "full") {
+  if (mode === "full")
+    return config;
+  const status = config.error != null ? "error" : config.end_time != null ? "completed" : "running";
+  const extra = config.extra;
+  const safe = {};
+  for (const key of [
+    "client",
+    "id",
+    "name",
+    "run_type",
+    "project_name",
+    "start_time",
+    "end_time",
+    "parent_run_id",
+    "parent_run",
+    "distributedParentId",
+    "trace_id",
+    "dotted_order"
+  ]) {
+    if (key in config && config[key] !== void 0)
+      safe[key] = config[key];
+  }
+  if (Array.isArray(config.replicas)) {
+    safe.replicas = config.replicas.map((replica) => sanitizeReplica(replica, mode));
+  }
+  safe.inputs = { messages: [{ role: "user", content: MUTED_TRACE_CONTENT }] };
+  safe.outputs = { messages: [{ role: "assistant", content: MUTED_TRACE_CONTENT }] };
+  safe.extra = {
+    metadata: metadataForMode(extra?.metadata, mode, status),
+    // RunTree and Client both enrich extra AFTER construction. A client-level
+    // omitTracedRuntimeInfo flag alone does not suppress RunTree's additions,
+    // and replicas may use their own clients. Keep this method enumerable so it
+    // survives SDK object spreads and filters at the REST serialization boundary
+    // (including multipart .extra parts). Wire-payload tests guard this SDK behavior.
+    toJSON() {
+      return {
+        // Read the current metadata, not the constructor's copy: the client may
+        // have anonymized allowlisted values, which must not be restored here.
+        metadata: projectMetadata(this.metadata, typeof this.metadata?.status === "string" ? this.metadata.status : status)
+      };
+    }
   };
+  return safe;
 }
-var agentKvKey = (blobId) => `agentKv:blob:${blobId.toString("hex")}`;
-function decodeTurnSteps(reader, turnBlobId) {
-  const turnBlob = reader.get(agentKvKey(turnBlobId));
-  if (!turnBlob)
-    return void 0;
-  const agent = firstBytes(turnBlob, TURN_AGENT_FIELD);
-  if (!agent)
-    return void 0;
-  const steps = [];
-  for (const stepId of allBytes(agent, AGENT_STEPS_FIELD)) {
-    const stepBlob = reader.get(agentKvKey(stepId));
-    if (!stepBlob)
-      continue;
-    const step = decodeStep(stepBlob);
-    if (step)
-      steps.push(step);
-  }
-  return steps;
+function createRunTree(config, mode = "full") {
+  const safe = runConfigForMode(config, mode);
+  return protectRun(new RunTree(safe), mode, safe.extra?.metadata);
 }
-function resolveTurnSteps(opts) {
-  const wanted = new Set(opts.toolUseIds.filter(Boolean));
-  if (wanted.size === 0)
-    return void 0;
-  try {
-    const dbPath = opts.dbPath ?? defaultCursorDbPath();
-    if (!existsSync5(dbPath)) {
-      debug(`conversation-steps: no Cursor DB at ${dbPath}`);
-      return void 0;
-    }
-    const reader = (opts.openReader ?? openDbReader2)(dbPath);
-    try {
-      const composer = reader.get(`composerData:${opts.conversationId}`);
-      if (!composer)
-        return void 0;
-      const parsed = JSON.parse(composer.toString("utf-8"));
-      const blob = decodeConversationStateBlob(isRecord(parsed) ? parsed.conversationState : void 0);
-      if (!blob)
-        return void 0;
-      const turnIds = allBytes(blob, STATE_TURNS_FIELD);
-      for (let i = turnIds.length - 1; i >= 0; i--) {
-        const steps = decodeTurnSteps(reader, turnIds[i]);
-        if (!steps)
-          continue;
-        const overlap = steps.some((s) => s.kind === "tool" && s.toolUseId && wanted.has(s.toolUseId));
-        if (overlap) {
-          log(`conversation-steps: recovered ${steps.length} step(s) for ${opts.conversationId}`);
-          return steps;
-        }
-      }
-      debug(`conversation-steps: no turn matched buffered tools for ${opts.conversationId}`);
-      return void 0;
-    } finally {
-      reader.close();
-    }
-  } catch (err) {
-    warn(`conversation-steps: resolution failed for ${opts.conversationId}, skipping (${err})`);
-    return void 0;
-  }
+function protectRun(run, mode, metadata) {
+  if (mode === "full")
+    return run;
+  const trusted = metadata;
+  let failed = trusted?.status === "error";
+  const sanitize = () => {
+    failed ||= run.error != null;
+    const safe = runConfigForMode({
+      inputs: run.inputs,
+      outputs: run.outputs,
+      error: failed ? "error" : void 0,
+      end_time: run.end_time,
+      extra: { metadata: trusted },
+      replicas: run.replicas
+    }, mode);
+    run.inputs = safe.inputs;
+    run.outputs = safe.outputs;
+    run.error = void 0;
+    run.extra = safe.extra;
+    run.replicas = safe.replicas;
+    run.tags = [];
+    run.events = void 0;
+    run.attachments = void 0;
+    run.serialized = {};
+    run.reference_example_id = void 0;
+  };
+  const createChild = run.createChild.bind(run);
+  run.createChild = (config) => {
+    const safe = runConfigForMode(config, mode);
+    return protectRun(createChild(safe), mode, safe.extra?.metadata);
+  };
+  const post = run.postRun.bind(run);
+  run.postRun = async (...args) => {
+    sanitize();
+    return post(...args);
+  };
+  const patch = run.patchRun.bind(run);
+  run.patchRun = async (...args) => {
+    sanitize();
+    return patch(...args);
+  };
+  sanitize();
+  return run;
 }
 
-// dist/langsmith.js
-var client = void 0;
-var replicas = void 0;
-function initTracing(apiKey, apiUrl, providedReplicas, redact = true, extraRedactionRules, clientOverride) {
-  client = clientOverride ?? createTracingClient(apiKey, apiUrl, redact, extraRedactionRules);
-  replicas = providedReplicas;
-  return client;
-}
-async function flushPendingTraces() {
-  debug("Awaiting pending trace batches...");
-  await Promise.all([
-    client?.awaitPendingTraceBatches(),
-    RunTree.getSharedClient().awaitPendingTraceBatches()
-  ]);
-  debug("Trace batches flushed");
-}
-function withSystem(messages, systemPrompt) {
-  return systemPrompt ? [{ role: "system", content: systemPrompt }, ...messages] : messages;
-}
-function userMessageContent(prompt, attachments) {
-  const textPart = prompt || attachments.length === 0 ? [{ type: "text", text: prompt }] : [];
-  return [...textPart, ...attachments];
-}
-function toolStartMs(tool) {
-  const durMs = (tool.duration ?? 0) * 1e3;
-  return Math.max(0, tool.endMs - durMs);
-}
-function toolResultText(tool) {
-  if (tool.error != null)
-    return tool.error;
-  const out = tool.output;
-  if (out == null)
-    return "";
-  return typeof out === "string" ? out : JSON.stringify(out);
-}
-function toolCall(t, floorMs) {
-  return {
-    startMs: Math.max(floorMs, toolStartMs(t)),
-    toolCallBlock: { type: "tool_call", name: t.name, args: t.input, id: t.tool_use_id },
-    resultMessage: {
-      role: "tool",
-      tool_call_id: t.tool_use_id,
-      content: [{ type: "text", text: toolResultText(t) }]
-    }
-  };
-}
-function orderedTurnCalls(buffer) {
-  const calls = [
-    ...buffer.tools.map((t) => toolCall(t, buffer.startMs)),
-    ...buffer.subagents.map((s) => ({
-      startMs: s.startMs,
-      toolCallBlock: {
-        type: "tool_call",
-        name: "Subagent",
-        args: {
-          subagent_type: s.subagent_type,
-          task: s.tracingMode === "full" ? s.task : MUTED_TRACE_CONTENT
-        },
-        id: s.subagent_id
-      },
-      resultMessage: {
-        role: "tool",
-        tool_call_id: s.subagent_id,
-        content: [
-          {
-            type: "text",
-            text: s.tracingMode === "full" ? s.resultText ?? `status: ${s.status ?? "completed"}` : MUTED_TRACE_CONTENT
-          }
-        ]
-      }
-    }))
-  ];
-  return calls.sort((a, b) => a.startMs - b.startMs);
-}
-async function buildTurnRuns(options) {
-  if (options.buffer.tracingMode === "off")
+// dist/hooks/report-old-node.js
+var RUN_NAME = "Cursor Tracing Unavailable";
+var REPORT_TIMEOUT_MS = 5e3;
+async function reportOldNode(report, budgetMs = REPORT_TIMEOUT_MS) {
+  const config = initHook();
+  if (!config)
     return;
-  const mode = options.buffer.tracingMode === "full" ? "full" : "metadata";
-  const { buffer, conversationId, turnNum, project, userEmail, customMetadata, systemPrompt } = options;
-  if (!client && !replicas) {
-    throw new Error("LangSmith client not initialized \u2014 call initTracing() first");
-  }
-  const ctx = {
-    agentType: "root",
-    threadId: conversationId,
-    base: { ...customMetadata, ...userEmail ? { user_email: userEmail } : {} },
-    turnId: buffer.generation_id,
-    turnNumber: turnNum,
-    runtimeVersion: options.runtimeVersion
-  };
-  const promptText = buffer.prompt ?? "";
-  const userContent = userMessageContent(promptText, options.attachments ?? []);
-  const toolEnds = buffer.tools.map((t) => t.endMs);
-  const subagentEnds = buffer.subagents.map((s) => s.endMs ?? s.startMs);
-  const turnEndMs = Math.max(buffer.startMs, ...toolEnds, ...subagentEnds, Date.now());
-  const turnName = `${TURN_RUN_NAME} ${turnNum}`;
-  const turnRun = createRunTree({
+  const client = createTracingClient(config.apiKey, config.apiUrl, config.redact, config.redactExtraRules);
+  const now = Date.now();
+  const run = createRunTree({
     client,
-    replicas,
-    name: turnName,
+    replicas: config.replicas,
+    name: RUN_NAME,
     run_type: "chain",
-    inputs: { messages: [{ role: "user", content: userContent }] },
-    project_name: project,
-    start_time: buffer.startMs,
+    project_name: config.project,
     tags: DEFAULT_TAGS,
-    extra: { metadata: codingAgentMetadata({ ...ctx, runSpecific: { model: buffer.model } }) }
-  }, mode);
-  await turnRun.postRun();
-  const { ls_model_name, ls_provider } = deriveModelInfo(buffer.model);
-  const llmName = ls_provider ?? ls_model_name;
-  const llmMeta = {
-    ls_provider,
-    ls_model_name,
-    ls_invocation_params: { model: ls_model_name }
-  };
-  const usageMetadata = buildUsageMetadata(buffer.usage);
-  const thinking = buffer.thoughts.map((t) => ({ type: "thinking", thinking: t.text }));
-  const finalTextBlocks = buffer.finalText ? [{ type: "text", text: buffer.finalText }] : [];
-  const calls = orderedTurnCalls(buffer);
-  const interleaved = options.steps && options.steps.length > 0 ? await postInterleavedRounds({
-    turnRun,
-    ctx,
-    steps: options.steps,
-    buffer,
-    userContent,
-    systemPrompt,
-    llmName,
-    llmMeta,
-    usageMetadata,
-    finalTextBlocks,
-    turnEndMs
-  }) : false;
-  if (interleaved) {
-  } else if (calls.length === 0) {
-    const llmRun = turnRun.createChild({
-      name: llmName,
-      run_type: "llm",
-      inputs: { messages: withSystem([{ role: "user", content: userContent }], systemPrompt) },
-      outputs: { messages: [{ role: "assistant", content: [...thinking, ...finalTextBlocks] }] },
-      start_time: buffer.startMs,
-      end_time: turnEndMs,
-      extra: {
-        metadata: codingAgentMetadata({
-          ...ctx,
-          runSpecific: { ...llmMeta, usage_metadata: usageMetadata }
-        })
+    error: report.message,
+    start_time: now,
+    end_time: now,
+    extra: {
+      // No thread_id: the run belongs to no conversation. The rest of the
+      // coding-agent-v1 identity block still applies.
+      metadata: {
+        ls_agent_purpose: LS_AGENT_PURPOSE,
+        ls_agent_type: "root",
+        ls_integration: LS_INTEGRATION,
+        ls_agent_runtime: LS_AGENT_RUNTIME,
+        ls_trace_schema_version: LS_TRACE_SCHEMA_VERSION,
+        ...LS_INTEGRATION_VERSION ? { ls_integration_version: LS_INTEGRATION_VERSION } : {},
+        node_version: report.version,
+        node_exec_path: report.execPath
       }
-    });
-    await llmRun.postRun();
-  } else {
-    const firstCallStart = Math.min(...calls.map((c) => c.startMs));
-    const lastCallEnd = Math.max(buffer.startMs, ...buffer.tools.map((t) => t.endMs), ...buffer.subagents.map((s) => s.endMs ?? s.startMs));
-    const assistantDecision = [...thinking, ...calls.map((c) => c.toolCallBlock)];
-    const decideRun = turnRun.createChild({
-      name: llmName,
-      run_type: "llm",
-      inputs: { messages: withSystem([{ role: "user", content: userContent }], systemPrompt) },
-      outputs: { messages: [{ role: "assistant", content: assistantDecision }] },
-      start_time: buffer.startMs,
-      end_time: Math.max(buffer.startMs, firstCallStart),
-      extra: { metadata: codingAgentMetadata({ ...ctx, runSpecific: { ...llmMeta } }) }
-    });
-    await decideRun.postRun();
-    for (const tool of buffer.tools)
-      await postToolRun(tool, turnRun, ctx);
-    for (const sub of buffer.subagents)
-      await postSubagentRun(sub, turnRun, ctx);
-    const answerRun = turnRun.createChild({
-      name: llmName,
-      run_type: "llm",
-      inputs: {
-        messages: withSystem([
-          { role: "user", content: userContent },
-          { role: "assistant", content: assistantDecision },
-          ...calls.map((c) => c.resultMessage)
-        ], systemPrompt)
-      },
-      outputs: { messages: [{ role: "assistant", content: finalTextBlocks }] },
-      start_time: lastCallEnd,
-      end_time: turnEndMs,
-      extra: {
-        metadata: codingAgentMetadata({
-          ...ctx,
-          runSpecific: { ...llmMeta, usage_metadata: usageMetadata }
-        })
-      }
-    });
-    await answerRun.postRun();
-  }
-  turnRun.end_time = turnEndMs;
-  turnRun.outputs = { text: buffer.finalText ?? "" };
-  turnRun.error = buffer.status && buffer.status !== "completed" ? buffer.status : void 0;
-  await turnRun.patchRun({ excludeInputs: true });
-  log(`Traced ${turnName} (conv=${conversationId}): ${buffer.tools.length} tool(s), ${buffer.subagents.length} subagent(s)`);
-}
-function thinkingBlocks(thinking) {
-  return thinking.flatMap((t) => t.text ? [{ type: "thinking", thinking: t.text }] : []);
-}
-async function postInterleavedRounds(p) {
-  const toolMap = /* @__PURE__ */ new Map();
-  for (const t of p.buffer.tools)
-    if (t.tool_use_id)
-      toolMap.set(t.tool_use_id, t);
-  const rounds = groupSteps(p.steps);
-  if (rounds.length === 0)
-    return false;
-  const last = rounds[rounds.length - 1];
-  const finalRound = last.toolSteps.length === 0 ? last : void 0;
-  const actionRounds = finalRound ? rounds.slice(0, -1) : rounds;
-  const anyMatched = actionRounds.some((r) => r.toolSteps.some((ts) => ts.toolUseId != null && toolMap.has(ts.toolUseId)));
-  if (!anyMatched)
-    return false;
-  const msgs = [{ role: "user", content: p.userContent }];
-  let cursorMs = p.buffer.startMs;
-  for (const round of actionRounds) {
-    const matched = round.toolSteps.map((ts) => ts.toolUseId != null ? toolMap.get(ts.toolUseId) : void 0).filter((t) => t != null);
-    const calls = matched.map((t) => toolCall(t, p.buffer.startMs));
-    const textBlocks = round.assistantText ? [{ type: "text", text: round.assistantText }] : [];
-    const assistantContent = [
-      ...thinkingBlocks(round.thinking),
-      ...textBlocks,
-      ...calls.map((c) => c.toolCallBlock)
-    ];
-    const llmStart = cursorMs;
-    const llmEnd = calls.length ? Math.max(cursorMs, Math.min(...calls.map((c) => c.startMs))) : cursorMs;
-    const llmRun = p.turnRun.createChild({
-      name: p.llmName,
-      run_type: "llm",
-      inputs: { messages: withSystem([...msgs], p.systemPrompt) },
-      outputs: { messages: [{ role: "assistant", content: assistantContent }] },
-      start_time: llmStart,
-      end_time: llmEnd,
-      extra: { metadata: codingAgentMetadata({ ...p.ctx, runSpecific: { ...p.llmMeta } }) }
-    });
-    await llmRun.postRun();
-    for (const t of matched)
-      await postToolRun(t, p.turnRun, p.ctx);
-    msgs.push({ role: "assistant", content: assistantContent });
-    for (const c of calls)
-      msgs.push(c.resultMessage);
-    if (matched.length)
-      cursorMs = Math.max(cursorMs, ...matched.map((t) => t.endMs));
-  }
-  for (const sub of p.buffer.subagents)
-    await postSubagentRun(sub, p.turnRun, p.ctx);
-  const answerContent = [...thinkingBlocks(finalRound?.thinking ?? []), ...p.finalTextBlocks];
-  const answerRun = p.turnRun.createChild({
-    name: p.llmName,
-    run_type: "llm",
-    inputs: { messages: withSystem([...msgs], p.systemPrompt) },
-    outputs: { messages: [{ role: "assistant", content: answerContent }] },
-    start_time: cursorMs,
-    end_time: p.turnEndMs,
-    extra: {
-      metadata: codingAgentMetadata({
-        ...p.ctx,
-        runSpecific: { ...p.llmMeta, usage_metadata: p.usageMetadata }
-      })
     }
   });
-  await answerRun.postRun();
-  return true;
+  const budget = new Promise((resolve) => setTimeout(resolve, budgetMs).unref());
+  await Promise.race([run.postRun().then(() => client.awaitPendingTraceBatches()), budget]);
 }
-async function postToolRun(tool, parent, ctx, clearSubagent = false) {
-  const floorMs = typeof parent.start_time === "number" ? parent.start_time : 0;
-  const startMs = Math.max(floorMs, toolStartMs(tool));
-  const isError2 = tool.error != null;
-  const run = parent.createChild({
-    name: tool.name,
-    run_type: "tool",
-    inputs: { input: tool.input },
-    outputs: isError2 ? { error: tool.error } : { output: tool.output ?? "" },
-    error: isError2 ? tool.error : void 0,
-    start_time: startMs,
-    end_time: tool.endMs,
-    extra: {
-      metadata: codingAgentMetadata({
-        ...ctx,
-        clearSubagent,
-        // run name == native tool name, so ls_tool_name is omitted; tool_name kept as alias.
-        toolName: tool.name,
-        runName: tool.name,
-        skillName: skillNameFromTool(tool.name, tool.input),
-        runSpecific: {
-          tool_name: tool.name,
-          tool_use_id: tool.tool_use_id,
-          ...tool.failure_type ? { failure_type: tool.failure_type } : {}
-        }
-      })
-    }
-  });
-  await run.postRun();
-}
-async function postSubagentRun(sub, parent, ctx) {
-  const isError2 = sub.status != null && sub.status !== "completed";
-  const tools = sub.tools ?? [];
-  const startMs = sub.startMs;
-  const endMs = sub.endMs ?? sub.startMs;
-  const runName = sub.subagent_type ? `${sub.subagent_type} Subagent` : "Subagent";
-  const subModel = deriveModelInfo(sub.model);
-  const llmName = subModel.ls_provider ?? subModel.ls_model_name;
-  const llmMeta = {
-    ls_provider: subModel.ls_provider,
-    ls_model_name: subModel.ls_model_name,
-    ls_invocation_params: { model: subModel.ls_model_name }
-  };
-  const subagentCtx = { ...ctx, agentType: "subagent" };
-  const subagentRun = createChildRun(parent, {
-    name: runName,
-    run_type: "chain",
-    inputs: {
-      subagent_type: sub.subagent_type,
-      ...sub.description ? { description: sub.description } : {},
-      task: sub.task
-    },
-    outputs: {
-      status: sub.status ?? "completed",
-      ...sub.resultText ? { result: sub.resultText } : {}
-    },
-    error: isError2 ? sub.status : void 0,
-    start_time: startMs,
-    end_time: endMs,
-    extra: {
-      metadata: codingAgentMetadata({
-        ...subagentCtx,
-        subagentId: sub.subagent_id,
-        subagentType: sub.subagent_type,
-        runSpecific: {
-          ...sub.description ? { subagent_description: sub.description } : {},
-          ...sub.model ? { subagent_model: sub.model } : {},
-          ...subModel.ls_provider ? { subagent_provider: subModel.ls_provider } : {},
-          ...sub.is_parallel_worker != null ? { subagent_is_parallel_worker: sub.is_parallel_worker } : {},
-          ...sub.childConversationId ? { subagent_conversation_id: sub.childConversationId } : {},
-          // Tools we actually captured (authoritative) vs Cursor-reported counts (often 0).
-          subagent_tool_count: tools.length,
-          ...sub.message_count != null ? { reported_message_count: sub.message_count } : {},
-          ...sub.tool_call_count != null ? { reported_tool_call_count: sub.tool_call_count } : {},
-          ...sub.loop_count != null ? { reported_loop_count: sub.loop_count } : {}
-        }
-      })
-    }
-  }, sub.tracingMode === "full" ? "full" : "metadata");
-  await subagentRun.postRun();
-  const baseMessages = withSystem([{ role: "system", content: sub.task }], sub.systemPrompt);
-  const finalBlocks = sub.resultText ? [{ type: "text", text: sub.resultText }] : [];
-  const calls = tools.map((t) => toolCall(t, startMs)).sort((a, b) => a.startMs - b.startMs);
-  if (calls.length === 0) {
-    const llmRun = subagentRun.createChild({
-      name: llmName,
-      run_type: "llm",
-      inputs: { messages: baseMessages },
-      outputs: { messages: [{ role: "assistant", content: finalBlocks }] },
-      start_time: startMs,
-      end_time: endMs,
-      extra: {
-        metadata: codingAgentMetadata({
-          ...subagentCtx,
-          clearSubagent: true,
-          runSpecific: { ...llmMeta }
-        })
-      }
-    });
-    await llmRun.postRun();
-    return;
-  }
-  const firstCallStart = Math.min(...calls.map((c) => c.startMs));
-  const lastCallEnd = Math.max(startMs, ...tools.map((t) => t.endMs));
-  const assistantDecision = calls.map((c) => c.toolCallBlock);
-  const decideRun = subagentRun.createChild({
-    name: llmName,
-    run_type: "llm",
-    inputs: { messages: baseMessages },
-    outputs: { messages: [{ role: "assistant", content: assistantDecision }] },
-    start_time: startMs,
-    end_time: Math.max(startMs, firstCallStart),
-    extra: {
-      metadata: codingAgentMetadata({
-        ...subagentCtx,
-        clearSubagent: true,
-        runSpecific: { ...llmMeta }
-      })
-    }
-  });
-  await decideRun.postRun();
-  for (const tool of tools)
-    await postToolRun(tool, subagentRun, subagentCtx, true);
-  const answerRun = subagentRun.createChild({
-    name: llmName,
-    run_type: "llm",
-    inputs: {
-      messages: [
-        ...baseMessages,
-        { role: "assistant", content: assistantDecision },
-        ...calls.map((c) => c.resultMessage)
-      ]
-    },
-    outputs: { messages: [{ role: "assistant", content: finalBlocks }] },
-    start_time: lastCallEnd,
-    end_time: endMs,
-    extra: {
-      metadata: codingAgentMetadata({
-        ...subagentCtx,
-        clearSubagent: true,
-        runSpecific: { ...llmMeta }
-      })
-    }
-  });
-  await answerRun.postRun();
-}
-
-// dist/hooks/stop.js
-async function main() {
-  const input = await readStdin();
-  const config = initHook(input.workspace_roots?.[0]);
-  if (!config) {
-    const local = loadConfig({ cwd: input.workspace_roots?.[0] });
-    await atomicUpdateState(local.stateFilePath, (s) => s[input.conversation_id]?.turns[input.generation_id]?.tracingMode === "off" ? reduceStop(s, input, Date.now()).state : s);
-    return;
-  }
-  debug(`stop conv=${input.conversation_id} gen=${input.generation_id} status=${input.status}`);
-  let toTrace;
-  let turnNum = 0;
-  await atomicUpdateState(config.stateFilePath, (s) => {
-    const r = reduceStop(s, input, Date.now());
-    toTrace = r.buffer;
-    turnNum = r.turnNum;
-    return r.state;
-  });
-  if (!toTrace) {
-    debug("No buffered turn for this generation \u2014 nothing to trace");
-    return;
-  }
-  if (toTrace.tracingMode === "off")
-    return;
-  initTracing(config.apiKey, config.apiUrl, config.replicas, config.redact, config.redactExtraRules);
-  let attachments = [];
-  if (config.attachmentsEnabled && toTrace.tracingMode === "full") {
-    attachments = resolveTurnAttachments({
-      conversationId: input.conversation_id,
-      prompt: toTrace.prompt,
-      dbPath: config.cursorDbPath
-    });
-  }
-  let systemPrompt;
-  if (config.systemPromptEnabled && toTrace.tracingMode === "full") {
-    const childIds = toTrace.subagents.map((s) => s.childConversationId).filter((id) => !!id);
-    const prompts = resolveSystemPrompts({
-      conversationIds: [input.conversation_id, ...childIds],
-      dbPath: config.cursorDbPath
-    });
-    systemPrompt = prompts.get(input.conversation_id);
-    for (const sub of toTrace.subagents) {
-      if (sub.childConversationId)
-        sub.systemPrompt = prompts.get(sub.childConversationId);
-    }
-  }
-  const steps = resolveTurnSteps({
-    conversationId: input.conversation_id,
-    toolUseIds: toTrace.tools.map((t) => t.tool_use_id),
-    dbPath: config.cursorDbPath
-  });
-  try {
-    await buildTurnRuns({
-      buffer: toTrace,
-      conversationId: input.conversation_id,
-      turnNum,
-      project: config.project,
-      userEmail: input.user_email,
-      workspaceRoots: input.workspace_roots,
-      customMetadata: config.customMetadata,
-      runtimeVersion: input.cursor_version,
-      attachments,
-      systemPrompt,
-      steps
-    });
-  } catch (err) {
-    error(`Failed to build turn runs: ${err}`);
-  }
-  await flushPendingTraces();
-}
-main().catch((err) => {
-  try {
-    warn(`stop hook error: ${err}`);
-  } catch {
-  }
-  process.exit(1);
-});
+export {
+  reportOldNode
+};
