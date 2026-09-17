@@ -55,7 +55,7 @@ export interface CodingAgentMetadataOptions {
   /** Run `name`, used to decide whether `ls_tool_name` is needed. */
   runName?: string;
 
-  /** Skill this run represents, as found by `skillNameFromTool`. */
+  /** Skill this run represents, set on the `Skill` run only. */
   skillName?: string;
 
   /** Run-type-specific keys (ls_provider, ls_model_name, usage_metadata, …). */

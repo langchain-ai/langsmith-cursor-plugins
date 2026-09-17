@@ -43,12 +43,12 @@ it("projects trusted metadata despite custom collisions and drops untyped values
   ).toEqual({ status: "running", ls_tracing_mode: "metadata" });
 });
 
-it("keeps ls_skill_name on a muted tool run, so skill usage still counts", () => {
+it("keeps ls_skill_name on a muted Skill run, so skill usage still counts", () => {
   const metadata = codingAgentMetadata({
     agentType: "root",
     threadId: "thread",
-    toolName: "read_file_v2",
-    runName: "read_file_v2",
+    toolName: "Skill",
+    runName: "Skill",
     skillName: "code-insights",
   });
   expect(metadataForMode(metadata, "metadata")!.ls_skill_name).toBe("code-insights");

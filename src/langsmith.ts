@@ -6,7 +6,7 @@ import { createSecretAnonymizer } from "langsmith/anonymizer";
 import type { StringNodeRule } from "langsmith/anonymizer";
 import type { TurnBuffer, ToolEvent, SubagentEvent, ContentPart } from "./types.js";
 import { buildUsageMetadata, deriveModelInfo } from "./normalize.js";
-import { DEFAULT_TAGS, TURN_RUN_NAME } from "./constants.js";
+import { DEFAULT_TAGS, SKILL_RUN_NAME, TURN_RUN_NAME } from "./constants.js";
 import { codingAgentMetadata, type LSAgentType, skillNameFromTool } from "./metadata.js";
 import { groupSteps, type Step } from "./conversation-steps.js";
 import * as logger from "./logger.js";
@@ -483,12 +483,61 @@ async function postToolRun(
         // run name == native tool name, so ls_tool_name is omitted; tool_name kept as alias.
         toolName: tool.name,
         runName: tool.name,
-        skillName: skillNameFromTool(tool.name, tool.input),
         runSpecific: {
           tool_name: tool.name,
           tool_use_id: tool.tool_use_id,
           ...(tool.failure_type ? { failure_type: tool.failure_type } : {}),
         },
+      }),
+    },
+  });
+  await run.postRun();
+
+  const skillName = skillNameFromTool(tool.name, tool.input);
+  if (skillName) {
+    await postSkillRun(parent, ctx, clearSubagent, {
+      skillName,
+      // A failure hook may carry no message, so failure_type is the surer signal.
+      success: tool.error == null && tool.failure_type == null,
+      startMs,
+      endMs: tool.endMs,
+    });
+  }
+}
+
+interface SkillRunOptions {
+  skillName: string;
+  /** Outcome of the read that loaded the skill, which is all Cursor reports. */
+  success: boolean;
+  startMs: number;
+  endMs: number;
+}
+
+/** Posts the one run that carries `ls_skill_name`, so an invocation is counted once. */
+async function postSkillRun(
+  parent: RunTree,
+  ctx: MetaCtx,
+  clearSubagent: boolean,
+  opts: SkillRunOptions,
+): Promise<void> {
+  const run = parent.createChild({
+    name: SKILL_RUN_NAME,
+    run_type: "tool",
+    // The `input`/`output` wrapper puts these fields where Claude Code's are.
+    inputs: { input: { skill: opts.skillName } },
+    outputs: { output: { commandName: opts.skillName, success: opts.success } },
+    start_time: opts.startMs,
+    end_time: opts.endMs,
+    extra: {
+      metadata: codingAgentMetadata({
+        ...ctx,
+        clearSubagent,
+        // Equal names are what suppress `ls_tool_name`.
+        toolName: SKILL_RUN_NAME,
+        runName: SKILL_RUN_NAME,
+        skillName: opts.skillName,
+        // No tool_use_id: Cursor issued no such call.
+        runSpecific: { tool_name: SKILL_RUN_NAME },
       }),
     },
   });
