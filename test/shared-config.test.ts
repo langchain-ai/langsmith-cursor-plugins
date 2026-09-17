@@ -290,7 +290,7 @@ describe("filesystem fixtures", () => {
     expect(readCommonConfigFile(dir)).toMatchObject({ status: "invalid", common: restrictive });
   });
 
-  it.skipIf(process.platform === "win32")("rejects FIFO without opening/blocking", () => {
+  it.skipIf(process.platform === "win32")("rejects FIFO without blocking", () => {
     const path = setup();
     execFileSync("mkfifo", [path]);
     expect(readCommonConfigFile(path)).toMatchObject({ status: "invalid", common: restrictive });
@@ -320,9 +320,9 @@ describe("filesystem fixtures", () => {
     },
   );
 
-  it.each(["EACCES", "EPERM", "EIO", "ENOTDIR"])("restricts stat failure %s", (code) => {
+  it.each(["EACCES", "EPERM", "EIO", "ENOTDIR"])("restricts open failure %s", (code) => {
     const path = setup();
-    vi.spyOn(fs, "statSync").mockImplementation(() => {
+    vi.spyOn(fs, "openSync").mockImplementation(() => {
       throw Object.assign(new Error("SECRET"), { code });
     });
     expect(readCommonConfigFile(path)).toMatchObject({ status: "invalid", common: restrictive });

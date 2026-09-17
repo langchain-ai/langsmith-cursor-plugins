@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { lstatSync, readFileSync } from "node:fs";
+import { closeSync, constants, fstatSync, lstatSync, openSync, readFileSync } from "node:fs";
 import { mkdir, open, rename, rmdir, unlink } from "node:fs/promises";
 import { dirname } from "node:path";
 import { performance } from "node:perf_hooks";
@@ -28,9 +28,14 @@ function hasCode(error: unknown, code: string): boolean {
 function readPolicy(path: string): TracingPolicy {
   let raw: string;
   try {
-    if (!lstatSync(path).isFile())
-      throw new Error("Tracing preferences must be a regular, non-symlink file");
-    raw = readFileSync(path, "utf8");
+    const fd = openSync(path, constants.O_RDONLY | constants.O_NONBLOCK | constants.O_NOFOLLOW);
+    try {
+      if (!fstatSync(fd).isFile())
+        throw new Error("Tracing preferences must be a regular, non-symlink file");
+      raw = readFileSync(fd, "utf8");
+    } finally {
+      closeSync(fd);
+    }
   } catch (error) {
     if (hasCode(error, "ENOENT")) {
       // A dangling symlink is an unreadable policy, not an absent preference.
