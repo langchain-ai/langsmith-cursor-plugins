@@ -72,20 +72,28 @@ export function getSeaReleaseTarget(
   };
 }
 
-function parseVersion(version: string): [number, number, number] | undefined {
-  const match = /^v?(\d+)\.(\d+)\.(\d+)$/.exec(version.trim());
+function parseVersion(version: string): { core: bigint[]; prerelease: boolean } | undefined {
+  const match =
+    /^v?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-(?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*))*)?$/.exec(
+      version.trim(),
+    );
   if (!match) return undefined;
-  return [Number(match[1]), Number(match[2]), Number(match[3])];
+  return {
+    core: [BigInt(match[1]), BigInt(match[2]), BigInt(match[3])],
+    prerelease: version.includes("-"),
+  };
 }
 
 export function isVersionNewer(candidate: string, current: string): boolean {
   const next = parseVersion(candidate);
   const installed = parseVersion(current);
-  if (!next || !installed) return false;
-  for (let i = 0; i < next.length; i += 1) {
-    if (next[i] !== installed[i]) return next[i] > installed[i];
+  // Automatic updates stay on the stable channel, including for manually
+  // installed debug/dev/beta builds. Prereleases are installed explicitly.
+  if (!next || !installed || next.prerelease) return false;
+  for (let i = 0; i < next.core.length; i += 1) {
+    if (next.core[i] !== installed.core[i]) return next.core[i] > installed.core[i];
   }
-  return false;
+  return installed.prerelease;
 }
 
 function parseRelease(value: unknown): GitHubRelease {

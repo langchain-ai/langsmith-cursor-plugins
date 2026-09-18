@@ -53,6 +53,20 @@ function releaseResponse(
 }
 
 describe("isVersionNewer", () => {
+  it.each(["beta.1", "dev", "debug.2"])("upgrades %s builds to stable releases", (suffix) => {
+    expect(isVersionNewer("1.2.3", `1.2.3-${suffix}`)).toBe(true);
+    expect(isVersionNewer("1.2.4", `1.2.3-${suffix}`)).toBe(true);
+    expect(isVersionNewer("1.2.2", `1.2.3-${suffix}`)).toBe(false);
+    expect(isVersionNewer(`1.2.4-${suffix}`, "1.2.3")).toBe(false);
+  });
+
+  it.each(["1.2.3-beta.01", "1.2.3-", "1.2.3-beta..1", "01.2.3-dev"])(
+    "rejects malformed prerelease versions: %s",
+    (version) => {
+      expect(isVersionNewer("2.0.0", version)).toBe(false);
+    },
+  );
+
   it("compares stable semantic versions", () => {
     expect(isVersionNewer("v0.3.5", "0.3.4")).toBe(true);
     expect(isVersionNewer("1.0.0", "0.99.99")).toBe(true);

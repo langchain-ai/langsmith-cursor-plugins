@@ -43,7 +43,7 @@ async function runServer() {
       response.setHeader("Content-Type", "application/json");
       response.end(
         JSON.stringify({
-          tag_name: `v${version}`,
+          tag_name: version,
           assets: [
             {
               name: assetName,
