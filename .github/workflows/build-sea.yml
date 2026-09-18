@@ -1,0 +1,136 @@
+name: Build SEA
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches: [main]
+    tags:
+      - "[0-9]*.[0-9]*.[0-9]*"
+
+permissions:
+  contents: read
+
+jobs:
+  build-sea:
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 26.7.0
+          architecture: arm64
+          cache: pnpm
+      - uses: socketdev/action@ba6de6cc0565af1f42295590380973573297e31f # v1.3.2
+        with:
+          mode: firewall-free
+      - run: pnpm install --frozen-lockfile
+      - name: Build unsigned SEA
+        run: pnpm build:sea
+        env:
+          LANGSMITH_CURSOR_UNSIGNED_BUILD: "true"
+          APPLE_TEAM_ID: ${{ vars.APPLE_TEAM_ID }}
+      - name: Upload release input
+        if: ${{ github.event_name == 'push' && github.ref_type == 'tag' }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: unsigned-sea-${{ github.sha }}
+          path: bin/langsmith-cursor-tracing
+          if-no-files-found: error
+          retention-days: 1
+
+  sign:
+    if: ${{ github.event_name == 'push' && github.ref_type == 'tag' && github.repository == 'langchain-ai/langsmith-cursor-plugins' }}
+    needs: build-sea
+    runs-on: macos-26
+    timeout-minutes: 45
+    environment: 
+      name: macos-signing
+      deployment: false
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 26.7.0
+          architecture: arm64
+          package-manager-cache: false
+      # No run-id or external repository: only this run's release build is accepted.
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: unsigned-sea-${{ github.sha }}
+          path: bin
+      - name: Sign and notarize release
+        shell: bash
+        run: |
+          set +x
+          set -euo pipefail
+          umask 077
+          node scripts/sign-sea-release.mts
+        env:
+          APPLE_TEAM_ID: ${{ vars.APPLE_TEAM_ID }}
+          APPLE_API_KEY: ${{ secrets.APPLE_API_KEY }}
+          APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
+          APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+      - name: Clean signing files after failure or cancellation
+        if: ${{ always() }}
+        shell: bash
+        run: |
+          set +x
+          for dir in "$TMPDIR"/langsmith-sea-release-*; do
+            [ -d "$dir" ] || continue
+            /usr/bin/security delete-keychain "$dir/app-signing.keychain-db" >/dev/null 2>&1 || true
+            rm -rf -- "$dir"
+          done
+      - name: Upload signed release assets
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: signed-sea-${{ github.sha }}
+          path: |
+            dist/langsmith-cursor-tracing-darwin-arm64-*
+          if-no-files-found: error
+          retention-days: 7
+
+  publish:
+    if: ${{ github.event_name == 'push' && github.ref_type == 'tag' }}
+    needs: sign
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download SEA artifact
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: signed-sea-${{ github.sha }}
+          path: dist
+      - name: Publish release assets
+        env:
+          GH_REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          release_flags=()
+          if [[ "$GITHUB_REF_NAME" == *-* ]]; then
+            release_flags+=(--prerelease --latest=false)
+          fi
+          if gh release view "$GITHUB_REF_NAME" > /dev/null 2>&1; then
+            if [[ "$GITHUB_REF_NAME" == *-* ]]; then
+              gh release edit "$GITHUB_REF_NAME" --prerelease --latest=false
+            fi
+            gh release upload "$GITHUB_REF_NAME" \
+              dist/langsmith-cursor-tracing-darwin-arm64-* \
+              --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" \
+              dist/langsmith-cursor-tracing-darwin-arm64-* \
+              --verify-tag \
+              --generate-notes "${release_flags[@]}"
+          fi
