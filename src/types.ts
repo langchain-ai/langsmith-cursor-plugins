@@ -184,6 +184,7 @@ export interface TurnBuffer {
   /** Immutable prompt-launch snapshot; absent/legacy evidence is metadata-only. */
   tracingMode?: TurnMode;
   generation_id: string;
+  turnNum?: number;
   prompt?: string;
   /** Best model label seen for this turn (from beforeSubmitPrompt / stop). */
   model?: string;
@@ -206,7 +207,8 @@ export interface ConversationState {
   completedOffGenerations?: string[];
   /** In-progress turn buffers keyed by generation_id. */
   turns: Record<string, TurnBuffer>;
-  /** Number of turns already finalized (for "Cursor Turn N" naming). */
+  turns_started?: number;
+  /** Number of turns already finalized; a thread with none may be a subagent's own. */
   turn_count: number;
   /** ISO timestamp of last update (for pruning). */
   updated: string;

@@ -18,7 +18,12 @@ import type {
   SubagentStopInput,
   StopInput,
 } from "./types.js";
-import { getConversationState, newTurnBuffer, pruneOldConversations } from "./state.js";
+import {
+  getConversationState,
+  newTurnBuffer,
+  nextTurnNum,
+  pruneOldConversations,
+} from "./state.js";
 import {
   extractMcpError,
   parseToolOutput,
@@ -53,7 +58,7 @@ export function reduceBeforeSubmitPrompt(
   if (conv.completedOffGenerations?.includes(input.generation_id)) return state;
   // Duplicate delivery must not change a running generation or its snapshot.
   if (conv.turns[input.generation_id]) return state;
-  const turn = newTurnBuffer(input.generation_id, nowMs);
+  const turn = newTurnBuffer(input.generation_id, nowMs, nextTurnNum(conv));
   turn.tracingMode = mode;
   turn.prompt = mode === "off" ? undefined : input.prompt;
   turn.model = input.model;
@@ -69,7 +74,8 @@ export function reducePostToolUse(
 ): TracingState {
   const conv = getConversationState(state, input.conversation_id);
   if (conv.completedOffGenerations?.includes(input.generation_id)) return state;
-  const turn = conv.turns[input.generation_id] ?? newTurnBuffer(input.generation_id, nowMs);
+  const turn =
+    conv.turns[input.generation_id] ?? newTurnBuffer(input.generation_id, nowMs, nextTurnNum(conv));
   turn.model = preferModel(turn.model, input.model);
   const output = parseToolOutput(input.tool_output);
   turn.tools.push({
@@ -95,7 +101,8 @@ export function reducePostToolUseFailure(
 ): TracingState {
   const conv = getConversationState(state, input.conversation_id);
   if (conv.completedOffGenerations?.includes(input.generation_id)) return state;
-  const turn = conv.turns[input.generation_id] ?? newTurnBuffer(input.generation_id, nowMs);
+  const turn =
+    conv.turns[input.generation_id] ?? newTurnBuffer(input.generation_id, nowMs, nextTurnNum(conv));
   turn.model = preferModel(turn.model, input.model);
   turn.tools.push({
     tool_use_id: input.tool_use_id,
@@ -118,7 +125,8 @@ export function reduceAfterAgentResponse(
 ): TracingState {
   const conv = getConversationState(state, input.conversation_id);
   if (conv.completedOffGenerations?.includes(input.generation_id)) return state;
-  const turn = conv.turns[input.generation_id] ?? newTurnBuffer(input.generation_id, nowMs);
+  const turn =
+    conv.turns[input.generation_id] ?? newTurnBuffer(input.generation_id, nowMs, nextTurnNum(conv));
   turn.finalText = input.text;
   turn.model = preferModel(turn.model, input.model);
   turn.usage = {
@@ -167,7 +175,9 @@ export function reduceSubagentStart(
   if (conv.completedOffGenerations?.includes(input.generation_id)) return state;
   const tracingMode = subagentLaunchMode(conv, input);
   const turnId = latestTurnId(conv.turns);
-  const turn = turnId ? conv.turns[turnId] : newTurnBuffer(input.generation_id, nowMs);
+  const turn = turnId
+    ? conv.turns[turnId]
+    : newTurnBuffer(input.generation_id, nowMs, nextTurnNum(conv));
   turn.subagents.push({
     tracingMode,
     subagent_id: input.subagent_id,
@@ -323,7 +333,7 @@ export function reduceStop(state: TracingState, input: StopInput, nowMs: number)
   turn.status = input.status;
   turn.model = preferModel(turn.model, input.model);
 
-  const turnNum = conv.turn_count + 1;
+  const turnNum = turn.turnNum ?? nextTurnNum(conv);
   if (turn.tracingMode === "off") {
     (conv.completedOffGenerations ??= []).push(input.generation_id);
   }

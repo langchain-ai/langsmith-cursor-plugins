@@ -8,6 +8,7 @@ import {
   atomicUpdateState,
   getConversationState,
   newTurnBuffer,
+  nextTurnNum,
   pruneOldConversations,
 } from "../src/state.js";
 import type { TracingState } from "../src/types.js";
@@ -22,10 +23,18 @@ describe("getConversationState / newTurnBuffer", () => {
   });
 
   it("creates an empty turn buffer", () => {
-    const t = newTurnBuffer("gen1", 1000);
-    expect(t).toMatchObject({ generation_id: "gen1", startMs: 1000 });
+    const t = newTurnBuffer("gen1", 1000, 2);
+    expect(t).toMatchObject({ generation_id: "gen1", startMs: 1000, turnNum: 2 });
     expect(t.tools).toEqual([]);
     expect(t.subagents).toEqual([]);
+  });
+
+  it("issues turn numbers in order and seeds from a pre-upgrade thread", () => {
+    const fresh = { turns: {}, turn_count: 0, updated: "" };
+    expect([nextTurnNum(fresh), nextTurnNum(fresh)]).toEqual([1, 2]);
+
+    const upgraded = { turns: {}, turn_count: 5, updated: "" };
+    expect(nextTurnNum(upgraded)).toBe(6);
   });
 });
 

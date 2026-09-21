@@ -20,6 +20,7 @@ export {
   getConversationState,
   getTurnBuffer,
   newTurnBuffer,
+  nextTurnNum,
   pruneOldConversations,
 } from "./state.js";
 

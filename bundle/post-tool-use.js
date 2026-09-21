@@ -595,9 +595,14 @@ function saveState(stateFilePath, state) {
 function getConversationState(state, conversationId) {
   return state[conversationId] ?? { turns: {}, turn_count: 0, updated: "" };
 }
-function newTurnBuffer(generationId, startMs) {
+function nextTurnNum(conv) {
+  conv.turns_started = (conv.turns_started ?? conv.turn_count) + 1;
+  return conv.turns_started;
+}
+function newTurnBuffer(generationId, startMs, turnNum) {
   return {
     generation_id: generationId,
+    turnNum,
     startMs,
     tools: [],
     thoughts: [],
@@ -650,7 +655,7 @@ function reducePostToolUse(state, input, nowMs) {
   const conv = getConversationState(state, input.conversation_id);
   if (conv.completedOffGenerations?.includes(input.generation_id))
     return state;
-  const turn = conv.turns[input.generation_id] ?? newTurnBuffer(input.generation_id, nowMs);
+  const turn = conv.turns[input.generation_id] ?? newTurnBuffer(input.generation_id, nowMs, nextTurnNum(conv));
   turn.model = preferModel(turn.model, input.model);
   const output = parseToolOutput(input.tool_output);
   turn.tools.push({
