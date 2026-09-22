@@ -58,7 +58,6 @@ export interface Config {
   cursorDbPath?: string;
   /** Redact detected secrets from traced data before upload (default on). */
   redact: boolean;
-  sweepEnabled: boolean;
   sweepIdleMinutes: number;
   /** Extra user-supplied redaction rules (environment or common file config). */
   redactExtraRules?: StringNodeRule[];
@@ -137,7 +136,7 @@ function readConfigFile(file: string) {
   const extensions: CursorExtensions = {};
   const raw = result.raw;
   if (raw) {
-    for (const field of ["attachments", "system_prompt", "sweep"] as const) {
+    for (const field of ["attachments", "system_prompt"] as const) {
       if (!Object.hasOwn(raw, field)) continue;
       if (typeof raw[field] === "boolean") extensions[field] = raw[field];
       else logError(`Invalid Cursor config extension ${field}; ignoring field.`);
@@ -343,13 +342,6 @@ export function loadConfig(options?: { cwd?: string }): Config {
     globalFile.extensions.system_prompt ??
     userRootFile.extensions.system_prompt ??
     true;
-  const sweepEnabled =
-    parseBoolean(getEnv("SWEEP")) ??
-    localFile.extensions.sweep ??
-    rootFile.extensions.sweep ??
-    globalFile.extensions.sweep ??
-    userRootFile.extensions.sweep ??
-    true;
   const sweepIdleMinutes =
     parsePositiveNumber(getEnv("SWEEP_IDLE_MINUTES")) ??
     localFile.extensions.sweep_idle_minutes ??
@@ -412,7 +404,6 @@ export function loadConfig(options?: { cwd?: string }): Config {
     cursorDbPath,
     redact,
     redactExtraRules,
-    sweepEnabled,
     sweepIdleMinutes,
   };
 }

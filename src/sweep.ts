@@ -46,11 +46,6 @@ async function uploadClaim(claim: SweepClaim, options: SweepOptions): Promise<bo
 
 export async function runSweep(options: SweepOptions): Promise<SweepClaim[]> {
   const { config, apply } = options;
-  if (!config.sweepEnabled) {
-    if (apply) await atomicUpdateState(config.stateFilePath, apply);
-    return [];
-  }
-
   const nowMs = options.nowMs ?? Date.now();
   const thresholdMs = config.sweepIdleMinutes * 60_000;
   let claims: SweepClaim[] = [];

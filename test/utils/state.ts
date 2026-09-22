@@ -46,7 +46,6 @@ export function testConfig(stateFilePath: string): Config {
     attachmentsEnabled: false,
     systemPromptEnabled: false,
     redact: true,
-    sweepEnabled: true,
     sweepIdleMinutes: 60,
   };
 }

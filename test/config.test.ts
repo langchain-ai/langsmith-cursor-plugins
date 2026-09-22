@@ -31,7 +31,6 @@ function clearEnv(): void {
     "LANGSMITH_CURSOR_STATE_FILE",
     "LANGSMITH_CURSOR_REDACT",
     "LANGSMITH_CURSOR_REDACT_EXTRA",
-    "LANGSMITH_CURSOR_SWEEP",
     "LANGSMITH_CURSOR_SWEEP_IDLE_MINUTES",
   ]) {
     vi.stubEnv(k, undefined as unknown as string);
@@ -768,7 +767,6 @@ describe("uniform environment-first and home-root precedence", () => {
     ["attachments", "attachmentsEnabled", "LANGSMITH_CURSOR_ATTACHMENTS", true, false],
     ["system_prompt", "systemPromptEnabled", "LANGSMITH_CURSOR_SYSTEM_PROMPT", true, false],
     ["cursor_db_path", "cursorDbPath", "LANGSMITH_CURSOR_DB_PATH", "lower", ""],
-    ["sweep", "sweepEnabled", "LANGSMITH_CURSOR_SWEEP", true, false],
     ["sweep_idle_minutes", "sweepIdleMinutes", "LANGSMITH_CURSOR_SWEEP_IDLE_MINUTES", 30, 5],
   ] as const)(
     "%s resolves every source independently, preserving empty/false overrides",
@@ -791,12 +789,8 @@ describe("uniform environment-first and home-root precedence", () => {
     },
   );
 
-  it("recovers stranded turns after half a day unless it is switched off", () => {
-    expect(loadConfig({ cwd })).toMatchObject({ sweepEnabled: true, sweepIdleMinutes: 360 });
-    write(0, { sweep: false });
-    expect(loadConfig({ cwd }).sweepEnabled).toBe(false);
-    vi.stubEnv("LANGSMITH_CURSOR_SWEEP", "on");
-    expect(loadConfig({ cwd }).sweepEnabled).toBe(true);
+  it("recovers stranded turns after six hours", () => {
+    expect(loadConfig({ cwd })).toMatchObject({ sweepIdleMinutes: 360 });
   });
 
   it.each([0, -5, "soon", null])("ignores an unusable sweep_idle_minutes: %j", (value) => {

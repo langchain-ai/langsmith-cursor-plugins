@@ -299,7 +299,7 @@ function readConfigFile(file) {
   const extensions = {};
   const raw = result.raw;
   if (raw) {
-    for (const field of ["attachments", "system_prompt", "sweep"]) {
+    for (const field of ["attachments", "system_prompt"]) {
       if (!Object.hasOwn(raw, field))
         continue;
       if (typeof raw[field] === "boolean")
@@ -465,7 +465,6 @@ function loadConfig(options) {
   const replicas = normalizeReplicas(envReplicas) ?? toSdkReplicas(common.replicas);
   const attachmentsEnabled = parseBoolean(getEnv("ATTACHMENTS")) ?? localFile.extensions.attachments ?? rootFile.extensions.attachments ?? globalFile.extensions.attachments ?? userRootFile.extensions.attachments ?? true;
   const systemPromptEnabled = parseBoolean(getEnv("SYSTEM_PROMPT")) ?? localFile.extensions.system_prompt ?? rootFile.extensions.system_prompt ?? globalFile.extensions.system_prompt ?? userRootFile.extensions.system_prompt ?? true;
-  const sweepEnabled = parseBoolean(getEnv("SWEEP")) ?? localFile.extensions.sweep ?? rootFile.extensions.sweep ?? globalFile.extensions.sweep ?? userRootFile.extensions.sweep ?? true;
   const sweepIdleMinutes = parsePositiveNumber(getEnv("SWEEP_IDLE_MINUTES")) ?? localFile.extensions.sweep_idle_minutes ?? rootFile.extensions.sweep_idle_minutes ?? globalFile.extensions.sweep_idle_minutes ?? userRootFile.extensions.sweep_idle_minutes ?? DEFAULT_SWEEP_IDLE_MINUTES;
   const cursorDbPath = getEnv("DB_PATH") ?? localFile.extensions.cursor_db_path ?? rootFile.extensions.cursor_db_path ?? globalFile.extensions.cursor_db_path ?? userRootFile.extensions.cursor_db_path;
   const redactExtraRules = parseRedactExtraRules(getEnv("REDACT_EXTRA")) ?? common.redact_extra_rules;
@@ -506,7 +505,6 @@ function loadConfig(options) {
     cursorDbPath,
     redact,
     redactExtraRules,
-    sweepEnabled,
     sweepIdleMinutes
   };
 }

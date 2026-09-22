@@ -617,19 +617,6 @@ describe("runSweep against the on-disk state file", () => {
     expect(inputs).not.toContain("recover me");
   });
 
-  it("still applies the calling hook's reducer when the sweep is switched off", async () => {
-    const uploaded = await runSweep({
-      config: { ...config, sweepEnabled: false },
-      input: CALLER_INPUT,
-      nowMs: T0 + 5 * HOUR,
-      apply: (state) => ({ ...state, c2: conversation([turn("g2", T0)]) }),
-    });
-
-    expect(uploaded).toEqual([]);
-    const after = loadState(stateFilePath);
-    expect(Object.keys(after).sort()).toEqual(["c1", "c2"]);
-    expect(Object.keys(after.c1.turns)).toEqual(["g1"]);
-  });
 });
 
 describe("run ids that survive a re-upload", () => {
