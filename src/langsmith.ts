@@ -10,11 +10,32 @@ import { DEFAULT_TAGS, SKILL_RUN_NAME, TURN_RUN_NAME } from "./constants.js";
 import { codingAgentMetadata, type LSAgentType, skillNameFromTool } from "./metadata.js";
 import { groupSteps, type Step } from "./conversation-steps.js";
 import * as logger from "./logger.js";
+import { createHash } from "node:crypto";
 
 // ─── Client setup ─────────────────────────────────────────────────────────
 
 let client: Client | undefined = undefined;
 let replicas: RunTreeConfig["replicas"] | undefined = undefined;
+let refusedWrite: string | undefined = undefined;
+
+function isWriteRequest(init?: RequestInit): boolean {
+  const method = init?.method?.toUpperCase() ?? "GET";
+  return method !== "GET" && method !== "HEAD";
+}
+
+const fetchRecordingRefusedWrites: typeof fetch = async (input, init) => {
+  const request = `${init?.method ?? "GET"} ${typeof input === "string" ? input : String(input)}`;
+  try {
+    const response = await fetch(input, init);
+    if (isWriteRequest(init) && !response.ok) {
+      refusedWrite ??= `${request} answered ${response.status}`;
+    }
+    return response;
+  } catch (err) {
+    if (isWriteRequest(init)) refusedWrite ??= `${request} failed: ${err}`;
+    throw err;
+  }
+};
 
 export function initTracing(
   apiKey?: string,
@@ -29,7 +50,14 @@ export function initTracing(
     : undefined;
 
   // Always retain the configured endpoint, including keyless, unredacted replica-only tracing.
-  client = clientOverride ?? new Client({ apiKey: apiKey || undefined, apiUrl, anonymizer });
+  client =
+    clientOverride ??
+    new Client({
+      apiKey: apiKey || undefined,
+      apiUrl,
+      anonymizer,
+      fetchImplementation: fetchRecordingRefusedWrites,
+    });
   replicas = providedReplicas;
   return client;
 }
@@ -42,6 +70,15 @@ export async function flushPendingTraces(): Promise<void> {
     RunTree.getSharedClient().awaitPendingTraceBatches(),
   ]);
   logger.debug("Trace batches flushed");
+}
+
+export async function uploadTurn(options: BuildTurnOptions): Promise<boolean> {
+  refusedWrite = undefined;
+  await buildTurnRuns(options);
+  await flushPendingTraces();
+  if (refusedWrite === undefined) return true;
+  logger.warn(`Keeping the turn for a later retry: ${refusedWrite}`);
+  return false;
 }
 
 // ─── Dotted-order helpers (exported utilities) ───────────────────────────────
@@ -80,8 +117,6 @@ export interface BuildTurnOptions {
   project: string;
   /** user_email from the hook payload, attached to runs. */
   userEmail?: string | null;
-  /** Workspace roots from the hook payload. */
-  workspaceRoots?: string[];
   /** coding-agent-v1 base metadata from config (repo/git/cwd/user/version). */
   customMetadata?: Record<string, unknown>;
   /** Cursor runtime version (hook `cursor_version`) → ls_agent_runtime_version. */
@@ -92,6 +127,22 @@ export interface BuildTurnOptions {
   systemPrompt?: string;
   /** True interleaved step sequence from Cursor's DB; enables per-round llm/tool fidelity. */
   steps?: Step[];
+}
+
+function uuidFromDigest(hex: string): string {
+  const variant = ((parseInt(hex[16], 16) & 0x3) | 0x8).toString(16);
+  return [
+    hex.slice(0, 8),
+    hex.slice(8, 12),
+    `5${hex.slice(13, 16)}`,
+    `${variant}${hex.slice(17, 20)}`,
+    hex.slice(20, 32),
+  ].join("-");
+}
+
+function stableRunId(ctx: MetaCtx, key: string): string {
+  const seed = `${ctx.threadId}\u0000${ctx.turnId ?? ""}\u0000${key}`;
+  return uuidFromDigest(createHash("sha256").update(seed).digest("hex"));
 }
 
 /** Per-turn context shared by every run's coding-agent-v1 metadata. */
@@ -222,6 +273,7 @@ export async function buildTurnRuns(options: BuildTurnOptions): Promise<void> {
     {
       client,
       replicas,
+      id: stableRunId(ctx, "turn"),
       name: turnName,
       run_type: "chain",
       inputs: { messages: [{ role: "user", content: userContent }] },
@@ -270,6 +322,7 @@ export async function buildTurnRuns(options: BuildTurnOptions): Promise<void> {
   } else if (calls.length === 0) {
     // No tools: a single llm run, user → assistant (thinking + final text).
     const llmRun = turnRun.createChild({
+      id: stableRunId(ctx, "llm"),
       name: llmName,
       run_type: "llm",
       inputs: { messages: withSystem([{ role: "user", content: userContent }], systemPrompt) },
@@ -296,6 +349,7 @@ export async function buildTurnRuns(options: BuildTurnOptions): Promise<void> {
 
     // 2a. "decide" llm — emits the tool calls. Usage goes on the answer run.
     const decideRun = turnRun.createChild({
+      id: stableRunId(ctx, "decide"),
       name: llmName,
       run_type: "llm",
       inputs: { messages: withSystem([{ role: "user", content: userContent }], systemPrompt) },
@@ -307,11 +361,14 @@ export async function buildTurnRuns(options: BuildTurnOptions): Promise<void> {
     await decideRun.postRun();
 
     // 3. Tool runs (and subagent Task runs) between the two llm calls.
-    for (const tool of buffer.tools) await postToolRun(tool, turnRun, ctx);
-    for (const sub of buffer.subagents) await postSubagentRun(sub, turnRun, ctx);
+    for (const [i, tool] of buffer.tools.entries())
+      await postToolRun(tool, turnRun, ctx, `tool:${i}:${tool.tool_use_id}`);
+    for (const [i, sub] of buffer.subagents.entries())
+      await postSubagentRun(sub, turnRun, ctx, `subagent:${i}:${sub.subagent_id}`);
 
     // 2b. "answer" llm — tool results fed back in, produces the final text.
     const answerRun = turnRun.createChild({
+      id: stableRunId(ctx, "answer"),
       name: llmName,
       run_type: "llm",
       inputs: {
@@ -395,7 +452,7 @@ async function postInterleavedRounds(p: InterleaveOptions): Promise<boolean> {
   const msgs: Array<Record<string, unknown>> = [{ role: "user", content: p.userContent }];
   let cursorMs = p.buffer.startMs;
 
-  for (const round of actionRounds) {
+  for (const [roundIndex, round] of actionRounds.entries()) {
     const matched = round.toolSteps
       .map((ts) => (ts.toolUseId != null ? toolMap.get(ts.toolUseId) : undefined))
       .filter((t): t is ToolEvent => t != null);
@@ -414,6 +471,7 @@ async function postInterleavedRounds(p: InterleaveOptions): Promise<boolean> {
       : cursorMs;
 
     const llmRun = p.turnRun.createChild({
+      id: stableRunId(p.ctx, `round:${roundIndex}`),
       name: p.llmName,
       run_type: "llm",
       inputs: { messages: withSystem([...msgs], p.systemPrompt) },
@@ -424,7 +482,8 @@ async function postInterleavedRounds(p: InterleaveOptions): Promise<boolean> {
     });
     await llmRun.postRun();
 
-    for (const t of matched) await postToolRun(t, p.turnRun, p.ctx);
+    for (const [i, t] of matched.entries())
+      await postToolRun(t, p.turnRun, p.ctx, `round:${roundIndex}:tool:${i}:${t.tool_use_id}`);
 
     // Thread this round's assistant turn + tool results into the running conversation.
     msgs.push({ role: "assistant", content: assistantContent });
@@ -433,11 +492,13 @@ async function postInterleavedRounds(p: InterleaveOptions): Promise<boolean> {
   }
 
   // Subagents render as nested chains, ordered in the UI by their own start_time.
-  for (const sub of p.buffer.subagents) await postSubagentRun(sub, p.turnRun, p.ctx);
+  for (const [i, sub] of p.buffer.subagents.entries())
+    await postSubagentRun(sub, p.turnRun, p.ctx, `subagent:${i}:${sub.subagent_id}`);
 
   // Final answer llm — carries turn usage; folds in any trailing text-only round.
   const answerContent = [...thinkingBlocks(finalRound?.thinking ?? []), ...p.finalTextBlocks];
   const answerRun = p.turnRun.createChild({
+    id: stableRunId(p.ctx, "answer"),
     name: p.llmName,
     run_type: "llm",
     inputs: { messages: withSystem([...msgs], p.systemPrompt) },
@@ -460,6 +521,7 @@ async function postToolRun(
   tool: ToolEvent,
   parent: RunTree,
   ctx: MetaCtx,
+  key: string,
   clearSubagent = false,
 ): Promise<void> {
   // Clamp start to the parent's — Cursor tool durations can exceed the turn,
@@ -469,6 +531,7 @@ async function postToolRun(
   const isError = tool.error != null;
 
   const run = parent.createChild({
+    id: stableRunId(ctx, key),
     name: tool.name,
     run_type: "tool",
     inputs: { input: tool.input },
@@ -495,7 +558,7 @@ async function postToolRun(
 
   const skillName = skillNameFromTool(tool.name, tool.input);
   if (skillName) {
-    await postSkillRun(parent, ctx, clearSubagent, {
+    await postSkillRun(parent, ctx, `${key}:skill`, clearSubagent, {
       skillName,
       // A failure hook may carry no message, so failure_type is the surer signal.
       success: tool.error == null && tool.failure_type == null,
@@ -517,10 +580,12 @@ interface SkillRunOptions {
 async function postSkillRun(
   parent: RunTree,
   ctx: MetaCtx,
+  key: string,
   clearSubagent: boolean,
   opts: SkillRunOptions,
 ): Promise<void> {
   const run = parent.createChild({
+    id: stableRunId(ctx, key),
     name: SKILL_RUN_NAME,
     run_type: "tool",
     // The `input`/`output` wrapper puts these fields where Claude Code's are.
@@ -544,7 +609,12 @@ async function postSkillRun(
   await run.postRun();
 }
 
-async function postSubagentRun(sub: SubagentEvent, parent: RunTree, ctx: MetaCtx): Promise<void> {
+async function postSubagentRun(
+  sub: SubagentEvent,
+  parent: RunTree,
+  ctx: MetaCtx,
+  key: string,
+): Promise<void> {
   const isError = sub.status != null && sub.status !== "completed";
   const tools = sub.tools ?? [];
   const startMs = sub.startMs;
@@ -567,6 +637,7 @@ async function postSubagentRun(sub: SubagentEvent, parent: RunTree, ctx: MetaCtx
   const subagentRun = createChildRun(
     parent,
     {
+      id: stableRunId(ctx, key),
       name: runName,
       run_type: "chain",
       inputs: {
@@ -619,6 +690,7 @@ async function postSubagentRun(sub: SubagentEvent, parent: RunTree, ctx: MetaCtx
   if (calls.length === 0) {
     // No tools: a single llm run, system + task → final answer.
     const llmRun = subagentRun.createChild({
+      id: stableRunId(ctx, `${key}:llm`),
       name: llmName,
       run_type: "llm",
       inputs: { messages: baseMessages },
@@ -643,6 +715,7 @@ async function postSubagentRun(sub: SubagentEvent, parent: RunTree, ctx: MetaCtx
   const assistantDecision = calls.map((c) => c.toolCallBlock);
 
   const decideRun = subagentRun.createChild({
+    id: stableRunId(ctx, `${key}:decide`),
     name: llmName,
     run_type: "llm",
     inputs: { messages: baseMessages },
@@ -659,9 +732,11 @@ async function postSubagentRun(sub: SubagentEvent, parent: RunTree, ctx: MetaCtx
   });
   await decideRun.postRun();
 
-  for (const tool of tools) await postToolRun(tool, subagentRun, subagentCtx, true);
+  for (const [i, tool] of tools.entries())
+    await postToolRun(tool, subagentRun, subagentCtx, `${key}:tool:${i}:${tool.tool_use_id}`, true);
 
   const answerRun = subagentRun.createChild({
+    id: stableRunId(ctx, `${key}:answer`),
     name: llmName,
     run_type: "llm",
     inputs: {

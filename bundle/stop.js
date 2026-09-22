@@ -389,14 +389,14 @@ var require_dist = __commonJS({
       _isIntervalPaused() {
         const now = Date.now();
         if (this._intervalId === void 0) {
-          const delay = this._intervalEnd - now;
-          if (delay < 0) {
+          const delay2 = this._intervalEnd - now;
+          if (delay2 < 0) {
             this._intervalCount = this._carryoverConcurrencyCount ? this._pendingCount : 0;
           } else {
             if (this._timeoutId === void 0) {
               this._timeoutId = setTimeout(() => {
                 this._onResumeInterval();
-              }, delay);
+              }, delay2);
             }
             return true;
           }
@@ -829,6 +829,8 @@ var TURN_RUN_NAME = "Cursor Turn";
 var SKILL_RUN_NAME = "Skill";
 var DEFAULT_TAGS = ["cursor", "coding-agent"];
 var DEFAULT_PROJECT = "cursor";
+var DEFAULT_SWEEP_IDLE_MINUTES = 360;
+var MAX_UPLOAD_ATTEMPTS = 3;
 
 // dist/config.js
 import { homedir as homedir2 } from "node:os";
@@ -851,6 +853,12 @@ function parseBoolean(value) {
   if (["0", "false", "no", "off"].includes(v))
     return false;
   return void 0;
+}
+function parsePositiveNumber(value) {
+  if (typeof value !== "string" || value.trim().length === 0)
+    return void 0;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : void 0;
 }
 function parseJson(value) {
   if (typeof value !== "string" || value.trim().length === 0)
@@ -892,13 +900,20 @@ function readConfigFile(file) {
   const extensions = {};
   const raw = result.raw;
   if (raw) {
-    for (const field of ["attachments", "system_prompt"]) {
+    for (const field of ["attachments", "system_prompt", "sweep"]) {
       if (!Object.hasOwn(raw, field))
         continue;
       if (typeof raw[field] === "boolean")
         extensions[field] = raw[field];
       else
         error(`Invalid Cursor config extension ${field}; ignoring field.`);
+    }
+    if (Object.hasOwn(raw, "sweep_idle_minutes")) {
+      const minutes = raw.sweep_idle_minutes;
+      if (typeof minutes === "number" && Number.isFinite(minutes) && minutes > 0)
+        extensions.sweep_idle_minutes = minutes;
+      else
+        error("Invalid Cursor config extension sweep_idle_minutes; ignoring field.");
     }
     if (Object.hasOwn(raw, "cursor_db_path")) {
       if (typeof raw.cursor_db_path === "string")
@@ -1051,6 +1066,8 @@ function loadConfig(options) {
   const replicas2 = normalizeReplicas(envReplicas) ?? toSdkReplicas(common.replicas);
   const attachmentsEnabled = parseBoolean(getEnv("ATTACHMENTS")) ?? localFile.extensions.attachments ?? rootFile.extensions.attachments ?? globalFile.extensions.attachments ?? userRootFile.extensions.attachments ?? true;
   const systemPromptEnabled = parseBoolean(getEnv("SYSTEM_PROMPT")) ?? localFile.extensions.system_prompt ?? rootFile.extensions.system_prompt ?? globalFile.extensions.system_prompt ?? userRootFile.extensions.system_prompt ?? true;
+  const sweepEnabled = parseBoolean(getEnv("SWEEP")) ?? localFile.extensions.sweep ?? rootFile.extensions.sweep ?? globalFile.extensions.sweep ?? userRootFile.extensions.sweep ?? true;
+  const sweepIdleMinutes = parsePositiveNumber(getEnv("SWEEP_IDLE_MINUTES")) ?? localFile.extensions.sweep_idle_minutes ?? rootFile.extensions.sweep_idle_minutes ?? globalFile.extensions.sweep_idle_minutes ?? userRootFile.extensions.sweep_idle_minutes ?? DEFAULT_SWEEP_IDLE_MINUTES;
   const cursorDbPath = getEnv("DB_PATH") ?? localFile.extensions.cursor_db_path ?? rootFile.extensions.cursor_db_path ?? globalFile.extensions.cursor_db_path ?? userRootFile.extensions.cursor_db_path;
   const redactExtraRules = parseRedactExtraRules(getEnv("REDACT_EXTRA")) ?? common.redact_extra_rules;
   const stateFilePath = process.env.LANGSMITH_CURSOR_STATE_FILE ?? join(homedir2(), ".cursor", "langsmith-state.json");
@@ -1089,7 +1106,9 @@ function loadConfig(options) {
     systemPromptEnabled,
     cursorDbPath,
     redact,
-    redactExtraRules
+    redactExtraRules,
+    sweepEnabled,
+    sweepIdleMinutes
   };
 }
 
@@ -1192,12 +1211,24 @@ function saveState(stateFilePath, state) {
     }
   }
 }
+function ownEntry(map, id) {
+  return map !== void 0 && Object.hasOwn(map, id) ? map[id] : void 0;
+}
+function setOwnEntry(map, id, value) {
+  Object.defineProperty(map, id, { value, writable: true, enumerable: true, configurable: true });
+}
+function deleteOwnEntry(map, id) {
+  delete map[id];
+}
 function getConversationState(state, conversationId) {
-  return state[conversationId] ?? { turns: {}, turn_count: 0, updated: "" };
+  return ownEntry(state, conversationId) ?? { turns: {}, turn_count: 0, updated: "" };
 }
 function nextTurnNum(conv) {
   conv.turns_started = (conv.turns_started ?? conv.turn_count) + 1;
   return conv.turns_started;
+}
+function getTurnBuffer(state, conversationId, generationId) {
+  return ownEntry(ownEntry(state, conversationId)?.turns, generationId);
 }
 var CONVERSATION_MAX_AGE_MS = 24 * 60 * 60 * 1e3;
 function pruneOldConversations(state, now = Date.now()) {
@@ -1206,7 +1237,7 @@ function pruneOldConversations(state, now = Date.now()) {
   for (const [conversationId, conv] of Object.entries(state)) {
     const updatedMs = conv.updated ? new Date(conv.updated).getTime() : 0;
     if (updatedMs >= cutoff) {
-      pruned[conversationId] = conv;
+      setOwnEntry(pruned, conversationId, conv);
     }
   }
   return pruned;
@@ -1294,15 +1325,63 @@ function buildUsageMetadata(usage) {
 }
 
 // dist/reducer.js
-function touch(conv) {
-  conv.updated = (/* @__PURE__ */ new Date()).toISOString();
+function touch(conv, nowMs = Date.now()) {
+  conv.updated = new Date(nowMs).toISOString();
+}
+function forgetSweptTurn(conv, generationId) {
+  if (!conv.sweepFinalizedGenerations)
+    return;
+  const stillSwept = conv.sweepFinalizedGenerations.filter((id) => id !== generationId);
+  if (stillSwept.length)
+    conv.sweepFinalizedGenerations = stillSwept;
+  else
+    delete conv.sweepFinalizedGenerations;
+}
+function dropPendingUpload(conv, generationId) {
+  if (!conv.pending)
+    return;
+  deleteOwnEntry(conv.pending, generationId);
+  if (Object.keys(conv.pending).length === 0)
+    delete conv.pending;
+}
+function reopenSweptTurn(conv, generationId) {
+  const entry = ownEntry(conv.pending, generationId);
+  if (!entry || !conv.sweepFinalizedGenerations?.includes(generationId))
+    return false;
+  setOwnEntry(conv.turns, generationId, entry.buffer);
+  dropPendingUpload(conv, generationId);
+  return true;
+}
+function collectTools(conv) {
+  const tools = [];
+  for (const turn of Object.values(conv.turns))
+    tools.push(...turn.tools);
+  return tools.sort((a, b) => a.endMs - b.endMs);
+}
+function findChildConversation(state, parentConv, startMs, nowMs) {
+  const slack = 2e3;
+  let best;
+  let bestScore = 0;
+  for (const [convId, conv] of Object.entries(state)) {
+    if (convId === parentConv || conv.turn_count !== 0)
+      continue;
+    const inWindow = collectTools(conv).filter((t) => t.endMs >= startMs - slack && t.endMs <= nowMs + slack).length;
+    if (inWindow > bestScore) {
+      bestScore = inWindow;
+      best = convId;
+    }
+  }
+  return best;
 }
 function reduceStop(state, input, nowMs) {
   const conv = getConversationState(state, input.conversation_id);
-  const turn = conv.turns[input.generation_id];
+  if (!ownEntry(conv.turns, input.generation_id))
+    reopenSweptTurn(conv, input.generation_id);
+  const turn = ownEntry(conv.turns, input.generation_id);
   if (!turn) {
     return { state, turnNum: 0 };
   }
+  const alreadyCountedBySweep = conv.sweepFinalizedGenerations?.includes(input.generation_id) ?? false;
   turn.usage = {
     input_tokens: input.input_tokens,
     output_tokens: input.output_tokens,
@@ -1311,15 +1390,206 @@ function reduceStop(state, input, nowMs) {
   };
   turn.status = input.status;
   turn.model = preferModel(turn.model, input.model);
-  const turnNum = turn.turnNum ?? nextTurnNum(conv);
+  turn.turnNum ??= nextTurnNum(conv);
+  const turnNum = turn.turnNum;
   if (turn.tracingMode === "off") {
     (conv.completedOffGenerations ??= []).push(input.generation_id);
+  } else {
+    (conv.stopFinalizedGenerations ??= []).push(input.generation_id);
+    const pending = conv.pending ??= {};
+    setOwnEntry(pending, input.generation_id, {
+      buffer: turn,
+      turnNum,
+      claimedAt: nowMs,
+      attempts: 1
+    });
   }
-  delete conv.turns[input.generation_id];
-  conv.turn_count += 1;
-  touch(conv);
+  forgetSweptTurn(conv, input.generation_id);
+  delete turn.sweptAtMs;
+  deleteOwnEntry(conv.turns, input.generation_id);
+  if (!alreadyCountedBySweep)
+    conv.turn_count += 1;
+  touch(conv, nowMs);
   const nextState = pruneOldConversations({ ...state, [input.conversation_id]: conv }, nowMs);
   return { state: nextState, buffer: turn, turnNum };
+}
+function reduceUploadSettled(state, conversationId, generationId, claimedAt) {
+  const conv = ownEntry(state, conversationId);
+  const entry = ownEntry(conv?.pending, generationId);
+  if (!conv || !entry || entry.claimedAt !== claimedAt)
+    return state;
+  dropPendingUpload(conv, generationId);
+  if (conv.sweepFinalizedGenerations?.includes(generationId)) {
+    entry.buffer.sweptAtMs = entry.claimedAt;
+    setOwnEntry(conv.turns, generationId, entry.buffer);
+  }
+  return { ...state, [conversationId]: conv };
+}
+function lastActivityMs(turn) {
+  return Math.max(turn.startMs, turn.finalTextArrivedMs ?? turn.startMs, ...turn.tools.map((t) => t.endMs), ...turn.subagents.map((s) => s.endMs ?? s.startMs));
+}
+function hasOpenSubagent(turn) {
+  return turn.subagents.some((s) => s.endMs == null);
+}
+function allBuffers(conv) {
+  const pending = Object.values(conv.pending ?? {}).map((entry) => entry.buffer);
+  return [...Object.values(conv.turns), ...pending];
+}
+function threadsRunningASubagent(state, nowMs) {
+  const threads = /* @__PURE__ */ new Set();
+  for (const [parentConv, conv] of Object.entries(state)) {
+    const openStarts = allBuffers(conv).flatMap((turn) => turn.subagents).filter((s) => s.endMs == null).map((s) => s.startMs);
+    for (const startMs of openStarts) {
+      const child = findChildConversation(state, parentConv, startMs, nowMs);
+      if (child)
+        threads.add(child);
+    }
+  }
+  return threads;
+}
+function retryPendingUploads(conv, conversationId, cutoff, nowMs) {
+  const claims = [];
+  let changed = false;
+  for (const [generationId, entry] of Object.entries(conv.pending ?? {})) {
+    if (entry.claimedAt > cutoff)
+      continue;
+    changed = true;
+    if (entry.attempts >= MAX_UPLOAD_ATTEMPTS) {
+      dropPendingUpload(conv, generationId);
+      warn(`Dropping turn ${entry.turnNum} of conversation ${conversationId} after ${entry.attempts} failed upload attempts`);
+      continue;
+    }
+    entry.attempts += 1;
+    entry.claimedAt = nowMs;
+    claims.push({
+      conversationId,
+      generationId,
+      buffer: entry.buffer,
+      turnNum: entry.turnNum,
+      claimedAt: nowMs
+    });
+  }
+  return { claims, changed };
+}
+function claimIdleTurns(conv, conversationId, cutoff, nowMs) {
+  const claims = [];
+  let changed = false;
+  for (const [generationId, turn] of Object.entries(conv.turns)) {
+    if (hasOpenSubagent(turn))
+      continue;
+    const lastMs = lastActivityMs(turn);
+    const recoveredAt = turn.sweptAtMs;
+    if (recoveredAt != null && lastMs <= recoveredAt) {
+      if (recoveredAt > cutoff)
+        continue;
+      deleteOwnEntry(conv.turns, generationId);
+      changed = true;
+      continue;
+    }
+    if (lastMs > cutoff)
+      continue;
+    changed = true;
+    deleteOwnEntry(conv.turns, generationId);
+    if (turn.tracingMode === "off") {
+      (conv.completedOffGenerations ??= []).push(generationId);
+      continue;
+    }
+    turn.turnNum ??= nextTurnNum(conv);
+    const swept = conv.sweepFinalizedGenerations ??= [];
+    if (!swept.includes(generationId)) {
+      swept.push(generationId);
+      conv.turn_count += 1;
+    }
+    turn.status ??= "incomplete";
+    const pending = conv.pending ??= {};
+    setOwnEntry(pending, generationId, {
+      buffer: turn,
+      turnNum: turn.turnNum,
+      claimedAt: nowMs,
+      attempts: 1
+    });
+    claims.push({
+      conversationId,
+      generationId,
+      buffer: turn,
+      turnNum: turn.turnNum,
+      claimedAt: nowMs
+    });
+  }
+  return { claims, changed };
+}
+function reduceSweep(state, callerConversationId, nowMs, thresholdMs) {
+  const claims = [];
+  const cutoff = nowMs - thresholdMs;
+  const subagentThreads = threadsRunningASubagent(state, nowMs);
+  for (const [conversationId, conv] of Object.entries(state)) {
+    if (conversationId === callerConversationId)
+      continue;
+    if (subagentThreads.has(conversationId))
+      continue;
+    const retried = retryPendingUploads(conv, conversationId, cutoff, nowMs);
+    const claimed = claimIdleTurns(conv, conversationId, cutoff, nowMs);
+    claims.push(...retried.claims, ...claimed.claims);
+    if (retried.changed || claimed.changed)
+      touch(conv, nowMs);
+  }
+  return { state: { ...state }, claims };
+}
+
+// dist/tracing-policy.js
+import { randomUUID as randomUUID2 } from "node:crypto";
+import { lstatSync as lstatSync2, readFileSync as readFileSync3 } from "node:fs";
+import { mkdir, open, rename, rmdir, unlink } from "node:fs/promises";
+import { dirname as dirname3 } from "node:path";
+import { performance as performance3 } from "node:perf_hooks";
+import { setTimeout as delay } from "node:timers/promises";
+import { homedir as homedir3 } from "node:os";
+import { join as join2 } from "node:path";
+function isMode(value) {
+  return value === "full" || value === "metadata";
+}
+function isObject(value) {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+function hasCode(error2, code) {
+  return isObject(error2) && error2.code === code;
+}
+function readPolicy(path3) {
+  let raw;
+  try {
+    if (!lstatSync2(path3).isFile())
+      throw new Error("Tracing preferences must be a regular, non-symlink file");
+    raw = readFileSync3(path3, "utf8");
+  } catch (error2) {
+    if (hasCode(error2, "ENOENT")) {
+      try {
+        lstatSync2(path3);
+      } catch (statError) {
+        if (hasCode(statError, "ENOENT"))
+          return { threads: {} };
+        throw statError;
+      }
+    }
+    throw error2;
+  }
+  const value = JSON.parse(raw);
+  if (!isObject(value) || !isObject(value.threads) || Object.values(value.threads).some((mode) => !isMode(mode)) || Object.keys(value).some((key) => key !== "threads")) {
+    throw new Error("Invalid tracing preference format");
+  }
+  return value;
+}
+function tracingPolicyPath() {
+  return process.env.LANGSMITH_CURSOR_PRIVACY_FILE ?? join2(homedir3(), ".cursor", "langsmith-state.privacy.json");
+}
+function getThreadTracingMode(path3, sessionId, defaultMuted = false) {
+  try {
+    const policy = readPolicy(path3);
+    if (Object.hasOwn(policy.threads, sessionId))
+      return policy.threads[sessionId];
+    return defaultMuted ? "metadata" : "full";
+  } catch {
+    return "metadata";
+  }
 }
 
 // node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/utils/uuid/src/regex.js
@@ -6080,7 +6350,7 @@ import * as nodeFs from "node:fs";
 import * as nodeFsPromises from "node:fs/promises";
 import * as nodePath from "node:path";
 var path2 = nodePath;
-async function mkdir2(dir) {
+async function mkdir3(dir) {
   await nodeFsPromises.mkdir(dir, { recursive: true });
 }
 async function writeFileAtomic(filePath, content) {
@@ -6112,7 +6382,7 @@ function renameSync4(oldPath, newPath) {
 function unlinkSync3(filePath) {
   nodeFs.unlinkSync(filePath);
 }
-function readFileSync4(filePath) {
+function readFileSync5(filePath) {
   return nodeFs.readFileSync(filePath, "utf-8");
 }
 async function mkdirExclusive(dir) {
@@ -6320,7 +6590,7 @@ var PromptCache = class {
     }
     let entries;
     try {
-      const content = readFileSync4(filePath);
+      const content = readFileSync5(filePath);
       const data = JSON.parse(content);
       entries = data.entries ?? null;
     } catch {
@@ -6440,7 +6710,7 @@ function isEEXIST(err) {
 }
 function lockMetadataLines(lockDir) {
   try {
-    return readFileSync4(path2.join(lockDir, LOCK_METADATA_FILE)).split("\n");
+    return readFileSync5(path2.join(lockDir, LOCK_METADATA_FILE)).split("\n");
   } catch {
     return void 0;
   }
@@ -6474,7 +6744,7 @@ async function acquireOAuthRefreshLock(configPath, deadline) {
   const lockDir = `${configPath}.oauth.lock.lock`;
   const parent = path2.dirname(lockDir);
   if (parent) {
-    await mkdir2(parent);
+    await mkdir3(parent);
   }
   const owner = globalThis.crypto.randomUUID();
   for (; ; ) {
@@ -6555,7 +6825,7 @@ function loadProfileState() {
     return void 0;
   }
   try {
-    const config = JSON.parse(readFileSync4(configPath));
+    const config = JSON.parse(readFileSync5(configPath));
     const profileName = resolveProfileName(config);
     const profile = profileName ? config.profiles?.[profileName] : void 0;
     if (!profileName || !profile) {
@@ -6785,7 +7055,7 @@ var ProfileAuth = class {
   }
   reloadProfile() {
     try {
-      const config = JSON.parse(readFileSync4(this.state.configPath));
+      const config = JSON.parse(readFileSync5(this.state.configPath));
       const profile = config.profiles?.[this.state.profileName];
       if (!profile) {
         return void 0;
@@ -8705,7 +8975,7 @@ var Client = class _Client {
       const filename = `trace_${Date.now()}_${v4_default().slice(0, 8)}.json`;
       const filepath = path2.join(directory, filename);
       if (!_Client._fallbackDirsCreated.has(directory)) {
-        await mkdir2(directory);
+        await mkdir3(directory);
         _Client._fallbackDirsCreated.add(directory);
       }
       if (maxBytes !== void 0 && maxBytes > 0) {
@@ -14120,20 +14390,20 @@ import { existsSync as existsSync5 } from "node:fs";
 
 // dist/attachments.js
 import { DatabaseSync } from "node:sqlite";
-import { existsSync as existsSync3, readFileSync as readFileSync5, statSync as statSync4 } from "node:fs";
-import { homedir as homedir3, platform } from "node:os";
-import { basename, join as join2 } from "node:path";
+import { existsSync as existsSync3, readFileSync as readFileSync6, statSync as statSync4 } from "node:fs";
+import { homedir as homedir4, platform } from "node:os";
+import { basename, join as join3 } from "node:path";
 var MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024;
 function defaultCursorDbPath() {
-  const home = homedir3();
+  const home = homedir4();
   const tail = ["Cursor", "User", "globalStorage", "state.vscdb"];
   switch (platform()) {
     case "darwin":
-      return join2(home, "Library", "Application Support", ...tail);
+      return join3(home, "Library", "Application Support", ...tail);
     case "win32":
-      return join2(process.env.APPDATA ?? join2(home, "AppData", "Roaming"), ...tail);
+      return join3(process.env.APPDATA ?? join3(home, "AppData", "Roaming"), ...tail);
     default:
-      return join2(process.env.XDG_CONFIG_HOME ?? join2(home, ".config"), ...tail);
+      return join3(process.env.XDG_CONFIG_HOME ?? join3(home, ".config"), ...tail);
   }
 }
 function normalizeWs(text) {
@@ -14239,7 +14509,7 @@ function fileToContentPart(path3) {
       warn(`attachments: too large (${st.size} bytes), skipping: ${path3}`);
       return placeholder(`[attachment too large: ${name} (${st.size} bytes)]`);
     }
-    const buf = readFileSync5(path3);
+    const buf = readFileSync6(path3);
     const mime = sniffMime(buf, path3);
     const base64 = buf.toString("base64");
     if (mime.startsWith("image/"))
@@ -14679,11 +14949,36 @@ function resolveTurnSteps(opts) {
 }
 
 // dist/langsmith.js
+import { createHash } from "node:crypto";
 var client = void 0;
 var replicas = void 0;
+var refusedWrite = void 0;
+function isWriteRequest(init) {
+  const method = init?.method?.toUpperCase() ?? "GET";
+  return method !== "GET" && method !== "HEAD";
+}
+var fetchRecordingRefusedWrites = async (input, init) => {
+  const request = `${init?.method ?? "GET"} ${typeof input === "string" ? input : String(input)}`;
+  try {
+    const response = await fetch(input, init);
+    if (isWriteRequest(init) && !response.ok) {
+      refusedWrite ??= `${request} answered ${response.status}`;
+    }
+    return response;
+  } catch (err) {
+    if (isWriteRequest(init))
+      refusedWrite ??= `${request} failed: ${err}`;
+    throw err;
+  }
+};
 function initTracing(apiKey, apiUrl, providedReplicas, redact = true, extraRedactionRules, clientOverride) {
   const anonymizer = redact ? createSecretAnonymizer(extraRedactionRules ? { extraRules: extraRedactionRules } : void 0) : void 0;
-  client = clientOverride ?? new Client({ apiKey: apiKey || void 0, apiUrl, anonymizer });
+  client = clientOverride ?? new Client({
+    apiKey: apiKey || void 0,
+    apiUrl,
+    anonymizer,
+    fetchImplementation: fetchRecordingRefusedWrites
+  });
   replicas = providedReplicas;
   return client;
 }
@@ -14694,6 +14989,29 @@ async function flushPendingTraces() {
     RunTree.getSharedClient().awaitPendingTraceBatches()
   ]);
   debug("Trace batches flushed");
+}
+async function uploadTurn(options) {
+  refusedWrite = void 0;
+  await buildTurnRuns(options);
+  await flushPendingTraces();
+  if (refusedWrite === void 0)
+    return true;
+  warn(`Keeping the turn for a later retry: ${refusedWrite}`);
+  return false;
+}
+function uuidFromDigest(hex) {
+  const variant = (parseInt(hex[16], 16) & 3 | 8).toString(16);
+  return [
+    hex.slice(0, 8),
+    hex.slice(8, 12),
+    `5${hex.slice(13, 16)}`,
+    `${variant}${hex.slice(17, 20)}`,
+    hex.slice(20, 32)
+  ].join("-");
+}
+function stableRunId(ctx, key) {
+  const seed = `${ctx.threadId}\0${ctx.turnId ?? ""}\0${key}`;
+  return uuidFromDigest(createHash("sha256").update(seed).digest("hex"));
 }
 function withSystem(messages, systemPrompt) {
   return systemPrompt ? [{ role: "system", content: systemPrompt }, ...messages] : messages;
@@ -14778,6 +15096,7 @@ async function buildTurnRuns(options) {
   const turnRun = createRunTree({
     client,
     replicas,
+    id: stableRunId(ctx, "turn"),
     name: turnName,
     run_type: "chain",
     inputs: { messages: [{ role: "user", content: userContent }] },
@@ -14814,6 +15133,7 @@ async function buildTurnRuns(options) {
   if (interleaved) {
   } else if (calls.length === 0) {
     const llmRun = turnRun.createChild({
+      id: stableRunId(ctx, "llm"),
       name: llmName,
       run_type: "llm",
       inputs: { messages: withSystem([{ role: "user", content: userContent }], systemPrompt) },
@@ -14833,6 +15153,7 @@ async function buildTurnRuns(options) {
     const lastCallEnd = Math.max(buffer.startMs, ...buffer.tools.map((t) => t.endMs), ...buffer.subagents.map((s) => s.endMs ?? s.startMs));
     const assistantDecision = [...thinking, ...calls.map((c) => c.toolCallBlock)];
     const decideRun = turnRun.createChild({
+      id: stableRunId(ctx, "decide"),
       name: llmName,
       run_type: "llm",
       inputs: { messages: withSystem([{ role: "user", content: userContent }], systemPrompt) },
@@ -14842,11 +15163,12 @@ async function buildTurnRuns(options) {
       extra: { metadata: codingAgentMetadata({ ...ctx, runSpecific: { ...llmMeta } }) }
     });
     await decideRun.postRun();
-    for (const tool of buffer.tools)
-      await postToolRun(tool, turnRun, ctx);
-    for (const sub of buffer.subagents)
-      await postSubagentRun(sub, turnRun, ctx);
+    for (const [i, tool] of buffer.tools.entries())
+      await postToolRun(tool, turnRun, ctx, `tool:${i}:${tool.tool_use_id}`);
+    for (const [i, sub] of buffer.subagents.entries())
+      await postSubagentRun(sub, turnRun, ctx, `subagent:${i}:${sub.subagent_id}`);
     const answerRun = turnRun.createChild({
+      id: stableRunId(ctx, "answer"),
       name: llmName,
       run_type: "llm",
       inputs: {
@@ -14893,7 +15215,7 @@ async function postInterleavedRounds(p) {
     return false;
   const msgs = [{ role: "user", content: p.userContent }];
   let cursorMs = p.buffer.startMs;
-  for (const round of actionRounds) {
+  for (const [roundIndex, round] of actionRounds.entries()) {
     const matched = round.toolSteps.map((ts) => ts.toolUseId != null ? toolMap.get(ts.toolUseId) : void 0).filter((t) => t != null);
     const calls = matched.map((t) => toolCall(t, p.buffer.startMs));
     const textBlocks = round.assistantText ? [{ type: "text", text: round.assistantText }] : [];
@@ -14905,6 +15227,7 @@ async function postInterleavedRounds(p) {
     const llmStart = cursorMs;
     const llmEnd = calls.length ? Math.max(cursorMs, Math.min(...calls.map((c) => c.startMs))) : cursorMs;
     const llmRun = p.turnRun.createChild({
+      id: stableRunId(p.ctx, `round:${roundIndex}`),
       name: p.llmName,
       run_type: "llm",
       inputs: { messages: withSystem([...msgs], p.systemPrompt) },
@@ -14914,18 +15237,19 @@ async function postInterleavedRounds(p) {
       extra: { metadata: codingAgentMetadata({ ...p.ctx, runSpecific: { ...p.llmMeta } }) }
     });
     await llmRun.postRun();
-    for (const t of matched)
-      await postToolRun(t, p.turnRun, p.ctx);
+    for (const [i, t] of matched.entries())
+      await postToolRun(t, p.turnRun, p.ctx, `round:${roundIndex}:tool:${i}:${t.tool_use_id}`);
     msgs.push({ role: "assistant", content: assistantContent });
     for (const c of calls)
       msgs.push(c.resultMessage);
     if (matched.length)
       cursorMs = Math.max(cursorMs, ...matched.map((t) => t.endMs));
   }
-  for (const sub of p.buffer.subagents)
-    await postSubagentRun(sub, p.turnRun, p.ctx);
+  for (const [i, sub] of p.buffer.subagents.entries())
+    await postSubagentRun(sub, p.turnRun, p.ctx, `subagent:${i}:${sub.subagent_id}`);
   const answerContent = [...thinkingBlocks(finalRound?.thinking ?? []), ...p.finalTextBlocks];
   const answerRun = p.turnRun.createChild({
+    id: stableRunId(p.ctx, "answer"),
     name: p.llmName,
     run_type: "llm",
     inputs: { messages: withSystem([...msgs], p.systemPrompt) },
@@ -14942,11 +15266,12 @@ async function postInterleavedRounds(p) {
   await answerRun.postRun();
   return true;
 }
-async function postToolRun(tool, parent, ctx, clearSubagent = false) {
+async function postToolRun(tool, parent, ctx, key, clearSubagent = false) {
   const floorMs = typeof parent.start_time === "number" ? parent.start_time : 0;
   const startMs = Math.max(floorMs, toolStartMs(tool));
   const isError2 = tool.error != null;
   const run = parent.createChild({
+    id: stableRunId(ctx, key),
     name: tool.name,
     run_type: "tool",
     inputs: { input: tool.input },
@@ -14972,7 +15297,7 @@ async function postToolRun(tool, parent, ctx, clearSubagent = false) {
   await run.postRun();
   const skillName = skillNameFromTool(tool.name, tool.input);
   if (skillName) {
-    await postSkillRun(parent, ctx, clearSubagent, {
+    await postSkillRun(parent, ctx, `${key}:skill`, clearSubagent, {
       skillName,
       // A failure hook may carry no message, so failure_type is the surer signal.
       success: tool.error == null && tool.failure_type == null,
@@ -14981,8 +15306,9 @@ async function postToolRun(tool, parent, ctx, clearSubagent = false) {
     });
   }
 }
-async function postSkillRun(parent, ctx, clearSubagent, opts) {
+async function postSkillRun(parent, ctx, key, clearSubagent, opts) {
   const run = parent.createChild({
+    id: stableRunId(ctx, key),
     name: SKILL_RUN_NAME,
     run_type: "tool",
     // The `input`/`output` wrapper puts these fields where Claude Code's are.
@@ -15005,7 +15331,7 @@ async function postSkillRun(parent, ctx, clearSubagent, opts) {
   });
   await run.postRun();
 }
-async function postSubagentRun(sub, parent, ctx) {
+async function postSubagentRun(sub, parent, ctx, key) {
   const isError2 = sub.status != null && sub.status !== "completed";
   const tools = sub.tools ?? [];
   const startMs = sub.startMs;
@@ -15020,6 +15346,7 @@ async function postSubagentRun(sub, parent, ctx) {
   };
   const subagentCtx = { ...ctx, agentType: "subagent" };
   const subagentRun = createChildRun(parent, {
+    id: stableRunId(ctx, key),
     name: runName,
     run_type: "chain",
     inputs: {
@@ -15060,6 +15387,7 @@ async function postSubagentRun(sub, parent, ctx) {
   const calls = tools.map((t) => toolCall(t, startMs)).sort((a, b) => a.startMs - b.startMs);
   if (calls.length === 0) {
     const llmRun = subagentRun.createChild({
+      id: stableRunId(ctx, `${key}:llm`),
       name: llmName,
       run_type: "llm",
       inputs: { messages: baseMessages },
@@ -15081,6 +15409,7 @@ async function postSubagentRun(sub, parent, ctx) {
   const lastCallEnd = Math.max(startMs, ...tools.map((t) => t.endMs));
   const assistantDecision = calls.map((c) => c.toolCallBlock);
   const decideRun = subagentRun.createChild({
+    id: stableRunId(ctx, `${key}:decide`),
     name: llmName,
     run_type: "llm",
     inputs: { messages: baseMessages },
@@ -15096,9 +15425,10 @@ async function postSubagentRun(sub, parent, ctx) {
     }
   });
   await decideRun.postRun();
-  for (const tool of tools)
-    await postToolRun(tool, subagentRun, subagentCtx, true);
+  for (const [i, tool] of tools.entries())
+    await postToolRun(tool, subagentRun, subagentCtx, `${key}:tool:${i}:${tool.tool_use_id}`, true);
   const answerRun = subagentRun.createChild({
+    id: stableRunId(ctx, `${key}:answer`),
     name: llmName,
     run_type: "llm",
     inputs: {
@@ -15122,30 +15452,98 @@ async function postSubagentRun(sub, parent, ctx) {
   await answerRun.postRun();
 }
 
+// dist/turn-origin.js
+function originFromConfig(config, input) {
+  return {
+    project: config.project,
+    userEmail: input.user_email,
+    runtimeVersion: input.cursor_version,
+    customMetadata: config.customMetadata
+  };
+}
+
+// dist/sweep.js
+function sweepTracingMode(buffered, policy) {
+  return buffered === "metadata" ? "metadata" : policy;
+}
+async function uploadClaim(claim, options) {
+  const { config, input } = options;
+  const policy = getThreadTracingMode(tracingPolicyPath(), claim.conversationId, config.defaultMuted);
+  const origin = claim.buffer.origin ?? originFromConfig(config, input);
+  try {
+    return await uploadTurn({
+      buffer: { ...claim.buffer, tracingMode: sweepTracingMode(claim.buffer.tracingMode, policy) },
+      conversationId: claim.conversationId,
+      turnNum: claim.turnNum,
+      project: origin.project,
+      userEmail: origin.userEmail,
+      customMetadata: origin.customMetadata,
+      runtimeVersion: origin.runtimeVersion
+    });
+  } catch (err) {
+    warn(`Sweep could not upload turn ${claim.turnNum} of ${claim.conversationId}: ${err}`);
+    return false;
+  }
+}
+async function runSweep(options) {
+  const { config, apply } = options;
+  if (!config.sweepEnabled) {
+    if (apply)
+      await atomicUpdateState(config.stateFilePath, apply);
+    return [];
+  }
+  const nowMs = options.nowMs ?? Date.now();
+  const thresholdMs = config.sweepIdleMinutes * 6e4;
+  let claims = [];
+  await atomicUpdateState(config.stateFilePath, (state) => {
+    const result = reduceSweep(apply ? apply(state) : state, options.input.conversation_id, nowMs, thresholdMs);
+    claims = result.claims;
+    return result.state;
+  });
+  if (claims.length === 0)
+    return [];
+  debug(`sweep claimed ${claims.length} abandoned turn(s)`);
+  initTracing(config.apiKey, config.apiUrl, config.replicas, config.redact, config.redactExtraRules, options.client);
+  const uploaded = [];
+  for (const claim of claims) {
+    if (!await uploadClaim(claim, options))
+      continue;
+    await atomicUpdateState(config.stateFilePath, (state) => reduceUploadSettled(state, claim.conversationId, claim.generationId, claim.claimedAt));
+    uploaded.push(claim);
+  }
+  return uploaded;
+}
+
 // dist/hooks/stop.js
 async function main() {
   const input = await readStdin();
   const config = initHook(input.workspace_roots?.[0]);
   if (!config) {
     const local = loadConfig({ cwd: input.workspace_roots?.[0] });
-    await atomicUpdateState(local.stateFilePath, (s) => s[input.conversation_id]?.turns[input.generation_id]?.tracingMode === "off" ? reduceStop(s, input, Date.now()).state : s);
+    await atomicUpdateState(local.stateFilePath, (s) => getTurnBuffer(s, input.conversation_id, input.generation_id)?.tracingMode === "off" ? reduceStop(s, input, Date.now()).state : s);
     return;
   }
   debug(`stop conv=${input.conversation_id} gen=${input.generation_id} status=${input.status}`);
+  const finalizedAt = Date.now();
   let toTrace;
   let turnNum = 0;
   await atomicUpdateState(config.stateFilePath, (s) => {
-    const r = reduceStop(s, input, Date.now());
+    const r = reduceStop(s, input, finalizedAt);
     toTrace = r.buffer;
     turnNum = r.turnNum;
     return r.state;
   });
+  const clearThisTurnsPendingUpload = (s) => reduceUploadSettled(s, input.conversation_id, input.generation_id, finalizedAt);
+  const sweep = (apply) => runSweep({ config, input, apply });
   if (!toTrace) {
     debug("No buffered turn for this generation \u2014 nothing to trace");
+    await sweep();
     return;
   }
-  if (toTrace.tracingMode === "off")
+  if (toTrace.tracingMode === "off") {
+    await sweep();
     return;
+  }
   initTracing(config.apiKey, config.apiUrl, config.replicas, config.redact, config.redactExtraRules);
   let attachments = [];
   if (config.attachmentsEnabled && toTrace.tracingMode === "full") {
@@ -15173,14 +15571,14 @@ async function main() {
     toolUseIds: toTrace.tools.map((t) => t.tool_use_id),
     dbPath: config.cursorDbPath
   });
+  let uploaded = false;
   try {
-    await buildTurnRuns({
+    uploaded = await uploadTurn({
       buffer: toTrace,
       conversationId: input.conversation_id,
       turnNum,
       project: config.project,
       userEmail: input.user_email,
-      workspaceRoots: input.workspace_roots,
       customMetadata: config.customMetadata,
       runtimeVersion: input.cursor_version,
       attachments,
@@ -15190,12 +15588,15 @@ async function main() {
   } catch (err) {
     error(`Failed to build turn runs: ${err}`);
   }
-  await flushPendingTraces();
+  await sweep(uploaded ? clearThisTurnsPendingUpload : void 0);
 }
-main().catch((err) => {
+var finished = main().catch((err) => {
   try {
     warn(`stop hook error: ${err}`);
   } catch {
   }
   process.exit(1);
 });
+export {
+  finished
+};

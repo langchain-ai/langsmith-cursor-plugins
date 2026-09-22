@@ -16,7 +16,7 @@ import { execSync } from "node:child_process";
 import type { RunTreeConfig } from "langsmith";
 import type { StringNodeRule } from "langsmith/anonymizer";
 import { debug as logDebug, error as logError } from "./logger.js";
-import { DEFAULT_PROJECT } from "./constants.js";
+import { DEFAULT_PROJECT, DEFAULT_SWEEP_IDLE_MINUTES } from "./constants.js";
 import { homedir } from "node:os";
 
 /**
@@ -58,6 +58,8 @@ export interface Config {
   cursorDbPath?: string;
   /** Redact detected secrets from traced data before upload (default on). */
   redact: boolean;
+  sweepEnabled: boolean;
+  sweepIdleMinutes: number;
   /** Extra user-supplied redaction rules (environment or common file config). */
   redactExtraRules?: StringNodeRule[];
 }
@@ -73,6 +75,12 @@ function parseBoolean(value: unknown): boolean | undefined {
   if (["1", "true", "yes", "on"].includes(v)) return true;
   if (["0", "false", "no", "off"].includes(v)) return false;
   return undefined;
+}
+
+function parsePositiveNumber(value: unknown): number | undefined {
+  if (typeof value !== "string" || value.trim().length === 0) return undefined;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined;
 }
 
 function parseJson<T = Record<string, unknown>>(value: unknown): T | undefined {
@@ -118,6 +126,8 @@ function parseRedactExtraRules(value: unknown): StringNodeRule[] | undefined {
 interface CursorExtensions {
   attachments?: boolean;
   system_prompt?: boolean;
+  sweep?: boolean;
+  sweep_idle_minutes?: number;
   cursor_db_path?: string;
 }
 
@@ -127,10 +137,16 @@ function readConfigFile(file: string) {
   const extensions: CursorExtensions = {};
   const raw = result.raw;
   if (raw) {
-    for (const field of ["attachments", "system_prompt"] as const) {
+    for (const field of ["attachments", "system_prompt", "sweep"] as const) {
       if (!Object.hasOwn(raw, field)) continue;
       if (typeof raw[field] === "boolean") extensions[field] = raw[field];
       else logError(`Invalid Cursor config extension ${field}; ignoring field.`);
+    }
+    if (Object.hasOwn(raw, "sweep_idle_minutes")) {
+      const minutes = raw.sweep_idle_minutes;
+      if (typeof minutes === "number" && Number.isFinite(minutes) && minutes > 0)
+        extensions.sweep_idle_minutes = minutes;
+      else logError("Invalid Cursor config extension sweep_idle_minutes; ignoring field.");
     }
     if (Object.hasOwn(raw, "cursor_db_path")) {
       if (typeof raw.cursor_db_path === "string") extensions.cursor_db_path = raw.cursor_db_path;
@@ -327,6 +343,20 @@ export function loadConfig(options?: { cwd?: string }): Config {
     globalFile.extensions.system_prompt ??
     userRootFile.extensions.system_prompt ??
     true;
+  const sweepEnabled =
+    parseBoolean(getEnv("SWEEP")) ??
+    localFile.extensions.sweep ??
+    rootFile.extensions.sweep ??
+    globalFile.extensions.sweep ??
+    userRootFile.extensions.sweep ??
+    true;
+  const sweepIdleMinutes =
+    parsePositiveNumber(getEnv("SWEEP_IDLE_MINUTES")) ??
+    localFile.extensions.sweep_idle_minutes ??
+    rootFile.extensions.sweep_idle_minutes ??
+    globalFile.extensions.sweep_idle_minutes ??
+    userRootFile.extensions.sweep_idle_minutes ??
+    DEFAULT_SWEEP_IDLE_MINUTES;
   const cursorDbPath =
     getEnv("DB_PATH") ??
     localFile.extensions.cursor_db_path ??
@@ -382,5 +412,7 @@ export function loadConfig(options?: { cwd?: string }): Config {
     cursorDbPath,
     redact,
     redactExtraRules,
+    sweepEnabled,
+    sweepIdleMinutes,
   };
 }

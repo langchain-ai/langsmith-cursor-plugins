@@ -105,33 +105,37 @@ The project is the first `workspace_roots` entry when supplied by Cursor, not th
 
 These are not common keys and are validated separately, per field, in all four files:
 
-| Extension        | JSON type | Default                             |
-| ---------------- | --------- | ----------------------------------- |
-| `attachments`    | boolean   | `true`; DB attachment enrichment    |
-| `system_prompt`  | boolean   | `true`; DB system-prompt enrichment |
-| `cursor_db_path` | string    | Platform default DB path            |
+| Extension            | JSON type | Default                             |
+| -------------------- | --------- | ----------------------------------- |
+| `attachments`        | boolean   | `true`; DB attachment enrichment    |
+| `system_prompt`      | boolean   | `true`; DB system-prompt enrichment |
+| `cursor_db_path`     | string    | Platform default DB path            |
+| `sweep`              | boolean   | `true`; recovery of stranded turns  |
+| `sweep_idle_minutes` | number    | `360`; idle minutes before recovery |
 
 Each wrong-type extension is omitted with a fixed diagnostic and falls through to lower sources; it **never disables valid common configuration** or discards another extension. Unknown harness-specific fields (including legacy `step_fidelity`) are ignored. Extensions use environment > project `.cursor` > project root > Cursor user > home root > defaults precedence. They do not override muted enrichment restrictions.
 
 The credential/enrichment variables below also accept the `LANGSMITH_*` form (the `LANGSMITH_CURSOR_*` name wins when both are set). Default mute and the explicit state/privacy/log paths use only their listed harness-specific names.
 
-| Environment variable              | Config key           | Description                                                                                                                             | Default                           |
-| --------------------------------- | -------------------- | --------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------- |
-| `TRACE_TO_LANGSMITH`              | `enabled`            | Master switch; when present, overrides file `enabled` values.                                                                           | `false`                           |
-| `LANGSMITH_CURSOR_DEFAULT_MUTED`  | `defaultMuted`       | Default metadata-only tracing for threads without an override; case-insensitive `true`/`false`, invalid values mute (no generic alias). | `false`                           |
-| `LANGSMITH_CURSOR_API_KEY`        | `api_key`            | LangSmith API key.                                                                                                                      | —                                 |
-| `LANGSMITH_CURSOR_ENDPOINT`       | `api_url`            | LangSmith API base URL.                                                                                                                 | `https://api.smith.langchain.com` |
-| `LANGSMITH_CURSOR_PROJECT`        | `project`            | Target tracing project.                                                                                                                 | `cursor`                          |
-| `LANGSMITH_CURSOR_METADATA`       | `metadata`           | Extra metadata attached to every run (JSON object).                                                                                     | —                                 |
-| `LANGSMITH_CURSOR_RUNS_ENDPOINTS` | `replicas`           | Additional replica destinations (JSON array).                                                                                           | —                                 |
-| `LANGSMITH_CURSOR_ATTACHMENTS`    | `attachments`        | Enrich turns with image/file attachment bytes from Cursor's DB.                                                                         | `true`                            |
-| `LANGSMITH_CURSOR_SYSTEM_PROMPT`  | `system_prompt`      | Recover the system prompt from Cursor’s DB.                                                                                             | `true`                            |
-| `LANGSMITH_CURSOR_DB_PATH`        | `cursor_db_path`     | Override the Cursor `state.vscdb` path used for attachments.                                                                            | platform default                  |
-| `LANGSMITH_CURSOR_REDACT`         | `redact`             | Redact detected secrets from traced data before upload.                                                                                 | `true`                            |
-| `LANGSMITH_CURSOR_REDACT_EXTRA`   | `redact_extra_rules` | Extra redaction rules: JSON array of `{ pattern, replace }`; each `pattern` is case-sensitive and applied with the `g` flag.            | —                                 |
-| `LANGSMITH_CURSOR_DEBUG`          | —                    | Verbose hook logging.                                                                                                                   | `false`                           |
-| `LANGSMITH_CURSOR_STATE_FILE`     | —                    | Override the on-disk event-buffer state file (no `LANGSMITH_*` form).                                                                   | `~/.cursor/langsmith-state.json`  |
-| `LANGSMITH_CURSOR_LOG_FILE`       | —                    | Override the hook log file (no `LANGSMITH_*` form).                                                                                     | `~/.cursor/langsmith-hook.log`    |
+| Environment variable                  | Config key           | Description                                                                                                                             | Default                           |
+| ------------------------------------- | -------------------- | --------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------- |
+| `TRACE_TO_LANGSMITH`                  | `enabled`            | Master switch; when present, overrides file `enabled` values.                                                                           | `false`                           |
+| `LANGSMITH_CURSOR_DEFAULT_MUTED`      | `defaultMuted`       | Default metadata-only tracing for threads without an override; case-insensitive `true`/`false`, invalid values mute (no generic alias). | `false`                           |
+| `LANGSMITH_CURSOR_API_KEY`            | `api_key`            | LangSmith API key.                                                                                                                      | —                                 |
+| `LANGSMITH_CURSOR_ENDPOINT`           | `api_url`            | LangSmith API base URL.                                                                                                                 | `https://api.smith.langchain.com` |
+| `LANGSMITH_CURSOR_PROJECT`            | `project`            | Target tracing project.                                                                                                                 | `cursor`                          |
+| `LANGSMITH_CURSOR_METADATA`           | `metadata`           | Extra metadata attached to every run (JSON object).                                                                                     | —                                 |
+| `LANGSMITH_CURSOR_RUNS_ENDPOINTS`     | `replicas`           | Additional replica destinations (JSON array).                                                                                           | —                                 |
+| `LANGSMITH_CURSOR_ATTACHMENTS`        | `attachments`        | Enrich turns with image/file attachment bytes from Cursor's DB.                                                                         | `true`                            |
+| `LANGSMITH_CURSOR_SYSTEM_PROMPT`      | `system_prompt`      | Recover the system prompt from Cursor’s DB.                                                                                             | `true`                            |
+| `LANGSMITH_CURSOR_DB_PATH`            | `cursor_db_path`     | Override the Cursor `state.vscdb` path used for attachments.                                                                            | platform default                  |
+| `LANGSMITH_CURSOR_REDACT`             | `redact`             | Redact detected secrets from traced data before upload.                                                                                 | `true`                            |
+| `LANGSMITH_CURSOR_REDACT_EXTRA`       | `redact_extra_rules` | Extra redaction rules: JSON array of `{ pattern, replace }`; each `pattern` is case-sensitive and applied with the `g` flag.            | —                                 |
+| `LANGSMITH_CURSOR_SWEEP`              | `sweep`              | Upload turns left buffered by a Cursor path that never fires `stop`.                                                                    | `true`                            |
+| `LANGSMITH_CURSOR_SWEEP_IDLE_MINUTES` | `sweep_idle_minutes` | Idle minutes before a buffered turn counts as abandoned, and before a failed upload is retried.                                        | `360`                             |
+| `LANGSMITH_CURSOR_DEBUG`              | —                    | Verbose hook logging.                                                                                                                   | `false`                           |
+| `LANGSMITH_CURSOR_STATE_FILE`         | —                    | Override the on-disk event-buffer state file (no `LANGSMITH_*` form).                                                                   | `~/.cursor/langsmith-state.json`  |
+| `LANGSMITH_CURSOR_LOG_FILE`           | —                    | Override the hook log file (no `LANGSMITH_*` form).                                                                                     | `~/.cursor/langsmith-hook.log`    |
 
 Tracing only runs when the resolved master switch is enabled **and** an API key (or replicas) is set. Thread controls never enable master tracing.
 

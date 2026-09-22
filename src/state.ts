@@ -118,11 +118,23 @@ export function saveState(stateFilePath: string, state: TracingState): void {
   }
 }
 
+export function ownEntry<T>(map: Record<string, T> | undefined, id: string): T | undefined {
+  return map !== undefined && Object.hasOwn(map, id) ? map[id] : undefined;
+}
+
+export function setOwnEntry<T>(map: Record<string, T>, id: string, value: T): void {
+  Object.defineProperty(map, id, { value, writable: true, enumerable: true, configurable: true });
+}
+
+export function deleteOwnEntry<T>(map: Record<string, T>, id: string): void {
+  delete map[id];
+}
+
 export function getConversationState(
   state: TracingState,
   conversationId: string,
 ): ConversationState {
-  return state[conversationId] ?? { turns: {}, turn_count: 0, updated: "" };
+  return ownEntry(state, conversationId) ?? { turns: {}, turn_count: 0, updated: "" };
 }
 
 export function nextTurnNum(conv: ConversationState): number {
@@ -148,7 +160,7 @@ export function getTurnBuffer(
   conversationId: string,
   generationId: string,
 ): TurnBuffer | undefined {
-  return state[conversationId]?.turns[generationId];
+  return ownEntry(ownEntry(state, conversationId)?.turns, generationId);
 }
 
 // ─── Pruning ───────────────────────────────────────────────────────────────
@@ -162,7 +174,7 @@ export function pruneOldConversations(state: TracingState, now: number = Date.no
   for (const [conversationId, conv] of Object.entries(state)) {
     const updatedMs = conv.updated ? new Date(conv.updated).getTime() : 0;
     if (updatedMs >= cutoff) {
-      pruned[conversationId] = conv;
+      setOwnEntry(pruned, conversationId, conv);
     }
   }
   return pruned;

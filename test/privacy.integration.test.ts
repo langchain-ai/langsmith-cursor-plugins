@@ -130,6 +130,7 @@ beforeEach(async () => {
   // isolate its shared client/cache from other cases (and ambient tracing env).
   vi.resetModules();
   for (const key of Object.keys(process.env)) {
+    if (key === "LANGSMITH_CURSOR_LOG_FILE") continue;
     if (/^(LANGCHAIN_|LANGSMITH_|CC_LANGSMITH_)/.test(key) || key === "TRACE_TO_LANGSMITH") {
       vi.stubEnv(key, undefined);
     }

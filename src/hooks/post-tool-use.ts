@@ -19,7 +19,7 @@ async function main(): Promise<void> {
   await atomicUpdateState(config.stateFilePath, (s) => reducePostToolUse(s, input, Date.now()));
 }
 
-main().catch((err) => {
+export const finished = main().catch((err) => {
   try {
     error(`postToolUse hook error: ${err}`);
   } catch {

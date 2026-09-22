@@ -117,6 +117,18 @@ it("snapshots next turns, not active/duplicate generations; preferences outlive 
   );
 });
 
+it("records the project and repo the turn was launched in", () => {
+  env.TRACE_TO_LANGSMITH = "true";
+  env.LANGSMITH_API_KEY = "test";
+  env.LANGSMITH_CURSOR_PROJECT = "the-window-that-typed-it";
+
+  submit("launched here", "one");
+
+  const origin = loadState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns.one.origin;
+  expect(origin?.project).toBe("the-window-that-typed-it");
+  expect(origin?.customMetadata?.cwd).toBe(dir);
+});
+
 it("blocks both controls on corrupt preference; ordinary work gets metadata fallback", () => {
   env.TRACE_TO_LANGSMITH = "true";
   env.LANGSMITH_API_KEY = "test";
