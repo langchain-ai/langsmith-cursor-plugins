@@ -125,7 +125,6 @@ function parseRedactExtraRules(value: unknown): StringNodeRule[] | undefined {
 interface CursorExtensions {
   attachments?: boolean;
   system_prompt?: boolean;
-  sweep?: boolean;
   sweep_idle_minutes?: number;
   cursor_db_path?: string;
 }

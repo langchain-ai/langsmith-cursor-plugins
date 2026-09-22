@@ -110,7 +110,6 @@ These are not common keys and are validated separately, per field, in all four f
 | `attachments`        | boolean   | `true`; DB attachment enrichment    |
 | `system_prompt`      | boolean   | `true`; DB system-prompt enrichment |
 | `cursor_db_path`     | string    | Platform default DB path            |
-| `sweep`              | boolean   | `true`; recovery of stranded turns  |
 | `sweep_idle_minutes` | number    | `360`; idle minutes before recovery |
 
 Each wrong-type extension is omitted with a fixed diagnostic and falls through to lower sources; it **never disables valid common configuration** or discards another extension. Unknown harness-specific fields (including legacy `step_fidelity`) are ignored. Extensions use environment > project `.cursor` > project root > Cursor user > home root > defaults precedence. They do not override muted enrichment restrictions.

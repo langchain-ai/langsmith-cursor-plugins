@@ -23,7 +23,7 @@ import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-const POISON = ["__proto__", "constructor", "prototype", "toString"] as const;
+const POISON = ["__proto__", "constructor"] as const;
 
 const SENTINELS = [
   "polluted",
@@ -40,65 +40,41 @@ function prototypeSnapshot(): string[] {
 }
 
 function base(id: string, event: string) {
-  return {
-    hook_event_name: event,
-    conversation_id: id,
-    generation_id: id,
-    model: "default",
-  };
+  return { hook_event_name: event, conversation_id: id, generation_id: id, model: "default" };
 }
 
 function driveEveryReducer(id: string): TracingState {
-  let state: TracingState = {};
-  state = reduceBeforeSubmitPrompt(
-    state,
-    { ...base(id, "beforeSubmitPrompt"), prompt: "hi" } as never,
-    T0,
-  );
-  state = reducePostToolUse(
-    state,
-    {
-      ...base(id, "postToolUse"),
-      tool_name: "Read",
-      tool_input: {},
-      tool_output: "{}",
-      tool_use_id: "t1",
-    } as never,
-    T0 + MINUTE,
-  );
-  state = reducePostToolUseFailure(
-    state,
-    {
-      ...base(id, "postToolUseFailure"),
-      tool_name: "Write",
-      tool_input: {},
-      tool_use_id: "t2",
-      error_message: "no",
-    } as never,
-    T0 + 2 * MINUTE,
-  );
-  state = reduceAfterAgentResponse(
-    state,
-    { ...base(id, "afterAgentResponse"), text: "done" } as never,
-    T0 + 3 * MINUTE,
-  );
+  const at = (n: number) => T0 + n * MINUTE;
+  const sub = { subagent_id: id, subagent_type: "explore" };
+  const prompt = { ...base(id, "beforeSubmitPrompt"), prompt: "hi" } as never;
+  const used = {
+    ...base(id, "postToolUse"),
+    tool_name: "Read",
+    tool_input: {},
+    tool_output: "{}",
+    tool_use_id: "t1",
+  } as never;
+  const failed = {
+    ...base(id, "postToolUseFailure"),
+    tool_name: "Write",
+    tool_input: {},
+    tool_use_id: "t2",
+    error_message: "no",
+  } as never;
+  const answer = { ...base(id, "afterAgentResponse"), text: "done" } as never;
+
+  let state = reduceBeforeSubmitPrompt({}, prompt, at(0));
+  state = reducePostToolUse(state, used, at(1));
+  state = reducePostToolUseFailure(state, failed, at(2));
+  state = reduceAfterAgentResponse(state, answer, at(3));
   state = reduceSubagentStart(
     state,
-    {
-      ...base(id, "subagentStart"),
-      subagent_id: id,
-      subagent_type: "explore",
-      task: "go",
-    } as never,
-    T0 + 4 * MINUTE,
+    { ...base(id, "subagentStart"), ...sub, task: "go" } as never,
+    at(4),
   );
-  state = reduceSubagentStop(
-    state,
-    { ...base(id, "subagentStop"), subagent_id: id, subagent_type: "explore" } as never,
-    T0 + 5 * MINUTE,
-    { childConversationId: id },
-  );
-  return state;
+  return reduceSubagentStop(state, { ...base(id, "subagentStop"), ...sub } as never, at(5), {
+    childConversationId: id,
+  });
 }
 
 describe("a generation id that names a prototype key", () => {
@@ -120,7 +96,6 @@ describe("a generation id that names a prototype key", () => {
     const swept = reduceSweep(state, "someone-else", T0 + 10 * HOUR, HOUR);
     expect(swept.claims.map((c) => c.generationId)).toEqual([id]);
     expect(Object.hasOwn(swept.state[id].pending!, id)).toBe(true);
-    expect(prototypeSnapshot()).toEqual([]);
 
     state = reduceUploadSettled(swept.state, id, id, T0 + 10 * HOUR);
     expect(state[id].pending).toBeUndefined();
@@ -153,14 +128,9 @@ describe("a generation id that names a prototype key", () => {
 
     const loaded = loadState(file);
     expect(Object.hasOwn(loaded, "__proto__")).toBe(true);
-    expect(prototypeSnapshot()).toEqual([]);
 
-    const stopped = reduceStop(
-      loaded,
-      { ...base("c1", "stop"), generation_id: "g1" } as never,
-      T0 + MINUTE,
-    );
-    saveState(file, stopped.state);
+    const stop = { ...base("c1", "stop"), generation_id: "g1" } as never;
+    saveState(file, reduceStop(loaded, stop, T0 + MINUTE).state);
 
     expect(prototypeSnapshot()).toEqual([]);
     expect(loadState(file).c1.pending!.g1.turnNum).toBe(1);

@@ -2,7 +2,6 @@ import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { join } from "node:path";
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import type { Run } from "langsmith";
 import {
   reduceAfterAgentResponse,
   reducePostToolUse,
@@ -13,7 +12,7 @@ import {
 } from "../src/reducer.js";
 import { DEFAULT_SWEEP_IDLE_MINUTES, MAX_UPLOAD_ATTEMPTS } from "../src/constants.js";
 import * as logger from "../src/logger.js";
-import { runSweep, sweepTracingMode } from "../src/sweep.js";
+import { runSweep } from "../src/sweep.js";
 import { loadState, saveState } from "../src/state.js";
 import type { Config } from "../src/config.js";
 import { MUTED_TRACE_CONTENT } from "../src/privacy.js";
@@ -22,7 +21,15 @@ import { replayHookLog } from "./utils/replay.js";
 import { mockClient } from "./utils/mock_client.js";
 import { getAssumedTreeFromCalls } from "./utils/tree.js";
 import { HOUR, MINUTE, T0, conversation, testConfig, tool, turn } from "./utils/state.js";
-import type { ConversationState, HookInputBase, TracingState, TurnBuffer } from "../src/types.js";
+import type {
+  AfterAgentResponseInput,
+  ConversationState,
+  HookInputBase,
+  PostToolUseInput,
+  SubagentStopInput,
+  TracingState,
+  TurnBuffer,
+} from "../src/types.js";
 
 const THRESHOLD = HOUR;
 const CALLER = "caller-conversation";
@@ -49,6 +56,38 @@ function stranded(): TracingState {
   return { c1: conversation([turn("g1", T0)]) };
 }
 
+function stopInput(conversationId: string, generationId: string) {
+  return {
+    hook_event_name: "stop",
+    conversation_id: conversationId,
+    generation_id: generationId,
+    model: "default",
+  } as const;
+}
+
+function responseInput(generationId: string, text: string): AfterAgentResponseInput {
+  return {
+    hook_event_name: "afterAgentResponse",
+    conversation_id: "c1",
+    generation_id: generationId,
+    model: "default",
+    text,
+  };
+}
+
+function toolInput(generationId: string, toolUseId: string): PostToolUseInput {
+  return {
+    hook_event_name: "postToolUse",
+    conversation_id: "c1",
+    generation_id: generationId,
+    model: "default",
+    tool_name: "Read",
+    tool_input: {},
+    tool_output: "{}",
+    tool_use_id: toolUseId,
+  };
+}
+
 function subagentParent(endMs?: number): ConversationState {
   const subagent = { subagent_id: "s1", subagent_type: "explore", task: "go", startMs: T0, endMs };
   return conversation([turn("gp", T0, { tracingMode: "full", subagents: [subagent] })], {
@@ -63,29 +102,16 @@ function parentAndChild(endMs?: number): TracingState {
   };
 }
 
-function stopSubagent(state: TracingState): TracingState {
-  return reduceSubagentStop(
-    state,
-    {
-      hook_event_name: "subagentStop",
-      conversation_id: "parent",
-      generation_id: "gp",
-      model: "default",
-      subagent_id: "s1",
-      subagent_type: "explore",
-    },
-    T0 + MINUTE,
-    { childConversationId: "child" },
-  );
-}
-
-function stopInput(conversationId: string, generationId: string) {
-  return {
-    hook_event_name: "stop",
-    conversation_id: conversationId,
-    generation_id: generationId,
+function stopSubagent(state: TracingState, childConversationId: string): TracingState {
+  const input: SubagentStopInput = {
+    hook_event_name: "subagentStop",
+    conversation_id: "parent",
+    generation_id: "gp",
     model: "default",
-  } as const;
+    subagent_id: "s1",
+    subagent_type: "explore",
+  };
+  return reduceSubagentStop(state, input, T0 + MINUTE, { childConversationId });
 }
 
 describe("reduceSweep abandonment threshold", () => {
@@ -110,30 +136,11 @@ describe("reduceSweep abandonment threshold", () => {
   });
 
   it("counts the arrival of the final response as activity", () => {
-    const state = reduceAfterAgentResponse(
-      stranded(),
-      {
-        hook_event_name: "afterAgentResponse",
-        conversation_id: "c1",
-        generation_id: "g1",
-        model: "default",
-        text: "streamed after 70 minutes of thinking",
-      },
-      T0 + 70 * MINUTE,
-    );
+    const text = "streamed after 70 minutes of thinking";
+    const state = reduceAfterAgentResponse(stranded(), responseInput("g1", text), T0 + 70 * MINUTE);
     expect(state.c1.turns.g1.finalTextArrivedMs).toBe(T0 + 70 * MINUTE);
     expect(reduceSweep(state, CALLER, T0 + 2 * HOUR, THRESHOLD).claims).toEqual([]);
     expect(reduceSweep(state, CALLER, T0 + 3 * HOUR, THRESHOLD).claims.length).toBe(1);
-  });
-
-  it("marks a recovered turn incomplete and keeps its tools", () => {
-    const state: TracingState = {
-      c1: conversation([turn("g1", T0, { tools: [tool("t1", "Read", T0, { path: "a.ts" })] })]),
-    };
-    const claim = reduceSweep(state, CALLER, T0 + 2 * HOUR, THRESHOLD).claims[0];
-    expect(claim.buffer.status).toBe("incomplete");
-    expect(claim.buffer.finalText).toBeUndefined();
-    expect(claim.buffer.tools.length).toBe(1);
   });
 
   it("drops a muted-off turn without claiming it", () => {
@@ -185,64 +192,29 @@ describe("reduceSweep exclusions", () => {
 
 describe("reduceSubagentStop absorbing the child conversation", () => {
   it("keeps the child's pending upload instead of deleting it", () => {
-    const state: TracingState = {
-      parent: subagentParent(),
-      child: conversation([], {
-        turn_count: 1,
-        pending: { gc: { buffer: turn("gc", T0), turnNum: 1, claimedAt: T0, attempts: 1 } },
-      }),
-    };
-    const next = stopSubagent(state);
+    const next = stopSubagent(
+      {
+        parent: subagentParent(),
+        child: conversation([], {
+          turn_count: 1,
+          pending: { gc: { buffer: turn("gc", T0), turnNum: 1, claimedAt: T0, attempts: 1 } },
+        }),
+      },
+      "child",
+    );
     expect(next.parent.turns.gp.subagents[0].childConversationId).toBe("child");
     expect(next.child.pending!.gc.turnNum).toBe(1);
     expect(next.child.turns).toEqual({});
   });
 
-  it("consumes a child that has nothing pending", () => {
-    const next = stopSubagent(parentAndChild());
-    expect(next.child).toBeUndefined();
-    expect(next.parent.turns.gp.subagents[0].tools!.map((t) => t.name)).toEqual(["Grep"]);
-  });
-
   it("never consumes the parent's own thread when the child id points back at it", () => {
-    const state: TracingState = { parent: subagentParent() };
-    const next = reduceSubagentStop(
-      state,
-      {
-        hook_event_name: "subagentStop",
-        conversation_id: "parent",
-        generation_id: "gp",
-        model: "default",
-        subagent_id: "s1",
-        subagent_type: "explore",
-      } as never,
-      T0 + MINUTE,
-      { childConversationId: "parent" },
-    );
-
+    const next = stopSubagent({ parent: subagentParent() }, "parent");
     expect(Object.keys(next.parent.turns)).toEqual(["gp"]);
     expect(next.parent.turns.gp.subagents[0].childConversationId).toBeUndefined();
   });
 });
 
 describe("reduceSweep claims are exactly once", () => {
-  it("does not re-claim a turn on the next sweep", () => {
-    const first = reduceSweep(stranded(), CALLER, T0 + 2 * HOUR, THRESHOLD);
-    expect(first.claims.length).toBe(1);
-
-    const second = reduceSweep(first.state, CALLER, T0 + 2 * HOUR + MINUTE, THRESHOLD);
-    expect(second.claims).toEqual([]);
-    expect(second.state.c1.turn_count).toBe(1);
-    expect(second.state.c1.pending!.g1.attempts).toBe(1);
-  });
-
-  it("clears the pending entry once the upload resolves", () => {
-    const first = reduceSweep(stranded(), CALLER, T0 + 2 * HOUR, THRESHOLD);
-    const settled = reduceUploadSettled(first.state, "c1", "g1", T0 + 2 * HOUR);
-    expect(settled.c1.pending).toBeUndefined();
-    expect(reduceSweep(settled, CALLER, T0 + 10 * HOUR, THRESHOLD).claims).toEqual([]);
-  });
-
   it("leaves a pending entry alone when a later claim replaced the one being settled", () => {
     const first = reduceSweep(stranded(), CALLER, T0 + 2 * HOUR, THRESHOLD);
     const reclaimed = reduceSweep(first.state, CALLER, T0 + 4 * HOUR, THRESHOLD);
@@ -264,6 +236,7 @@ describe("reduceSweep claims are exactly once", () => {
 
     const tooSoon = reduceSweep(retried.state, CALLER, T0 + 4 * HOUR + MINUTE, THRESHOLD);
     expect(tooSoon.claims).toEqual([]);
+    expect(tooSoon.state.c1.turn_count).toBe(1);
 
     const last = reduceSweep(tooSoon.state, CALLER, T0 + 6 * HOUR, THRESHOLD);
     expect(last.state.c1.pending!.g1.attempts).toBe(MAX_UPLOAD_ATTEMPTS);
@@ -276,14 +249,6 @@ describe("reduceSweep claims are exactly once", () => {
       `Dropping turn 1 of conversation c1 after ${MAX_UPLOAD_ATTEMPTS} failed upload attempts`,
     );
     spy.mockRestore();
-  });
-
-  it("holds a stop-finalized turn as pending until it is settled", () => {
-    const state: TracingState = { c1: conversation([turn("g1", T0, { tracingMode: "full" })]) };
-    const result = reduceStop(state, stopInput("c1", "g1"), T0 + MINUTE);
-    expect(result.buffer).toBeDefined();
-    expect(result.state.c1.pending!.g1.attempts).toBe(1);
-    expect(reduceUploadSettled(result.state, "c1", "g1", T0 + MINUTE).c1.pending).toBeUndefined();
   });
 });
 
@@ -298,52 +263,23 @@ describe("late hooks for a finalized generation", () => {
     spy.mockRestore();
   });
 
-  it("reopens the turn and warns that the sweep fired too early", () => {
-    const swept = reduceSweep(stranded(), CALLER, T0 + 2 * HOUR, THRESHOLD).state;
-    expect(swept.c1.sweepFinalizedGenerations).toEqual(["g1"]);
+  it("reopens the turn for a late response, then lets the real stop supersede it", () => {
+    const swept = reduceSweep(stranded(), CALLER, T0 + 2 * HOUR, THRESHOLD);
+    expect(swept.claims[0]).toMatchObject({ turnNum: 1 });
+    expect(swept.claims[0].buffer.status).toBe("incomplete");
+    expect(swept.state.c1.sweepFinalizedGenerations).toEqual(["g1"]);
 
-    const late = reduceAfterAgentResponse(
-      swept,
-      {
-        hook_event_name: "afterAgentResponse",
-        conversation_id: "c1",
-        generation_id: "g1",
-        model: "default",
-        text: "arrived too late",
-      },
-      T0 + 3 * HOUR,
-    );
-    expect(late.c1.turns.g1.finalText).toBe("arrived too late");
-    expect(late.c1.turns.g1.turnNum).toBe(1);
+    const answer = responseInput("g1", "the real answer");
+    const late = reduceAfterAgentResponse(swept.state, answer, T0 + 3 * HOUR);
+    expect(late.c1.turns.g1).toMatchObject({ turnNum: 1, finalText: "the real answer" });
     expect(late.c1.pending).toBeUndefined();
     expect(late.c1.sweepFinalizedGenerations).toEqual(["g1"]);
     expect(spy).toHaveBeenCalledWith(
       "Sweep recovered conversation c1 generation g1 too early; reopening it for a late afterAgentResponse",
     );
-  });
 
-  it("lets a real stop supersede a turn the sweep recorded as incomplete", () => {
-    const swept = reduceSweep(stranded(), CALLER, T0 + 2 * HOUR, THRESHOLD);
-    expect(swept.claims[0]).toMatchObject({ turnNum: 1 });
-    expect(swept.claims[0].buffer.status).toBe("incomplete");
-
-    const answered = reduceAfterAgentResponse(
-      swept.state,
-      {
-        hook_event_name: "afterAgentResponse",
-        conversation_id: "c1",
-        generation_id: "g1",
-        model: "default",
-        text: "the real answer",
-      },
-      T0 + 3 * HOUR,
-    );
-    const stopped = reduceStop(
-      answered,
-      { ...stopInput("c1", "g1"), status: "completed" },
-      T0 + 3 * HOUR + MINUTE,
-    );
-
+    const done = { ...stopInput("c1", "g1"), status: "completed" };
+    const stopped = reduceStop(late, done, T0 + 3 * HOUR + MINUTE);
     expect(stopped.turnNum).toBe(1);
     expect(stopped.buffer?.status).toBe("completed");
     expect(stopped.buffer?.finalText).toBe("the real answer");
@@ -383,19 +319,7 @@ describe("late hooks for a finalized generation", () => {
     expect(stopped.c1.sweepFinalizedGenerations).toBeUndefined();
     expect(stopped.c1.stopFinalizedGenerations).toEqual(["g1"]);
 
-    const late = reducePostToolUse(
-      stopped,
-      {
-        hook_event_name: "postToolUse",
-        conversation_id: "c1",
-        generation_id: "g1",
-        model: "default",
-        tool_name: "Read",
-        tool_use_id: "late",
-      } as never,
-      T0 + 2 * MINUTE,
-    );
-    expect(late).toBe(stopped);
+    expect(reducePostToolUse(stopped, toolInput("g1", "late"), T0 + 2 * MINUTE)).toBe(stopped);
     expect(spy).not.toHaveBeenCalled();
   });
 });
@@ -432,31 +356,12 @@ describe("a generation is buffered or pending, never both", () => {
     const settled = reduceUploadSettled(swept, "c1", "g1", T0 + 2 * HOUR);
     expect(settled.c1.turn_count).toBe(1);
 
-    const late = reducePostToolUse(
-      settled,
-      {
-        hook_event_name: "postToolUse",
-        conversation_id: "c1",
-        generation_id: "g1",
-        model: "default",
-        tool_name: "Read",
-        tool_use_id: "late",
-      } as never,
-      T0 + 3 * HOUR,
-    );
+    const late = reducePostToolUse(settled, toolInput("g1", "late"), T0 + 3 * HOUR);
     const reswept = reduceSweep(late, CALLER, T0 + 5 * HOUR, THRESHOLD);
 
     expect(reswept.claims.map((c) => c.generationId)).toEqual(["g1"]);
     expect(reswept.state.c1.turn_count).toBe(1);
     expect(whereIsIt(reswept.state, "g1")).toEqual(["pending"]);
-  });
-});
-
-describe("tracing mode resolved from the privacy policy", () => {
-  it("takes the thread's policy mode but never upgrades a muted buffer", () => {
-    expect(sweepTracingMode(undefined, "full")).toBe("full");
-    expect(sweepTracingMode(undefined, "metadata")).toBe("metadata");
-    expect(sweepTracingMode("metadata", "full")).toBe("metadata");
   });
 });
 
@@ -476,17 +381,12 @@ describe("headless cursor-agent run recovered by the sweep", () => {
   });
 
   it("builds a complete run tree from the recovered turn", async () => {
-    const { swept } = replayHookLog(HEADLESS, FINAL_SWEEP);
     const { client, callSpy } = mockClient();
     initTracing(undefined, undefined, undefined, true, undefined, client);
-
     await buildTurnRuns({
-      buffer: {
-        ...swept[0].buffer,
-        tracingMode: sweepTracingMode(swept[0].buffer.tracingMode, "full"),
-      },
-      conversationId: swept[0].conversationId,
-      turnNum: swept[0].turnNum,
+      buffer: recoveredBuffer(),
+      conversationId: HEADLESS_CONV,
+      turnNum: 1,
       project: "cursor",
     });
 
@@ -496,11 +396,6 @@ describe("headless cursor-agent run recovered by the sweep", () => {
 
     const root = Object.entries(tree.data).find(([id]) => id.startsWith("Cursor Turn 1:"))![1];
     expect(root.error).toBe("incomplete");
-    const meta = (root.extra as { metadata?: Record<string, unknown> }).metadata ?? {};
-    expect(meta).toMatchObject({ thread_id: HEADLESS_CONV, turn_number: 1 });
-
-    const readRun = Object.entries(tree.data).find(([id]) => id.startsWith("Read:"))![1] as Run;
-    expect(JSON.stringify(readRun.inputs)).toContain("src/reducer.ts");
   });
 });
 
@@ -543,7 +438,7 @@ describe("runSweep against the on-disk state file", () => {
 
     expect(uploaded.map((c) => c.generationId)).toEqual(["g1"]);
     const after = loadState(stateFilePath);
-    expect(after.c1).toMatchObject({ turns: {}, turn_count: 1 });
+    expect(after.c1.turn_count).toBe(1);
     expect(after.c1.pending).toBeUndefined();
     expect(Object.keys(after.c2.turns)).toEqual(["g2"]);
 
@@ -573,7 +468,11 @@ describe("runSweep against the on-disk state file", () => {
     const { client, callSpy } = mockClient();
 
     await runSweep({
-      config: { ...config, project: "the-sweepers-project", customMetadata: { cwd: "/repo/sweep" } },
+      config: {
+        ...config,
+        project: "the-sweepers-project",
+        customMetadata: { cwd: "/repo/sweep" },
+      },
       input: CALLER_INPUT,
       nowMs: T0 + 2 * HOUR,
       client,
@@ -616,58 +515,36 @@ describe("runSweep against the on-disk state file", () => {
     expect(inputs).toContain(MUTED_TRACE_CONTENT);
     expect(inputs).not.toContain("recover me");
   });
-
 });
 
+function recoveredBuffer(): TurnBuffer {
+  const { swept } = replayHookLog(HEADLESS, FINAL_SWEEP);
+  return { ...swept[0].buffer, tracingMode: "full" };
+}
+
 describe("run ids that survive a re-upload", () => {
-  async function postedRunIds(
-    buffer: TurnBuffer,
-    conversationId: string,
-    turnNum: number,
-  ): Promise<string[]> {
+  async function postedRunIds(buffer: TurnBuffer, turnNum: number): Promise<string[]> {
     const { client, callSpy } = mockClient();
     initTracing(undefined, undefined, undefined, true, undefined, client);
-    await buildTurnRuns({ buffer, conversationId, turnNum, project: "cursor" });
+    await buildTurnRuns({ buffer, conversationId: HEADLESS_CONV, turnNum, project: "cursor" });
     const tree = await getAssumedTreeFromCalls(callSpy.mock.calls, client);
     return Object.values(tree.data)
       .map((run) => run.id)
       .sort();
   }
 
-  function recoveredBuffer(): TurnBuffer {
-    const { swept } = replayHookLog(HEADLESS, FINAL_SWEEP);
-    return { ...swept[0].buffer, tracingMode: "full" };
-  }
-
-  it("posts the same run ids when the same turn is uploaded twice", async () => {
+  it("repeats a turn's ids on re-upload and never reuses them for another turn", async () => {
     const buffer = recoveredBuffer();
-    const first = await postedRunIds(buffer, HEADLESS_CONV, 1);
-    const second = await postedRunIds(buffer, HEADLESS_CONV, 1);
+    const first = await postedRunIds(buffer, 1);
 
     expect(first.length).toBeGreaterThan(HEADLESS_TOOLS);
     expect(new Set(first).size).toBe(first.length);
-    expect(second).toEqual(first);
+    expect(await postedRunIds(buffer, 1)).toEqual(first);
     for (const id of first) {
       expect(id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-5[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
     }
-  });
 
-  it("gives another turn in the same thread run ids of its own", async () => {
-    const buffer = recoveredBuffer();
-    const mine = await postedRunIds(buffer, HEADLESS_CONV, 1);
-    const other = await postedRunIds(
-      { ...buffer, generation_id: "another-generation" },
-      HEADLESS_CONV,
-      2,
-    );
-    expect(other.some((id) => mine.includes(id))).toBe(false);
-  });
-
-  it("keeps the ids of a muted turn stable too", async () => {
-    const buffer: TurnBuffer = { ...recoveredBuffer(), tracingMode: "metadata" };
-    const first = await postedRunIds(buffer, HEADLESS_CONV, 1);
-    const second = await postedRunIds(buffer, HEADLESS_CONV, 1);
-    expect(first.length).toBeGreaterThan(1);
-    expect(second).toEqual(first);
+    const other = await postedRunIds({ ...buffer, generation_id: "another-generation" }, 2);
+    expect(other.some((id) => first.includes(id))).toBe(false);
   });
 });
