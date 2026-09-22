@@ -2,8 +2,8 @@
 
 import { createRunTree, createChildRun, MUTED_TRACE_CONTENT } from "./privacy.js";
 import { Client, RunTree, type RunTreeConfig } from "langsmith";
-import { createSecretAnonymizer } from "langsmith/anonymizer";
 import type { StringNodeRule } from "langsmith/anonymizer";
+import { createTracingClient } from "./client.js";
 import type { TurnBuffer, ToolEvent, SubagentEvent, ContentPart } from "./types.js";
 import { buildUsageMetadata, deriveModelInfo } from "./normalize.js";
 import { DEFAULT_TAGS, SKILL_RUN_NAME, TURN_RUN_NAME } from "./constants.js";
@@ -24,12 +24,7 @@ export function initTracing(
   extraRedactionRules?: StringNodeRule[],
   clientOverride?: Client,
 ): Client | undefined {
-  const anonymizer = redact
-    ? createSecretAnonymizer(extraRedactionRules ? { extraRules: extraRedactionRules } : undefined)
-    : undefined;
-
-  // Always retain the configured endpoint, including keyless, unredacted replica-only tracing.
-  client = clientOverride ?? new Client({ apiKey: apiKey || undefined, apiUrl, anonymizer });
+  client = clientOverride ?? createTracingClient(apiKey, apiUrl, redact, extraRedactionRules);
   replicas = providedReplicas;
   return client;
 }
