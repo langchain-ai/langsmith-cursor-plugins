@@ -125,10 +125,16 @@ export function getConversationState(
   return state[conversationId] ?? { turns: {}, turn_count: 0, updated: "" };
 }
 
+export function nextTurnNum(conv: ConversationState): number {
+  conv.turns_started = (conv.turns_started ?? conv.turn_count) + 1;
+  return conv.turns_started;
+}
+
 /** Create a fresh, empty turn buffer. */
-export function newTurnBuffer(generationId: string, startMs: number): TurnBuffer {
+export function newTurnBuffer(generationId: string, startMs: number, turnNum: number): TurnBuffer {
   return {
     generation_id: generationId,
+    turnNum,
     startMs,
     tools: [],
     thoughts: [],

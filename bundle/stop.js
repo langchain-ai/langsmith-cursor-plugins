@@ -1195,6 +1195,10 @@ function saveState(stateFilePath, state) {
 function getConversationState(state, conversationId) {
   return state[conversationId] ?? { turns: {}, turn_count: 0, updated: "" };
 }
+function nextTurnNum(conv) {
+  conv.turns_started = (conv.turns_started ?? conv.turn_count) + 1;
+  return conv.turns_started;
+}
 var CONVERSATION_MAX_AGE_MS = 24 * 60 * 60 * 1e3;
 function pruneOldConversations(state, now = Date.now()) {
   const cutoff = now - CONVERSATION_MAX_AGE_MS;
@@ -1307,7 +1311,7 @@ function reduceStop(state, input, nowMs) {
   };
   turn.status = input.status;
   turn.model = preferModel(turn.model, input.model);
-  const turnNum = conv.turn_count + 1;
+  const turnNum = turn.turnNum ?? nextTurnNum(conv);
   if (turn.tracingMode === "off") {
     (conv.completedOffGenerations ??= []).push(input.generation_id);
   }
