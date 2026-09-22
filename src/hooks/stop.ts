@@ -1,20 +1,22 @@
 #!/usr/bin/env node
 /**
  * stop hook — finalizes the turn: posts the LangSmith trace, flushes, clears the
- * buffer. Idempotent; no buffer → no-op.
+ * buffer. Idempotent. A turn stays pending until its upload succeeds, and every
+ * run also sweeps up turns other threads left buffered with no stop.
  */
 
 import { readStdin } from "../utils/stdin.js";
 import { initHook } from "../utils/hook-init.js";
 import { loadConfig } from "../config.js";
-import { atomicUpdateState } from "../state.js";
-import { reduceStop } from "../reducer.js";
-import { initTracing, buildTurnRuns, flushPendingTraces } from "../langsmith.js";
+import { atomicUpdateState, getTurnBuffer } from "../state.js";
+import { reduceStop, reduceUploadSettled } from "../reducer.js";
+import { runSweep } from "../sweep.js";
+import { initTracing, uploadTurn } from "../langsmith.js";
 import { resolveTurnAttachments } from "../attachments.js";
 import { resolveSystemPrompts } from "../system-prompt.js";
 import { resolveTurnSteps } from "../conversation-steps.js";
 import { error, debug, warn } from "../logger.js";
-import type { ContentPart, StopInput, TurnBuffer } from "../types.js";
+import type { ContentPart, StopInput, TracingState, TurnBuffer } from "../types.js";
 
 async function main(): Promise<void> {
   const input = await readStdin<StopInput>();
@@ -24,7 +26,7 @@ async function main(): Promise<void> {
     // Consume only those snapshots; leave the pre-existing enabled-turn lifecycle alone.
     const local = loadConfig({ cwd: input.workspace_roots?.[0] });
     await atomicUpdateState(local.stateFilePath, (s) =>
-      s[input.conversation_id]?.turns[input.generation_id]?.tracingMode === "off"
+      getTurnBuffer(s, input.conversation_id, input.generation_id)?.tracingMode === "off"
         ? reduceStop(s, input, Date.now()).state
         : s,
     );
@@ -32,22 +34,31 @@ async function main(): Promise<void> {
   }
 
   debug(`stop conv=${input.conversation_id} gen=${input.generation_id} status=${input.status}`);
+  const finalizedAt = Date.now();
   let toTrace: TurnBuffer | undefined;
   let turnNum = 0;
 
   await atomicUpdateState(config.stateFilePath, (s) => {
-    const r = reduceStop(s, input, Date.now());
+    const r = reduceStop(s, input, finalizedAt);
     toTrace = r.buffer;
     turnNum = r.turnNum;
     return r.state;
   });
 
+  const clearThisTurnsPendingUpload = (s: TracingState) =>
+    reduceUploadSettled(s, input.conversation_id, input.generation_id, finalizedAt);
+  const sweep = (apply?: (s: TracingState) => TracingState) => runSweep({ config, input, apply });
+
   if (!toTrace) {
     debug("No buffered turn for this generation — nothing to trace");
+    await sweep();
     return;
   }
 
-  if (toTrace.tracingMode === "off") return;
+  if (toTrace.tracingMode === "off") {
+    await sweep();
+    return;
+  }
 
   initTracing(
     config.apiKey,
@@ -94,14 +105,14 @@ async function main(): Promise<void> {
     dbPath: config.cursorDbPath,
   });
 
+  let uploaded = false;
   try {
-    await buildTurnRuns({
+    uploaded = await uploadTurn({
       buffer: toTrace,
       conversationId: input.conversation_id,
       turnNum,
       project: config.project,
       userEmail: input.user_email,
-      workspaceRoots: input.workspace_roots,
       customMetadata: config.customMetadata,
       runtimeVersion: input.cursor_version,
       attachments,
@@ -112,10 +123,10 @@ async function main(): Promise<void> {
     error(`Failed to build turn runs: ${err}`);
   }
 
-  await flushPendingTraces();
+  await sweep(uploaded ? clearThisTurnsPendingUpload : undefined);
 }
 
-main().catch((err) => {
+export const finished = main().catch((err) => {
   try {
     warn(`stop hook error: ${err}`);
   } catch {

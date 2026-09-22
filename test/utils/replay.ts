@@ -8,13 +8,21 @@ import {
   reduceSubagentStart,
   reduceSubagentStop,
   reduceStop,
+  reduceSweep,
+  type SweepClaim,
 } from "../../src/reducer.js";
+import { pruneOldConversations } from "../../src/state.js";
+import { DEFAULT_SWEEP_IDLE_MINUTES } from "../../src/constants.js";
 
 export interface FinalizedTurn {
   conversationId: string;
   turnNum: number;
   buffer: TurnBuffer;
   stopInput: StopInput;
+}
+
+export interface ReplayOptions {
+  finalSweep?: { nowMs: number; callerConversationId: string };
 }
 
 interface CaptureLine {
@@ -27,12 +35,27 @@ interface CaptureLine {
  * Replay captured hooks.jsonl through the pure reducers, using each event's
  * timestamp as the clock. Yields finalized turns and residual state.
  */
-export function replayHookLog(path: string): {
+export function replayHookLog(
+  path: string,
+  options: ReplayOptions = {},
+): {
   finalized: FinalizedTurn[];
+  swept: SweepClaim[];
   finalState: TracingState;
 } {
   let state: TracingState = {};
   const finalized: FinalizedTurn[] = [];
+  const swept: SweepClaim[] = [];
+  function sweepEveryOtherThread(callerConversationId: string, nowMs: number): void {
+    const result = reduceSweep(
+      state,
+      callerConversationId,
+      nowMs,
+      DEFAULT_SWEEP_IDLE_MINUTES * 60_000,
+    );
+    state = result.state;
+    swept.push(...result.claims);
+  }
 
   for (const line of readFileSync(path, "utf-8").split("\n").filter(Boolean)) {
     let rec: CaptureLine;
@@ -45,6 +68,9 @@ export function replayHookLog(path: string): {
     const now = Date.parse(rec.ts);
 
     switch (p.hook_event_name) {
+      case "sessionStart":
+        state = pruneOldConversations(state, now);
+        break;
       case "beforeSubmitPrompt":
         state = reduceBeforeSubmitPrompt(state, p as never, now);
         break;
@@ -77,9 +103,14 @@ export function replayHookLog(path: string): {
         break;
       }
       default:
-        break; // beforeReadFile / afterAgentThought / sessionStart / shell / MCP — ignored in v1
+        break; // beforeReadFile / afterAgentThought / shell / MCP — ignored in v1
     }
+    sweepEveryOtherThread(p.conversation_id as string, now);
   }
 
-  return { finalized, finalState: state };
+  if (options.finalSweep) {
+    sweepEveryOtherThread(options.finalSweep.callerConversationId, options.finalSweep.nowMs);
+  }
+
+  return { finalized, swept, finalState: state };
 }

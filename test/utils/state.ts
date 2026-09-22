@@ -1,3 +1,4 @@
+import type { Config } from "../../src/config.js";
 import type { ConversationState, ToolEvent, TurnBuffer } from "../../src/types.js";
 
 export const MINUTE = 60_000;
@@ -30,5 +31,21 @@ export function conversation(
     turn_count: 0,
     updated: new Date(T0).toISOString(),
     ...patch,
+  };
+}
+
+export function testConfig(stateFilePath: string): Config {
+  return {
+    enabled: true,
+    defaultMuted: false,
+    apiKey: "MOCK",
+    apiUrl: "https://api.smith.langchain.com",
+    project: "cursor",
+    debug: false,
+    stateFilePath,
+    attachmentsEnabled: false,
+    systemPromptEnabled: false,
+    redact: true,
+    sweepIdleMinutes: 60,
   };
 }

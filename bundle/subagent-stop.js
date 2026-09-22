@@ -229,6 +229,7 @@ function debug(message) {
 
 // dist/constants.js
 var DEFAULT_PROJECT = "cursor";
+var DEFAULT_SWEEP_IDLE_MINUTES = 360;
 
 // dist/config.js
 import { homedir as homedir2 } from "node:os";
@@ -251,6 +252,12 @@ function parseBoolean(value) {
   if (["0", "false", "no", "off"].includes(v))
     return false;
   return void 0;
+}
+function parsePositiveNumber(value) {
+  if (typeof value !== "string" || value.trim().length === 0)
+    return void 0;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : void 0;
 }
 function parseJson(value) {
   if (typeof value !== "string" || value.trim().length === 0)
@@ -299,6 +306,13 @@ function readConfigFile(file) {
         extensions[field] = raw[field];
       else
         error(`Invalid Cursor config extension ${field}; ignoring field.`);
+    }
+    if (Object.hasOwn(raw, "sweep_idle_minutes")) {
+      const minutes = raw.sweep_idle_minutes;
+      if (typeof minutes === "number" && Number.isFinite(minutes) && minutes > 0)
+        extensions.sweep_idle_minutes = minutes;
+      else
+        error("Invalid Cursor config extension sweep_idle_minutes; ignoring field.");
     }
     if (Object.hasOwn(raw, "cursor_db_path")) {
       if (typeof raw.cursor_db_path === "string")
@@ -451,6 +465,7 @@ function loadConfig(options) {
   const replicas = normalizeReplicas(envReplicas) ?? toSdkReplicas(common.replicas);
   const attachmentsEnabled = parseBoolean(getEnv("ATTACHMENTS")) ?? localFile.extensions.attachments ?? rootFile.extensions.attachments ?? globalFile.extensions.attachments ?? userRootFile.extensions.attachments ?? true;
   const systemPromptEnabled = parseBoolean(getEnv("SYSTEM_PROMPT")) ?? localFile.extensions.system_prompt ?? rootFile.extensions.system_prompt ?? globalFile.extensions.system_prompt ?? userRootFile.extensions.system_prompt ?? true;
+  const sweepIdleMinutes = parsePositiveNumber(getEnv("SWEEP_IDLE_MINUTES")) ?? localFile.extensions.sweep_idle_minutes ?? rootFile.extensions.sweep_idle_minutes ?? globalFile.extensions.sweep_idle_minutes ?? userRootFile.extensions.sweep_idle_minutes ?? DEFAULT_SWEEP_IDLE_MINUTES;
   const cursorDbPath = getEnv("DB_PATH") ?? localFile.extensions.cursor_db_path ?? rootFile.extensions.cursor_db_path ?? globalFile.extensions.cursor_db_path ?? userRootFile.extensions.cursor_db_path;
   const redactExtraRules = parseRedactExtraRules(getEnv("REDACT_EXTRA")) ?? common.redact_extra_rules;
   const stateFilePath = process.env.LANGSMITH_CURSOR_STATE_FILE ?? join(homedir2(), ".cursor", "langsmith-state.json");
@@ -489,7 +504,8 @@ function loadConfig(options) {
     systemPromptEnabled,
     cursorDbPath,
     redact,
-    redactExtraRules
+    redactExtraRules,
+    sweepIdleMinutes
   };
 }
 
@@ -592,8 +608,11 @@ function saveState(stateFilePath, state) {
     }
   }
 }
+function ownEntry(map, id) {
+  return map !== void 0 && Object.hasOwn(map, id) ? map[id] : void 0;
+}
 function getConversationState(state, conversationId) {
-  return state[conversationId] ?? { turns: {}, turn_count: 0, updated: "" };
+  return ownEntry(state, conversationId) ?? { turns: {}, turn_count: 0, updated: "" };
 }
 var CONVERSATION_MAX_AGE_MS = 24 * 60 * 60 * 1e3;
 
@@ -628,8 +647,8 @@ function parseSubagentTranscript(rows) {
 }
 
 // dist/reducer.js
-function touch(conv) {
-  conv.updated = (/* @__PURE__ */ new Date()).toISOString();
+function touch(conv, nowMs = Date.now()) {
+  conv.updated = new Date(nowMs).toISOString();
 }
 function collectTools(conv) {
   const tools = [];
@@ -689,12 +708,18 @@ function reduceSubagentStop(state, input, nowMs, resolved) {
   if (resolved?.resultText)
     target.resultText = resolved.resultText;
   let next = { ...state, [parentConv]: conv };
-  const childConv = resolved?.childConversationId ?? findChildConversation(next, parentConv, target.startMs, nowMs);
-  if (childConv && next[childConv]) {
+  const resolvedChild = resolved?.childConversationId ?? findChildConversation(next, parentConv, target.startMs, nowMs);
+  const childConv = resolvedChild === parentConv ? void 0 : resolvedChild;
+  const child = childConv ? ownEntry(next, childConv) : void 0;
+  if (childConv && child) {
     target.childConversationId = childConv;
-    target.tools = collectTools(next[childConv]);
-    const { [childConv]: _consumed, ...rest } = next;
-    next = rest;
+    target.tools = collectTools(child);
+    if (Object.keys(child.pending ?? {}).length > 0) {
+      next = { ...next, [childConv]: { ...child, turns: {} } };
+    } else {
+      const { [childConv]: _consumed, ...rest } = next;
+      next = rest;
+    }
   } else if (resolved?.toolCalls?.length) {
     const calls = resolved.toolCalls;
     target.childConversationId = resolved.childConversationId;

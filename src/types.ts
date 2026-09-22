@@ -179,10 +179,18 @@ export interface ThoughtEvent {
   duration_ms?: number;
 }
 
+export interface TurnOrigin {
+  project: string;
+  userEmail?: string | null;
+  runtimeVersion?: string;
+  customMetadata?: Record<string, unknown>;
+}
+
 /** Buffered events for one in-progress turn (one generation_id). */
 export interface TurnBuffer {
   /** Immutable prompt-launch snapshot; absent/legacy evidence is metadata-only. */
   tracingMode?: TurnMode;
+  origin?: TurnOrigin;
   generation_id: string;
   turnNum?: number;
   prompt?: string;
@@ -195,16 +203,28 @@ export interface TurnBuffer {
   subagents: SubagentEvent[];
   /** Final assistant text (afterAgentResponse). */
   finalText?: string;
+  finalTextArrivedMs?: number;
+  sweptAtMs?: number;
   /** Per-turn token usage (afterAgentResponse / stop). */
   usage?: UsageFields;
   /** Turn status from stop. */
   status?: string;
 }
 
+export interface PendingUpload {
+  buffer: TurnBuffer;
+  turnNum: number;
+  claimedAt: number;
+  attempts: number;
+}
+
 /** State for one conversation (thread). */
 export interface ConversationState {
   /** Content-free tombstones: late events must not resurrect completed off launches. */
   completedOffGenerations?: string[];
+  stopFinalizedGenerations?: string[];
+  sweepFinalizedGenerations?: string[];
+  pending?: Record<string, PendingUpload>;
   /** In-progress turn buffers keyed by generation_id. */
   turns: Record<string, TurnBuffer>;
   turns_started?: number;
@@ -220,3 +240,11 @@ export interface TracingState {
 
 export type TracingMode = "full" | "metadata";
 export type TurnMode = TracingMode | "off";
+
+export interface SweepClaim {
+  conversationId: string;
+  generationId: string;
+  buffer: TurnBuffer;
+  turnNum: number;
+  claimedAt: number;
+}

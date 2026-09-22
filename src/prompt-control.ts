@@ -8,6 +8,7 @@ import {
   setThreadTracingMode,
   tracingPolicyPath,
 } from "./tracing-policy.js";
+import { originFromConfig } from "./turn-origin.js";
 import type { BeforeSubmitPromptInput } from "./types.js";
 
 /** Synchronous command hook contract, not an LLM skill or slash-command expansion. */
@@ -50,6 +51,7 @@ export async function handlePromptSubmit(
         enabled
           ? getThreadTracingMode(tracingPolicyPath(), input.conversation_id, config.defaultMuted)
           : "off",
+        originFromConfig(config, input),
       ),
     );
     return { continue: true };

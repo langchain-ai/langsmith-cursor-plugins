@@ -229,6 +229,7 @@ function debug(message) {
 
 // dist/constants.js
 var DEFAULT_PROJECT = "cursor";
+var DEFAULT_SWEEP_IDLE_MINUTES = 360;
 
 // dist/config.js
 import { homedir as homedir2 } from "node:os";
@@ -251,6 +252,12 @@ function parseBoolean(value) {
   if (["0", "false", "no", "off"].includes(v))
     return false;
   return void 0;
+}
+function parsePositiveNumber(value) {
+  if (typeof value !== "string" || value.trim().length === 0)
+    return void 0;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : void 0;
 }
 function parseJson(value) {
   if (typeof value !== "string" || value.trim().length === 0)
@@ -299,6 +306,13 @@ function readConfigFile(file) {
         extensions[field] = raw[field];
       else
         error(`Invalid Cursor config extension ${field}; ignoring field.`);
+    }
+    if (Object.hasOwn(raw, "sweep_idle_minutes")) {
+      const minutes = raw.sweep_idle_minutes;
+      if (typeof minutes === "number" && Number.isFinite(minutes) && minutes > 0)
+        extensions.sweep_idle_minutes = minutes;
+      else
+        error("Invalid Cursor config extension sweep_idle_minutes; ignoring field.");
     }
     if (Object.hasOwn(raw, "cursor_db_path")) {
       if (typeof raw.cursor_db_path === "string")
@@ -451,6 +465,7 @@ function loadConfig(options) {
   const replicas = normalizeReplicas(envReplicas) ?? toSdkReplicas(common.replicas);
   const attachmentsEnabled = parseBoolean(getEnv("ATTACHMENTS")) ?? localFile.extensions.attachments ?? rootFile.extensions.attachments ?? globalFile.extensions.attachments ?? userRootFile.extensions.attachments ?? true;
   const systemPromptEnabled = parseBoolean(getEnv("SYSTEM_PROMPT")) ?? localFile.extensions.system_prompt ?? rootFile.extensions.system_prompt ?? globalFile.extensions.system_prompt ?? userRootFile.extensions.system_prompt ?? true;
+  const sweepIdleMinutes = parsePositiveNumber(getEnv("SWEEP_IDLE_MINUTES")) ?? localFile.extensions.sweep_idle_minutes ?? rootFile.extensions.sweep_idle_minutes ?? globalFile.extensions.sweep_idle_minutes ?? userRootFile.extensions.sweep_idle_minutes ?? DEFAULT_SWEEP_IDLE_MINUTES;
   const cursorDbPath = getEnv("DB_PATH") ?? localFile.extensions.cursor_db_path ?? rootFile.extensions.cursor_db_path ?? globalFile.extensions.cursor_db_path ?? userRootFile.extensions.cursor_db_path;
   const redactExtraRules = parseRedactExtraRules(getEnv("REDACT_EXTRA")) ?? common.redact_extra_rules;
   const stateFilePath = process.env.LANGSMITH_CURSOR_STATE_FILE ?? join(homedir2(), ".cursor", "langsmith-state.json");
@@ -489,7 +504,8 @@ function loadConfig(options) {
     systemPromptEnabled,
     cursorDbPath,
     redact,
-    redactExtraRules
+    redactExtraRules,
+    sweepIdleMinutes
   };
 }
 
@@ -592,8 +608,17 @@ function saveState(stateFilePath, state) {
     }
   }
 }
+function ownEntry(map, id) {
+  return map !== void 0 && Object.hasOwn(map, id) ? map[id] : void 0;
+}
+function setOwnEntry(map, id, value) {
+  Object.defineProperty(map, id, { value, writable: true, enumerable: true, configurable: true });
+}
+function deleteOwnEntry(map, id) {
+  delete map[id];
+}
 function getConversationState(state, conversationId) {
-  return state[conversationId] ?? { turns: {}, turn_count: 0, updated: "" };
+  return ownEntry(state, conversationId) ?? { turns: {}, turn_count: 0, updated: "" };
 }
 function nextTurnNum(conv) {
   conv.turns_started = (conv.turns_started ?? conv.turn_count) + 1;
@@ -648,14 +673,47 @@ function extractMcpError(toolName, output) {
 }
 
 // dist/reducer.js
-function touch(conv) {
-  conv.updated = (/* @__PURE__ */ new Date()).toISOString();
+function touch(conv, nowMs = Date.now()) {
+  conv.updated = new Date(nowMs).toISOString();
+}
+function dropPendingUpload(conv, generationId) {
+  if (!conv.pending)
+    return;
+  deleteOwnEntry(conv.pending, generationId);
+  if (Object.keys(conv.pending).length === 0)
+    delete conv.pending;
+}
+function reopenSweptTurn(conv, generationId) {
+  const entry = ownEntry(conv.pending, generationId);
+  if (!entry || !conv.sweepFinalizedGenerations?.includes(generationId))
+    return false;
+  setOwnEntry(conv.turns, generationId, entry.buffer);
+  dropPendingUpload(conv, generationId);
+  return true;
+}
+function acceptLateEvent(conv, conversationId, input) {
+  const gen = input.generation_id;
+  if (conv.completedOffGenerations?.includes(gen))
+    return false;
+  if (conv.stopFinalizedGenerations?.includes(gen))
+    return false;
+  if (!conv.sweepFinalizedGenerations?.includes(gen))
+    return true;
+  if (ownEntry(conv.turns, gen))
+    return true;
+  if (!reopenSweptTurn(conv, gen))
+    return false;
+  warn(`Sweep recovered conversation ${conversationId} generation ${gen} too early; reopening it for a late ${input.hook_event_name}`);
+  return true;
+}
+function openTurn(conv, generationId, nowMs) {
+  return ownEntry(conv.turns, generationId) ?? newTurnBuffer(generationId, nowMs, nextTurnNum(conv));
 }
 function reducePostToolUse(state, input, nowMs) {
   const conv = getConversationState(state, input.conversation_id);
-  if (conv.completedOffGenerations?.includes(input.generation_id))
+  if (!acceptLateEvent(conv, input.conversation_id, input))
     return state;
-  const turn = conv.turns[input.generation_id] ?? newTurnBuffer(input.generation_id, nowMs, nextTurnNum(conv));
+  const turn = openTurn(conv, input.generation_id, nowMs);
   turn.model = preferModel(turn.model, input.model);
   const output = parseToolOutput(input.tool_output);
   turn.tools.push({
@@ -669,7 +727,7 @@ function reducePostToolUse(state, input, nowMs) {
     duration: input.duration,
     endMs: nowMs
   });
-  conv.turns[input.generation_id] = turn;
+  setOwnEntry(conv.turns, input.generation_id, turn);
   touch(conv);
   return { ...state, [input.conversation_id]: conv };
 }
@@ -683,10 +741,13 @@ async function main() {
   debug(`postToolUse ${input.tool_name} conv=${input.conversation_id} gen=${input.generation_id}`);
   await atomicUpdateState(config.stateFilePath, (s) => reducePostToolUse(s, input, Date.now()));
 }
-main().catch((err) => {
+var finished = main().catch((err) => {
   try {
     error(`postToolUse hook error: ${err}`);
   } catch {
   }
   process.exit(1);
 });
+export {
+  finished
+};
