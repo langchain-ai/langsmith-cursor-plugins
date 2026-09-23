@@ -43,6 +43,15 @@ export function mergeHooks(
   return { version: existing.version ?? CURSOR_HOOKS_VERSION, hooks: merged };
 }
 
+export function registeredCommands(file: CursorHooksFile): string[] {
+  const manifest = file.hooks;
+  if (!manifest || typeof manifest !== "object" || Array.isArray(manifest)) return [];
+  return Object.values(manifest)
+    .flatMap((hooks) => (Array.isArray(hooks) ? hooks : []))
+    .map((hook) => hook?.command)
+    .filter((command): command is string => typeof command === "string");
+}
+
 export function countHooks(manifest: CursorHooksManifest): number {
   return Object.values(manifest).reduce((total, hooks) => total + hooks.length, 0);
 }

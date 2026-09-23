@@ -32,6 +32,8 @@ export const COMPILED_BINARY_ROOT = "/$bunfs/";
 /** Stand-in the binary's hooks manifest carries until an install resolves it. */
 export const HOME_PLACEHOLDER = "${HOME}";
 
+export const BINARY_INSTALL_DIRECTORY_NAME = ".langsmith";
+
 export const CURSOR_DIRECTORY_NAME = ".cursor";
 
 export const CURSOR_HOOKS_FILE_NAME = "hooks.json";
