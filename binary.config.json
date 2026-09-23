@@ -1,0 +1,35 @@
+{
+  "executableName": "langsmith-cursor-tracing",
+  "repository": "langchain-ai/langsmith-cursor-plugins",
+  "installer": {
+    "productName": "Cursor",
+    "shortUrl": "https://langch.in/cursor-tracing",
+    "environmentPrefix": "LANGSMITH_CURSOR",
+    "output": "install.sh",
+    "helpFooter": [
+      "Only macOS arm64 and x64 are published, and the matching one is picked for you.",
+      "Remove the langsmith-tracing plugin first, or both it and the binary trace every",
+      "turn. Fully restart Cursor when this finishes so it reloads its hooks."
+    ],
+    "unsupportedPlatformHelp": [
+      "The plugin does the same tracing and works on Windows and Linux.",
+      "In Cursor, open Settings, then Plugins, then add it by repository URL:",
+      "",
+      "  https://github.com/langchain-ai/langsmith-cursor-plugins",
+      "",
+      "Fully restart Cursor once it is installed."
+    ]
+  },
+  "build": {
+    "entryPoint": "src/hooks/dispatch.ts",
+    "outputDirectory": "bin",
+    "versionFile": ".cursor-plugin/plugin.json",
+    "minify": false,
+    "defines": {
+      "__LS_BINARY_HOOKS__": "hooks/hooks.binary.json"
+    }
+  },
+  "sign": {
+    "entitlements": "macos-entitlements.plist"
+  }
+}

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-// dist/utils/stdin.js
+// dist/src/utils/stdin.js
 function readStdin() {
   return new Promise((resolve, reject) => {
     let data = "";
@@ -17,7 +17,7 @@ function readStdin() {
   });
 }
 
-// dist/shared-config.js
+// dist/src/shared-config.js
 import { lstatSync, readFileSync, statSync } from "node:fs";
 var COMMON_BOOLEAN_SETTINGS = {
   enabled: { default: false, restrictive: false },
@@ -181,12 +181,12 @@ function toSdkReplicas(replicas) {
   }));
 }
 
-// dist/config.js
+// dist/src/config.js
 import { userInfo } from "node:os";
 import { join } from "node:path";
 import { execSync } from "node:child_process";
 
-// dist/logger.js
+// dist/src/logger.js
 import { appendFileSync, mkdirSync, statSync as statSync2, renameSync } from "node:fs";
 import { dirname } from "node:path";
 import { homedir } from "node:os";
@@ -227,11 +227,11 @@ function debug(message) {
   }
 }
 
-// dist/constants.js
+// dist/src/constants.js
 var DEFAULT_PROJECT = "cursor";
 var DEFAULT_SWEEP_IDLE_MINUTES = 360;
 
-// dist/config.js
+// dist/src/config.js
 import { homedir as homedir2 } from "node:os";
 var LS_INTEGRATION_VERSION = true ? "0.4.0" : process.env.LANGSMITH_CURSOR_INTEGRATION_VERSION || void 0;
 var PROVIDER_HOSTS = {
@@ -509,7 +509,7 @@ function loadConfig(options) {
   };
 }
 
-// dist/state.js
+// dist/src/state.js
 import { readFileSync as readFileSync2, writeFileSync, mkdirSync as mkdirSync2, openSync, closeSync, unlinkSync, rmdirSync, renameSync as renameSync2, fsyncSync } from "node:fs";
 import { randomUUID } from "node:crypto";
 import { performance } from "node:perf_hooks";
@@ -633,7 +633,7 @@ function pruneOldConversations(state, now = Date.now()) {
   return pruned;
 }
 
-// dist/reducer.js
+// dist/src/reducer.js
 function touch(conv, nowMs = Date.now()) {
   conv.updated = new Date(nowMs).toISOString();
 }
@@ -683,7 +683,7 @@ function reduceBeforeSubmitPrompt(state, input, nowMs, mode = "full", origin) {
   return pruneOldConversations({ ...state, [input.conversation_id]: conv });
 }
 
-// dist/tracing-policy.js
+// dist/src/tracing-policy.js
 import { randomUUID as randomUUID2 } from "node:crypto";
 import { lstatSync as lstatSync2, readFileSync as readFileSync3 } from "node:fs";
 import { mkdir, open, rename, rmdir, unlink } from "node:fs/promises";
@@ -813,7 +813,7 @@ async function setThreadTracingMode(path, sessionId, mode) {
   return warnings.length ? { warning: warnings.join("; ") } : {};
 }
 
-// dist/turn-origin.js
+// dist/src/turn-origin.js
 function originFromConfig(config, input) {
   return {
     project: config.project,
@@ -823,7 +823,7 @@ function originFromConfig(config, input) {
   };
 }
 
-// dist/prompt-control.js
+// dist/src/prompt-control.js
 async function handlePromptSubmit(input) {
   const command = parseTracingCommand(input.prompt);
   try {
@@ -850,7 +850,7 @@ async function handlePromptSubmit(input) {
   }
 }
 
-// dist/hooks/before-submit-prompt.js
+// dist/src/hooks/before-submit-prompt.js
 async function main() {
   const input = await readStdin();
   process.stdout.write(JSON.stringify(await handlePromptSubmit(input)) + "\n");

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-// dist/utils/stdin.js
+// dist/src/utils/stdin.js
 function readStdin() {
   return new Promise((resolve, reject) => {
     let data = "";
@@ -17,7 +17,7 @@ function readStdin() {
   });
 }
 
-// dist/shared-config.js
+// dist/src/shared-config.js
 import { lstatSync, readFileSync, statSync } from "node:fs";
 var COMMON_BOOLEAN_SETTINGS = {
   enabled: { default: false, restrictive: false },
@@ -181,12 +181,12 @@ function toSdkReplicas(replicas) {
   }));
 }
 
-// dist/config.js
+// dist/src/config.js
 import { userInfo } from "node:os";
 import { join } from "node:path";
 import { execSync } from "node:child_process";
 
-// dist/logger.js
+// dist/src/logger.js
 import { appendFileSync, mkdirSync, statSync as statSync2, renameSync } from "node:fs";
 import { dirname } from "node:path";
 import { homedir } from "node:os";
@@ -227,11 +227,11 @@ function debug(message) {
   }
 }
 
-// dist/constants.js
+// dist/src/constants.js
 var DEFAULT_PROJECT = "cursor";
 var DEFAULT_SWEEP_IDLE_MINUTES = 360;
 
-// dist/config.js
+// dist/src/config.js
 import { homedir as homedir2 } from "node:os";
 var LS_INTEGRATION_VERSION = true ? "0.4.0" : process.env.LANGSMITH_CURSOR_INTEGRATION_VERSION || void 0;
 var PROVIDER_HOSTS = {
@@ -509,7 +509,7 @@ function loadConfig(options) {
   };
 }
 
-// dist/utils/hook-init.js
+// dist/src/utils/hook-init.js
 function initHook(cwd) {
   const config = loadConfig({ cwd });
   initLogger(config.debug);
@@ -523,7 +523,7 @@ function initHook(cwd) {
   return config;
 }
 
-// dist/state.js
+// dist/src/state.js
 import { readFileSync as readFileSync2, writeFileSync, mkdirSync as mkdirSync2, openSync, closeSync, unlinkSync, rmdirSync, renameSync as renameSync2, fsyncSync } from "node:fs";
 import { randomUUID } from "node:crypto";
 import { performance } from "node:perf_hooks";
@@ -636,7 +636,7 @@ function newTurnBuffer(generationId, startMs, turnNum) {
 }
 var CONVERSATION_MAX_AGE_MS = 24 * 60 * 60 * 1e3;
 
-// dist/reducer.js
+// dist/src/reducer.js
 function touch(conv, nowMs = Date.now()) {
   conv.updated = new Date(nowMs).toISOString();
 }
@@ -711,7 +711,7 @@ function reduceSubagentStart(state, input, nowMs) {
   return { ...state, [parentConv]: conv };
 }
 
-// dist/hooks/subagent-start.js
+// dist/src/hooks/subagent-start.js
 async function main() {
   const input = await readStdin();
   const config = initHook(input.workspace_roots?.[0]);

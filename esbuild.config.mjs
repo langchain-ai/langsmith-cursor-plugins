@@ -6,15 +6,15 @@ import { chmodSync, readFileSync } from "node:fs";
 const pkg = JSON.parse(readFileSync(new URL("./package.json", import.meta.url), "utf-8"));
 
 const entryPoints = [
-  "dist/hooks/before-submit-prompt.js",
-  "dist/hooks/after-agent-response.js",
-  "dist/hooks/post-tool-use.js",
-  "dist/hooks/post-tool-use-failure.js",
-  "dist/hooks/subagent-start.js",
-  "dist/hooks/subagent-stop.js",
-  "dist/hooks/stop.js",
-  "dist/hooks/session-start.js",
-  "dist/hooks/guard.js",
+  "dist/src/hooks/before-submit-prompt.js",
+  "dist/src/hooks/after-agent-response.js",
+  "dist/src/hooks/post-tool-use.js",
+  "dist/src/hooks/post-tool-use-failure.js",
+  "dist/src/hooks/subagent-start.js",
+  "dist/src/hooks/subagent-stop.js",
+  "dist/src/hooks/stop.js",
+  "dist/src/hooks/session-start.js",
+  "dist/src/hooks/guard.js",
 ];
 
 await build({

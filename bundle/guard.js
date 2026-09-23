@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
-// dist/hooks/guard.js
+// dist/src/hooks/guard.js
 import { execFileSync, spawnSync as spawnSync2 } from "node:child_process";
 import { appendFileSync } from "node:fs";
 import { userInfo, homedir as homedir2 } from "node:os";
 
-// dist/utils/node-version.js
+// dist/src/utils/node-version.js
 var MIN_NODE = [22, 13];
 function nodeTooOld(version, min = MIN_NODE) {
   const parts = version.split(".");
@@ -18,7 +18,7 @@ function nodeTooOld(version, min = MIN_NODE) {
   return (Number.isFinite(minor) ? minor : 0) < min[1];
 }
 
-// dist/utils/node-path-cache.js
+// dist/src/utils/node-path-cache.js
 import { spawnSync } from "node:child_process";
 import { mkdirSync, readFileSync, renameSync, unlinkSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
@@ -66,7 +66,7 @@ function writeCachedNodePath(nodePath, cacheFile = nodePathCacheFile(), now = Da
   }
 }
 
-// dist/hooks/guard.js
+// dist/src/hooks/guard.js
 var hookName = process.argv[2];
 function resolveLoginShellNode() {
   const cachedNode = readCachedNodePath();
