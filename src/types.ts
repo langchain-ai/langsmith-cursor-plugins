@@ -3,6 +3,9 @@
  * Field names mirror the real captured payloads.
  */
 
+import type { UpdateResult } from "@langchain/langsmith-plugin-binary";
+import type { BINARY_HOOK_EVENTS } from "./constants.js";
+
 // ─── Multimodal content ──────────────────────────────────────────────────────
 
 /**
@@ -248,3 +251,25 @@ export interface SweepClaim {
   turnNum: number;
   claimedAt: number;
 }
+
+// ─── Standalone binary ──────────────────────────────────────────────────────
+
+export type BinaryHookName = (typeof BINARY_HOOK_EVENTS)[keyof typeof BINARY_HOOK_EVENTS];
+
+export type LoadedHook = { finished?: Promise<unknown> };
+
+/** One command Cursor runs for an event, as it appears in hooks.json. */
+export interface CursorHook {
+  command?: string;
+  failClosed?: boolean;
+  timeout?: number;
+}
+
+export type CursorHooksManifest = Record<string, CursorHook[]>;
+
+export interface CursorHooksFile {
+  version?: number;
+  hooks?: CursorHooksManifest;
+}
+
+export type BinaryUpdateResult = UpdateResult | { status: "not-installed" };

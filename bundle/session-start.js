@@ -594,7 +594,7 @@ var require_dist = __commonJS({
   }
 });
 
-// dist/utils/stdin.js
+// dist/src/utils/stdin.js
 function readStdin() {
   return new Promise((resolve, reject) => {
     let data = "";
@@ -611,7 +611,7 @@ function readStdin() {
   });
 }
 
-// dist/shared-config.js
+// dist/src/shared-config.js
 import { lstatSync, readFileSync, statSync } from "node:fs";
 var COMMON_BOOLEAN_SETTINGS = {
   enabled: { default: false, restrictive: false },
@@ -775,12 +775,12 @@ function toSdkReplicas(replicas2) {
   }));
 }
 
-// dist/config.js
+// dist/src/config.js
 import { userInfo } from "node:os";
 import { join } from "node:path";
 import { execSync } from "node:child_process";
 
-// dist/logger.js
+// dist/src/logger.js
 import { appendFileSync, mkdirSync, statSync as statSync2, renameSync } from "node:fs";
 import { dirname } from "node:path";
 import { homedir } from "node:os";
@@ -824,7 +824,7 @@ function debug(message) {
   }
 }
 
-// dist/constants.js
+// dist/src/constants.js
 var TURN_RUN_NAME = "Cursor Turn";
 var SKILL_RUN_NAME = "Skill";
 var DEFAULT_TAGS = ["cursor", "coding-agent"];
@@ -832,7 +832,7 @@ var DEFAULT_PROJECT = "cursor";
 var DEFAULT_SWEEP_IDLE_MINUTES = 360;
 var MAX_UPLOAD_ATTEMPTS = 3;
 
-// dist/config.js
+// dist/src/config.js
 import { homedir as homedir2 } from "node:os";
 var LS_INTEGRATION_VERSION = true ? "0.4.0" : process.env.LANGSMITH_CURSOR_INTEGRATION_VERSION || void 0;
 var PROVIDER_HOSTS = {
@@ -1110,7 +1110,7 @@ function loadConfig(options) {
   };
 }
 
-// dist/utils/hook-init.js
+// dist/src/utils/hook-init.js
 function initHook(cwd) {
   const config = loadConfig({ cwd });
   initLogger(config.debug);
@@ -1124,7 +1124,7 @@ function initHook(cwd) {
   return config;
 }
 
-// dist/state.js
+// dist/src/state.js
 import { readFileSync as readFileSync2, writeFileSync, mkdirSync as mkdirSync2, openSync, closeSync, unlinkSync, rmdirSync, renameSync as renameSync2, fsyncSync } from "node:fs";
 import { randomUUID } from "node:crypto";
 import { performance as performance2 } from "node:perf_hooks";
@@ -1235,7 +1235,7 @@ function pruneOldConversations(state, now = Date.now()) {
   return pruned;
 }
 
-// dist/normalize.js
+// dist/src/normalize.js
 var MODEL_SUFFIXES = /* @__PURE__ */ new Set(["thinking", "minimal", "low", "medium", "high", "xhigh", "max"]);
 var CANONICAL_MODEL_MAP = {};
 function normKey(model) {
@@ -1308,7 +1308,7 @@ function buildUsageMetadata(usage) {
   };
 }
 
-// dist/reducer.js
+// dist/src/reducer.js
 function touch(conv, nowMs = Date.now()) {
   conv.updated = new Date(nowMs).toISOString();
 }
@@ -1463,7 +1463,7 @@ function reduceSweep(state, callerConversationId, nowMs, thresholdMs) {
   return { state: { ...state }, claims };
 }
 
-// dist/tracing-policy.js
+// dist/src/tracing-policy.js
 import { randomUUID as randomUUID2 } from "node:crypto";
 import { lstatSync as lstatSync2, readFileSync as readFileSync3 } from "node:fs";
 import { mkdir, open, rename, rmdir, unlink } from "node:fs/promises";
@@ -13876,7 +13876,7 @@ var AsyncLocalStorageProviderSingleton = new AsyncLocalStorageProvider();
 // node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/index.js
 var __version__ = "0.10.2";
 
-// dist/metadata.js
+// dist/src/metadata.js
 var TRUSTED_METADATA = /* @__PURE__ */ Symbol("cursor.trustedMetadata");
 function trustedCodingAgentMetadata(metadata) {
   return metadata ? metadata[TRUSTED_METADATA] : void 0;
@@ -13943,7 +13943,7 @@ function skillNameFromTool(toolName, toolInput) {
   return segments.includes("skills") ? name : void 0;
 }
 
-// dist/privacy.js
+// dist/src/privacy.js
 var MUTED_TRACE_CONTENT = "[LangSmith system notice: content omitted because tracing is muted.]";
 var METADATA_KEYS = /* @__PURE__ */ new Set([
   "thread_id",
@@ -14311,22 +14311,22 @@ function createSecretAnonymizer(options) {
   return createAnonymizer(rules, { maxDepth: options?.maxDepth ?? 24 });
 }
 
-// dist/conversation-steps.js
+// dist/src/conversation-steps.js
 import { DatabaseSync as DatabaseSync3 } from "node:sqlite";
 import { existsSync as existsSync5 } from "node:fs";
 
-// dist/attachments.js
+// dist/src/attachments.js
 import { DatabaseSync } from "node:sqlite";
 import { existsSync as existsSync3, readFileSync as readFileSync6, statSync as statSync4 } from "node:fs";
 import { homedir as homedir4, platform } from "node:os";
 import { basename, join as join3 } from "node:path";
 var MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024;
 
-// dist/system-prompt.js
+// dist/src/system-prompt.js
 import { DatabaseSync as DatabaseSync2 } from "node:sqlite";
 import { existsSync as existsSync4 } from "node:fs";
 
-// dist/conversation-steps.js
+// dist/src/conversation-steps.js
 function groupSteps(steps) {
   const rounds = [];
   let current;
@@ -14358,7 +14358,7 @@ ${step.text ?? ""}` : step.text;
   return rounds;
 }
 
-// dist/langsmith.js
+// dist/src/langsmith.js
 import { createHash } from "node:crypto";
 var client = void 0;
 var replicas = void 0;
@@ -14862,7 +14862,7 @@ async function postSubagentRun(sub, parent, ctx, key) {
   await answerRun.postRun();
 }
 
-// dist/turn-origin.js
+// dist/src/turn-origin.js
 function originFromConfig(config, input) {
   return {
     project: config.project,
@@ -14872,7 +14872,7 @@ function originFromConfig(config, input) {
   };
 }
 
-// dist/sweep.js
+// dist/src/sweep.js
 function sweepTracingMode(buffered, policy) {
   return buffered === "metadata" ? "metadata" : policy;
 }
@@ -14919,7 +14919,7 @@ async function runSweep(options) {
   return uploaded;
 }
 
-// dist/hooks/session-start.js
+// dist/src/hooks/session-start.js
 async function main() {
   const input = await readStdin();
   const config = initHook(input.workspace_roots?.[0]);

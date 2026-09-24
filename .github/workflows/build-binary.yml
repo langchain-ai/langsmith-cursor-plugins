@@ -1,0 +1,26 @@
+name: Build Binary
+
+on:
+  # The only way to publish. A tag push deliberately does not trigger this.
+  workflow_dispatch:
+  push:
+    branches: [main]
+  pull_request:
+    paths:
+      - .cursor-plugin/plugin.json
+      - .github/workflows/build-binary.yml
+      - binary.config.json
+      - hooks/hooks.binary.json
+      - install.sh
+      - macos-entitlements.plist
+      - package.json
+      - pnpm-lock.yaml
+      - src/**
+      - test/binary.test.ts
+
+jobs:
+  binary:
+    permissions:
+      contents: write
+    uses: langchain-ai/langsmith-plugin-binary/.github/workflows/build-binary.yml@12889bb099ff1115cb538a3f4b71709efb6858e1 # v0.1.0
+    secrets: inherit
