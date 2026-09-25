@@ -57,7 +57,9 @@ function submit(prompt: string, generation_id = "generation", cwd = dir) {
 it("registers the same blocking contract for plugin and installer", () => {
   const plugin = JSON.parse(readFileSync(new URL("../hooks/hooks.json", import.meta.url), "utf8"));
   expect(plugin.hooks.beforeSubmitPrompt[0]).toMatchObject({ failClosed: true, timeout: 15 });
-  expect(plugin.hooks.beforeSubmitPrompt[0].command).toContain('guard.js" before-submit-prompt');
+  expect(plugin.hooks.beforeSubmitPrompt[0].command).toContain(
+    '${CURSOR_PLUGIN_ROOT}/binary/langsmith-tracing" before-submit-prompt',
+  );
   const result = spawnSync(
     process.execPath,
     [new URL("../scripts/install.mjs", import.meta.url).pathname, "--print"],
