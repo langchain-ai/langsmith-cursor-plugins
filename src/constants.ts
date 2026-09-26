@@ -32,6 +32,8 @@ export const COMPILED_BINARY_ROOT = "/$bunfs/";
 /** Stand-in the binary's hooks manifest carries until an install resolves it. */
 export const HOME_PLACEHOLDER = "${HOME}";
 
+export const BINARY_INSTALL_DIRECTORY_NAME = ".langsmith";
+
 export const CURSOR_DIRECTORY_NAME = ".cursor";
 
 export const CURSOR_HOOKS_FILE_NAME = "hooks.json";
@@ -39,5 +41,7 @@ export const CURSOR_HOOKS_FILE_NAME = "hooks.json";
 export const CURSOR_HOOKS_VERSION = 1;
 
 export const PLUGIN_REPOSITORY_URL = "https://github.com/langchain-ai/langsmith-cursor-plugins";
+
+export const STDIN_DRAIN_TIMEOUT_MS = 2_000;
 
 export const OLDER_THAN_ANY_RELEASE = "0.0.0";
