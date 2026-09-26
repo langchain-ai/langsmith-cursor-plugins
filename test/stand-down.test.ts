@@ -1,4 +1,4 @@
-import { spawnSync } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import {
   chmodSync,
   existsSync,
@@ -6,6 +6,7 @@ import {
   mkdtempSync,
   readFileSync,
   rmSync,
+  symlinkSync,
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
@@ -153,12 +154,20 @@ it("keeps tracing when the hooks file registers something else", async () => {
   }
 });
 
-it("never stands down while running as the compiled binary", async () => {
+it("keeps tracing while running as the binary the hooks file registers", async () => {
+  installBinary();
+  rmSync(installed);
+  symlinkSync(process.execPath, installed);
+  writeHooks(home, `"${installed}" before-submit-prompt`);
+  expect(await pluginShouldStandDown()).toBe(false);
+});
+
+it("stands down while running a compiled build that is not the installed one", async () => {
   installBinary();
   writeHooks(home, `"${installed}" before-submit-prompt`);
   writeHooks(project, `"${installed}" before-submit-prompt`);
   host.Bun = { main: `/$bunfs/root/${EXECUTABLE_NAME}` };
-  expect(await pluginShouldStandDown()).toBe(false);
+  expect(await pluginShouldStandDown()).toBe(true);
 });
 
 it("keeps tracing when the hooks file is malformed", async () => {
@@ -185,4 +194,30 @@ it("the registered plugin entry point traces once the binary is gone", () => {
   expect(result.status, result.stderr).toBe(0);
   expect(JSON.parse(result.stdout).continue).toBe(true);
   expect(existsSync(join(home, "state.json"))).toBe(true);
+});
+
+it("reads the whole payload before standing down, so the writer never sees EPIPE", async () => {
+  installBinary();
+  writeHooks(home, `"${installed}" stop`);
+  const payload = JSON.stringify({
+    hook_event_name: "stop",
+    conversation_id: "thread",
+    generation_id: "generation",
+    model: "default",
+    status: "completed",
+    workspace_roots: [project],
+    filler: "x".repeat(512 * 1024),
+  });
+
+  const child = spawn(process.execPath, [GUARD, "stop"], {
+    cwd: project,
+    env: { ...process.env, HOME: home, USERPROFILE: home, TRACE_TO_LANGSMITH: "false" },
+  });
+  let writerError: string | undefined;
+  child.stdin.on("error", (err: NodeJS.ErrnoException) => (writerError = err.code));
+  child.stdin.end(payload);
+  const status = await new Promise((resolve) => child.on("close", resolve));
+
+  expect(writerError, "Cursor's write to the hook was cut short").toBeUndefined();
+  expect(status).toBe(0);
 });

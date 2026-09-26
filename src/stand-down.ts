@@ -2,9 +2,9 @@ import { constants } from "node:fs";
 import * as fs from "node:fs/promises";
 import { homedir } from "node:os";
 
-import { runningCompiledBinary } from "./utils/binary-runtime.js";
 import { commandExecutable } from "./utils/command.js";
 import { cursorHooksPath, readHooksFile, registeredCommands } from "./utils/hooks-file.js";
+import { isTheSameFile } from "./utils/paths.js";
 import { installedBinaryPath } from "./installed-binary.js";
 
 async function binaryCanRun(executable: string): Promise<boolean> {
@@ -21,8 +21,8 @@ async function hooksFileRunsBinary(hooksFile: string, executable: string): Promi
 
 export async function pluginShouldStandDown(): Promise<boolean> {
   try {
-    if (runningCompiledBinary()) return false;
     const installed = installedBinaryPath();
+    if (isTheSameFile(process.execPath, installed)) return false;
     if (!(await binaryCanRun(installed))) return false;
     for (const root of [process.cwd(), homedir()]) {
       if (await hooksFileRunsBinary(cursorHooksPath(root), installed)) return true;
