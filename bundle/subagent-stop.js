@@ -1,5 +1,9 @@
 #!/usr/bin/env node
 
+// dist/src/constants.js
+var DEFAULT_PROJECT = "cursor";
+var DEFAULT_SWEEP_IDLE_MINUTES = 360;
+
 // dist/src/utils/stdin.js
 function readStdin() {
   return new Promise((resolve, reject) => {
@@ -226,10 +230,6 @@ function debug(message) {
     write("DEBUG", message);
   }
 }
-
-// dist/src/constants.js
-var DEFAULT_PROJECT = "cursor";
-var DEFAULT_SWEEP_IDLE_MINUTES = 360;
 
 // dist/src/config.js
 import { homedir as homedir2 } from "node:os";

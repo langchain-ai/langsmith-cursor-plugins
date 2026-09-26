@@ -30,7 +30,11 @@ import {
 const hookName = process.argv[2];
 
 const { pluginShouldStandDown } = await import("../stand-down.js");
-if (await pluginShouldStandDown()) process.exit(0);
+if (await pluginShouldStandDown()) {
+  const { drainStdinToAvoidEpipe } = await import("../utils/stdin.js");
+  await drainStdinToAvoidEpipe();
+  process.exit(0);
+}
 
 /**
  * Resolve the Node binary selected by the current user's login shell. Cursor

@@ -42,4 +42,6 @@ export const CURSOR_HOOKS_VERSION = 1;
 
 export const PLUGIN_REPOSITORY_URL = "https://github.com/langchain-ai/langsmith-cursor-plugins";
 
+export const STDIN_DRAIN_TIMEOUT_MS = 2_000;
+
 export const OLDER_THAN_ANY_RELEASE = "0.0.0";

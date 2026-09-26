@@ -14,30 +14,6 @@ var __export = (target, all) => {
     __defProp(target, name, { get: all[name], enumerable: true });
 };
 
-// dist/src/constants.js
-var COMPILED_BINARY_ROOT, BINARY_INSTALL_DIRECTORY_NAME, CURSOR_DIRECTORY_NAME, CURSOR_HOOKS_FILE_NAME;
-var init_constants = __esm({
-  "dist/src/constants.js"() {
-    "use strict";
-    COMPILED_BINARY_ROOT = "/$bunfs/";
-    BINARY_INSTALL_DIRECTORY_NAME = ".langsmith";
-    CURSOR_DIRECTORY_NAME = ".cursor";
-    CURSOR_HOOKS_FILE_NAME = "hooks.json";
-  }
-});
-
-// dist/src/utils/binary-runtime.js
-function runningCompiledBinary() {
-  const main = globalThis.Bun?.main;
-  return typeof main === "string" && main.startsWith(COMPILED_BINARY_ROOT);
-}
-var init_binary_runtime = __esm({
-  "dist/src/utils/binary-runtime.js"() {
-    "use strict";
-    init_constants();
-  }
-});
-
 // dist/src/utils/command.js
 function commandExecutable(command) {
   const match = LEADING_EXECUTABLE.exec(command.trim());
@@ -48,6 +24,18 @@ var init_command = __esm({
   "dist/src/utils/command.js"() {
     "use strict";
     LEADING_EXECUTABLE = /^"([^"]*)"|^'([^']*)'|^(\S+)/;
+  }
+});
+
+// dist/src/constants.js
+var BINARY_INSTALL_DIRECTORY_NAME, CURSOR_DIRECTORY_NAME, CURSOR_HOOKS_FILE_NAME, STDIN_DRAIN_TIMEOUT_MS;
+var init_constants = __esm({
+  "dist/src/constants.js"() {
+    "use strict";
+    BINARY_INSTALL_DIRECTORY_NAME = ".langsmith";
+    CURSOR_DIRECTORY_NAME = ".cursor";
+    CURSOR_HOOKS_FILE_NAME = "hooks.json";
+    STDIN_DRAIN_TIMEOUT_MS = 2e3;
   }
 });
 
@@ -70,6 +58,21 @@ var init_hooks_file = __esm({
   "dist/src/utils/hooks-file.js"() {
     "use strict";
     init_constants();
+  }
+});
+
+// dist/src/utils/paths.js
+import { realpathSync } from "node:fs";
+function isTheSameFile(one, other) {
+  try {
+    return realpathSync(one) === realpathSync(other);
+  } catch {
+    return one === other;
+  }
+}
+var init_paths = __esm({
+  "dist/src/utils/paths.js"() {
+    "use strict";
   }
 });
 
@@ -146,9 +149,9 @@ async function hooksFileRunsBinary(hooksFile, executable) {
 }
 async function pluginShouldStandDown() {
   try {
-    if (runningCompiledBinary())
-      return false;
     const installed = installedBinaryPath();
+    if (isTheSameFile(process.execPath, installed))
+      return false;
     if (!await binaryCanRun(installed))
       return false;
     for (const root of [process.cwd(), homedir3()]) {
@@ -163,10 +166,54 @@ async function pluginShouldStandDown() {
 var init_stand_down = __esm({
   "dist/src/stand-down.js"() {
     "use strict";
-    init_binary_runtime();
     init_command();
     init_hooks_file();
+    init_paths();
     init_installed_binary();
+  }
+});
+
+// dist/src/utils/stdin.js
+var stdin_exports = {};
+__export(stdin_exports, {
+  drainStdinToAvoidEpipe: () => drainStdinToAvoidEpipe,
+  readStdin: () => readStdin
+});
+function readStdin() {
+  return new Promise((resolve, reject) => {
+    let data = "";
+    process.stdin.setEncoding("utf-8");
+    process.stdin.on("data", (chunk) => data += chunk);
+    process.stdin.on("end", () => {
+      try {
+        resolve(JSON.parse(data));
+      } catch (err) {
+        reject(new Error(`Failed to parse hook input: ${err}`));
+      }
+    });
+    process.stdin.on("error", reject);
+  });
+}
+function drainStdinToAvoidEpipe(timeoutMs = STDIN_DRAIN_TIMEOUT_MS) {
+  return new Promise((resolve) => {
+    if (process.stdin.isTTY)
+      return resolve();
+    let timer;
+    const finish = () => {
+      clearTimeout(timer);
+      process.stdin.pause();
+      resolve();
+    };
+    timer = setTimeout(finish, timeoutMs);
+    process.stdin.once("end", finish);
+    process.stdin.once("error", finish);
+    process.stdin.resume();
+  });
+}
+var init_stdin = __esm({
+  "dist/src/utils/stdin.js"() {
+    "use strict";
+    init_constants();
   }
 });
 
@@ -239,8 +286,11 @@ function writeCachedNodePath(nodePath, cacheFile = nodePathCacheFile(), now = Da
 // dist/src/hooks/guard.js
 var hookName = process.argv[2];
 var { pluginShouldStandDown: pluginShouldStandDown2 } = await Promise.resolve().then(() => (init_stand_down(), stand_down_exports));
-if (await pluginShouldStandDown2())
+if (await pluginShouldStandDown2()) {
+  const { drainStdinToAvoidEpipe: drainStdinToAvoidEpipe2 } = await Promise.resolve().then(() => (init_stdin(), stdin_exports));
+  await drainStdinToAvoidEpipe2();
   process.exit(0);
+}
 function resolveLoginShellNode() {
   const cachedNode = readCachedNodePath();
   if (cachedNode === null)
