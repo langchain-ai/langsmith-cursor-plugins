@@ -56,7 +56,7 @@ export async function installBinary(args: string[]): Promise<string> {
     `Registered ${countHooks(manifest)} hooks in ${hooksPath}`,
     "",
     "Next:",
-    "  1. Remove the langsmith-tracing plugin, or it traces every turn a second time.",
+    "  1. Leave the langsmith-tracing plugin enabled; it stops tracing while this binary is registered.",
     `  2. Set enabled and api_key in ${dirname(hooksPath)}/langsmith.json.`,
     "  3. Fully restart Cursor so it reloads its hooks.",
   ].join("\n");

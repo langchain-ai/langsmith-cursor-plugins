@@ -3,7 +3,9 @@ import { binary } from "../binary-target.js";
 import { describeUpdate, updateInstalledBinary } from "../binary-update.js";
 import { LS_INTEGRATION_VERSION } from "../config.js";
 import { BINARY_HOOK_EVENTS } from "../constants.js";
+import { pluginShouldStandDown } from "../stand-down.js";
 import type { BinaryHookName, LoadedHook } from "../types.js";
+import { drainStdinToAvoidEpipe } from "../utils/stdin.js";
 
 const HOOK_MODULES: Record<BinaryHookName, () => Promise<LoadedHook>> = {
   "before-submit-prompt": () => import("./before-submit-prompt.js"),
@@ -32,6 +34,10 @@ function isHookName(argument: string | undefined): argument is BinaryHookName {
 
 async function runHook(name: BinaryHookName): Promise<void> {
   try {
+    if (await pluginShouldStandDown()) {
+      await drainStdinToAvoidEpipe();
+      return;
+    }
     const loaded = await HOOK_MODULES[name]();
     await loaded.finished;
   } catch (err) {

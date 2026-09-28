@@ -594,6 +594,14 @@ var require_dist = __commonJS({
   }
 });
 
+// dist/src/constants.js
+var TURN_RUN_NAME = "Cursor Turn";
+var SKILL_RUN_NAME = "Skill";
+var DEFAULT_TAGS = ["cursor", "coding-agent"];
+var DEFAULT_PROJECT = "cursor";
+var DEFAULT_SWEEP_IDLE_MINUTES = 360;
+var MAX_UPLOAD_ATTEMPTS = 3;
+
 // dist/src/utils/stdin.js
 function readStdin() {
   return new Promise((resolve, reject) => {
@@ -823,14 +831,6 @@ function debug(message) {
     write("DEBUG", message);
   }
 }
-
-// dist/src/constants.js
-var TURN_RUN_NAME = "Cursor Turn";
-var SKILL_RUN_NAME = "Skill";
-var DEFAULT_TAGS = ["cursor", "coding-agent"];
-var DEFAULT_PROJECT = "cursor";
-var DEFAULT_SWEEP_IDLE_MINUTES = 360;
-var MAX_UPLOAD_ATTEMPTS = 3;
 
 // dist/src/config.js
 import { homedir as homedir2 } from "node:os";

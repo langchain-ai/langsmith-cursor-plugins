@@ -44,8 +44,8 @@ Environment variables:
   LANGSMITH_CURSOR_DOWNLOAD_BASE   Release download base URL
 
 Only macOS arm64 and x64 are published, and the matching one is picked for you.
-Remove the langsmith-tracing plugin first, or both it and the binary trace every
-turn. Fully restart Cursor when this finishes so it reloads its hooks.
+Leave the langsmith-tracing plugin enabled; it stops tracing while this binary is
+registered. Fully restart Cursor when this finishes so it reloads its hooks.
 HELP
 }
 

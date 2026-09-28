@@ -36,10 +36,12 @@ Fully restart Cursor afterwards so it reloads its hooks. This is the supported p
 The same integration delivered as one file that carries its own JavaScript runtime so it needs no Node on your PATH.
 
 ```bash
-curl -LsSf https://langch.in/cursor-tracing | bash
+curl -LsSf https://langch.in/cursor-tracing | bash -s -- --beta
 ```
 
-It lands in `~/.langsmith/langsmith-cursor-tracing` and registers the same eight hooks in `~/.cursor/hooks.json`, and since it never updates itself run `~/.langsmith/langsmith-cursor-tracing --update` when you want a newer release. Remove the plugin first or both it and the binary trace every turn. Only macOS arm64 and x64 are built and the installer picks whichever matches your Mac, so use the plugin above everywhere else. Fully restart Cursor when it finishes.
+`--beta` takes the newest prerelease and you can drop it once a stable release carries the binary, since without it the installer only ever takes the newest stable release and so fails while a prerelease is the only published build.
+
+It lands in `~/.langsmith/langsmith-cursor-tracing` and registers the same eight hooks in `~/.cursor/hooks.json`, and since it never updates itself run `~/.langsmith/langsmith-cursor-tracing --update` when you want a newer release. Leave the plugin enabled since it stands down and stops tracing while the binary's hooks are registered. Only macOS arm64 and x64 are built and the installer picks whichever matches your Mac, so use the plugin above everywhere else. Fully restart Cursor when it finishes.
 
 </details>
 

@@ -217,6 +217,21 @@ describe.runIf(built)("the standalone binary", () => {
     expect(hooks.hooks?.stop?.map((entry) => entry.command)).toContain("other-tool stop");
   }, INSTALL_TIMEOUT_MS);
 
+  it("stands down when another copy is the one Cursor has registered", async () => {
+    const installed = join(home, ".langsmith", settings.executableName);
+    mkdirSync(join(home, ".langsmith"), { recursive: true });
+    writeFileSync(installed, "#!/bin/sh\n", { mode: 0o755 });
+    mkdirSync(join(home, ".cursor"), { recursive: true });
+    writeFileSync(
+      join(home, ".cursor", "hooks.json"),
+      JSON.stringify({ version: 1, hooks: { stop: [{ command: `"${installed}" stop` }] } }),
+    );
+
+    const result = await stopATracedTurn(true);
+    expect(result.status, result.stderr).toBe(0);
+    expect(hookLog()).toBe("");
+  });
+
   it("refuses to update from a copy outside the install directory", async () => {
     const installed = join(home, ".langsmith", settings.executableName);
     mkdirSync(join(home, ".langsmith"), { recursive: true });
