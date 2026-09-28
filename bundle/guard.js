@@ -52,7 +52,14 @@ function registeredCommands(file) {
   return Object.values(manifest).flatMap((hooks) => Array.isArray(hooks) ? hooks : []).map((hook) => hook?.command).filter((command) => typeof command === "string");
 }
 async function readHooksFile(path) {
-  return fs.readFile(path, "utf-8").then((text) => JSON.parse(text), () => ({}));
+  const text = await fs.readFile(path, "utf-8").catch(() => void 0);
+  if (text === void 0)
+    return {};
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw new Error(`${path} is not valid JSON. Repair or delete it, then try again.`);
+  }
 }
 var init_hooks_file = __esm({
   "dist/src/utils/hooks-file.js"() {

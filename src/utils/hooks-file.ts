@@ -57,10 +57,13 @@ export function countHooks(manifest: CursorHooksManifest): number {
 }
 
 export async function readHooksFile(path: string): Promise<CursorHooksFile> {
-  return fs.readFile(path, "utf-8").then(
-    (text) => JSON.parse(text) as CursorHooksFile,
-    () => ({}),
-  );
+  const text = await fs.readFile(path, "utf-8").catch(() => undefined);
+  if (text === undefined) return {};
+  try {
+    return JSON.parse(text) as CursorHooksFile;
+  } catch {
+    throw new Error(`${path} is not valid JSON. Repair or delete it, then try again.`);
+  }
 }
 
 export async function writeHooksFile(path: string, contents: string): Promise<void> {
