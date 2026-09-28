@@ -33,6 +33,10 @@ describe("the caller workflow", () => {
     expect(workflow).toContain("secrets: inherit");
   });
 
+  it("grants every permission the pipeline asks for, so the run can start at all", () => {
+    expect(workflow).toContain("pull-requests: write");
+  });
+
   it("runs on every file the binary is built from", () => {
     const patterns = workflow
       .slice(workflow.indexOf("paths:"), workflow.indexOf("jobs:"))
