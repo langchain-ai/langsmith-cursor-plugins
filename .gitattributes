@@ -1,1 +1,3 @@
 bundle/** linguist-generated=true
+binary/langsmith-cursor-tracing-darwin-* binary linguist-generated=true
+binary/langsmith-tracing text eol=lf
