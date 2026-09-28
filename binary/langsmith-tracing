@@ -1,0 +1,56 @@
+#!/bin/sh
+set -eu
+
+FAILED_TO_START_CODES="126 127 137"
+
+here=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd -P)
+node_hook="$here/../bundle/guard.js"
+
+started() {
+  case " $FAILED_TO_START_CODES " in
+    *" $1 "*) return 1 ;;
+  esac
+  return 0
+}
+
+preferred=""
+alternate=""
+if [ "$(uname -s)" = "Darwin" ]; then
+  case "$(uname -m)" in
+    arm64)
+      preferred="$here/langsmith-cursor-tracing-darwin-arm64"
+      alternate="$here/langsmith-cursor-tracing-darwin-x64"
+      ;;
+    x86_64)
+      preferred="$here/langsmith-cursor-tracing-darwin-x64"
+      ;;
+  esac
+fi
+
+turn=""
+answer=""
+for build in "$preferred" "$alternate"; do
+  if [ -z "$build" ] || [ ! -x "$build" ]; then
+    continue
+  fi
+  if [ -z "$turn" ]; then
+    turn=$(mktemp "${TMPDIR:-/tmp}/langsmith-tracing.XXXXXX") || break
+    trap 'rm -f "$turn" "$answer"' EXIT
+    answer=$(mktemp "${TMPDIR:-/tmp}/langsmith-tracing.XXXXXX") || break
+    cat >"$turn"
+  fi
+  code=0
+  "$build" "$@" <"$turn" >"$answer" || code=$?
+  if started "$code"; then
+    cat "$answer"
+    exit "$code"
+  fi
+done
+
+if [ -n "$turn" ] && [ -n "$answer" ]; then
+  code=0
+  node "$node_hook" "$@" <"$turn" || code=$?
+  exit "$code"
+fi
+
+exec node "$node_hook" "$@"

@@ -28,7 +28,9 @@ Open **Settings**, then **Plugins**, then add this repository by URL:
 https://github.com/langchain-ai/langsmith-cursor-plugins
 ```
 
-Fully restart Cursor afterwards so it reloads its hooks. This is the supported path on every platform and it needs Node.js 22.13 or newer on your machine, since the hooks do not run on anything older.
+Fully restart Cursor afterwards so it reloads its hooks. This is the supported path on every platform, and the plugin shows up in Cursor's plugin list so you can see it is active.
+
+On a Mac the plugin runs a compiled build that it carries itself, picking the Apple silicon one and falling back to the Intel one under Rosetta. That build arrives with the first release, so until then, and on Windows and Linux, the plugin runs through Node.js and needs 22.13 or newer on your machine since the hooks do not run on anything older.
 
 <details>
 <summary>Standalone binary (macOS only, no Node needed)</summary>
