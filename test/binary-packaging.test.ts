@@ -83,9 +83,7 @@ describe("the folder the released builds land in", () => {
     for (const [event, hooks] of Object.entries(pluginHooks.hooks ?? {})) {
       const routed = BINARY_HOOK_EVENTS[event as keyof typeof BINARY_HOOK_EVENTS];
       for (const hook of hooks) {
-        expect(hook.command.split("\n")[0]).toBe(
-          `exec "\${CURSOR_PLUGIN_ROOT}/${picker}" ${routed}`,
-        );
+        expect(hook.command).toBe(`"\${CURSOR_PLUGIN_ROOT}/${picker}" ${routed}`);
       }
     }
   });
@@ -169,7 +167,7 @@ describe("the folder the released builds land in", () => {
         writeFileSync(join(plugin, "bundle", "guard.js"), counts + reports);
       },
       attempt(input?: string) {
-        return spawnSync(join(plugin, picker), ["stop"], {
+        return spawnSync("/bin/sh", ["-c", `"${join(plugin, picker)}" stop`], {
           encoding: "utf8",
           input,
           maxBuffer: 16 * 1024 * 1024,
@@ -185,8 +183,9 @@ describe("the folder the released builds land in", () => {
         chmodSync(path, 0o755);
       },
       pick() {
-        return spawnSync(join(plugin, picker), ["stop"], {
+        return spawnSync("/bin/sh", ["-c", `"${join(plugin, picker)}" stop`], {
           encoding: "utf8",
+          input: "",
           env: { ...process.env, PATH: `${fakeBin}:${process.env.PATH}` },
         }).stdout;
       },
