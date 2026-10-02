@@ -3,23 +3,29 @@
   "hooks": {
     "beforeSubmitPrompt": [
       {
-        "command": "node \"${CURSOR_PLUGIN_ROOT}/bundle/guard.js\" before-submit-prompt",
+        "command": "\"${CURSOR_PLUGIN_ROOT}/binary/langsmith-tracing.cmd\" before-submit-prompt",
         "failClosed": true,
         "timeout": 15
       }
     ],
     "afterAgentResponse": [
-      { "command": "node \"${CURSOR_PLUGIN_ROOT}/bundle/guard.js\" after-agent-response" }
+      { "command": "\"${CURSOR_PLUGIN_ROOT}/binary/langsmith-tracing.cmd\" after-agent-response" }
     ],
-    "postToolUse": [{ "command": "node \"${CURSOR_PLUGIN_ROOT}/bundle/guard.js\" post-tool-use" }],
+    "postToolUse": [
+      { "command": "\"${CURSOR_PLUGIN_ROOT}/binary/langsmith-tracing.cmd\" post-tool-use" }
+    ],
     "postToolUseFailure": [
-      { "command": "node \"${CURSOR_PLUGIN_ROOT}/bundle/guard.js\" post-tool-use-failure" }
+      { "command": "\"${CURSOR_PLUGIN_ROOT}/binary/langsmith-tracing.cmd\" post-tool-use-failure" }
     ],
     "subagentStart": [
-      { "command": "node \"${CURSOR_PLUGIN_ROOT}/bundle/guard.js\" subagent-start" }
+      { "command": "\"${CURSOR_PLUGIN_ROOT}/binary/langsmith-tracing.cmd\" subagent-start" }
     ],
-    "subagentStop": [{ "command": "node \"${CURSOR_PLUGIN_ROOT}/bundle/guard.js\" subagent-stop" }],
-    "stop": [{ "command": "node \"${CURSOR_PLUGIN_ROOT}/bundle/guard.js\" stop" }],
-    "sessionStart": [{ "command": "node \"${CURSOR_PLUGIN_ROOT}/bundle/guard.js\" session-start" }]
+    "subagentStop": [
+      { "command": "\"${CURSOR_PLUGIN_ROOT}/binary/langsmith-tracing.cmd\" subagent-stop" }
+    ],
+    "stop": [{ "command": "\"${CURSOR_PLUGIN_ROOT}/binary/langsmith-tracing.cmd\" stop" }],
+    "sessionStart": [
+      { "command": "\"${CURSOR_PLUGIN_ROOT}/binary/langsmith-tracing.cmd\" session-start" }
+    ]
   }
 }
