@@ -32,19 +32,6 @@ Fully restart Cursor afterwards so it reloads its hooks. This is the supported p
 
 On a Mac the plugin runs a compiled build that it carries itself, picking the Apple silicon one and falling back to the Intel one under Rosetta. That build arrives with the first release, so until then, and on Windows and Linux, the plugin runs through Node.js and needs 22.13 or newer on your machine since the hooks do not run on anything older.
 
-<details>
-<summary>From a clone</summary>
-
-```bash
-node scripts/install.mjs            # every project
-node scripts/install.mjs --project  # this project only
-node scripts/install.mjs --print    # show what it would write, without writing
-```
-
-This merges into any Cursor hooks file you already have. Fully restart Cursor afterwards.
-
-</details>
-
 ## Configure
 
 Tracing stays off until you turn it on and give it a LangSmith API key. Put both in `~/.cursor/langsmith.json`:

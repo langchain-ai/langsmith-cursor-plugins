@@ -19,7 +19,6 @@
     "lint": "pnpm lint:code",
     "lint:code": "oxlint",
     "lint:fix": "oxlint --fix",
-    "install-hooks": "node scripts/install.mjs",
     "clean": "rm -rf bin dist bundle"
   },
   "dependencies": {
