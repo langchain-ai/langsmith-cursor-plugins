@@ -15589,7 +15589,7 @@ var finished = main().catch((err) => {
     warn(`stop hook error: ${err}`);
   } catch {
   }
-  process.exit(1);
+  process.exit(0);
 });
 export {
   finished

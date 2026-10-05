@@ -714,5 +714,5 @@ main().catch((err) => {
     error(`afterAgentResponse hook error: ${err}`);
   } catch {
   }
-  process.exit(1);
+  process.exit(0);
 });

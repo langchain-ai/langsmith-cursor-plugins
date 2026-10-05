@@ -4,7 +4,6 @@
     "beforeSubmitPrompt": [
       {
         "command": "\"${CURSOR_PLUGIN_ROOT}/binary/langsmith-tracing.cmd\" before-submit-prompt",
-        "failClosed": true,
         "timeout": 15
       }
     ],

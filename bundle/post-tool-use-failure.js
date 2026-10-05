@@ -715,5 +715,5 @@ main().catch((err) => {
     error(`postToolUseFailure hook error: ${err}`);
   } catch {
   }
-  process.exit(1);
+  process.exit(0);
 });

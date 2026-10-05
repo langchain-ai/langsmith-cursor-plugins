@@ -110,6 +110,19 @@ function inSandbox(builds: string[], check: (dir: string) => void, startable = t
   }
 }
 
+it.each(Object.values(BINARY_HOOK_EVENTS))(
+  "lets a turn through when %s cannot make sense of the event",
+  (hook) => {
+    const result = spawnSync(process.execPath, [fileURLToPath(new URL(`bundle/${hook}.js`, root))], {
+      encoding: "utf8",
+      input: "this is not an event",
+      env: { ...process.env, LANGSMITH_CURSOR_LOG_FILE: join(mkdtempSync(join(tmpdir(), "ls ")), "log") },
+    });
+    expect(result.status, result.stderr).toBe(0);
+  },
+  SHELL_TIMEOUT_MS,
+);
+
 it("gives every hook one line, so Cursor attaches the event to the line that runs", () => {
   for (const [event, entries] of Object.entries(hooks)) {
     const routed = BINARY_HOOK_EVENTS[event as keyof typeof BINARY_HOOK_EVENTS];

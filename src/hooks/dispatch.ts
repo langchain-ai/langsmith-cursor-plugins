@@ -36,7 +36,6 @@ async function runHook(name: BinaryHookName): Promise<void> {
     await loaded.finished;
   } catch (err) {
     console.error(`[langsmith] hook ${name} failed: ${String(err)}`);
-    process.exitCode = 1;
   }
 }
 

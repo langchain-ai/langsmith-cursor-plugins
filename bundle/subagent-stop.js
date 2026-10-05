@@ -807,5 +807,5 @@ main().catch((err) => {
     error(`subagentStop hook error: ${err}`);
   } catch {
   }
-  process.exit(1);
+  process.exit(0);
 });

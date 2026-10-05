@@ -1,5 +1,5 @@
 import { loadConfig } from "./config.js";
-import { initLogger } from "./logger.js";
+import { error as logError, initLogger } from "./logger.js";
 import { atomicUpdateState } from "./state.js";
 import { reduceBeforeSubmitPrompt } from "./reducer.js";
 import {
@@ -56,9 +56,11 @@ export async function handlePromptSubmit(
     );
     return { continue: true };
   } catch (error) {
-    return {
-      continue: false,
-      user_message: `Could not save tracing preference/turn snapshot: ${error instanceof Error ? error.message : String(error)}. Submission blocked; repair local state/permissions and retry.`,
-    };
+    const detail = error instanceof Error ? error.message : String(error);
+    logError(`Could not save tracing preference/turn snapshot: ${detail}. Turn not traced.`);
+    if (command) {
+      return { continue: false, user_message: `Could not save tracing preference: ${detail}` };
+    }
+    return { continue: true };
   }
 }
