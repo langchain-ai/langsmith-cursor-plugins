@@ -1,14 +1,11 @@
 import { spawn } from "node:child_process";
 import { createServer, type Server } from "node:http";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { platform, tmpdir } from "node:os";
 import { join } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import { fileURLToPath } from "node:url";
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from "vitest";
-
-import { BINARY_HOOK_EVENTS } from "../src/constants.js";
-import type { CursorHooksFile } from "../src/types.js";
 
 const root = new URL("../", import.meta.url);
 const settings = JSON.parse(readFileSync(new URL("binary.config.json", root), "utf8"));
@@ -23,7 +20,6 @@ if (!built && process.env.CI && platform() === "darwin") {
   throw new Error(`Expected 'pnpm build:binary' to have produced ${binaryPath}`);
 }
 
-const INSTALL_TIMEOUT_MS = 30_000;
 const CONVERSATION = "binary-e2e-conversation";
 const GENERATION = "binary-e2e-generation";
 const PROMPT = "look at this screenshot";
@@ -182,49 +178,5 @@ describe.runIf(built)("the standalone binary", () => {
     const result = await stopATracedTurn(false);
     expect(result.status, result.stderr).toBe(0);
     expect(hookLog()).not.toContain("enriched turn with");
-  });
-
-  it("registers every hook against the path it installs itself to", async () => {
-    const result = await run(["--install"]);
-    expect(result.status, result.stderr).toBe(0);
-
-    const installed = join(home, ".langsmith", settings.executableName);
-    expect(existsSync(installed)).toBe(true);
-
-    const hooks = JSON.parse(
-      readFileSync(join(home, ".cursor", "hooks.json"), "utf8"),
-    ) as CursorHooksFile;
-    const commands = Object.values(hooks.hooks ?? {}).flatMap((entries) =>
-      entries.map((entry) => entry.command),
-    );
-    expect(commands).toHaveLength(Object.keys(BINARY_HOOK_EVENTS).length);
-    for (const command of commands) expect(command).toContain(`"${installed}"`);
-  }, INSTALL_TIMEOUT_MS);
-
-  it("keeps hooks another tool registered for the same event", async () => {
-    mkdirSync(join(home, ".cursor"), { recursive: true });
-    writeFileSync(
-      join(home, ".cursor", "hooks.json"),
-      JSON.stringify({ version: 1, hooks: { stop: [{ command: "other-tool stop" }] } }),
-    );
-
-    const result = await run(["--install"]);
-    expect(result.status, result.stderr).toBe(0);
-
-    const hooks = JSON.parse(
-      readFileSync(join(home, ".cursor", "hooks.json"), "utf8"),
-    ) as CursorHooksFile;
-    expect(hooks.hooks?.stop?.map((entry) => entry.command)).toContain("other-tool stop");
-  }, INSTALL_TIMEOUT_MS);
-
-  it("refuses to update from a copy outside the install directory", async () => {
-    const installed = join(home, ".langsmith", settings.executableName);
-    mkdirSync(join(home, ".langsmith"), { recursive: true });
-    writeFileSync(installed, "an older binary", { mode: 0o755 });
-
-    const result = await run(["--update"]);
-    expect(result.status, result.stderr).toBe(0);
-    expect(result.stdout).toContain("is not the installed binary");
-    expect(readFileSync(installed, "utf8")).toBe("an older binary");
   });
 });

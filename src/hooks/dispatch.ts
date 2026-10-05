@@ -1,6 +1,4 @@
-import { installBinary } from "../binary-install.js";
 import { binary } from "../binary-target.js";
-import { describeUpdate, updateInstalledBinary } from "../binary-update.js";
 import { LS_INTEGRATION_VERSION } from "../config.js";
 import { BINARY_HOOK_EVENTS } from "../constants.js";
 import type { BinaryHookName, LoadedHook } from "../types.js";
@@ -20,8 +18,6 @@ const EXECUTABLE_NAME = binary.target.executableName;
 
 const USAGE = `Usage:
   ${EXECUTABLE_NAME} <hook-name>
-  ${EXECUTABLE_NAME} --install [--print] [--project] [--tag VERSION]
-  ${EXECUTABLE_NAME} --update
   ${EXECUTABLE_NAME} --version
 
 Hook names: ${Object.values(BINARY_HOOK_EVENTS).join(", ")}`;
@@ -39,35 +35,12 @@ async function runHook(name: BinaryHookName): Promise<void> {
   }
 }
 
-async function runInstall(args: string[]): Promise<void> {
-  try {
-    console.log(await installBinary(args));
-  } catch (err) {
-    console.error(`[langsmith] install failed: ${String(err)}`);
-    process.exitCode = 1;
-  }
-}
-
-async function runUpdate(): Promise<void> {
-  try {
-    console.log(describeUpdate(await updateInstalledBinary()));
-  } catch (err) {
-    console.error(`[langsmith] update failed: ${String(err)}`);
-    process.exitCode = 1;
-  }
-}
-
-const args = process.argv.slice(2);
-const argument = args[0];
+const argument = process.argv[2];
 
 if (argument === "--help" || argument === "-h") {
   console.log(USAGE);
 } else if (argument === "--version" || argument === "-v") {
   console.log(LS_INTEGRATION_VERSION ?? "development");
-} else if (argument === "--install") {
-  void runInstall(args.slice(1));
-} else if (argument === "--update") {
-  void runUpdate();
 } else if (isHookName(argument)) {
   void runHook(argument);
 } else {

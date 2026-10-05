@@ -10,8 +10,7 @@ on:
       - .cursor-plugin/plugin.json
       - .github/workflows/build-binary.yml
       - binary.config.json
-      - hooks/hooks.binary.json
-      - install.sh
+      - binary/**
       - macos-entitlements.plist
       - package.json
       - pnpm-lock.yaml
@@ -22,5 +21,6 @@ jobs:
   binary:
     permissions:
       contents: write
-    uses: langchain-ai/langsmith-plugin-binary/.github/workflows/build-binary.yml@12889bb099ff1115cb538a3f4b71709efb6858e1 # v0.1.0
+      pull-requests: write
+    uses: langchain-ai/langsmith-plugin-binary/.github/workflows/build-binary.yml@f0fea706ecbb20ca45519801b510c07157c2bf9f # v0.3.0
     secrets: inherit

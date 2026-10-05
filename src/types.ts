@@ -3,7 +3,6 @@
  * Field names mirror the real captured payloads.
  */
 
-import type { UpdateResult } from "@langchain/langsmith-plugin-binary";
 import type { BINARY_HOOK_EVENTS } from "./constants.js";
 
 // ─── Multimodal content ──────────────────────────────────────────────────────
@@ -271,5 +270,3 @@ export interface CursorHooksFile {
   version?: number;
   hooks?: CursorHooksManifest;
 }
-
-export type BinaryUpdateResult = UpdateResult | { status: "not-installed" };
