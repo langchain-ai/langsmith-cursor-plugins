@@ -37,10 +37,10 @@ beforeEach(() => {
 afterEach(() => rmSync(dir, { recursive: true, force: true }));
 
 function submit(prompt: string, generation_id = "generation", cwd = dir) {
-  const hooks = JSON.parse(readFileSync(new URL("../hooks.json", import.meta.url), "utf8"));
+  const hooks = JSON.parse(readFileSync(new URL("../hooks/hooks.json", import.meta.url), "utf8"));
   const registration = hooks.hooks.beforeSubmitPrompt[0];
   expect(registration).toMatchObject({ timeout: 15 });
-  const match = /^node BUNDLE_DIR\/guard.js (before-submit-prompt)$/.exec(registration.command);
+  const match = /langsmith-tracing\.cmd" (before-submit-prompt)$/.exec(registration.command);
   expect(match).not.toBeNull();
   const result = spawnSync(
     process.execPath,
@@ -122,7 +122,6 @@ it("lets the prompt through when the hook itself cannot be loaded", () => {
 
 it("never asks Cursor to refuse a prompt because tracing could not start", () => {
   const manifests = [
-    JSON.parse(readFileSync(new URL("../hooks.json", import.meta.url), "utf8")),
     JSON.parse(readFileSync(new URL("../hooks/hooks.json", import.meta.url), "utf8")),
   ];
   for (const manifest of manifests) {
@@ -213,8 +212,8 @@ it("lets the prompt through when the transient state cannot be written", () => {
 
 /** Execute the actual registered Stop/event through the checked-in guard bundle. */
 function event(name: string, generation_id = "generation", extra: Record<string, unknown> = {}) {
-  const hooks = JSON.parse(readFileSync(new URL("../hooks.json", import.meta.url), "utf8"));
-  const match = /^node BUNDLE_DIR\/guard.js ([a-z-]+)$/.exec(hooks.hooks[name][0].command);
+  const hooks = JSON.parse(readFileSync(new URL("../hooks/hooks.json", import.meta.url), "utf8"));
+  const match = /langsmith-tracing\.cmd" ([a-z-]+)$/.exec(hooks.hooks[name][0].command);
   expect(match).not.toBeNull();
   const result = spawnSync(
     process.execPath,
