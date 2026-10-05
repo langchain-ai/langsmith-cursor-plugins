@@ -151,6 +151,11 @@ describe("the folder the released builds land in", () => {
         writeFileSync(path, `#!/bin/sh\nprintf '%s refused' "${name}"\nexit 3\n`);
         chmodSync(path, 0o755);
       },
+      blockingBuild(name: string) {
+        const path = join(plugin, "binary", name);
+        writeFileSync(path, `#!/bin/sh\nprintf '%s blocked' "${name}"\nexit 2\n`);
+        chmodSync(path, 0o755);
+      },
       buildReportingTurnPermissions(name: string) {
         const path = join(plugin, "binary", name);
         const report = 'process.stdout.write(require("fs").fstatSync(0).mode.toString(8).slice(-3))';
@@ -352,15 +357,55 @@ describe("the folder the released builds land in", () => {
     }
   });
 
-  it("keeps a build's own failure instead of running the turn twice", () => {
+  it("traces the turn with Node when a carried build answers with anything but zero", () => {
     const { plugin, refusingBuild, fakeUname, attempt } = sandbox();
 
     try {
       fakeUname("arm64");
       refusingBuild(`${settings.executableName}-darwin-arm64`);
       const result = attempt();
-      expect(result.stdout).toBe(`${settings.executableName}-darwin-arm64 refused`);
-      expect(result.status).toBe(3);
+      expect(result.stdout).toBe("node stop");
+      expect(result.status).toBe(0);
+    } finally {
+      rmSync(plugin, { recursive: true, force: true });
+    }
+  });
+
+  it("traces the turn with Node when a broken build lands on Cursor's block code", () => {
+    const { plugin, blockingBuild, fakeUname, attempt } = sandbox();
+
+    try {
+      fakeUname("arm64");
+      blockingBuild(`${settings.executableName}-darwin-arm64`);
+      const result = attempt();
+      expect(result.stdout).toBe("node stop");
+      expect(result.status).toBe(0);
+    } finally {
+      rmSync(plugin, { recursive: true, force: true });
+    }
+  });
+
+  it("says once that a carried build could not run, so the fallback is never silent", () => {
+    const { plugin, unstartableBuild, fakeUname, attempt } = sandbox();
+
+    try {
+      fakeUname("arm64");
+      unstartableBuild(`${settings.executableName}-darwin-arm64`);
+      const said = attempt().stderr.split("\n").filter((line) => line.includes("[langsmith]"));
+      expect(said).toHaveLength(1);
+      expect(said[0]).toContain("carried build did not run");
+    } finally {
+      rmSync(plugin, { recursive: true, force: true });
+    }
+  });
+
+  it("stays quiet when the carried build runs, so nothing precedes the Windows half", () => {
+    const { plugin, build, fakeUname, attempt } = sandbox();
+
+    try {
+      fakeUname("arm64");
+      build(`${settings.executableName}-darwin-arm64`);
+      expect(attempt().stderr).toBe("");
     } finally {
       rmSync(plugin, { recursive: true, force: true });
     }
