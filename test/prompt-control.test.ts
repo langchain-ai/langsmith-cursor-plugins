@@ -10,9 +10,11 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { pathToFileURL } from "node:url";
 import { spawnSync } from "node:child_process";
 import { getThreadTracingMode } from "../src/tracing-policy.js";
 import { loadState } from "../src/state.js";
+import { MIN_NODE } from "../src/utils/node-version.js";
 
 let dir: string;
 let env: NodeJS.ProcessEnv;
@@ -88,6 +90,25 @@ function raw(input: string) {
 
 it("lets the prompt through when the event cannot be read at all", () => {
   const result = raw("not an event at all");
+  expect(result.status, result.stderr).toBe(0);
+  expect(JSON.parse(result.stdout).continue).toBe(true);
+});
+
+it("lets the prompt through when Node is too old to trace", () => {
+  const shim = join(dir, "old-node.mjs");
+  const tooOld = `${MIN_NODE[0]}.${MIN_NODE[1] - 1}.0`;
+  writeFileSync(shim, `Object.defineProperty(process.versions,"node",{value:"${tooOld}"});\n`);
+  const result = spawnSync(
+    process.execPath,
+    [
+      "--import",
+      pathToFileURL(shim).href,
+      new URL("../bundle/guard.js", import.meta.url).pathname,
+      "before-submit-prompt",
+    ],
+    { cwd: dir, env, encoding: "utf8", timeout: 10000, input: "{}" },
+  );
+  expect(result.stderr).toContain("node:sqlite");
   expect(result.status, result.stderr).toBe(0);
   expect(JSON.parse(result.stdout).continue).toBe(true);
 });
