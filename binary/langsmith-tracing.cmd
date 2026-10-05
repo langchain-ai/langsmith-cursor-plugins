@@ -51,7 +51,7 @@ if ! answer=$(mktemp "${TMPDIR:-/tmp}/langsmith-tracing.XXXXXX" 2>/dev/null); th
 fi
 trap 'rm -f "$turn" "$answer"' EXIT
 
-cat >"$turn"
+cat >"$turn" || :
 
 last=""
 for build in "$preferred" "$alternate"; do
@@ -61,15 +61,15 @@ for build in "$preferred" "$alternate"; do
   code=0
   "$build" "$@" <"$turn" >"$answer" || code=$?
   if started "$code"; then
-    cat "$answer"
+    cat "$answer" || :
     exit "$code"
   fi
   last="$code"
 done
 
 if [ -n "$last" ]; then
-  printf '[langsmith] carried build did not run (exit %s), tracing this turn with node\n' \
-    "$last" >&2
+  ( printf '[langsmith] carried build did not run (exit %s), tracing this turn with node\n' \
+    "$last" >&2 ) || :
 fi
 
 code=0

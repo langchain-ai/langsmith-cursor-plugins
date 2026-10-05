@@ -180,6 +180,38 @@ describe("the folder the released builds land in", () => {
           env: { ...process.env, PATH: `${fakeBin}:${process.env.PATH}` },
         });
       },
+      attemptWithNothingTakingTheWarning(input?: string) {
+        return spawnSync("/bin/sh", ["-c", `"${join(plugin, picker)}" stop 2>&-`], {
+          encoding: "utf8",
+          input,
+          maxBuffer: 16 * 1024 * 1024,
+          env: { ...process.env, PATH: `${fakeBin}:${process.env.PATH}` },
+        });
+      },
+      attemptWithNoEventToRead() {
+        return spawnSync("/bin/sh", ["-c", `"${join(plugin, picker)}" stop 0>&-`], {
+          encoding: "utf8",
+          maxBuffer: 16 * 1024 * 1024,
+          env: { ...process.env, PATH: `${fakeBin}:${process.env.PATH}` },
+        });
+      },
+      attemptWithNothingTakingTheAnswer(input?: string) {
+        return spawnSync("/bin/sh", ["-c", `"${join(plugin, picker)}" stop 1>&-`], {
+          encoding: "utf8",
+          input,
+          maxBuffer: 16 * 1024 * 1024,
+          env: { ...process.env, PATH: `${fakeBin}:${process.env.PATH}` },
+        });
+      },
+      attemptWithTheWarningGoingIntoADeadPipe(input?: string) {
+        const run = `exec 3>&1; "${join(plugin, picker)}" stop 2>&1 1>&3 3>&- | true`;
+        return spawnSync("/bin/sh", ["-c", run], {
+          encoding: "utf8",
+          input,
+          maxBuffer: 16 * 1024 * 1024,
+          env: { ...process.env, PATH: `${fakeBin}:${process.env.PATH}` },
+        });
+      },
       fakeUname(machine: string, system = "Darwin") {
         const path = join(fakeBin, "uname");
         writeFileSync(
@@ -394,6 +426,59 @@ describe("the folder the released builds land in", () => {
       const said = attempt().stderr.split("\n").filter((line) => line.includes("[langsmith]"));
       expect(said).toHaveLength(1);
       expect(said[0]).toContain("carried build did not run");
+    } finally {
+      rmSync(plugin, { recursive: true, force: true });
+    }
+  });
+
+  it("still runs the hook when there is no event to read at all", () => {
+    const { plugin, unstartableBuild, fakeUname, attemptWithNoEventToRead } = sandbox();
+
+    try {
+      fakeUname("arm64");
+      unstartableBuild(`${settings.executableName}-darwin-arm64`);
+      const result = attemptWithNoEventToRead();
+      expect(result.stdout).toBe("node stop");
+      expect(result.status).toBe(0);
+    } finally {
+      rmSync(plugin, { recursive: true, force: true });
+    }
+  });
+
+  it("keeps the code a carried build answered with when nothing takes the answer", () => {
+    const { plugin, build, fakeUname, attemptWithNothingTakingTheAnswer } = sandbox();
+
+    try {
+      fakeUname("arm64");
+      build(`${settings.executableName}-darwin-arm64`);
+      expect(attemptWithNothingTakingTheAnswer("a turn").status).toBe(0);
+    } finally {
+      rmSync(plugin, { recursive: true, force: true });
+    }
+  });
+
+  it("traces the turn with Node even when nothing will take the warning", () => {
+    const { plugin, unstartableBuild, fakeUname, attemptWithNothingTakingTheWarning } = sandbox();
+
+    try {
+      fakeUname("arm64");
+      unstartableBuild(`${settings.executableName}-darwin-arm64`);
+      const result = attemptWithNothingTakingTheWarning();
+      expect(result.stdout).toBe("node stop");
+      expect(result.status).toBe(0);
+    } finally {
+      rmSync(plugin, { recursive: true, force: true });
+    }
+  });
+
+  it("traces the turn with Node even when the warning lands in a dead pipe", () => {
+    const { plugin, unstartableBuild, fakeUname, attemptWithTheWarningGoingIntoADeadPipe } =
+      sandbox();
+
+    try {
+      fakeUname("arm64");
+      unstartableBuild(`${settings.executableName}-darwin-arm64`);
+      expect(attemptWithTheWarningGoingIntoADeadPipe().stdout).toBe("node stop");
     } finally {
       rmSync(plugin, { recursive: true, force: true });
     }
