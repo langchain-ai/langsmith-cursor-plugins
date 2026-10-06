@@ -5,7 +5,20 @@
     "entryPoint": "src/hooks/dispatch.ts",
     "outputDirectory": "bin",
     "versionFile": ".cursor-plugin/plugin.json",
-    "minify": false
+    "matchingVersionFiles": [
+      "package.json"
+    ],
+    "minify": false,
+    "stampedVersionFiles": [
+      "bundle/after-agent-response.js",
+      "bundle/before-submit-prompt.js",
+      "bundle/post-tool-use-failure.js",
+      "bundle/post-tool-use.js",
+      "bundle/session-start.js",
+      "bundle/stop.js",
+      "bundle/subagent-start.js",
+      "bundle/subagent-stop.js"
+    ]
   },
   "sign": {
     "entitlements": "macos-entitlements.plist"

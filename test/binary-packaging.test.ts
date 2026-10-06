@@ -1,6 +1,7 @@
 import { execFileSync, spawnSync } from "node:child_process";
 import {
   chmodSync,
+  readdirSync,
   cpSync,
   mkdirSync,
   mkdtempSync,
@@ -32,6 +33,17 @@ it("stamps the binary with the version the plugin bundle carries", () => {
   const stamped = JSON.parse(read(settings.build.versionFile)) as { version: string };
   const bundled = JSON.parse(read("package.json")) as { version: string };
   expect(stamped.version).toBe(bundled.version);
+  expect(settings.build.matchingVersionFiles).toContain("package.json");
+});
+
+it("names every built file that carries the version, so a stale one stops the release", () => {
+  const { version } = JSON.parse(read("package.json")) as { version: string };
+  const carrying = readdirSync(new URL("bundle/", root))
+    .map((name) => `bundle/${name}`)
+    .filter((path) => read(path).includes(`"${version}"`));
+
+  expect(carrying.length).toBeGreaterThan(0);
+  expect([...(settings.build.stampedVersionFiles as string[])].sort()).toEqual(carrying.sort());
 });
 
 describe("the caller workflow", () => {
