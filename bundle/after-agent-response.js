@@ -1,19 +1,24 @@
 #!/usr/bin/env node
 
+// dist/src/constants.js
+var DEFAULT_PROJECT = "cursor";
+var DEFAULT_SWEEP_IDLE_MINUTES = 360;
+var LEADING_BYTE_ORDER_MARKS = /^\uFEFF+/;
+
 // dist/src/utils/stdin.js
-function readStdin() {
+function readStdin(stream = process.stdin) {
   return new Promise((resolve, reject) => {
     let data = "";
-    process.stdin.setEncoding("utf-8");
-    process.stdin.on("data", (chunk) => data += chunk);
-    process.stdin.on("end", () => {
+    stream.setEncoding("utf-8");
+    stream.on("data", (chunk) => data += chunk);
+    stream.on("end", () => {
       try {
-        resolve(JSON.parse(data));
+        resolve(JSON.parse(data.replace(LEADING_BYTE_ORDER_MARKS, "")));
       } catch (err) {
         reject(new Error(`Failed to parse hook input: ${err}`));
       }
     });
-    process.stdin.on("error", reject);
+    stream.on("error", reject);
   });
 }
 
@@ -226,10 +231,6 @@ function debug(message) {
     write("DEBUG", message);
   }
 }
-
-// dist/src/constants.js
-var DEFAULT_PROJECT = "cursor";
-var DEFAULT_SWEEP_IDLE_MINUTES = 360;
 
 // dist/src/config.js
 import { homedir as homedir2 } from "node:os";
@@ -713,5 +714,5 @@ main().catch((err) => {
     error(`afterAgentResponse hook error: ${err}`);
   } catch {
   }
-  process.exit(1);
+  process.exit(0);
 });

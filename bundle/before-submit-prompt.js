@@ -1,19 +1,24 @@
 #!/usr/bin/env node
 
+// dist/src/constants.js
+var DEFAULT_PROJECT = "cursor";
+var DEFAULT_SWEEP_IDLE_MINUTES = 360;
+var LEADING_BYTE_ORDER_MARKS = /^\uFEFF+/;
+
 // dist/src/utils/stdin.js
-function readStdin() {
+function readStdin(stream = process.stdin) {
   return new Promise((resolve, reject) => {
     let data = "";
-    process.stdin.setEncoding("utf-8");
-    process.stdin.on("data", (chunk) => data += chunk);
-    process.stdin.on("end", () => {
+    stream.setEncoding("utf-8");
+    stream.on("data", (chunk) => data += chunk);
+    stream.on("end", () => {
       try {
-        resolve(JSON.parse(data));
+        resolve(JSON.parse(data.replace(LEADING_BYTE_ORDER_MARKS, "")));
       } catch (err) {
         reject(new Error(`Failed to parse hook input: ${err}`));
       }
     });
-    process.stdin.on("error", reject);
+    stream.on("error", reject);
   });
 }
 
@@ -226,10 +231,6 @@ function debug(message) {
     write("DEBUG", message);
   }
 }
-
-// dist/src/constants.js
-var DEFAULT_PROJECT = "cursor";
-var DEFAULT_SWEEP_IDLE_MINUTES = 360;
 
 // dist/src/config.js
 import { homedir as homedir2 } from "node:os";
@@ -843,10 +844,12 @@ async function handlePromptSubmit(input) {
     await atomicUpdateState(config.stateFilePath, (s) => reduceBeforeSubmitPrompt(s, input, Date.now(), enabled ? getThreadTracingMode(tracingPolicyPath(), input.conversation_id, config.defaultMuted) : "off", originFromConfig(config, input)));
     return { continue: true };
   } catch (error2) {
-    return {
-      continue: false,
-      user_message: `Could not save tracing preference/turn snapshot: ${error2 instanceof Error ? error2.message : String(error2)}. Submission blocked; repair local state/permissions and retry.`
-    };
+    const detail = error2 instanceof Error ? error2.message : String(error2);
+    error(`Could not save tracing preference/turn snapshot: ${detail}. Turn not traced.`);
+    if (command) {
+      return { continue: false, user_message: `Could not save tracing preference: ${detail}` };
+    }
+    return { continue: true };
   }
 }
 
@@ -855,9 +858,7 @@ async function main() {
   const input = await readStdin();
   process.stdout.write(JSON.stringify(await handlePromptSubmit(input)) + "\n");
 }
-main().catch(() => {
-  process.stdout.write(JSON.stringify({
-    continue: false,
-    user_message: "Tracing prompt hook failed. Submission blocked; repair hooks and retry."
-  }) + "\n");
+main().catch((err) => {
+  console.error(`[langsmith] prompt hook failed: ${String(err)}. This turn is not traced.`);
+  process.stdout.write(JSON.stringify({ continue: true }) + "\n");
 });

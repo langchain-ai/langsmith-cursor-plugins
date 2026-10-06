@@ -1,7 +1,24 @@
-import { readFileSync } from "node:fs";
+import { execFileSync, spawnSync } from "node:child_process";
+import {
+  chmodSync,
+  cpSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { BINARY_HOOK_EVENTS } from "../src/constants.js";
+import { binary } from "../src/binary-target.js";
+import {
+  BINARY_HOOK_EVENTS,
+  PLUGIN_BINARY_DIRECTORY_NAME,
+  PLUGIN_LAUNCHER_NAME,
+  PLUGIN_ROOT_PLACEHOLDER,
+} from "../src/constants.js";
 import type { CursorHooksFile } from "../src/types.js";
 
 const root = new URL("../", import.meta.url);
@@ -56,6 +73,472 @@ describe("the caller workflow", () => {
           pattern === input || (pattern.endsWith("/**") && input.startsWith(pattern.slice(0, -2))),
       );
       expect(covered, `${input} is not covered by the paths filter`).toBe(true);
+    }
+  });
+});
+
+describe("the folder the released builds land in", () => {
+  const picker = `${PLUGIN_BINARY_DIRECTORY_NAME}/${PLUGIN_LAUNCHER_NAME}`;
+
+  it("starts every hook from the plugin root, on the name its own event routes on", () => {
+    for (const [event, hooks] of Object.entries(pluginHooks.hooks ?? {})) {
+      const routed = BINARY_HOOK_EVENTS[event as keyof typeof BINARY_HOOK_EVENTS];
+      for (const hook of hooks) {
+        expect(hook.command).toBe(`"${PLUGIN_ROOT_PLACEHOLDER}/${picker}" ${routed}`);
+      }
+    }
+  });
+
+  it("survives a clone runnable", () => {
+    const mode = execFileSync("git", ["ls-files", "--stage", "--", picker], {
+      cwd: new URL(root).pathname,
+      encoding: "utf8",
+    }).slice(0, 6);
+    expect(mode).toBe("100755");
+  });
+
+  it("looks for the names the release publishes", () => {
+    const script = read(picker);
+    for (const [platform, arches] of Object.entries(binary.target.publishedTargets)) {
+      for (const arch of arches) {
+        expect(script).toContain(`${settings.executableName}-${platform}-${arch}`);
+      }
+    }
+  });
+
+  function sandbox() {
+    const plugin = mkdtempSync(join(tmpdir(), "cursor picker "));
+    const fakeBin = join(plugin, "fake-bin");
+    mkdirSync(fakeBin, { recursive: true });
+    mkdirSync(join(plugin, "binary"), { recursive: true });
+    mkdirSync(join(plugin, "bundle"), { recursive: true });
+    cpSync(new URL(picker, root).pathname, join(plugin, picker));
+    chmodSync(join(plugin, picker), 0o755);
+    writeFileSync(
+      join(plugin, "bundle", "guard.js"),
+      'process.stdout.write("node " + process.argv[2]);\n',
+    );
+
+    return {
+      plugin,
+      build(name: string, { runnable = true } = {}) {
+        const path = join(plugin, "binary", name);
+        writeFileSync(path, `#!/bin/sh\nprintf '%s %s' "${name}" "$1"\n`);
+        chmodSync(path, runnable ? 0o755 : 0o644);
+      },
+      unstartableBuild(name: string) {
+        const path = join(plugin, "binary", name);
+        writeFileSync(path, `${String.fromCharCode(0, 1)}not a program at all`);
+        chmodSync(path, 0o755);
+      },
+      killedBuild(name: string) {
+        const path = join(plugin, "binary", name);
+        writeFileSync(path, "#!/bin/sh\nkill -9 $$\n");
+        chmodSync(path, 0o755);
+      },
+      buildKilledMidTurn(name: string) {
+        const path = join(plugin, "binary", name);
+        writeFileSync(path, "#!/bin/sh\ndd bs=1 count=64 of=/dev/null 2>/dev/null\nkill -9 $$\n");
+        chmodSync(path, 0o755);
+      },
+      buildKilledAfterAnswering(name: string) {
+        const path = join(plugin, "binary", name);
+        writeFileSync(path, `#!/bin/sh\ncat >/dev/null\nprintf '%s answered' "${name}"\nkill -9 $$\n`);
+        chmodSync(path, 0o755);
+      },
+      refusingBuild(name: string) {
+        const path = join(plugin, "binary", name);
+        writeFileSync(path, `#!/bin/sh\nprintf '%s refused' "${name}"\nexit 3\n`);
+        chmodSync(path, 0o755);
+      },
+      blockingBuild(name: string) {
+        const path = join(plugin, "binary", name);
+        writeFileSync(path, `#!/bin/sh\nprintf '%s blocked' "${name}"\nexit 2\n`);
+        chmodSync(path, 0o755);
+      },
+      buildReportingTurnPermissions(name: string) {
+        const path = join(plugin, "binary", name);
+        const report = 'process.stdout.write(require("fs").fstatSync(0).mode.toString(8).slice(-3))';
+        writeFileSync(path, `#!/bin/sh\nexec "${process.execPath}" -e '${report}'\n`);
+        chmodSync(path, 0o755);
+      },
+      countingBuild(name: string) {
+        const path = join(plugin, "binary", name);
+        writeFileSync(path, "#!/bin/sh\nprintf 'build %s bytes' \"$(wc -c | tr -d ' ')\"\n");
+        chmodSync(path, 0o755);
+      },
+      countingGuard() {
+        const counts = 'let n=0;process.stdin.on("data",(c)=>{n+=c.length});';
+        const reports = 'process.stdin.on("end",()=>process.stdout.write("node "+n+" bytes"));\n';
+        writeFileSync(join(plugin, "bundle", "guard.js"), counts + reports);
+      },
+      attempt(input?: string) {
+        return spawnSync("/bin/sh", ["-c", `"${join(plugin, picker)}" stop`], {
+          encoding: "utf8",
+          input,
+          maxBuffer: 16 * 1024 * 1024,
+          env: { ...process.env, PATH: `${fakeBin}:${process.env.PATH}` },
+        });
+      },
+      attemptWithNothingTakingTheWarning(input?: string) {
+        return spawnSync("/bin/sh", ["-c", `"${join(plugin, picker)}" stop 2>&-`], {
+          encoding: "utf8",
+          input,
+          maxBuffer: 16 * 1024 * 1024,
+          env: { ...process.env, PATH: `${fakeBin}:${process.env.PATH}` },
+        });
+      },
+      attemptWithNoEventToRead() {
+        return spawnSync("/bin/sh", ["-c", `"${join(plugin, picker)}" stop 0>&-`], {
+          encoding: "utf8",
+          maxBuffer: 16 * 1024 * 1024,
+          env: { ...process.env, PATH: `${fakeBin}:${process.env.PATH}` },
+        });
+      },
+      attemptWithNothingTakingTheAnswer(input?: string) {
+        return spawnSync("/bin/sh", ["-c", `"${join(plugin, picker)}" stop 1>&-`], {
+          encoding: "utf8",
+          input,
+          maxBuffer: 16 * 1024 * 1024,
+          env: { ...process.env, PATH: `${fakeBin}:${process.env.PATH}` },
+        });
+      },
+      attemptWithTheWarningGoingIntoADeadPipe(input?: string) {
+        const run = `exec 3>&1; "${join(plugin, picker)}" stop 2>&1 1>&3 3>&- | true`;
+        return spawnSync("/bin/sh", ["-c", run], {
+          encoding: "utf8",
+          input,
+          maxBuffer: 16 * 1024 * 1024,
+          env: { ...process.env, PATH: `${fakeBin}:${process.env.PATH}` },
+        });
+      },
+      fakeUname(machine: string, system = "Darwin") {
+        const path = join(fakeBin, "uname");
+        writeFileSync(
+          path,
+          `#!/bin/sh\nif [ "$1" = "-m" ]; then echo ${machine}; else echo ${system}; fi\n`,
+        );
+        chmodSync(path, 0o755);
+      },
+      pick() {
+        return spawnSync("/bin/sh", ["-c", `"${join(plugin, picker)}" stop`], {
+          encoding: "utf8",
+          input: "",
+          env: { ...process.env, PATH: `${fakeBin}:${process.env.PATH}` },
+        }).stdout;
+      },
+    };
+  }
+
+  it("survives a Windows clone runnable, where Git rewrites line endings", () => {
+    const converted = execFileSync(
+      "git",
+      ["-c", "core.autocrlf=true", "cat-file", "--filters", `:${picker}`],
+      { cwd: new URL(root).pathname },
+    );
+    const { plugin, build, fakeUname, pick } = sandbox();
+
+    try {
+      writeFileSync(join(plugin, picker), converted);
+      chmodSync(join(plugin, picker), 0o755);
+      fakeUname("arm64");
+      build(`${settings.executableName}-darwin-arm64`);
+      expect(pick()).toBe(`${settings.executableName}-darwin-arm64 stop`);
+    } finally {
+      rmSync(plugin, { recursive: true, force: true });
+    }
+  });
+
+  it("picks the Apple silicon build, then the Intel one, then Node", () => {
+    const { plugin, build, fakeUname, pick } = sandbox();
+
+    try {
+      fakeUname("arm64");
+      expect(pick()).toBe("node stop");
+
+      build(`${settings.executableName}-darwin-x64`);
+      expect(pick()).toBe(`${settings.executableName}-darwin-x64 stop`);
+
+      build(`${settings.executableName}-darwin-arm64`);
+      expect(pick()).toBe(`${settings.executableName}-darwin-arm64 stop`);
+
+      fakeUname("x86_64");
+      expect(pick()).toBe(`${settings.executableName}-darwin-x64 stop`);
+
+      rmSync(join(plugin, "binary", `${settings.executableName}-darwin-x64`));
+      expect(pick()).toBe("node stop");
+    } finally {
+      rmSync(plugin, { recursive: true, force: true });
+    }
+  });
+
+  it("falls back to Node when a build lost its executable bit", () => {
+    const { plugin, build, fakeUname, pick } = sandbox();
+
+    try {
+      fakeUname("arm64");
+      build(`${settings.executableName}-darwin-arm64`, { runnable: false });
+      build(`${settings.executableName}-darwin-x64`, { runnable: false });
+      expect(pick()).toBe("node stop");
+    } finally {
+      rmSync(plugin, { recursive: true, force: true });
+    }
+  });
+
+  it("hands Node the whole turn when a build dies part way through reading it", () => {
+    const { plugin, buildKilledMidTurn, countingGuard, fakeUname, attempt } = sandbox();
+
+    try {
+      fakeUname("arm64");
+      countingGuard();
+      buildKilledMidTurn(`${settings.executableName}-darwin-arm64`);
+      buildKilledMidTurn(`${settings.executableName}-darwin-x64`);
+      expect(attempt("x".repeat(1_048_576)).stdout).toBe("node 1048576 bytes");
+    } finally {
+      rmSync(plugin, { recursive: true, force: true });
+    }
+  });
+
+  it("keeps the spooled turn readable only by the user whose prompt it holds", () => {
+    const { plugin, buildReportingTurnPermissions, fakeUname, attempt } = sandbox();
+
+    try {
+      fakeUname("arm64");
+      buildReportingTurnPermissions(`${settings.executableName}-darwin-arm64`);
+      expect(attempt("a turn nobody else may read").stdout).toBe("600");
+    } finally {
+      rmSync(plugin, { recursive: true, force: true });
+    }
+  });
+
+  it("throws away a dead build's answer so the turn is only answered once", () => {
+    const { plugin, buildKilledAfterAnswering, fakeUname, pick } = sandbox();
+
+    try {
+      fakeUname("arm64");
+      buildKilledAfterAnswering(`${settings.executableName}-darwin-arm64`);
+      buildKilledAfterAnswering(`${settings.executableName}-darwin-x64`);
+      expect(pick()).toBe("node stop");
+    } finally {
+      rmSync(plugin, { recursive: true, force: true });
+    }
+  });
+
+  it("falls back to Node on a Mac it carries no build for", () => {
+    const { plugin, build, fakeUname, pick } = sandbox();
+
+    try {
+      fakeUname("i386");
+      build(`${settings.executableName}-darwin-arm64`);
+      build(`${settings.executableName}-darwin-x64`);
+      expect(pick()).toBe("node stop");
+    } finally {
+      rmSync(plugin, { recursive: true, force: true });
+    }
+  });
+
+  it("falls back to Node off a Mac, so a Mac build is never started there", () => {
+    const { plugin, build, fakeUname, pick } = sandbox();
+
+    try {
+      fakeUname("x86_64", "Linux");
+      build(`${settings.executableName}-darwin-arm64`);
+      build(`${settings.executableName}-darwin-x64`);
+      expect(pick()).toBe("node stop");
+    } finally {
+      rmSync(plugin, { recursive: true, force: true });
+    }
+  });
+
+  it("falls back to Node when every carried build is too broken to start", () => {
+    const { plugin, unstartableBuild, fakeUname, pick } = sandbox();
+
+    try {
+      fakeUname("arm64");
+      unstartableBuild(`${settings.executableName}-darwin-arm64`);
+      unstartableBuild(`${settings.executableName}-darwin-x64`);
+      expect(pick()).toBe("node stop");
+    } finally {
+      rmSync(plugin, { recursive: true, force: true });
+    }
+  });
+
+  it("falls back to Node when a build is killed the moment it starts", () => {
+    const { plugin, killedBuild, fakeUname, pick } = sandbox();
+
+    try {
+      fakeUname("arm64");
+      killedBuild(`${settings.executableName}-darwin-arm64`);
+      killedBuild(`${settings.executableName}-darwin-x64`);
+      expect(pick()).toBe("node stop");
+    } finally {
+      rmSync(plugin, { recursive: true, force: true });
+    }
+  });
+
+  it("tries the Intel build when the Apple silicon one cannot start", () => {
+    const { plugin, build, unstartableBuild, fakeUname, pick } = sandbox();
+
+    try {
+      fakeUname("arm64");
+      unstartableBuild(`${settings.executableName}-darwin-arm64`);
+      build(`${settings.executableName}-darwin-x64`);
+      expect(pick()).toBe(`${settings.executableName}-darwin-x64 stop`);
+    } finally {
+      rmSync(plugin, { recursive: true, force: true });
+    }
+  });
+
+  it("traces the turn with Node when a carried build answers with anything but zero", () => {
+    const { plugin, refusingBuild, fakeUname, attempt } = sandbox();
+
+    try {
+      fakeUname("arm64");
+      refusingBuild(`${settings.executableName}-darwin-arm64`);
+      const result = attempt();
+      expect(result.stdout).toBe("node stop");
+      expect(result.status).toBe(0);
+    } finally {
+      rmSync(plugin, { recursive: true, force: true });
+    }
+  });
+
+  it("traces the turn with Node when a broken build lands on Cursor's block code", () => {
+    const { plugin, blockingBuild, fakeUname, attempt } = sandbox();
+
+    try {
+      fakeUname("arm64");
+      blockingBuild(`${settings.executableName}-darwin-arm64`);
+      const result = attempt();
+      expect(result.stdout).toBe("node stop");
+      expect(result.status).toBe(0);
+    } finally {
+      rmSync(plugin, { recursive: true, force: true });
+    }
+  });
+
+  it("says once that a carried build could not run, so the fallback is never silent", () => {
+    const { plugin, unstartableBuild, fakeUname, attempt } = sandbox();
+
+    try {
+      fakeUname("arm64");
+      unstartableBuild(`${settings.executableName}-darwin-arm64`);
+      const said = attempt().stderr.split("\n").filter((line) => line.includes("[langsmith]"));
+      expect(said).toHaveLength(1);
+      expect(said[0]).toContain("carried build did not run");
+    } finally {
+      rmSync(plugin, { recursive: true, force: true });
+    }
+  });
+
+  it("still runs the hook when there is no event to read at all", () => {
+    const { plugin, unstartableBuild, fakeUname, attemptWithNoEventToRead } = sandbox();
+
+    try {
+      fakeUname("arm64");
+      unstartableBuild(`${settings.executableName}-darwin-arm64`);
+      const result = attemptWithNoEventToRead();
+      expect(result.stdout).toBe("node stop");
+      expect(result.status).toBe(0);
+    } finally {
+      rmSync(plugin, { recursive: true, force: true });
+    }
+  });
+
+  it("keeps the code a carried build answered with when nothing takes the answer", () => {
+    const { plugin, build, fakeUname, attemptWithNothingTakingTheAnswer } = sandbox();
+
+    try {
+      fakeUname("arm64");
+      build(`${settings.executableName}-darwin-arm64`);
+      expect(attemptWithNothingTakingTheAnswer("a turn").status).toBe(0);
+    } finally {
+      rmSync(plugin, { recursive: true, force: true });
+    }
+  });
+
+  it("traces the turn with Node even when nothing will take the warning", () => {
+    const { plugin, unstartableBuild, fakeUname, attemptWithNothingTakingTheWarning } = sandbox();
+
+    try {
+      fakeUname("arm64");
+      unstartableBuild(`${settings.executableName}-darwin-arm64`);
+      const result = attemptWithNothingTakingTheWarning();
+      expect(result.stdout).toBe("node stop");
+      expect(result.status).toBe(0);
+    } finally {
+      rmSync(plugin, { recursive: true, force: true });
+    }
+  });
+
+  it("traces the turn with Node even when the warning lands in a dead pipe", () => {
+    const { plugin, unstartableBuild, fakeUname, attemptWithTheWarningGoingIntoADeadPipe } =
+      sandbox();
+
+    try {
+      fakeUname("arm64");
+      unstartableBuild(`${settings.executableName}-darwin-arm64`);
+      expect(attemptWithTheWarningGoingIntoADeadPipe().stdout).toBe("node stop");
+    } finally {
+      rmSync(plugin, { recursive: true, force: true });
+    }
+  });
+
+  it("stays quiet when the carried build runs, so nothing precedes the Windows half", () => {
+    const { plugin, build, fakeUname, attempt } = sandbox();
+
+    try {
+      fakeUname("arm64");
+      build(`${settings.executableName}-darwin-arm64`);
+      expect(attempt().stderr).toBe("");
+    } finally {
+      rmSync(plugin, { recursive: true, force: true });
+    }
+  });
+
+  it("hands Node a turn far larger than a pipe buffer when no build starts", () => {
+    const { plugin, unstartableBuild, countingGuard, fakeUname, attempt } = sandbox();
+
+    try {
+      fakeUname("arm64");
+      countingGuard();
+      unstartableBuild(`${settings.executableName}-darwin-arm64`);
+      unstartableBuild(`${settings.executableName}-darwin-x64`);
+      expect(attempt("x".repeat(1_048_576)).stdout).toBe("node 1048576 bytes");
+    } finally {
+      rmSync(plugin, { recursive: true, force: true });
+    }
+  });
+
+  it("hands a working build a turn far larger than a pipe buffer", () => {
+    const { plugin, countingBuild, fakeUname, attempt } = sandbox();
+
+    try {
+      fakeUname("arm64");
+      countingBuild(`${settings.executableName}-darwin-arm64`);
+      expect(attempt("x".repeat(1_048_576)).stdout).toBe("build 1048576 bytes");
+    } finally {
+      rmSync(plugin, { recursive: true, force: true });
+    }
+  });
+
+  it("commits the picker and nothing beside it the picker would not run", () => {
+    const published = Object.entries(binary.target.publishedTargets).flatMap(([platform, arches]) =>
+      arches.map((arch) => `${settings.executableName}-${platform}-${arch}`),
+    );
+    const committed = execFileSync(
+      "git",
+      ["ls-files", "--stage", "--", `${PLUGIN_BINARY_DIRECTORY_NAME}/`],
+      { cwd: new URL(root).pathname, encoding: "utf8" },
+    )
+      .trimEnd()
+      .split("\n")
+      .map((entry) => ({ mode: entry.slice(0, 6), name: entry.slice(entry.lastIndexOf("/") + 1) }));
+
+    expect(committed.map(({ name }) => name)).toContain(PLUGIN_LAUNCHER_NAME);
+    for (const { mode, name } of committed) {
+      expect([PLUGIN_LAUNCHER_NAME, ...published], name).toContain(name);
+      expect(mode, name).toBe("100755");
     }
   });
 });

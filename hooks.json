@@ -4,7 +4,6 @@
     "beforeSubmitPrompt": [
       {
         "command": "node BUNDLE_DIR/guard.js before-submit-prompt",
-        "failClosed": true,
         "timeout": 15
       }
     ],

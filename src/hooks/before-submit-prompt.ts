@@ -7,11 +7,7 @@ async function main(): Promise<void> {
   const input = await readStdin<BeforeSubmitPromptInput>();
   process.stdout.write(JSON.stringify(await handlePromptSubmit(input)) + "\n");
 }
-main().catch(() => {
-  process.stdout.write(
-    JSON.stringify({
-      continue: false,
-      user_message: "Tracing prompt hook failed. Submission blocked; repair hooks and retry.",
-    }) + "\n",
-  );
+main().catch((err: unknown) => {
+  console.error(`[langsmith] prompt hook failed: ${String(err)}. This turn is not traced.`);
+  process.stdout.write(JSON.stringify({ continue: true }) + "\n");
 });

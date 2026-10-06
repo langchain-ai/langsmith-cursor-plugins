@@ -40,4 +40,12 @@ export const CURSOR_HOOKS_VERSION = 1;
 
 export const PLUGIN_REPOSITORY_URL = "https://github.com/langchain-ai/langsmith-cursor-plugins";
 
+export const PLUGIN_BINARY_DIRECTORY_NAME = "binary";
+
+export const PLUGIN_LAUNCHER_NAME = "langsmith-tracing.cmd";
+
+export const PLUGIN_ROOT_PLACEHOLDER = "${CURSOR_PLUGIN_ROOT}";
+
+export const LEADING_BYTE_ORDER_MARKS = /^\uFEFF+/;
+
 export const OLDER_THAN_ANY_RELEASE = "0.0.0";

@@ -26,6 +26,5 @@ export const finished = main().catch((err) => {
   } catch {
     /* last resort */
   }
-  // Non-zero exit (never 2 = "block") tells Cursor the hook failed.
-  process.exit(1);
+  process.exit(0);
 });

@@ -4,7 +4,6 @@
     "beforeSubmitPrompt": [
       {
         "command": "\"${HOME}/.langsmith/langsmith-cursor-tracing\" before-submit-prompt",
-        "failClosed": true,
         "timeout": 15
       }
     ],

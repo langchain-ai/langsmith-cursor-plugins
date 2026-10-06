@@ -1,10 +1,20 @@
 import { afterEach, beforeEach, expect, it } from "vitest";
-import { existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import {
+  cpSync,
+  existsSync,
+  mkdtempSync,
+  mkdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { pathToFileURL } from "node:url";
 import { spawnSync } from "node:child_process";
 import { getThreadTracingMode } from "../src/tracing-policy.js";
 import { loadState } from "../src/state.js";
+import { MIN_NODE } from "../src/utils/node-version.js";
 
 let dir: string;
 let env: NodeJS.ProcessEnv;
@@ -29,7 +39,7 @@ afterEach(() => rmSync(dir, { recursive: true, force: true }));
 function submit(prompt: string, generation_id = "generation", cwd = dir) {
   const hooks = JSON.parse(readFileSync(new URL("../hooks.json", import.meta.url), "utf8"));
   const registration = hooks.hooks.beforeSubmitPrompt[0];
-  expect(registration).toMatchObject({ failClosed: true, timeout: 15 });
+  expect(registration).toMatchObject({ timeout: 15 });
   const match = /^node BUNDLE_DIR\/guard.js (before-submit-prompt)$/.exec(registration.command);
   expect(match).not.toBeNull();
   const result = spawnSync(
@@ -56,17 +66,84 @@ function submit(prompt: string, generation_id = "generation", cwd = dir) {
 
 it("registers the same blocking contract for plugin and installer", () => {
   const plugin = JSON.parse(readFileSync(new URL("../hooks/hooks.json", import.meta.url), "utf8"));
-  expect(plugin.hooks.beforeSubmitPrompt[0]).toMatchObject({ failClosed: true, timeout: 15 });
-  expect(plugin.hooks.beforeSubmitPrompt[0].command).toContain('guard.js" before-submit-prompt');
+  expect(plugin.hooks.beforeSubmitPrompt[0]).toMatchObject({ timeout: 15 });
+  expect(plugin.hooks.beforeSubmitPrompt[0].command).toContain(
+    '${CURSOR_PLUGIN_ROOT}/binary/langsmith-tracing.cmd" before-submit-prompt',
+  );
   const result = spawnSync(
     process.execPath,
     [new URL("../scripts/install.mjs", import.meta.url).pathname, "--print"],
     { env, encoding: "utf8" },
   );
   expect(JSON.parse(result.stdout).hooks.beforeSubmitPrompt[0]).toMatchObject({
-    failClosed: true,
     timeout: 15,
   });
+});
+
+function raw(input: string) {
+  return spawnSync(
+    process.execPath,
+    [new URL("../bundle/guard.js", import.meta.url).pathname, "before-submit-prompt"],
+    { cwd: dir, env, encoding: "utf8", timeout: 10000, input },
+  );
+}
+
+it("lets the prompt through when the event cannot be read at all", () => {
+  const result = raw("not an event at all");
+  expect(result.status, result.stderr).toBe(0);
+  expect(JSON.parse(result.stdout).continue).toBe(true);
+});
+
+it("lets the prompt through when Node is too old to trace", () => {
+  const shim = join(dir, "old-node.mjs");
+  const tooOld = `${MIN_NODE[0]}.${MIN_NODE[1] - 1}.0`;
+  writeFileSync(shim, `Object.defineProperty(process.versions,"node",{value:"${tooOld}"});\n`);
+  const result = spawnSync(
+    process.execPath,
+    [
+      "--import",
+      pathToFileURL(shim).href,
+      new URL("../bundle/guard.js", import.meta.url).pathname,
+      "before-submit-prompt",
+    ],
+    { cwd: dir, env, encoding: "utf8", timeout: 10000, input: "{}" },
+  );
+  expect(result.stderr).toContain("node:sqlite");
+  expect(result.status, result.stderr).toBe(0);
+  expect(JSON.parse(result.stdout).continue).toBe(true);
+});
+
+it("lets the prompt through when the hook itself cannot be loaded", () => {
+  const alone = mkdtempSync(join(tmpdir(), "cursor alone "));
+  cpSync(new URL("../bundle/guard.js", import.meta.url).pathname, join(alone, "guard.js"));
+  const result = spawnSync(process.execPath, [join(alone, "guard.js"), "before-submit-prompt"], {
+    cwd: dir,
+    env,
+    encoding: "utf8",
+    timeout: 10000,
+    input: "{}",
+  });
+  expect(result.status, result.stderr).toBe(0);
+  expect(JSON.parse(result.stdout).continue).toBe(true);
+});
+
+it("never asks Cursor to refuse a prompt because tracing could not start", () => {
+  const installed = spawnSync(
+    process.execPath,
+    [new URL("../scripts/install.mjs", import.meta.url).pathname, "--print"],
+    { env, encoding: "utf8" },
+  );
+  const manifests = [
+    JSON.parse(readFileSync(new URL("../hooks.json", import.meta.url), "utf8")),
+    JSON.parse(readFileSync(new URL("../hooks/hooks.json", import.meta.url), "utf8")),
+    JSON.parse(readFileSync(new URL("../hooks/hooks.binary.json", import.meta.url), "utf8")),
+    JSON.parse(installed.stdout),
+  ];
+  for (const manifest of manifests) {
+    for (const entries of Object.values(manifest.hooks) as { failClosed?: boolean }[][]) {
+      for (const entry of entries) expect(entry.failClosed).toBeUndefined();
+    }
+  }
 });
 
 it("persists exact controls across fresh hook processes while master off; no trace buffer touched", () => {
@@ -143,9 +220,9 @@ it("blocks both controls on corrupt preference; ordinary work gets metadata fall
   );
 });
 
-it("refuses to accept a launch when the transient state cannot be written", () => {
+it("lets the prompt through when the transient state cannot be written", () => {
   mkdirSync(env.LANGSMITH_CURSOR_STATE_FILE!);
-  expect(submit("work").continue).toBe(false);
+  expect(submit("work").continue).toBe(true);
 });
 
 /** Execute the actual registered Stop/event through the checked-in guard bundle. */

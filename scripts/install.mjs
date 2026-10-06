@@ -53,7 +53,7 @@ for (const [event, file] of Object.entries(EVENT_TO_HOOK)) {
   ourHooks[event] = [
     {
       command: `${q(nodeBin)} ${q(join(bundleDir, file))}`,
-      ...(event === "beforeSubmitPrompt" ? { failClosed: true, timeout: 15 } : {}),
+      ...(event === "beforeSubmitPrompt" ? { timeout: 15 } : {}),
     },
   ];
 }

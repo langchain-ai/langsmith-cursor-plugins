@@ -28,20 +28,9 @@ Open **Settings**, then **Plugins**, then add this repository by URL:
 https://github.com/langchain-ai/langsmith-cursor-plugins
 ```
 
-Fully restart Cursor afterwards so it reloads its hooks. This is the supported path on every platform and it needs Node.js 22.13 or newer on your machine, since the hooks do not run on anything older.
+Fully restart Cursor afterwards so it reloads its hooks. This is the supported path on every platform, and the plugin shows up in Cursor's plugin list so you can see it is active.
 
-<details>
-<summary>Standalone binary (macOS only, no Node needed)</summary>
-
-The same integration delivered as one file that carries its own JavaScript runtime so it needs no Node on your PATH.
-
-```bash
-curl -LsSf https://langch.in/cursor-tracing | bash
-```
-
-It lands in `~/.langsmith/langsmith-cursor-tracing` and registers the same eight hooks in `~/.cursor/hooks.json`, and since it never updates itself run `~/.langsmith/langsmith-cursor-tracing --update` when you want a newer release. Remove the plugin first or both it and the binary trace every turn. Only macOS arm64 and x64 are built and the installer picks whichever matches your Mac, so use the plugin above everywhere else. Fully restart Cursor when it finishes.
-
-</details>
+On a Mac the plugin runs a compiled build that it carries itself, picking the Apple silicon one and falling back to the Intel one under Rosetta. That build arrives with the first release, so until then, and on Windows and Linux, the plugin runs through Node.js and needs 22.13 or newer on your machine since the hooks do not run on anything older.
 
 <details>
 <summary>From a clone</summary>
@@ -111,7 +100,7 @@ tail -f ~/.cursor/langsmith-hook.log
 [langsmith] Node 20.11.0 at /usr/local/bin/node is too old for tracing (need >= 22.13 for node:sqlite). This turn was NOT traced. ...
 ```
 
-The path in that line is the Node that was actually used. Fix it by making Node 22.13 or newer the one your login shell picks, or by launching Cursor from a terminal with `cursor .` so it inherits your shell, or by installing the standalone binary above which brings its own runtime.
+The path in that line is the Node that was actually used. Fix it by making Node 22.13 or newer the one your login shell picks, or by launching Cursor from a terminal with `cursor .` so it inherits your shell.
 
 ## Development
 
