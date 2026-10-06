@@ -37,10 +37,10 @@ beforeEach(() => {
 afterEach(() => rmSync(dir, { recursive: true, force: true }));
 
 function submit(prompt: string, generation_id = "generation", cwd = dir) {
-  const hooks = JSON.parse(readFileSync(new URL("../hooks.json", import.meta.url), "utf8"));
+  const hooks = JSON.parse(readFileSync(new URL("../hooks/hooks.json", import.meta.url), "utf8"));
   const registration = hooks.hooks.beforeSubmitPrompt[0];
   expect(registration).toMatchObject({ timeout: 15 });
-  const match = /^node BUNDLE_DIR\/guard.js (before-submit-prompt)$/.exec(registration.command);
+  const match = /langsmith-tracing\.cmd" (before-submit-prompt)$/.exec(registration.command);
   expect(match).not.toBeNull();
   const result = spawnSync(
     process.execPath,
@@ -64,20 +64,13 @@ function submit(prompt: string, generation_id = "generation", cwd = dir) {
   return JSON.parse(result.stdout);
 }
 
-it("registers the same blocking contract for plugin and installer", () => {
+it("registers the blocking contract on the one entry the plugin owns", () => {
   const plugin = JSON.parse(readFileSync(new URL("../hooks/hooks.json", import.meta.url), "utf8"));
+  expect(plugin.hooks.beforeSubmitPrompt).toHaveLength(1);
   expect(plugin.hooks.beforeSubmitPrompt[0]).toMatchObject({ timeout: 15 });
   expect(plugin.hooks.beforeSubmitPrompt[0].command).toContain(
     '${CURSOR_PLUGIN_ROOT}/binary/langsmith-tracing.cmd" before-submit-prompt',
   );
-  const result = spawnSync(
-    process.execPath,
-    [new URL("../scripts/install.mjs", import.meta.url).pathname, "--print"],
-    { env, encoding: "utf8" },
-  );
-  expect(JSON.parse(result.stdout).hooks.beforeSubmitPrompt[0]).toMatchObject({
-    timeout: 15,
-  });
 });
 
 function raw(input: string) {
@@ -128,16 +121,8 @@ it("lets the prompt through when the hook itself cannot be loaded", () => {
 });
 
 it("never asks Cursor to refuse a prompt because tracing could not start", () => {
-  const installed = spawnSync(
-    process.execPath,
-    [new URL("../scripts/install.mjs", import.meta.url).pathname, "--print"],
-    { env, encoding: "utf8" },
-  );
   const manifests = [
-    JSON.parse(readFileSync(new URL("../hooks.json", import.meta.url), "utf8")),
     JSON.parse(readFileSync(new URL("../hooks/hooks.json", import.meta.url), "utf8")),
-    JSON.parse(readFileSync(new URL("../hooks/hooks.binary.json", import.meta.url), "utf8")),
-    JSON.parse(installed.stdout),
   ];
   for (const manifest of manifests) {
     for (const entries of Object.values(manifest.hooks) as { failClosed?: boolean }[][]) {
@@ -227,8 +212,8 @@ it("lets the prompt through when the transient state cannot be written", () => {
 
 /** Execute the actual registered Stop/event through the checked-in guard bundle. */
 function event(name: string, generation_id = "generation", extra: Record<string, unknown> = {}) {
-  const hooks = JSON.parse(readFileSync(new URL("../hooks.json", import.meta.url), "utf8"));
-  const match = /^node BUNDLE_DIR\/guard.js ([a-z-]+)$/.exec(hooks.hooks[name][0].command);
+  const hooks = JSON.parse(readFileSync(new URL("../hooks/hooks.json", import.meta.url), "utf8"));
+  const match = /langsmith-tracing\.cmd" ([a-z-]+)$/.exec(hooks.hooks[name][0].command);
   expect(match).not.toBeNull();
   const result = spawnSync(
     process.execPath,

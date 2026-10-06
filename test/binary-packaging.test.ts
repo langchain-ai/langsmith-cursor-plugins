@@ -27,7 +27,6 @@ const settings = JSON.parse(read("binary.config.json"));
 const workflow = read(".github/workflows/build-binary.yml");
 const lockfile = read("pnpm-lock.yaml");
 const pluginHooks = JSON.parse(read("hooks/hooks.json")) as CursorHooksFile;
-const binaryHooks = JSON.parse(read(settings.build.defines.__LS_BINARY_HOOKS__)) as CursorHooksFile;
 
 it("stamps the binary with the version the plugin bundle carries", () => {
   const stamped = JSON.parse(read(settings.build.versionFile)) as { version: string };
@@ -50,6 +49,11 @@ describe("the caller workflow", () => {
     expect(workflow).toContain("secrets: inherit");
   });
 
+  it("grants every permission the pipeline asks for, so the run can start at all", () => {
+    expect(workflow).toContain("pull-requests: write");
+    expect(workflow).not.toContain("beta-branch");
+  });
+
   it("runs on every file the binary is built from", () => {
     const patterns = workflow
       .slice(workflow.indexOf("paths:"), workflow.indexOf("jobs:"))
@@ -63,8 +67,6 @@ describe("the caller workflow", () => {
       settings.build.entryPoint,
       settings.build.versionFile,
       settings.sign.entitlements,
-      settings.installer.output,
-      ...Object.values(settings.build.defines as Record<string, string>),
     ];
 
     for (const input of inputs) {
@@ -540,28 +542,5 @@ describe("the folder the released builds land in", () => {
       expect([PLUGIN_LAUNCHER_NAME, ...published], name).toContain(name);
       expect(mode, name).toBe("100755");
     }
-  });
-});
-
-describe("the binary's hooks manifest", () => {
-  it("registers exactly the events the plugin registers", () => {
-    expect(Object.keys(binaryHooks.hooks ?? {}).sort()).toEqual(
-      Object.keys(pluginHooks.hooks ?? {}).sort(),
-    );
-  });
-
-  it("passes each event the name the dispatcher routes on", () => {
-    for (const [event, name] of Object.entries(BINARY_HOOK_EVENTS)) {
-      const commands = (binaryHooks.hooks?.[event] ?? []).map((hook) => hook.command);
-      expect(commands).toEqual([expect.stringMatching(new RegExp(` ${name}$`))]);
-    }
-  });
-
-  it("keeps the prompt hook as fail closed as the plugin's", () => {
-    const { command: _binaryCommand, ...binaryEntry } =
-      binaryHooks.hooks?.beforeSubmitPrompt?.[0] ?? {};
-    const { command: _pluginCommand, ...pluginEntry } =
-      pluginHooks.hooks?.beforeSubmitPrompt?.[0] ?? {};
-    expect(binaryEntry).toEqual(pluginEntry);
   });
 });
