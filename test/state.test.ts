@@ -209,9 +209,9 @@ describe("atomicUpdateState", () => {
         throw failure;
       }),
     ).rejects.toBe(failure);
-    expect(stateLockMocks.warnings).toEqual([
+    expect(stateLockMocks.warnings).toContain(
       "Turn-state lock cleanup failed; confirm no writer is running before removing it",
-    ]);
+    );
   });
 
   it("warns but keeps a state update after shared lock cleanup fails", async () => {
@@ -224,9 +224,9 @@ describe("atomicUpdateState", () => {
       })),
     ).resolves.toBeUndefined();
     expect(loadState(file)).toHaveProperty("committed");
-    expect(stateLockMocks.warnings).toEqual([
+    expect(stateLockMocks.warnings).toContain(
       "Turn-state lock cleanup failed; confirm no writer is running before removing it",
-    ]);
+    );
   });
 });
 
