@@ -1,3 +1,4 @@
+import { join } from "node:path";
 import { afterEach, expect, it, vi } from "vitest";
 import { testConfig } from "./utils/state.js";
 
@@ -49,7 +50,7 @@ it("starts a detached worker with the saved sweep scope", async () => {
   expect(harness.spawn).toHaveBeenCalledWith(
     process.execPath,
     [
-      "/plugin/hooks/stop.js",
+      join("/plugin/hooks", "stop.js"),
       "--cursor-engine-worker",
       "caller-session",
       "/original/workspace",
