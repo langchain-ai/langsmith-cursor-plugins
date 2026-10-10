@@ -6,14 +6,18 @@ import { createCaptureStore } from "@langchain/plugins-base/storage/capture";
 import { expect, it } from "vitest";
 import {
   CURSOR_INTEGRATION,
+  CURSOR_EARLY_TOOL_SOURCE_EVENT_PREFIX,
   CURSOR_STOP_SOURCE_EVENT_ID,
+  CURSOR_TURN_SOURCE_DIRECTORY,
+  CURSOR_TURN_SOURCE_EVENT_KIND,
   CURSOR_TURN_ROUTE_DIRECTORY,
   CURSOR_TURN_ROUTE_EVENT_KIND,
-  CURSOR_TURN_SOURCE_DIRECTORY,
 } from "../src/constants.js";
 import {
   captureCursorNativeTurnSource,
   cursorTurnSourceRef,
+  mergeCursorEarlyToolSources,
+  readCursorEarlyNativeTurnSources,
   readCursorNativeTurnSource,
 } from "../src/native-turn-source.js";
 import type { CursorNativeTurnSourceInput } from "../src/models/native-turn-source.js";
@@ -30,6 +34,7 @@ function makeInput(
     sourceEventId: CURSOR_STOP_SOURCE_EVENT_ID,
     turnNum: 1,
     buffer,
+    cwd: "/native-source-workspace",
   };
 }
 
@@ -192,6 +197,47 @@ it("reuses an immutable stop source on retry and separates a new native revision
   expect(newer.source.buffer.tools[0]?.output).toBe("B");
 });
 
+it("restores an early tool event missing from the final Stop snapshot", async () => {
+  const storageRoot = mkdtempSync(join(tmpdir(), "cursor-native-source-early-tool-"));
+  const finalInput = makeInput(storageRoot, {
+    tracingMode: "full",
+    generation_id: "early-tool-turn",
+    startMs: 1000,
+    prompt: "saved prompt",
+    thoughts: [],
+    tools: [],
+    subagents: [],
+  });
+  const earlyInput = {
+    ...finalInput,
+    sourceEventId: `${CURSOR_EARLY_TOOL_SOURCE_EVENT_PREFIX}event-a`,
+    buffer: {
+      ...finalInput.buffer,
+      tools: [
+        {
+          tool_use_id: "missing-tool",
+          name: "Shell",
+          input: { command: "saved before the state lock" },
+          output: "saved result",
+          endMs: 2000,
+        },
+      ],
+    },
+  };
+  await captureCursorNativeTurnSource(earlyInput);
+  const final = await captureCursorNativeTurnSource(finalInput);
+  const earlySources = await readCursorEarlyNativeTurnSources(
+    storageRoot,
+    finalInput.sessionId,
+    finalInput.buffer.generation_id,
+    finalInput.conversationId,
+    finalInput.accountFingerprint,
+  );
+
+  const restored = mergeCursorEarlyToolSources(final.source, earlySources);
+  expect(restored.buffer.tools).toEqual(earlyInput.buffer.tools);
+});
+
 it.each([
   {
     label: "another account",
@@ -233,4 +279,54 @@ it.each([
   });
 
   await expect(captureCursorNativeTurnSource(input)).rejects.toThrow("route is unavailable");
+});
+
+it("rejects a saved source without its launch cwd route", async () => {
+  const storageRoot = mkdtempSync(join(tmpdir(), "cursor-native-source-missing-route-"));
+  const input = makeInput(storageRoot, {
+    tracingMode: "metadata",
+    generation_id: "missing-route-turn",
+    startMs: 1000,
+    thoughts: [],
+    tools: [],
+    subagents: [],
+  });
+  const sourceRef = cursorTurnSourceRef(
+    input.sessionId,
+    input.conversationId,
+    input.buffer.generation_id,
+    input.accountFingerprint,
+    input.sourceEventId,
+  );
+  await createCaptureStore(
+    accountDirectory(storageRoot, CURSOR_TURN_SOURCE_DIRECTORY, input.accountFingerprint),
+  ).capture({
+    integration: CURSOR_INTEGRATION,
+    sessionId: input.sessionId,
+    turnId: input.buffer.generation_id,
+    eventId: sourceRef,
+    runId: sourceRef,
+    destinationFingerprint: input.accountFingerprint,
+    eventKind: CURSOR_TURN_SOURCE_EVENT_KIND,
+    normalizedPayload: {
+      version: 1,
+      sourceEventId: input.sourceEventId,
+      conversationId: input.conversationId,
+      turnNum: input.turnNum,
+      buffer: input.buffer,
+    },
+    turnEvidence: { childRunIds: [], closureState: "open" },
+    metadataProvenance: {},
+    sourceAgeStartedAtMs: input.buffer.startMs,
+  });
+
+  await expect(
+    readCursorNativeTurnSource(
+      storageRoot,
+      input.sessionId,
+      input.buffer.generation_id,
+      input.accountFingerprint,
+      sourceRef,
+    ),
+  ).rejects.toThrow("route is unavailable for this account");
 });

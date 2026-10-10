@@ -4,9 +4,12 @@ import { reduceSweep, reduceUploadSettled } from "./reducer.js";
 import { getThreadTracingMode, tracingPolicyPath } from "./tracing-policy.js";
 import { debug, warn } from "./logger.js";
 import { initTracing, uploadTurn } from "./langsmith.js";
-import { createCursorTracingSession } from "./tracing-engine.js";
 import type { TracingEngineTurnContext } from "./models/tracing-engine.js";
-import { originFromConfig } from "./turn-origin.js";
+import {
+  mergeCursorEarlyToolBuffer,
+  readCursorEarlyNativeTurnSources,
+} from "./native-turn-source.js";
+import { resolveTurnOriginRoute } from "./turn-origin.js";
 import type { HookInputBase, SweepClaim, TracingMode, TracingState, TurnMode } from "./types.js";
 
 export interface SweepOptions {
@@ -20,35 +23,38 @@ export function sweepTracingMode(buffered: TurnMode | undefined, policy: Tracing
   return buffered === "metadata" ? "metadata" : policy;
 }
 
-async function uploadClaim(claim: SweepClaim, options: SweepOptions): Promise<boolean> {
-  const { config, input } = options;
-  const policy = getThreadTracingMode(
-    tracingPolicyPath(),
-    claim.conversationId,
-    config.defaultMuted,
-  );
-  const origin = claim.buffer.origin ?? originFromConfig(config, input);
-  const sessionId = claim.conversationId;
+async function uploadClaim(claim: SweepClaim): Promise<boolean> {
   try {
-    const tracingSession = createCursorTracingSession(
-      config,
-      sessionId,
-      input.workspace_roots?.[0],
-      undefined,
-      origin.project,
+    const origin = claim.buffer.origin;
+    const route = resolveTurnOriginRoute(origin, claim.conversationId);
+    const { config: routedConfig, sessionId, tracingSession, origin: routedOrigin } = route;
+    const policy = getThreadTracingMode(
+      tracingPolicyPath(),
+      claim.conversationId,
+      routedConfig.defaultMuted,
     );
-    const tracingEngine: TracingEngineTurnContext | undefined = tracingSession
-      ? { ...tracingSession, sessionId, closureState: "provisional" }
-      : undefined;
+    const tracingEngine: TracingEngineTurnContext = {
+      ...tracingSession,
+      sessionId,
+      closureState: "provisional",
+    };
+    const earlySources = await readCursorEarlyNativeTurnSources(
+      tracingSession.storageRoot,
+      sessionId,
+      claim.generationId,
+      claim.conversationId,
+      tracingSession.destinationFingerprint,
+    );
+    const buffer = mergeCursorEarlyToolBuffer(claim.conversationId, claim.buffer, earlySources);
     return await uploadTurn({
-      buffer: { ...claim.buffer, tracingMode: sweepTracingMode(claim.buffer.tracingMode, policy) },
+      buffer: { ...buffer, tracingMode: sweepTracingMode(buffer.tracingMode, policy) },
       conversationId: claim.conversationId,
       turnNum: claim.turnNum,
-      project: origin.project,
-      userEmail: origin.userEmail,
-      customMetadata: origin.customMetadata,
-      runtimeVersion: origin.runtimeVersion,
-      ...(tracingEngine ? { tracingEngine } : {}),
+      project: routedOrigin.project,
+      userEmail: routedOrigin.userEmail,
+      customMetadata: routedOrigin.customMetadata,
+      runtimeVersion: routedOrigin.runtimeVersion,
+      tracingEngine,
     });
   } catch (err) {
     warn(`Sweep could not upload turn ${claim.turnNum} of ${claim.conversationId}: ${err}`);
@@ -84,7 +90,7 @@ export async function runSweep(options: SweepOptions): Promise<SweepClaim[]> {
   );
   const uploaded: SweepClaim[] = [];
   for (const claim of claims) {
-    if (!(await uploadClaim(claim, options))) continue;
+    if (!(await uploadClaim(claim))) continue;
     await atomicUpdateState(config.stateFilePath, (state) =>
       reduceUploadSettled(state, claim.conversationId, claim.generationId, claim.claimedAt),
     );

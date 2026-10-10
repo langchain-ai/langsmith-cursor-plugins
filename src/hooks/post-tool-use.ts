@@ -7,6 +7,7 @@ import { readStdin } from "../utils/stdin.js";
 import { initHook } from "../utils/hook-init.js";
 import { atomicUpdateState } from "../state.js";
 import { reducePostToolUse } from "../reducer.js";
+import { captureEarlyCursorToolSource } from "../early-tool-capture.js";
 import { error, debug } from "../logger.js";
 import type { PostToolUseInput } from "../types.js";
 
@@ -16,7 +17,13 @@ async function main(): Promise<void> {
   if (!config) return;
 
   debug(`postToolUse ${input.tool_name} conv=${input.conversation_id} gen=${input.generation_id}`);
-  await atomicUpdateState(config.stateFilePath, (s) => reducePostToolUse(s, input, Date.now()));
+  const nowMs = Date.now();
+  try {
+    await captureEarlyCursorToolSource(config, input, nowMs);
+  } catch (err) {
+    error(`postToolUse early capture failed: ${err}`);
+  }
+  await atomicUpdateState(config.stateFilePath, (s) => reducePostToolUse(s, input, nowMs));
 }
 
 export const finished = main().catch((err) => {

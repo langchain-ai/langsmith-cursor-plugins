@@ -2,6 +2,7 @@ import { mkdtempSync, mkdirSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createCaptureStore, type StoredCapture } from "@langchain/plugins-base/storage/capture";
+import { CaptureWakeError } from "@langchain/plugins-base/tracing";
 import { createRunIdentity } from "@langchain/plugins-base/tracing/lifecycle";
 import { afterEach, expect, it, vi } from "vitest";
 import type { RunTree } from "langsmith";
@@ -18,6 +19,7 @@ import {
   createCursorReconstructionCapture,
   createCursorTracingSession,
 } from "../src/tracing-engine.js";
+import { testConfig } from "./utils/state.js";
 
 afterEach(() => {
   vi.unstubAllEnvs();
@@ -300,4 +302,61 @@ it("propagates capture errors that are not worker wake failures", async () => {
 
   await expect(capture(run.run, "post")).rejects.toBe(failure);
   expect(captureSnapshot).toHaveBeenCalledTimes(1);
+});
+
+it("rejects a snapshot wake when its saved record differs from the reported record", async () => {
+  const directory = mkdtempSync(join(tmpdir(), "cursor-snapshot-wake-mismatch-"));
+  const sessionId = "wake-mismatch-session";
+  const turnId = "wake-mismatch-turn";
+  const tracing = createCursorTracingSession(
+    testConfig(join(directory, "state.json")),
+    sessionId,
+    "/workspace",
+    () => {
+      throw new Error("worker startup failed");
+    },
+  );
+  if (!tracing) throw new Error("Cursor tracing session was not created");
+  let persistedRecord: StoredCapture | undefined;
+  let reportedRecord: StoredCapture | undefined;
+  let mismatchError: CaptureWakeError | undefined;
+  const capture = createRunTreeCapture(
+    {
+      session: tracing.session,
+      sessionId,
+      turnId,
+      privacyMode: "full",
+      closureState: "authoritative",
+      storageRoot: tracing.storageRoot,
+      destinationFingerprint: tracing.destinationFingerprint,
+    },
+    async (input) => {
+      try {
+        return await tracing.session.captureSnapshot(input);
+      } catch (error) {
+        if (!(error instanceof CaptureWakeError)) throw error;
+        persistedRecord = error.captureResult.record;
+        reportedRecord = { ...persistedRecord, capturedAtMs: persistedRecord.capturedAtMs + 1 };
+        mismatchError = new CaptureWakeError(
+          { ...error.captureResult, record: reportedRecord },
+          error.cause,
+        );
+        throw mismatchError;
+      }
+    },
+  );
+  const run = makeRun(sessionId, turnId, "70000000-0000-4000-8000-000000000013", "chain", 300);
+
+  const rejection = capture(run.run, "post").catch((error) => error);
+  expect(await rejection).toBe(mismatchError);
+  expect(persistedRecord).toBeDefined();
+  expect(reportedRecord).not.toEqual(persistedRecord);
+  expect(
+    await createCaptureStore(directory).read({
+      integration: CURSOR_INTEGRATION,
+      sessionId,
+      turnId,
+      eventId: persistedRecord!.eventId,
+    }),
+  ).toEqual(persistedRecord);
 });

@@ -10,7 +10,7 @@ export interface CursorNativeTurnSource {
 
 export interface CursorNativeTurnRoute {
   version: 1;
-  cwd?: string;
+  cwd: string;
 }
 
 export interface CursorNativeTurnSourceInput {
@@ -21,11 +21,11 @@ export interface CursorNativeTurnSourceInput {
   sourceEventId: string;
   turnNum: number;
   buffer: TurnBuffer;
-  cwd?: string;
+  cwd: string;
 }
 
 export interface CursorNativeTurnSourceResult {
   sourceRef: string;
   source: CursorNativeTurnSource;
-  route?: CursorNativeTurnRoute;
+  route: CursorNativeTurnRoute;
 }

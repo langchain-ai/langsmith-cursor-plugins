@@ -267,32 +267,6 @@ it.each([
     const prompt = muted ? "cursor-metadata-private-marker" : "captured prompt";
     const dbPath = join(directory, "cursor-state.db");
     if (enriched) writeSystemPrompt(dbPath, conversationId, "swept system prompt");
-    const now = Date.now();
-    if (kind === "recovered") {
-      writeFileSync(
-        stateFile,
-        JSON.stringify({
-          [conversationId]: {
-            turns: {
-              [generationId]: {
-                generation_id: generationId,
-                turnNum: 1,
-                startMs: now - 120_000,
-                prompt: "captured prompt",
-                tools: [],
-                thoughts: [],
-                subagents: [],
-                tracingMode: "full",
-              },
-            },
-            turn_count: 0,
-            turns_started: 1,
-            updated: new Date(now).toISOString(),
-          },
-        }),
-      );
-    }
-
     const uploads: Upload[] = [];
     const primaryUploads: Upload[] = [];
     const server = createServer((request, response) => {
@@ -354,57 +328,55 @@ it.each([
     const shared = { workspace_roots: [workspace], session_id: conversationId };
 
     try {
-      if (kind !== "recovered") {
+      await runGuard(
+        "before-submit-prompt",
+        {
+          ...shared,
+          hook_event_name: "beforeSubmitPrompt",
+          conversation_id: conversationId,
+          generation_id: generationId,
+          model,
+          prompt,
+        },
+        workspace,
+        env,
+      );
+      if (subagent) {
         await runGuard(
-          "before-submit-prompt",
+          "subagent-start",
           {
             ...shared,
-            hook_event_name: "beforeSubmitPrompt",
+            hook_event_name: "subagentStart",
             conversation_id: conversationId,
             generation_id: generationId,
-            model,
-            prompt,
+            model: model ?? "default",
+            subagent_id: "subagent-1",
+            subagent_type: "general",
+            task: "Inspect the buffered change",
+            parent_conversation_id: conversationId,
           },
           workspace,
           env,
         );
-        if (subagent) {
-          await runGuard(
-            "subagent-start",
-            {
-              ...shared,
-              hook_event_name: "subagentStart",
-              conversation_id: conversationId,
-              generation_id: generationId,
-              model: model ?? "default",
-              subagent_id: "subagent-1",
-              subagent_type: "general",
-              task: "Inspect the buffered change",
-              parent_conversation_id: conversationId,
-            },
-            workspace,
-            env,
-          );
-          await runGuard(
-            "subagent-stop",
-            {
-              ...shared,
-              hook_event_name: "subagentStop",
-              conversation_id: conversationId,
-              generation_id: generationId,
-              model: model ?? "default",
-              subagent_id: "subagent-1",
-              subagent_type: "general",
-              status: "completed",
-              task: "Inspect the buffered change",
-              parent_conversation_id: conversationId,
-            },
-            workspace,
-            env,
-          );
-        }
-        ageSavedTurn(stateFile, conversationId, generationId);
+        await runGuard(
+          "subagent-stop",
+          {
+            ...shared,
+            hook_event_name: "subagentStop",
+            conversation_id: conversationId,
+            generation_id: generationId,
+            model: model ?? "default",
+            subagent_id: "subagent-1",
+            subagent_type: "general",
+            status: "completed",
+            task: "Inspect the buffered change",
+            parent_conversation_id: conversationId,
+          },
+          workspace,
+          env,
+        );
       }
+      ageSavedTurn(stateFile, conversationId, generationId);
 
       await runGuard(
         "session-start",

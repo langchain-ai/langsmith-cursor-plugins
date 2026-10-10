@@ -1,4 +1,5 @@
 import type { RunTree } from "langsmith";
+import { CURSOR_ENGINE_WORKER_MODE_SWEEP } from "../constants.js";
 import type { TracingEngineSession } from "@langchain/plugins-base/tracing";
 import type { CodingAgentMetadataOptions } from "@langchain/plugins-base/metadata";
 import type {
@@ -97,6 +98,9 @@ export interface CursorEngineWorkerArguments {
   sessionId: string;
   cwd: string;
   project?: string;
+  mode?: typeof CURSOR_ENGINE_WORKER_MODE_SWEEP;
+  callerConversationId?: string;
+  pruneState?: boolean;
 }
 
 export interface TracingEngineTurnContext {

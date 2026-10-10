@@ -183,6 +183,9 @@ export interface ThoughtEvent {
 
 export interface TurnOrigin {
   project: string;
+  sessionId?: string;
+  cwd?: string;
+  destinationFingerprint?: string;
   userEmail?: string | null;
   runtimeVersion?: string;
   customMetadata?: Record<string, unknown>;

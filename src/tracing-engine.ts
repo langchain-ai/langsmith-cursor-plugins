@@ -6,7 +6,11 @@ import {
   type CaptureDependency,
   type StoredCapture,
 } from "@langchain/plugins-base/storage/capture";
-import { CaptureWakeError, createTracingEngine } from "@langchain/plugins-base/tracing";
+import {
+  CaptureWakeError,
+  createTracingEngine,
+  readSavedCaptureWake,
+} from "@langchain/plugins-base/tracing";
 import { createLangSmithUploadWriter } from "@langchain/plugins-base/tracing/upload";
 import type { LifecycleSnapshotCaptureInput } from "@langchain/plugins-base/tracing/lifecycle";
 import type {
@@ -25,6 +29,10 @@ import {
   CURSOR_ENGINE_NODE_SCRIPT,
   CURSOR_ENGINE_WORKER_FLAG,
   CURSOR_ENGINE_WORKER_ENTRY,
+  CURSOR_ENGINE_WORKER_MODE_SWEEP,
+  CURSOR_ENGINE_WORKER_PRUNE,
+  CURSOR_ENGINE_WORKER_KEEP,
+  CURSOR_ENGINE_DEFAULT_MODEL,
   CURSOR_INTEGRATION,
   CURSOR_RUN_PATCH_EVENT_KIND,
   CURSOR_RUN_POST_EVENT_KIND,
@@ -49,6 +57,7 @@ import type {
   RunTreeSnapshotCapture,
   CursorNativeReconstructionOptions,
 } from "./models/tracing-engine.js";
+import type { HookInputBase } from "./types.js";
 
 export function createCursorTracingSession(
   config: Config,
@@ -205,22 +214,16 @@ export function createRunTreeCapture(
         );
       } catch (error) {
         if (!(error instanceof CaptureWakeError)) throw error;
-        const record = error.captureResult.record;
-        if (!isExpectedSnapshotRecord(record, options, snapshot.id)) throw error;
-        const persisted = await captureStore.read({
+        const saved = await readSavedCaptureWake(error, {
+          store: captureStore,
           integration: CURSOR_INTEGRATION,
           sessionId: options.sessionId,
           turnId: options.turnId,
-          eventId: record.eventId,
+          destinationFingerprint: options.destinationFingerprint,
+          runId: snapshot.id,
         });
-        if (
-          !persisted ||
-          !isExpectedSnapshotRecord(persisted, options, snapshot.id) ||
-          persisted.eventId !== record.eventId
-        ) {
-          throw error;
-        }
-        return error.captureResult;
+        if (!saved || !isExpectedSnapshotRecord(saved.record, options, snapshot.id)) throw error;
+        return saved;
       }
     })();
     if (result.status !== "published" && result.status !== "duplicate") {
@@ -518,14 +521,30 @@ function reconstructionOutputEventId(jobEventId: string, runId: string, phase: s
     .digest("hex");
 }
 
-export async function runCursorEngineWorker(
-  sessionId: string,
-  cwd: string,
-  destinationProject?: string,
-): Promise<void> {
+export async function runCursorEngineWorker(worker: CursorEngineWorkerArguments): Promise<void> {
   const { loadConfig } = await import("./config.js");
-  const { initTracing, reconstructCursorTurn } = await import("./langsmith.js");
-  const config = loadConfig({ cwd, includeGitMetadata: false });
+  const { reconstructCursorTurn } = await import("./langsmith.js");
+  const config = loadConfig({ cwd: worker.cwd, includeGitMetadata: false });
+  if (worker.mode === CURSOR_ENGINE_WORKER_MODE_SWEEP) {
+    if (!worker.callerConversationId) throw new Error("Cursor sweep worker caller is missing");
+    const { runSweep } = await import("./sweep.js");
+    const { pruneOldConversations } = await import("./state.js");
+    const input: HookInputBase = {
+      conversation_id: worker.callerConversationId,
+      generation_id: worker.callerConversationId,
+      session_id: worker.sessionId,
+      model: CURSOR_ENGINE_DEFAULT_MODEL,
+      hook_event_name: "sessionStart",
+      workspace_roots: [worker.cwd],
+    };
+    await runSweep({
+      config,
+      input,
+      ...(worker.pruneState ? { apply: (state) => pruneOldConversations(state) } : {}),
+    });
+    return;
+  }
+  const { initTracing } = await import("./langsmith.js");
   initTracing(
     config.apiKey,
     config.apiUrl,
@@ -538,20 +557,20 @@ export async function runCursorEngineWorker(
     if (!tracingContext) throw new Error("Cursor trace worker is not initialized");
     return reconstructCursorTurn({
       config,
-      cwd,
+      cwd: worker.cwd,
       destinationFingerprint: tracingContext.destinationFingerprint,
       job,
       session: tracingContext.session,
-      sessionId,
+      sessionId: worker.sessionId,
       storageRoot: tracingContext.storageRoot,
     } satisfies CursorNativeReconstructionOptions);
   };
   const tracing = createCursorTracingSession(
     config,
-    sessionId,
-    cwd,
+    worker.sessionId,
+    worker.cwd,
     undefined,
-    destinationProject,
+    worker.project,
     reconstruct,
   );
   if (!tracing) throw new Error("Shared trace worker configuration is unavailable");
@@ -566,16 +585,27 @@ function launchEngineWorker(
   sessionId: string,
   cwd: string | undefined,
   destinationProject: string,
+  task?: Pick<CursorEngineWorkerArguments, "mode" | "callerConversationId" | "pruneState">,
 ): number {
   const entry = process.argv[1];
   if (!entry) throw new Error("Hook entrypoint is unavailable for shared trace worker");
   const nodeScript = CURSOR_ENGINE_NODE_SCRIPT.test(entry);
-  const args = [
+  if (task?.mode === CURSOR_ENGINE_WORKER_MODE_SWEEP && !task.callerConversationId) {
+    throw new Error("Cursor sweep worker caller is missing");
+  }
+  const args: string[] = [
     ...(nodeScript ? [join(dirname(entry), `${CURSOR_ENGINE_WORKER_ENTRY}${extname(entry)}`)] : []),
     CURSOR_ENGINE_WORKER_FLAG,
     sessionId,
     cwd ?? process.cwd(),
     destinationProject,
+    ...(task?.mode === CURSOR_ENGINE_WORKER_MODE_SWEEP
+      ? [
+          task.mode,
+          task.callerConversationId!,
+          task.pruneState ? CURSOR_ENGINE_WORKER_PRUNE : CURSOR_ENGINE_WORKER_KEEP,
+        ]
+      : []),
   ];
   const child = spawn(process.execPath, args, {
     cwd: process.cwd(),
@@ -589,14 +619,52 @@ function launchEngineWorker(
 }
 
 export function parseCursorEngineWorkerArguments(args: string[]): CursorEngineWorkerArguments {
-  const [sessionId, cwd, project, ...extra] = args;
-  if (!sessionId || !cwd || extra.length > 0) {
+  const [sessionId, cwd, project, mode, callerConversationId, pruneMode, ...extra] = args;
+  if (
+    !sessionId ||
+    !cwd ||
+    extra.length > 0 ||
+    (mode !== undefined &&
+      (mode !== CURSOR_ENGINE_WORKER_MODE_SWEEP ||
+        !callerConversationId ||
+        !pruneMode ||
+        (pruneMode !== CURSOR_ENGINE_WORKER_PRUNE && pruneMode !== CURSOR_ENGINE_WORKER_KEEP)))
+  ) {
     throw new Error("Shared trace worker arguments are missing or invalid");
   }
   validateWorkerArgument(sessionId, CURSOR_ENGINE_WORKER_ARGUMENT_LIMITS.sessionId);
   validateWorkerArgument(cwd, CURSOR_ENGINE_WORKER_ARGUMENT_LIMITS.cwd);
   if (project !== undefined) validateProjectName(project);
-  return { sessionId, cwd, ...(project === undefined ? {} : { project }) };
+  if (callerConversationId !== undefined) {
+    validateWorkerArgument(
+      callerConversationId,
+      CURSOR_ENGINE_WORKER_ARGUMENT_LIMITS.callerConversationId,
+    );
+  }
+  return {
+    sessionId,
+    cwd,
+    ...(project === undefined ? {} : { project }),
+    ...(mode === CURSOR_ENGINE_WORKER_MODE_SWEEP
+      ? { mode, callerConversationId, pruneState: pruneMode === CURSOR_ENGINE_WORKER_PRUNE }
+      : {}),
+  };
+}
+
+export function launchCursorSweepWorker(
+  config: Config,
+  input: HookInputBase,
+  pruneState = false,
+): number {
+  const sessionId = input.session_id ?? input.conversation_id;
+  const cwd =
+    input.workspace_roots?.[0] ??
+    (typeof config.customMetadata?.cwd === "string" ? config.customMetadata.cwd : process.cwd());
+  return launchEngineWorker(sessionId, cwd, config.project, {
+    mode: CURSOR_ENGINE_WORKER_MODE_SWEEP,
+    callerConversationId: input.conversation_id,
+    pruneState,
+  });
 }
 
 function validateProjectName(project: string): void {

@@ -16,10 +16,15 @@ export const CODING_AGENT_METADATA_OPTIONS = Symbol("cursor.metadataOptions");
 
 export const CURSOR_ENGINE_WORKER_FLAG = "--cursor-engine-worker";
 export const CURSOR_ENGINE_WORKER_ENTRY = "stop";
+export const CURSOR_ENGINE_WORKER_MODE_SWEEP = "sweep";
+export const CURSOR_ENGINE_WORKER_PRUNE = "prune";
+export const CURSOR_ENGINE_WORKER_KEEP = "keep";
+export const CURSOR_ENGINE_DEFAULT_MODEL = "default";
 export const CURSOR_ENGINE_WORKER_ARGUMENT_LIMITS = {
   sessionId: 1024,
   cwd: 4096,
   project: 512,
+  callerConversationId: 1024,
 } as const;
 
 export const CONTROL_CHARACTER_PATTERN = /[\u0000-\u001f\u007f]/u;
@@ -32,10 +37,34 @@ export const CURSOR_RECONSTRUCTION_DIRECTORY = "reconstruction-v1";
 export const CURSOR_TURN_SOURCE_EVENT_KIND = "cursor-turn-source-v1";
 export const CURSOR_TURN_ROUTE_EVENT_KIND = "cursor-turn-route-v1";
 export const CURSOR_STOP_SOURCE_EVENT_ID = "stop";
+export const CURSOR_EARLY_TOOL_SOURCE_EVENT_PREFIX = "early-tool-";
 export const CURSOR_STOP_RECONSTRUCTION_EVENT_KIND = "stop-reconstruction";
 export const CURSOR_NATIVE_TURN_SOURCE_VERSION = 1;
 export const CURSOR_NATIVE_TURN_ROUTE_VERSION = 1;
 export const CURSOR_TURN_SOURCE_EVENT_ID_MAX_LENGTH = 1024;
+export const CURSOR_TURN_ORIGIN_ERRORS = {
+  unavailable: "Cursor tracing origin provenance is unavailable",
+  cwdUnavailable: "Cursor tracing cwd provenance is unavailable",
+  destinationUnavailable: "Cursor tracing destination provenance is unavailable",
+  destinationChanged: "Cursor tracing destination changed since the turn started",
+} as const;
+export const CURSOR_NATIVE_SOURCE_ERRORS = {
+  offTurn: "Cursor off turns cannot be queued for reconstruction",
+  invalidEventId: "Cursor native source event ID is invalid",
+  invalidCwd: "Cursor native source cwd is invalid",
+  routeUnavailable: "Cursor reconstruction route is unavailable for this account",
+  routeInvalid: "Cursor reconstruction route is invalid",
+  sourceUnavailable: "Cursor reconstruction source is unavailable for this account",
+  sourceRefInvalid: "Cursor reconstruction source reference is invalid",
+  sourceTurnMismatch: "Cursor reconstruction source turn does not match its record",
+  sourceInvalid: "Cursor reconstruction source is invalid",
+  bufferInvalid: "Cursor reconstruction turn buffer is invalid",
+  routeWriteFailure: "Could not persist Cursor turn route: ",
+  sourceWriteFailure: "Could not persist Cursor turn source: ",
+} as const;
+export const CURSOR_RECONSTRUCTION_ERRORS = {
+  queueFailure: "Could not queue Cursor turn reconstruction: ",
+} as const;
 export const CURSOR_RECONSTRUCTION_PATCH_FIELDS = [
   "inputs",
   "outputs",

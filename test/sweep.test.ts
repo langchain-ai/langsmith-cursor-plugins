@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { join } from "node:path";
-import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmdirSync, writeFileSync } from "node:fs";
 import { spawn } from "node:child_process";
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 import { tmpdir } from "node:os";
@@ -17,8 +17,10 @@ import {
 import { DEFAULT_SWEEP_IDLE_MINUTES, MAX_UPLOAD_ATTEMPTS } from "../src/constants.js";
 import * as logger from "../src/logger.js";
 import { runSweep } from "../src/sweep.js";
-import { loadState, saveState } from "../src/state.js";
+import { atomicUpdateState, loadState, saveState } from "../src/state.js";
 import { loadConfig, type Config } from "../src/config.js";
+import { captureEarlyCursorToolSource } from "../src/early-tool-capture.js";
+import { originFromConfig } from "../src/turn-origin.js";
 import { MUTED_TRACE_CONTENT } from "../src/privacy.js";
 import { initTracing, buildTurnRuns } from "../src/langsmith.js";
 import { replayHookLog } from "./utils/replay.js";
@@ -502,6 +504,13 @@ describe("runSweep against the on-disk state file", () => {
       c1: conversation([
         turn("g1", T0, {
           prompt: "recover me",
+          origin: originFromConfig(config, {
+            ...CALLER_INPUT,
+            conversation_id: "c1",
+            generation_id: "g1",
+            session_id: "c1",
+            workspace_roots: [workspace],
+          }),
           tools: [tool("t1", "Read", T0, { path: "a.ts" })],
         }),
       ]),
@@ -601,12 +610,173 @@ describe("runSweep against the on-disk state file", () => {
     expect(uploads).toHaveLength(uploadCount);
   });
 
-  it("routes a swept turn to the project saved with the turn", async () => {
+  it("includes an early tool source after a state-lock failure and later sweep", async () => {
+    const origin = originFromConfig(config, {
+      ...CALLER_INPUT,
+      conversation_id: "c1",
+      generation_id: "g1",
+      session_id: "origin-session",
+      workspace_roots: [workspace],
+    });
     saveState(stateFilePath, {
       c1: conversation([
         turn("g1", T0, {
           tracingMode: "full",
-          origin: { project: "the-turns-project", customMetadata: { cwd: "/repo/the-turn" } },
+          origin,
+          turnNum: 1,
+          prompt: "recover me",
+          tools: [tool("t1", "Read", T0, { path: "a.ts" })],
+        }),
+      ]),
+    });
+    const event = {
+      ...toolInput("g1", "early-swept-tool"),
+      session_id: "origin-session",
+      workspace_roots: [workspace],
+      tool_name: "Shell",
+      tool_input: { command: "echo early-source-marker" },
+      tool_output: "early-source-marker",
+    };
+    const captured = await captureEarlyCursorToolSource(config, event, T0 + MINUTE);
+    expect(captured?.source.buffer.tools).toContainEqual(
+      expect.objectContaining({ tool_use_id: "early-swept-tool" }),
+    );
+    expect(JSON.stringify(loadState(stateFilePath).c1.turns.g1.tools)).not.toContain(
+      "early-swept-tool",
+    );
+    const stateLockPath = `${stateFilePath}.lock`;
+    mkdirSync(stateLockPath, { mode: 0o700 });
+    try {
+      await expect(
+        atomicUpdateState(stateFilePath, (state) => reducePostToolUse(state, event, T0 + MINUTE)),
+      ).rejects.toThrow("Timed out waiting for turn-state lock");
+    } finally {
+      rmdirSync(stateLockPath);
+    }
+    expect(JSON.stringify(loadState(stateFilePath).c1.turns.g1.tools)).not.toContain(
+      "early-swept-tool",
+    );
+
+    await runSweepWithWorkerEntry({
+      config,
+      input: { ...workspaceInput(), session_id: "sweeper-session" },
+      nowMs: T0 + 2 * HOUR,
+    });
+    const records = await createCaptureStore(dir).enumerate("cursor", "origin-session");
+    expect(JSON.stringify(records)).toContain("early-source-marker");
+    await waitForDeliveredCaptures("origin-session", "g1", "cursor");
+
+    expect(JSON.stringify(uploads)).toContain("early-source-marker");
+  });
+
+  it("does not route an abandoned turn to a changed destination account", async () => {
+    const origin = originFromConfig(config, {
+      ...CALLER_INPUT,
+      conversation_id: "c1",
+      generation_id: "g1",
+      session_id: "origin-session",
+      workspace_roots: [workspace],
+    });
+    saveState(stateFilePath, {
+      c1: conversation([
+        turn("g1", T0, {
+          tracingMode: "full",
+          origin,
+          turnNum: 1,
+          prompt: "original-account-only",
+        }),
+      ]),
+    });
+    const event = {
+      ...toolInput("g1", "account-routed-tool"),
+      session_id: "origin-session",
+      workspace_roots: [workspace],
+      tool_name: "Shell",
+      tool_input: { command: "echo account-routed" },
+      tool_output: "account-routed",
+    };
+    const captured = await captureEarlyCursorToolSource(config, event, T0 + MINUTE);
+    expect(captured).toBeDefined();
+    vi.stubEnv("LANGSMITH_CURSOR_API_KEY", "different-destination-key");
+
+    const uploaded = await runSweepWithWorkerEntry({
+      config,
+      input: { ...workspaceInput(), session_id: "sweeper-session" },
+      nowMs: T0 + 2 * HOUR,
+    });
+
+    expect(uploaded).toEqual([]);
+    expect(uploads).toEqual([]);
+    expect(loadState(stateFilePath).c1.pending?.g1).toMatchObject({ attempts: 1 });
+  });
+
+  it("keeps legacy turns pending when saved destination provenance is missing", async () => {
+    saveState(stateFilePath, {
+      c1: conversation([
+        turn("g1", T0, {
+          tracingMode: "full",
+          origin: { project: "cursor", customMetadata: { cwd: workspace } },
+          turnNum: 1,
+          prompt: "legacy-origin-with-saved-cwd",
+        }),
+        turn("g2", T0, {
+          tracingMode: "full",
+          origin: { project: "cursor" },
+          turnNum: 2,
+          prompt: "legacy-origin-without-route",
+        }),
+      ]),
+    });
+    vi.stubEnv("LANGSMITH_CURSOR_API_KEY", "changed-destination-key");
+    let captureOutcome: unknown;
+    try {
+      captureOutcome = await captureEarlyCursorToolSource(
+        config,
+        {
+          ...toolInput("g1", "legacy-source-tool"),
+          session_id: "origin-session",
+          workspace_roots: [workspace],
+          tool_name: "Shell",
+          tool_input: { command: "echo legacy-source" },
+          tool_output: "legacy-source",
+        },
+        T0 + MINUTE,
+      );
+    } catch (error) {
+      captureOutcome = error instanceof Error ? error.message : String(error);
+    }
+
+    const uploaded = await runSweepWithWorkerEntry({
+      config,
+      input: workspaceInput(),
+      nowMs: T0 + 2 * HOUR,
+    });
+
+    expect(captureOutcome).toBe("Cursor tracing destination provenance is unavailable");
+    expect(uploaded).toEqual([]);
+    expect(uploads).toEqual([]);
+    expect(loadState(stateFilePath).c1.pending?.g1).toMatchObject({ attempts: 1 });
+    expect(loadState(stateFilePath).c1.pending?.g2).toMatchObject({ attempts: 1 });
+  });
+
+  it("routes a swept turn to the project saved with the turn", async () => {
+    const turnConfig = {
+      ...config,
+      project: "the-turns-project",
+      customMetadata: { ...config.customMetadata, cwd: "/repo/the-turn" },
+    };
+    const origin = originFromConfig(turnConfig, {
+      ...CALLER_INPUT,
+      conversation_id: "c1",
+      generation_id: "g1",
+      session_id: "c1",
+      workspace_roots: ["/repo/the-turn"],
+    });
+    saveState(stateFilePath, {
+      c1: conversation([
+        turn("g1", T0, {
+          tracingMode: "full",
+          origin,
         }),
       ]),
     });
@@ -654,7 +824,19 @@ describe("runSweep against the on-disk state file", () => {
 
   it("keeps a turn muted at launch muted even when the thread is not", async () => {
     saveState(stateFilePath, {
-      c1: conversation([turn("g1", T0, { tracingMode: "metadata", prompt: "recover me" })]),
+      c1: conversation([
+        turn("g1", T0, {
+          tracingMode: "metadata",
+          prompt: "recover me",
+          origin: originFromConfig(config, {
+            ...CALLER_INPUT,
+            conversation_id: "c1",
+            generation_id: "g1",
+            session_id: "c1",
+            workspace_roots: [workspace],
+          }),
+        }),
+      ]),
     });
 
     const inputs = await sweptTurnInputs();
@@ -664,12 +846,26 @@ describe("runSweep against the on-disk state file", () => {
 
   it("keeps a saved turn project when Stop runs after the project setting changes", async () => {
     const startedAtMs = Date.now() - MINUTE;
+    const stopOrigin = originFromConfig(
+      {
+        ...config,
+        project: "the-turns-project",
+        customMetadata: { ...config.customMetadata, cwd: "/repo/the-turn" },
+      },
+      {
+        ...CALLER_INPUT,
+        conversation_id: "c1",
+        generation_id: "g1",
+        session_id: "c1",
+        workspace_roots: ["/repo/the-turn"],
+      },
+    );
     saveState(stateFilePath, {
       c1: conversation([
         turn("g1", startedAtMs, {
           tracingMode: "full",
           prompt: "stop-origin-marker",
-          origin: { project: "the-turns-project", customMetadata: { cwd: "/repo/the-turn" } },
+          origin: stopOrigin,
         }),
       ]),
     });

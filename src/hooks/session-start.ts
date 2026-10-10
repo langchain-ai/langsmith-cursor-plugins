@@ -6,8 +6,7 @@
 
 import { readStdin } from "../utils/stdin.js";
 import { initHook } from "../utils/hook-init.js";
-import { pruneOldConversations } from "../state.js";
-import { runSweep } from "../sweep.js";
+import { launchCursorSweepWorker } from "../tracing-engine.js";
 import { error, debug } from "../logger.js";
 import type { SessionStartInput } from "../types.js";
 
@@ -17,7 +16,7 @@ async function main(): Promise<void> {
   if (!config) return;
 
   debug(`sessionStart conv=${input.conversation_id}`);
-  await runSweep({ config, input, apply: (state) => pruneOldConversations(state) });
+  launchCursorSweepWorker(config, input, true);
 }
 
 export const finished = main().catch((err) => {

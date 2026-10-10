@@ -7,13 +7,16 @@ import {
 } from "@langchain/plugins-base/storage/capture";
 import {
   CURSOR_INTEGRATION,
+  CURSOR_EARLY_TOOL_SOURCE_EVENT_PREFIX,
   CURSOR_NATIVE_TURN_ROUTE_VERSION,
   CURSOR_NATIVE_TURN_SOURCE_VERSION,
   CURSOR_TURN_SOURCE_EVENT_ID_MAX_LENGTH,
+  CURSOR_NATIVE_SOURCE_ERRORS,
   CURSOR_TURN_ROUTE_DIRECTORY,
   CURSOR_TURN_ROUTE_EVENT_KIND,
   CURSOR_TURN_SOURCE_DIRECTORY,
   CURSOR_TURN_SOURCE_EVENT_KIND,
+  CURSOR_ENGINE_WORKER_ARGUMENT_LIMITS,
 } from "./constants.js";
 import { toJsonValue } from "./utils/serialization/json.js";
 import { isRecord } from "./utils/validation/record.js";
@@ -53,10 +56,13 @@ export async function captureCursorNativeTurnSource(
   input: CursorNativeTurnSourceInput,
 ): Promise<CursorNativeTurnSourceResult> {
   if (input.buffer.tracingMode === "off") {
-    throw new Error("Cursor off turns cannot be queued for reconstruction");
+    throw new Error(CURSOR_NATIVE_SOURCE_ERRORS.offTurn);
   }
   if (!isValidBoundedText(input.sourceEventId, CURSOR_TURN_SOURCE_EVENT_ID_MAX_LENGTH)) {
-    throw new Error("Cursor native source event ID is invalid");
+    throw new Error(CURSOR_NATIVE_SOURCE_ERRORS.invalidEventId);
+  }
+  if (!isValidBoundedText(input.cwd, CURSOR_ENGINE_WORKER_ARGUMENT_LIMITS.cwd)) {
+    throw new Error(CURSOR_NATIVE_SOURCE_ERRORS.invalidCwd);
   }
   const sourceRef = cursorTurnSourceRef(
     input.sessionId,
@@ -74,7 +80,7 @@ export async function captureCursorNativeTurnSource(
   };
   const route: CursorNativeTurnRoute = {
     version: CURSOR_NATIVE_TURN_ROUTE_VERSION,
-    ...(input.cwd === undefined ? {} : { cwd: input.cwd }),
+    cwd: input.cwd,
   };
   const base = {
     integration: CURSOR_INTEGRATION,
@@ -108,7 +114,7 @@ export async function captureCursorNativeTurnSource(
       sourceRef,
     );
   } else {
-    throw new Error(`Could not persist Cursor turn route: ${routeResult.status}`);
+    throw new Error(`${CURSOR_NATIVE_SOURCE_ERRORS.routeWriteFailure}${routeResult.status}`);
   }
 
   const sources = sourceStore(input.storageRoot, input.accountFingerprint);
@@ -149,7 +155,7 @@ export async function captureCursorNativeTurnSource(
       };
     }
   }
-  throw new Error(`Could not persist Cursor turn source: ${sourceResult.status}`);
+  throw new Error(`${CURSOR_NATIVE_SOURCE_ERRORS.sourceWriteFailure}${sourceResult.status}`);
 }
 
 export async function readCursorNativeTurnSource(
@@ -170,7 +176,7 @@ export async function readCursorNativeTurnSource(
     sourceRecord.destinationFingerprint !== accountFingerprint ||
     sourceRecord.eventKind !== CURSOR_TURN_SOURCE_EVENT_KIND
   ) {
-    throw new Error("Cursor reconstruction source is unavailable for this account");
+    throw new Error(CURSOR_NATIVE_SOURCE_ERRORS.sourceUnavailable);
   }
   const source = parseSource(sourceRecord.normalizedPayload);
   if (
@@ -183,7 +189,7 @@ export async function readCursorNativeTurnSource(
       source.sourceEventId,
     )
   ) {
-    throw new Error("Cursor reconstruction source reference is invalid");
+    throw new Error(CURSOR_NATIVE_SOURCE_ERRORS.sourceRefInvalid);
   }
 
   const routeRecord = await routeStore(storageRoot, accountFingerprint).read({
@@ -193,14 +199,98 @@ export async function readCursorNativeTurnSource(
     eventId: sourceRef,
   });
   if (
-    routeRecord &&
-    (routeRecord.destinationFingerprint !== accountFingerprint ||
-      routeRecord.eventKind !== CURSOR_TURN_ROUTE_EVENT_KIND)
+    !routeRecord ||
+    routeRecord.integration !== CURSOR_INTEGRATION ||
+    routeRecord.sessionId !== sessionId ||
+    routeRecord.turnId !== turnId ||
+    routeRecord.eventId !== sourceRef ||
+    routeRecord.runId !== sourceRef ||
+    routeRecord.destinationFingerprint !== accountFingerprint ||
+    routeRecord.eventKind !== CURSOR_TURN_ROUTE_EVENT_KIND
   ) {
-    throw new Error("Cursor reconstruction route is unavailable for this account");
+    throw new Error(CURSOR_NATIVE_SOURCE_ERRORS.routeUnavailable);
   }
-  const route = routeRecord ? parseRoute(routeRecord.normalizedPayload) : undefined;
-  return { sourceRef, source, ...(route === undefined ? {} : { route }) };
+  const route = parseRoute(routeRecord.normalizedPayload);
+  return { sourceRef, source, route };
+}
+
+export async function readCursorEarlyNativeTurnSources(
+  storageRoot: string,
+  sessionId: string,
+  turnId: string,
+  conversationId: string,
+  accountFingerprint: string,
+): Promise<CursorNativeTurnSource[]> {
+  const captures = await sourceStore(storageRoot, accountFingerprint).enumerateTurn(
+    CURSOR_INTEGRATION,
+    sessionId,
+    turnId,
+  );
+  return captures.flatMap(({ record }) => {
+    if (
+      record.destinationFingerprint !== accountFingerprint ||
+      record.eventKind !== CURSOR_TURN_SOURCE_EVENT_KIND
+    ) {
+      return [];
+    }
+    const source = parseSource(record.normalizedPayload);
+    if (
+      source.conversationId !== conversationId ||
+      !source.sourceEventId.startsWith(CURSOR_EARLY_TOOL_SOURCE_EVENT_PREFIX) ||
+      record.eventId !==
+        cursorTurnSourceRef(
+          sessionId,
+          source.conversationId,
+          turnId,
+          accountFingerprint,
+          source.sourceEventId,
+        )
+    ) {
+      return [];
+    }
+    return [source];
+  });
+}
+
+export function mergeCursorEarlyToolSources(
+  finalSource: CursorNativeTurnSource,
+  earlySources: readonly CursorNativeTurnSource[],
+): CursorNativeTurnSource {
+  return {
+    ...finalSource,
+    buffer: mergeCursorEarlyToolBuffer(
+      finalSource.conversationId,
+      finalSource.buffer,
+      earlySources,
+    ),
+  };
+}
+
+export function mergeCursorEarlyToolBuffer(
+  conversationId: string,
+  buffer: TurnBuffer,
+  earlySources: readonly CursorNativeTurnSource[],
+): TurnBuffer {
+  const tools = new Map(buffer.tools.map((tool) => [tool.tool_use_id, tool]));
+  for (const source of earlySources) {
+    if (
+      source.conversationId !== conversationId ||
+      source.buffer.generation_id !== buffer.generation_id ||
+      source.buffer.tracingMode !== buffer.tracingMode
+    ) {
+      continue;
+    }
+    for (const tool of source.buffer.tools) {
+      if (!tools.has(tool.tool_use_id)) tools.set(tool.tool_use_id, tool);
+    }
+  }
+  return {
+    ...buffer,
+    tools: [...tools.values()].sort(
+      (left, right) =>
+        left.endMs - right.endMs || left.tool_use_id.localeCompare(right.tool_use_id),
+    ),
+  };
 }
 
 function parseSourceRecord(
@@ -218,14 +308,14 @@ function parseSourceRecord(
     record.destinationFingerprint !== input.accountFingerprint ||
     record.eventKind !== CURSOR_TURN_SOURCE_EVENT_KIND
   ) {
-    throw new Error("Cursor reconstruction source is unavailable for this account");
+    throw new Error(CURSOR_NATIVE_SOURCE_ERRORS.sourceUnavailable);
   }
   const source = parseSource(record.normalizedPayload);
   if (
     source.conversationId !== input.conversationId ||
     source.buffer.generation_id !== record.turnId
   ) {
-    throw new Error("Cursor reconstruction source turn does not match its record");
+    throw new Error(CURSOR_NATIVE_SOURCE_ERRORS.sourceTurnMismatch);
   }
   return source;
 }
@@ -245,7 +335,7 @@ function parseRouteRecord(
     record.destinationFingerprint !== input.accountFingerprint ||
     record.eventKind !== CURSOR_TURN_ROUTE_EVENT_KIND
   ) {
-    throw new Error("Cursor reconstruction route is unavailable for this account");
+    throw new Error(CURSOR_NATIVE_SOURCE_ERRORS.routeUnavailable);
   }
   return parseRoute(record.normalizedPayload);
 }
@@ -276,7 +366,7 @@ function sourceBuffer(buffer: TurnBuffer): TurnBuffer {
     };
   }
   if (buffer.tracingMode === "off") {
-    throw new Error("Cursor off turns cannot be queued for reconstruction");
+    throw new Error(CURSOR_NATIVE_SOURCE_ERRORS.offTurn);
   }
   const origin = buffer.origin;
   return {
@@ -333,12 +423,12 @@ function parseSource(value: JsonValue): CursorNativeTurnSource {
     !isValidBoundedText(value.sourceEventId, CURSOR_TURN_SOURCE_EVENT_ID_MAX_LENGTH) ||
     typeof value.conversationId !== "string"
   ) {
-    throw new Error("Cursor reconstruction source is invalid");
+    throw new Error(CURSOR_NATIVE_SOURCE_ERRORS.sourceInvalid);
   }
   const turnNum = value.turnNum;
   const buffer = value.buffer;
   if (typeof turnNum !== "number" || !Number.isSafeInteger(turnNum) || !isTurnBuffer(buffer)) {
-    throw new Error("Cursor reconstruction turn buffer is invalid");
+    throw new Error(CURSOR_NATIVE_SOURCE_ERRORS.bufferInvalid);
   }
   return {
     version: CURSOR_NATIVE_TURN_SOURCE_VERSION,
@@ -353,14 +443,12 @@ function parseRoute(value: JsonValue): CursorNativeTurnRoute {
   if (
     !isRecord(value) ||
     value.version !== CURSOR_NATIVE_TURN_ROUTE_VERSION ||
-    (value.cwd !== undefined && typeof value.cwd !== "string")
+    typeof value.cwd !== "string" ||
+    !isValidBoundedText(value.cwd, CURSOR_ENGINE_WORKER_ARGUMENT_LIMITS.cwd)
   ) {
-    throw new Error("Cursor reconstruction route is invalid");
+    throw new Error(CURSOR_NATIVE_SOURCE_ERRORS.routeInvalid);
   }
-  return {
-    version: CURSOR_NATIVE_TURN_ROUTE_VERSION,
-    ...(typeof value.cwd === "string" ? { cwd: value.cwd } : {}),
-  };
+  return { version: CURSOR_NATIVE_TURN_ROUTE_VERSION, cwd: value.cwd };
 }
 
 function isTurnBuffer(value: unknown): value is TurnBuffer {

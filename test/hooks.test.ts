@@ -4,6 +4,8 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { loadState, saveState } from "../src/state.js";
 import { runSweep } from "../src/sweep.js";
+import { originFromConfig } from "../src/turn-origin.js";
+import type { TurnBuffer } from "../src/types.js";
 import type { Config } from "../src/config.js";
 import { HOUR, MINUTE, T0, conversation, testConfig, turn } from "./utils/state.js";
 
@@ -23,6 +25,7 @@ const harness = vi.hoisted(() => ({
     if (harness.reconstructionError) throw harness.reconstructionError;
     return { status: harness.reconstructionStatus };
   }),
+  launchSweepWorker: vi.fn(() => 123),
   captureTurnSource: vi.fn(
     async (input: { buffer: { tracingMode?: string; prompt?: string } }) => ({
       sourceRef: "saved-source",
@@ -33,6 +36,7 @@ const harness = vi.hoisted(() => ({
 
 vi.mock("../src/utils/stdin.js", () => ({ readStdin: async () => harness.input }));
 vi.mock("../src/utils/hook-init.js", () => ({ initHook: () => harness.config ?? null }));
+vi.mock("../src/config.js", () => ({ loadConfig: () => harness.config }));
 vi.mock("../src/conversation-steps.js", () => ({ resolveTurnSteps: () => undefined }));
 vi.mock("../src/langsmith.js", () => ({
   initTracing: harness.initTracing,
@@ -45,11 +49,14 @@ vi.mock("../src/tracing-engine.js", () => ({
     destinationFingerprint: "cursor-hook-test-account",
   }),
   cursorStopReconstructionJobEventId: () => "saved-job",
+  launchCursorSweepWorker: harness.launchSweepWorker,
   parseCursorEngineWorkerArguments: vi.fn(),
   runCursorEngineWorker: vi.fn(),
 }));
 vi.mock("../src/native-turn-source.js", () => ({
   captureCursorNativeTurnSource: harness.captureTurnSource,
+  readCursorEarlyNativeTurnSources: vi.fn(async () => []),
+  mergeCursorEarlyToolBuffer: (_conversationId: string, buffer: TurnBuffer) => buffer,
 }));
 
 const HOOKS = {
@@ -82,6 +89,7 @@ describe("hook wiring against the on-disk state file", () => {
     harness.initTracing.mockClear();
     harness.uploadTurn.mockClear();
     harness.queueReconstruction.mockClear();
+    harness.launchSweepWorker.mockClear();
     harness.captureTurnSource.mockClear();
     harness.config = testConfig(stateFilePath);
     harness.input = {
@@ -107,13 +115,33 @@ describe("hook wiring against the on-disk state file", () => {
 
   function seedLiveTurn(): void {
     saveState(stateFilePath, {
-      live: conversation([turn("g1", T0, { tracingMode: "full", prompt: "trace me" })]),
+      live: conversation([
+        turn("g1", T0, {
+          tracingMode: "full",
+          prompt: "trace me",
+          origin: savedOrigin("live", "g1"),
+        }),
+      ]),
     });
     vi.setSystemTime(T0 + MINUTE);
   }
 
+  function savedOrigin(conversationId: string, generationId: string) {
+    return originFromConfig(harness.config!, {
+      hook_event_name: "beforeSubmitPrompt",
+      conversation_id: conversationId,
+      generation_id: generationId,
+      model: "default",
+      workspace_roots: [dir],
+    });
+  }
+
   function seedStrandedTurn(): void {
-    saveState(stateFilePath, { stranded: conversation([turn("gs", T0, { tracingMode: "full" })]) });
+    saveState(stateFilePath, {
+      stranded: conversation([
+        turn("gs", T0, { tracingMode: "full", origin: savedOrigin("stranded", "gs") }),
+      ]),
+    });
   }
 
   function sweepAsCaller(nowMs: number) {
@@ -154,6 +182,7 @@ describe("hook wiring against the on-disk state file", () => {
     const after = loadState(stateFilePath);
     expect(after.live).toMatchObject({ turns: {}, turn_count: 1 });
     expect(after.live.pending).toBeUndefined();
+    expect(harness.launchSweepWorker).toHaveBeenCalledWith(harness.config, harness.input);
   });
 
   it("holds the turn pending when Stop cannot queue its reconstruction", async () => {
@@ -167,6 +196,21 @@ describe("hook wiring against the on-disk state file", () => {
     expect(after.live.pending!.g1.attempts).toBe(1);
     expect(after.live.pending!.g1.buffer.prompt).toBe("trace me");
     expect(harness.queueReconstruction).toHaveBeenCalledTimes(1);
+    expect(exit).toHaveBeenCalledWith(0);
+  });
+
+  it("keeps an unroutable legacy turn pending and still schedules the sweep worker", async () => {
+    saveState(stateFilePath, {
+      live: conversation([turn("g1", T0, { tracingMode: "full", prompt: "legacy turn" })]),
+    });
+    vi.setSystemTime(T0 + MINUTE);
+    const exit = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
+
+    await runHook("stop");
+
+    expect(loadState(stateFilePath).live?.pending?.g1?.buffer.prompt).toBe("legacy turn");
+    expect(harness.captureTurnSource).not.toHaveBeenCalled();
+    expect(harness.launchSweepWorker).toHaveBeenCalledWith(harness.config, harness.input);
     expect(exit).toHaveBeenCalledWith(0);
   });
 
@@ -184,22 +228,34 @@ describe("hook wiring against the on-disk state file", () => {
     expect(exit).toHaveBeenCalledWith(0);
   });
 
-  it("recovers another thread's stranded turn from the stop hook", async () => {
+  it("schedules another thread's stranded turn from the stop hook", async () => {
     saveState(stateFilePath, {
-      live: conversation([turn("g1", T0 + 3 * HOUR, { tracingMode: "full" })]),
-      stranded: conversation([turn("gs", T0, { tracingMode: "full" })]),
+      live: conversation([
+        turn("g1", T0 + 3 * HOUR, {
+          tracingMode: "full",
+          origin: savedOrigin("live", "g1"),
+        }),
+      ]),
+      stranded: conversation([
+        turn("gs", T0, { tracingMode: "full", origin: savedOrigin("stranded", "gs") }),
+      ]),
     });
 
     await runHook("stop");
 
-    expect(harness.uploadTurn).toHaveBeenCalledTimes(1);
+    expect(harness.launchSweepWorker).toHaveBeenCalledWith(harness.config, harness.input);
+    expect(harness.uploadTurn).not.toHaveBeenCalled();
     expect(harness.queueReconstruction).toHaveBeenCalledTimes(1);
+    expect(harness.queueReconstruction.mock.calls[0]?.[0]).toMatchObject({
+      turnId: "g1",
+      sourceRefs: ["saved-source"],
+    });
     const after = loadState(stateFilePath);
-    expect(after.stranded).toMatchObject({ turns: {}, turn_count: 1 });
+    expect(after.stranded).toMatchObject({ turns: { gs: expect.any(Object) }, turn_count: 0 });
     expect(after.stranded.pending).toBeUndefined();
   });
 
-  it("sweeps from the session-start hook", async () => {
+  it("schedules a state-pruning sweep from the session-start hook", async () => {
     seedStrandedTurn();
     harness.input = {
       hook_event_name: "sessionStart",
@@ -210,8 +266,9 @@ describe("hook wiring against the on-disk state file", () => {
 
     await runHook("session-start");
 
-    expect(harness.uploadTurn).toHaveBeenCalledTimes(1);
-    expect(loadState(stateFilePath).stranded.turn_count).toBe(1);
+    expect(harness.launchSweepWorker).toHaveBeenCalledWith(harness.config, harness.input, true);
+    expect(harness.uploadTurn).not.toHaveBeenCalled();
+    expect(loadState(stateFilePath).stranded.turn_count).toBe(0);
   });
 
   it("buffers the tool call and leaves a stranded turn for a sweeping hook", async () => {
@@ -241,7 +298,10 @@ describe("hook wiring against the on-disk state file", () => {
         turn_count: 1,
         pending: {
           gs: {
-            buffer: turn("gs", T0, { tracingMode: "full" }),
+            buffer: turn("gs", T0, {
+              tracingMode: "full",
+              origin: savedOrigin("stranded", "gs"),
+            }),
             turnNum: 1,
             claimedAt: T0,
             attempts: 1,
@@ -261,7 +321,12 @@ describe("hook wiring against the on-disk state file", () => {
   it("uploads the finished turn when a stop lands after a premature sweep", async () => {
     saveState(stateFilePath, {
       live: conversation([
-        turn("g1", T0, { tracingMode: "full", prompt: "think for a long time", turnNum: 1 }),
+        turn("g1", T0, {
+          tracingMode: "full",
+          prompt: "think for a long time",
+          turnNum: 1,
+          origin: savedOrigin("live", "g1"),
+        }),
       ]),
     });
 

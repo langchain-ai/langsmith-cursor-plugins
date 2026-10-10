@@ -18,7 +18,11 @@ import type {
   TracingEngineTurnContext,
 } from "./models/tracing-engine.js";
 import type { ReconstructionResult } from "@langchain/plugins-base/tracing/reconstruction";
-import { readCursorNativeTurnSource } from "./native-turn-source.js";
+import {
+  mergeCursorEarlyToolSources,
+  readCursorEarlyNativeTurnSources,
+  readCursorNativeTurnSource,
+} from "./native-turn-source.js";
 import { resolveTurnAttachments } from "./attachments.js";
 import { resolveSystemPrompts } from "./system-prompt.js";
 import { loadConfig } from "./config.js";
@@ -87,14 +91,21 @@ export async function reconstructCursorTurn(
     options.destinationFingerprint,
     sourceRef,
   );
-  const source = saved.source;
+  const earlySources = await readCursorEarlyNativeTurnSources(
+    options.storageRoot,
+    options.sessionId,
+    options.job.turnId,
+    saved.source.conversationId,
+    options.destinationFingerprint,
+  );
+  const source = mergeCursorEarlyToolSources(saved.source, earlySources);
   const buffer = structuredClone(source.buffer);
   buffer.subagents = buffer.subagents.filter((subagent) => subagent.tracingMode !== "off");
   const mode = buffer.tracingMode === "full" ? "full" : "metadata";
   if (mode !== options.job.privacyMode) {
     throw new Error("Cursor reconstruction privacy mode does not match its native source");
   }
-  const cwd = saved.route?.cwd ?? options.cwd;
+  const cwd = saved.route.cwd;
   const config =
     cwd === options.cwd ? options.config : loadConfig({ cwd, includeGitMetadata: false });
   const origin: TurnOrigin = buffer.origin ?? {

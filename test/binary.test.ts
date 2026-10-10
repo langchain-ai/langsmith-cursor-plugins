@@ -30,29 +30,6 @@ let ingest: Server;
 let ingestUrl: string;
 let completedUploads = 0;
 
-function seedState(stateFile: string): void {
-  writeFileSync(
-    stateFile,
-    JSON.stringify({
-      [CONVERSATION]: {
-        turns: {
-          [GENERATION]: {
-            generation_id: GENERATION,
-            startMs: Date.now() - 1000,
-            tracingMode: "full",
-            prompt: PROMPT,
-            tools: [],
-            thoughts: [],
-            subagents: [],
-          },
-        },
-        turn_count: 0,
-        updated: new Date().toISOString(),
-      },
-    }),
-  );
-}
-
 function seedDatabase(dbPath: string, imagePath: string | undefined): void {
   const db = new DatabaseSync(dbPath);
   db.exec("CREATE TABLE cursorDiskKV (key TEXT PRIMARY KEY, value TEXT)");
@@ -105,7 +82,27 @@ async function stopATracedTurn(withImage: boolean) {
   const imagePath = join(home, "shot.png");
   writeFileSync(imagePath, PNG);
   seedDatabase(dbPath, withImage ? imagePath : undefined);
-  seedState(join(home, "state.json"));
+  const env = {
+    TRACE_TO_LANGSMITH: "1",
+    LANGSMITH_CURSOR_API_KEY: "test-key",
+    LANGSMITH_CURSOR_ENDPOINT: ingestUrl,
+    LANGSMITH_CURSOR_PROJECT: "binary-e2e",
+    LANGSMITH_CURSOR_DB_PATH: dbPath,
+    LANGSMITH_CURSOR_SYSTEM_PROMPT: "false",
+  };
+  const prompt = await run(
+    ["before-submit-prompt"],
+    JSON.stringify({
+      hook_event_name: "beforeSubmitPrompt",
+      conversation_id: CONVERSATION,
+      generation_id: GENERATION,
+      model: "default",
+      prompt: PROMPT,
+      workspace_roots: [home],
+    }),
+    env,
+  );
+  expect(prompt.status, prompt.stderr).toBe(0);
 
   const result = await run(
     ["stop"],
@@ -117,14 +114,7 @@ async function stopATracedTurn(withImage: boolean) {
       status: "completed",
       workspace_roots: [home],
     }),
-    {
-      TRACE_TO_LANGSMITH: "1",
-      LANGSMITH_CURSOR_API_KEY: "test-key",
-      LANGSMITH_CURSOR_ENDPOINT: ingestUrl,
-      LANGSMITH_CURSOR_PROJECT: "binary-e2e",
-      LANGSMITH_CURSOR_DB_PATH: dbPath,
-      LANGSMITH_CURSOR_SYSTEM_PROMPT: "false",
-    },
+    env,
   );
   await expect
     .poll(

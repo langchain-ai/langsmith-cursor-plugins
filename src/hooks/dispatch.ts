@@ -43,7 +43,7 @@ const argument = process.argv[argumentIndex];
 if (argument === CURSOR_ENGINE_WORKER_FLAG) {
   try {
     const worker = parseCursorEngineWorkerArguments(process.argv.slice(argumentIndex + 1));
-    void runCursorEngineWorker(worker.sessionId, worker.cwd, worker.project).catch((err) => {
+    void runCursorEngineWorker(worker).catch((err) => {
       warn(`Trace worker failed: ${String(err)}`);
       process.exitCode = 1;
     });
