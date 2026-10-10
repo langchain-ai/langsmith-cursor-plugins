@@ -9,7 +9,7 @@ import {
   mergeCommonConfig,
   readCommonConfigFile,
   toSdkReplicas,
-} from "./shared-config.js";
+} from "@langchain/plugins-base/settings";
 import { userInfo } from "node:os";
 import { join } from "node:path";
 import { execSync } from "node:child_process";
