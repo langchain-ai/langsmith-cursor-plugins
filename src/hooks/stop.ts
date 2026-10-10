@@ -159,7 +159,7 @@ async function runEngineWorker(): Promise<void> {
 export const finished =
   process.argv[2] === CURSOR_ENGINE_WORKER_FLAG
     ? runEngineWorker().catch((err) => {
-        console.error(`[langsmith] trace worker failed: ${String(err)}`);
+        warn(`Trace worker failed: ${String(err)}`);
         process.exitCode = 1;
       })
     : main().catch((err) => {

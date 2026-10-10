@@ -1,3 +1,4 @@
+import { warn } from "../logger.js";
 import { binary } from "../binary-target.js";
 import { LS_INTEGRATION_VERSION } from "../config.js";
 import { BINARY_HOOK_EVENTS, CURSOR_ENGINE_WORKER_FLAG } from "../constants.js";
@@ -43,7 +44,7 @@ if (argument === CURSOR_ENGINE_WORKER_FLAG) {
   try {
     const worker = parseCursorEngineWorkerArguments(process.argv.slice(argumentIndex + 1));
     void runCursorEngineWorker(worker.sessionId, worker.cwd, worker.project).catch((err) => {
-      console.error(`[langsmith] trace worker failed: ${String(err)}`);
+      warn(`Trace worker failed: ${String(err)}`);
       process.exitCode = 1;
     });
   } catch (err) {
