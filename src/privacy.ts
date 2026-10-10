@@ -1,36 +1,14 @@
 import { RunTree, type RunTreeConfig } from "langsmith";
+import {
+  metadataForMode as sharedMetadataForMode,
+  projectCodingAgentMetadata,
+} from "@langchain/plugins-base/metadata";
+import { CODING_AGENT_METADATA_OPTIONS, CURSOR_INTEGRATION } from "./constants.js";
 import type { TracingMode } from "./types.js";
-import { trustedCodingAgentMetadata } from "./metadata.js";
+import type { RunTreeCapture } from "./models/tracing-engine.js";
 
 export const MUTED_TRACE_CONTENT =
   "[LangSmith system notice: content omitted because tracing is muted.]";
-
-const METADATA_KEYS = new Set([
-  "thread_id",
-  "turn_number",
-  "turn_id",
-  "status",
-  "ls_tracing_mode",
-  "ls_agent_purpose",
-  "ls_agent_type",
-  "ls_agent_runtime",
-  "ls_agent_runtime_version",
-  "ls_integration",
-  "ls_integration_version",
-  "ls_trace_schema_version",
-  "ls_model_name",
-  "ls_tool_name",
-  "ls_skill_name",
-  "usage_metadata",
-  "ls_subagent_id",
-  "ls_subagent_type",
-]);
-
-/** Usage metadata is an open object; provenance is selected by the caller. */
-function usageForMetadata(value: unknown): Record<string, unknown> | undefined {
-  if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
-  return value as Record<string, unknown>;
-}
 
 // Also used at the wire boundary, on CURRENT (possibly anonymized) metadata.
 // It must not retrieve provenance there and restore pre-anonymization values.
@@ -38,21 +16,7 @@ function projectMetadata(
   metadata: Record<string, unknown> | undefined,
   status?: string,
 ): Record<string, unknown> {
-  const safe: Record<string, unknown> = {};
-  for (const [key, value] of Object.entries(metadata ?? {})) {
-    if (!METADATA_KEYS.has(key)) continue;
-    if (key === "usage_metadata") {
-      const usage = usageForMetadata(value);
-      if (usage) safe[key] = usage;
-    } else if (key === "turn_number") {
-      if (typeof value === "number" && Number.isSafeInteger(value) && value >= 1) safe[key] = value;
-    } else if (typeof value === "string" && value.length) {
-      safe[key] = value;
-    }
-  }
-  safe.status = status === "error" || status === "completed" ? status : "running";
-  safe.ls_tracing_mode = "metadata";
-  return safe;
+  return projectCodingAgentMetadata(metadata, CURSOR_INTEGRATION, status);
 }
 
 export function metadataForMode(
@@ -64,7 +28,15 @@ export function metadataForMode(
   // Builder provenance wins over ALL merged fields. Plain direct RunTree
   // configs remain supported as explicitly supplied metadata, schema-filtered
   // below; plugin callsites must use the builder, not clone its merged result.
-  return projectMetadata(trustedCodingAgentMetadata(metadata) ?? metadata, status);
+  const projected = sharedMetadataForMode(metadata, CURSOR_INTEGRATION, mode, status);
+  const options = metadata ? Reflect.get(metadata, CODING_AGENT_METADATA_OPTIONS) : undefined;
+  if (projected && options !== undefined) {
+    Object.defineProperty(projected, CODING_AGENT_METADATA_OPTIONS, {
+      value: options,
+      enumerable: true,
+    });
+  }
+  return projected;
 }
 
 function sanitizeReplica(replica: unknown, mode: TracingMode): unknown {
@@ -130,9 +102,13 @@ export function runConfigForMode<T extends Record<string, unknown>>(
  * parentage. Post/patch methods reapply the filter after lifecycle mutations. No shared client or mode state is
  * changed, so full and metadata runs can safely share a client.
  */
-export function createRunTree(config: RunTreeConfig, mode: TracingMode = "full"): RunTree {
+export function createRunTree(
+  config: RunTreeConfig,
+  mode: TracingMode = "full",
+  capture?: RunTreeCapture,
+): RunTree {
   const safe = runConfigForMode(config as RunTreeConfig & Record<string, unknown>, mode);
-  return protectRun(new RunTree(safe), mode, safe.extra?.metadata);
+  return protectRun(new RunTree(safe), mode, safe.extra?.metadata, capture);
 }
 
 /** Restrict a child without changing SDK parentage or upgrading a muted parent. */
@@ -140,20 +116,27 @@ export function createChildRun(
   parent: RunTree,
   config: Parameters<RunTree["createChild"]>[0],
   mode: TracingMode,
+  capture?: RunTreeCapture,
 ): RunTree {
   const safe = runConfigForMode(config as typeof config & Record<string, unknown>, mode);
-  return protectRun(parent.createChild(safe), mode, safe.extra?.metadata);
+  return protectRun(parent.createChild(safe), mode, safe.extra?.metadata, capture);
 }
 
 /** Keep SDK createChild parenting/order, but filter AFTER inherited metadata is merged.
  * Reapply before every post/patch: Cursor finalizes its root by mutation, not reconstruction.
  * Per-instance closures avoid a global mode or monkey-patching the SDK prototype.
  */
-function protectRun(run: RunTree, mode: TracingMode, metadata?: Record<string, unknown>): RunTree {
-  if (mode === "full") return run;
+function protectRun(
+  run: RunTree,
+  mode: TracingMode,
+  metadata?: Record<string, unknown>,
+  capture?: RunTreeCapture,
+): RunTree {
+  if (mode === "full" && !capture) return run;
   const trusted = metadata;
   let failed = trusted?.status === "error";
   const sanitize = () => {
+    if (mode === "full") return;
     failed ||= run.error != null;
     const safe = runConfigForMode(
       {
@@ -180,16 +163,18 @@ function protectRun(run: RunTree, mode: TracingMode, metadata?: Record<string, u
   const createChild = run.createChild.bind(run);
   run.createChild = (config) => {
     const safe = runConfigForMode(config as typeof config & Record<string, unknown>, mode);
-    return protectRun(createChild(safe), mode, safe.extra?.metadata);
+    return protectRun(createChild(safe), mode, safe.extra?.metadata, capture);
   };
   const post = run.postRun.bind(run);
   run.postRun = async (...args) => {
     sanitize();
+    if (capture) return capture(run, "post");
     return post(...args);
   };
   const patch = run.patchRun.bind(run);
   run.patchRun = async (...args) => {
     sanitize();
+    if (capture) return capture(run, "patch", args[0]);
     return patch(...args);
   };
   sanitize();

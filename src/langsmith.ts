@@ -7,8 +7,12 @@ import type { StringNodeRule } from "langsmith/anonymizer";
 import type { TurnBuffer, ToolEvent, SubagentEvent, ContentPart } from "./types.js";
 import { buildUsageMetadata, deriveModelInfo } from "./normalize.js";
 import { DEFAULT_TAGS, SKILL_RUN_NAME, TURN_RUN_NAME } from "./constants.js";
-import { codingAgentMetadata, type LSAgentType, skillNameFromTool } from "./metadata.js";
+import { codingAgentMetadata, skillNameFromTool } from "./metadata.js";
+import type { InterleaveOptions } from "./models/interleave.js";
+import type { CodingAgentLLMMetadata, MetaCtx } from "./models/metadata.js";
 import { groupSteps, type Step } from "./conversation-steps.js";
+import { createRunTreeCapture } from "./tracing-engine.js";
+import type { RunTreeCapture, TracingEngineTurnContext } from "./models/tracing-engine.js";
 import * as logger from "./logger.js";
 import { createHash } from "node:crypto";
 
@@ -16,26 +20,6 @@ import { createHash } from "node:crypto";
 
 let client: Client | undefined = undefined;
 let replicas: RunTreeConfig["replicas"] | undefined = undefined;
-let refusedWrite: string | undefined = undefined;
-
-function isWriteRequest(init?: RequestInit): boolean {
-  const method = init?.method?.toUpperCase() ?? "GET";
-  return method !== "GET" && method !== "HEAD";
-}
-
-const fetchRecordingRefusedWrites: typeof fetch = async (input, init) => {
-  const request = `${init?.method ?? "GET"} ${typeof input === "string" ? input : String(input)}`;
-  try {
-    const response = await fetch(input, init);
-    if (isWriteRequest(init) && !response.ok) {
-      refusedWrite ??= `${request} answered ${response.status}`;
-    }
-    return response;
-  } catch (err) {
-    if (isWriteRequest(init)) refusedWrite ??= `${request} failed: ${err}`;
-    throw err;
-  }
-};
 
 export function initTracing(
   apiKey?: string,
@@ -56,7 +40,6 @@ export function initTracing(
       apiKey: apiKey || undefined,
       apiUrl,
       anonymizer,
-      fetchImplementation: fetchRecordingRefusedWrites,
     });
   replicas = providedReplicas;
   return client;
@@ -73,12 +56,12 @@ export async function flushPendingTraces(): Promise<void> {
 }
 
 export async function uploadTurn(options: BuildTurnOptions): Promise<boolean> {
-  refusedWrite = undefined;
+  if (!options.tracingEngine) {
+    logger.warn("Shared trace capture is unavailable; keeping the turn pending");
+    return false;
+  }
   await buildTurnRuns(options);
-  await flushPendingTraces();
-  if (refusedWrite === undefined) return true;
-  logger.warn(`Keeping the turn for a later retry: ${refusedWrite}`);
-  return false;
+  return true;
 }
 
 // ─── Dotted-order helpers (exported utilities) ───────────────────────────────
@@ -127,6 +110,7 @@ export interface BuildTurnOptions {
   systemPrompt?: string;
   /** True interleaved step sequence from Cursor's DB; enables per-round llm/tool fidelity. */
   steps?: Step[];
+  tracingEngine?: TracingEngineTurnContext;
 }
 
 function uuidFromDigest(hex: string): string {
@@ -143,16 +127,6 @@ function uuidFromDigest(hex: string): string {
 function stableRunId(ctx: MetaCtx, key: string): string {
   const seed = `${ctx.threadId}\u0000${ctx.turnId ?? ""}\u0000${key}`;
   return uuidFromDigest(createHash("sha256").update(seed).digest("hex"));
-}
-
-/** Per-turn context shared by every run's coding-agent-v1 metadata. */
-interface MetaCtx {
-  agentType: LSAgentType;
-  threadId: string;
-  base?: Record<string, unknown>;
-  turnId?: string;
-  turnNumber?: number;
-  runtimeVersion?: string;
 }
 
 /** Prepend a system message to an llm run's input messages, when one was recovered. */
@@ -259,6 +233,13 @@ export async function buildTurnRuns(options: BuildTurnOptions): Promise<void> {
     turnNumber: turnNum,
     runtimeVersion: options.runtimeVersion,
   };
+  const capture = options.tracingEngine
+    ? createRunTreeCapture({
+        ...options.tracingEngine,
+        turnId: buffer.generation_id,
+        privacyMode: mode,
+      })
+    : undefined;
   const promptText = buffer.prompt ?? "";
   const userContent = userMessageContent(promptText, options.attachments ?? []);
 
@@ -280,19 +261,28 @@ export async function buildTurnRuns(options: BuildTurnOptions): Promise<void> {
       project_name: project,
       start_time: buffer.startMs,
       tags: DEFAULT_TAGS,
-      extra: { metadata: codingAgentMetadata({ ...ctx, runSpecific: { model: buffer.model } }) },
+      extra: {
+        metadata: codingAgentMetadata({
+          ...ctx,
+          runType: "root",
+          ...(buffer.model === undefined ? {} : { runSpecific: { model: buffer.model } }),
+        }),
+      },
     },
     mode,
+    capture,
   );
   await turnRun.postRun();
 
   // 2. llm + tool runs, created in invocation order. Turn-level usage goes on one llm run.
   const { ls_model_name, ls_provider } = deriveModelInfo(buffer.model);
   const llmName = ls_provider ?? ls_model_name;
-  const llmMeta = {
-    ls_provider,
-    ls_model_name,
-    ls_invocation_params: { model: ls_model_name },
+  const llmMeta: CodingAgentLLMMetadata = {
+    modelName: ls_model_name,
+    providerMetadata: {
+      ...(ls_provider ? { ls_provider } : {}),
+      ls_invocation_params: { model: ls_model_name },
+    },
   };
   const usageMetadata = buildUsageMetadata(buffer.usage);
   const thinking = buffer.thoughts.map((t) => ({ type: "thinking", thinking: t.text }));
@@ -314,6 +304,7 @@ export async function buildTurnRuns(options: BuildTurnOptions): Promise<void> {
           usageMetadata,
           finalTextBlocks,
           turnEndMs,
+          capture,
         })
       : false;
 
@@ -332,7 +323,9 @@ export async function buildTurnRuns(options: BuildTurnOptions): Promise<void> {
       extra: {
         metadata: codingAgentMetadata({
           ...ctx,
-          runSpecific: { ...llmMeta, usage_metadata: usageMetadata },
+          runType: "llm",
+          ...llmMeta,
+          usageMetadata,
         }),
       },
     });
@@ -356,7 +349,9 @@ export async function buildTurnRuns(options: BuildTurnOptions): Promise<void> {
       outputs: { messages: [{ role: "assistant", content: assistantDecision }] },
       start_time: buffer.startMs,
       end_time: Math.max(buffer.startMs, firstCallStart),
-      extra: { metadata: codingAgentMetadata({ ...ctx, runSpecific: { ...llmMeta } }) },
+      extra: {
+        metadata: codingAgentMetadata({ ...ctx, runType: "llm", ...llmMeta }),
+      },
     });
     await decideRun.postRun();
 
@@ -364,7 +359,7 @@ export async function buildTurnRuns(options: BuildTurnOptions): Promise<void> {
     for (const [i, tool] of buffer.tools.entries())
       await postToolRun(tool, turnRun, ctx, `tool:${i}:${tool.tool_use_id}`);
     for (const [i, sub] of buffer.subagents.entries())
-      await postSubagentRun(sub, turnRun, ctx, `subagent:${i}:${sub.subagent_id}`);
+      await postSubagentRun(sub, turnRun, ctx, `subagent:${i}:${sub.subagent_id}`, capture);
 
     // 2b. "answer" llm — tool results fed back in, produces the final text.
     const answerRun = turnRun.createChild({
@@ -387,7 +382,9 @@ export async function buildTurnRuns(options: BuildTurnOptions): Promise<void> {
       extra: {
         metadata: codingAgentMetadata({
           ...ctx,
-          runSpecific: { ...llmMeta, usage_metadata: usageMetadata },
+          runType: "llm",
+          ...llmMeta,
+          usageMetadata,
         }),
       },
     });
@@ -403,21 +400,6 @@ export async function buildTurnRuns(options: BuildTurnOptions): Promise<void> {
   logger.log(
     `Traced ${turnName} (conv=${conversationId}): ${buffer.tools.length} tool(s), ${buffer.subagents.length} subagent(s)`,
   );
-}
-
-/** Inputs for the interleaved per-step renderer. */
-interface InterleaveOptions {
-  turnRun: RunTree;
-  ctx: MetaCtx;
-  steps: Step[];
-  buffer: TurnBuffer;
-  userContent: ContentPart[];
-  systemPrompt?: string;
-  llmName: string;
-  llmMeta: Record<string, unknown>;
-  usageMetadata: ReturnType<typeof buildUsageMetadata>;
-  finalTextBlocks: Array<Record<string, unknown>>;
-  turnEndMs: number;
 }
 
 /** Thinking content blocks for the rounds with non-empty text. */
@@ -478,7 +460,13 @@ async function postInterleavedRounds(p: InterleaveOptions): Promise<boolean> {
       outputs: { messages: [{ role: "assistant", content: assistantContent }] },
       start_time: llmStart,
       end_time: llmEnd,
-      extra: { metadata: codingAgentMetadata({ ...p.ctx, runSpecific: { ...p.llmMeta } }) },
+      extra: {
+        metadata: codingAgentMetadata({
+          ...p.ctx,
+          runType: "llm",
+          ...p.llmMeta,
+        }),
+      },
     });
     await llmRun.postRun();
 
@@ -493,7 +481,7 @@ async function postInterleavedRounds(p: InterleaveOptions): Promise<boolean> {
 
   // Subagents render as nested chains, ordered in the UI by their own start_time.
   for (const [i, sub] of p.buffer.subagents.entries())
-    await postSubagentRun(sub, p.turnRun, p.ctx, `subagent:${i}:${sub.subagent_id}`);
+    await postSubagentRun(sub, p.turnRun, p.ctx, `subagent:${i}:${sub.subagent_id}`, p.capture);
 
   // Final answer llm — carries turn usage; folds in any trailing text-only round.
   const answerContent = [...thinkingBlocks(finalRound?.thinking ?? []), ...p.finalTextBlocks];
@@ -508,7 +496,9 @@ async function postInterleavedRounds(p: InterleaveOptions): Promise<boolean> {
     extra: {
       metadata: codingAgentMetadata({
         ...p.ctx,
-        runSpecific: { ...p.llmMeta, usage_metadata: p.usageMetadata },
+        runType: "llm",
+        ...p.llmMeta,
+        usageMetadata: p.usageMetadata,
       }),
     },
   });
@@ -542,6 +532,7 @@ async function postToolRun(
     extra: {
       metadata: codingAgentMetadata({
         ...ctx,
+        runType: "tool",
         clearSubagent,
         // run name == native tool name, so ls_tool_name is omitted; tool_name kept as alias.
         toolName: tool.name,
@@ -596,6 +587,7 @@ async function postSkillRun(
     extra: {
       metadata: codingAgentMetadata({
         ...ctx,
+        runType: "tool",
         clearSubagent,
         // Equal names are what suppress `ls_tool_name`.
         toolName: SKILL_RUN_NAME,
@@ -614,6 +606,7 @@ async function postSubagentRun(
   parent: RunTree,
   ctx: MetaCtx,
   key: string,
+  capture?: RunTreeCapture,
 ): Promise<void> {
   const isError = sub.status != null && sub.status !== "completed";
   const tools = sub.tools ?? [];
@@ -625,10 +618,12 @@ async function postSubagentRun(
   const runName = sub.subagent_type ? `${sub.subagent_type} Subagent` : "Subagent";
   const subModel = deriveModelInfo(sub.model);
   const llmName = subModel.ls_provider ?? subModel.ls_model_name;
-  const llmMeta = {
-    ls_provider: subModel.ls_provider,
-    ls_model_name: subModel.ls_model_name,
-    ls_invocation_params: { model: subModel.ls_model_name },
+  const llmMeta: CodingAgentLLMMetadata = {
+    modelName: subModel.ls_model_name,
+    providerMetadata: {
+      ...(subModel.ls_provider ? { ls_provider: subModel.ls_provider } : {}),
+      ls_invocation_params: { model: subModel.ls_model_name },
+    },
   };
   const subagentCtx: MetaCtx = { ...ctx, agentType: "subagent" };
 
@@ -655,6 +650,7 @@ async function postSubagentRun(
       extra: {
         metadata: codingAgentMetadata({
           ...subagentCtx,
+          runType: "subagent",
           subagentId: sub.subagent_id,
           subagentType: sub.subagent_type,
           runSpecific: {
@@ -679,9 +675,9 @@ async function postSubagentRun(
       },
     },
     sub.tracingMode === "full" ? "full" : "metadata",
+    capture,
   );
   await subagentRun.postRun();
-
   // Role "system": the task is the orchestrator's instruction, not a human turn.
   const baseMessages = withSystem([{ role: "system", content: sub.task }], sub.systemPrompt);
   const finalBlocks = sub.resultText ? [{ type: "text", text: sub.resultText }] : [];
@@ -700,8 +696,9 @@ async function postSubagentRun(
       extra: {
         metadata: codingAgentMetadata({
           ...subagentCtx,
+          runType: "llm",
           clearSubagent: true,
-          runSpecific: { ...llmMeta },
+          ...llmMeta,
         }),
       },
     });
@@ -725,8 +722,9 @@ async function postSubagentRun(
     extra: {
       metadata: codingAgentMetadata({
         ...subagentCtx,
+        runType: "llm",
         clearSubagent: true,
-        runSpecific: { ...llmMeta },
+        ...llmMeta,
       }),
     },
   });
@@ -752,8 +750,9 @@ async function postSubagentRun(
     extra: {
       metadata: codingAgentMetadata({
         ...subagentCtx,
+        runType: "llm",
         clearSubagent: true,
-        runSpecific: { ...llmMeta },
+        ...llmMeta,
       }),
     },
   });

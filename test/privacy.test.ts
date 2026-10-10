@@ -15,12 +15,14 @@ it("passes full configs through without filtering", () => {
 it("projects trusted metadata despite custom collisions and drops untyped values", () => {
   const metadata = codingAgentMetadata({
     agentType: "root",
+    runType: "tool",
     threadId: "thread",
     turnId: "turn",
     turnNumber: 1,
     toolName: "Read",
     runName: "Read",
-    runSpecific: { ls_model_name: "model", usage_metadata: { total_tokens: 2 } },
+    modelName: "model",
+    usageMetadata: { total_tokens: 2 },
     base: {
       thread_id: "PRIVATE",
       ls_model_name: "PRIVATE",
@@ -46,6 +48,7 @@ it("projects trusted metadata despite custom collisions and drops untyped values
 it("keeps ls_skill_name on a muted Skill run, so skill usage still counts", () => {
   const metadata = codingAgentMetadata({
     agentType: "root",
+    runType: "tool",
     threadId: "thread",
     toolName: "Skill",
     runName: "Skill",

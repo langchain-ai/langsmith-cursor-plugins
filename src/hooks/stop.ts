@@ -12,9 +12,16 @@ import { atomicUpdateState, getTurnBuffer } from "../state.js";
 import { reduceStop, reduceUploadSettled } from "../reducer.js";
 import { runSweep } from "../sweep.js";
 import { initTracing, uploadTurn } from "../langsmith.js";
+import {
+  createCursorTracingSession,
+  parseCursorEngineWorkerArguments,
+  runCursorEngineWorker,
+} from "../tracing-engine.js";
+import { originFromConfig } from "../turn-origin.js";
 import { resolveTurnAttachments } from "../attachments.js";
 import { resolveSystemPrompts } from "../system-prompt.js";
 import { resolveTurnSteps } from "../conversation-steps.js";
+import { CURSOR_ENGINE_WORKER_FLAG } from "../constants.js";
 import { error, debug, warn } from "../logger.js";
 import type { ContentPart, StopInput, TracingState, TurnBuffer } from "../types.js";
 
@@ -67,6 +74,15 @@ async function main(): Promise<void> {
     config.redact,
     config.redactExtraRules,
   );
+  const sessionId = input.session_id ?? input.conversation_id;
+  const origin = toTrace.origin ?? originFromConfig(config, input);
+  const tracingSession = createCursorTracingSession(
+    config,
+    sessionId,
+    input.workspace_roots?.[0],
+    undefined,
+    origin.project,
+  );
 
   // Best-effort attachment enrichment (read-only DB + disk); never throws, and an
   // empty result leaves the turn unchanged.
@@ -111,13 +127,22 @@ async function main(): Promise<void> {
       buffer: toTrace,
       conversationId: input.conversation_id,
       turnNum,
-      project: config.project,
-      userEmail: input.user_email,
-      customMetadata: config.customMetadata,
-      runtimeVersion: input.cursor_version,
+      project: origin.project,
+      userEmail: origin.userEmail,
+      customMetadata: origin.customMetadata,
+      runtimeVersion: origin.runtimeVersion,
       attachments,
       systemPrompt,
       steps,
+      ...(tracingSession
+        ? {
+            tracingEngine: {
+              ...tracingSession,
+              sessionId,
+              closureState: "authoritative" as const,
+            },
+          }
+        : {}),
     });
   } catch (err) {
     error(`Failed to build turn runs: ${err}`);
@@ -126,11 +151,22 @@ async function main(): Promise<void> {
   await sweep(uploaded ? clearThisTurnsPendingUpload : undefined);
 }
 
-export const finished = main().catch((err) => {
-  try {
-    warn(`stop hook error: ${err}`);
-  } catch {
-    /* last resort */
-  }
-  process.exit(0);
-});
+async function runEngineWorker(): Promise<void> {
+  const worker = parseCursorEngineWorkerArguments(process.argv.slice(3));
+  await runCursorEngineWorker(worker.sessionId, worker.cwd, worker.project);
+}
+
+export const finished =
+  process.argv[2] === CURSOR_ENGINE_WORKER_FLAG
+    ? runEngineWorker().catch((err) => {
+        console.error(`[langsmith] trace worker failed: ${String(err)}`);
+        process.exitCode = 1;
+      })
+    : main().catch((err) => {
+        try {
+          warn(`stop hook error: ${err}`);
+        } catch {
+          /* last resort */
+        }
+        process.exit(0);
+      });

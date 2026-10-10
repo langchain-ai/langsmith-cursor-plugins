@@ -5,6 +5,14 @@ var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
 var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __esm = (fn, res, err) => function __init() {
+  if (err) throw err[0];
+  try {
+    return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
+  } catch (e) {
+    throw err = [e], e;
+  }
+};
 var __commonJS = (cb, mod) => function __require() {
   try {
     return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
@@ -28,6 +36,569 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
   mod
 ));
+
+// dist/src/constants.js
+var TURN_RUN_NAME, SKILL_RUN_NAME, DEFAULT_TAGS, DEFAULT_PROJECT, CURSOR_INTEGRATION, CODING_AGENT_METADATA_OPTIONS, CURSOR_ENGINE_WORKER_FLAG, CURSOR_ENGINE_WORKER_ENTRY, CURSOR_ENGINE_WORKER_ARGUMENT_LIMITS, CONTROL_CHARACTER_PATTERN, CURSOR_RUN_POST_EVENT_KIND, CURSOR_RUN_PATCH_EVENT_KIND, CURSOR_ENGINE_NODE_SCRIPT, CURSOR_ENGINE_PATCH_FIELDS, READ_TOOLS, DEFAULT_SWEEP_IDLE_MINUTES, MAX_UPLOAD_ATTEMPTS, LEADING_BYTE_ORDER_MARKS;
+var init_constants = __esm({
+  "dist/src/constants.js"() {
+    "use strict";
+    TURN_RUN_NAME = "Cursor Turn";
+    SKILL_RUN_NAME = "Skill";
+    DEFAULT_TAGS = ["cursor", "coding-agent"];
+    DEFAULT_PROJECT = "cursor";
+    CURSOR_INTEGRATION = "cursor";
+    CODING_AGENT_METADATA_OPTIONS = /* @__PURE__ */ Symbol("cursor.metadataOptions");
+    CURSOR_ENGINE_WORKER_FLAG = "--cursor-engine-worker";
+    CURSOR_ENGINE_WORKER_ENTRY = "stop";
+    CURSOR_ENGINE_WORKER_ARGUMENT_LIMITS = {
+      sessionId: 1024,
+      cwd: 4096,
+      project: 512
+    };
+    CONTROL_CHARACTER_PATTERN = /[\u0000-\u001f\u007f]/u;
+    CURSOR_RUN_POST_EVENT_KIND = "run-post";
+    CURSOR_RUN_PATCH_EVENT_KIND = "run-patch";
+    CURSOR_ENGINE_NODE_SCRIPT = /\.(?:c|m)?js$|\.ts$/;
+    CURSOR_ENGINE_PATCH_FIELDS = [
+      "inputs",
+      "outputs",
+      "end_time",
+      "error",
+      "tags",
+      "serialized",
+      "events",
+      "reference_example_id"
+    ];
+    READ_TOOLS = /* @__PURE__ */ new Set(["read_file_v2", "ReadFile", "Read"]);
+    DEFAULT_SWEEP_IDLE_MINUTES = 360;
+    MAX_UPLOAD_ATTEMPTS = 3;
+    LEADING_BYTE_ORDER_MARKS = /^\uFEFF+/;
+  }
+});
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/settings/constants.js
+var COMMON_BOOLEAN_SETTINGS;
+var init_constants2 = __esm({
+  "node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/settings/constants.js"() {
+    COMMON_BOOLEAN_SETTINGS = {
+      enabled: { default: false, restrictive: false },
+      defaultMuted: { default: false, restrictive: true }
+    };
+  }
+});
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/settings/common-config.js
+import { lstatSync, readFileSync, statSync } from "node:fs";
+function object(value) {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+function invalid(raw) {
+  return {
+    status: "invalid",
+    common: { enabled: false, defaultMuted: true },
+    ...raw === void 0 ? {} : { raw },
+    diagnostics: [
+      "Invalid or unreadable common config; ordinary fields discarded, privacy switches restricted."
+    ]
+  };
+}
+function parseReplica(value) {
+  if (!object(value))
+    return void 0;
+  const replica = {};
+  for (const [canonical, alias] of [
+    ["api_url", "apiUrl"],
+    ["api_key", "apiKey"],
+    ["project", "projectName"]
+  ]) {
+    const selected = Object.hasOwn(value, canonical) ? canonical : alias;
+    if (Object.hasOwn(value, selected)) {
+      const entry = value[selected];
+      if (typeof entry !== "string")
+        return void 0;
+      replica[canonical] = entry;
+    }
+  }
+  if (Object.hasOwn(value, "updates")) {
+    if (!object(value.updates))
+      return void 0;
+    replica.updates = value.updates;
+  }
+  return replica;
+}
+function parseCommonConfig(value) {
+  if (!object(value))
+    return invalid();
+  const common = {};
+  const diagnostics = [];
+  for (const field2 of ["enabled", "defaultMuted"]) {
+    if (!Object.hasOwn(value, field2))
+      continue;
+    const entry = value[field2];
+    common[field2] = typeof entry === "boolean" ? entry : COMMON_BOOLEAN_SETTINGS[field2].restrictive;
+    if (typeof entry !== "boolean")
+      diagnostics.push(`Invalid ${field2}; using restrictive value.`);
+  }
+  for (const field2 of ["api_key", "api_url", "project"]) {
+    if (!Object.hasOwn(value, field2))
+      continue;
+    if (typeof value[field2] !== "string")
+      return invalid(value);
+    common[field2] = value[field2];
+  }
+  if (Object.hasOwn(value, "redact")) {
+    if (typeof value.redact !== "boolean")
+      return invalid(value);
+    common.redact = value.redact;
+  }
+  if (Object.hasOwn(value, "metadata")) {
+    if (!object(value.metadata))
+      return invalid(value);
+    common.metadata = value.metadata;
+  }
+  if (Object.hasOwn(value, "replicas")) {
+    if (!Array.isArray(value.replicas))
+      return invalid(value);
+    const replicas2 = [];
+    for (const entry of value.replicas) {
+      const replica = parseReplica(entry);
+      if (replica === void 0)
+        return invalid(value);
+      replicas2.push(replica);
+    }
+    common.replicas = replicas2;
+  }
+  if (Object.hasOwn(value, "redact_extra_rules")) {
+    if (!Array.isArray(value.redact_extra_rules))
+      return invalid(value);
+    const rules = [];
+    for (const rule of value.redact_extra_rules) {
+      if (!object(rule) || typeof rule.pattern !== "string" || !Object.hasOwn(rule, "pattern")) {
+        return invalid(value);
+      }
+      const hasReplace = Object.hasOwn(rule, "replace");
+      if (hasReplace && typeof rule.replace !== "string")
+        return invalid(value);
+      try {
+        new RegExp(rule.pattern, "g");
+      } catch {
+        return invalid(value);
+      }
+      rules.push({
+        pattern: rule.pattern,
+        ...hasReplace ? { replace: rule.replace } : {}
+      });
+    }
+    common.redact_extra_rules = rules;
+  }
+  return { status: "valid", common, raw: value, diagnostics };
+}
+function readCommonConfigFile(path3) {
+  try {
+    if (!statSync(path3).isFile())
+      return invalid();
+  } catch (error2) {
+    if (error2.code === "ENOENT") {
+      try {
+        lstatSync(path3);
+      } catch (lstatError) {
+        if (lstatError.code === "ENOENT") {
+          return { status: "absent", common: {}, diagnostics: [] };
+        }
+      }
+    }
+    return invalid();
+  }
+  try {
+    return parseCommonConfig(JSON.parse(readFileSync(path3, "utf8")));
+  } catch {
+    return invalid();
+  }
+}
+function resolveField(sources, field2) {
+  return sources.find((source) => source[field2] !== void 0)?.[field2];
+}
+function mergeCommonConfig(sources, options = {}) {
+  const { harness = {}, root = {}, user = {}, userRoot = {}, env = {}, defaults: defaults2 = {} } = sources;
+  const files = [harness, root, user, userRoot];
+  const precedence = [env, ...files, defaults2];
+  const switches = options.envFirst ? precedence : [...files, env, defaults2];
+  const merged = { enabled: false, defaultMuted: false, redact: true };
+  for (const field2 of ["enabled", "defaultMuted"]) {
+    merged[field2] = resolveField(switches, field2) ?? COMMON_BOOLEAN_SETTINGS[field2].default;
+  }
+  merged.api_key = resolveField(precedence, "api_key");
+  merged.api_url = resolveField(precedence, "api_url");
+  merged.project = resolveField(precedence, "project");
+  merged.replicas = resolveField(precedence, "replicas");
+  merged.redact = resolveField(precedence, "redact") ?? true;
+  merged.redact_extra_rules = resolveField(precedence, "redact_extra_rules");
+  if (precedence.some((source) => source.metadata !== void 0)) {
+    merged.metadata = [...precedence].reverse().reduce((metadata, source) => ({ ...metadata, ...source.metadata }), {});
+  }
+  return merged;
+}
+function toSdkReplicas(replicas2) {
+  return replicas2?.map((replica) => ({
+    ...replica.api_url === void 0 ? {} : { apiUrl: replica.api_url },
+    ...replica.api_key === void 0 ? {} : { apiKey: replica.api_key },
+    ...replica.project === void 0 ? {} : { projectName: replica.project },
+    ...replica.updates === void 0 ? {} : { updates: replica.updates }
+  }));
+}
+var init_common_config = __esm({
+  "node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/settings/common-config.js"() {
+    init_constants2();
+  }
+});
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/settings/index.js
+var init_settings = __esm({
+  "node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/settings/index.js"() {
+    init_constants2();
+    init_common_config();
+  }
+});
+
+// dist/src/logger.js
+import { appendFileSync, mkdirSync, statSync as statSync2, renameSync } from "node:fs";
+import { dirname } from "node:path";
+import { homedir } from "node:os";
+function initLogger(debug2) {
+  debugEnabled = debug2;
+  mkdirSync(dirname(LOG_FILE), { recursive: true });
+}
+function rotateIfNeeded() {
+  try {
+    if (statSync2(LOG_FILE).size >= MAX_LOG_BYTES) {
+      renameSync(LOG_FILE, `${LOG_FILE}.1`);
+    }
+  } catch {
+  }
+}
+function write(level, message) {
+  const timestamp = (/* @__PURE__ */ new Date()).toISOString().replace("T", " ").replace("Z", "");
+  const line = `${timestamp} [${level}] ${message}
+`;
+  try {
+    rotateIfNeeded();
+    appendFileSync(LOG_FILE, line);
+  } catch {
+  }
+}
+function log(message) {
+  write("INFO", message);
+}
+function warn(message) {
+  write("WARN", message);
+}
+function error(message) {
+  write("ERROR", message);
+}
+function debug(message) {
+  if (debugEnabled) {
+    write("DEBUG", message);
+  }
+}
+var MAX_LOG_BYTES, LOG_FILE, debugEnabled;
+var init_logger = __esm({
+  "dist/src/logger.js"() {
+    "use strict";
+    MAX_LOG_BYTES = 5 * 1024 * 1024;
+    LOG_FILE = process.env.LANGSMITH_CURSOR_LOG_FILE ?? `${homedir()}/.cursor/langsmith-hook.log`;
+    debugEnabled = false;
+  }
+});
+
+// dist/src/config.js
+import { userInfo } from "node:os";
+import { join } from "node:path";
+import { execSync } from "node:child_process";
+import { homedir as homedir2 } from "node:os";
+function parseBoolean(value) {
+  if (typeof value === "boolean")
+    return value;
+  if (typeof value !== "string")
+    return void 0;
+  const v = value.trim().toLowerCase();
+  if (["1", "true", "yes", "on"].includes(v))
+    return true;
+  if (["0", "false", "no", "off"].includes(v))
+    return false;
+  return void 0;
+}
+function parsePositiveNumber(value) {
+  if (typeof value !== "string" || value.trim().length === 0)
+    return void 0;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : void 0;
+}
+function parseJson(value) {
+  if (typeof value !== "string" || value.trim().length === 0)
+    return void 0;
+  try {
+    return JSON.parse(value);
+  } catch {
+    return void 0;
+  }
+}
+function isRedactRule(rule) {
+  if (typeof rule !== "object" || rule === null)
+    return false;
+  const r = rule;
+  return typeof r.pattern === "string" && (r.replace === void 0 || typeof r.replace === "string");
+}
+function parseRedactExtraRules(value) {
+  const parsed = parseJson(value);
+  if (parsed === void 0)
+    return void 0;
+  if (!Array.isArray(parsed)) {
+    error("LANGSMITH_CURSOR_REDACT_EXTRA must be a JSON array of { pattern, replace }.");
+    return void 0;
+  }
+  const valid = [];
+  for (const rule of parsed) {
+    if (!isRedactRule(rule)) {
+      error("Skipping invalid LANGSMITH_CURSOR_REDACT_EXTRA rule.");
+      continue;
+    }
+    valid.push(rule);
+  }
+  return parsed.length === 0 || valid.length > 0 ? valid : void 0;
+}
+function readConfigFile(file) {
+  const result = readCommonConfigFile(file);
+  for (const diagnostic of result.diagnostics)
+    error(diagnostic);
+  const extensions = {};
+  const raw = result.raw;
+  if (raw) {
+    for (const field2 of ["attachments", "system_prompt"]) {
+      if (!Object.hasOwn(raw, field2))
+        continue;
+      if (typeof raw[field2] === "boolean")
+        extensions[field2] = raw[field2];
+      else
+        error(`Invalid Cursor config extension ${field2}; ignoring field.`);
+    }
+    if (Object.hasOwn(raw, "sweep_idle_minutes")) {
+      const minutes = raw.sweep_idle_minutes;
+      if (typeof minutes === "number" && Number.isFinite(minutes) && minutes > 0)
+        extensions.sweep_idle_minutes = minutes;
+      else
+        error("Invalid Cursor config extension sweep_idle_minutes; ignoring field.");
+    }
+    if (Object.hasOwn(raw, "cursor_db_path")) {
+      if (typeof raw.cursor_db_path === "string")
+        extensions.cursor_db_path = raw.cursor_db_path;
+      else
+        error("Invalid Cursor config extension cursor_db_path; ignoring field.");
+    }
+  }
+  return { common: result.common, extensions };
+}
+function parseStrictBoolean(value) {
+  if (value.toLowerCase() === "true")
+    return true;
+  if (value.toLowerCase() === "false")
+    return false;
+  return void 0;
+}
+function envBoolean(field2) {
+  const setting = BOOLEAN_SETTINGS[field2];
+  const env = process.env[setting.env];
+  if (env === void 0)
+    return void 0;
+  return setting.parse(env) ?? setting.restrictive;
+}
+function getEnv(suffix) {
+  return process.env[`LANGSMITH_CURSOR_${suffix}`] ?? process.env[`LANGSMITH_${suffix}`];
+}
+function normalizeReplicas(replicas2) {
+  if (!Array.isArray(replicas2) || replicas2.some((r) => !r || typeof r !== "object"))
+    return void 0;
+  return replicas2.map((r) => Array.isArray(r) ? r : {
+    ...r.api_url || r.apiUrl ? { apiUrl: r.api_url ?? r.apiUrl } : {},
+    ...r.api_key || r.apiKey ? { apiKey: r.api_key ?? r.apiKey } : {},
+    ...r.project || r.projectName ? { projectName: r.project ?? r.projectName } : {},
+    ...r.updates ? { updates: r.updates } : {}
+  });
+}
+function parseRepoName(remoteUrl) {
+  for (const [provider2, regex] of Object.entries(GIT_PROVIDERS_REGEX)) {
+    const match = remoteUrl.match(regex);
+    if (match)
+      return { provider: provider2, name: match[1] };
+  }
+  return void 0;
+}
+function getRepoName(cwd) {
+  try {
+    const output = execSync("git remote -v", {
+      cwd,
+      encoding: "utf-8",
+      timeout: 5e3,
+      stdio: ["ignore", "pipe", "ignore"]
+    });
+    const remotes = [];
+    for (const line of output.trim().split("\n").filter(Boolean)) {
+      const parts = line.split(/\s+/);
+      if (parts.length >= 2 && line.includes("(fetch)")) {
+        remotes.push({ name: parts[0], url: parts[1] });
+      }
+    }
+    const origin = remotes.find((r) => r.name === "origin");
+    if (origin) {
+      const name = parseRepoName(origin.url + " ");
+      if (name)
+        return name;
+    }
+    for (const remote of remotes) {
+      const name = parseRepoName(remote.url + " ");
+      if (name)
+        return name;
+    }
+  } catch {
+  }
+  return void 0;
+}
+function getGitInfo(cwd) {
+  const result = {};
+  try {
+    const branch = execSync("git rev-parse --abbrev-ref HEAD", {
+      cwd,
+      encoding: "utf-8",
+      timeout: 5e3,
+      stdio: ["ignore", "pipe", "ignore"]
+    }).trim();
+    if (branch && branch !== "HEAD")
+      result.branch = branch;
+  } catch {
+  }
+  try {
+    const commit = execSync("git rev-parse HEAD", {
+      cwd,
+      encoding: "utf-8",
+      timeout: 5e3,
+      stdio: ["ignore", "pipe", "ignore"]
+    }).trim();
+    if (commit)
+      result.commit = commit;
+  } catch {
+  }
+  return result;
+}
+function loadConfig(options) {
+  const cwd = options?.cwd ?? process.env.CURSOR_PROJECT_DIR ?? process.cwd();
+  const userRootFile = readConfigFile(join(homedir2(), ".langsmith-plugins.json"));
+  const globalFile = readConfigFile(join(homedir2(), ".cursor", "langsmith.json"));
+  const rootFile = readConfigFile(join(cwd, "langsmith-plugins.json"));
+  const localFile = readConfigFile(join(cwd, ".cursor", "langsmith.json"));
+  const envMetadata = parseJson(getEnv("METADATA"));
+  const envReplicas = parseJson(getEnv("RUNS_ENDPOINTS"));
+  const envDebug = parseBoolean(getEnv("DEBUG"));
+  const common = mergeCommonConfig({
+    harness: localFile.common,
+    root: rootFile.common,
+    user: globalFile.common,
+    userRoot: userRootFile.common,
+    env: {
+      enabled: envBoolean("enabled"),
+      defaultMuted: envBoolean("defaultMuted"),
+      api_key: getEnv("API_KEY"),
+      api_url: getEnv("ENDPOINT"),
+      project: getEnv("PROJECT"),
+      metadata: envMetadata,
+      redact: parseBoolean(getEnv("REDACT"))
+    },
+    defaults: { api_key: "", api_url: DEFAULT_API_URL, project: DEFAULT_PROJECT }
+  }, { envFirst: true });
+  const { enabled, defaultMuted, redact } = common;
+  const apiKey = common.api_key;
+  const apiUrl = common.api_url;
+  const project = common.project;
+  const debug2 = envDebug ?? false;
+  const replicas2 = normalizeReplicas(envReplicas) ?? toSdkReplicas(common.replicas);
+  const attachmentsEnabled = parseBoolean(getEnv("ATTACHMENTS")) ?? localFile.extensions.attachments ?? rootFile.extensions.attachments ?? globalFile.extensions.attachments ?? userRootFile.extensions.attachments ?? true;
+  const systemPromptEnabled = parseBoolean(getEnv("SYSTEM_PROMPT")) ?? localFile.extensions.system_prompt ?? rootFile.extensions.system_prompt ?? globalFile.extensions.system_prompt ?? userRootFile.extensions.system_prompt ?? true;
+  const sweepIdleMinutes = parsePositiveNumber(getEnv("SWEEP_IDLE_MINUTES")) ?? localFile.extensions.sweep_idle_minutes ?? rootFile.extensions.sweep_idle_minutes ?? globalFile.extensions.sweep_idle_minutes ?? userRootFile.extensions.sweep_idle_minutes ?? DEFAULT_SWEEP_IDLE_MINUTES;
+  const cursorDbPath = getEnv("DB_PATH") ?? localFile.extensions.cursor_db_path ?? rootFile.extensions.cursor_db_path ?? globalFile.extensions.cursor_db_path ?? userRootFile.extensions.cursor_db_path;
+  const redactExtraRules = parseRedactExtraRules(getEnv("REDACT_EXTRA")) ?? common.redact_extra_rules;
+  const stateFilePath = process.env.LANGSMITH_CURSOR_STATE_FILE ?? join(homedir2(), ".cursor", "langsmith-state.json");
+  const baseMetadata = { cwd };
+  if (LS_INTEGRATION_VERSION)
+    baseMetadata.ls_integration_version = LS_INTEGRATION_VERSION;
+  const repo = getRepoName(cwd);
+  if (repo) {
+    baseMetadata.repository_name = repo.name;
+    baseMetadata.repository_provider = repo.provider;
+    const host = PROVIDER_HOSTS[repo.provider];
+    if (host)
+      baseMetadata.repository_url = `https://${host}/${repo.name}`;
+  }
+  const git = getGitInfo(cwd);
+  if (git.branch)
+    baseMetadata.git_branch = git.branch;
+  if (git.commit)
+    baseMetadata.git_commit_sha = git.commit;
+  baseMetadata.local_username = userInfo().username;
+  const customMetadata = { ...baseMetadata, ...common.metadata };
+  if (enabled && !apiKey && (!replicas2 || replicas2.length === 0)) {
+    debug("Config enabled but no API key / replicas resolved");
+  }
+  return {
+    enabled,
+    defaultMuted,
+    apiKey,
+    apiUrl,
+    project,
+    debug: debug2,
+    stateFilePath,
+    replicas: replicas2,
+    customMetadata,
+    attachmentsEnabled,
+    systemPromptEnabled,
+    cursorDbPath,
+    redact,
+    redactExtraRules,
+    sweepIdleMinutes
+  };
+}
+var LS_INTEGRATION_VERSION, PROVIDER_HOSTS, DEFAULT_API_URL, BOOLEAN_SETTINGS, GIT_PROVIDERS_REGEX;
+var init_config = __esm({
+  "dist/src/config.js"() {
+    "use strict";
+    init_settings();
+    init_logger();
+    init_constants();
+    LS_INTEGRATION_VERSION = true ? "0.5.0" : process.env.LANGSMITH_CURSOR_INTEGRATION_VERSION || void 0;
+    PROVIDER_HOSTS = {
+      github: "github.com",
+      gitlab: "gitlab.com",
+      bitbucket: "bitbucket.org",
+      devAzure: "dev.azure.com"
+    };
+    DEFAULT_API_URL = "https://api.smith.langchain.com";
+    BOOLEAN_SETTINGS = {
+      enabled: {
+        env: "TRACE_TO_LANGSMITH",
+        parse: parseBoolean,
+        ...COMMON_BOOLEAN_SETTINGS.enabled
+      },
+      defaultMuted: {
+        env: "LANGSMITH_CURSOR_DEFAULT_MUTED",
+        parse: parseStrictBoolean,
+        ...COMMON_BOOLEAN_SETTINGS.defaultMuted
+      }
+    };
+    GIT_PROVIDERS_REGEX = {
+      github: /[@/](?:github\.com)[:/](.+?)(?:\.git)?\s/,
+      gitlab: /[@/](?:gitlab\.com)[:/](.+?)(?:\.git)?\s/,
+      bitbucket: /[@/](?:bitbucket\.org)[:/](.+?)(?:\.git)?\s/,
+      devAzure: /[@/](?:dev\.azure\.com)[:/](.+?)(?:\.git)?\s/
+    };
+  }
+});
 
 // node_modules/.pnpm/eventemitter3@4.0.7/node_modules/eventemitter3/index.js
 var require_eventemitter3 = __commonJS({
@@ -199,11 +770,11 @@ var require_p_finally = __commonJS({
       onFinally = onFinally || (() => {
       });
       return promise.then(
-        (val) => new Promise((resolve) => {
-          resolve(onFinally());
+        (val) => new Promise((resolve12) => {
+          resolve12(onFinally());
         }).then(() => val),
-        (err) => new Promise((resolve) => {
-          resolve(onFinally());
+        (err) => new Promise((resolve12) => {
+          resolve12(onFinally());
         }).then(() => {
           throw err;
         })
@@ -223,33 +794,33 @@ var require_p_timeout = __commonJS({
         this.name = "TimeoutError";
       }
     };
-    var pTimeout = (promise, milliseconds, fallback) => new Promise((resolve, reject) => {
+    var pTimeout = (promise, milliseconds, fallback) => new Promise((resolve12, reject) => {
       if (typeof milliseconds !== "number" || milliseconds < 0) {
         throw new TypeError("Expected `milliseconds` to be a positive number");
       }
       if (milliseconds === Infinity) {
-        resolve(promise);
+        resolve12(promise);
         return;
       }
       const timer = setTimeout(() => {
         if (typeof fallback === "function") {
           try {
-            resolve(fallback());
+            resolve12(fallback());
           } catch (error2) {
             reject(error2);
           }
           return;
         }
         const message = typeof fallback === "string" ? fallback : `Promise timed out after ${milliseconds} milliseconds`;
-        const timeoutError = fallback instanceof Error ? fallback : new TimeoutError(message);
+        const timeoutError2 = fallback instanceof Error ? fallback : new TimeoutError(message);
         if (typeof promise.cancel === "function") {
           promise.cancel();
         }
-        reject(timeoutError);
+        reject(timeoutError2);
       }, milliseconds);
       pFinally(
         // eslint-disable-next-line promise/prefer-await-to-then
-        promise.then(resolve, reject),
+        promise.then(resolve12, reject),
         () => {
           clearTimeout(timer);
         }
@@ -333,7 +904,7 @@ var require_dist = __commonJS({
     var priority_queue_1 = require_priority_queue();
     var empty = () => {
     };
-    var timeoutError = new p_timeout_1.TimeoutError();
+    var timeoutError2 = new p_timeout_1.TimeoutError();
     var PQueue2 = class extends EventEmitter {
       constructor(options) {
         var _a2, _b, _c, _d;
@@ -389,14 +960,14 @@ var require_dist = __commonJS({
       _isIntervalPaused() {
         const now = Date.now();
         if (this._intervalId === void 0) {
-          const delay2 = this._intervalEnd - now;
-          if (delay2 < 0) {
+          const delay3 = this._intervalEnd - now;
+          if (delay3 < 0) {
             this._intervalCount = this._carryoverConcurrencyCount ? this._pendingCount : 0;
           } else {
             if (this._timeoutId === void 0) {
               this._timeoutId = setTimeout(() => {
                 this._onResumeInterval();
-              }, delay2);
+              }, delay3);
             }
             return true;
           }
@@ -467,18 +1038,18 @@ var require_dist = __commonJS({
       Adds a sync or async task to the queue. Always returns a promise.
       */
       async add(fn, options = {}) {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve12, reject) => {
           const run = async () => {
             this._pendingCount++;
             this._intervalCount++;
             try {
               const operation = this._timeout === void 0 && options.timeout === void 0 ? fn() : p_timeout_1.default(Promise.resolve(fn()), options.timeout === void 0 ? this._timeout : options.timeout, () => {
                 if (options.throwOnTimeout === void 0 ? this._throwOnTimeout : options.throwOnTimeout) {
-                  reject(timeoutError);
+                  reject(timeoutError2);
                 }
                 return void 0;
               });
-              resolve(await operation);
+              resolve12(await operation);
             } catch (error2) {
               reject(error2);
             }
@@ -491,7 +1062,7 @@ var require_dist = __commonJS({
       }
       /**
           Same as `.add()`, but accepts an array of sync or async functions.
-      
+
           @returns A promise that resolves when all functions are resolved.
           */
       async addAll(functions, options) {
@@ -522,35 +1093,35 @@ var require_dist = __commonJS({
       }
       /**
           Can be called multiple times. Useful if you for example add additional items at a later time.
-      
+
           @returns A promise that settles when the queue becomes empty.
           */
       async onEmpty() {
         if (this._queue.size === 0) {
           return;
         }
-        return new Promise((resolve) => {
+        return new Promise((resolve12) => {
           const existingResolve = this._resolveEmpty;
           this._resolveEmpty = () => {
             existingResolve();
-            resolve();
+            resolve12();
           };
         });
       }
       /**
           The difference with `.onEmpty` is that `.onIdle` guarantees that all work from the queue has finished. `.onEmpty` merely signals that the queue is empty, but it could mean that some promises haven't completed yet.
-      
+
           @returns A promise that settles when the queue becomes empty, and all promises have completed; `queue.size === 0 && queue.pending === 0`.
           */
       async onIdle() {
         if (this._pendingCount === 0 && this._queue.size === 0) {
           return;
         }
-        return new Promise((resolve) => {
+        return new Promise((resolve12) => {
           const existingResolve = this._resolveIdle;
           this._resolveIdle = () => {
             existingResolve();
-            resolve();
+            resolve12();
           };
         });
       }
@@ -562,7 +1133,7 @@ var require_dist = __commonJS({
       }
       /**
           Size of the queue, filtered by the given options.
-      
+
           For example, this can be used to find the number of items remaining in the queue with a specific priority level.
           */
       sizeBy(options) {
@@ -594,24 +1165,16 @@ var require_dist = __commonJS({
   }
 });
 
-// dist/src/constants.js
-var TURN_RUN_NAME = "Cursor Turn";
-var SKILL_RUN_NAME = "Skill";
-var DEFAULT_TAGS = ["cursor", "coding-agent"];
-var DEFAULT_PROJECT = "cursor";
-var DEFAULT_SWEEP_IDLE_MINUTES = 360;
-var MAX_UPLOAD_ATTEMPTS = 3;
-var LEADING_BYTE_ORDER_MARKS = /^\uFEFF+/;
-
 // dist/src/utils/stdin.js
+init_constants();
 function readStdin(stream = process.stdin) {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve12, reject) => {
     let data = "";
     stream.setEncoding("utf-8");
     stream.on("data", (chunk) => data += chunk);
     stream.on("end", () => {
       try {
-        resolve(JSON.parse(data.replace(LEADING_BYTE_ORDER_MARKS, "")));
+        resolve12(JSON.parse(data.replace(LEADING_BYTE_ORDER_MARKS, "")));
       } catch (err) {
         reject(new Error(`Failed to parse hook input: ${err}`));
       }
@@ -620,500 +1183,9 @@ function readStdin(stream = process.stdin) {
   });
 }
 
-// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_628ff1d9f80989defbced4daf654782a/node_modules/@langchain/plugins-base/dist/settings/constants.js
-var COMMON_BOOLEAN_SETTINGS = {
-  enabled: { default: false, restrictive: false },
-  defaultMuted: { default: false, restrictive: true }
-};
-
-// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_628ff1d9f80989defbced4daf654782a/node_modules/@langchain/plugins-base/dist/settings/common-config.js
-import { lstatSync, readFileSync, statSync } from "node:fs";
-function object(value) {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-function invalid(raw) {
-  return {
-    status: "invalid",
-    common: { enabled: false, defaultMuted: true },
-    ...raw === void 0 ? {} : { raw },
-    diagnostics: [
-      "Invalid or unreadable common config; ordinary fields discarded, privacy switches restricted."
-    ]
-  };
-}
-function parseReplica(value) {
-  if (!object(value))
-    return void 0;
-  const replica = {};
-  for (const [canonical, alias] of [
-    ["api_url", "apiUrl"],
-    ["api_key", "apiKey"],
-    ["project", "projectName"]
-  ]) {
-    const selected = Object.hasOwn(value, canonical) ? canonical : alias;
-    if (Object.hasOwn(value, selected)) {
-      const entry = value[selected];
-      if (typeof entry !== "string")
-        return void 0;
-      replica[canonical] = entry;
-    }
-  }
-  if (Object.hasOwn(value, "updates")) {
-    if (!object(value.updates))
-      return void 0;
-    replica.updates = value.updates;
-  }
-  return replica;
-}
-function parseCommonConfig(value) {
-  if (!object(value))
-    return invalid();
-  const common = {};
-  const diagnostics = [];
-  for (const field of ["enabled", "defaultMuted"]) {
-    if (!Object.hasOwn(value, field))
-      continue;
-    const entry = value[field];
-    common[field] = typeof entry === "boolean" ? entry : COMMON_BOOLEAN_SETTINGS[field].restrictive;
-    if (typeof entry !== "boolean")
-      diagnostics.push(`Invalid ${field}; using restrictive value.`);
-  }
-  for (const field of ["api_key", "api_url", "project"]) {
-    if (!Object.hasOwn(value, field))
-      continue;
-    if (typeof value[field] !== "string")
-      return invalid(value);
-    common[field] = value[field];
-  }
-  if (Object.hasOwn(value, "redact")) {
-    if (typeof value.redact !== "boolean")
-      return invalid(value);
-    common.redact = value.redact;
-  }
-  if (Object.hasOwn(value, "metadata")) {
-    if (!object(value.metadata))
-      return invalid(value);
-    common.metadata = value.metadata;
-  }
-  if (Object.hasOwn(value, "replicas")) {
-    if (!Array.isArray(value.replicas))
-      return invalid(value);
-    const replicas2 = [];
-    for (const entry of value.replicas) {
-      const replica = parseReplica(entry);
-      if (replica === void 0)
-        return invalid(value);
-      replicas2.push(replica);
-    }
-    common.replicas = replicas2;
-  }
-  if (Object.hasOwn(value, "redact_extra_rules")) {
-    if (!Array.isArray(value.redact_extra_rules))
-      return invalid(value);
-    const rules = [];
-    for (const rule of value.redact_extra_rules) {
-      if (!object(rule) || typeof rule.pattern !== "string" || !Object.hasOwn(rule, "pattern")) {
-        return invalid(value);
-      }
-      const hasReplace = Object.hasOwn(rule, "replace");
-      if (hasReplace && typeof rule.replace !== "string")
-        return invalid(value);
-      try {
-        new RegExp(rule.pattern, "g");
-      } catch {
-        return invalid(value);
-      }
-      rules.push({
-        pattern: rule.pattern,
-        ...hasReplace ? { replace: rule.replace } : {}
-      });
-    }
-    common.redact_extra_rules = rules;
-  }
-  return { status: "valid", common, raw: value, diagnostics };
-}
-function readCommonConfigFile(path3) {
-  try {
-    if (!statSync(path3).isFile())
-      return invalid();
-  } catch (error2) {
-    if (error2.code === "ENOENT") {
-      try {
-        lstatSync(path3);
-      } catch (lstatError) {
-        if (lstatError.code === "ENOENT") {
-          return { status: "absent", common: {}, diagnostics: [] };
-        }
-      }
-    }
-    return invalid();
-  }
-  try {
-    return parseCommonConfig(JSON.parse(readFileSync(path3, "utf8")));
-  } catch {
-    return invalid();
-  }
-}
-function resolveField(sources, field) {
-  return sources.find((source) => source[field] !== void 0)?.[field];
-}
-function mergeCommonConfig(sources, options = {}) {
-  const { harness = {}, root = {}, user = {}, userRoot = {}, env = {}, defaults: defaults2 = {} } = sources;
-  const files = [harness, root, user, userRoot];
-  const precedence = [env, ...files, defaults2];
-  const switches = options.envFirst ? precedence : [...files, env, defaults2];
-  const merged = { enabled: false, defaultMuted: false, redact: true };
-  for (const field of ["enabled", "defaultMuted"]) {
-    merged[field] = resolveField(switches, field) ?? COMMON_BOOLEAN_SETTINGS[field].default;
-  }
-  merged.api_key = resolveField(precedence, "api_key");
-  merged.api_url = resolveField(precedence, "api_url");
-  merged.project = resolveField(precedence, "project");
-  merged.replicas = resolveField(precedence, "replicas");
-  merged.redact = resolveField(precedence, "redact") ?? true;
-  merged.redact_extra_rules = resolveField(precedence, "redact_extra_rules");
-  if (precedence.some((source) => source.metadata !== void 0)) {
-    merged.metadata = [...precedence].reverse().reduce((metadata, source) => ({ ...metadata, ...source.metadata }), {});
-  }
-  return merged;
-}
-function toSdkReplicas(replicas2) {
-  return replicas2?.map((replica) => ({
-    ...replica.api_url === void 0 ? {} : { apiUrl: replica.api_url },
-    ...replica.api_key === void 0 ? {} : { apiKey: replica.api_key },
-    ...replica.project === void 0 ? {} : { projectName: replica.project },
-    ...replica.updates === void 0 ? {} : { updates: replica.updates }
-  }));
-}
-
-// dist/src/config.js
-import { userInfo } from "node:os";
-import { join } from "node:path";
-import { execSync } from "node:child_process";
-
-// dist/src/logger.js
-import { appendFileSync, mkdirSync, statSync as statSync2, renameSync } from "node:fs";
-import { dirname } from "node:path";
-import { homedir } from "node:os";
-var MAX_LOG_BYTES = 5 * 1024 * 1024;
-var LOG_FILE = process.env.LANGSMITH_CURSOR_LOG_FILE ?? `${homedir()}/.cursor/langsmith-hook.log`;
-var debugEnabled = false;
-function initLogger(debug2) {
-  debugEnabled = debug2;
-  mkdirSync(dirname(LOG_FILE), { recursive: true });
-}
-function rotateIfNeeded() {
-  try {
-    if (statSync2(LOG_FILE).size >= MAX_LOG_BYTES) {
-      renameSync(LOG_FILE, `${LOG_FILE}.1`);
-    }
-  } catch {
-  }
-}
-function write(level, message) {
-  const timestamp = (/* @__PURE__ */ new Date()).toISOString().replace("T", " ").replace("Z", "");
-  const line = `${timestamp} [${level}] ${message}
-`;
-  try {
-    rotateIfNeeded();
-    appendFileSync(LOG_FILE, line);
-  } catch {
-  }
-}
-function log(message) {
-  write("INFO", message);
-}
-function warn(message) {
-  write("WARN", message);
-}
-function error(message) {
-  write("ERROR", message);
-}
-function debug(message) {
-  if (debugEnabled) {
-    write("DEBUG", message);
-  }
-}
-
-// dist/src/config.js
-import { homedir as homedir2 } from "node:os";
-var LS_INTEGRATION_VERSION = true ? "0.5.0" : process.env.LANGSMITH_CURSOR_INTEGRATION_VERSION || void 0;
-var PROVIDER_HOSTS = {
-  github: "github.com",
-  gitlab: "gitlab.com",
-  bitbucket: "bitbucket.org",
-  devAzure: "dev.azure.com"
-};
-var DEFAULT_API_URL = "https://api.smith.langchain.com";
-function parseBoolean(value) {
-  if (typeof value === "boolean")
-    return value;
-  if (typeof value !== "string")
-    return void 0;
-  const v = value.trim().toLowerCase();
-  if (["1", "true", "yes", "on"].includes(v))
-    return true;
-  if (["0", "false", "no", "off"].includes(v))
-    return false;
-  return void 0;
-}
-function parsePositiveNumber(value) {
-  if (typeof value !== "string" || value.trim().length === 0)
-    return void 0;
-  const parsed = Number(value);
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : void 0;
-}
-function parseJson(value) {
-  if (typeof value !== "string" || value.trim().length === 0)
-    return void 0;
-  try {
-    return JSON.parse(value);
-  } catch {
-    return void 0;
-  }
-}
-function isRedactRule(rule) {
-  if (typeof rule !== "object" || rule === null)
-    return false;
-  const r = rule;
-  return typeof r.pattern === "string" && (r.replace === void 0 || typeof r.replace === "string");
-}
-function parseRedactExtraRules(value) {
-  const parsed = parseJson(value);
-  if (parsed === void 0)
-    return void 0;
-  if (!Array.isArray(parsed)) {
-    error("LANGSMITH_CURSOR_REDACT_EXTRA must be a JSON array of { pattern, replace }.");
-    return void 0;
-  }
-  const valid = [];
-  for (const rule of parsed) {
-    if (!isRedactRule(rule)) {
-      error("Skipping invalid LANGSMITH_CURSOR_REDACT_EXTRA rule.");
-      continue;
-    }
-    valid.push(rule);
-  }
-  return parsed.length === 0 || valid.length > 0 ? valid : void 0;
-}
-function readConfigFile(file) {
-  const result = readCommonConfigFile(file);
-  for (const diagnostic of result.diagnostics)
-    error(diagnostic);
-  const extensions = {};
-  const raw = result.raw;
-  if (raw) {
-    for (const field of ["attachments", "system_prompt"]) {
-      if (!Object.hasOwn(raw, field))
-        continue;
-      if (typeof raw[field] === "boolean")
-        extensions[field] = raw[field];
-      else
-        error(`Invalid Cursor config extension ${field}; ignoring field.`);
-    }
-    if (Object.hasOwn(raw, "sweep_idle_minutes")) {
-      const minutes = raw.sweep_idle_minutes;
-      if (typeof minutes === "number" && Number.isFinite(minutes) && minutes > 0)
-        extensions.sweep_idle_minutes = minutes;
-      else
-        error("Invalid Cursor config extension sweep_idle_minutes; ignoring field.");
-    }
-    if (Object.hasOwn(raw, "cursor_db_path")) {
-      if (typeof raw.cursor_db_path === "string")
-        extensions.cursor_db_path = raw.cursor_db_path;
-      else
-        error("Invalid Cursor config extension cursor_db_path; ignoring field.");
-    }
-  }
-  return { common: result.common, extensions };
-}
-function parseStrictBoolean(value) {
-  if (value.toLowerCase() === "true")
-    return true;
-  if (value.toLowerCase() === "false")
-    return false;
-  return void 0;
-}
-var BOOLEAN_SETTINGS = {
-  enabled: {
-    env: "TRACE_TO_LANGSMITH",
-    parse: parseBoolean,
-    ...COMMON_BOOLEAN_SETTINGS.enabled
-  },
-  defaultMuted: {
-    env: "LANGSMITH_CURSOR_DEFAULT_MUTED",
-    parse: parseStrictBoolean,
-    ...COMMON_BOOLEAN_SETTINGS.defaultMuted
-  }
-};
-function envBoolean(field) {
-  const setting = BOOLEAN_SETTINGS[field];
-  const env = process.env[setting.env];
-  if (env === void 0)
-    return void 0;
-  return setting.parse(env) ?? setting.restrictive;
-}
-function getEnv(suffix) {
-  return process.env[`LANGSMITH_CURSOR_${suffix}`] ?? process.env[`LANGSMITH_${suffix}`];
-}
-function normalizeReplicas(replicas2) {
-  if (!Array.isArray(replicas2) || replicas2.some((r) => !r || typeof r !== "object"))
-    return void 0;
-  return replicas2.map((r) => Array.isArray(r) ? r : {
-    ...r.api_url || r.apiUrl ? { apiUrl: r.api_url ?? r.apiUrl } : {},
-    ...r.api_key || r.apiKey ? { apiKey: r.api_key ?? r.apiKey } : {},
-    ...r.project || r.projectName ? { projectName: r.project ?? r.projectName } : {},
-    ...r.updates ? { updates: r.updates } : {}
-  });
-}
-var GIT_PROVIDERS_REGEX = {
-  github: /[@/](?:github\.com)[:/](.+?)(?:\.git)?\s/,
-  gitlab: /[@/](?:gitlab\.com)[:/](.+?)(?:\.git)?\s/,
-  bitbucket: /[@/](?:bitbucket\.org)[:/](.+?)(?:\.git)?\s/,
-  devAzure: /[@/](?:dev\.azure\.com)[:/](.+?)(?:\.git)?\s/
-};
-function parseRepoName(remoteUrl) {
-  for (const [provider, regex] of Object.entries(GIT_PROVIDERS_REGEX)) {
-    const match = remoteUrl.match(regex);
-    if (match)
-      return { provider, name: match[1] };
-  }
-  return void 0;
-}
-function getRepoName(cwd) {
-  try {
-    const output = execSync("git remote -v", {
-      cwd,
-      encoding: "utf-8",
-      timeout: 5e3,
-      stdio: ["ignore", "pipe", "ignore"]
-    });
-    const remotes = [];
-    for (const line of output.trim().split("\n").filter(Boolean)) {
-      const parts = line.split(/\s+/);
-      if (parts.length >= 2 && line.includes("(fetch)")) {
-        remotes.push({ name: parts[0], url: parts[1] });
-      }
-    }
-    const origin = remotes.find((r) => r.name === "origin");
-    if (origin) {
-      const name = parseRepoName(origin.url + " ");
-      if (name)
-        return name;
-    }
-    for (const remote of remotes) {
-      const name = parseRepoName(remote.url + " ");
-      if (name)
-        return name;
-    }
-  } catch {
-  }
-  return void 0;
-}
-function getGitInfo(cwd) {
-  const result = {};
-  try {
-    const branch = execSync("git rev-parse --abbrev-ref HEAD", {
-      cwd,
-      encoding: "utf-8",
-      timeout: 5e3,
-      stdio: ["ignore", "pipe", "ignore"]
-    }).trim();
-    if (branch && branch !== "HEAD")
-      result.branch = branch;
-  } catch {
-  }
-  try {
-    const commit = execSync("git rev-parse HEAD", {
-      cwd,
-      encoding: "utf-8",
-      timeout: 5e3,
-      stdio: ["ignore", "pipe", "ignore"]
-    }).trim();
-    if (commit)
-      result.commit = commit;
-  } catch {
-  }
-  return result;
-}
-function loadConfig(options) {
-  const cwd = options?.cwd ?? process.env.CURSOR_PROJECT_DIR ?? process.cwd();
-  const userRootFile = readConfigFile(join(homedir2(), ".langsmith-plugins.json"));
-  const globalFile = readConfigFile(join(homedir2(), ".cursor", "langsmith.json"));
-  const rootFile = readConfigFile(join(cwd, "langsmith-plugins.json"));
-  const localFile = readConfigFile(join(cwd, ".cursor", "langsmith.json"));
-  const envMetadata = parseJson(getEnv("METADATA"));
-  const envReplicas = parseJson(getEnv("RUNS_ENDPOINTS"));
-  const envDebug = parseBoolean(getEnv("DEBUG"));
-  const common = mergeCommonConfig({
-    harness: localFile.common,
-    root: rootFile.common,
-    user: globalFile.common,
-    userRoot: userRootFile.common,
-    env: {
-      enabled: envBoolean("enabled"),
-      defaultMuted: envBoolean("defaultMuted"),
-      api_key: getEnv("API_KEY"),
-      api_url: getEnv("ENDPOINT"),
-      project: getEnv("PROJECT"),
-      metadata: envMetadata,
-      redact: parseBoolean(getEnv("REDACT"))
-    },
-    defaults: { api_key: "", api_url: DEFAULT_API_URL, project: DEFAULT_PROJECT }
-  }, { envFirst: true });
-  const { enabled, defaultMuted, redact } = common;
-  const apiKey = common.api_key;
-  const apiUrl = common.api_url;
-  const project = common.project;
-  const debug2 = envDebug ?? false;
-  const replicas2 = normalizeReplicas(envReplicas) ?? toSdkReplicas(common.replicas);
-  const attachmentsEnabled = parseBoolean(getEnv("ATTACHMENTS")) ?? localFile.extensions.attachments ?? rootFile.extensions.attachments ?? globalFile.extensions.attachments ?? userRootFile.extensions.attachments ?? true;
-  const systemPromptEnabled = parseBoolean(getEnv("SYSTEM_PROMPT")) ?? localFile.extensions.system_prompt ?? rootFile.extensions.system_prompt ?? globalFile.extensions.system_prompt ?? userRootFile.extensions.system_prompt ?? true;
-  const sweepIdleMinutes = parsePositiveNumber(getEnv("SWEEP_IDLE_MINUTES")) ?? localFile.extensions.sweep_idle_minutes ?? rootFile.extensions.sweep_idle_minutes ?? globalFile.extensions.sweep_idle_minutes ?? userRootFile.extensions.sweep_idle_minutes ?? DEFAULT_SWEEP_IDLE_MINUTES;
-  const cursorDbPath = getEnv("DB_PATH") ?? localFile.extensions.cursor_db_path ?? rootFile.extensions.cursor_db_path ?? globalFile.extensions.cursor_db_path ?? userRootFile.extensions.cursor_db_path;
-  const redactExtraRules = parseRedactExtraRules(getEnv("REDACT_EXTRA")) ?? common.redact_extra_rules;
-  const stateFilePath = process.env.LANGSMITH_CURSOR_STATE_FILE ?? join(homedir2(), ".cursor", "langsmith-state.json");
-  const baseMetadata = { cwd };
-  if (LS_INTEGRATION_VERSION)
-    baseMetadata.ls_integration_version = LS_INTEGRATION_VERSION;
-  const repo = getRepoName(cwd);
-  if (repo) {
-    baseMetadata.repository_name = repo.name;
-    baseMetadata.repository_provider = repo.provider;
-    const host = PROVIDER_HOSTS[repo.provider];
-    if (host)
-      baseMetadata.repository_url = `https://${host}/${repo.name}`;
-  }
-  const git = getGitInfo(cwd);
-  if (git.branch)
-    baseMetadata.git_branch = git.branch;
-  if (git.commit)
-    baseMetadata.git_commit_sha = git.commit;
-  baseMetadata.local_username = userInfo().username;
-  const customMetadata = { ...baseMetadata, ...common.metadata };
-  if (enabled && !apiKey && (!replicas2 || replicas2.length === 0)) {
-    debug("Config enabled but no API key / replicas resolved");
-  }
-  return {
-    enabled,
-    defaultMuted,
-    apiKey,
-    apiUrl,
-    project,
-    debug: debug2,
-    stateFilePath,
-    replicas: replicas2,
-    customMetadata,
-    attachmentsEnabled,
-    systemPromptEnabled,
-    cursorDbPath,
-    redact,
-    redactExtraRules,
-    sweepIdleMinutes
-  };
-}
-
 // dist/src/utils/hook-init.js
+init_config();
+init_logger();
 function initHook(cwd) {
   const config = loadConfig({ cwd });
   initLogger(config.debug);
@@ -1128,6 +1200,7 @@ function initHook(cwd) {
 }
 
 // dist/src/state.js
+init_logger();
 import { readFileSync as readFileSync2, writeFileSync, mkdirSync as mkdirSync2, openSync, closeSync, unlinkSync, rmdirSync, renameSync as renameSync2, fsyncSync } from "node:fs";
 import { randomUUID } from "node:crypto";
 import { performance as performance2 } from "node:perf_hooks";
@@ -1137,7 +1210,7 @@ function lockPath(stateFilePath) {
   return `${stateFilePath}.lock`;
 }
 function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+  return new Promise((resolve12) => setTimeout(resolve12, ms));
 }
 async function acquireLock(stateFilePath) {
   const lock = lockPath(stateFilePath);
@@ -1237,6 +1310,10 @@ function pruneOldConversations(state, now = Date.now()) {
   }
   return pruned;
 }
+
+// dist/src/reducer.js
+init_constants();
+init_logger();
 
 // dist/src/normalize.js
 var MODEL_SUFFIXES = /* @__PURE__ */ new Set(["thinking", "minimal", "low", "medium", "high", "xhigh", "max"]);
@@ -1521,6 +1598,9 @@ function getThreadTracingMode(path3, sessionId, defaultMuted = false) {
     return "metadata";
   }
 }
+
+// dist/src/sweep.js
+init_logger();
 
 // node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/utils/uuid/src/regex.js
 var regex_default = /^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$/i;
@@ -2582,7 +2662,7 @@ async function onAttemptFailure({ error: error2, attemptNumber, retriesConsumed,
   const delayTime = calculateDelay(retriesConsumed, options);
   const finalDelay = Math.min(delayTime, remainingTime);
   if (finalDelay > 0) {
-    await new Promise((resolve, reject) => {
+    await new Promise((resolve12, reject) => {
       const onAbort = () => {
         clearTimeout(timeoutToken);
         options.signal?.removeEventListener("abort", onAbort);
@@ -2590,7 +2670,7 @@ async function onAttemptFailure({ error: error2, attemptNumber, retriesConsumed,
       };
       const timeoutToken = setTimeout(() => {
         options.signal?.removeEventListener("abort", onAbort);
-        resolve();
+        resolve12();
       }, finalDelay);
       if (options.unref) {
         timeoutToken.unref?.();
@@ -3000,7 +3080,7 @@ var safeJSON = (text) => {
 };
 
 // node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/_openapi_client/internal/utils/sleep.js
-var sleep2 = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+var sleep2 = (ms) => new Promise((resolve12) => setTimeout(resolve12, ms));
 
 // node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/_openapi_client/version.js
 var VERSION = "0.0.1";
@@ -3679,8 +3759,8 @@ var __classPrivateFieldGet = function(receiver, state, kind, f2) {
 var _APIPromise_client;
 var APIPromise = class _APIPromise extends Promise {
   constructor(client2, responsePromise, parseResponse = defaultParseResponse) {
-    super((resolve) => {
-      resolve(null);
+    super((resolve12) => {
+      resolve12(null);
     });
     Object.defineProperty(this, "responsePromise", {
       enumerable: true,
@@ -5559,9 +5639,9 @@ var Langsmith = class {
     let timeoutMillis;
     const retryAfterMillisHeader = responseHeaders?.get("retry-after-ms");
     if (retryAfterMillisHeader) {
-      const timeoutMs = parseFloat(retryAfterMillisHeader);
-      if (!Number.isNaN(timeoutMs)) {
-        timeoutMillis = timeoutMs;
+      const timeoutMs2 = parseFloat(retryAfterMillisHeader);
+      if (!Number.isNaN(timeoutMs2)) {
+        timeoutMillis = timeoutMs2;
       }
     }
     const retryAfterHeader = responseHeaders?.get("retry-after");
@@ -6209,8 +6289,8 @@ async function raiseForStatus(response, context, consumeOnSuccess) {
   if (response.status === 403) {
     try {
       const errorData = await response.json();
-      const errorCode = errorData?.error;
-      if (errorCode === "org_scoped_key_requires_workspace") {
+      const errorCode4 = errorData?.error;
+      if (errorCode4 === "org_scoped_key_requires_workspace") {
         errorBody = "This API key is org-scoped and requires workspace specification. Please provide 'workspaceId' parameter, or set LANGSMITH_WORKSPACE_ID environment variable.";
       }
     } catch (_e) {
@@ -6633,7 +6713,7 @@ var LOCK_POLL_INTERVAL_MS = 10;
 var LOCK_STALE_AFTER_MS = 1e4;
 var LOCK_METADATA_FILE = "created_at";
 function sleep3(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+  return new Promise((resolve12) => setTimeout(resolve12, ms));
 }
 function isEEXIST(err) {
   return typeof err === "object" && err !== null && err.code === "EEXIST";
@@ -7569,8 +7649,8 @@ var SerializeWorker = class {
     if (!ok)
       return null;
     const id = this.nextId++;
-    return new Promise((resolve, reject) => {
-      this.pending.set(id, { resolve, reject });
+    return new Promise((resolve12, reject) => {
+      this.pending.set(id, { resolve: resolve12, reject });
       try {
         this.worker.postMessage({ id, op: "serialize", payload });
       } catch (e) {
@@ -7726,7 +7806,7 @@ var handle429 = async (response) => {
   if (response?.status === 429) {
     const retryAfter = parseInt(response.headers.get("retry-after") ?? "10", 10) * 1e3;
     if (retryAfter > 0) {
-      await new Promise((resolve) => setTimeout(resolve, retryAfter));
+      await new Promise((resolve12) => setTimeout(resolve12, retryAfter));
       return true;
     }
   }
@@ -7825,8 +7905,8 @@ var AutoBatchQueue = class {
   }
   push(item) {
     let itemPromiseResolve;
-    const itemPromise = new Promise((resolve) => {
-      itemPromiseResolve = resolve;
+    const itemPromise = new Promise((resolve12) => {
+      itemPromiseResolve = resolve12;
     });
     const size = estimateSerializedSize(item.item).size;
     if (this.sizeBytes + size > this.maxSizeBytes && this.items.length > 0) {
@@ -10903,7 +10983,7 @@ Message: ${Array.isArray(result.detail) ? result.detail.join("\n") : "Unspecifie
       params.append("filter", filter);
     }
     if (includeAttachments === true) {
-      ["attachment_urls", "outputs", "metadata"].forEach((field) => params.append("select", field));
+      ["attachment_urls", "outputs", "metadata"].forEach((field2) => params.append("select", field2));
     }
     let i = 0;
     for await (const rawExamples of this._getPaginated("/examples", params)) {
@@ -12726,7 +12806,7 @@ Message: ${Array.isArray(result.detail) ? result.detail.join("\n") : "Unspecifie
      * Clone a public dataset to your own langsmith tenant.
      * This operation is idempotent. If you already have a dataset with the given name,
      * this function will do nothing.
-  
+
      * @param {string} tokenOrUrl The token of the public dataset to clone.
      * @param {Object} [options] Additional options for cloning the dataset.
      * @param {string} [options.sourceApiUrl] The URL of the langsmith server where the data is hosted. Defaults to the API URL of your current client.
@@ -12824,7 +12904,7 @@ Message: ${Array.isArray(result.detail) ? result.detail.join("\n") : "Unspecifie
       console.warn("[WARNING]: When tracing in manual flush mode, you must call `await client.flush()` manually to submit trace batches.");
       return Promise.resolve();
     }
-    await new Promise((resolve) => setTimeout(resolve, 1));
+    await new Promise((resolve12) => setTimeout(resolve12, 1));
     while (this._pendingDrains.size > 0) {
       await Promise.all([...this._pendingDrains]);
     }
@@ -13853,6 +13933,19 @@ function _checkEndpointEnvUnset(parsed) {
   }
 }
 
+// node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/uuid.js
+function computeRunIdForSecondaryReplica(runId, projectName) {
+  if (typeof projectName !== "string" || projectName.length === 0) {
+    throw new Error("projectName must be a non-empty string");
+  }
+  assertUuid(runId, "runId");
+  const normalizedRunId = runId.toLowerCase();
+  if (getUuidVersion(normalizedRunId) !== 7) {
+    throw new Error("runId must be a UUID v7");
+  }
+  return nonCryptographicUuid7Deterministic(normalizedRunId, projectName);
+}
+
 // node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/singletons/traceable.js
 var MockAsyncLocalStorage = class {
   getStore() {
@@ -13879,124 +13972,593 @@ var AsyncLocalStorageProviderSingleton = new AsyncLocalStorageProvider();
 // node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/index.js
 var __version__ = "0.10.2";
 
-// dist/src/metadata.js
-var TRUSTED_METADATA = /* @__PURE__ */ Symbol("cursor.trustedMetadata");
-function trustedCodingAgentMetadata(metadata) {
-  return metadata ? metadata[TRUSTED_METADATA] : void 0;
-}
-var LS_AGENT_PURPOSE = "coding";
-var LS_INTEGRATION = "cursor";
-var LS_AGENT_RUNTIME = "Cursor";
-var LS_TRACE_SCHEMA_VERSION = "coding-agent-v1";
-function codingAgentMetadata(opts) {
-  const { agentType, threadId, base, turnId, turnNumber, runtimeVersion, approvalPolicy, subagentId, subagentType, clearSubagent, toolName, runName, skillName, runSpecific } = opts;
-  const meta = {
-    // Identity & grouping — always present.
-    ls_agent_purpose: LS_AGENT_PURPOSE,
-    ls_agent_type: agentType,
-    ls_integration: LS_INTEGRATION,
-    ls_agent_runtime: LS_AGENT_RUNTIME,
-    ls_trace_schema_version: LS_TRACE_SCHEMA_VERSION,
-    thread_id: threadId
-  };
-  if (turnId)
-    meta.turn_id = turnId;
-  if (typeof turnNumber === "number")
-    meta.turn_number = turnNumber;
-  if (runtimeVersion)
-    meta.ls_agent_runtime_version = runtimeVersion;
-  if (approvalPolicy)
-    meta.approval_policy = approvalPolicy;
-  if (subagentId)
-    meta.ls_subagent_id = subagentId;
-  if (subagentType)
-    meta.ls_subagent_type = subagentType;
-  if (clearSubagent) {
-    meta.ls_subagent_id = void 0;
-    meta.ls_subagent_type = void 0;
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/metadata/constants.js
+var CODING_AGENT_SCHEMA_VERSION = "coding-agent-v1";
+var CODING_AGENT_RUN_TYPES = [
+  "root",
+  "llm",
+  "tool",
+  "subagent",
+  "interrupted"
+];
+var CODING_AGENT_RUN_SCOPES = {
+  all: CODING_AGENT_RUN_TYPES,
+  rootInterrupted: ["root", "interrupted"],
+  subagent: ["subagent"],
+  tool: ["tool"],
+  llmTool: ["llm", "tool"],
+  chain: ["root", "subagent", "interrupted"]
+};
+var CODING_AGENT_SCHEMA_INTEGRATIONS = [
+  "claude-code",
+  "openai-codex",
+  "deepagents-code",
+  "cursor",
+  "pi"
+];
+var CODING_AGENT_SUPPORTED_INTEGRATIONS = [
+  "claude-code",
+  "cursor",
+  "openai-codex"
+];
+var CODING_AGENT_CORE_INTEGRATIONS = CODING_AGENT_SUPPORTED_INTEGRATIONS;
+var CODING_AGENT_CODEX_INTEGRATION = ["openai-codex"];
+var CODING_AGENT_AGENT_TYPES = ["root", "subagent", "middleware", "compaction"];
+var CODING_AGENT_ALWAYS_FIELD_OPTIONS = {
+  requirement: "always"
+};
+var CODING_AGENT_WHERE_KNOWN_FIELD_OPTIONS = {
+  requirement: "where_known",
+  requiredWhereKnown: true
+};
+var CODING_AGENT_FIELD_DEFAULTS = {
+  appliesTo: CODING_AGENT_RUN_TYPES,
+  type: "string",
+  allowedValues: null,
+  requirement: "contextual",
+  requiredWhereKnown: false,
+  metadataModeIntegrations: []
+};
+var CODING_AGENT_STRUCTURAL_FIELD_DEFAULTS = {
+  metadataModeIntegrations: CODING_AGENT_CORE_INTEGRATIONS,
+  metadataSource: "structural"
+};
+var CODING_AGENT_PROVIDER_FIELD_DEFAULTS = {
+  metadataSource: "provider",
+  providerIntegrations: CODING_AGENT_CORE_INTEGRATIONS
+};
+var CODING_AGENT_INTEGRATION_POLICIES = {
+  "claude-code": {
+    fullModePrecedence: "custom-wins",
+    metadataModeUsesDirectMetadata: true,
+    metadataModePreservesToolName: false,
+    legacyAliases: true
+  },
+  cursor: {
+    fullModePrecedence: "custom-wins",
+    metadataModeUsesDirectMetadata: true,
+    metadataModePreservesToolName: true,
+    legacyAliases: false
+  },
+  "openai-codex": {
+    fullModePrecedence: "structural-wins",
+    metadataModeUsesDirectMetadata: false,
+    metadataModePreservesToolName: false,
+    legacyAliases: false
   }
-  if (toolName && runName && toolName !== runName)
-    meta.ls_tool_name = toolName;
-  if (skillName)
-    meta.ls_skill_name = skillName;
-  const result = { ...meta, ...runSpecific, ...base };
-  Object.defineProperty(result, TRUSTED_METADATA, {
-    value: {
-      ...meta,
-      ...runSpecific,
-      ...toolName ? { ls_tool_name: toolName } : {},
-      ...LS_INTEGRATION_VERSION ? { ls_integration_version: LS_INTEGRATION_VERSION } : {}
+};
+var TRUSTED_METADATA = /* @__PURE__ */ Symbol("coding-agent trusted metadata");
+var METADATA_MODE_STATUS_VALUES = ["running", "completed", "error"];
+var METADATA_MODE_NAME = "metadata";
+var CODING_AGENT_METADATA_PROVENANCE_FIELDS = [
+  "integration",
+  "integrationVersion",
+  "runtimeVersion",
+  "threadId",
+  "turnId",
+  "turnNumber",
+  "agentType",
+  "runType",
+  "approvalPolicy",
+  "subagentId",
+  "subagentType",
+  "clearSubagent",
+  "toolName",
+  "runName",
+  "skillName",
+  "modelName",
+  "usageMetadata",
+  "providerMetadata",
+  "runSpecific",
+  "base"
+];
+var CODING_AGENT_METADATA_PROJECTION_FIELDS = [
+  ["integrationVersion", "ls_integration_version"],
+  ["runtimeVersion", "ls_agent_runtime_version"],
+  ["turnId", "turn_id"],
+  ["turnNumber", "turn_number"],
+  ["approvalPolicy", "approval_policy"],
+  ["subagentId", "ls_subagent_id"],
+  ["subagentType", "ls_subagent_type"],
+  ["skillName", "ls_skill_name"],
+  ["modelName", "ls_model_name"]
+];
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/metadata/contract.js
+function field(key, options = {}) {
+  return { key, ...CODING_AGENT_FIELD_DEFAULTS, ...options };
+}
+var structural = (key, options = {}) => field(key, { ...CODING_AGENT_STRUCTURAL_FIELD_DEFAULTS, ...options });
+var provider = (key, options = {}) => field(key, { ...CODING_AGENT_PROVIDER_FIELD_DEFAULTS, ...options });
+var CODING_AGENT_V1_CONTRACT = {
+  schemaVersion: CODING_AGENT_SCHEMA_VERSION,
+  integrations: CODING_AGENT_SCHEMA_INTEGRATIONS,
+  runtimeNames: {
+    "claude-code": "Claude Code",
+    "openai-codex": "Codex",
+    "deepagents-code": "Deep Agents Code",
+    cursor: "Cursor",
+    pi: "Pi"
+  },
+  keys: [
+    structural("ls_agent_purpose", {
+      ...CODING_AGENT_ALWAYS_FIELD_OPTIONS,
+      allowedValues: ["coding"]
+    }),
+    structural("ls_integration", {
+      ...CODING_AGENT_ALWAYS_FIELD_OPTIONS,
+      allowedValues: CODING_AGENT_SCHEMA_INTEGRATIONS
+    }),
+    structural("ls_agent_runtime", {
+      ...CODING_AGENT_ALWAYS_FIELD_OPTIONS,
+      allowedValues: ["Claude Code", "Codex", "Deep Agents Code", "Cursor", "Pi"]
+    }),
+    structural("thread_id", CODING_AGENT_ALWAYS_FIELD_OPTIONS),
+    structural("ls_trace_schema_version", {
+      ...CODING_AGENT_ALWAYS_FIELD_OPTIONS,
+      allowedValues: [CODING_AGENT_SCHEMA_VERSION]
+    }),
+    structural("ls_agent_type", {
+      ...CODING_AGENT_ALWAYS_FIELD_OPTIONS,
+      allowedValues: CODING_AGENT_AGENT_TYPES
+    }),
+    structural("ls_integration_version", CODING_AGENT_WHERE_KNOWN_FIELD_OPTIONS),
+    structural("ls_agent_runtime_version", CODING_AGENT_WHERE_KNOWN_FIELD_OPTIONS),
+    structural("turn_id", CODING_AGENT_WHERE_KNOWN_FIELD_OPTIONS),
+    structural("turn_number", { ...CODING_AGENT_WHERE_KNOWN_FIELD_OPTIONS, type: "integer" }),
+    field("repository_url", CODING_AGENT_WHERE_KNOWN_FIELD_OPTIONS),
+    field("repository_provider", CODING_AGENT_WHERE_KNOWN_FIELD_OPTIONS),
+    field("repository_name", CODING_AGENT_WHERE_KNOWN_FIELD_OPTIONS),
+    field("git_branch", CODING_AGENT_WHERE_KNOWN_FIELD_OPTIONS),
+    field("git_commit_sha", CODING_AGENT_WHERE_KNOWN_FIELD_OPTIONS),
+    field("cwd", CODING_AGENT_WHERE_KNOWN_FIELD_OPTIONS),
+    field("ls_skill_name", {
+      appliesTo: CODING_AGENT_RUN_SCOPES.tool,
+      metadataModeIntegrations: CODING_AGENT_CORE_INTEGRATIONS
+    }),
+    field("ls_attribution_identifier"),
+    field("user_id"),
+    field("local_username"),
+    field("user_email"),
+    field("sandbox_type"),
+    field("approval_policy", { appliesTo: CODING_AGENT_RUN_SCOPES.rootInterrupted }),
+    field("ls_subagent_id", {
+      appliesTo: CODING_AGENT_RUN_SCOPES.subagent,
+      metadataModeIntegrations: CODING_AGENT_CORE_INTEGRATIONS
+    }),
+    field("ls_subagent_type", {
+      appliesTo: CODING_AGENT_RUN_SCOPES.subagent,
+      metadataModeIntegrations: CODING_AGENT_CORE_INTEGRATIONS
+    }),
+    field("ls_tool_name", {
+      appliesTo: CODING_AGENT_RUN_SCOPES.tool,
+      metadataModeIntegrations: CODING_AGENT_CORE_INTEGRATIONS
+    }),
+    provider("ls_provider", {
+      appliesTo: CODING_AGENT_RUN_SCOPES.llmTool,
+      metadataModeIntegrations: CODING_AGENT_CODEX_INTEGRATION
+    }),
+    provider("ls_model_type", {
+      appliesTo: CODING_AGENT_RUN_SCOPES.llmTool,
+      metadataModeIntegrations: CODING_AGENT_CODEX_INTEGRATION,
+      providerIntegrations: CODING_AGENT_CODEX_INTEGRATION
+    }),
+    provider("ls_message_format", {
+      metadataModeIntegrations: CODING_AGENT_CODEX_INTEGRATION,
+      providerIntegrations: CODING_AGENT_CODEX_INTEGRATION
+    }),
+    provider("codex_cli_version", {
+      metadataModeIntegrations: CODING_AGENT_CODEX_INTEGRATION,
+      providerIntegrations: CODING_AGENT_CODEX_INTEGRATION
+    }),
+    provider("ls_raw_aggregated_usage", {
+      appliesTo: CODING_AGENT_RUN_SCOPES.chain,
+      type: "object",
+      metadataModeIntegrations: CODING_AGENT_CODEX_INTEGRATION,
+      providerIntegrations: CODING_AGENT_CODEX_INTEGRATION
+    }),
+    provider("ls_invocation_params", {
+      appliesTo: CODING_AGENT_RUN_SCOPES.llmTool,
+      type: "object"
+    }),
+    field("usage_metadata", {
+      type: "object",
+      metadataModeIntegrations: CODING_AGENT_CORE_INTEGRATIONS,
+      metadataSource: "explicit"
+    }),
+    field("ls_model_name", {
+      metadataModeIntegrations: CODING_AGENT_CORE_INTEGRATIONS,
+      metadataSource: "explicit"
+    })
+  ],
+  integrationPolicies: CODING_AGENT_INTEGRATION_POLICIES
+};
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/metadata/validation.js
+function isRecord(value) {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+function metadataFieldTypeIssue(field2, value) {
+  const matchesType = field2.type === "string" ? typeof value === "string" && value.length > 0 : field2.type === "integer" ? typeof value === "number" && Number.isSafeInteger(value) && value >= 1 : isRecord(value);
+  if (!matchesType)
+    return "type";
+  return void 0;
+}
+function metadataFieldValueIssue(field2, value) {
+  const typeIssue = metadataFieldTypeIssue(field2, value);
+  if (typeIssue)
+    return typeIssue;
+  if (field2.allowedValues && !field2.allowedValues.includes(value))
+    return "value";
+  return void 0;
+}
+function validateProviderMetadata(value, integration, runType) {
+  if (!isRecord(value))
+    return [{ key: "", reason: "type" }];
+  const issues = [];
+  for (const [key, entry] of Object.entries(value)) {
+    const field2 = CODING_AGENT_V1_CONTRACT.keys.find((candidate) => candidate.key === key);
+    if (field2?.metadataSource !== "provider") {
+      issues.push({ key, reason: "scope" });
+      continue;
     }
-  });
+    if (!field2.providerIntegrations?.includes(integration)) {
+      issues.push({ key, reason: "integration" });
+      continue;
+    }
+    if (!field2.appliesTo.includes(runType)) {
+      issues.push({ key, reason: "scope" });
+      continue;
+    }
+    const reason = metadataFieldValueIssue(field2, entry);
+    if (reason)
+      issues.push({ key, reason });
+  }
+  return issues;
+}
+function normalizeProviderMetadata(value, integration, runType) {
+  if (!isRecord(value))
+    return {};
+  const issues = new Map(validateProviderMetadata(value, integration, runType).map((issue) => [issue.key, issue]));
+  return Object.fromEntries(Object.entries(value).filter(([key, entry]) => entry !== void 0 && !issues.has(key)));
+}
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/metadata/builder.js
+function buildCodingAgentMetadata(options) {
+  const policy = CODING_AGENT_INTEGRATION_POLICIES[options.integration];
+  const identity = {
+    ls_agent_purpose: "coding",
+    ls_integration: options.integration,
+    ls_agent_runtime: CODING_AGENT_V1_CONTRACT.runtimeNames[options.integration],
+    ls_trace_schema_version: CODING_AGENT_SCHEMA_VERSION,
+    ls_agent_type: options.agentType,
+    thread_id: options.threadId
+  };
+  if (options.integrationVersion)
+    identity.ls_integration_version = options.integrationVersion;
+  if (options.runtimeVersion)
+    identity.ls_agent_runtime_version = options.runtimeVersion;
+  if (options.turnId)
+    identity.turn_id = options.turnId;
+  if (typeof options.turnNumber === "number")
+    identity.turn_number = options.turnNumber;
+  if (options.approvalPolicy)
+    identity.approval_policy = options.approvalPolicy;
+  if (options.clearSubagent) {
+    identity.ls_subagent_id = void 0;
+    identity.ls_subagent_type = void 0;
+  } else {
+    if (options.subagentId)
+      identity.ls_subagent_id = options.subagentId;
+    if (options.subagentType)
+      identity.ls_subagent_type = options.subagentType;
+  }
+  if (options.toolName) {
+    if (policy.legacyAliases)
+      identity.tool_name = options.toolName;
+    if (options.runName && options.toolName !== options.runName) {
+      identity.ls_tool_name = options.toolName;
+    }
+  }
+  if (options.skillName)
+    identity.ls_skill_name = options.skillName;
+  if (policy.legacyAliases && options.subagentId)
+    identity.agent_id = options.subagentId;
+  if (policy.legacyAliases && options.subagentType)
+    identity.agent_type = options.subagentType;
+  const explicit = {};
+  if (options.modelName !== void 0)
+    explicit.ls_model_name = options.modelName;
+  if (options.usageMetadata !== void 0)
+    explicit.usage_metadata = options.usageMetadata;
+  const provider2 = normalizeProviderMetadata(options.providerMetadata, options.integration, options.runType);
+  const trusted = { ...identity, ...explicit, ...provider2 };
+  if (policy.metadataModePreservesToolName && options.toolName) {
+    trusted.ls_tool_name = options.toolName;
+  }
+  const pieces = [identity, explicit, provider2, options.runSpecific, options.base];
+  const full = policy.fullModePrecedence === "custom-wins" ? pieces : pieces.toReversed();
+  const result = {};
+  for (const piece of full) {
+    if (piece)
+      Object.assign(result, piece);
+  }
+  Object.defineProperty(result, TRUSTED_METADATA, { value: trusted });
   return result;
 }
-var READ_TOOLS = /* @__PURE__ */ new Set(["read_file_v2", "ReadFile", "Read"]);
-function skillNameFromTool(toolName, toolInput) {
-  if (!READ_TOOLS.has(toolName))
-    return void 0;
-  const input = toolInput;
-  const filePath = input?.path ?? input?.file_path;
-  if (typeof filePath !== "string")
-    return void 0;
-  const segments = filePath.split(/[/\\]/);
-  const file = segments.pop();
-  const name = segments.pop();
-  if (file !== "SKILL.md" || !name || name.startsWith("."))
-    return void 0;
-  return segments.includes("skills") ? name : void 0;
+function trustedCodingAgentMetadata(metadata) {
+  return metadata?.[TRUSTED_METADATA];
+}
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/storage/capture/constants.js
+var CAPTURE_DIRECTORY = "capture-v1";
+var CAPTURE_RECORD_VERSION = 2;
+var CAPTURE_RECEIPT_VERSION = 1;
+var CAPTURE_DIRECTORY_MODE = 448;
+var CAPTURE_FILE_MODE = 384;
+var CAPTURE_INTEGRATION = /^[a-z][a-z0-9-]{0,62}$/;
+var CAPTURE_MAX_IDENTIFIER_BYTES = 4096;
+var CAPTURE_HASH = /^[0-9a-f]{64}$/u;
+var CAPTURE_EVENT_FILE = /^[0-9a-f]{64}\.json$/u;
+var CAPTURE_STAGING_FILE = /^\.[0-9a-f-]{36}\.tmp$/u;
+var JSON_ARRAY_INDEX_KEY = /^(0|[1-9]\d*)$/u;
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/storage/capture/utils/serialization.js
+function canonicalJson(value) {
+  const result = JSON.stringify(canonicalValue(value, /* @__PURE__ */ new Set()));
+  if (result === void 0)
+    throw new TypeError("Value cannot be serialized as JSON");
+  return result;
+}
+function canonicalValue(value, seen) {
+  if (value === null || typeof value === "string" || typeof value === "boolean")
+    return value;
+  if (typeof value === "number" && Number.isFinite(value))
+    return value;
+  if (Array.isArray(value)) {
+    if (seen.has(value))
+      throw new TypeError("Cyclic data cannot be captured");
+    seen.add(value);
+    const descriptors2 = Object.getOwnPropertyDescriptors(value);
+    if (Reflect.ownKeys(descriptors2).some((key) => typeof key === "symbol" || key !== "length" && (!JSON_ARRAY_INDEX_KEY.test(key) || Number(key) >= value.length))) {
+      throw new TypeError("Array properties cannot be captured");
+    }
+    if (Object.keys(descriptors2).length - 1 < value.length)
+      throw new TypeError("Sparse arrays cannot be captured");
+    const result2 = [];
+    for (let index = 0; index < value.length; index += 1) {
+      const descriptor = descriptors2[index];
+      if (!descriptor?.enumerable || !("value" in descriptor))
+        throw new TypeError("Sparse arrays cannot be captured");
+      result2.push(canonicalValue(descriptor.value, seen));
+    }
+    seen.delete(value);
+    return result2;
+  }
+  if (typeof value !== "object" || Object.getPrototypeOf(value) !== Object.prototype && Object.getPrototypeOf(value) !== null) {
+    throw new TypeError("Capture data must contain only JSON values");
+  }
+  if (seen.has(value))
+    throw new TypeError("Cyclic data cannot be captured");
+  seen.add(value);
+  const descriptors = Object.getOwnPropertyDescriptors(value);
+  if (Reflect.ownKeys(descriptors).some((key) => typeof key === "symbol"))
+    throw new TypeError("Symbol keys cannot be captured");
+  const result = /* @__PURE__ */ Object.create(null);
+  for (const key of Object.keys(descriptors).toSorted()) {
+    const descriptor = descriptors[key];
+    if (!descriptor?.enumerable || !("value" in descriptor))
+      throw new TypeError("Capture data must use enumerable data fields");
+    result[key] = canonicalValue(descriptor.value, seen);
+  }
+  seen.delete(value);
+  return result;
+}
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/utils/validation/objects.js
+function isPlainRecord(value) {
+  return value !== null && typeof value === "object" && (Object.getPrototypeOf(value) === Object.prototype || Object.getPrototypeOf(value) === null);
+}
+function requirePlainRecord(value, name) {
+  if (!isPlainRecord(value))
+    throw new TypeError(`${name} must be a plain object`);
+  return value;
+}
+function ownDataField(source, key) {
+  const descriptor = Object.getOwnPropertyDescriptor(source, key);
+  if (!descriptor?.enumerable || !("value" in descriptor))
+    return { present: false };
+  return { present: true, value: descriptor.value };
+}
+function requireOwnDataField(source, key) {
+  const field2 = ownDataField(source, key);
+  if (!field2.present)
+    throw new TypeError(`${key} is required`);
+  return field2.value;
+}
+function canonicalJsonValue(value) {
+  return canonicalValue(value, /* @__PURE__ */ new Set());
+}
+function canonicalJsonObject(value, name) {
+  return canonicalValue(requirePlainRecord(value, name), /* @__PURE__ */ new Set());
+}
+function canonicalJsonArray(value, name) {
+  if (!Array.isArray(value))
+    throw new TypeError(`${name} must be an array`);
+  return canonicalValue(value, /* @__PURE__ */ new Set());
+}
+function requireNonBlankString(value, name) {
+  if (typeof value !== "string" || value.trim().length === 0)
+    throw new TypeError(`${name} is required`);
+  return value;
+}
+function requireString(value, name) {
+  if (typeof value !== "string")
+    throw new TypeError(`${name} must be a string`);
+  return value;
+}
+function requireBoolean(value, name) {
+  if (typeof value !== "boolean")
+    throw new TypeError(`${name} must be a boolean`);
+  return value;
+}
+function requireStringArray(value, name) {
+  const values = canonicalJsonArray(value, name);
+  if (!values.every((entry) => typeof entry === "string"))
+    throw new TypeError(`${name} must contain strings`);
+  return values;
+}
+function requireTimestamp(value) {
+  if (typeof value === "number" && Number.isFinite(value) && Number.isFinite(new Date(value).getTime())) {
+    return value;
+  }
+  if (typeof value === "string" && value.trim().length > 0 && Number.isFinite(new Date(value).getTime())) {
+    return value;
+  }
+  throw new TypeError("Run timestamp must be a valid date or millisecond time");
+}
+function requireSafeEpochMilliseconds(value, name) {
+  if (typeof value !== "number" || !Number.isSafeInteger(value) || value < 0 || !Number.isFinite(new Date(value).getTime())) {
+    throw new TypeError(`${name} must be a valid millisecond timestamp`);
+  }
+  return value;
+}
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/metadata/privacy.js
+function projectCodingAgentMetadata(metadata, integration, status) {
+  const safe = {};
+  for (const [key, value] of Object.entries(metadata ?? {})) {
+    const field2 = CODING_AGENT_V1_CONTRACT.keys.find((entry) => entry.key === key);
+    if (!field2?.metadataModeIntegrations.includes(integration) || value === void 0 || metadataFieldTypeIssue(field2, value) !== void 0) {
+      continue;
+    }
+    safe[key] = value;
+  }
+  safe.status = METADATA_MODE_STATUS_VALUES.includes(status) ? status : "running";
+  safe.ls_tracing_mode = METADATA_MODE_NAME;
+  return safe;
+}
+function metadataForMode(metadata, integration, mode = "full", status) {
+  if (mode === "full")
+    return metadata;
+  const trusted = trustedCodingAgentMetadata(metadata);
+  const source = trusted ?? (CODING_AGENT_INTEGRATION_POLICIES[integration].metadataModeUsesDirectMetadata ? metadata : void 0);
+  return projectCodingAgentMetadata(source, integration, status);
+}
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/metadata/provenance.js
+function prepareCodingAgentMetadataProvenance(value, integration, mode, status = "running") {
+  const source = requirePlainRecord(value, "Run metadata");
+  const declaredIntegration = ownDataField(source, "integration");
+  if (declaredIntegration.present && declaredIntegration.value !== integration) {
+    throw new TypeError("Run metadata integration does not match the lifecycle bridge");
+  }
+  const selected = {};
+  for (const key of CODING_AGENT_METADATA_PROVENANCE_FIELDS) {
+    const field2 = ownDataField(source, key);
+    if (field2.present && field2.value !== void 0)
+      selected[key] = field2.value;
+  }
+  selected["integration"] = integration;
+  const threadId = selected["threadId"];
+  if (typeof threadId !== "string" || threadId.trim().length === 0)
+    return { status: "deferred" };
+  const agentType = selected["agentType"];
+  if (typeof agentType !== "string" || !CODING_AGENT_AGENT_TYPES.includes(agentType)) {
+    throw new TypeError("Run metadata has an invalid agent type");
+  }
+  const runType = selected["runType"];
+  if (typeof runType !== "string" || !CODING_AGENT_RUN_TYPES.includes(runType)) {
+    throw new TypeError("Run metadata has an invalid run type");
+  }
+  for (const key of ["usageMetadata", "providerMetadata", "runSpecific", "base"]) {
+    if (selected[key] !== void 0)
+      selected[key] = canonicalJsonObject(selected[key], `Run metadata ${key}`);
+  }
+  selected["providerMetadata"] = normalizeProviderMetadata(selected["providerMetadata"], integration, runType);
+  if (mode === "metadata") {
+    delete selected["base"];
+    delete selected["runSpecific"];
+  }
+  const options = selected;
+  return {
+    status: "ready",
+    value: mode === "metadata" ? projectMetadataProvenance(options, integration, status) : options
+  };
+}
+function projectMetadataProvenance(options, integration, status) {
+  const projection = metadataForMode(buildCodingAgentMetadata(options), integration, "metadata", status) ?? {};
+  const safe = {
+    integration,
+    threadId: projectedString(projection, "thread_id"),
+    agentType: projectedString(projection, "ls_agent_type"),
+    runType: options.runType
+  };
+  for (const [optionKey, metadataKey] of CODING_AGENT_METADATA_PROJECTION_FIELDS) {
+    if (Object.hasOwn(projection, metadataKey))
+      safe[optionKey] = projection[metadataKey];
+  }
+  if (options.clearSubagent === true)
+    safe["clearSubagent"] = true;
+  if (typeof options.toolName === "string" && (projection["ls_tool_name"] === options.toolName || projection["tool_name"] === options.toolName)) {
+    safe["toolName"] = options.toolName;
+    if (typeof options.runName === "string")
+      safe["runName"] = options.runName;
+  }
+  if (Object.hasOwn(projection, "usage_metadata"))
+    safe["usageMetadata"] = projection["usage_metadata"];
+  const provider2 = normalizeProviderMetadata(options.providerMetadata, integration, options.runType);
+  const allowedProvider = Object.fromEntries(Object.entries(provider2).filter(([key]) => Object.hasOwn(projection, key)));
+  if (Object.keys(allowedProvider).length > 0)
+    safe["providerMetadata"] = allowedProvider;
+  return safe;
+}
+function projectedString(source, key) {
+  const value = source[key];
+  if (typeof value !== "string" || value.trim().length === 0) {
+    throw new TypeError(`Metadata projection ${key} is required`);
+  }
+  return value;
 }
 
 // dist/src/privacy.js
+init_constants();
 var MUTED_TRACE_CONTENT = "[LangSmith system notice: content omitted because tracing is muted.]";
-var METADATA_KEYS = /* @__PURE__ */ new Set([
-  "thread_id",
-  "turn_number",
-  "turn_id",
-  "status",
-  "ls_tracing_mode",
-  "ls_agent_purpose",
-  "ls_agent_type",
-  "ls_agent_runtime",
-  "ls_agent_runtime_version",
-  "ls_integration",
-  "ls_integration_version",
-  "ls_trace_schema_version",
-  "ls_model_name",
-  "ls_tool_name",
-  "ls_skill_name",
-  "usage_metadata",
-  "ls_subagent_id",
-  "ls_subagent_type"
-]);
-function usageForMetadata(value) {
-  if (!value || typeof value !== "object" || Array.isArray(value))
-    return void 0;
-  return value;
-}
 function projectMetadata(metadata, status) {
-  const safe = {};
-  for (const [key, value] of Object.entries(metadata ?? {})) {
-    if (!METADATA_KEYS.has(key))
-      continue;
-    if (key === "usage_metadata") {
-      const usage = usageForMetadata(value);
-      if (usage)
-        safe[key] = usage;
-    } else if (key === "turn_number") {
-      if (typeof value === "number" && Number.isSafeInteger(value) && value >= 1)
-        safe[key] = value;
-    } else if (typeof value === "string" && value.length) {
-      safe[key] = value;
-    }
-  }
-  safe.status = status === "error" || status === "completed" ? status : "running";
-  safe.ls_tracing_mode = "metadata";
-  return safe;
+  return projectCodingAgentMetadata(metadata, CURSOR_INTEGRATION, status);
 }
-function metadataForMode(metadata, mode = "full", status) {
+function metadataForMode2(metadata, mode = "full", status) {
   if (mode === "full")
     return metadata;
-  return projectMetadata(trustedCodingAgentMetadata(metadata) ?? metadata, status);
+  const projected = metadataForMode(metadata, CURSOR_INTEGRATION, mode, status);
+  const options = metadata ? Reflect.get(metadata, CODING_AGENT_METADATA_OPTIONS) : void 0;
+  if (projected && options !== void 0) {
+    Object.defineProperty(projected, CODING_AGENT_METADATA_OPTIONS, {
+      value: options,
+      enumerable: true
+    });
+  }
+  return projected;
 }
 function sanitizeReplica(replica, mode) {
   if (mode === "full" || !replica || typeof replica !== "object")
@@ -14035,7 +14597,7 @@ function runConfigForMode(config, mode = "full") {
   safe.inputs = { messages: [{ role: "user", content: MUTED_TRACE_CONTENT }] };
   safe.outputs = { messages: [{ role: "assistant", content: MUTED_TRACE_CONTENT }] };
   safe.extra = {
-    metadata: metadataForMode(extra?.metadata, mode, status),
+    metadata: metadataForMode2(extra?.metadata, mode, status),
     // RunTree and Client both enrich extra AFTER construction. A client-level
     // omitTracedRuntimeInfo flag alone does not suppress RunTree's additions,
     // and replicas may use their own clients. Keep this method enumerable so it
@@ -14051,20 +14613,22 @@ function runConfigForMode(config, mode = "full") {
   };
   return safe;
 }
-function createRunTree(config, mode = "full") {
+function createRunTree(config, mode = "full", capture) {
   const safe = runConfigForMode(config, mode);
-  return protectRun(new RunTree(safe), mode, safe.extra?.metadata);
+  return protectRun(new RunTree(safe), mode, safe.extra?.metadata, capture);
 }
-function createChildRun(parent, config, mode) {
+function createChildRun(parent, config, mode, capture) {
   const safe = runConfigForMode(config, mode);
-  return protectRun(parent.createChild(safe), mode, safe.extra?.metadata);
+  return protectRun(parent.createChild(safe), mode, safe.extra?.metadata, capture);
 }
-function protectRun(run, mode, metadata) {
-  if (mode === "full")
+function protectRun(run, mode, metadata, capture) {
+  if (mode === "full" && !capture)
     return run;
   const trusted = metadata;
   let failed = trusted?.status === "error";
   const sanitize = () => {
+    if (mode === "full")
+      return;
     failed ||= run.error != null;
     const safe = runConfigForMode({
       inputs: run.inputs,
@@ -14088,16 +14652,20 @@ function protectRun(run, mode, metadata) {
   const createChild = run.createChild.bind(run);
   run.createChild = (config) => {
     const safe = runConfigForMode(config, mode);
-    return protectRun(createChild(safe), mode, safe.extra?.metadata);
+    return protectRun(createChild(safe), mode, safe.extra?.metadata, capture);
   };
   const post = run.postRun.bind(run);
   run.postRun = async (...args) => {
     sanitize();
+    if (capture)
+      return capture(run, "post");
     return post(...args);
   };
   const patch = run.patchRun.bind(run);
   run.patchRun = async (...args) => {
     sanitize();
+    if (capture)
+      return capture(run, "patch", args[0]);
     return patch(...args);
   };
   sanitize();
@@ -14314,6 +14882,40 @@ function createSecretAnonymizer(options) {
   return createAnonymizer(rules, { maxDepth: options?.maxDepth ?? 24 });
 }
 
+// dist/src/langsmith.js
+init_constants();
+
+// dist/src/metadata.js
+init_config();
+init_constants();
+function codingAgentMetadata(opts) {
+  const options = {
+    ...opts,
+    integration: CURSOR_INTEGRATION,
+    ...LS_INTEGRATION_VERSION ? { integrationVersion: LS_INTEGRATION_VERSION } : {}
+  };
+  const metadata = buildCodingAgentMetadata(options);
+  Object.defineProperty(metadata, CODING_AGENT_METADATA_OPTIONS, {
+    value: Object.fromEntries(Object.entries(options).filter(([, value]) => value !== void 0)),
+    enumerable: true
+  });
+  return metadata;
+}
+function skillNameFromTool(toolName, toolInput) {
+  if (!READ_TOOLS.has(toolName))
+    return void 0;
+  const input = toolInput;
+  const filePath = input?.path ?? input?.file_path;
+  if (typeof filePath !== "string")
+    return void 0;
+  const segments = filePath.split(/[/\\]/);
+  const file = segments.pop();
+  const name = segments.pop();
+  if (file !== "SKILL.md" || !name || name.startsWith("."))
+    return void 0;
+  return segments.includes("skills") ? name : void 0;
+}
+
 // dist/src/conversation-steps.js
 import { DatabaseSync as DatabaseSync3 } from "node:sqlite";
 import { existsSync as existsSync5 } from "node:fs";
@@ -14323,13 +14925,16 @@ import { DatabaseSync } from "node:sqlite";
 import { existsSync as existsSync3, readFileSync as readFileSync6, statSync as statSync4 } from "node:fs";
 import { homedir as homedir4, platform } from "node:os";
 import { basename, join as join3 } from "node:path";
+init_logger();
 var MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024;
 
 // dist/src/system-prompt.js
 import { DatabaseSync as DatabaseSync2 } from "node:sqlite";
 import { existsSync as existsSync4 } from "node:fs";
+init_logger();
 
 // dist/src/conversation-steps.js
+init_logger();
 function groupSteps(steps) {
   const rounds = [];
   let current;
@@ -14361,56 +14966,4999 @@ ${step.text ?? ""}` : step.text;
   return rounds;
 }
 
-// dist/src/langsmith.js
+// dist/src/tracing-engine.js
+import { createHash as createHash5 } from "node:crypto";
+import { spawn } from "node:child_process";
+import { dirname as dirname6, extname, join as join16 } from "node:path";
+import { isDeepStrictEqual } from "node:util";
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/storage/capture/capture-store.js
+import { lstat as lstat3 } from "node:fs/promises";
+import { join as join7, resolve as resolve3 } from "node:path";
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/storage/capture/paths.js
 import { createHash } from "node:crypto";
-var client = void 0;
-var replicas = void 0;
-var refusedWrite = void 0;
-function isWriteRequest(init) {
-  const method = init?.method?.toUpperCase() ?? "GET";
-  return method !== "GET" && method !== "HEAD";
+import { resolve, join as join4 } from "node:path";
+function validateIntegration(value) {
+  if (!CAPTURE_INTEGRATION.test(value))
+    throw new TypeError("Invalid integration namespace");
 }
-var fetchRecordingRefusedWrites = async (input, init) => {
-  const request = `${init?.method ?? "GET"} ${typeof input === "string" ? input : String(input)}`;
-  try {
-    const response = await fetch(input, init);
-    if (isWriteRequest(init) && !response.ok) {
-      refusedWrite ??= `${request} answered ${response.status}`;
+function validateIdentifier(value, name) {
+  if (value.length === 0 || Buffer.byteLength(value, "utf8") > CAPTURE_MAX_IDENTIFIER_BYTES || hasControlCharacter(value)) {
+    throw new TypeError(`Invalid ${name}`);
+  }
+}
+function hasControlCharacter(value) {
+  for (const character of value) {
+    const codePoint = character.codePointAt(0);
+    if (codePoint !== void 0 && (codePoint < 32 || codePoint === 127))
+      return true;
+  }
+  return false;
+}
+function identifierHash(value) {
+  return createHash("sha256").update(value).digest("hex");
+}
+function captureDirectory(root) {
+  return join4(resolve(root), CAPTURE_DIRECTORY);
+}
+function eventPath(root, scope) {
+  return join4(captureDirectory(root), "integrations", scope.integration, "sessions", identifierHash(scope.sessionId), "turns", identifierHash(scope.turnId), "events", `${identifierHash(scope.eventId)}.json`);
+}
+function receiptPath(root, scope, destination) {
+  return join4(captureDirectory(root), "integrations", scope.integration, "sessions", identifierHash(scope.sessionId), "turns", identifierHash(scope.turnId), "receipts", identifierHash(destination), `${identifierHash(scope.eventId)}.json`);
+}
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/storage/capture/utils/atomic-file.js
+import { constants as fsConstants } from "node:fs";
+import { chmod, link, lstat, mkdir as mkdir4, open as open2, unlink as unlink3 } from "node:fs/promises";
+import { dirname as dirname4, isAbsolute, join as join5, relative, sep } from "node:path";
+import { randomUUID as randomUUID3 } from "node:crypto";
+async function ensurePrivateDirectory(root, segments) {
+  await mkdir4(root, { recursive: true, mode: CAPTURE_DIRECTORY_MODE });
+  const rootInfo = await lstat(root);
+  if (!rootInfo.isDirectory() || rootInfo.isSymbolicLink())
+    throw new Error("Capture root must be a real directory");
+  let current = root;
+  for (const segment of segments) {
+    current = join5(current, segment);
+    try {
+      await mkdir4(current, { mode: CAPTURE_DIRECTORY_MODE });
+    } catch (error2) {
+      if (errorCode(error2) !== "EEXIST")
+        throw error2;
     }
-    return response;
-  } catch (err) {
-    if (isWriteRequest(init))
-      refusedWrite ??= `${request} failed: ${err}`;
-    throw err;
+    const info = await lstat(current);
+    if (!info.isDirectory() || info.isSymbolicLink())
+      throw new Error("Capture path contains a non-directory");
+    await chmod(current, CAPTURE_DIRECTORY_MODE);
+    const checked = await lstat(current);
+    if (!checked.isDirectory() || checked.isSymbolicLink())
+      throw new Error("Capture path changed during setup");
+  }
+  return current;
+}
+async function publishExclusive(path3, contents, beforeCommit) {
+  const directory = dirname4(path3);
+  const stagingPath = join5(directory, `.${randomUUID3()}.tmp`);
+  const handle = await open2(stagingPath, "wx", CAPTURE_FILE_MODE);
+  try {
+    await handle.writeFile(contents, "utf8");
+    await handle.chmod(CAPTURE_FILE_MODE);
+    await handle.sync();
+  } finally {
+    await handle.close();
+  }
+  try {
+    beforeCommit?.();
+    await link(stagingPath, path3);
+    await syncDirectory(directory);
+    return true;
+  } catch (error2) {
+    if (errorCode(error2) === "EEXIST")
+      return false;
+    throw error2;
+  } finally {
+    await unlink3(stagingPath).catch((error2) => {
+      if (errorCode(error2) !== "ENOENT")
+        throw error2;
+    });
+  }
+}
+async function readPrivateFile(root, path3) {
+  if (!await hasRealParentDirectories(root, path3))
+    return void 0;
+  let handle;
+  try {
+    const info = await lstat(path3);
+    if (!info.isFile() || info.isSymbolicLink())
+      throw new Error("Capture record must be a regular file");
+    handle = await open2(path3, fsConstants.O_RDONLY | (fsConstants.O_NOFOLLOW ?? 0));
+  } catch (error2) {
+    if (errorCode(error2) === "ENOENT")
+      return void 0;
+    throw error2;
+  }
+  try {
+    if (!(await handle.stat()).isFile())
+      throw new Error("Capture record must be a regular file");
+    return await handle.readFile("utf8");
+  } finally {
+    await handle.close();
+  }
+}
+async function hasRealParentDirectories(root, path3) {
+  const relativeDirectory = relative(root, dirname4(path3));
+  if (relativeDirectory === ".." || relativeDirectory.startsWith(`..${sep}`) || isAbsolute(relativeDirectory)) {
+    throw new Error("Capture path is outside storage root");
+  }
+  const directories = [root];
+  let current = root;
+  for (const segment of relativeDirectory.split(sep).filter(Boolean)) {
+    current = join5(current, segment);
+    directories.push(current);
+  }
+  for (const directory of directories) {
+    let info;
+    try {
+      info = await lstat(directory);
+    } catch (error2) {
+      if (errorCode(error2) === "ENOENT")
+        return false;
+      throw error2;
+    }
+    if (!info.isDirectory() || info.isSymbolicLink())
+      throw new Error("Capture path contains a non-directory");
+  }
+  return true;
+}
+async function syncDirectory(path3) {
+  if (process.platform === "win32")
+    return;
+  const handle = await open2(path3, fsConstants.O_RDONLY | (fsConstants.O_DIRECTORY ?? 0) | (fsConstants.O_NOFOLLOW ?? 0));
+  try {
+    await handle.sync();
+  } finally {
+    await handle.close();
+  }
+}
+function errorCode(error2) {
+  return error2 !== null && typeof error2 === "object" && "code" in error2 && typeof error2.code === "string" ? error2.code : void 0;
+}
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/utils/files/private-directory.js
+import { lstat as lstat2, readdir as readdir3 } from "node:fs/promises";
+import { isAbsolute as isAbsolute2, join as join6, relative as relative2, resolve as resolve2, sep as sep2 } from "node:path";
+async function listPrivateDirectory(root, directory) {
+  const storageRoot = resolve2(root);
+  const target = resolve2(directory);
+  const relativePath = relative2(storageRoot, target);
+  if (relativePath === ".." || relativePath.startsWith(`..${sep2}`) || isAbsolute2(relativePath)) {
+    throw new Error("Private directory is outside storage root");
+  }
+  let current = storageRoot;
+  for (const segment of ["", ...relativePath.split(sep2).filter(Boolean)]) {
+    if (segment)
+      current = join6(current, segment);
+    const info = await lstatDirectory(current);
+    if (!info)
+      return void 0;
+    if (!info.isDirectory() || info.isSymbolicLink())
+      throw new Error("Private path contains a non-directory");
+  }
+  const entries = await readdir3(target, { withFileTypes: true });
+  const finalInfo = await lstat2(target);
+  if (!finalInfo.isDirectory() || finalInfo.isSymbolicLink())
+    throw new Error("Private path changed during enumeration");
+  return entries;
+}
+async function lstatDirectory(path3) {
+  try {
+    return await lstat2(path3);
+  } catch (error2) {
+    if (errorCode2(error2) === "ENOENT")
+      return void 0;
+    throw error2;
+  }
+}
+function errorCode2(error2) {
+  return error2 !== null && typeof error2 === "object" && "code" in error2 && typeof error2.code === "string" ? error2.code : void 0;
+}
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/storage/capture/capture-store.js
+function createCaptureStore(root) {
+  const storageRoot = resolve3(root);
+  return {
+    async capture(input) {
+      let record;
+      let contents;
+      try {
+        validateScope(input);
+        const dependencies = normalizeDependencies(input.dependencies, input);
+        validateIdentifier(input.runId, "run ID");
+        validateIdentifier(input.destinationFingerprint, "destination fingerprint");
+        validateIdentifier(input.eventKind, "event kind");
+        record = {
+          version: CAPTURE_RECORD_VERSION,
+          capturedAtMs: Date.now(),
+          integration: input.integration,
+          sessionId: input.sessionId,
+          turnId: input.turnId,
+          eventId: input.eventId,
+          runId: input.runId,
+          destinationFingerprint: input.destinationFingerprint,
+          eventKind: input.eventKind,
+          normalizedPayload: canonicalValue(input.normalizedPayload, /* @__PURE__ */ new Set()),
+          turnEvidence: canonicalValue(input.turnEvidence, /* @__PURE__ */ new Set()),
+          metadataProvenance: canonicalValue(input.metadataProvenance, /* @__PURE__ */ new Set()),
+          ...input.sourceAgeStartedAtMs === void 0 ? {} : {
+            sourceAgeStartedAtMs: requireSafeEpochMilliseconds(input.sourceAgeStartedAtMs, "Source age")
+          },
+          ...dependencies === void 0 ? {} : { dependencies }
+        };
+        contents = canonicalJson(record);
+      } catch (error2) {
+        return failure("SERIALIZATION_FAILED", error2);
+      }
+      try {
+        const path3 = eventPath(storageRoot, input);
+        await ensureDirectories(input.integration, input.sessionId, input.turnId, "events");
+        if (await publishExclusive(path3, contents))
+          return { status: "published", record };
+        const previous = await readRecord(storageRoot, path3);
+        if (previous === void 0)
+          return {
+            status: "failed",
+            code: "STORAGE_FAILED",
+            message: "Published event disappeared"
+          };
+        if (!sameScope(previous, input))
+          return { status: "conflict" };
+        return sameCapture(previous, record) ? { status: "duplicate", record: previous } : { status: "conflict" };
+      } catch (error2) {
+        return failure("STORAGE_FAILED", error2);
+      }
+    },
+    async read(scope) {
+      validateScope(scope);
+      const record = await readRecord(storageRoot, eventPath(storageRoot, scope));
+      if (record === void 0)
+        return void 0;
+      if (!sameScope(record, scope))
+        throw new Error("Capture namespace does not match");
+      return record;
+    },
+    async enumerate(integration, sessionId) {
+      validateIntegration(integration);
+      validateIdentifier(sessionId, "session ID");
+      const turnsDirectory = join7(captureDirectory(storageRoot), "integrations", integration, "sessions", identifierHash(sessionId), "turns");
+      const turns = await listPrivateDirectory(storageRoot, turnsDirectory);
+      if (turns === void 0)
+        return [];
+      const captures = [];
+      for (const turn of turns) {
+        if (!turn.isDirectory() || turn.isSymbolicLink() || !CAPTURE_HASH.test(turn.name))
+          throw new Error("Invalid capture turn directory");
+        const eventDirectory = join7(turnsDirectory, turn.name, "events");
+        const events = await listPrivateDirectory(storageRoot, eventDirectory);
+        if (events === void 0)
+          continue;
+        for (const event of events) {
+          if (event.isSymbolicLink() || !event.isFile())
+            throw new Error("Capture event must be a regular file");
+          if (CAPTURE_STAGING_FILE.test(event.name))
+            continue;
+          if (!CAPTURE_EVENT_FILE.test(event.name))
+            throw new Error("Invalid capture event path");
+          const path3 = join7(eventDirectory, event.name);
+          const record = await readRecord(storageRoot, path3);
+          if (record === void 0 || record.integration !== integration || record.sessionId !== sessionId || identifierHash(record.turnId) !== turn.name || `${identifierHash(record.eventId)}.json` !== event.name) {
+            throw new Error("Capture event namespace does not match");
+          }
+          const info = await lstat3(path3);
+          if (!info.isFile() || info.isSymbolicLink() || !Number.isFinite(info.mtimeMs))
+            throw new Error("Capture event must be a regular file");
+          captures.push({ record, capturedAtMs: record.capturedAtMs });
+        }
+      }
+      return captures.toSorted(compareCaptures);
+    },
+    async enumerateSessions(integration) {
+      validateIntegration(integration);
+      const sessionsDirectory = join7(captureDirectory(storageRoot), "integrations", integration, "sessions");
+      const directories = await listPrivateDirectory(storageRoot, sessionsDirectory);
+      if (directories === void 0)
+        return [];
+      const sessions = [];
+      for (const directory of directories) {
+        if (!directory.isDirectory() || directory.isSymbolicLink() || !CAPTURE_HASH.test(directory.name)) {
+          throw new Error("Invalid capture session directory");
+        }
+        const session = await enumerateSession(storageRoot, integration, directory.name);
+        if (session === void 0 || session.captures.length === 0)
+          continue;
+        sessions.push(session);
+      }
+      return sessions.toSorted((left, right) => left.sessionId === right.sessionId ? 0 : left.sessionId < right.sessionId ? -1 : 1);
+    },
+    async recordOutcome(input) {
+      try {
+        validateScope(input);
+        validateIdentifier(input.destination, "destination");
+        if (input.outcome !== "delivered" && input.outcome !== "dropped")
+          throw new TypeError("Invalid outcome");
+        if (input.reason !== void 0)
+          validateIdentifier(input.reason, "outcome reason");
+        if (await this.read(input) === void 0)
+          return { status: "missing-capture" };
+        const path3 = receiptPath(storageRoot, input, input.destination);
+        await ensureDirectories(input.integration, input.sessionId, input.turnId, "receipts", input.destination);
+        const comparable = receiptValue(input, (/* @__PURE__ */ new Date()).toISOString());
+        const contents = canonicalJson(comparable);
+        if (await publishExclusive(path3, contents))
+          return { status: "recorded", receipt: comparable };
+        const previous = await readReceipt(storageRoot, path3);
+        if (previous === void 0)
+          return {
+            status: "failed",
+            code: "STORAGE_FAILED",
+            message: "Published receipt disappeared"
+          };
+        return sameReceipt(previous, input) ? { status: "duplicate", receipt: previous } : { status: "conflict" };
+      } catch (error2) {
+        return failure("STORAGE_FAILED", error2);
+      }
+    },
+    async readOutcome(scope, destination) {
+      try {
+        validateScope(scope);
+        validateIdentifier(destination, "destination");
+        if (await this.read(scope) === void 0)
+          return { status: "missing-capture" };
+        const receipt = await readReceipt(storageRoot, receiptPath(storageRoot, scope, destination));
+        if (receipt === void 0)
+          return { status: "pending" };
+        return sameScope(receipt, scope) && receipt.destination === destination ? { status: "settled", receipt } : {
+          status: "failed",
+          code: "STORAGE_FAILED",
+          message: "Receipt namespace does not match"
+        };
+      } catch (error2) {
+        return failure("STORAGE_FAILED", error2);
+      }
+    }
+  };
+  async function ensureDirectories(integration, sessionId, turnId, collection, destination) {
+    const pathSegments = [
+      CAPTURE_DIRECTORY,
+      "integrations",
+      integration,
+      "sessions",
+      identifierHash(sessionId),
+      "turns",
+      identifierHash(turnId),
+      collection
+    ];
+    if (destination !== void 0)
+      pathSegments.push(identifierHash(destination));
+    await ensurePrivateDirectory(storageRoot, pathSegments);
+  }
+}
+function compareCaptures(left, right) {
+  if (left.capturedAtMs !== right.capturedAtMs)
+    return left.capturedAtMs < right.capturedAtMs ? -1 : 1;
+  if (left.record.eventId === right.record.eventId)
+    return 0;
+  return left.record.eventId < right.record.eventId ? -1 : 1;
+}
+async function enumerateSession(root, integration, sessionHash) {
+  const turnsDirectory = join7(captureDirectory(root), "integrations", integration, "sessions", sessionHash, "turns");
+  const turns = await listPrivateDirectory(root, turnsDirectory);
+  if (turns === void 0)
+    return void 0;
+  const captures = [];
+  let sessionId;
+  for (const turn of turns) {
+    if (!turn.isDirectory() || turn.isSymbolicLink() || !CAPTURE_HASH.test(turn.name))
+      throw new Error("Invalid capture turn directory");
+    const eventDirectory = join7(turnsDirectory, turn.name, "events");
+    const events = await listPrivateDirectory(root, eventDirectory);
+    if (events === void 0)
+      continue;
+    for (const event of events) {
+      if (event.isSymbolicLink() || !event.isFile())
+        throw new Error("Capture event must be a regular file");
+      if (CAPTURE_STAGING_FILE.test(event.name))
+        continue;
+      if (!CAPTURE_EVENT_FILE.test(event.name))
+        throw new Error("Invalid capture event path");
+      const path3 = join7(eventDirectory, event.name);
+      const record = await readRecord(root, path3);
+      if (record === void 0 || record.integration !== integration || identifierHash(record.sessionId) !== sessionHash || identifierHash(record.turnId) !== turn.name || `${identifierHash(record.eventId)}.json` !== event.name || sessionId !== void 0 && record.sessionId !== sessionId) {
+        throw new Error("Capture event namespace does not match");
+      }
+      sessionId = record.sessionId;
+      const info = await lstat3(path3);
+      if (!info.isFile() || info.isSymbolicLink() || !Number.isFinite(info.mtimeMs))
+        throw new Error("Capture event must be a regular file");
+      captures.push({ record, capturedAtMs: record.capturedAtMs });
+    }
+  }
+  if (sessionId === void 0)
+    return void 0;
+  return { sessionId, captures: captures.toSorted(compareCaptures) };
+}
+function sameCapture(left, right) {
+  const leftContent = { ...left };
+  const rightContent = { ...right };
+  delete leftContent.capturedAtMs;
+  delete rightContent.capturedAtMs;
+  return canonicalJson(leftContent) === canonicalJson(rightContent);
+}
+function receiptValue(input, recordedAt) {
+  return {
+    version: CAPTURE_RECEIPT_VERSION,
+    integration: input.integration,
+    sessionId: input.sessionId,
+    turnId: input.turnId,
+    eventId: input.eventId,
+    destination: input.destination,
+    outcome: input.outcome,
+    ...input.reason === void 0 ? {} : { reason: input.reason },
+    recordedAt
+  };
+}
+async function readRecord(root, path3) {
+  const contents = await readPrivateFile(root, path3);
+  if (contents === void 0)
+    return void 0;
+  const value = parseObject(contents);
+  if (value.version !== CAPTURE_RECORD_VERSION || typeof value.capturedAtMs !== "number" || !Number.isSafeInteger(value.capturedAtMs) || !Number.isFinite(new Date(value.capturedAtMs).getTime()) || typeof value.integration !== "string" || typeof value.sessionId !== "string" || typeof value.turnId !== "string" || typeof value.eventId !== "string" || typeof value.runId !== "string" || typeof value.destinationFingerprint !== "string" || typeof value.eventKind !== "string" || !("normalizedPayload" in value) || !("turnEvidence" in value) || !("metadataProvenance" in value)) {
+    throw new Error("Unsupported capture record");
+  }
+  if ("sourceAgeStartedAtMs" in value) {
+    requireSafeEpochMilliseconds(value["sourceAgeStartedAtMs"], "Stored source age");
+  }
+  for (const [identifier, name] of [
+    [value.runId, "run ID"],
+    [value.destinationFingerprint, "destination fingerprint"],
+    [value.eventKind, "event kind"]
+  ]) {
+    validateIdentifier(identifier, name);
+  }
+  const scope = {
+    integration: value.integration,
+    sessionId: value.sessionId,
+    turnId: value.turnId,
+    eventId: value.eventId
+  };
+  validateScope(scope);
+  const dependencies = normalizeDependencies(value.dependencies, scope);
+  return {
+    ...value,
+    ...dependencies === void 0 ? {} : { dependencies }
+  };
+}
+async function readReceipt(root, path3) {
+  const contents = await readPrivateFile(root, path3);
+  if (contents === void 0)
+    return void 0;
+  const value = parseObject(contents);
+  if (value.version !== CAPTURE_RECEIPT_VERSION || typeof value.integration !== "string" || typeof value.sessionId !== "string" || typeof value.turnId !== "string" || typeof value.eventId !== "string" || typeof value.destination !== "string" || value.outcome !== "delivered" && value.outcome !== "dropped" || typeof value.recordedAt !== "string" || "reason" in value && typeof value.reason !== "string") {
+    throw new Error("Unsupported outcome receipt");
+  }
+  validateIdentifier(value.destination, "destination");
+  if ("reason" in value)
+    validateIdentifier(value.reason, "outcome reason");
+  const recordedAt = new Date(value.recordedAt);
+  if (!Number.isFinite(recordedAt.getTime()) || recordedAt.toISOString() !== value.recordedAt)
+    throw new Error("Unsupported outcome receipt");
+  return value;
+}
+function parseObject(contents) {
+  const value = JSON.parse(contents);
+  if (value === null || typeof value !== "object" || Array.isArray(value))
+    throw new Error("Invalid storage record");
+  return value;
+}
+function validateScope(scope) {
+  validateIntegration(scope.integration);
+  validateIdentifier(scope.sessionId, "session ID");
+  validateIdentifier(scope.turnId, "turn ID");
+  validateIdentifier(scope.eventId, "event ID");
+}
+function normalizeDependencies(value, dependent) {
+  if (value === void 0)
+    return void 0;
+  if (!Array.isArray(value))
+    throw new TypeError("Invalid capture dependencies");
+  const seen = /* @__PURE__ */ new Set();
+  return value.map((item) => {
+    if (item === null || typeof item !== "object" || Array.isArray(item))
+      throw new TypeError("Invalid capture dependency");
+    const candidate = item;
+    if (typeof candidate.integration !== "string" || typeof candidate.sessionId !== "string" || typeof candidate.turnId !== "string" || typeof candidate.eventId !== "string") {
+      throw new TypeError("Invalid capture dependency");
+    }
+    const dependency = {
+      integration: candidate.integration,
+      sessionId: candidate.sessionId,
+      turnId: candidate.turnId,
+      eventId: candidate.eventId
+    };
+    validateScope(dependency);
+    if (dependency.integration !== dependent.integration)
+      throw new TypeError("Capture dependencies must use the same integration");
+    if (sameScope(dependency, dependent))
+      throw new TypeError("Capture cannot depend on itself");
+    const key = canonicalJson(dependency);
+    if (seen.has(key))
+      throw new TypeError("Capture dependencies must be unique");
+    seen.add(key);
+    return dependency;
+  });
+}
+function sameScope(record, scope) {
+  return record.integration === scope.integration && record.sessionId === scope.sessionId && record.turnId === scope.turnId && record.eventId === scope.eventId;
+}
+function sameReceipt(receipt, input) {
+  return sameScope(receipt, input) && receipt.destination === input.destination && receipt.outcome === input.outcome && receipt.reason === input.reason;
+}
+function failure(code, error2) {
+  return {
+    status: "failed",
+    code: errorCode3(error2) ?? code,
+    message: error2 instanceof Error ? error2.message : String(error2)
+  };
+}
+function errorCode3(error2) {
+  return error2 !== null && typeof error2 === "object" && "code" in error2 && typeof error2.code === "string" ? error2.code : void 0;
+}
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/background-worker/worker.js
+import { randomUUID as randomUUID5 } from "node:crypto";
+import { unlink as unlink5 } from "node:fs/promises";
+import { join as join10, resolve as resolve6 } from "node:path";
+import { setTimeout as delay2 } from "node:timers/promises";
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/storage/file-lock.js
+import { chmod as chmod2, link as link2, lstat as lstat4, mkdir as mkdir5, readFile, readdir as readdir4, rename as rename3, unlink as unlink4, writeFile as writeFile2 } from "node:fs/promises";
+import { performance as performance4 } from "node:perf_hooks";
+import { randomUUID as randomUUID4 } from "node:crypto";
+import { dirname as dirname5, join as join8, resolve as resolve4 } from "node:path";
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/storage/constants.js
+var FILE_LOCK_CLAIM_VERSION = 1;
+var FILE_LOCK_CLAIM_EXTENSION = ".json";
+var FILE_LOCK_DIRECTORY_SUFFIX = ".claims";
+var FILE_LOCK_TEMP_PREFIX = ".";
+var FILE_LOCK_TEMP_SUFFIX = ".tmp";
+var FILE_LOCK_EXCLUSIVE_FLAG = "wx";
+var FILE_LOCK_ENCODING = "utf-8";
+var FILE_LOCK_DEFAULT_TIMEOUT_MS = 5e3;
+var FILE_LOCK_POLL_INTERVAL_MS = 10;
+var FILE_LOCK_DIRECTORY_MODE = 448;
+var FILE_LOCK_FILE_MODE = 384;
+var FILE_LOCK_UNSELECTED_TICKET = 0;
+var FILE_LOCK_NEGATIVE_TICKET_LIMIT = 0;
+var FILE_LOCK_TIMEOUT_MESSAGE = "Timed out waiting for file lock";
+var FILE_LOCK_TICKET_LIMIT_MESSAGE = "File lock ticket limit reached";
+var FILE_LOCK_RELEASE_MESSAGE = "Could not release file lock claim";
+var FILE_LOCK_INVALID_TIMEOUT_MESSAGE = "timeoutMs must be a finite positive number";
+var FILE_LOCK_ACQUIRE_MESSAGE = "Could not acquire file lock claim";
+var FILE_LOCK_UNSAFE_DIRECTORY_MESSAGE = "Unsafe file lock claims directory";
+var FILE_LOCK_EXISTS_CODE = "EEXIST";
+var FILE_LOCK_MISSING_CODE = "ENOENT";
+var FILE_LOCK_PROCESS_MISSING_CODE = "ESRCH";
+var FILE_LOCK_PROCESS_CHECK_SIGNAL = 0;
+var FILE_LOCK_RENAME_RETRY_TIMEOUT_MS = 100;
+var FILE_LOCK_RENAME_BUSY_CODE = "EPERM";
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/storage/file-lock.js
+function isRecord3(value) {
+  return typeof value === "object" && value !== null;
+}
+function parseClaim(value, id) {
+  if (!isRecord3(value))
+    return void 0;
+  if (value.version !== FILE_LOCK_CLAIM_VERSION || value.id !== id || typeof value.pid !== "number" || !Number.isSafeInteger(value.pid) || value.pid <= 0 || typeof value.choosing !== "boolean" || typeof value.ticket !== "number" || !Number.isSafeInteger(value.ticket) || value.ticket < FILE_LOCK_NEGATIVE_TICKET_LIMIT || (value.choosing ? value.ticket !== FILE_LOCK_UNSELECTED_TICKET : value.ticket === FILE_LOCK_UNSELECTED_TICKET)) {
+    return void 0;
+  }
+  return value;
+}
+async function processIsAlive(pid) {
+  try {
+    process.kill(pid, FILE_LOCK_PROCESS_CHECK_SIGNAL);
+    return true;
+  } catch (error2) {
+    const code = error2.code;
+    if (code === FILE_LOCK_PROCESS_MISSING_CODE)
+      return false;
+    return void 0;
+  }
+}
+async function removeFile(filePath) {
+  try {
+    await unlink4(filePath);
+    return true;
+  } catch (error2) {
+    if (error2.code === FILE_LOCK_MISSING_CODE)
+      return true;
+    return false;
+  }
+}
+async function publishClaim(filePath, claim, create, deadline) {
+  const temporaryPath = join8(dirname5(filePath), `${FILE_LOCK_TEMP_PREFIX}${claim.id}.${randomUUID4()}${FILE_LOCK_TEMP_SUFFIX}`);
+  try {
+    await writeFile2(temporaryPath, JSON.stringify(claim), {
+      flag: FILE_LOCK_EXCLUSIVE_FLAG,
+      mode: FILE_LOCK_FILE_MODE
+    });
+    if (create)
+      await link2(temporaryPath, filePath);
+    else {
+      const replacementDeadline = deadline ?? performance4.now() + FILE_LOCK_RENAME_RETRY_TIMEOUT_MS;
+      for (; ; ) {
+        try {
+          await rename3(temporaryPath, filePath);
+          break;
+        } catch (error2) {
+          if (error2.code !== FILE_LOCK_RENAME_BUSY_CODE)
+            throw error2;
+          await waitForNextScan(replacementDeadline, filePath);
+        }
+      }
+    }
+  } finally {
+    await removeFile(temporaryPath);
+  }
+}
+async function createClaim(claimDirectory) {
+  for (; ; ) {
+    const id = randomUUID4();
+    const claim = {
+      version: FILE_LOCK_CLAIM_VERSION,
+      id,
+      pid: process.pid,
+      choosing: true,
+      ticket: FILE_LOCK_UNSELECTED_TICKET
+    };
+    try {
+      await publishClaim(join8(claimDirectory, `${id}${FILE_LOCK_CLAIM_EXTENSION}`), claim, true);
+      return claim;
+    } catch (error2) {
+      if (error2.code !== FILE_LOCK_EXISTS_CODE)
+        throw error2;
+    }
+  }
+}
+async function scanClaims(claimDirectory) {
+  const entries = await readdir4(claimDirectory, { withFileTypes: true });
+  const claims = [];
+  for (const entry of entries) {
+    if (!entry.name.endsWith(FILE_LOCK_CLAIM_EXTENSION))
+      continue;
+    const id = entry.name.slice(0, -FILE_LOCK_CLAIM_EXTENSION.length);
+    if (!entry.isFile())
+      return { claims, blocked: true };
+    let value;
+    try {
+      value = JSON.parse(await readFile(join8(claimDirectory, entry.name), FILE_LOCK_ENCODING));
+    } catch (error2) {
+      if (error2.code === FILE_LOCK_MISSING_CODE)
+        continue;
+      return { claims, blocked: true };
+    }
+    const claim = parseClaim(value, id);
+    if (!claim)
+      return { claims, blocked: true };
+    const alive = await processIsAlive(claim.pid);
+    if (alive === false) {
+      if (!await removeFile(join8(claimDirectory, entry.name)))
+        return { claims, blocked: true };
+      continue;
+    }
+    if (alive === void 0)
+      return { claims, blocked: true };
+    claims.push(claim);
+  }
+  return { claims, blocked: false };
+}
+function claimPath(claimDirectory, id) {
+  return join8(claimDirectory, `${id}${FILE_LOCK_CLAIM_EXTENSION}`);
+}
+function hasClaimState(claims, id, choosing, ticket) {
+  const claim = claims.find((peer) => peer.id === id);
+  return claim?.choosing === choosing && claim.ticket === ticket;
+}
+function makeHandle(claimDirectory, claim) {
+  let releasePromise;
+  return {
+    release() {
+      releasePromise ??= removeFile(claimPath(claimDirectory, claim.id)).then((removed) => {
+        if (!removed)
+          throw new Error(FILE_LOCK_RELEASE_MESSAGE);
+      });
+      return releasePromise;
+    }
+  };
+}
+async function beginClaim(filePath) {
+  const claimDirectory = `${resolve4(filePath)}${FILE_LOCK_DIRECTORY_SUFFIX}`;
+  await assertSafeClaimDirectory(claimDirectory);
+  await mkdir5(claimDirectory, { recursive: true, mode: FILE_LOCK_DIRECTORY_MODE });
+  await assertSafeClaimDirectory(claimDirectory);
+  await chmod2(claimDirectory, FILE_LOCK_DIRECTORY_MODE);
+  return { claimDirectory, claim: await createClaim(claimDirectory) };
+}
+async function assertSafeClaimDirectory(claimDirectory) {
+  let stat3;
+  try {
+    stat3 = await lstat4(claimDirectory);
+  } catch (error2) {
+    if (error2.code === FILE_LOCK_MISSING_CODE)
+      return;
+    throw error2;
+  }
+  if (stat3.isSymbolicLink() || !stat3.isDirectory())
+    throw new Error(FILE_LOCK_UNSAFE_DIRECTORY_MESSAGE);
+}
+async function acquireClaim(filePath, waitForPeers, deadline) {
+  const { claimDirectory, claim } = await beginClaim(filePath);
+  const ownPath = claimPath(claimDirectory, claim.id);
+  let ownedClaim;
+  try {
+    for (; ; ) {
+      const scan = await scanClaims(claimDirectory);
+      if (scan.blocked || !hasClaimState(scan.claims, claim.id, true, FILE_LOCK_UNSELECTED_TICKET)) {
+        if (!await waitOrReleaseClaim(waitForPeers, deadline, filePath, claimDirectory, claim))
+          return void 0;
+        continue;
+      }
+      const peers = scan.claims.filter((peer) => peer.id !== claim.id);
+      if (!waitForPeers && peers.length > 0) {
+        await makeHandle(claimDirectory, claim).release();
+        return void 0;
+      }
+      let maxTicket = FILE_LOCK_UNSELECTED_TICKET;
+      for (const peer of scan.claims)
+        maxTicket = Math.max(maxTicket, peer.ticket);
+      if (maxTicket >= Number.MAX_SAFE_INTEGER)
+        throw new Error(FILE_LOCK_TICKET_LIMIT_MESSAGE);
+      ownedClaim = { ...claim, choosing: false, ticket: maxTicket + 1 };
+      await publishClaim(ownPath, ownedClaim, false, waitForPeers ? deadline : void 0);
+      break;
+    }
+    const ticketedClaim = ownedClaim;
+    if (!ticketedClaim)
+      throw new Error(FILE_LOCK_ACQUIRE_MESSAGE);
+    for (; ; ) {
+      const scan = await scanClaims(claimDirectory);
+      if (scan.blocked || !hasClaimState(scan.claims, claim.id, false, ticketedClaim.ticket)) {
+        if (!await waitOrReleaseClaim(waitForPeers, deadline, filePath, claimDirectory, claim))
+          return void 0;
+        continue;
+      }
+      const peers = scan.claims.filter((peer) => peer.id !== claim.id);
+      const blockedByPeer = peers.length > 0 && (!waitForPeers || peers.some((peer) => precedes(peer, ticketedClaim)));
+      if (blockedByPeer) {
+        if (!await waitOrReleaseClaim(waitForPeers, deadline, filePath, claimDirectory, claim))
+          return void 0;
+        continue;
+      }
+      if (waitForPeers && performance4.now() > deadline)
+        throw timeoutError(filePath);
+      return { claimDirectory, claim: ticketedClaim };
+    }
+  } catch (error2) {
+    await makeHandle(claimDirectory, claim).release();
+    throw error2;
+  }
+}
+async function tryAcquireFileLock(filePath) {
+  const acquired = await acquireClaim(filePath, false, 0);
+  if (!acquired)
+    return void 0;
+  return makeHandle(acquired.claimDirectory, acquired.claim);
+}
+async function waitForFileLockClaim(filePath, pid, options) {
+  if (!Number.isSafeInteger(pid) || pid <= 0)
+    throw new TypeError("Invalid file lock process ID");
+  const waitMs = timeoutMs(options);
+  const deadline = performance4.now() + waitMs;
+  const claimDirectory = `${resolve4(filePath)}${FILE_LOCK_DIRECTORY_SUFFIX}`;
+  for (; ; ) {
+    await assertSafeClaimDirectory(claimDirectory);
+    try {
+      const scan = await scanClaims(claimDirectory);
+      if (scan.claims.some((claim) => claim.pid === pid))
+        return true;
+    } catch (error2) {
+      if (error2.code !== FILE_LOCK_MISSING_CODE)
+        throw error2;
+    }
+    if (await processIsAlive(pid) === false)
+      return false;
+    const remaining = deadline - performance4.now();
+    if (remaining <= 0)
+      return false;
+    await new Promise((resolvePromise) => setTimeout(resolvePromise, Math.min(FILE_LOCK_POLL_INTERVAL_MS, remaining)));
+  }
+}
+function precedes(left, right) {
+  return left.ticket < right.ticket || left.ticket === right.ticket && left.id < right.id;
+}
+function timeoutError(filePath) {
+  return new Error(`${FILE_LOCK_TIMEOUT_MESSAGE}: ${resolve4(filePath)}`);
+}
+function timeoutMs(options) {
+  const value = options?.timeoutMs ?? FILE_LOCK_DEFAULT_TIMEOUT_MS;
+  if (!Number.isFinite(value) || value <= 0)
+    throw new RangeError(FILE_LOCK_INVALID_TIMEOUT_MESSAGE);
+  return value;
+}
+function waitForNextScan(deadline, filePath) {
+  const remaining = deadline - performance4.now();
+  if (remaining <= 0)
+    return Promise.reject(timeoutError(filePath));
+  return new Promise((resolvePromise) => setTimeout(resolvePromise, Math.min(FILE_LOCK_POLL_INTERVAL_MS, remaining)));
+}
+async function waitOrReleaseClaim(waitForPeers, deadline, filePath, claimDirectory, claim) {
+  if (!waitForPeers) {
+    await makeHandle(claimDirectory, claim).release();
+    return false;
+  }
+  await waitForNextScan(deadline, filePath);
+  return true;
+}
+async function withFileLock(filePath, callback, options) {
+  const waitMs = timeoutMs(options);
+  const deadline = performance4.now() + waitMs;
+  const acquired = await acquireClaim(filePath, true, deadline);
+  if (!acquired)
+    throw new Error(FILE_LOCK_ACQUIRE_MESSAGE);
+  try {
+    return await callback();
+  } finally {
+    await makeHandle(acquired.claimDirectory, acquired.claim).release();
+  }
+}
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/background-worker/constants.js
+var BACKGROUND_WORKER_DIRECTORY = "background-worker";
+var BACKGROUND_WORKER_INTEGRATIONS_DIRECTORY = "integrations";
+var BACKGROUND_WORKER_SESSIONS_DIRECTORY = "sessions";
+var BACKGROUND_WORKER_ACCOUNTS_DIRECTORY = "accounts";
+var BACKGROUND_WORKER_LOCK_FILE = "worker";
+var BACKGROUND_WORKER_PENDING_FILE = "wake.pending";
+var BACKGROUND_WORKER_ACTIVE_PREFIX = "wake.active.";
+var BACKGROUND_WORKER_LAUNCHING_FILE = "wake.launching";
+var BACKGROUND_WORKER_STAGING_FILE = /^\.[0-9a-f-]{36}\.tmp$/u;
+var BACKGROUND_WORKER_MARKER_ID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/u;
+var BACKGROUND_WORKER_ACTIVE_MARKER_NAME = /^wake\.active\.([0-9a-f-]{36})\.json$/u;
+var BACKGROUND_WORKER_ATTEMPT_NAME = /^wake\.active\.([0-9a-f-]{36})\.attempt\.([1-9]\d*)\.json$/u;
+var BACKGROUND_WORKER_MARKER_VERSION = 1;
+var BACKGROUND_WORKER_ATTEMPT_VERSION = 1;
+var BACKGROUND_WORKER_LAUNCH_VERSION = 1;
+var BACKGROUND_WORKER_DEFAULT_MAX_ATTEMPTS = 3;
+var BACKGROUND_WORKER_DEFAULT_RETRY_DELAY_MS = 100;
+var BACKGROUND_WORKER_OWNER_WAIT_MS = 3e4;
+var BACKGROUND_WORKER_STARTUP_WAIT_MS = 2e3;
+var BACKGROUND_WORKER_LAUNCH_LEASE_MS = 3e4;
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/background-worker/paths.js
+import { join as join9, resolve as resolve5 } from "node:path";
+function validateWorkerScope(scope) {
+  validateIntegration(scope.integration);
+  validateIdentifier(scope.sessionId, "session ID");
+  validateIdentifier(scope.accountFingerprint, "account fingerprint");
+}
+function workerDirectory(storageRoot, scope) {
+  validateWorkerScope(scope);
+  return join9(resolve5(storageRoot), BACKGROUND_WORKER_DIRECTORY, BACKGROUND_WORKER_INTEGRATIONS_DIRECTORY, scope.integration, BACKGROUND_WORKER_SESSIONS_DIRECTORY, identifierHash(scope.sessionId), BACKGROUND_WORKER_ACCOUNTS_DIRECTORY, identifierHash(scope.accountFingerprint));
+}
+function workerLockPath(storageRoot, scope) {
+  return join9(workerDirectory(storageRoot, scope), BACKGROUND_WORKER_LOCK_FILE);
+}
+function workerPendingPath(storageRoot, scope) {
+  return join9(workerDirectory(storageRoot, scope), BACKGROUND_WORKER_PENDING_FILE);
+}
+function workerActivePath(storageRoot, scope, markerId) {
+  return join9(workerDirectory(storageRoot, scope), `${BACKGROUND_WORKER_ACTIVE_PREFIX}${markerId}.json`);
+}
+function workerAttemptPath(storageRoot, scope, markerId, attempt) {
+  return join9(workerDirectory(storageRoot, scope), `${BACKGROUND_WORKER_ACTIVE_PREFIX}${markerId}.attempt.${attempt}.json`);
+}
+function workerLaunchPath(storageRoot, scope) {
+  return join9(workerDirectory(storageRoot, scope), BACKGROUND_WORKER_LAUNCHING_FILE);
+}
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/background-worker/worker.js
+function createBackgroundWorker(options) {
+  validateOptions(options);
+  const storageRoot = resolve6(options.storageRoot);
+  const scope = Object.freeze({ ...options.scope });
+  const retryPolicy = {
+    maxAttempts: options.retryPolicy?.maxAttempts ?? BACKGROUND_WORKER_DEFAULT_MAX_ATTEMPTS,
+    retryDelayMs: options.retryPolicy?.retryDelayMs ?? BACKGROUND_WORKER_DEFAULT_RETRY_DELAY_MS
+  };
+  const config = { ...options, storageRoot, scope, retryPolicy };
+  const directory = workerDirectory(storageRoot, scope);
+  const lockPath2 = workerLockPath(storageRoot, scope);
+  const directorySegments = [
+    BACKGROUND_WORKER_DIRECTORY,
+    BACKGROUND_WORKER_INTEGRATIONS_DIRECTORY,
+    scope.integration,
+    BACKGROUND_WORKER_SESSIONS_DIRECTORY,
+    identifierHash(scope.sessionId),
+    BACKGROUND_WORKER_ACCOUNTS_DIRECTORY,
+    identifierHash(scope.accountFingerprint)
+  ];
+  return {
+    async wake() {
+      await ensurePrivateDirectory(storageRoot, directorySegments);
+      const marker = makeMarker(randomUUID5());
+      await publishExclusive(workerPendingPath(storageRoot, scope), JSON.stringify(marker));
+      const lock = await tryAcquireFileLock(lockPath2);
+      if (!lock)
+        return "queued";
+      try {
+        const existingLaunch = await readLaunch(storageRoot, scope);
+        if (existingLaunch && existingLaunch.expiresAtMs > Date.now() && await processIsAlive2(existingLaunch.pid)) {
+          return "queued";
+        }
+        if (existingLaunch)
+          await removeFile2(workerLaunchPath(storageRoot, scope));
+        const pid = await config.launchWorker();
+        if (!Number.isSafeInteger(pid) || pid <= 0 || pid === process.pid)
+          throw new TypeError("Background worker launcher must return a child process ID");
+        const createdAtMs = Date.now();
+        const launch = {
+          version: BACKGROUND_WORKER_LAUNCH_VERSION,
+          pid,
+          createdAtMs,
+          expiresAtMs: createdAtMs + Math.max(BACKGROUND_WORKER_LAUNCH_LEASE_MS, config.startupWaitMs ?? 0)
+        };
+        if (!await publishExclusive(workerLaunchPath(storageRoot, scope), JSON.stringify(launch))) {
+          throw new Error("Background worker launch is already pending");
+        }
+        const claimed = await waitForFileLockClaim(lockPath2, pid, {
+          timeoutMs: config.startupWaitMs ?? BACKGROUND_WORKER_STARTUP_WAIT_MS
+        });
+        if (!claimed)
+          throw new Error("Background worker did not claim its lock before timeout");
+        return "launched";
+      } finally {
+        await lock.release();
+      }
+    },
+    async run() {
+      await ensurePrivateDirectory(storageRoot, directorySegments);
+      let processed = false;
+      let retryExhausted = false;
+      let failures = 0;
+      for (; ; ) {
+        const result = await withFileLock(lockPath2, async () => {
+          for (; ; ) {
+            if (!await matchesScope(config.resolveScope, scope))
+              return "scope-mismatch";
+            const pass = await (async () => {
+              if (!await matchesScope(config.resolveScope, scope))
+                return {
+                  scopeMismatch: true,
+                  processed: false,
+                  retryExhausted: false,
+                  retryPending: false,
+                  retryAttempted: false
+                };
+              await clearOwnedLaunch(storageRoot, scope);
+              return processLocked(storageRoot, directory, scope, config, retryPolicy);
+            })();
+            if (pass.scopeMismatch)
+              return "scope-mismatch";
+            processed ||= pass.processed;
+            retryExhausted ||= pass.retryExhausted;
+            if (pass.retryAttempted)
+              failures += 1;
+            if (failures >= retryPolicy.maxAttempts && pass.retryAttempted)
+              return "retry-exhausted";
+            if (pass.retryPending && retryPolicy.retryDelayMs > 0)
+              await delay2(retryPolicy.retryDelayMs);
+            if (!await hasPendingWork(storageRoot, directory))
+              return retryExhausted ? "retry-exhausted" : processed ? "completed" : "idle";
+          }
+        }, { timeoutMs: BACKGROUND_WORKER_OWNER_WAIT_MS });
+        if (result === "scope-mismatch")
+          return result;
+        if (failures >= retryPolicy.maxAttempts)
+          return "retry-exhausted";
+        if (!await hasPendingWork(storageRoot, directory))
+          return result;
+      }
+    }
+  };
+}
+function validateOptions(options) {
+  const policy = options.retryPolicy;
+  if (policy?.maxAttempts !== void 0 && (!Number.isSafeInteger(policy.maxAttempts) || policy.maxAttempts < 1)) {
+    throw new RangeError("Background worker max attempts must be a positive integer");
+  }
+  if (policy?.retryDelayMs !== void 0 && (!Number.isFinite(policy.retryDelayMs) || policy.retryDelayMs < 0)) {
+    throw new RangeError("Background worker retry delay must be non-negative");
+  }
+  if (options.startupWaitMs !== void 0 && (!Number.isSafeInteger(options.startupWaitMs) || options.startupWaitMs <= 0)) {
+    throw new RangeError("Background worker startup wait must be a positive integer");
+  }
+}
+function makeMarker(id) {
+  return { version: BACKGROUND_WORKER_MARKER_VERSION, id, sourcePid: process.pid };
+}
+async function matchesScope(resolveScope, expected) {
+  const actual = await resolveScope();
+  return actual.integration === expected.integration && actual.sessionId === expected.sessionId && actual.accountFingerprint === expected.accountFingerprint;
+}
+async function processLocked(storageRoot, directory, scope, options, retryPolicy) {
+  const state = await readWorkerState(storageRoot, directory);
+  for (const attempt of state.orphanedAttempts) {
+    await removeFile2(workerAttemptPath(storageRoot, scope, attempt.markerId, attempt.attempt));
+  }
+  let marker = state.active;
+  if (!marker && state.pending) {
+    marker = state.pending;
+    if (!await publishExclusive(workerActivePath(storageRoot, scope, marker.id), JSON.stringify(marker))) {
+      throw new Error("Background worker active marker already exists");
+    }
+    await removeFile2(workerPendingPath(storageRoot, scope));
+  } else if (marker && state.pending?.id === marker.id) {
+    await removeFile2(workerPendingPath(storageRoot, scope));
+  }
+  if (!marker)
+    return {
+      scopeMismatch: false,
+      processed: false,
+      retryExhausted: false,
+      retryPending: false,
+      retryAttempted: false
+    };
+  let attempts = state.attempts;
+  if (attempts.length >= retryPolicy.maxAttempts) {
+    await removeActiveMarker(storageRoot, scope, marker, attempts);
+    return {
+      scopeMismatch: false,
+      processed: true,
+      retryExhausted: true,
+      retryPending: false,
+      retryAttempted: false
+    };
+  }
+  for (; ; ) {
+    if (!await matchesScope(options.resolveScope, scope))
+      return {
+        scopeMismatch: true,
+        processed: false,
+        retryExhausted: false,
+        retryPending: false,
+        retryAttempted: false
+      };
+    const result = await runTasks(options, scope);
+    if (result === "scope-mismatch" || !await matchesScope(options.resolveScope, scope))
+      return {
+        scopeMismatch: true,
+        processed: false,
+        retryExhausted: false,
+        retryPending: false,
+        retryAttempted: false
+      };
+    if (result === "progressed")
+      continue;
+    if (result === "idle") {
+      await removeActiveMarker(storageRoot, scope, marker, attempts);
+      return {
+        scopeMismatch: false,
+        processed: true,
+        retryExhausted: false,
+        retryPending: false,
+        retryAttempted: false
+      };
+    }
+    const attemptNumber = attempts.length + 1;
+    const attempt = {
+      version: BACKGROUND_WORKER_ATTEMPT_VERSION,
+      markerId: marker.id,
+      attempt: attemptNumber
+    };
+    if (!await publishExclusive(workerAttemptPath(storageRoot, scope, marker.id, attemptNumber), JSON.stringify(attempt))) {
+      throw new Error("Background worker retry attempt already exists");
+    }
+    attempts = [...attempts, attempt];
+    if (attempts.length >= retryPolicy.maxAttempts) {
+      await removeActiveMarker(storageRoot, scope, marker, attempts);
+      return {
+        scopeMismatch: false,
+        processed: true,
+        retryExhausted: true,
+        retryPending: false,
+        retryAttempted: true
+      };
+    }
+    return {
+      scopeMismatch: false,
+      processed: true,
+      retryExhausted: false,
+      retryPending: true,
+      retryAttempted: true
+    };
+  }
+}
+async function runTasks(options, scope) {
+  let progressed = false;
+  if (options.reconstructPending) {
+    let result2;
+    try {
+      result2 = await options.reconstructPending();
+    } catch {
+      return "retryable-failure";
+    }
+    if (!await matchesScope(options.resolveScope, scope))
+      return "scope-mismatch";
+    if (result2 === "retryable-failure")
+      return result2;
+    progressed ||= result2 === "progressed";
+  }
+  let result;
+  try {
+    result = await options.drainPending();
+  } catch {
+    return "retryable-failure";
+  }
+  if (result === "retryable-failure")
+    return result;
+  progressed ||= result === "progressed";
+  return progressed ? "progressed" : "idle";
+}
+async function readWorkerState(storageRoot, directory) {
+  const entries = await listPrivateDirectory(storageRoot, directory);
+  let pending;
+  let active;
+  const attemptsByMarker = /* @__PURE__ */ new Map();
+  if (!entries)
+    return { attempts: [], orphanedAttempts: [] };
+  const claimsDirectory = `${BACKGROUND_WORKER_LOCK_FILE}${FILE_LOCK_DIRECTORY_SUFFIX}`;
+  for (const entry of entries) {
+    if (entry.name === claimsDirectory) {
+      if (!entry.isDirectory() || entry.isSymbolicLink())
+        throw new Error("Unsafe background worker lock directory");
+      continue;
+    }
+    if (entry.name === BACKGROUND_WORKER_PENDING_FILE) {
+      if (!entry.isFile() || entry.isSymbolicLink())
+        throw new Error("Unsafe background worker pending marker");
+      pending = parseMarker(await readRequired(storageRoot, join10(directory, entry.name)));
+      continue;
+    }
+    const activeMatch = BACKGROUND_WORKER_ACTIVE_MARKER_NAME.exec(entry.name);
+    if (activeMatch) {
+      if (!entry.isFile() || entry.isSymbolicLink())
+        throw new Error("Unsafe background worker active marker");
+      const markerId = activeMatch[1];
+      if (markerId === void 0 || !BACKGROUND_WORKER_MARKER_ID_PATTERN.test(markerId))
+        throw new Error("Invalid background worker active path");
+      if (active)
+        throw new Error("Multiple background worker active markers");
+      active = parseMarker(await readRequired(storageRoot, join10(directory, entry.name)));
+      if (active.id !== markerId)
+        throw new Error("Background worker active marker path mismatch");
+      continue;
+    }
+    const attemptMatch = BACKGROUND_WORKER_ATTEMPT_NAME.exec(entry.name);
+    if (attemptMatch) {
+      if (!entry.isFile() || entry.isSymbolicLink())
+        throw new Error("Unsafe background worker retry attempt");
+      const markerId = attemptMatch[1];
+      const attemptNumber = Number(attemptMatch[2]);
+      if (markerId === void 0 || !BACKGROUND_WORKER_MARKER_ID_PATTERN.test(markerId) || !Number.isSafeInteger(attemptNumber)) {
+        throw new Error("Invalid background worker attempt path");
+      }
+      const attempt = parseAttempt(await readRequired(storageRoot, join10(directory, entry.name)), markerId, attemptNumber);
+      const markerAttempts = attemptsByMarker.get(markerId) ?? [];
+      markerAttempts.push(attempt);
+      attemptsByMarker.set(markerId, markerAttempts);
+      continue;
+    }
+    if (BACKGROUND_WORKER_STAGING_FILE.test(entry.name)) {
+      if (!entry.isFile() || entry.isSymbolicLink())
+        throw new Error("Unsafe background worker staging file");
+      continue;
+    }
+    if (entry.name === BACKGROUND_WORKER_LAUNCHING_FILE) {
+      if (!entry.isFile() || entry.isSymbolicLink())
+        throw new Error("Unsafe background worker launch marker");
+      continue;
+    }
+    throw new Error("Unexpected background worker state path");
+  }
+  const attempts = active ? attemptsByMarker.get(active.id) ?? [] : [];
+  attempts.sort((left, right) => left.attempt - right.attempt);
+  for (let index = 0; index < attempts.length; index += 1) {
+    if (attempts[index]?.attempt !== index + 1)
+      throw new Error("Background worker retry sequence has a gap");
+  }
+  const orphanedAttempts = [...attemptsByMarker.entries()].filter(([markerId]) => active?.id !== markerId).flatMap(([, markerAttempts]) => markerAttempts);
+  return {
+    ...pending ? { pending } : {},
+    ...active ? { active } : {},
+    attempts,
+    orphanedAttempts
+  };
+}
+async function hasPendingWork(storageRoot, directory) {
+  const entries = await listPrivateDirectory(storageRoot, directory);
+  return entries?.some((entry) => entry.name === BACKGROUND_WORKER_PENDING_FILE || BACKGROUND_WORKER_ACTIVE_MARKER_NAME.test(entry.name)) ?? false;
+}
+async function removeActiveMarker(storageRoot, scope, marker, attempts) {
+  await removeFile2(workerActivePath(storageRoot, scope, marker.id));
+  for (const attempt of attempts)
+    await removeFile2(workerAttemptPath(storageRoot, scope, marker.id, attempt.attempt));
+}
+async function clearOwnedLaunch(storageRoot, scope) {
+  const launch = await readLaunch(storageRoot, scope);
+  if (launch?.pid === process.pid)
+    await removeFile2(workerLaunchPath(storageRoot, scope));
+}
+async function readLaunch(storageRoot, scope) {
+  const contents = await readPrivateFile(storageRoot, workerLaunchPath(storageRoot, scope));
+  if (contents === void 0)
+    return void 0;
+  const value = parseObject2(contents);
+  if (value.version !== BACKGROUND_WORKER_LAUNCH_VERSION || typeof value.pid !== "number" || !Number.isSafeInteger(value.pid) || value.pid <= 0 || typeof value.createdAtMs !== "number" || !Number.isSafeInteger(value.createdAtMs) || typeof value.expiresAtMs !== "number" || !Number.isSafeInteger(value.expiresAtMs) || value.expiresAtMs <= value.createdAtMs) {
+    throw new Error("Invalid background worker launch marker");
+  }
+  return value;
+}
+async function processIsAlive2(pid) {
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch (error2) {
+    if (error2.code === "ESRCH")
+      return false;
+    return true;
+  }
+}
+async function readRequired(storageRoot, path3) {
+  const contents = await readPrivateFile(storageRoot, path3);
+  if (contents === void 0)
+    throw new Error("Background worker state disappeared");
+  return contents;
+}
+async function removeFile2(path3) {
+  try {
+    await unlink5(path3);
+  } catch (error2) {
+    if (error2.code !== "ENOENT")
+      throw error2;
+  }
+}
+function parseMarker(contents) {
+  const value = parseObject2(contents);
+  if (value.version !== BACKGROUND_WORKER_MARKER_VERSION || typeof value.id !== "string" || !BACKGROUND_WORKER_MARKER_ID_PATTERN.test(value.id) || typeof value.sourcePid !== "number" || !Number.isSafeInteger(value.sourcePid) || value.sourcePid <= 0) {
+    throw new Error("Invalid background worker marker");
+  }
+  return value;
+}
+function parseAttempt(contents, markerId, attempt) {
+  const value = parseObject2(contents);
+  if (value.version !== BACKGROUND_WORKER_ATTEMPT_VERSION || value.markerId !== markerId || value.attempt !== attempt) {
+    throw new Error("Invalid background worker retry attempt");
+  }
+  return value;
+}
+function parseObject2(contents) {
+  const value = JSON.parse(contents);
+  if (value === null || typeof value !== "object" || Array.isArray(value))
+    throw new Error("Invalid background worker state");
+  return value;
+}
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/bridge.js
+import { join as join13, resolve as resolve9 } from "node:path";
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/delivery/coordinator.js
+import { join as join12, resolve as resolve8 } from "node:path";
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/delivery/constants.js
+var DELIVERY_DIRECTORY = "delivery-v1";
+var DELIVERY_ATTEMPT_VERSION = 1;
+var DELIVERY_DEFAULT_MAX_ATTEMPTS = 5;
+var DELIVERY_DEFAULT_MAX_AGE_MS = 24 * 60 * 60 * 1e3;
+var DELIVERY_DEFAULT_MAX_ENTRIES = 500;
+var DELIVERY_ATTEMPT_FILE = /^([1-9]\d*)\.json$/u;
+var DELIVERY_STAGING_FILE = /^\.[0-9a-f-]{36}\.tmp$/u;
+var DELIVERY_EXPIRED_REASON = "expired";
+var DELIVERY_CAPACITY_REASON = "capacity";
+var DELIVERY_RETRY_EXHAUSTED_REASON = "retry-exhausted";
+var DELIVERY_DEPENDENCY_DROPPED_REASON = "dependency-dropped";
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/delivery/attempt-store.js
+import { join as join11, resolve as resolve7 } from "node:path";
+function createDeliveryAttemptStore(root) {
+  const storageRoot = resolve7(root);
+  return {
+    async count(scope, destination) {
+      validateAttemptScope(scope, destination);
+      const directory = attemptDirectory(storageRoot, scope, destination);
+      const entries = await listPrivateDirectory(storageRoot, directory);
+      if (entries === void 0)
+        return 0;
+      const attempts = [];
+      for (const entry of entries) {
+        if (entry.isSymbolicLink() || !entry.isFile())
+          throw new Error("Delivery attempt must be a regular file");
+        if (DELIVERY_STAGING_FILE.test(entry.name))
+          continue;
+        const match = DELIVERY_ATTEMPT_FILE.exec(entry.name);
+        if (!match)
+          throw new Error("Invalid delivery attempt path");
+        const attempt = Number(match[1]);
+        if (!Number.isSafeInteger(attempt) || String(attempt) !== match[1])
+          throw new Error("Invalid delivery attempt number");
+        const contents = await readPrivateFile(storageRoot, join11(directory, entry.name));
+        if (contents === void 0)
+          throw new Error("Delivery attempt disappeared");
+        const record = parseAttempt2(contents);
+        if (!sameAttempt(record, scope, destination, attempt))
+          throw new Error("Delivery attempt namespace does not match");
+        attempts.push(attempt);
+      }
+      attempts.sort((left, right) => left - right);
+      for (let index = 0; index < attempts.length; index += 1) {
+        if (attempts[index] !== index + 1)
+          throw new Error("Delivery attempt sequence has a gap");
+      }
+      return attempts.length;
+    },
+    async record(scope, destination, attempt, startedAt) {
+      validateAttemptScope(scope, destination);
+      if (!Number.isSafeInteger(attempt) || attempt <= 0)
+        throw new TypeError("Invalid delivery attempt number");
+      validateTimestamp(startedAt);
+      const directory = attemptDirectory(storageRoot, scope, destination);
+      await ensurePrivateDirectory(storageRoot, attemptSegments(scope, destination));
+      const record = {
+        version: DELIVERY_ATTEMPT_VERSION,
+        ...scope,
+        destination,
+        attempt,
+        startedAt
+      };
+      const published = await publishExclusive(join11(directory, `${attempt}.json`), JSON.stringify(record));
+      if (!published)
+        throw new Error("Delivery attempt already exists");
+    }
+  };
+}
+function attemptSegments(scope, destination) {
+  return [
+    DELIVERY_DIRECTORY,
+    "integrations",
+    scope.integration,
+    "sessions",
+    identifierHash(scope.sessionId),
+    "turns",
+    identifierHash(scope.turnId),
+    "events",
+    identifierHash(scope.eventId),
+    "destinations",
+    identifierHash(destination),
+    "attempts"
+  ];
+}
+function attemptDirectory(root, scope, destination) {
+  return join11(root, ...attemptSegments(scope, destination));
+}
+function validateAttemptScope(scope, destination) {
+  validateIntegration(scope.integration);
+  validateIdentifier(scope.sessionId, "session ID");
+  validateIdentifier(scope.turnId, "turn ID");
+  validateIdentifier(scope.eventId, "event ID");
+  validateIdentifier(destination, "destination");
+}
+function parseAttempt2(contents) {
+  const value = JSON.parse(contents);
+  if (value === null || typeof value !== "object" || Array.isArray(value) || !("version" in value) || value.version !== DELIVERY_ATTEMPT_VERSION || !("integration" in value) || typeof value.integration !== "string" || !("sessionId" in value) || typeof value.sessionId !== "string" || !("turnId" in value) || typeof value.turnId !== "string" || !("eventId" in value) || typeof value.eventId !== "string" || !("destination" in value) || typeof value.destination !== "string" || !("attempt" in value) || typeof value.attempt !== "number" || !("startedAt" in value) || typeof value.startedAt !== "string") {
+    throw new Error("Unsupported delivery attempt");
+  }
+  const record = value;
+  validateAttemptScope(record, record.destination);
+  if (!Number.isSafeInteger(record.attempt) || record.attempt <= 0)
+    throw new Error("Invalid delivery attempt number");
+  validateTimestamp(record.startedAt);
+  return record;
+}
+function sameAttempt(record, scope, destination, attempt) {
+  return record.integration === scope.integration && record.sessionId === scope.sessionId && record.turnId === scope.turnId && record.eventId === scope.eventId && record.destination === destination && record.attempt === attempt;
+}
+function validateTimestamp(value) {
+  const timestamp = new Date(value);
+  if (!Number.isFinite(timestamp.getTime()) || timestamp.toISOString() !== value)
+    throw new TypeError("Invalid delivery attempt timestamp");
+}
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/delivery/coordinator.js
+function createDeliveryCoordinator(options) {
+  const { integration, sessionId } = options;
+  validateIntegration(integration);
+  validateIdentifier(sessionId, "session ID");
+  const storageRoot = resolve8(options.storageRoot);
+  const policy = resolvePolicy(options.policy);
+  const captureStore = createCaptureStore(storageRoot);
+  const attemptStore = createDeliveryAttemptStore(storageRoot);
+  return {
+    capture(input) {
+      const scoped = {
+        ...input,
+        integration,
+        sessionId
+      };
+      return captureStore.capture(scoped);
+    },
+    async drain(request) {
+      const writer = snapshotWriter(request.writer);
+      const drainRequest = {
+        writer,
+        ...request.now === void 0 ? {} : { now: request.now }
+      };
+      validateDrainRequest(drainRequest);
+      const sessionDirectory = await ensurePrivateDirectory(storageRoot, [
+        DELIVERY_DIRECTORY,
+        "integrations",
+        integration,
+        "sessions",
+        identifierHash(sessionId)
+      ]);
+      const lock = await tryAcquireFileLock(join12(sessionDirectory, "drain"));
+      if (!lock)
+        return { status: "busy" };
+      const drainCache = createDrainCache(captureStore);
+      let counts;
+      try {
+        counts = await drainLocked(captureStore, attemptStore, integration, sessionId, policy, drainRequest, drainCache);
+      } finally {
+        await lock.release();
+      }
+      const captures = await captureStore.enumerate(integration, sessionId);
+      const eligible = captures.filter(({ record }) => record.destinationFingerprint === writer.accountFingerprint);
+      return {
+        status: "drained",
+        ...counts,
+        pending: await countPending(drainCache, eligible, writer.destinations),
+        accountMismatch: captures.length - eligible.length
+      };
+    }
+  };
+}
+async function drainLocked(captureStore, attemptStore, integration, sessionId, policy, request, drainCache) {
+  const captures = await captureStore.enumerate(integration, sessionId);
+  const eligible = captures.filter(({ record }) => record.destinationFingerprint === request.writer.accountFingerprint);
+  for (const { record } of eligible)
+    drainCache.rememberCapture(record);
+  let dropped = 0;
+  let failed = 0;
+  let delivered = 0;
+  const now = request.now ?? Date.now();
+  const candidates = await pendingCandidates(drainCache, eligible, request.writer.destinations);
+  for (const candidate of candidates) {
+    const pending = [];
+    for (const destination of candidate.pending) {
+      const dependencyState = await dependenciesForDestination(drainCache, candidate.entry.record, destination.id);
+      if (dependencyState === "dropped") {
+        dropped += await recordDropped(drainCache, candidate.scope, destination.id, DELIVERY_DEPENDENCY_DROPPED_REASON);
+      } else {
+        pending.push(destination);
+      }
+    }
+    candidate.pending = pending;
+  }
+  const active = candidates.filter((candidate) => candidate.pending.length > 0);
+  const expired = active.filter(({ entry }) => now - (entry.record.sourceAgeStartedAtMs ?? entry.capturedAtMs) >= policy.maxAgeMs);
+  for (const candidate of expired) {
+    dropped += await dropPending(drainCache, candidate, DELIVERY_EXPIRED_REASON);
+  }
+  const fresh = active.filter(({ entry }) => now - (entry.record.sourceAgeStartedAtMs ?? entry.capturedAtMs) < policy.maxAgeMs);
+  const overCapacity = Math.max(0, fresh.length - policy.maxEntries);
+  for (const candidate of fresh.slice(0, overCapacity)) {
+    dropped += await dropPending(drainCache, candidate, DELIVERY_CAPACITY_REASON);
+  }
+  const sendable = fresh.slice(overCapacity);
+  const attempted = /* @__PURE__ */ new Set();
+  let progressed;
+  do {
+    progressed = false;
+    for (const candidate of sendable) {
+      for (const destination of candidate.pending) {
+        const key = deliveryKey(candidate.scope, destination.id);
+        if (attempted.has(key))
+          continue;
+        const dependencyState = await dependenciesForDestination(drainCache, candidate.entry.record, destination.id);
+        if (dependencyState === "pending")
+          continue;
+        attempted.add(key);
+        if (dependencyState === "dropped") {
+          dropped += await recordDropped(drainCache, candidate.scope, destination.id, DELIVERY_DEPENDENCY_DROPPED_REASON);
+          progressed = true;
+          continue;
+        }
+        const attemptCount = await attemptStore.count(candidate.scope, destination.id);
+        if (attemptCount >= policy.maxAttempts) {
+          dropped += await recordDropped(drainCache, candidate.scope, destination.id, DELIVERY_RETRY_EXHAUSTED_REASON);
+          progressed = true;
+          continue;
+        }
+        const attempt = attemptCount + 1;
+        await attemptStore.record(candidate.scope, destination.id, attempt, new Date(now).toISOString());
+        if (candidate.entry.record.destinationFingerprint !== request.writer.accountFingerprint)
+          continue;
+        try {
+          await request.writer.send(structuredClone(candidate.entry.record), destination, request.writer.accountFingerprint);
+        } catch {
+          failed += 1;
+          if (attempt >= policy.maxAttempts) {
+            dropped += await recordDropped(drainCache, candidate.scope, destination.id, DELIVERY_RETRY_EXHAUSTED_REASON);
+            progressed = true;
+          }
+          continue;
+        }
+        await drainCache.recordOutcome({
+          ...candidate.scope,
+          destination: destination.id,
+          outcome: "delivered"
+        });
+        delivered += 1;
+        progressed = true;
+      }
+    }
+  } while (progressed);
+  return { delivered, dropped, failed };
+}
+async function pendingCandidates(drainCache, entries, destinations) {
+  const candidates = [];
+  for (const entry of entries) {
+    const scope = scopeOf(entry.record);
+    const pending = [];
+    for (const destination of destinations) {
+      if ((await requireOutcome(drainCache, scope, destination.id)).status === "pending")
+        pending.push(destination);
+    }
+    if (pending.length > 0)
+      candidates.push({ entry, scope, pending });
+  }
+  return candidates;
+}
+async function dependenciesForDestination(drainCache, dependent, destination) {
+  let pending = false;
+  for (const dependency of dependent.dependencies ?? []) {
+    const prerequisite = await drainCache.read(dependency);
+    if (prerequisite === void 0) {
+      pending = true;
+      continue;
+    }
+    if (prerequisite.destinationFingerprint !== dependent.destinationFingerprint) {
+      pending = true;
+      continue;
+    }
+    const outcome = await drainCache.readOutcome(dependency, destination);
+    if (outcome.status === "failed")
+      throw new Error(`Could not read prerequisite receipt: ${outcome.status}`);
+    if (outcome.status === "pending" || outcome.status === "missing-capture") {
+      pending = true;
+      continue;
+    }
+    if (outcome.receipt.outcome === "dropped")
+      return "dropped";
+  }
+  return pending ? "pending" : "ready";
+}
+function deliveryKey(scope, destination) {
+  return JSON.stringify([
+    scope.integration,
+    scope.sessionId,
+    scope.turnId,
+    scope.eventId,
+    destination
+  ]);
+}
+async function dropPending(drainCache, candidate, reason) {
+  let dropped = 0;
+  for (const destination of candidate.pending) {
+    dropped += await recordDropped(drainCache, candidate.scope, destination.id, reason);
+  }
+  return dropped;
+}
+async function recordDropped(drainCache, scope, destination, reason) {
+  await drainCache.recordOutcome({ ...scope, destination, outcome: "dropped", reason });
+  return 1;
+}
+function createDrainCache(store) {
+  const captures = /* @__PURE__ */ new Map();
+  const outcomes = /* @__PURE__ */ new Map();
+  return {
+    read(scope) {
+      const key = captureKey(scope);
+      let record = captures.get(key);
+      if (record === void 0) {
+        record = store.read(scope);
+        captures.set(key, record);
+      }
+      return record;
+    },
+    readOutcome(scope, destination) {
+      const key = deliveryKey(scope, destination);
+      let outcome = outcomes.get(key);
+      if (outcome === void 0) {
+        outcome = store.readOutcome(scope, destination);
+        outcomes.set(key, outcome);
+      }
+      return outcome;
+    },
+    async recordOutcome(input) {
+      const result = await store.recordOutcome(input);
+      if (result.status !== "recorded" && result.status !== "duplicate")
+        throw new Error(`Could not persist ${input.outcome} delivery receipt: ${result.status}`);
+      outcomes.set(deliveryKey(input, input.destination), Promise.resolve({
+        status: "settled",
+        receipt: result.receipt
+      }));
+      return result.receipt;
+    },
+    rememberCapture(record) {
+      captures.set(captureKey(record), Promise.resolve(record));
+    }
+  };
+}
+function captureKey(scope) {
+  return JSON.stringify([scope.integration, scope.sessionId, scope.turnId, scope.eventId]);
+}
+async function requireOutcome(drainCache, scope, destination) {
+  const result = await drainCache.readOutcome(scope, destination);
+  if (result.status === "failed" || result.status === "missing-capture")
+    throw new Error(`Could not read delivery receipt: ${result.status}`);
+  return result;
+}
+async function countPending(drainCache, entries, destinations) {
+  let count = 0;
+  for (const entry of entries) {
+    const scope = scopeOf(entry.record);
+    for (const destination of destinations) {
+      if ((await requireOutcome(drainCache, scope, destination.id)).status === "pending")
+        count += 1;
+    }
+  }
+  return count;
+}
+function scopeOf(record) {
+  return {
+    integration: record.integration,
+    sessionId: record.sessionId,
+    turnId: record.turnId,
+    eventId: record.eventId
+  };
+}
+function validateDrainRequest(request) {
+  if (request.writer === null || typeof request.writer !== "object")
+    throw new TypeError("A delivery writer is required");
+  validateIdentifier(request.writer.accountFingerprint, "account fingerprint");
+  if (!Array.isArray(request.writer.destinations) || request.writer.destinations.length === 0)
+    throw new TypeError("At least one delivery destination is required");
+  const ids = /* @__PURE__ */ new Set();
+  for (const destination of request.writer.destinations) {
+    validateIdentifier(destination.id, "destination");
+    if (ids.has(destination.id))
+      throw new TypeError("Delivery destinations must be unique");
+    ids.add(destination.id);
+  }
+  if (typeof request.writer.send !== "function")
+    throw new TypeError("A delivery transport is required");
+  if (request.now !== void 0 && (!Number.isSafeInteger(request.now) || !Number.isFinite(new Date(request.now).getTime()))) {
+    throw new TypeError("Invalid delivery clock");
+  }
+}
+function snapshotWriter(writer) {
+  if (writer === null || typeof writer !== "object")
+    throw new TypeError("A delivery writer is required");
+  const accountFingerprint = writer.accountFingerprint;
+  const sourceDestinations = writer.destinations;
+  const send = writer.send;
+  if (!Array.isArray(sourceDestinations) || sourceDestinations.length === 0)
+    throw new TypeError("At least one delivery destination is required");
+  const destinations = sourceDestinations.map((destination) => {
+    if (destination === null || typeof destination !== "object")
+      throw new TypeError("Invalid delivery destination");
+    return Object.freeze({ id: destination.id });
+  });
+  return Object.freeze({
+    accountFingerprint,
+    destinations: Object.freeze(destinations),
+    send: typeof send === "function" ? send.bind(writer) : send
+  });
+}
+function resolvePolicy(policy) {
+  const resolved = {
+    maxAttempts: policy?.maxAttempts ?? DELIVERY_DEFAULT_MAX_ATTEMPTS,
+    maxAgeMs: policy?.maxAgeMs ?? DELIVERY_DEFAULT_MAX_AGE_MS,
+    maxEntries: policy?.maxEntries ?? DELIVERY_DEFAULT_MAX_ENTRIES
+  };
+  if (!Number.isSafeInteger(resolved.maxAttempts) || resolved.maxAttempts <= 0 || !Number.isSafeInteger(resolved.maxAgeMs) || resolved.maxAgeMs <= 0 || !Number.isSafeInteger(resolved.maxEntries) || resolved.maxEntries <= 0) {
+    throw new TypeError("Invalid delivery policy");
+  }
+  return resolved;
+}
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/privacy/constants.js
+var MUTED_TRACE_CONTENT2 = "[LangSmith system notice: content omitted because tracing is muted.]";
+var METADATA_MODE_RUN_CONFIG_FIELDS = [
+  "client",
+  "id",
+  "name",
+  "run_type",
+  "project_name",
+  "start_time",
+  "end_time",
+  "parent_run",
+  "parent_run_id",
+  "trace_id",
+  "dotted_order",
+  "distributedParentId"
+];
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/privacy/run-tree.js
+function mutedContent(role) {
+  return { messages: [{ role, content: MUTED_TRACE_CONTENT2 }] };
+}
+function statusOfRun(run) {
+  const metadataStatus = run.extra?.metadata?.status;
+  if (run.error != null || metadataStatus === "error")
+    return "error";
+  if (run.end_time != null || metadataStatus === "completed")
+    return "completed";
+  return "running";
+}
+function projectReplica(replica) {
+  if (!replica || typeof replica !== "object")
+    return replica;
+  if (Array.isArray(replica))
+    return { projectName: replica[0] };
+  const { updates: _updates, ...safe } = replica;
+  return safe;
+}
+function extraForMode(metadata, integration, status) {
+  return {
+    metadata,
+    toJSON() {
+      const currentStatus = this.metadata?.status;
+      const safeStatus = currentStatus === "running" || currentStatus === "completed" || currentStatus === "error" ? currentStatus : status;
+      return {
+        metadata: projectCodingAgentMetadata(this.metadata, integration, safeStatus)
+      };
+    }
+  };
+}
+function configForMetadataMode(config, integration, privacyContext) {
+  const source = config;
+  const status = privacyContext?.status ?? (source.error != null ? "error" : source.end_time != null ? "completed" : "running");
+  const originalExtra = source.extra;
+  const safe = {};
+  for (const key of METADATA_MODE_RUN_CONFIG_FIELDS) {
+    if (key in source && source[key] !== void 0)
+      safe[key] = source[key];
+  }
+  if (Array.isArray(source.replicas))
+    safe.replicas = source.replicas.map(projectReplica);
+  safe.inputs = mutedContent("user");
+  safe.outputs = mutedContent("assistant");
+  safe.extra = extraForMode(metadataForMode(originalExtra?.metadata, integration, "metadata", status) ?? {}, integration, status);
+  return safe;
+}
+function sanitizeRunTree(run, integration) {
+  const status = statusOfRun(run);
+  const metadata = projectCodingAgentMetadata(run.extra?.metadata, integration, status);
+  run.inputs = mutedContent("user");
+  run.outputs = mutedContent("assistant");
+  delete run.error;
+  run.serialized = {};
+  delete run.tags;
+  delete run.reference_example_id;
+  delete run.attachments;
+  delete run.events;
+  if (run.replicas)
+    run.replicas = run.replicas.map(projectReplica);
+  for (const child of run.child_runs ?? [])
+    sanitizeRunTree(child, integration);
+  run.extra = extraForMode(metadata, integration, status);
+}
+function protectRunTree(run, integration) {
+  sanitizeRunTree(run, integration);
+  const createChild = run.createChild.bind(run);
+  run.createChild = (config) => protectRunTree(createChild(configForMetadataMode(config, integration)), integration);
+  const postRun = run.postRun.bind(run);
+  run.postRun = async (excludeChildRuns = true) => {
+    sanitizeRunTree(run, integration);
+    if (!excludeChildRuns) {
+      const childRuns = [...run.child_runs];
+      await postRun(true);
+      for (const childRun of childRuns)
+        await childRun.postRun(false);
+      return;
+    }
+    return postRun(excludeChildRuns);
+  };
+  const patchRun = run.patchRun.bind(run);
+  run.patchRun = (options) => {
+    sanitizeRunTree(run, integration);
+    return patchRun({ excludeInputs: false, ...options });
+  };
+  const end = run.end.bind(run);
+  run.end = (outputs, error2, endTime, metadata) => {
+    const status = error2 != null ? "error" : endTime != null ? "completed" : statusOfRun(run);
+    const safeMetadata = metadataForMode(metadata, integration, "metadata", status) ?? { status };
+    return end(mutedContent("assistant"), void 0, endTime, safeMetadata);
+  };
+  const toJSON = run.toJSON.bind(run);
+  run.toJSON = () => {
+    sanitizeRunTree(run, integration);
+    return toJSON();
+  };
+  return run;
+}
+function preserveFullModePatchInputs(run) {
+  const createChild = run.createChild.bind(run);
+  run.createChild = (config) => preserveFullModePatchInputs(createChild(config));
+  const patchRun = run.patchRun.bind(run);
+  run.patchRun = (options) => patchRun({ excludeInputs: false, ...options });
+  return run;
+}
+function createCodingAgentRunTree(config, integration, mode = "full", privacyContext) {
+  const run = new RunTree(mode === "metadata" ? configForMetadataMode(config, integration, privacyContext) : config);
+  return mode === "metadata" ? protectRunTree(run, integration) : preserveFullModePatchInputs(run);
+}
+function survivingCodingAgentPatchFields(projectedRun, fields) {
+  return fields.filter((field2) => {
+    const descriptor = Object.getOwnPropertyDescriptor(projectedRun, field2);
+    return descriptor?.enumerable === true && "value" in descriptor && descriptor.value !== void 0;
+  });
+}
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/upload/destinations.js
+import { createHash as createHash2 } from "node:crypto";
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/upload/client.js
+function createUploadClient(options) {
+  const { apiKey, apiUrl, workspaceId, anonymizer, redactedFields } = options;
+  return new Client({
+    apiKey,
+    apiUrl,
+    workspaceId: workspaceId ?? "",
+    autoBatchTracing: false,
+    tracingSamplingRate: 1,
+    disablePromptCache: true,
+    debug: false,
+    omitTracedRuntimeInfo: true,
+    tracingMode: "langsmith",
+    ...anonymizer === void 0 ? {} : { anonymizer, hideMetadata: anonymizer },
+    ...redactedFields?.includes("inputs") ? { hideInputs: false } : {},
+    ...redactedFields?.includes("outputs") ? { hideOutputs: false } : {}
+  });
+}
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/upload/constants.js
+var UPLOAD_ACCOUNT_FINGERPRINT_PREFIX = "account_";
+var UPLOAD_DESTINATION_ID_PREFIX = "destination_";
+var UPLOAD_FINGERPRINT_LENGTH = 32;
+var UPLOAD_CONTROL_CHARACTER_PATTERN = /\p{Cc}/u;
+var UPLOAD_API_URL_TRAILING_SLASH_PATTERN = /\/$/;
+var UPLOAD_UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+var UPLOAD_REPLICA_UUID_V7_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+var UPLOAD_REPLICA_UUID_V5_NAMESPACE = "6ba7b810-9dad-11d1-80b4-00c04fd430c8";
+var UPLOAD_REPLICA_UUID_V5_NAMESPACE_BYTES = Buffer.from(UPLOAD_REPLICA_UUID_V5_NAMESPACE.replaceAll("-", ""), "hex");
+var UPLOAD_REPLICA_UUID_V5_DOMAIN = "langchain-upload-replica-v1";
+var UPLOAD_REPLICA_DOTTED_ORDER_ID_LENGTH = 36;
+var UPLOAD_REPLICA_IDENTITY_UPDATE_FIELDS = /* @__PURE__ */ new Set([
+  "id",
+  "name",
+  "run_type",
+  "start_time",
+  "parent_run_id",
+  "session_id",
+  "session_name",
+  "trace_id",
+  "dotted_order"
+]);
+var UPLOAD_REPLICA_PATCH_UPDATE_FIELDS = /* @__PURE__ */ new Set([
+  "inputs",
+  "outputs",
+  "end_time",
+  "extra",
+  "tags",
+  "error",
+  "serialized",
+  "reference_example_id",
+  "events"
+]);
+var UPLOAD_PATCH_FIELDS = /* @__PURE__ */ new Set([
+  "inputs",
+  "outputs",
+  "end_time",
+  "error",
+  "tags",
+  "serialized",
+  "events",
+  "reference_example_id"
+]);
+var UPLOAD_REDACTED_FIELDS = ["inputs", "outputs"];
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/upload/redaction.js
+function createUploadAnonymizer(enabled, extraRules) {
+  if (!enabled)
+    return void 0;
+  const normalizedRules = extraRules?.map(({ pattern, replace }) => ({
+    pattern,
+    ...replace === void 0 ? {} : { replace }
+  }));
+  return createSecretAnonymizer(normalizedRules === void 0 ? {} : { extraRules: normalizedRules });
+}
+function redactSdkOmittedFields(payload, anonymizer) {
+  if (!anonymizer)
+    return;
+  if (payload["tags"] !== void 0)
+    payload["tags"] = anonymizer(payload["tags"]);
+  if (payload["serialized"] !== void 0) {
+    payload["serialized"] = anonymizer(payload["serialized"]);
+  }
+  if (payload["events"] !== void 0)
+    payload["events"] = anonymizer(payload["events"]);
+}
+function normalizedRedactedFields(value) {
+  if (value === void 0)
+    return [];
+  if (!Array.isArray(value) || value.some((field2) => !UPLOAD_REDACTED_FIELDS.includes(field2)) || new Set(value).size !== value.length) {
+    throw new TypeError("Redacted fields must be unique inputs or outputs");
+  }
+  return UPLOAD_REDACTED_FIELDS.filter((field2) => value.includes(field2));
+}
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/upload/destinations.js
+function resolveUploadDestinations(options) {
+  if (!Array.isArray(options.destinations) || options.destinations.length === 0) {
+    throw new TypeError("At least one upload destination is required");
+  }
+  if (options.replicas !== void 0 && !Array.isArray(options.replicas)) {
+    throw new TypeError("Upload replicas must be an array");
+  }
+  if (typeof options.redact !== "boolean")
+    throw new TypeError("A redaction setting is required");
+  const replicas2 = options.replicas ?? [];
+  if (replicas2.length > 0 && options.destinations.length !== 1) {
+    throw new TypeError("A replica upload requires exactly one primary destination");
+  }
+  const primary = options.destinations[0];
+  const primaryProjectName = replicas2.length === 0 || primary === void 0 ? void 0 : normalizeRequiredText(primary.projectName, "project name");
+  const destinations = replicas2.length === 0 ? options.destinations.map((destination) => resolveDestination(destination, options)) : replicas2.map((replica) => resolveReplicaDestination(replica, primary, primaryProjectName, options));
+  const ids = /* @__PURE__ */ new Set();
+  for (const destination of destinations) {
+    if (ids.has(destination.id))
+      throw new TypeError("Upload destinations must be unique");
+    ids.add(destination.id);
+  }
+  const fingerprints = destinations.map(({ id }) => id).toSorted();
+  const accountFingerprint = `${UPLOAD_ACCOUNT_FINGERPRINT_PREFIX}${fingerprint(JSON.stringify({
+    destinations: fingerprints,
+    redact: options.redact,
+    redactExtraRules: options.redactExtraRules ?? null
+  }))}`;
+  return { accountFingerprint, destinations };
+}
+function resolveDestination(config, options, sourceProjectName, updates) {
+  if (!config || typeof config !== "object")
+    throw new TypeError("Invalid upload destination");
+  if (typeof config.apiKey !== "string" || config.apiKey.trim().length === 0) {
+    throw new TypeError("An API key is required for each upload destination");
+  }
+  const apiUrl = normalizeApiUrl(config.apiUrl);
+  const projectName = normalizeRequiredText(config.projectName, "project name");
+  const workspaceId = config.workspaceId === void 0 ? void 0 : normalizeRequiredText(config.workspaceId, "workspace ID");
+  const identity = JSON.stringify({
+    apiKey: config.apiKey,
+    apiUrl,
+    projectName,
+    workspaceId: workspaceId ?? null,
+    ...sourceProjectName === void 0 ? {} : { sourceProjectName, updates: updates ?? null }
+  });
+  const id = `${UPLOAD_DESTINATION_ID_PREFIX}${fingerprint(identity)}`;
+  const anonymizer = createUploadAnonymizer(options.redact, options.redactExtraRules);
+  const client2 = createUploadClient({
+    apiKey: config.apiKey,
+    apiUrl,
+    ...workspaceId === void 0 ? {} : { workspaceId },
+    ...anonymizer === void 0 ? {} : { anonymizer }
+  });
+  return {
+    id,
+    apiKey: config.apiKey,
+    apiUrl,
+    projectName,
+    ...workspaceId === void 0 ? {} : { workspaceId },
+    ...sourceProjectName === void 0 ? {} : { sourceProjectName },
+    ...updates === void 0 ? {} : { updates },
+    ...anonymizer === void 0 ? {} : { anonymizer },
+    client: client2
+  };
+}
+function resolveReplicaDestination(replica, primary, primaryProjectName, options) {
+  if (!replica || typeof replica !== "object")
+    throw new TypeError("Invalid upload replica");
+  const updates = snapshotReplicaUpdates(replica.updates);
+  const workspaceId = replica.workspaceId ?? primary.workspaceId;
+  return resolveDestination({
+    apiKey: replica.apiKey ?? primary.apiKey,
+    apiUrl: replica.apiUrl ?? primary.apiUrl,
+    projectName: replica.projectName ?? primary.projectName,
+    ...workspaceId === void 0 ? {} : { workspaceId }
+  }, options, primaryProjectName, updates);
+}
+function snapshotReplicaUpdates(value) {
+  if (value === void 0)
+    return void 0;
+  if (value === null || typeof value !== "object" || Array.isArray(value)) {
+    throw new TypeError("Replica updates must be an object");
+  }
+  let snapshot;
+  try {
+    snapshot = JSON.parse(JSON.stringify(value));
+  } catch {
+    throw new TypeError("Replica updates must be JSON serializable");
+  }
+  if (snapshot === null || typeof snapshot !== "object" || Array.isArray(snapshot)) {
+    throw new TypeError("Replica updates must be an object");
+  }
+  const updates = snapshot;
+  for (const field2 of Object.keys(updates)) {
+    if (UPLOAD_REPLICA_IDENTITY_UPDATE_FIELDS.has(field2)) {
+      throw new TypeError("Replica updates cannot override run identity");
+    }
+    if (!UPLOAD_REPLICA_PATCH_UPDATE_FIELDS.has(field2)) {
+      throw new TypeError("Unsupported replica update field");
+    }
+    if (field2 === "extra" && (updates[field2] === null || typeof updates[field2] !== "object" || Array.isArray(updates[field2]))) {
+      throw new TypeError("Replica extra updates must be an object");
+    }
+  }
+  return canonicalJsonObject(updates, "Replica updates");
+}
+function normalizeApiUrl(value) {
+  if (typeof value !== "string" || value.trim().length === 0) {
+    throw new TypeError("An API endpoint is required for each upload destination");
+  }
+  let endpoint;
+  try {
+    endpoint = new URL(value);
+  } catch {
+    throw new TypeError("Invalid upload API endpoint");
+  }
+  if (endpoint.protocol !== "https:" && endpoint.protocol !== "http:" || endpoint.username.length > 0 || endpoint.password.length > 0 || endpoint.search.length > 0 || endpoint.hash.length > 0) {
+    throw new TypeError("Invalid upload API endpoint");
+  }
+  return endpoint.toString().replace(UPLOAD_API_URL_TRAILING_SLASH_PATTERN, "");
+}
+function normalizeRequiredText(value, name) {
+  if (typeof value !== "string" || value.trim().length === 0 || UPLOAD_CONTROL_CHARACTER_PATTERN.test(value)) {
+    throw new TypeError(`Invalid upload ${name}`);
+  }
+  return value.trim();
+}
+function fingerprint(value) {
+  return createHash2("sha256").update(value).digest("hex").slice(0, UPLOAD_FINGERPRINT_LENGTH);
+}
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/upload/replica-identifiers.js
+import { createHash as createHash3 } from "node:crypto";
+function remapReplicaRunContext(context, sourceProjectName, destinationProjectName) {
+  if (sourceProjectName === destinationProjectName)
+    return context;
+  return {
+    ...context,
+    id: remapReplicaRunId(context.id, destinationProjectName),
+    ...context.parent_run_id === void 0 ? {} : { parent_run_id: remapReplicaRunId(context.parent_run_id, destinationProjectName) },
+    ...context.trace_id === void 0 ? {} : { trace_id: remapReplicaRunId(context.trace_id, destinationProjectName) },
+    ...context.dotted_order === void 0 ? {} : { dotted_order: remapReplicaDottedOrder(context.dotted_order, destinationProjectName) }
+  };
+}
+function remapReplicaRunId(runId, projectName) {
+  if (!UPLOAD_UUID_PATTERN.test(runId))
+    throw new TypeError("Replica run IDs must be UUIDs");
+  if (UPLOAD_REPLICA_UUID_V7_PATTERN.test(runId)) {
+    return computeRunIdForSecondaryReplica(runId, projectName);
+  }
+  const name = JSON.stringify([UPLOAD_REPLICA_UUID_V5_DOMAIN, projectName, runId.toLowerCase()]);
+  const hash = createHash3("sha1").update(UPLOAD_REPLICA_UUID_V5_NAMESPACE_BYTES).update(name).digest();
+  hash[6] = hash[6] & 15 | 80;
+  hash[8] = hash[8] & 63 | 128;
+  const value = hash.subarray(0, 16).toString("hex");
+  return `${value.slice(0, 8)}-${value.slice(8, 12)}-${value.slice(12, 16)}-${value.slice(16, 20)}-${value.slice(20)}`;
+}
+function remapReplicaDottedOrder(dottedOrder, projectName) {
+  return dottedOrder.split(".").map((segment) => {
+    const id = segment.slice(-UPLOAD_REPLICA_DOTTED_ORDER_ID_LENGTH);
+    return `${segment.slice(0, -UPLOAD_REPLICA_DOTTED_ORDER_ID_LENGTH)}${remapReplicaRunId(id, projectName)}`;
+  }).join(".");
+}
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/upload/upload.js
+function createLangSmithUploadWriter(options) {
+  const resolved = resolveUploadDestinations(options);
+  const destinations = resolved.destinations.map(({ id }) => Object.freeze({ id }));
+  const byId = new Map(resolved.destinations.map((destination) => [destination.id, destination]));
+  const redactedClients = /* @__PURE__ */ new Map();
+  return Object.freeze({
+    accountFingerprint: resolved.accountFingerprint,
+    destinations: Object.freeze(destinations),
+    async send(submission, destinationId) {
+      const destination = byId.get(destinationId);
+      if (!destination)
+        throw new TypeError("Unknown upload destination");
+      validateSubmission(submission);
+      const redactedFields = normalizedRedactedFields(submission.redactedFields).filter((field2) => submission.privacyMode === "full" && !(submission.operation === "patch" && field2 === "outputs" && Object.hasOwn(destination.updates ?? {}, "outputs")));
+      let client2 = destination.client;
+      if (redactedFields.length > 0) {
+        const key = JSON.stringify([destinationId, redactedFields]);
+        const previous = redactedClients.get(key);
+        client2 = previous ?? createUploadClient({ ...destination, redactedFields });
+        if (previous === void 0)
+          redactedClients.set(key, client2);
+      }
+      const payload = submission.operation === "post" ? preparePostRunPayload(submission, destination) : preparePatchRunPayload(submission, destination);
+      if (submission.operation === "patch") {
+        applyReplicaPatchUpdates(payload, destination, submission.privacyMode);
+      }
+      redactSdkOmittedFields(payload, destination.anonymizer);
+      const clientOptions = {
+        apiKey: destination.apiKey,
+        apiUrl: destination.apiUrl,
+        ...destination.workspaceId === void 0 ? {} : { workspaceId: destination.workspaceId }
+      };
+      try {
+        if (submission.operation === "post") {
+          await client2.createRun({ ...payload, project_name: destination.projectName }, clientOptions);
+          return { destinationId, runId: submission.run.id, operation: "posted" };
+        }
+        await client2.updateRun(runIdForDestination(submission.run.id, destination), payload, clientOptions);
+        return { destinationId, runId: submission.run.id, operation: "patched" };
+      } catch {
+        throw new Error("LangSmith upload failed");
+      }
+    }
+  });
+}
+function runConfig(context, submission, destination) {
+  const metadata = buildCodingAgentMetadata(submission.metadata);
+  const destinationContext = contextForDestination(context, destination);
+  return {
+    id: destinationContext.id,
+    name: destinationContext.name,
+    run_type: destinationContext.run_type,
+    project_name: destination.projectName,
+    inputs: {},
+    extra: { metadata },
+    client: destination.client,
+    ...destinationContext.start_time === void 0 ? {} : { start_time: destinationContext.start_time },
+    ...destinationContext.parent_run_id === void 0 ? {} : { parent_run_id: destinationContext.parent_run_id },
+    ...destinationContext.trace_id === void 0 ? {} : { trace_id: destinationContext.trace_id },
+    ...destinationContext.dotted_order === void 0 ? {} : { dotted_order: destinationContext.dotted_order }
+  };
+}
+function contextForDestination(context, destination) {
+  if (destination.sourceProjectName === void 0)
+    return context;
+  return remapReplicaRunContext(context, destination.sourceProjectName, destination.projectName);
+}
+function runIdForDestination(runId, destination) {
+  if (destination.sourceProjectName === void 0 || destination.sourceProjectName === destination.projectName) {
+    return runId;
+  }
+  return remapReplicaRunId(runId, destination.projectName);
+}
+function applyReplicaPatchUpdates(payload, destination, privacyMode) {
+  if (privacyMode !== "full" || destination.updates === void 0)
+    return;
+  const mutablePayload = payload;
+  for (const [field2, value] of Object.entries(destination.updates)) {
+    if (field2 === "inputs" || field2 === "end_time" && payload.end_time === void 0)
+      continue;
+    if (field2 === "extra") {
+      mutablePayload.extra = mergeReplicaExtra(mutablePayload.extra, value);
+    } else {
+      mutablePayload[field2] = structuredClone(value);
+    }
+  }
+}
+function mergeReplicaExtra(baseValue, updateValue) {
+  const baseExtra = isPlainRecord(baseValue) ? baseValue : {};
+  const updateExtra = isPlainRecord(updateValue) ? structuredClone(updateValue) : {};
+  const baseMetadata = isPlainRecord(baseExtra["metadata"]) ? baseExtra["metadata"] : {};
+  const updateMetadata = isPlainRecord(updateExtra["metadata"]) ? updateExtra["metadata"] : {};
+  return {
+    ...baseExtra,
+    ...updateExtra,
+    metadata: { ...updateMetadata, ...baseMetadata }
+  };
+}
+function preparePostRunPayload(submission, destination) {
+  const source = submission.run;
+  const config = runConfig(source, submission, destination);
+  config.inputs = source.inputs;
+  if (source.end_time !== void 0)
+    config.end_time = source.end_time;
+  if (source.outputs !== void 0)
+    config.outputs = source.outputs;
+  if (source.tags !== void 0)
+    config.tags = source.tags;
+  if (source.error !== void 0)
+    config.error = source.error;
+  if (source.serialized !== void 0)
+    config.serialized = source.serialized;
+  if (source.reference_example_id !== void 0) {
+    config.reference_example_id = source.reference_example_id;
+  }
+  const run = createCodingAgentRunTree(config, submission.integration, submission.privacyMode, submission.privacyContext);
+  if (source.events !== void 0)
+    run.events = source.events;
+  return JSON.parse(JSON.stringify(run.toJSON()));
+}
+function preparePatchRunPayload(submission, destination) {
+  const config = runConfig(submission.run, submission, destination);
+  for (const field2 of submission.patch.fields) {
+    if (field2 === "inputs")
+      config.inputs = submission.patch.values.inputs;
+    else if (field2 === "outputs")
+      config.outputs = submission.patch.values.outputs;
+    else if (field2 === "end_time")
+      config.end_time = submission.patch.values.end_time;
+    else if (field2 === "error")
+      config.error = submission.patch.values.error;
+    else if (field2 === "tags")
+      config.tags = submission.patch.values.tags;
+    else if (field2 === "serialized")
+      config.serialized = submission.patch.values.serialized;
+    else if (field2 === "reference_example_id") {
+      config.reference_example_id = submission.patch.values.reference_example_id;
+    }
+  }
+  const run = createCodingAgentRunTree(config, submission.integration, submission.privacyMode, submission.privacyContext);
+  if (submission.patch.fields.includes("events")) {
+    run.events = submission.patch.values.events;
+  }
+  const snapshot = JSON.parse(JSON.stringify(run.toJSON()));
+  const update = {
+    extra: snapshot["extra"],
+    session_name: destination.projectName
+  };
+  for (const field2 of submission.patch.fields) {
+    const value = snapshot[field2];
+    if (value === void 0)
+      continue;
+    if (field2 === "inputs")
+      update.inputs = value;
+    else if (field2 === "outputs")
+      update.outputs = value;
+    else if (field2 === "end_time")
+      update.end_time = value;
+    else if (field2 === "error")
+      update.error = value;
+    else if (field2 === "tags")
+      update.tags = value;
+    else if (field2 === "serialized")
+      update.serialized = value;
+    else if (field2 === "events")
+      update.events = value;
+    else if (field2 === "reference_example_id") {
+      update.reference_example_id = value;
+    }
+  }
+  return update;
+}
+function validateSubmission(submission) {
+  if (submission === null || typeof submission !== "object") {
+    throw new TypeError("A prepared run submission is required");
+  }
+  if (submission.operation !== "post" && submission.operation !== "patch") {
+    throw new TypeError("Invalid upload operation");
+  }
+  if (submission.metadata === null || typeof submission.metadata !== "object") {
+    throw new TypeError("Run metadata is required");
+  }
+  if (submission.integration !== submission.metadata.integration) {
+    throw new TypeError("Run metadata integration does not match the submission");
+  }
+  if (submission.run === null || typeof submission.run !== "object") {
+    throw new TypeError("Run data is required");
+  }
+  if (Object.hasOwn(submission.run, "child_runs")) {
+    throw new TypeError("Each upload submission must contain a single run");
+  }
+  if (typeof submission.run.id !== "string" || submission.run.id.trim().length === 0) {
+    throw new TypeError("A stable run ID is required");
+  }
+  if (submission.privacyMode !== "full" && submission.privacyMode !== "metadata") {
+    throw new TypeError("Invalid privacy mode");
+  }
+  if (submission.operation === "patch")
+    validatePatch(submission);
+}
+function validatePatch(submission) {
+  if (submission.patch === null || typeof submission.patch !== "object" || !Array.isArray(submission.patch.fields) || submission.patch.values === null || typeof submission.patch.values !== "object") {
+    throw new TypeError("A patch field set and values are required");
+  }
+  if (typeof submission.run.name !== "string" || typeof submission.run.run_type !== "string") {
+    throw new TypeError("Patch run context must preserve its name and type");
+  }
+  const selected = /* @__PURE__ */ new Set();
+  for (const candidate of submission.patch.fields) {
+    if (typeof candidate !== "string" || !UPLOAD_PATCH_FIELDS.has(candidate)) {
+      throw new TypeError("Invalid patch field");
+    }
+    const field2 = candidate;
+    if (selected.has(field2))
+      throw new TypeError("Patch fields must be unique");
+    if (!Object.hasOwn(submission.patch.values, field2) || submission.patch.values[field2] === void 0) {
+      throw new TypeError("Every selected patch field must have a value");
+    }
+    selected.add(field2);
+  }
+}
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/capture-wake-constants.js
+var CAPTURE_WAKE_ERROR_NAME = "CaptureWakeError";
+var CAPTURE_WAKE_FAILURE_MESSAGE = "Trace work was saved but its worker could not start";
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/capture-wake.js
+var CaptureWakeError = class extends Error {
+  captureResult;
+  constructor(captureResult, cause) {
+    super(`${CAPTURE_WAKE_FAILURE_MESSAGE}: ${cause instanceof Error ? cause.message : String(cause)}`, { cause });
+    this.name = CAPTURE_WAKE_ERROR_NAME;
+    this.captureResult = captureResult;
   }
 };
+async function wakeCapturedWork(captureResult, wake) {
+  try {
+    await wake();
+  } catch (cause) {
+    throw new CaptureWakeError(captureResult, cause);
+  }
+}
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/settlement/pass.js
+import { createHash as createHash4 } from "node:crypto";
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/constants.js
+var ROOT_RUN_EXECUTION_ORDER = 1;
+var DOTTED_ORDER_TIME_PREFIX_LENGTH = 18;
+var DOTTED_ORDER_SEGMENT_PATTERN = /^(\d{8}T\d{12}Z)([^.]+)$/u;
+var DOTTED_ORDER_STRIP_PATTERN = /[-:.]/gu;
+var LIFECYCLE_POST_EVENT_KIND = "run-post";
+var LIFECYCLE_PATCH_EVENT_KIND = "run-patch";
+var LIFECYCLE_SETTLEMENT_EVENT_KIND = "run-settlement-patch";
+var LIFECYCLE_ATTRIBUTION_READY_FIELD = "attributionReady";
+var LIFECYCLE_SETTLEMENT_LOCK_DIRECTORY = "lifecycle-settlement-v1";
+var LIFECYCLE_SETTLEMENT_LOCK_FILE = "drain";
+var LIFECYCLE_SETTLEMENT_LOCK_INTEGRATIONS_DIRECTORY = "integrations";
+var LIFECYCLE_SETTLEMENT_LOCK_SESSIONS_DIRECTORY = "sessions";
+var LIFECYCLE_SETTLEMENT_LOCK_ACCOUNTS_DIRECTORY = "accounts";
+var LIFECYCLE_TURN_CLOSURE_STATES = ["open", "provisional", "authoritative"];
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/closure.js
+function deriveAttributionReadiness(value, integration) {
+  const source = requirePlainRecord(value, "Prepared run submission");
+  const metadata = prepareCodingAgentMetadataProvenance(requireOwnDataField(source, "metadata"), integration, "full");
+  if (metadata.status === "deferred")
+    return false;
+  return attributionMetadataReady(buildCodingAgentMetadata(metadata.value));
+}
+function storedAttributionReadiness(record, integration) {
+  const evidence = requirePlainRecord(record.turnEvidence, "Stored turn evidence");
+  const readiness = ownDataField(evidence, LIFECYCLE_ATTRIBUTION_READY_FIELD);
+  if (readiness.present) {
+    return requireBoolean(readiness.value, `Stored turn evidence ${LIFECYCLE_ATTRIBUTION_READY_FIELD}`);
+  }
+  const payload = requirePlainRecord(record.normalizedPayload, "Stored run payload");
+  if (requireOwnDataField(payload, "privacyMode") !== "full")
+    return false;
+  const metadata = prepareCodingAgentMetadataProvenance(record.metadataProvenance, integration, "full");
+  if (metadata.status === "deferred")
+    return false;
+  return attributionMetadataReady(buildCodingAgentMetadata(metadata.value));
+}
+function indexCaptureSources(sources) {
+  return new Map(sources.map((source) => [captureScopeKey(captureScope(source)), source]));
+}
+function attributionMetadataReady(projected) {
+  return typeof projected["repository_name"] === "string" && projected["repository_name"].length > 0 && typeof projected["ls_attribution_identifier"] === "string" && projected["ls_attribution_identifier"].length > 0;
+}
+async function withholdUnresolvedEndTime(input) {
+  const { record, submission, sourceSnapshot, sourceByScope, integration, destinations, readOutcome } = input;
+  if (record.eventKind !== LIFECYCLE_POST_EVENT_KIND && record.eventKind !== LIFECYCLE_PATCH_EVENT_KIND) {
+    return submission;
+  }
+  const evidence = requirePlainRecord(record.turnEvidence, "Stored turn evidence");
+  const attributionReady = storedAttributionReadiness(record, integration);
+  const closureState = requireOwnDataField(evidence, "closureState");
+  if (typeof closureState !== "string" || !LIFECYCLE_TURN_CLOSURE_STATES.includes(closureState)) {
+    throw new TypeError("Stored turn evidence has an invalid closure state");
+  }
+  const runType = submission.metadata.runType;
+  if (runType !== "tool" && runType !== "root")
+    return submission;
+  const hasCurrentEndTime = submission.operation === "post" ? submission.run.end_time !== void 0 : submission.patch.fields.includes("end_time");
+  const hasEndTime = hasCurrentEndTime || hasPriorEndTime(record, sourceByScope);
+  if (!hasEndTime || attributionReady)
+    return submission;
+  if (runType === "root" && !await hasMissingChildReceipts(record, evidence, sourceSnapshot, destinations, readOutcome)) {
+    return submission;
+  }
+  return removeOutgoingEndTime(submission);
+}
+function hasPriorEndTime(record, sourceByScope) {
+  const pending = [...record.dependencies ?? []];
+  const visited = /* @__PURE__ */ new Set();
+  while (pending.length > 0) {
+    const scope = pending.pop();
+    const key = captureScopeKey(scope);
+    if (visited.has(key))
+      continue;
+    visited.add(key);
+    const previous = sourceByScope.get(key);
+    if (previous === void 0)
+      continue;
+    if (previous.runId === record.runId && (previous.eventKind === LIFECYCLE_POST_EVENT_KIND || previous.eventKind === LIFECYCLE_PATCH_EVENT_KIND) && recordHasEndTime(previous)) {
+      return true;
+    }
+    pending.push(...previous.dependencies ?? []);
+  }
+  return false;
+}
+function recordHasEndTime(record) {
+  const payload = requirePlainRecord(record.normalizedPayload, "Stored run payload");
+  if (payload["operation"] === "post") {
+    const run = requirePlainRecord(requireOwnDataField(payload, "run"), "Stored run snapshot");
+    const endTime2 = ownDataField(run, "end_time");
+    return endTime2.present && endTime2.value !== void 0;
+  }
+  if (payload["operation"] !== "patch")
+    return false;
+  const patch = requirePlainRecord(requireOwnDataField(payload, "patch"), "Stored run patch");
+  const fields = requireStringArray(requireOwnDataField(patch, "fields"), "Patch fields");
+  if (!fields.includes("end_time"))
+    return false;
+  const values = requirePlainRecord(requireOwnDataField(patch, "values"), "Patch values");
+  const endTime = ownDataField(values, "end_time");
+  return endTime.present && endTime.value !== void 0;
+}
+async function hasMissingChildReceipts(record, evidence, sourceSnapshot, destinations, readOutcome) {
+  const childRunIds = requireStringArray(requireOwnDataField(evidence, "childRunIds"), "Child run IDs").map((runId) => requireNonBlankString(runId, "Child run ID"));
+  const children = childRunIds.filter((runId) => runId !== record.runId);
+  if (children.length === 0)
+    return false;
+  for (const childRunId of children) {
+    const childCaptures = sourceSnapshot.filter((source) => source.runId === childRunId && source.destinationFingerprint === record.destinationFingerprint && source.eventKind === LIFECYCLE_POST_EVENT_KIND);
+    if (childCaptures.length === 0)
+      return true;
+    for (const child of childCaptures) {
+      const scope = captureScope(child);
+      for (const destination of destinations) {
+        const outcome = await readOutcome(scope, destination.id);
+        if (outcome.status === "failed")
+          throw new Error(`Could not read child delivery receipt: ${outcome.code}`);
+        if (outcome.status !== "settled" || outcome.receipt.outcome !== "delivered")
+          return true;
+      }
+    }
+  }
+  return false;
+}
+function removeOutgoingEndTime(submission) {
+  const privacyContext = submission.privacyMode !== "metadata" ? void 0 : submission.operation === "post" ? {
+    status: submission.run.error !== void 0 || submission.privacyContext?.status === "error" ? "error" : "running"
+  } : {
+    status: submission.privacyContext.status === "error" ? "error" : "running"
+  };
+  if (submission.operation === "post") {
+    const run = { ...submission.run };
+    delete run.end_time;
+    return {
+      ...submission,
+      run,
+      ...privacyContext === void 0 ? {} : { privacyContext }
+    };
+  }
+  const fields = submission.patch.fields.filter((field2) => field2 !== "end_time");
+  const values = { ...submission.patch.values };
+  delete values.end_time;
+  return {
+    ...submission,
+    patch: { fields, values },
+    ...privacyContext === void 0 ? {} : { privacyContext }
+  };
+}
+function captureScope(record) {
+  return {
+    integration: record.integration,
+    sessionId: record.sessionId,
+    turnId: record.turnId,
+    eventId: record.eventId
+  };
+}
+function captureScopeKey(scope) {
+  return JSON.stringify([scope.integration, scope.sessionId, scope.turnId, scope.eventId]);
+}
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/identity.js
+function createRunIdentity(input) {
+  const id = requireNonBlankString(input.id, "Run ID");
+  const start_time = requireTimestamp(input.start_time);
+  const segment = dottedOrderSegment(start_time, id);
+  if (input.parent === void 0) {
+    return { id, start_time, trace_id: id, dotted_order: segment };
+  }
+  const parent = canonicalParent(input.parent);
+  return {
+    id,
+    start_time,
+    parent_run_id: parent.id,
+    trace_id: parent.trace_id,
+    dotted_order: `${parent.dotted_order}.${segment}`
+  };
+}
+function canonicalParent(parent) {
+  const id = requireNonBlankString(parent.id, "Parent run ID");
+  const trace_id = requireNonBlankString(parent.trace_id, "Parent trace ID");
+  const dotted_order = requireNonBlankString(parent.dotted_order, "Parent dotted order");
+  const parent_run_id = parent.parent_run_id === void 0 ? void 0 : requireNonBlankString(parent.parent_run_id, "Parent run's parent ID");
+  const segments = dotted_order.split(".").map(parseDottedOrderSegment);
+  const runIds = segments.map((segment) => segment.runId);
+  const lastSegment = segments.at(-1);
+  const start_time = parent.start_time === void 0 ? void 0 : requireTimestamp(parent.start_time);
+  if (lastSegment?.runId !== id || runIds[0] !== trace_id || parent_run_id !== void 0 && (runIds.length < 2 || runIds.at(-2) !== parent_run_id) || start_time !== void 0 && lastSegment.timestamp.slice(0, DOTTED_ORDER_TIME_PREFIX_LENGTH) !== dottedOrderTimePrefix(start_time)) {
+    throw new TypeError("Parent run identity is not canonical");
+  }
+  return {
+    id,
+    ...parent_run_id === void 0 ? {} : { parent_run_id },
+    trace_id,
+    dotted_order,
+    ...start_time === void 0 ? {} : { start_time }
+  };
+}
+function parseDottedOrderSegment(segment) {
+  const match = DOTTED_ORDER_SEGMENT_PATTERN.exec(segment);
+  if (match === null || !isValidDottedOrderTime(match[1])) {
+    throw new TypeError("Parent run identity is not canonical");
+  }
+  return { timestamp: match[1], runId: match[2] };
+}
+function isValidDottedOrderTime(value) {
+  const time = value.slice(0, DOTTED_ORDER_TIME_PREFIX_LENGTH);
+  const iso = `${time.slice(0, 4)}-${time.slice(4, 6)}-${time.slice(6, 8)}T${time.slice(9, 11)}:${time.slice(11, 13)}:${time.slice(13, 15)}.${time.slice(15, 18)}Z`;
+  const parsed = new Date(iso);
+  return Number.isFinite(parsed.getTime()) && parsed.toISOString() === iso;
+}
+function dottedOrderTimePrefix(startTime) {
+  return new Date(startTime).toISOString().slice(0, -1).replace(DOTTED_ORDER_STRIP_PATTERN, "");
+}
+function dottedOrderSegment(startTime, runId) {
+  const epoch = new Date(startTime).getTime();
+  const serialized = new Date(epoch).toISOString().slice(0, -1);
+  const precisionTime = `${serialized}${String(ROOT_RUN_EXECUTION_ORDER).padStart(3, "0")}Z`;
+  return `${precisionTime.replace(DOTTED_ORDER_STRIP_PATTERN, "")}${runId}`;
+}
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/projection.js
+function projectSubmission(value, integration, priorIdentity) {
+  const source = requirePlainRecord(value, "Prepared run submission");
+  if (requireOwnDataField(source, "integration") !== integration) {
+    throw new TypeError("Run integration does not match the lifecycle bridge");
+  }
+  const privacyMode = requireOwnDataField(source, "privacyMode");
+  if (privacyMode !== "full" && privacyMode !== "metadata")
+    throw new TypeError("Invalid privacy mode");
+  const redactedField = ownDataField(source, "redactedFields");
+  const redactedFields = normalizedRedactedFields(redactedField.present ? redactedField.value : void 0);
+  const redaction = privacyMode === "full" && redactedFields.length > 0 ? { redactedFields } : {};
+  const operation = requireOwnDataField(source, "operation");
+  if (operation !== "post" && operation !== "patch")
+    throw new TypeError("Invalid run operation");
+  if (operation === "post") {
+    const run2 = canonicalIdentity(normalizedRunSnapshot(requireOwnDataField(source, "run")), priorIdentity);
+    const suppliedPrivacyContext = ownDataField(source, "privacyContext");
+    const status = run2.error !== void 0 ? "error" : suppliedPrivacyContext.present ? privacyStatus(suppliedPrivacyContext.value).status : statusForPost(run2);
+    const metadata2 = prepareCodingAgentMetadataProvenance(requireOwnDataField(source, "metadata"), integration, privacyMode, status);
+    if (metadata2.status === "deferred")
+      return metadata2;
+    const projected2 = {
+      payload: {
+        operation,
+        integration,
+        privacyMode,
+        ...redaction,
+        ...privacyMode === "metadata" ? { privacyContext: { status } } : {},
+        run: privacyMode === "metadata" ? projectPost(run2, metadata2.value, status) : run2
+      },
+      metadata: metadata2.value
+    };
+    return { status: "ready", value: projected2 };
+  }
+  const run = canonicalIdentity(normalizedRunContext(requireOwnDataField(source, "run")), priorIdentity, true);
+  const patch = normalizedPatch(requireOwnDataField(source, "patch"));
+  const privacyContext = privacyStatus(requireOwnDataField(source, "privacyContext"));
+  const metadata = prepareCodingAgentMetadataProvenance(requireOwnDataField(source, "metadata"), integration, privacyMode, privacyContext.status);
+  if (metadata.status === "deferred")
+    return metadata;
+  const projected = {
+    payload: {
+      operation,
+      integration,
+      privacyMode,
+      ...redaction,
+      run,
+      privacyContext,
+      patch: privacyMode === "metadata" ? projectPatch(run, patch, integration, metadata.value, privacyContext) : patch
+    },
+    metadata: metadata.value
+  };
+  return { status: "ready", value: projected };
+}
+function projectPost(run, metadata, status) {
+  const tree = createCodingAgentRunTree({
+    id: run.id,
+    name: run.name,
+    run_type: run.run_type,
+    ...run.start_time === void 0 ? {} : { start_time: run.start_time },
+    inputs: run.inputs,
+    extra: { metadata: buildCodingAgentMetadata(metadata) },
+    ...run.end_time === void 0 ? {} : { end_time: run.end_time },
+    ...run.outputs === void 0 ? {} : { outputs: run.outputs },
+    ...run.parent_run_id === void 0 ? {} : { parent_run_id: run.parent_run_id },
+    ...run.trace_id === void 0 ? {} : { trace_id: run.trace_id },
+    ...run.dotted_order === void 0 ? {} : { dotted_order: run.dotted_order },
+    ...run.error === void 0 ? {} : { error: run.error },
+    ...run.tags === void 0 ? {} : { tags: run.tags },
+    ...run.serialized === void 0 ? {} : { serialized: run.serialized },
+    ...run.reference_example_id === void 0 ? {} : { reference_example_id: run.reference_example_id }
+  }, metadata.integration, "metadata", { status });
+  if (run.events !== void 0)
+    tree.events = run.events;
+  const projected = tree.toJSON();
+  return {
+    id: run.id,
+    name: run.name,
+    run_type: run.run_type,
+    start_time: requireTimestamp(run.start_time),
+    inputs: canonicalJsonObject(projected["inputs"], "Projected run inputs"),
+    outputs: canonicalJsonObject(projected["outputs"], "Projected run outputs"),
+    ...run.end_time === void 0 ? {} : { end_time: run.end_time },
+    ...run.parent_run_id === void 0 ? {} : { parent_run_id: run.parent_run_id },
+    ...run.trace_id === void 0 ? {} : { trace_id: run.trace_id },
+    ...run.dotted_order === void 0 ? {} : { dotted_order: run.dotted_order }
+  };
+}
+function projectPatch(context, patch, integration, metadata, privacyContext) {
+  const tree = createCodingAgentRunTree({
+    id: context.id,
+    name: context.name,
+    run_type: context.run_type,
+    ...context.start_time === void 0 ? {} : { start_time: context.start_time },
+    inputs: patch.values.inputs ?? {},
+    outputs: patch.values.outputs ?? {},
+    extra: { metadata: buildCodingAgentMetadata(metadata) },
+    ...context.parent_run_id === void 0 ? {} : { parent_run_id: context.parent_run_id },
+    ...context.trace_id === void 0 ? {} : { trace_id: context.trace_id },
+    ...context.dotted_order === void 0 ? {} : { dotted_order: context.dotted_order },
+    ...patch.values.end_time === void 0 ? {} : { end_time: patch.values.end_time },
+    ...patch.values.error === void 0 ? {} : { error: patch.values.error },
+    ...patch.values.tags === void 0 ? {} : { tags: patch.values.tags },
+    ...patch.values.serialized === void 0 ? {} : { serialized: patch.values.serialized },
+    ...patch.values.reference_example_id === void 0 ? {} : { reference_example_id: patch.values.reference_example_id }
+  }, integration, "metadata", privacyContext);
+  if (patch.values.events !== void 0)
+    tree.events = patch.values.events;
+  const projected = tree.toJSON();
+  const fields = survivingCodingAgentPatchFields(projected, patch.fields);
+  const values = {};
+  for (const field2 of fields) {
+    const value = ownDataField(projected, field2);
+    if (!value.present)
+      continue;
+    values[field2] = field2 === "inputs" || field2 === "outputs" ? canonicalJsonObject(value.value, `Projected patch ${field2}`) : field2 === "tags" ? requireStringArray(value.value, `Projected patch ${field2}`) : field2 === "events" ? canonicalJsonArray(value.value, `Projected patch ${field2}`) : field2 === "error" || field2 === "reference_example_id" ? requireString(value.value, `Projected patch ${field2}`) : field2 === "end_time" ? requireTimestamp(value.value) : canonicalJsonObject(value.value, `Projected patch ${field2}`);
+  }
+  return { fields: fields.filter((field2) => Object.hasOwn(values, field2)), values };
+}
+function normalizedRunSnapshot(value) {
+  const source = requirePlainRecord(value, "Normalized run snapshot");
+  const run = {
+    id: requiredText(source, "id", "Run ID"),
+    name: requiredText(source, "name", "Run name"),
+    run_type: requiredText(source, "run_type", "Run type"),
+    inputs: canonicalJsonObject(requireOwnDataField(source, "inputs"), "Run inputs")
+  };
+  copyRunContext(source, run);
+  const endTime = ownDataField(source, "end_time");
+  if (endTime.present && endTime.value !== void 0)
+    run.end_time = requireTimestamp(endTime.value);
+  const outputs = ownDataField(source, "outputs");
+  if (outputs.present && outputs.value !== void 0)
+    run.outputs = canonicalJsonObject(outputs.value, "Run outputs");
+  const tags = ownDataField(source, "tags");
+  if (tags.present && tags.value !== void 0)
+    run.tags = requireStringArray(tags.value, "Run tags");
+  const error2 = ownDataField(source, "error");
+  if (error2.present && error2.value !== void 0)
+    run.error = requireString(error2.value, "Run error");
+  const serialized = ownDataField(source, "serialized");
+  if (serialized.present && serialized.value !== void 0)
+    run.serialized = canonicalJsonObject(serialized.value, "Serialized run data");
+  const events = ownDataField(source, "events");
+  if (events.present && events.value !== void 0)
+    run.events = canonicalJsonArray(events.value, "Run events");
+  const example = ownDataField(source, "reference_example_id");
+  if (example.present && example.value !== void 0) {
+    run.reference_example_id = requireNonBlankString(example.value, "Reference example ID");
+  }
+  return run;
+}
+function normalizedRunContext(value) {
+  const source = requirePlainRecord(value, "Normalized run context");
+  const run = {
+    id: requiredText(source, "id", "Run ID"),
+    name: requiredText(source, "name", "Run name"),
+    run_type: requiredText(source, "run_type", "Run type")
+  };
+  copyRunContext(source, run);
+  return run;
+}
+function copyRunContext(source, run) {
+  const start = ownDataField(source, "start_time");
+  if (start.present && start.value !== void 0)
+    run.start_time = requireTimestamp(start.value);
+  for (const [key, name] of [
+    ["parent_run_id", "Parent run ID"],
+    ["trace_id", "Trace ID"],
+    ["dotted_order", "Dotted order"]
+  ]) {
+    const field2 = ownDataField(source, key);
+    if (field2.present && field2.value !== void 0)
+      run[key] = requireNonBlankString(field2.value, name);
+  }
+}
+function canonicalIdentity(run, prior, requireStableIdentity = false) {
+  const reusable = prior?.id === run.id && prior.parent_run_id === run.parent_run_id ? prior : void 0;
+  if (reusable !== void 0 && (run.start_time !== void 0 && run.start_time !== reusable.start_time || run.trace_id !== void 0 && run.trace_id !== reusable.trace_id || run.dotted_order !== void 0 && run.dotted_order !== reusable.dotted_order)) {
+    throw new TypeError("Run identity changed for a persisted capture");
+  }
+  const knownStartTime = run.start_time ?? reusable?.start_time;
+  if (knownStartTime === void 0 && requireStableIdentity) {
+    throw new TypeError("Patch run context must preserve its canonical start time");
+  }
+  const startTime = knownStartTime ?? Date.now();
+  const result = { ...run, start_time: startTime };
+  const canGenerateRootIdentity = !requireStableIdentity && result.parent_run_id === void 0;
+  const generatedOrder = canGenerateRootIdentity && result.dotted_order === void 0 && reusable?.dotted_order === void 0 ? createRunIdentity({ id: result.id, start_time: startTime }).dotted_order : void 0;
+  const traceId = result.trace_id ?? reusable?.trace_id ?? (canGenerateRootIdentity ? result.id : void 0);
+  const order = result.dotted_order ?? reusable?.dotted_order ?? generatedOrder;
+  if (traceId === void 0 || order === void 0) {
+    throw new TypeError("Run context must preserve its canonical trace ID and dotted order");
+  }
+  result.trace_id = traceId;
+  result.dotted_order = order;
+  return result;
+}
+function normalizedPatch(value) {
+  const source = requirePlainRecord(value, "Normalized run patch");
+  const candidates = canonicalJsonArray(requireOwnDataField(source, "fields"), "Patch field mask");
+  const sourceValues = requirePlainRecord(requireOwnDataField(source, "values"), "Patch values");
+  const seen = /* @__PURE__ */ new Set();
+  const fields = [];
+  const values = {};
+  for (const candidate of candidates) {
+    if (typeof candidate !== "string" || !UPLOAD_PATCH_FIELDS.has(candidate)) {
+      throw new TypeError("Invalid patch field");
+    }
+    const field2 = candidate;
+    if (seen.has(field2))
+      throw new TypeError("Patch fields must be unique");
+    const selected = ownDataField(sourceValues, field2);
+    if (!selected.present || selected.value === void 0) {
+      throw new TypeError("Every selected patch field must have a value");
+    }
+    seen.add(field2);
+    fields.push(field2);
+    values[field2] = field2 === "inputs" || field2 === "outputs" ? canonicalJsonObject(selected.value, `Patch ${field2}`) : field2 === "end_time" ? requireTimestamp(selected.value) : field2 === "error" ? requireString(selected.value, "Patch error") : field2 === "reference_example_id" ? requireNonBlankString(selected.value, "Patch reference example ID") : field2 === "tags" ? requireStringArray(selected.value, "Patch tags") : field2 === "events" ? canonicalJsonArray(selected.value, "Patch events") : canonicalJsonObject(selected.value, `Patch ${field2}`);
+  }
+  return { fields, values };
+}
+function privacyStatus(value) {
+  const source = requirePlainRecord(value, "Patch privacy context");
+  const status = requireOwnDataField(source, "status");
+  if (status !== "running" && status !== "completed" && status !== "error") {
+    throw new TypeError("Invalid patch privacy status");
+  }
+  return { status };
+}
+function statusForPost(run) {
+  if (run.error !== void 0)
+    return "error";
+  if (run.end_time !== void 0)
+    return "completed";
+  return "running";
+}
+function requiredText(source, key, name) {
+  return requireNonBlankString(requireOwnDataField(source, key), name);
+}
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/settlement/constants.js
+var TURN_REPOSITORY_KEYS = [
+  "repository_name",
+  "repository_provider",
+  "repository_url",
+  "git_branch",
+  "git_commit_sha"
+];
+var REPOSITORY_METADATA_KEYS = [...TURN_REPOSITORY_KEYS, "ls_attribution_identifier"];
+var REPOSITORY_NAME_KEY = "repository_name";
+var ATTRIBUTION_IDENTIFIER_KEY = "ls_attribution_identifier";
+var SETTLEMENT_EVENT_ID_PREFIX = "turn-settlement-";
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/settlement/settlement.js
+function attributionOf(metadata) {
+  const carried = {};
+  for (const key of REPOSITORY_METADATA_KEYS) {
+    const value = metadata?.[key];
+    if (typeof value === "string" && value.length > 0)
+      carried[key] = value;
+  }
+  return carried;
+}
+var namesARepository = (carried) => carried[REPOSITORY_NAME_KEY] !== void 0;
+function turnAttribution(record) {
+  const root = attributionOf(record.root?.metadata);
+  const inToolCallOrder = [...record.children].sort((left, right) => left.dotted_order < right.dotted_order ? -1 : 1).map((child) => attributionOf(child.metadata));
+  const source = namesARepository(root) ? root : inToolCallOrder.find((carried) => namesARepository(carried));
+  const knowsWhoWorkedInSource = (carried) => carried[ATTRIBUTION_IDENTIFIER_KEY] !== void 0 && carried[REPOSITORY_NAME_KEY] === source?.[REPOSITORY_NAME_KEY];
+  const author = root[ATTRIBUTION_IDENTIFIER_KEY] ?? source?.[ATTRIBUTION_IDENTIFIER_KEY] ?? inToolCallOrder.find(knowsWhoWorkedInSource)?.[ATTRIBUTION_IDENTIFIER_KEY];
+  const filled = { ...source };
+  if (author !== void 0)
+    filled[ATTRIBUTION_IDENTIFIER_KEY] = author;
+  return Object.keys(filled).length > 0 ? filled : void 0;
+}
+function metadataAfterFill(run, filled) {
+  const carried = attributionOf(run.metadata);
+  const workedOutItsOwn = namesARepository(carried) && carried[REPOSITORY_NAME_KEY] !== filled[REPOSITORY_NAME_KEY];
+  if (workedOutItsOwn)
+    return void 0;
+  const missing = Object.entries(filled).filter(([key]) => carried[key] === void 0);
+  if (missing.length === 0)
+    return void 0;
+  return { ...run.metadata, ...Object.fromEntries(missing) };
+}
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/settlement/pass.js
+async function settleCapturedTurns(options) {
+  if (options.destinations.length === 0)
+    throw new TypeError("At least one settlement destination is required");
+  const sourceRecords = orderSourceCaptures(options.captures.map(({ record }) => record).filter((record) => record.integration === options.integration && record.sessionId === options.sessionId && record.destinationFingerprint === options.destinationFingerprint && (record.eventKind === LIFECYCLE_POST_EVENT_KIND || record.eventKind === LIFECYCLE_PATCH_EVENT_KIND)));
+  const generatedRecords = options.captures.map(({ record }) => record).filter((record) => record.integration === options.integration && record.sessionId === options.sessionId && record.destinationFingerprint === options.destinationFingerprint && record.eventKind === LIFECYCLE_SETTLEMENT_EVENT_KIND);
+  const projected = /* @__PURE__ */ new Map();
+  const allByRunId = /* @__PURE__ */ new Map();
+  for (const record of sourceRecords) {
+    const capture = projectCapture(record, options.integration);
+    if (capture === void 0)
+      continue;
+    const turn = projected.get(record.turnId) ?? [];
+    turn.push(capture);
+    projected.set(record.turnId, turn);
+    const runEvents = allByRunId.get(record.runId) ?? [];
+    runEvents.push(capture);
+    allByRunId.set(record.runId, runEvents);
+  }
+  const generatedByTurn = groupByTurn(generatedRecords);
+  const turns = [.../* @__PURE__ */ new Set([...projected.keys(), ...generatedByTurn.keys()])].toSorted();
+  const reports = [];
+  const patches = [];
+  let captured = 0;
+  for (const turnId of turns) {
+    const events = projected.get(turnId) ?? [];
+    const generated = generatedByTurn.get(turnId) ?? [];
+    const result = await settleOneTurn(turnId, events, generated, allByRunId, options);
+    reports.push(result.report);
+    patches.push(...result.patches);
+    captured += result.captured;
+  }
+  return { progress: { captured, turns: reports }, patches };
+}
+async function refreshSettlementProgress(work, destinations, readOutcome) {
+  const patchesByTurn = /* @__PURE__ */ new Map();
+  for (const patch of work.patches) {
+    const turn = patchesByTurn.get(patch.turnId) ?? [];
+    turn.push(patch);
+    patchesByTurn.set(patch.turnId, turn);
+  }
+  const turns = [];
+  for (const entry of work.progress.turns) {
+    const patches = patchesByTurn.get(entry.turnId) ?? [];
+    if (patches.length === 0 || entry.status !== "pending" && entry.status !== "settled") {
+      turns.push(entry);
+      continue;
+    }
+    const readiness = await captureReadiness(patches.map(({ scope }) => scope), destinations, readOutcome);
+    const { reason: previousReason, destinations: previousDestinations, ...unchanged } = entry;
+    const reason = readiness.status === "delivered" ? previousReason === "settlement-pending" ? void 0 : previousReason : readiness.status === "dropped" ? "settlement-dropped" : "settlement-pending";
+    const reportDestinations = readiness.destinations.length > 0 ? readiness.destinations : previousReason === "settlement-pending" ? void 0 : previousDestinations;
+    turns.push({
+      ...unchanged,
+      status: readiness.status === "dropped" ? "blocked" : readiness.status === "pending" ? "pending" : "settled",
+      ...reason === void 0 ? {} : { reason },
+      ...reportDestinations === void 0 ? {} : { destinations: reportDestinations }
+    });
+  }
+  return { captured: work.progress.captured, turns };
+}
+async function settleOneTurn(turnId, events, generated, allByRunId, options) {
+  const rootRunIds = /* @__PURE__ */ new Set();
+  const childRunIds = /* @__PURE__ */ new Set();
+  let closureState = "open";
+  for (const event of events) {
+    const evidence = parseEvidence(event.record.turnEvidence, event.attributionReady);
+    if (evidence.rootRunId !== void 0)
+      rootRunIds.add(evidence.rootRunId);
+    for (const childRunId of evidence.childRunIds)
+      childRunIds.add(childRunId);
+    if (closureRank(evidence.closureState) > closureRank(closureState))
+      closureState = evidence.closureState;
+  }
+  if (rootRunIds.size === 0)
+    return { report: report(turnId, "deferred", "missing-root"), patches: [], captured: 0 };
+  if (rootRunIds.size > 1)
+    return {
+      report: report(turnId, "blocked", "conflicting-root", [...rootRunIds].toSorted()),
+      patches: [],
+      captured: 0
+    };
+  if (closureState !== "authoritative") {
+    return {
+      report: report(turnId, "deferred", closureState),
+      patches: [],
+      captured: 0
+    };
+  }
+  const rootRunId = [...rootRunIds][0];
+  childRunIds.delete(rootRunId);
+  const requiredRunIds = [rootRunId, ...[...childRunIds].toSorted()];
+  const currentByRunId = /* @__PURE__ */ new Map();
+  for (const event of events) {
+    const runEvents2 = currentByRunId.get(event.record.runId) ?? [];
+    runEvents2.push(event);
+    currentByRunId.set(event.record.runId, runEvents2);
+  }
+  const byRunId = /* @__PURE__ */ new Map();
+  for (const runId of requiredRunIds) {
+    const runEvents2 = runId === rootRunId ? currentByRunId.get(runId) ?? [] : allByRunId.get(runId) ?? [];
+    byRunId.set(runId, runEvents2);
+    if (!runEvents2.some(({ payload }) => payload.operation === "post")) {
+      return {
+        report: report(turnId, "deferred", "missing-run", [runId]),
+        patches: [],
+        captured: 0
+      };
+    }
+  }
+  const sourceEvents = [...events];
+  for (const childRunId of childRunIds) {
+    sourceEvents.push(...allByRunId.get(childRunId) ?? []);
+  }
+  const sourceScopes = uniqueScopes(sourceEvents.map(({ record }) => captureScope2(record)));
+  const sourceReadiness = await captureReadiness(sourceScopes, options.destinations, options.readOutcome);
+  if (sourceReadiness.status === "dropped") {
+    return {
+      report: report(turnId, "blocked", "source-dropped", requiredRunIds, sourceReadiness.destinations),
+      patches: [],
+      captured: 0
+    };
+  }
+  if (sourceReadiness.status === "pending") {
+    return {
+      report: report(turnId, "pending", "source-pending", requiredRunIds, sourceReadiness.destinations),
+      patches: [],
+      captured: 0
+    };
+  }
+  const runEvents = /* @__PURE__ */ new Map();
+  const recorded = /* @__PURE__ */ new Map();
+  for (const runId of requiredRunIds) {
+    const captures = byRunId.get(runId) ?? [];
+    runEvents.set(runId, captures);
+    recorded.set(runId, recordRun(captures));
+  }
+  const root = recorded.get(rootRunId);
+  const children = requiredRunIds.filter((runId) => runId !== rootRunId).map((runId) => recorded.get(runId));
+  const turn = {
+    path: "",
+    origin: "capture",
+    root,
+    children,
+    turnId,
+    closed: true,
+    delivered: new Set(requiredRunIds),
+    fixed: /* @__PURE__ */ new Set()
+  };
+  const attribution = turnAttribution(turn);
+  const dependencies = sourceScopes;
+  const patches = [];
+  let captured = 0;
+  for (const runId of requiredRunIds) {
+    if (!currentByRunId.has(runId))
+      continue;
+    const captureEvents = runEvents.get(runId);
+    const latest = captureEvents.at(-1);
+    const run = recorded.get(runId);
+    const merged = attribution === void 0 ? void 0 : metadataAfterFill(run, attribution);
+    const currentAttribution = attributionOf(run.metadata);
+    const added = Object.fromEntries(Object.entries(merged === void 0 ? {} : attribution ?? {}).filter(([key]) => currentAttribution[key] === void 0));
+    const endTime = retainedEndTime(captureEvents);
+    const restoreEndTime = endTime !== void 0 && captureEvents.some((event) => (event.metadata.runType === "tool" || event.metadata.runType === "root") && !event.attributionReady && capturedEndTime(event) !== void 0);
+    if (Object.keys(added).length === 0 && !restoreEndTime)
+      continue;
+    const sourceMetadata = mergeMetadataOptions(captureEvents);
+    const metadata = Object.keys(added).length === 0 ? sourceMetadata : addAttribution(sourceMetadata, added);
+    const updatedMetadata = buildCodingAgentMetadata(metadata);
+    if (Object.entries(added).some(([key, value]) => updatedMetadata[key] !== value))
+      throw new Error("Settlement metadata could not preserve attribution");
+    const submission = patchPayload(latest, metadata, options.integration, restoreEndTime ? endTime : void 0, hasCausalRunError(captureEvents));
+    const eventId = settlementEventId(turnId, runId, dependencies, rootRunId, childRunIds, added);
+    const scope = {
+      integration: options.integration,
+      sessionId: options.sessionId,
+      turnId,
+      eventId
+    };
+    const previous = orderSourceCaptures(generated.filter((item) => item.runId === runId && item.eventId !== eventId)).at(-1);
+    const previousDependency = previous === void 0 ? [] : [captureScope2(previous)];
+    if (previous !== void 0) {
+      const previousReadiness = await captureReadiness(previousDependency, options.destinations, options.readOutcome);
+      if (previousReadiness.status === "dropped") {
+        return {
+          report: report(turnId, "blocked", "settlement-dropped", [runId], previousReadiness.destinations),
+          patches,
+          captured
+        };
+      }
+    }
+    const result = await options.capture({
+      turnId,
+      eventId,
+      runId,
+      destinationFingerprint: options.destinationFingerprint,
+      eventKind: LIFECYCLE_SETTLEMENT_EVENT_KIND,
+      normalizedPayload: canonicalJsonValue(submission.payload),
+      metadataProvenance: canonicalJsonValue(submission.metadata),
+      turnEvidence: canonicalJsonValue({
+        rootRunId,
+        childRunIds: [...childRunIds].toSorted(),
+        closureState,
+        [LIFECYCLE_ATTRIBUTION_READY_FIELD]: latest.attributionReady
+      }),
+      dependencies: uniqueScopes([...dependencies, ...previousDependency])
+    });
+    if (result.status === "failed" || result.status === "conflict")
+      throw new Error(`Could not capture settled run ${runId}: ${result.status}`);
+    if (result.status === "published")
+      captured += 1;
+    patches.push({ turnId, runId, scope });
+  }
+  const reportResult = report(turnId, patches.length === 0 ? "settled" : "pending", patches.length === 0 ? "no-change" : "settlement-pending", patches.map(({ runId }) => runId));
+  return { report: { ...reportResult, patches: patches.length }, patches, captured };
+}
+function projectCapture(record, integration) {
+  const rawPayload = canonicalJsonObject(record.normalizedPayload, "Stored run payload");
+  const submission = projectSubmission({ ...rawPayload, metadata: record.metadataProvenance }, integration);
+  if (submission.status === "deferred")
+    return void 0;
+  const expectedKind = submission.value.payload.operation === "post" ? LIFECYCLE_POST_EVENT_KIND : LIFECYCLE_PATCH_EVENT_KIND;
+  if (record.eventKind !== expectedKind)
+    throw new TypeError("Capture event kind does not match its operation");
+  const evidence = parseEvidence(record.turnEvidence, storedAttributionReadiness(record, integration));
+  return {
+    record,
+    payload: submission.value.payload,
+    metadata: submission.value.metadata,
+    open: captureIsOpen(submission.value.payload),
+    attributionReady: evidence.attributionReady
+  };
+}
+function captureIsOpen(payload) {
+  if (payload.operation === "post")
+    return payload.run.end_time === void 0 && payload.run.error === void 0;
+  if (payload.privacyContext.status === "running")
+    return true;
+  return false;
+}
+function recordRun(events) {
+  const latest = events.at(-1);
+  const run = latest.payload.run;
+  return {
+    run_id: latest.record.runId,
+    ...run.parent_run_id === void 0 ? {} : { parent_run_id: run.parent_run_id },
+    trace_id: requireNonBlankString(run.trace_id, "Trace ID"),
+    dotted_order: requireNonBlankString(run.dotted_order, "Dotted order"),
+    name: requireNonBlankString(run.name, "Run name"),
+    run_type: requireNonBlankString(run.run_type, "Run type"),
+    tracing: latest.payload.privacyMode,
+    open: latest.open,
+    metadata: buildCodingAgentMetadata(mergeMetadataOptions(events))
+  };
+}
+function mergeMetadataOptions(captures) {
+  const first = captures[0];
+  if (first === void 0)
+    throw new Error("Run metadata is required for settlement");
+  let merged = first.metadata;
+  for (const { metadata } of captures.slice(1)) {
+    const base = mergeMetadataObject(merged.base, metadata.base);
+    const runSpecific = mergeMetadataObject(merged.runSpecific, metadata.runSpecific);
+    const providerMetadata = mergeMetadataObject(merged.providerMetadata, metadata.providerMetadata);
+    const usageMetadata = mergeMetadataObject(merged.usageMetadata, metadata.usageMetadata);
+    merged = {
+      ...merged,
+      ...metadata,
+      ...base === void 0 ? {} : { base },
+      ...runSpecific === void 0 ? {} : { runSpecific },
+      ...providerMetadata === void 0 ? {} : { providerMetadata },
+      ...usageMetadata === void 0 ? {} : { usageMetadata }
+    };
+  }
+  return merged;
+}
+function mergeMetadataObject(previous, current) {
+  if (previous === void 0 && current === void 0)
+    return void 0;
+  return { ...previous, ...current };
+}
+function patchPayload(source, metadata, integration, endTime, causalRunError = false) {
+  const context = source.payload.run;
+  const submission = {
+    operation: "patch",
+    integration,
+    privacyMode: source.payload.privacyMode,
+    metadata,
+    run: {
+      id: context.id,
+      name: context.name,
+      run_type: context.run_type,
+      ...context.start_time === void 0 ? {} : { start_time: context.start_time },
+      ...context.parent_run_id === void 0 ? {} : { parent_run_id: context.parent_run_id },
+      ...context.trace_id === void 0 ? {} : { trace_id: context.trace_id },
+      ...context.dotted_order === void 0 ? {} : { dotted_order: context.dotted_order }
+    },
+    privacyContext: source.payload.operation === "patch" ? {
+      ...source.payload.privacyContext,
+      ...causalRunError ? { status: "error" } : endTime !== void 0 && source.payload.privacyContext.status !== "error" ? { status: "completed" } : {}
+    } : {
+      status: causalRunError || source.payload.run.error !== void 0 || source.payload.privacyContext?.status === "error" ? "error" : endTime !== void 0 || source.payload.run.end_time !== void 0 ? "completed" : source.payload.privacyContext?.status ?? "running"
+    },
+    patch: endTime === void 0 ? { fields: [], values: {} } : { fields: ["end_time"], values: { end_time: endTime } }
+  };
+  const projected = projectSubmission(submission, integration);
+  if (projected.status === "deferred")
+    throw new Error("Settlement patch lost thread identity");
+  return projected.value;
+}
+function hasCausalRunError(events) {
+  let hasError = false;
+  for (const { payload } of events) {
+    if (payload.operation === "post") {
+      hasError = payload.run.error !== void 0 || payload.privacyContext?.status === "error";
+    } else if (payload.patch.fields.includes("error")) {
+      hasError = payload.patch.values.error !== void 0;
+    } else if (payload.privacyContext.status === "error") {
+      hasError = true;
+    }
+  }
+  return hasError;
+}
+function addAttribution(metadata, attribution) {
+  const layer = CODING_AGENT_INTEGRATION_POLICIES[metadata.integration].fullModePrecedence === "custom-wins" ? "base" : "runSpecific";
+  const previous = metadata[layer] ?? {};
+  return { ...metadata, [layer]: { ...previous, ...attribution } };
+}
+function parseEvidence(value, attributionReady) {
+  const source = requirePlainRecord(value, "Stored turn evidence");
+  const childRunIds = requireStringArray(requireOwnDataField(source, "childRunIds"), "Child run IDs").map((runId) => requireNonBlankString(runId, "Child run ID"));
+  const closureState = requireOwnDataField(source, "closureState");
+  if (typeof closureState !== "string" || !LIFECYCLE_TURN_CLOSURE_STATES.includes(closureState)) {
+    throw new TypeError("Stored turn evidence has an invalid closure state");
+  }
+  const result = {
+    childRunIds,
+    closureState,
+    attributionReady
+  };
+  const rootRunId = ownDataField(source, "rootRunId");
+  if (rootRunId.present && rootRunId.value !== void 0)
+    result.rootRunId = requireNonBlankString(rootRunId.value, "Root run ID");
+  return result;
+}
+function capturedEndTime(event) {
+  if (event.payload.operation === "post")
+    return event.payload.run.end_time;
+  if (!event.payload.patch.fields.includes("end_time"))
+    return void 0;
+  const value = event.payload.patch.values.end_time;
+  return value === void 0 ? void 0 : requireTimestamp(value);
+}
+function retainedEndTime(events) {
+  let endTime;
+  for (const event of events) {
+    const captured = capturedEndTime(event);
+    if (captured !== void 0)
+      endTime = captured;
+  }
+  return endTime;
+}
+function closureRank(state) {
+  return state === "authoritative" ? 2 : state === "provisional" ? 1 : 0;
+}
+async function captureReadiness(scopes, destinations, readOutcome) {
+  const pending = /* @__PURE__ */ new Set();
+  const dropped = /* @__PURE__ */ new Set();
+  for (const scope of scopes) {
+    for (const destination of destinations) {
+      const outcome = await readOutcome(scope, destination.id);
+      if (outcome.status === "failed")
+        throw new Error(`Could not read settlement receipt: ${outcome.code}`);
+      if (outcome.status === "settled") {
+        if (outcome.receipt.outcome === "dropped")
+          dropped.add(destination.id);
+      } else {
+        pending.add(destination.id);
+      }
+    }
+  }
+  return dropped.size > 0 ? { status: "dropped", destinations: [...dropped].toSorted() } : pending.size > 0 ? { status: "pending", destinations: [...pending].toSorted() } : { status: "delivered", destinations: [] };
+}
+function settlementEventId(turnId, runId, dependencies, rootRunId, childRunIds, attribution) {
+  const revision = createHash4("sha256").update(JSON.stringify({
+    turnId,
+    runId,
+    rootRunId,
+    childRunIds: [...childRunIds].toSorted(),
+    dependencies: dependencies.toSorted(compareScopes),
+    attribution
+  })).digest("hex");
+  return `${SETTLEMENT_EVENT_ID_PREFIX}${revision}`;
+}
+function uniqueScopes(scopes) {
+  const unique = /* @__PURE__ */ new Map();
+  for (const scope of scopes)
+    unique.set(JSON.stringify(scope), scope);
+  return [...unique.values()].toSorted(compareScopes);
+}
+function captureScope2(record) {
+  return {
+    integration: record.integration,
+    sessionId: record.sessionId,
+    turnId: record.turnId,
+    eventId: record.eventId
+  };
+}
+function captureScopeKey2(scope) {
+  return JSON.stringify([scope.integration, scope.sessionId, scope.turnId, scope.eventId]);
+}
+function compareScopes(left, right) {
+  return JSON.stringify(left).localeCompare(JSON.stringify(right));
+}
+function compareCaptures2(left, right) {
+  if (left.capturedAtMs !== right.capturedAtMs)
+    return left.capturedAtMs - right.capturedAtMs;
+  return left.eventId.localeCompare(right.eventId);
+}
+function orderSourceCaptures(records) {
+  const byScope = new Map(records.map((record) => [captureScopeKey2(captureScope2(record)), record]));
+  const dependents = new Map(records.map((record) => [captureScopeKey2(captureScope2(record)), []]));
+  const dependencyCounts = new Map(records.map((record) => [captureScopeKey2(captureScope2(record)), 0]));
+  for (const record of records) {
+    const recordKey = captureScopeKey2(captureScope2(record));
+    for (const dependency of record.dependencies ?? []) {
+      const prerequisite = byScope.get(captureScopeKey2(dependency));
+      if (prerequisite === void 0)
+        continue;
+      dependents.get(captureScopeKey2(captureScope2(prerequisite))).push(record);
+      dependencyCounts.set(recordKey, dependencyCounts.get(recordKey) + 1);
+    }
+  }
+  const ready = [];
+  for (const record of records) {
+    if (dependencyCounts.get(captureScopeKey2(captureScope2(record))) === 0)
+      pushOrderedCapture(ready, record);
+  }
+  const ordered = [];
+  while (ready.length > 0) {
+    const record = popOrderedCapture(ready);
+    ordered.push(record);
+    for (const dependent of dependents.get(captureScopeKey2(captureScope2(record))) ?? []) {
+      const key = captureScopeKey2(captureScope2(dependent));
+      const count = dependencyCounts.get(key) - 1;
+      dependencyCounts.set(key, count);
+      if (count === 0)
+        pushOrderedCapture(ready, dependent);
+    }
+  }
+  if (ordered.length !== records.length)
+    throw new TypeError("Source capture dependencies contain a cycle");
+  return ordered;
+}
+function compareSourceCaptures(left, right) {
+  return compareCaptures2(left, right) || compareScopes(captureScope2(left), captureScope2(right));
+}
+function pushOrderedCapture(heap, record) {
+  let index = heap.length;
+  heap.push(record);
+  while (index > 0) {
+    const parentIndex = Math.floor((index - 1) / 2);
+    const parent = heap[parentIndex];
+    if (compareSourceCaptures(parent, record) <= 0)
+      break;
+    heap[index] = parent;
+    index = parentIndex;
+  }
+  heap[index] = record;
+}
+function popOrderedCapture(heap) {
+  const first = heap[0];
+  if (first === void 0)
+    return void 0;
+  const last = heap.pop();
+  if (heap.length === 0)
+    return first;
+  let index = 0;
+  while (index * 2 + 1 < heap.length) {
+    const leftIndex = index * 2 + 1;
+    const rightIndex = leftIndex + 1;
+    const childIndex = rightIndex < heap.length && compareSourceCaptures(heap[rightIndex], heap[leftIndex]) < 0 ? rightIndex : leftIndex;
+    const child = heap[childIndex];
+    if (compareSourceCaptures(last, child) <= 0)
+      break;
+    heap[index] = child;
+    index = childIndex;
+  }
+  heap[index] = last;
+  return first;
+}
+function groupByTurn(records) {
+  const turns = /* @__PURE__ */ new Map();
+  for (const record of records) {
+    const captures = turns.get(record.turnId) ?? [];
+    captures.push(record);
+    turns.set(record.turnId, captures);
+  }
+  return turns;
+}
+function report(turnId, status, reason, runIds = [], destinations = []) {
+  return {
+    turnId,
+    status,
+    reason,
+    ...runIds.length === 0 ? {} : { runIds },
+    ...destinations.length === 0 ? {} : { destinations },
+    patches: 0
+  };
+}
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/utils/validation/snapshot.js
+function snapshotData(value) {
+  return copySnapshot(value, /* @__PURE__ */ new WeakMap());
+}
+function copySnapshot(value, copies) {
+  if (value === null || typeof value !== "object")
+    return value;
+  const previous = copies.get(value);
+  if (previous !== void 0)
+    return previous;
+  const prototype = Object.getPrototypeOf(value);
+  if (!Array.isArray(value) && prototype !== Object.prototype && prototype !== null) {
+    throw new TypeError("Snapshot input must contain plain objects and arrays");
+  }
+  let copy;
+  if (Array.isArray(value)) {
+    const array = [];
+    array.length = value.length;
+    copy = array;
+  } else {
+    copy = Object.create(prototype);
+  }
+  copies.set(value, copy);
+  for (const key of Reflect.ownKeys(value)) {
+    if (Array.isArray(value) && key === "length")
+      continue;
+    const descriptor = Object.getOwnPropertyDescriptor(value, key);
+    if (descriptor === void 0 || !("value" in descriptor)) {
+      throw new TypeError("Snapshot input must use data properties");
+    }
+    Object.defineProperty(copy, key, {
+      value: copySnapshot(descriptor.value, copies),
+      enumerable: descriptor.enumerable === true,
+      configurable: true,
+      writable: true
+    });
+  }
+  return copy;
+}
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/bridge.js
+function createLifecycleBridge(options) {
+  const integration = options.integration;
+  const wake = options.wake;
+  const sessionId = requireNonBlankString(options.sessionId, "Session ID");
+  const storageRoot = resolve9(options.storageRoot);
+  const captureStore = createCaptureStore(storageRoot);
+  const coordinator = createDeliveryCoordinator({
+    storageRoot,
+    integration,
+    sessionId,
+    ...options.policy === void 0 ? {} : { policy: options.policy }
+  });
+  const writer = createLangSmithUploadWriter(options.writer);
+  return Object.freeze({
+    accountFingerprint: writer.accountFingerprint,
+    async capture(input) {
+      const capture = requirePlainRecord(snapshotData(requirePlainRecord(input, "Lifecycle capture")), "Lifecycle capture");
+      const turnId = requireNonBlankString(capture["turnId"], "Turn ID");
+      const eventId = requireNonBlankString(capture["eventId"], "Event ID");
+      const sourceAge = ownDataField(capture, "sourceAgeStartedAtMs");
+      const sourceAgeStartedAtMs = sourceAge.present ? requireSafeEpochMilliseconds(sourceAge.value, "Source age") : void 0;
+      const scope = { integration, sessionId, turnId, eventId };
+      const previous = await captureStore.read(scope);
+      const projected = projectSubmission(capture["submission"], integration, previous === void 0 ? void 0 : previousRunContext(previous));
+      if (projected.status === "deferred") {
+        return { status: "deferred", reason: "missing-thread-identity" };
+      }
+      const turnEvidence = projectTurnEvidence(capture["turnEvidence"], projected.value.payload.privacyMode, deriveAttributionReadiness(capture["submission"], integration));
+      const dependencies = capture["dependencies"];
+      const identityPresence = projected.value.payload.operation === "post" ? suppliedRunIdentityFields(capture["submission"]) : void 0;
+      const captureProjected = (value) => coordinator.capture({
+        turnId,
+        eventId,
+        runId: value.payload.run.id,
+        destinationFingerprint: writer.accountFingerprint,
+        eventKind: value.payload.operation === "post" ? LIFECYCLE_POST_EVENT_KIND : LIFECYCLE_PATCH_EVENT_KIND,
+        normalizedPayload: canonicalJsonValue(value.payload),
+        turnEvidence,
+        metadataProvenance: canonicalJsonValue(value.metadata),
+        ...sourceAgeStartedAtMs === void 0 ? {} : { sourceAgeStartedAtMs },
+        ...dependencies === void 0 ? {} : { dependencies }
+      });
+      let result = await captureProjected(projected.value);
+      if (result.status === "conflict" && previous === void 0 && identityPresence !== void 0 && projected.value.payload.operation === "post") {
+        const winner = await captureStore.read(scope);
+        if (winner?.runId === projected.value.payload.run.id) {
+          const run = { ...projected.value.payload.run };
+          if (!identityPresence.startTime)
+            delete run.start_time;
+          if (!identityPresence.traceId)
+            delete run.trace_id;
+          if (!identityPresence.dottedOrder)
+            delete run.dotted_order;
+          const retry = projectSubmission({ ...projected.value.payload, run, metadata: projected.value.metadata }, integration, previousRunContext(winner));
+          if (retry.status === "ready")
+            result = await captureProjected(retry.value);
+        }
+      }
+      if (result.status === "published" || result.status === "duplicate")
+        await wakeCapturedWork(result, () => wake?.());
+      return result;
+    },
+    async drain(input = {}) {
+      const settlementLockDirectory = await ensurePrivateDirectory(storageRoot, [
+        LIFECYCLE_SETTLEMENT_LOCK_DIRECTORY,
+        LIFECYCLE_SETTLEMENT_LOCK_INTEGRATIONS_DIRECTORY,
+        integration,
+        LIFECYCLE_SETTLEMENT_LOCK_SESSIONS_DIRECTORY,
+        identifierHash(sessionId),
+        LIFECYCLE_SETTLEMENT_LOCK_ACCOUNTS_DIRECTORY,
+        identifierHash(writer.accountFingerprint)
+      ]);
+      const settlementLock = await tryAcquireFileLock(join13(settlementLockDirectory, LIFECYCLE_SETTLEMENT_LOCK_FILE));
+      if (settlementLock === void 0)
+        return { status: "busy", settlement: { captured: 0, turns: [] } };
+      let drainResult;
+      try {
+        const drainOnce = async () => {
+          const sourceSnapshot = (await captureStore.enumerate(integration, sessionId)).map(({ record }) => record);
+          const sourceByScope = indexCaptureSources(sourceSnapshot);
+          return coordinator.drain({
+            writer: {
+              accountFingerprint: writer.accountFingerprint,
+              destinations: writer.destinations,
+              async send(record, destination, fingerprint2) {
+                if (fingerprint2 !== writer.accountFingerprint)
+                  throw new Error("Upload account changed");
+                const submission = restoreSubmission(record, integration);
+                const outgoing = await withholdUnresolvedEndTime({
+                  record,
+                  submission,
+                  sourceSnapshot,
+                  sourceByScope,
+                  integration,
+                  destinations: writer.destinations,
+                  readOutcome: (scope, destinationId) => captureStore.readOutcome(scope, destinationId)
+                });
+                await writer.send(outgoing, destination.id);
+              }
+            },
+            ...input.now === void 0 ? {} : { now: input.now }
+          });
+        };
+        const first = await drainOnce();
+        if (first.status === "busy")
+          return { status: "busy", settlement: { captured: 0, turns: [] } };
+        const readOutcome = (scope, destination) => captureStore.readOutcome(scope, destination);
+        const work = await settleCapturedTurns({
+          captures: await captureStore.enumerate(integration, sessionId),
+          integration,
+          sessionId,
+          destinationFingerprint: writer.accountFingerprint,
+          destinations: writer.destinations,
+          capture: (capture) => coordinator.capture(capture),
+          readOutcome
+        });
+        let result = first;
+        if (work.progress.captured > 0) {
+          const second = await drainOnce();
+          if (second.status === "drained") {
+            result = {
+              status: "drained",
+              delivered: first.delivered + second.delivered,
+              dropped: first.dropped + second.dropped,
+              failed: first.failed + second.failed,
+              pending: second.pending,
+              accountMismatch: second.accountMismatch
+            };
+          }
+        }
+        const settlement = await refreshSettlementProgress(work, writer.destinations, readOutcome);
+        drainResult = { ...result, settlement };
+      } finally {
+        await settlementLock.release();
+      }
+      if (drainResult.status === "drained" && drainResult.delivered + drainResult.dropped > 0) {
+        await wake?.();
+      }
+      return drainResult;
+    }
+  });
+}
+function suppliedRunIdentityFields(value) {
+  const source = requirePlainRecord(value, "Prepared run submission");
+  const run = requirePlainRecord(requireOwnDataField(source, "run"), "Normalized run snapshot");
+  const supplied = (key) => {
+    const field2 = ownDataField(run, key);
+    return field2.present && field2.value !== void 0;
+  };
+  return {
+    startTime: supplied("start_time"),
+    traceId: supplied("trace_id"),
+    dottedOrder: supplied("dotted_order")
+  };
+}
+function previousRunContext(record) {
+  const payload = requirePlainRecord(record.normalizedPayload, "Stored run payload");
+  const runField = ownDataField(payload, "run");
+  if (!runField.present)
+    throw new TypeError("Stored run context is required");
+  const run = requirePlainRecord(runField.value, "Stored run context");
+  const context = {
+    id: requireNonBlankString(run["id"], "Run ID"),
+    name: requireNonBlankString(run["name"], "Run name"),
+    run_type: requireNonBlankString(run["run_type"], "Run type")
+  };
+  const startTime = ownDataField(run, "start_time");
+  if (startTime.present && startTime.value !== void 0)
+    context.start_time = requireTimestamp(startTime.value);
+  const parentRunId = ownDataField(run, "parent_run_id");
+  if (parentRunId.present && parentRunId.value !== void 0) {
+    context.parent_run_id = requireNonBlankString(parentRunId.value, "Parent run ID");
+  }
+  const traceId = ownDataField(run, "trace_id");
+  if (traceId.present && traceId.value !== void 0) {
+    context.trace_id = requireNonBlankString(traceId.value, "Trace ID");
+  }
+  const dottedOrder = ownDataField(run, "dotted_order");
+  if (dottedOrder.present && dottedOrder.value !== void 0) {
+    context.dotted_order = requireNonBlankString(dottedOrder.value, "Dotted order");
+  }
+  return context;
+}
+function projectTurnEvidence(value, mode, attributionReady) {
+  const source = requirePlainRecord(value, "Lifecycle turn evidence");
+  const childRunIds = requireStringArray(requireOwnDataField(source, "childRunIds"), "Child run IDs").map((runId) => requireNonBlankString(runId, "Child run ID"));
+  const closureState = requireOwnDataField(source, "closureState");
+  if (typeof closureState !== "string" || !LIFECYCLE_TURN_CLOSURE_STATES.includes(closureState)) {
+    throw new TypeError("Lifecycle turn evidence has an invalid closure state");
+  }
+  const structural2 = {
+    childRunIds,
+    closureState
+  };
+  const persisted = { ...structural2, [LIFECYCLE_ATTRIBUTION_READY_FIELD]: attributionReady };
+  const rootRunId = ownDataField(source, "rootRunId");
+  if (rootRunId.present && rootRunId.value !== void 0) {
+    persisted.rootRunId = requireNonBlankString(rootRunId.value, "Root run ID");
+  }
+  return canonicalJsonValue(mode === "metadata" ? persisted : { ...source, ...persisted });
+}
+function restoreSubmission(record, integration) {
+  const payload = canonicalJsonObject(record.normalizedPayload, "Stored run payload");
+  if (payload["integration"] !== integration)
+    throw new TypeError("Stored integration does not match the lifecycle bridge");
+  if (payload["run"] === null || typeof payload["run"] !== "object") {
+    throw new TypeError("Stored run data is required");
+  }
+  const run = payload["run"];
+  if (run["id"] !== record.runId)
+    throw new TypeError("Stored run ID does not match its capture");
+  const mode = payload["privacyMode"];
+  if (mode !== "full" && mode !== "metadata")
+    throw new TypeError("Stored privacy mode is invalid");
+  const projected = projectSubmission({ ...payload, metadata: record.metadataProvenance }, integration);
+  if (projected.status === "deferred")
+    throw new TypeError("Stored capture is missing thread identity");
+  return { ...projected.value.payload, metadata: projected.value.metadata };
+}
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/worker.js
+import { join as join14, resolve as resolve10 } from "node:path";
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/constants.js
+var RECONSTRUCTION_DIRECTORY = "reconstruction-v1";
+var RECONSTRUCTION_WORKER_DIRECTORY = "workers";
+var RECONSTRUCTION_SESSIONS_DIRECTORY = "sessions";
+var RECONSTRUCTION_DRAIN_LOCK = "drain";
+var RECONSTRUCTION_RUN_ID_PREFIX = "reconstruction:";
+var RECONSTRUCTION_MAPPING_EVENT_ID_PREFIX = "reconstruction-map:";
+var RECONSTRUCTION_JOB_KIND = "reconstruction-job-v1";
+var RECONSTRUCTION_MAPPING_KIND = "reconstruction-map-v1";
+var RECONSTRUCTION_RECORD_VERSION = 1;
+var RECONSTRUCTION_DEFERRED_REASON = "missing-thread-identity";
+var RECONSTRUCTION_CLOSURE_STATES = ["open", "provisional", "authoritative"];
+var RECONSTRUCTION_JOB_INPUT_KEYS = [
+  "eventId",
+  "privacyMode",
+  "sourceRefs",
+  "turnEvidence",
+  "turnId"
+];
+var RECONSTRUCTION_JOB_OPTIONAL_INPUT_KEYS = [
+  "sourceAgeStartedAtMs",
+  "sourceSnapshots"
+];
+var RECONSTRUCTION_SOURCE_SNAPSHOT_KEYS = [
+  "sourceAgeStartedAtMs",
+  "sourceRef",
+  "submission"
+];
+var RECONSTRUCTION_SOURCE_SNAPSHOT_OPTIONAL_KEYS = ["attributionContext"];
+var RECONSTRUCTION_STORED_JOB_KEYS = [
+  "privacyMode",
+  "recordVersion",
+  "sourceRefs"
+];
+var RECONSTRUCTION_STORED_JOB_OPTIONAL_KEYS = [
+  "sourceAgeStartedAtMs",
+  "sourceSnapshots"
+];
+var RECONSTRUCTION_ATTRIBUTION_CONTEXT_KEYS = ["toolOrigin"];
+var RECONSTRUCTION_ATTRIBUTION_CONTEXT_OPTIONAL_KEYS = ["pinnedRepositoryKeys"];
+var RECONSTRUCTION_TOOL_ORIGIN_KEYS = ["namedAPath"];
+var RECONSTRUCTION_TOOL_ORIGIN_OPTIONAL_KEYS = ["cwd", "path"];
+var RECONSTRUCTION_OUTPUT_KEYS = ["eventId", "submission"];
+var RECONSTRUCTION_OUTPUT_OPTIONAL_KEYS = ["dependencies", "sourceRef"];
+var RECONSTRUCTION_TURN_EVIDENCE_KEYS = ["childRunIds", "closureState"];
+var RECONSTRUCTION_TURN_EVIDENCE_KEYS_WITH_ROOT = [
+  "childRunIds",
+  "closureState",
+  "rootRunId"
+];
+var RECONSTRUCTION_DEPENDENCY_KEYS = [
+  "eventId",
+  "integration",
+  "sessionId",
+  "turnId"
+];
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/worker.js
+function createReconstructionWorker(options) {
+  const integration = options.integration;
+  const sessionId = requireNonBlankString(options.sessionId, "Session ID");
+  const accountFingerprint = requireNonBlankString(options.bridge.accountFingerprint, "Account fingerprint");
+  const bridge = Object.freeze({ accountFingerprint, capture: options.bridge.capture });
+  const reconstruct = options.reconstruct;
+  if (typeof bridge.capture !== "function" || typeof reconstruct !== "function")
+    throw new TypeError("Reconstruction callbacks are required");
+  validateIntegration(integration);
+  validateIdentifier(sessionId, "session ID");
+  validateIdentifier(accountFingerprint, "account fingerprint");
+  const policy = resolvePolicy2(options.policy);
+  const storageRoot = join14(resolve10(options.storageRoot), RECONSTRUCTION_DIRECTORY);
+  const captureStore = createCaptureStore(storageRoot);
+  const attemptStore = createDeliveryAttemptStore(storageRoot);
+  return {
+    async enqueue(input) {
+      const job = validateJobInput(input, integration, sessionId, accountFingerprint);
+      return captureStore.capture(jobRecord(job));
+    },
+    async drain(request = {}) {
+      const now = request.now ?? Date.now();
+      if (!Number.isFinite(now))
+        throw new RangeError("Drain time must be finite");
+      const lockDirectory = await ensurePrivateDirectory(storageRoot, [
+        RECONSTRUCTION_WORKER_DIRECTORY,
+        integration,
+        RECONSTRUCTION_SESSIONS_DIRECTORY,
+        identifierHash(sessionId)
+      ]);
+      const lock = await tryAcquireFileLock(join14(lockDirectory, RECONSTRUCTION_DRAIN_LOCK));
+      if (!lock)
+        return { status: "busy" };
+      const counts = { captured: 0, deferred: 0, failed: 0, dropped: 0 };
+      try {
+        const entries = await captureStore.enumerate(integration, sessionId);
+        const candidates = [];
+        for (const entry of entries) {
+          if (entry.record.eventKind === RECONSTRUCTION_MAPPING_KIND) {
+            readMapping(entry.record);
+            continue;
+          }
+          if (entry.record.eventKind !== RECONSTRUCTION_JOB_KIND)
+            throw new Error("Unsupported reconstruction record");
+          const job = readJob(entry.record, integration);
+          const scope = scopeOf2(entry.record);
+          const outcome = await captureStore.readOutcome(scope, job.accountFingerprint);
+          if (outcome.status === "failed")
+            throw new Error(outcome.message);
+          if (outcome.status === "missing-capture")
+            throw new Error("Reconstruction job disappeared");
+          if (outcome.status === "settled")
+            continue;
+          if (job.accountFingerprint !== accountFingerprint)
+            continue;
+          if (now - jobAgeStartedAtMs(job, entry.capturedAtMs) >= policy.maxAgeMs) {
+            counts.dropped += Number(await recordTerminal(captureStore, scope, job.accountFingerprint, "dropped", DELIVERY_EXPIRED_REASON));
+            continue;
+          }
+          candidates.push({ entry, job, scope });
+        }
+        const overCapacity = Math.max(0, candidates.length - policy.maxEntries);
+        for (const candidate of candidates.slice(0, overCapacity)) {
+          counts.dropped += Number(await recordTerminal(captureStore, candidate.scope, candidate.job.accountFingerprint, "dropped", DELIVERY_CAPACITY_REASON));
+        }
+        for (const candidate of candidates.slice(overCapacity)) {
+          const result = await processJob(candidate.job, candidate.entry.capturedAtMs, candidate.scope, reconstruct, bridge, captureStore, attemptStore, policy.maxAttempts, counts);
+          if (result === "deferred")
+            counts.deferred += 1;
+        }
+      } finally {
+        await lock.release();
+      }
+      const finalEntries = await captureStore.enumerate(integration, sessionId);
+      let pending = 0;
+      let accountMismatch = 0;
+      for (const entry of finalEntries) {
+        if (entry.record.eventKind !== RECONSTRUCTION_JOB_KIND)
+          continue;
+        const job = readJob(entry.record, integration);
+        const outcome = await captureStore.readOutcome(scopeOf2(entry.record), job.accountFingerprint);
+        if (outcome.status === "failed")
+          throw new Error(outcome.message);
+        if (outcome.status !== "settled") {
+          pending += 1;
+          if (job.accountFingerprint !== accountFingerprint)
+            accountMismatch += 1;
+        }
+      }
+      return { status: "drained", ...counts, pending, accountMismatch };
+    }
+  };
+}
+async function processJob(job, jobCapturedAtMs, scope, reconstruct, bridge, store, attempts, maxAttempts, counts) {
+  const attemptCount = await attempts.count(scope, job.accountFingerprint);
+  if (attemptCount >= maxAttempts) {
+    counts.dropped += Number(await recordTerminal(store, scope, job.accountFingerprint, "dropped", DELIVERY_RETRY_EXHAUSTED_REASON));
+    return "complete";
+  }
+  let interpretation;
+  try {
+    const result = requirePlainRecord(await reconstruct(snapshotJob(job)), "Reconstruction result");
+    const status = requireOwnDataField(result, "status");
+    if (status === "deferred") {
+      if (requireOwnDataField(result, "reason") !== RECONSTRUCTION_DEFERRED_REASON)
+        throw new TypeError("Invalid reconstruction deferral reason");
+      return "deferred";
+    }
+    if (status !== "ready")
+      throw new TypeError("Invalid reconstruction result status");
+    interpretation = {
+      status,
+      outputs: requireOwnDataField(result, "outputs")
+    };
+  } catch {
+    await recordFailure(store, attempts, scope, job.accountFingerprint, maxAttempts, counts);
+    return "complete";
+  }
+  let outputs;
+  try {
+    outputs = validateOutputs(interpretation.outputs, job, jobCapturedAtMs);
+    if (outputs.length === 0)
+      throw new TypeError("Reconstruction produced no captures");
+  } catch {
+    await recordFailure(store, attempts, scope, job.accountFingerprint, maxAttempts, counts);
+    return "complete";
+  }
+  const mappingInput = mappingRecord(job, outputs);
+  const mappingResult = await store.capture(mappingInput);
+  if (mappingResult.status !== "published" && mappingResult.status !== "duplicate") {
+    await recordFailure(store, attempts, scope, job.accountFingerprint, maxAttempts, counts);
+    return "complete";
+  }
+  const storedMapping = readMapping(mappingResult.record);
+  if (storedMapping.jobEventId !== job.eventId || !sameOutputMapping(storedMapping, outputs)) {
+    await recordFailure(store, attempts, scope, job.accountFingerprint, maxAttempts, counts);
+    return "complete";
+  }
+  for (const output of outputs) {
+    const turnEvidence = {
+      ...job.turnEvidence.rootRunId === void 0 ? {} : { rootRunId: job.turnEvidence.rootRunId },
+      childRunIds: [...job.turnEvidence.childRunIds],
+      closureState: job.turnEvidence.closureState
+    };
+    const captureInput = {
+      turnId: job.turnId,
+      eventId: output.eventId,
+      submission: output.submission,
+      turnEvidence,
+      ...output.dependencies === void 0 ? {} : { dependencies: output.dependencies },
+      ...output.sourceAgeStartedAtMs === void 0 ? {} : { sourceAgeStartedAtMs: output.sourceAgeStartedAtMs }
+    };
+    let captureStatus;
+    try {
+      captureStatus = requireOwnDataField(requirePlainRecord(await bridge.capture(captureInput), "Lifecycle capture result"), "status");
+    } catch {
+      await recordFailure(store, attempts, scope, job.accountFingerprint, maxAttempts, counts);
+      return "complete";
+    }
+    if (captureStatus === "deferred")
+      return "deferred";
+    if (captureStatus !== "published" && captureStatus !== "duplicate") {
+      await recordFailure(store, attempts, scope, job.accountFingerprint, maxAttempts, counts);
+      return "complete";
+    }
+    if (captureStatus === "published")
+      counts.captured += 1;
+  }
+  await recordTerminal(store, scope, job.accountFingerprint, "delivered");
+  return "complete";
+}
+async function recordFailure(store, attempts, scope, accountFingerprint, maxAttempts, counts) {
+  const nextAttempt = await attempts.count(scope, accountFingerprint) + 1;
+  await attempts.record(scope, accountFingerprint, nextAttempt, (/* @__PURE__ */ new Date()).toISOString());
+  counts.failed += 1;
+  if (nextAttempt >= maxAttempts) {
+    counts.dropped += Number(await recordTerminal(store, scope, accountFingerprint, "dropped", DELIVERY_RETRY_EXHAUSTED_REASON));
+  }
+}
+async function recordTerminal(store, scope, accountFingerprint, outcome, reason) {
+  const result = await store.recordOutcome({
+    ...scope,
+    destination: accountFingerprint,
+    outcome,
+    ...outcome === "dropped" ? { reason: reason ?? DELIVERY_RETRY_EXHAUSTED_REASON } : {}
+  });
+  if (result.status !== "recorded" && result.status !== "duplicate")
+    throw new Error(`Could not record terminal reconstruction outcome: ${result.status}`);
+  return result.status === "recorded";
+}
+function snapshotJob(job) {
+  return Object.freeze({
+    ...job,
+    sourceRefs: Object.freeze([...job.sourceRefs]),
+    ...job.sourceSnapshots === void 0 ? {} : {
+      sourceSnapshots: Object.freeze(job.sourceSnapshots.map((snapshot) => Object.freeze({
+        ...snapshot,
+        submission: snapshotData(snapshot.submission),
+        ...snapshot.attributionContext === void 0 ? {} : {
+          attributionContext: Object.freeze({
+            toolOrigin: Object.freeze({ ...snapshot.attributionContext.toolOrigin }),
+            ...snapshot.attributionContext.pinnedRepositoryKeys === void 0 ? {} : {
+              pinnedRepositoryKeys: Object.freeze([
+                ...snapshot.attributionContext.pinnedRepositoryKeys
+              ])
+            }
+          })
+        }
+      })))
+    },
+    turnEvidence: Object.freeze({
+      ...job.turnEvidence.rootRunId === void 0 ? {} : { rootRunId: job.turnEvidence.rootRunId },
+      childRunIds: Object.freeze([...job.turnEvidence.childRunIds]),
+      closureState: job.turnEvidence.closureState
+    })
+  });
+}
+function jobAgeStartedAtMs(job, capturedAtMs) {
+  if (job.sourceSnapshots !== void 0) {
+    return Math.max(...job.sourceSnapshots.map(({ sourceAgeStartedAtMs }) => sourceAgeStartedAtMs));
+  }
+  return job.sourceAgeStartedAtMs ?? capturedAtMs;
+}
+function resolvePolicy2(policy) {
+  const resolved = {
+    maxAttempts: policy?.maxAttempts ?? DELIVERY_DEFAULT_MAX_ATTEMPTS,
+    maxAgeMs: policy?.maxAgeMs ?? DELIVERY_DEFAULT_MAX_AGE_MS,
+    maxEntries: policy?.maxEntries ?? DELIVERY_DEFAULT_MAX_ENTRIES
+  };
+  if (!Number.isSafeInteger(resolved.maxAttempts) || resolved.maxAttempts <= 0 || !Number.isSafeInteger(resolved.maxAgeMs) || resolved.maxAgeMs <= 0 || !Number.isSafeInteger(resolved.maxEntries) || resolved.maxEntries <= 0) {
+    throw new TypeError("Invalid delivery policy");
+  }
+  return resolved;
+}
+function validateOutputs(value, job, jobCapturedAtMs) {
+  if (!Array.isArray(value))
+    throw new TypeError("Reconstruction outputs must be an array");
+  const seen = /* @__PURE__ */ new Set();
+  return value.map((item) => {
+    const output = requirePlainRecord(item, "Reconstruction output");
+    const outputKeys = Object.keys(output).toSorted();
+    if (RECONSTRUCTION_OUTPUT_KEYS.some((key) => !outputKeys.includes(key)) || outputKeys.some((key) => !RECONSTRUCTION_OUTPUT_KEYS.includes(key) && !RECONSTRUCTION_OUTPUT_OPTIONAL_KEYS.includes(key))) {
+      throw new TypeError("Reconstruction output has unsupported fields");
+    }
+    const eventId = requireNonBlankString(requireOwnDataField(output, "eventId"), "Event ID");
+    validateIdentifier(eventId, "event ID");
+    if (seen.has(eventId))
+      throw new TypeError("Reconstruction event IDs must be unique");
+    seen.add(eventId);
+    const submissionValue = canonicalJsonObject(requirePlainRecord(requireOwnDataField(output, "submission"), "Reconstruction submission"), "Reconstruction submission");
+    const integration = requireNonBlankString(requireOwnDataField(submissionValue, "integration"), "Integration");
+    if (integration !== job.integration)
+      throw new TypeError("Reconstruction integration changed");
+    const privacyMode = requireOwnDataField(submissionValue, "privacyMode");
+    if (privacyMode !== "full" && privacyMode !== "metadata")
+      throw new TypeError("Reconstruction privacy mode is invalid");
+    if (job.privacyMode === "metadata" && privacyMode === "full")
+      throw new TypeError("Metadata reconstruction cannot emit full-mode captures");
+    const run = requirePlainRecord(requireOwnDataField(submissionValue, "run"), "Run");
+    const runId = requireNonBlankString(requireOwnDataField(run, "id"), "Run ID");
+    validateIdentifier(runId, "run ID");
+    const dependenciesValue = ownDataField(output, "dependencies");
+    let dependencies;
+    if (dependenciesValue.present) {
+      if (!Array.isArray(dependenciesValue.value))
+        throw new TypeError("Reconstruction dependencies must be an array");
+      dependencies = validateDependencies(dependenciesValue.value, job, eventId);
+    }
+    const sourceRefField = ownDataField(output, "sourceRef");
+    let sourceRef;
+    let sourceAgeStartedAtMs;
+    if (sourceRefField.present) {
+      sourceRef = requireNonBlankString(sourceRefField.value, "Source ref");
+      validateIdentifier(sourceRef, "source ref");
+    }
+    if (job.sourceSnapshots !== void 0) {
+      if (sourceRef === void 0)
+        throw new TypeError("Snapshot outputs require a source ref");
+      const snapshot = job.sourceSnapshots.find((candidate) => candidate.sourceRef === sourceRef);
+      if (snapshot === void 0)
+        throw new TypeError("Output source ref has no snapshot");
+      sourceAgeStartedAtMs = snapshot.sourceAgeStartedAtMs;
+    } else if (sourceRef !== void 0) {
+      if (!job.sourceRefs.includes(sourceRef))
+        throw new TypeError("Output source ref is not in the reconstruction job");
+      sourceAgeStartedAtMs = job.sourceAgeStartedAtMs ?? jobCapturedAtMs;
+    } else {
+      sourceAgeStartedAtMs = job.sourceAgeStartedAtMs ?? jobCapturedAtMs;
+    }
+    return {
+      eventId,
+      runId,
+      submission: submissionValue,
+      ...sourceRef === void 0 ? {} : { sourceRef },
+      ...sourceAgeStartedAtMs === void 0 ? {} : { sourceAgeStartedAtMs },
+      ...dependencies === void 0 ? {} : { dependencies }
+    };
+  });
+}
+function validateDependencies(value, job, eventId) {
+  if (!Array.isArray(value))
+    throw new TypeError("Reconstruction dependencies must be an array");
+  const dependent = { ...scopeOf2(job), eventId };
+  const seen = /* @__PURE__ */ new Set();
+  return value.map((item) => {
+    const source = requirePlainRecord(item, "Reconstruction dependency");
+    const keys = Object.keys(source).toSorted();
+    if (canonicalJson(keys) !== canonicalJson(RECONSTRUCTION_DEPENDENCY_KEYS))
+      throw new TypeError("Reconstruction dependencies must contain only capture scopes");
+    const integration = requireNonBlankString(requireOwnDataField(source, "integration"), "Dependency integration");
+    if (integration !== job.integration)
+      throw new TypeError("Reconstruction dependencies must use the same integration");
+    const scope = {
+      integration,
+      sessionId: requireNonBlankString(requireOwnDataField(source, "sessionId"), "Dependency session ID"),
+      turnId: requireNonBlankString(requireOwnDataField(source, "turnId"), "Dependency turn ID"),
+      eventId: requireNonBlankString(requireOwnDataField(source, "eventId"), "Dependency event ID")
+    };
+    validateIdentifier(scope.sessionId, "dependency session ID");
+    validateIdentifier(scope.turnId, "dependency turn ID");
+    validateIdentifier(scope.eventId, "dependency event ID");
+    if (scope.sessionId === dependent.sessionId && scope.turnId === dependent.turnId && scope.eventId === dependent.eventId) {
+      throw new TypeError("Reconstruction captures cannot depend on themselves");
+    }
+    const key = canonicalJson(scope);
+    if (seen.has(key))
+      throw new TypeError("Reconstruction dependencies must be unique");
+    seen.add(key);
+    return scope;
+  });
+}
+function validateJobInput(value, integration, sessionId, accountFingerprint) {
+  const input = requirePlainRecord(snapshotData(requirePlainRecord(value, "Reconstruction job")), "Reconstruction job");
+  const keys = Object.keys(input).toSorted();
+  if (RECONSTRUCTION_JOB_INPUT_KEYS.some((key) => !keys.includes(key)) || keys.some((key) => !RECONSTRUCTION_JOB_INPUT_KEYS.includes(key) && !RECONSTRUCTION_JOB_OPTIONAL_INPUT_KEYS.includes(key))) {
+    throw new TypeError("Reconstruction job has unsupported fields");
+  }
+  const turnId = requireNonBlankString(requireOwnDataField(input, "turnId"), "Turn ID");
+  const eventId = requireNonBlankString(requireOwnDataField(input, "eventId"), "Event ID");
+  validateIdentifier(turnId, "turn ID");
+  validateIdentifier(eventId, "event ID");
+  const privacyMode = requireOwnDataField(input, "privacyMode");
+  if (privacyMode !== "full" && privacyMode !== "metadata")
+    throw new TypeError("Reconstruction privacy mode is invalid");
+  const sourceRefs = requireStringArray(requireOwnDataField(input, "sourceRefs"), "Source refs");
+  if (sourceRefs.length === 0)
+    throw new TypeError("Reconstruction source refs are required");
+  if (new Set(sourceRefs).size !== sourceRefs.length)
+    throw new TypeError("Reconstruction source refs must be unique");
+  for (const ref of sourceRefs) {
+    requireNonBlankString(ref, "Source ref");
+    validateIdentifier(ref, "source ref");
+  }
+  const turnEvidence = validateTurnEvidence(requireOwnDataField(input, "turnEvidence"));
+  const sourceSnapshotsField = ownDataField(input, "sourceSnapshots");
+  const sourceAgeField = ownDataField(input, "sourceAgeStartedAtMs");
+  if (sourceSnapshotsField.present && sourceAgeField.present)
+    throw new TypeError("Reconstruction jobs cannot combine snapshots with a job-level source age");
+  const sourceAgeStartedAtMs = sourceAgeField.present ? requireSafeEpochMilliseconds(sourceAgeField.value, "Source age") : void 0;
+  const sourceSnapshots = sourceSnapshotsField.present ? validateSourceSnapshots(sourceSnapshotsField.value, integration, privacyMode, sourceRefs) : void 0;
+  return {
+    integration,
+    sessionId,
+    turnId,
+    eventId,
+    accountFingerprint,
+    sourceRefs,
+    privacyMode,
+    turnEvidence,
+    ...sourceSnapshots === void 0 ? {} : { sourceSnapshots },
+    ...sourceAgeStartedAtMs === void 0 ? {} : { sourceAgeStartedAtMs }
+  };
+}
+function validateSourceSnapshots(value, integration, privacyMode, sourceRefs) {
+  if (!Array.isArray(value) || value.length === 0)
+    throw new TypeError("Reconstruction source snapshots must be a nonempty array");
+  for (const ref of sourceRefs)
+    validatePathlessSourceRef(ref);
+  const seen = /* @__PURE__ */ new Set();
+  const snapshots = value.map((item) => {
+    const source = requirePlainRecord(item, "Reconstruction source snapshot");
+    const keys = Object.keys(source).toSorted();
+    if (RECONSTRUCTION_SOURCE_SNAPSHOT_KEYS.some((key) => !keys.includes(key)) || keys.some((key) => !RECONSTRUCTION_SOURCE_SNAPSHOT_KEYS.includes(key) && !RECONSTRUCTION_SOURCE_SNAPSHOT_OPTIONAL_KEYS.includes(key))) {
+      throw new TypeError("Reconstruction source snapshot has unsupported fields");
+    }
+    const sourceRef = requireNonBlankString(requireOwnDataField(source, "sourceRef"), "Source ref");
+    validatePathlessSourceRef(sourceRef);
+    if (!sourceRefs.includes(sourceRef))
+      throw new TypeError("Reconstruction snapshot ref must belong to the job");
+    if (seen.has(sourceRef))
+      throw new TypeError("Reconstruction snapshot refs must be unique");
+    seen.add(sourceRef);
+    const sourceAgeStartedAtMs = requireSafeEpochMilliseconds(requireOwnDataField(source, "sourceAgeStartedAtMs"), "Source age");
+    const submission = canonicalJsonObject(requirePlainRecord(requireOwnDataField(source, "submission"), "Prepared submission"), "Prepared submission");
+    if (requireOwnDataField(submission, "privacyMode") !== privacyMode)
+      throw new TypeError("Snapshot privacy mode must match the reconstruction job");
+    if (submission["operation"] === "post") {
+      const run = requirePlainRecord(requireOwnDataField(submission, "run"), "Prepared run");
+      if (!ownDataField(run, "start_time").present)
+        throw new TypeError("Source snapshot posts must preserve their start time");
+    }
+    const projected = projectSubmission(submission, integration);
+    if (projected.status !== "ready")
+      throw new TypeError("Reconstruction snapshots must be ready for shared projection");
+    const projectedSubmission = canonicalJsonObject({ ...projected.value.payload, metadata: projected.value.metadata }, "Projected submission");
+    const attributionField = ownDataField(source, "attributionContext");
+    const attributionContext = attributionField.present ? validateAttributionContext(attributionField.value, privacyMode) : void 0;
+    return {
+      sourceRef,
+      submission: projectedSubmission,
+      sourceAgeStartedAtMs,
+      ...attributionContext === void 0 ? {} : { attributionContext }
+    };
+  });
+  if (snapshots.length !== sourceRefs.length)
+    throw new TypeError("Source snapshots must cover every reconstruction source ref");
+  return snapshots;
+}
+function validatePathlessSourceRef(sourceRef) {
+  validateIdentifier(sourceRef, "source ref");
+  if (sourceRef.includes("/") || sourceRef.includes("\\"))
+    throw new TypeError("Snapshot source refs must be pathless identifiers");
+}
+function validateAttributionContext(value, privacyMode) {
+  const context = requirePlainRecord(value, "Attribution context");
+  const keys = Object.keys(context).toSorted();
+  if (RECONSTRUCTION_ATTRIBUTION_CONTEXT_KEYS.some((key) => !keys.includes(key)) || keys.some((key) => !RECONSTRUCTION_ATTRIBUTION_CONTEXT_KEYS.includes(key) && !RECONSTRUCTION_ATTRIBUTION_CONTEXT_OPTIONAL_KEYS.includes(key))) {
+    throw new TypeError("Attribution context has unsupported fields");
+  }
+  const origin = requirePlainRecord(requireOwnDataField(context, "toolOrigin"), "Tool origin");
+  const originKeys = Object.keys(origin).toSorted();
+  if (RECONSTRUCTION_TOOL_ORIGIN_KEYS.some((key) => !originKeys.includes(key)) || originKeys.some((key) => !RECONSTRUCTION_TOOL_ORIGIN_KEYS.includes(key) && !RECONSTRUCTION_TOOL_ORIGIN_OPTIONAL_KEYS.includes(key))) {
+    throw new TypeError("Tool origin has unsupported fields");
+  }
+  const namedAPath = requireBoolean(requireOwnDataField(origin, "namedAPath"), "namedAPath");
+  const pathField = ownDataField(origin, "path");
+  const cwdField = ownDataField(origin, "cwd");
+  const pinnedField = ownDataField(context, "pinnedRepositoryKeys");
+  const toolOrigin = privacyMode === "metadata" ? { namedAPath } : {
+    ...pathField.present ? { path: requireNonBlankString(pathField.value, "Tool path") } : {},
+    ...cwdField.present ? { cwd: requireNonBlankString(cwdField.value, "Tool cwd") } : {},
+    namedAPath
+  };
+  let pinnedRepositoryKeys;
+  if (privacyMode === "full" && pinnedField.present) {
+    pinnedRepositoryKeys = requireStringArray(pinnedField.value, "Pinned repository keys");
+    if (pinnedRepositoryKeys.some((key) => key.trim().length === 0))
+      throw new TypeError("Pinned repository keys must be nonblank");
+    if (new Set(pinnedRepositoryKeys).size !== pinnedRepositoryKeys.length)
+      throw new TypeError("Pinned repository keys must be unique");
+  }
+  return {
+    toolOrigin,
+    ...pinnedRepositoryKeys === void 0 ? {} : { pinnedRepositoryKeys }
+  };
+}
+function validateTurnEvidence(value) {
+  const evidence = requirePlainRecord(value, "Turn evidence");
+  canonicalJson(evidence);
+  const keys = Object.keys(evidence).toSorted();
+  if (RECONSTRUCTION_TURN_EVIDENCE_KEYS.some((key) => !keys.includes(key)) || keys.some((key) => !RECONSTRUCTION_TURN_EVIDENCE_KEYS_WITH_ROOT.includes(key)))
+    throw new TypeError("Reconstruction turn evidence must be structural only");
+  const childRunIds = requireStringArray(requireOwnDataField(evidence, "childRunIds"), "Child run IDs");
+  for (const childRunId of childRunIds) {
+    requireNonBlankString(childRunId, "Child run ID");
+    validateIdentifier(childRunId, "child run ID");
+  }
+  const rootRunIdField = ownDataField(evidence, "rootRunId");
+  const rootRunId = rootRunIdField.present ? requireNonBlankString(rootRunIdField.value, "Root run ID") : void 0;
+  if (rootRunId !== void 0)
+    validateIdentifier(rootRunId, "root run ID");
+  const closureState = requireOwnDataField(evidence, "closureState");
+  if (typeof closureState !== "string" || !RECONSTRUCTION_CLOSURE_STATES.includes(closureState)) {
+    throw new TypeError("Reconstruction turn evidence has an invalid closure state");
+  }
+  return {
+    ...rootRunId === void 0 ? {} : { rootRunId },
+    childRunIds,
+    closureState
+  };
+}
+function jobRecord(job) {
+  const scope = scopeOf2(job);
+  return {
+    ...scope,
+    runId: `${RECONSTRUCTION_RUN_ID_PREFIX}${identifierHash(canonicalJson(scope))}`,
+    destinationFingerprint: job.accountFingerprint,
+    eventKind: RECONSTRUCTION_JOB_KIND,
+    normalizedPayload: canonicalValue({
+      recordVersion: RECONSTRUCTION_RECORD_VERSION,
+      privacyMode: job.privacyMode,
+      sourceRefs: [...job.sourceRefs],
+      ...job.sourceAgeStartedAtMs === void 0 ? {} : { sourceAgeStartedAtMs: job.sourceAgeStartedAtMs },
+      ...job.sourceSnapshots === void 0 ? {} : {
+        sourceSnapshots: job.sourceSnapshots.map((snapshot) => ({
+          sourceRef: snapshot.sourceRef,
+          submission: snapshot.submission,
+          sourceAgeStartedAtMs: snapshot.sourceAgeStartedAtMs,
+          ...snapshot.attributionContext === void 0 ? {} : { attributionContext: snapshot.attributionContext }
+        }))
+      }
+    }, /* @__PURE__ */ new Set()),
+    turnEvidence: canonicalValue(job.turnEvidence, /* @__PURE__ */ new Set()),
+    metadataProvenance: {}
+  };
+}
+function mappingRecord(job, outputs) {
+  const scope = mappingScope(job);
+  return {
+    ...scope,
+    runId: scope.eventId,
+    destinationFingerprint: job.accountFingerprint,
+    eventKind: RECONSTRUCTION_MAPPING_KIND,
+    normalizedPayload: {
+      recordVersion: RECONSTRUCTION_RECORD_VERSION,
+      jobEventId: job.eventId,
+      outputs: outputs.map(({ eventId, runId, dependencies, sourceRef }) => ({
+        eventId,
+        runId,
+        ...sourceRef === void 0 ? {} : { sourceRef },
+        ...dependencies === void 0 ? {} : {
+          dependencies: dependencies.map((dependency) => ({
+            integration: dependency.integration,
+            sessionId: dependency.sessionId,
+            turnId: dependency.turnId,
+            eventId: dependency.eventId
+          }))
+        }
+      }))
+    },
+    turnEvidence: canonicalValue(job.turnEvidence, /* @__PURE__ */ new Set()),
+    metadataProvenance: {}
+  };
+}
+function readJob(record, integration) {
+  if (record.integration !== integration || record.eventKind !== RECONSTRUCTION_JOB_KIND)
+    throw new Error("Stored reconstruction job namespace does not match");
+  const payload = requirePlainRecord(record.normalizedPayload, "Stored reconstruction job");
+  if (payload["recordVersion"] !== RECONSTRUCTION_RECORD_VERSION)
+    throw new Error("Unsupported reconstruction job");
+  const payloadKeys = Object.keys(payload).toSorted();
+  if (RECONSTRUCTION_STORED_JOB_KEYS.some((key) => !payloadKeys.includes(key)) || payloadKeys.some((key) => !RECONSTRUCTION_STORED_JOB_KEYS.includes(key) && !RECONSTRUCTION_STORED_JOB_OPTIONAL_KEYS.includes(key)))
+    throw new Error("Stored reconstruction job has unsupported fields");
+  const privacyMode = payload["privacyMode"];
+  if (privacyMode !== "full" && privacyMode !== "metadata")
+    throw new Error("Invalid stored reconstruction privacy mode");
+  const sourceRefs = requireStringArray(payload["sourceRefs"], "Stored source refs");
+  if (sourceRefs.length === 0)
+    throw new Error("Stored reconstruction source refs are empty");
+  if (new Set(sourceRefs).size !== sourceRefs.length)
+    throw new Error("Stored reconstruction source refs are not unique");
+  for (const ref of sourceRefs) {
+    requireNonBlankString(ref, "Stored source ref");
+    validateIdentifier(ref, "source ref");
+  }
+  const sourceSnapshotsField = ownDataField(payload, "sourceSnapshots");
+  const sourceAgeField = ownDataField(payload, "sourceAgeStartedAtMs");
+  if (sourceSnapshotsField.present && sourceAgeField.present)
+    throw new Error("Stored reconstruction job combines snapshots with a job-level source age");
+  const sourceAgeStartedAtMs = sourceAgeField.present ? requireSafeEpochMilliseconds(sourceAgeField.value, "Stored source age") : void 0;
+  const sourceSnapshots = sourceSnapshotsField.present ? validateSourceSnapshots(sourceSnapshotsField.value, integration, privacyMode, sourceRefs) : void 0;
+  const turnEvidence = validateTurnEvidence(record.turnEvidence);
+  if (Object.keys(requirePlainRecord(record.metadataProvenance, "Stored metadata provenance")).length > 0)
+    throw new Error("Reconstruction jobs cannot store metadata provenance");
+  if (record.dependencies !== void 0)
+    throw new Error("Reconstruction jobs cannot have capture dependencies");
+  return {
+    integration,
+    sessionId: record.sessionId,
+    turnId: record.turnId,
+    eventId: record.eventId,
+    accountFingerprint: record.destinationFingerprint,
+    sourceRefs,
+    privacyMode,
+    turnEvidence,
+    ...sourceSnapshots === void 0 ? {} : { sourceSnapshots },
+    ...sourceAgeStartedAtMs === void 0 ? {} : { sourceAgeStartedAtMs }
+  };
+}
+function readMapping(record) {
+  if (record.eventKind !== RECONSTRUCTION_MAPPING_KIND)
+    throw new Error("Unsupported reconstruction mapping");
+  const payload = requirePlainRecord(record.normalizedPayload, "Stored reconstruction mapping");
+  if (payload["recordVersion"] !== RECONSTRUCTION_RECORD_VERSION)
+    throw new Error("Unsupported reconstruction mapping");
+  const jobEventId = requireNonBlankString(payload["jobEventId"], "Job event ID");
+  const outputs = payload["outputs"];
+  if (!Array.isArray(outputs) || outputs.length === 0)
+    throw new Error("Stored reconstruction mapping has no outputs");
+  const seen = /* @__PURE__ */ new Set();
+  const normalizedOutputs = outputs.map((value) => {
+    const output = requirePlainRecord(value, "Stored reconstruction output");
+    const eventId = requireNonBlankString(output["eventId"], "Output event ID");
+    const runId = requireNonBlankString(output["runId"], "Output run ID");
+    validateIdentifier(eventId, "output event ID");
+    validateIdentifier(runId, "output run ID");
+    if (seen.has(eventId))
+      throw new Error("Stored reconstruction event IDs are not unique");
+    seen.add(eventId);
+    const dependenciesField = ownDataField(output, "dependencies");
+    const sourceRefField = ownDataField(output, "sourceRef");
+    let sourceRef;
+    if (sourceRefField.present) {
+      sourceRef = requireNonBlankString(sourceRefField.value, "Output source ref");
+      validateIdentifier(sourceRef, "output source ref");
+    }
+    let dependencies;
+    if (dependenciesField.present) {
+      if (!Array.isArray(dependenciesField.value))
+        throw new Error("Stored reconstruction dependencies are invalid");
+      dependencies = dependenciesField.value;
+    }
+    return {
+      eventId,
+      runId,
+      ...sourceRef === void 0 ? {} : { sourceRef },
+      ...dependencies === void 0 ? {} : { dependencies }
+    };
+  });
+  return { recordVersion: RECONSTRUCTION_RECORD_VERSION, jobEventId, outputs: normalizedOutputs };
+}
+function sameOutputMapping(mapping, outputs) {
+  return canonicalJson(mapping.outputs) === canonicalJson(outputs.map(({ eventId, runId, dependencies, sourceRef }) => ({
+    eventId,
+    runId,
+    ...sourceRef === void 0 ? {} : { sourceRef },
+    ...dependencies === void 0 ? {} : { dependencies }
+  })));
+}
+function scopeOf2(value) {
+  return {
+    integration: value.integration,
+    sessionId: value.sessionId,
+    turnId: value.turnId,
+    eventId: value.eventId
+  };
+}
+function mappingScope(job) {
+  const eventId = `${RECONSTRUCTION_MAPPING_EVENT_ID_PREFIX}${identifierHash(canonicalJson(scopeOf2(job)))}`;
+  return { ...scopeOf2(job), eventId };
+}
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/engine/pass-results.js
+function reconstructionPassResult(result) {
+  if (result.status === "busy")
+    return "retryable-failure";
+  return result.captured > 0 || result.failed > 0 || result.dropped > 0 ? "progressed" : "idle";
+}
+function lifecyclePassResult(result) {
+  if (result.status === "busy")
+    return "retryable-failure";
+  return result.settlement.captured > 0 || result.delivered > 0 || result.dropped > 0 || result.failed > 0 ? "progressed" : "idle";
+}
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/engine/options.js
+import { resolve as resolve11 } from "node:path";
+function snapshotEngineOptions(options) {
+  return Object.freeze({
+    ...options,
+    storageRoot: resolve11(options.storageRoot),
+    writer: snapshotWriterOptions(options.writer),
+    ...options.policy === void 0 ? {} : { policy: snapshotPolicy(options.policy) }
+  });
+}
+function snapshotSessionOptions(options) {
+  return Object.freeze({
+    ...options,
+    ...options.retryPolicy === void 0 ? {} : { retryPolicy: Object.freeze({ ...options.retryPolicy }) }
+  });
+}
+function snapshotWriterOptions(options) {
+  return Object.freeze({
+    ...options,
+    destinations: Object.freeze(options.destinations.map((destination) => Object.freeze({ ...destination }))),
+    ...options.replicas === void 0 ? {} : {
+      replicas: Object.freeze(options.replicas.map((replica) => Object.freeze({
+        ...replica,
+        ...replica.updates === void 0 ? {} : { updates: structuredClone(replica.updates) }
+      })))
+    },
+    ...options.redactExtraRules === void 0 ? {} : {
+      redactExtraRules: Object.freeze(options.redactExtraRules.map((rule) => Object.freeze({ ...rule })))
+    }
+  });
+}
+function snapshotPolicy(policy) {
+  return Object.freeze({ ...policy });
+}
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery.js
+import { join as join15 } from "node:path";
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/engine/constants.js
+var TRACING_ENGINE_FOREIGN_SESSION_MIN_AGE_MS = 2 * 60 * 60 * 1e3;
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery.js
+async function recoverTracingSessions(runtime, request) {
+  const now = request.now ?? Date.now();
+  if (!Number.isSafeInteger(now) || !Number.isFinite(new Date(now).getTime()))
+    throw new RangeError("Recovery time must be a valid timestamp");
+  const minimumForeignAgeMs = request.minimumForeignAgeMs ?? TRACING_ENGINE_FOREIGN_SESSION_MIN_AGE_MS;
+  if (!Number.isSafeInteger(minimumForeignAgeMs) || minimumForeignAgeMs < 0)
+    throw new RangeError("Minimum foreign session age must be a non-negative integer");
+  if (typeof request.optionsForSession !== "function")
+    throw new TypeError("Session recovery options callback is required");
+  const optionsForSession = request.optionsForSession;
+  const lifecycleStore = createCaptureStore(runtime.storageRoot);
+  const reconstructionStore = createCaptureStore(join15(runtime.storageRoot, RECONSTRUCTION_DIRECTORY));
+  const [lifecycleSessions, reconstructionSessions] = await Promise.all([
+    lifecycleStore.enumerateSessions(runtime.integration),
+    reconstructionStore.enumerateSessions(runtime.integration)
+  ]);
+  const writer = createLangSmithUploadWriter(runtime.writer);
+  if (writer.accountFingerprint !== runtime.accountFingerprint)
+    throw new Error("Recovery account fingerprint does not match the active session");
+  const destinationIds = writer.destinations.map((destination) => destination.id);
+  const lifecycleBySession = new Map(lifecycleSessions.map((entry) => [entry.sessionId, entry.captures]));
+  const reconstructionBySession = new Map(reconstructionSessions.map((entry) => [entry.sessionId, entry.captures]));
+  const sessionIds = /* @__PURE__ */ new Set([
+    ...lifecycleBySession.keys(),
+    ...reconstructionBySession.keys(),
+    runtime.currentSessionId
+  ]);
+  const scheduled = [];
+  const failed = [];
+  for (const sessionId of [...sessionIds].toSorted()) {
+    try {
+      const lifecycleEntries = lifecycleBySession.get(sessionId) ?? [];
+      const reconstructionEntries = reconstructionBySession.get(sessionId) ?? [];
+      let hasLifecycleRecord = false;
+      let hasPendingWork2 = false;
+      let oldestPendingAtMs = Number.POSITIVE_INFINITY;
+      let lastActivityAtMs = 0;
+      for (const entry of lifecycleEntries) {
+        const record = entry.record;
+        if (record.destinationFingerprint !== runtime.accountFingerprint)
+          continue;
+        hasLifecycleRecord = true;
+        lastActivityAtMs = Math.max(lastActivityAtMs, entry.capturedAtMs);
+        let pending = false;
+        for (const destinationId of destinationIds) {
+          const outcome = await lifecycleStore.readOutcome({
+            integration: record.integration,
+            sessionId: record.sessionId,
+            turnId: record.turnId,
+            eventId: record.eventId
+          }, destinationId);
+          if (outcome.status === "failed")
+            throw new Error(outcome.message);
+          if (outcome.status === "missing-capture")
+            throw new Error("Recovery capture disappeared");
+          if (outcome.status === "pending")
+            pending = true;
+          else
+            lastActivityAtMs = Math.max(lastActivityAtMs, new Date(outcome.receipt.recordedAt).getTime());
+        }
+        if (pending) {
+          hasPendingWork2 = true;
+          oldestPendingAtMs = Math.min(oldestPendingAtMs, entry.capturedAtMs);
+        }
+      }
+      for (const entry of reconstructionEntries) {
+        const record = entry.record;
+        if (record.destinationFingerprint !== runtime.accountFingerprint)
+          continue;
+        lastActivityAtMs = Math.max(lastActivityAtMs, entry.capturedAtMs);
+        if (record.eventKind !== RECONSTRUCTION_JOB_KIND)
+          continue;
+        const outcome = await reconstructionStore.readOutcome({
+          integration: record.integration,
+          sessionId: record.sessionId,
+          turnId: record.turnId,
+          eventId: record.eventId
+        }, runtime.accountFingerprint);
+        if (outcome.status === "failed")
+          throw new Error(outcome.message);
+        if (outcome.status === "missing-capture")
+          throw new Error("Recovery reconstruction job disappeared");
+        if (outcome.status === "pending") {
+          hasPendingWork2 = true;
+          oldestPendingAtMs = Math.min(oldestPendingAtMs, entry.capturedAtMs);
+        } else {
+          lastActivityAtMs = Math.max(lastActivityAtMs, new Date(outcome.receipt.recordedAt).getTime());
+        }
+      }
+      const isCurrentSession = sessionId === runtime.currentSessionId;
+      if (!hasLifecycleRecord && !hasPendingWork2)
+        continue;
+      if (!isCurrentSession && now - oldestPendingAtMs < minimumForeignAgeMs && now - lastActivityAtMs < minimumForeignAgeMs) {
+        continue;
+      }
+      if (isCurrentSession) {
+        scheduled.push({ sessionId, status: await runtime.wakeCurrent() });
+        continue;
+      }
+      const callbacks = await optionsForSession(sessionId);
+      if (callbacks === null || typeof callbacks !== "object")
+        throw new TypeError("Session recovery options must be an object");
+      const sessionOptions = { ...callbacks, sessionId };
+      const target = runtime.createSession(sessionOptions);
+      scheduled.push({ sessionId, status: await target.wake() });
+    } catch (error2) {
+      failed.push({
+        sessionId,
+        message: error2 instanceof Error ? error2.message : String(error2)
+      });
+    }
+  }
+  return { scheduled, failed };
+}
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/engine/engine.js
+function createTracingEngine(options) {
+  const config = snapshotEngineOptions(options);
+  function forSession(sessionOptions) {
+    return createSession(snapshotSessionOptions(sessionOptions));
+  }
+  function createSession(session) {
+    let backgroundWorker;
+    const lifecycleBridge = createLifecycleBridge({
+      storageRoot: config.storageRoot,
+      integration: config.integration,
+      sessionId: session.sessionId,
+      writer: config.writer,
+      ...config.policy === void 0 ? {} : { policy: config.policy },
+      wake: async () => backgroundWorker?.wake()
+    });
+    const reconstructionWorker = createReconstructionWorker({
+      storageRoot: config.storageRoot,
+      integration: config.integration,
+      sessionId: session.sessionId,
+      bridge: lifecycleBridge,
+      reconstruct: session.reconstruct,
+      ...config.policy === void 0 ? {} : { policy: config.policy }
+    });
+    const scope = Object.freeze({
+      integration: config.integration,
+      sessionId: session.sessionId,
+      accountFingerprint: lifecycleBridge.accountFingerprint
+    });
+    backgroundWorker = createBackgroundWorker({
+      storageRoot: config.storageRoot,
+      scope,
+      resolveScope: () => session.resolveScope(scope),
+      launchWorker: session.scheduleWake,
+      ...session.startupWaitMs === void 0 ? {} : { startupWaitMs: session.startupWaitMs },
+      ...session.retryPolicy === void 0 ? {} : { retryPolicy: session.retryPolicy },
+      reconstructPending: async () => reconstructionPassResult(await reconstructionWorker.drain()),
+      drainPending: async () => lifecyclePassResult(await lifecycleBridge.drain())
+    });
+    return Object.freeze({
+      async capture(input) {
+        return lifecycleBridge.capture(input);
+      },
+      async queueReconstruction(input) {
+        const result = await reconstructionWorker.enqueue(input);
+        if (result.status === "published" || result.status === "duplicate")
+          await wakeCapturedWork(result, () => backgroundWorker?.wake());
+        return result;
+      },
+      async wake() {
+        return backgroundWorker.wake();
+      },
+      async drain() {
+        return backgroundWorker.run();
+      },
+      async recoverSessions(request) {
+        return recoverTracingSessions({
+          storageRoot: config.storageRoot,
+          integration: config.integration,
+          accountFingerprint: lifecycleBridge.accountFingerprint,
+          writer: config.writer,
+          currentSessionId: session.sessionId,
+          wakeCurrent: () => backgroundWorker.wake(),
+          createSession: (sessionOptions) => createSession(snapshotSessionOptions(sessionOptions))
+        }, request);
+      }
+    });
+  }
+  return Object.freeze({ forSession });
+}
+
+// dist/src/tracing-engine.js
+init_config();
+init_constants();
+
+// dist/src/utils/validation/text.js
+init_constants();
+function isValidBoundedText(value, maxLength) {
+  return value.trim().length > 0 && value.length <= maxLength && !CONTROL_CHARACTER_PATTERN.test(value);
+}
+
+// dist/src/tracing-engine.js
+function createCursorTracingSession(config, sessionId, cwd, launchWorker, destinationProject = config.project) {
+  if (!config.apiKey && !config.replicas?.length)
+    return void 0;
+  validateProjectName(destinationProject);
+  const writer = writerOptions(config, destinationProject);
+  const storageRoot = dirname6(config.stateFilePath);
+  const engine = createTracingEngine({
+    storageRoot,
+    integration: CURSOR_INTEGRATION,
+    writer
+  });
+  const session = engine.forSession({
+    sessionId,
+    reconstruct: async () => ({
+      status: "deferred",
+      reason: "missing-thread-identity"
+    }),
+    scheduleWake: launchWorker ?? (() => launchEngineWorker(sessionId, cwd, destinationProject)),
+    resolveScope: (expected) => {
+      const currentConfig = loadConfig({ cwd });
+      const currentWriter = writerOptions(currentConfig, destinationProject);
+      return {
+        ...expected,
+        accountFingerprint: currentWriter ? createLangSmithUploadWriter(currentWriter).accountFingerprint : ""
+      };
+    }
+  });
+  return {
+    session,
+    storageRoot,
+    destinationFingerprint: createLangSmithUploadWriter(writer).accountFingerprint
+  };
+}
+function createRunTreeCapture(options) {
+  const postEventByRunId = /* @__PURE__ */ new Map();
+  const eventsByRunId = /* @__PURE__ */ new Map();
+  const snapshots = /* @__PURE__ */ new WeakMap();
+  const captureStore = createCaptureStore(options.storageRoot);
+  let persistedCaptures;
+  const storedEvents = async () => {
+    if (!persistedCaptures) {
+      persistedCaptures = captureStore.enumerate(CURSOR_INTEGRATION, options.sessionId).then((captures) => captures.map(({ record }) => record).filter((record) => record.turnId === options.turnId && record.destinationFingerprint === options.destinationFingerprint && (record.eventKind === CURSOR_RUN_POST_EVENT_KIND || record.eventKind === CURSOR_RUN_PATCH_EVENT_KIND)).sort((left, right) => left.capturedAtMs - right.capturedAtMs));
+    }
+    return persistedCaptures;
+  };
+  const rememberEvent = (runId, eventId) => {
+    const events = eventsByRunId.get(runId) ?? /* @__PURE__ */ new Set();
+    events.add(eventId);
+    eventsByRunId.set(runId, events);
+  };
+  return async (run, operation, patchOptions) => {
+    const metadata = run.extra?.metadata;
+    const metadataOptions = metadata?.[CODING_AGENT_METADATA_OPTIONS];
+    if (!metadataOptions)
+      throw new Error("Run metadata options are unavailable");
+    const payload = run.toJSON();
+    const snapshot = normalizedSnapshot(payload);
+    const root = rootRun(run);
+    const priorEvents = await storedEvents();
+    for (const event of priorEvents)
+      rememberEvent(event.runId, event.eventId);
+    const storedPosts = priorEvents.filter((event) => event.runId === run.id && event.eventKind === CURSOR_RUN_POST_EVENT_KIND);
+    const storedPost = storedPosts.at(-1);
+    const isReplayPost = operation === "post" && storedPost !== void 0;
+    let before = snapshots.get(run);
+    if (isReplayPost) {
+      before = snapshotAfterStoredPatches(storedPost, priorEvents);
+      assertStableRunIdentity(before, snapshot);
+      postEventByRunId.set(run.id, storedPost.eventId);
+      snapshots.set(run, before);
+    }
+    const captureOperation = isReplayPost ? "patch" : operation;
+    const rootPatch = captureOperation === "patch" && run.id === root.id;
+    const provisionalRootPatch = rootPatch && options.closureState === "provisional";
+    if (provisionalRootPatch && snapshot.error === "incomplete")
+      delete snapshot.error;
+    const privacyContext = {
+      status: provisionalRootPatch ? "running" : statusOfRun2(run)
+    };
+    let submission;
+    if (captureOperation === "post") {
+      snapshots.set(run, snapshot);
+      submission = {
+        operation: captureOperation,
+        integration: CURSOR_INTEGRATION,
+        privacyMode: options.privacyMode,
+        metadata: metadataOptions,
+        privacyContext,
+        run: snapshot
+      };
+    } else {
+      const fields = CURSOR_ENGINE_PATCH_FIELDS.filter((field2) => !(patchOptions?.excludeInputs && field2 === "inputs") && snapshot[field2] !== void 0 && !isDeepStrictEqual(before?.[field2], snapshot[field2]));
+      const values = Object.fromEntries(fields.map((field2) => [field2, snapshot[field2]]));
+      submission = {
+        operation: captureOperation,
+        integration: CURSOR_INTEGRATION,
+        privacyMode: options.privacyMode,
+        metadata: metadataOptions,
+        privacyContext,
+        run: isReplayPost && before ? snapshotContext(before) : normalizedContext(payload),
+        patch: { fields, values }
+      };
+    }
+    const childRunIds = descendantRunIds(root);
+    const dependencies = /* @__PURE__ */ new Set();
+    if (captureOperation === "post" && run.parent_run) {
+      const parentEvent = postEventByRunId.get(run.parent_run.id);
+      if (parentEvent)
+        dependencies.add(parentEvent);
+    } else if (captureOperation === "patch") {
+      const ownPost = postEventByRunId.get(run.id);
+      if (ownPost)
+        dependencies.add(ownPost);
+      if (rootPatch) {
+        for (const runId of [root.id, ...childRunIds]) {
+          for (const eventId2 of eventsByRunId.get(runId) ?? []) {
+            dependencies.add(eventId2);
+          }
+        }
+      }
+    }
+    const dependencyIds = [...dependencies].sort();
+    const turnEvidence = {
+      rootRunId: root.id,
+      childRunIds,
+      closureState: rootPatch && !isReplayPost ? options.closureState : "open"
+    };
+    const eventIdentity = {
+      integration: CURSOR_INTEGRATION,
+      sessionId: options.sessionId,
+      turnId: options.turnId,
+      destinationFingerprint: options.destinationFingerprint,
+      operation: captureOperation,
+      runId: submission.run.id
+    };
+    const eventId = stableEventId(captureOperation === "post" ? eventIdentity : {
+      ...eventIdentity,
+      submission,
+      turnEvidence,
+      dependencies: dependencyIds
+    });
+    if (isReplayPost && submission.operation === "patch" && submission.patch.fields.length === 0) {
+      snapshots.set(run, snapshot);
+      return;
+    }
+    const result = await options.session.capture({
+      turnId: options.turnId,
+      eventId,
+      submission,
+      turnEvidence,
+      ...dependencyIds.length === 0 ? {} : {
+        dependencies: dependencyIds.map((dependencyEventId) => ({
+          integration: CURSOR_INTEGRATION,
+          sessionId: options.sessionId,
+          turnId: options.turnId,
+          eventId: dependencyEventId
+        }))
+      }
+    });
+    if (result.status !== "published" && result.status !== "duplicate") {
+      throw new Error("Shared trace capture failed");
+    }
+    if (captureOperation === "post")
+      postEventByRunId.set(run.id, eventId);
+    else
+      snapshots.set(run, snapshot);
+    rememberEvent(run.id, eventId);
+  };
+}
+function launchEngineWorker(sessionId, cwd, destinationProject) {
+  const entry = process.argv[1];
+  if (!entry)
+    throw new Error("Hook entrypoint is unavailable for shared trace worker");
+  const nodeScript = CURSOR_ENGINE_NODE_SCRIPT.test(entry);
+  const args = [
+    ...nodeScript ? [join16(dirname6(entry), `${CURSOR_ENGINE_WORKER_ENTRY}${extname(entry)}`)] : [],
+    CURSOR_ENGINE_WORKER_FLAG,
+    sessionId,
+    cwd ?? process.cwd(),
+    destinationProject
+  ];
+  const child = spawn(process.execPath, args, {
+    cwd: process.cwd(),
+    env: process.env,
+    detached: true,
+    stdio: "ignore"
+  });
+  child.unref();
+  if (!child.pid)
+    throw new Error("Shared trace worker failed to start");
+  return child.pid;
+}
+function validateProjectName(project) {
+  if (!isValidBoundedText(project, CURSOR_ENGINE_WORKER_ARGUMENT_LIMITS.project)) {
+    throw new Error("Shared trace worker project is invalid");
+  }
+}
+function normalizedSnapshot(payload) {
+  if (typeof payload.id !== "string" || typeof payload.name !== "string" || typeof payload.run_type !== "string") {
+    throw new Error("Run identity is unavailable");
+  }
+  return {
+    id: payload.id,
+    name: payload.name,
+    run_type: payload.run_type,
+    inputs: payload.inputs ?? {},
+    ...isTimestamp(payload.start_time) ? { start_time: payload.start_time } : {},
+    ...isTimestamp(payload.end_time) ? { end_time: payload.end_time } : {},
+    ...typeof payload.outputs === "object" && payload.outputs !== null ? { outputs: payload.outputs } : {},
+    ...typeof payload.parent_run_id === "string" ? { parent_run_id: payload.parent_run_id } : {},
+    ...typeof payload.trace_id === "string" ? { trace_id: payload.trace_id } : {},
+    ...typeof payload.dotted_order === "string" ? { dotted_order: payload.dotted_order } : {},
+    ...Array.isArray(payload.tags) ? { tags: payload.tags } : {},
+    ...typeof payload.error === "string" ? { error: payload.error } : {},
+    ...typeof payload.serialized === "object" && payload.serialized !== null ? { serialized: payload.serialized } : {},
+    ...Array.isArray(payload.events) ? { events: payload.events } : {},
+    ...typeof payload.reference_example_id === "string" ? { reference_example_id: payload.reference_example_id } : {}
+  };
+}
+function normalizedContext(payload) {
+  if (typeof payload.id !== "string" || typeof payload.name !== "string" || typeof payload.run_type !== "string") {
+    throw new Error("Run identity is unavailable");
+  }
+  return {
+    id: payload.id,
+    name: payload.name,
+    run_type: payload.run_type,
+    ...isTimestamp(payload.start_time) ? { start_time: payload.start_time } : {},
+    ...typeof payload.parent_run_id === "string" ? { parent_run_id: payload.parent_run_id } : {},
+    ...typeof payload.trace_id === "string" ? { trace_id: payload.trace_id } : {},
+    ...typeof payload.dotted_order === "string" ? { dotted_order: payload.dotted_order } : {}
+  };
+}
+function isTimestamp(value) {
+  return typeof value === "number" || typeof value === "string";
+}
+function rootRun(run) {
+  let root = run;
+  while (root.parent_run)
+    root = root.parent_run;
+  return root;
+}
+function descendantRunIds(root) {
+  const seen = /* @__PURE__ */ new Set();
+  const visit = (parent) => {
+    for (const child of parent.child_runs ?? []) {
+      if (seen.has(child.id))
+        continue;
+      seen.add(child.id);
+      visit(child);
+    }
+  };
+  visit(root);
+  return [...seen];
+}
+function statusOfRun2(run) {
+  const metadataStatus = run.extra?.metadata?.status;
+  if (metadataStatus === "running" || metadataStatus === "completed" || metadataStatus === "error") {
+    return metadataStatus;
+  }
+  if (run.error != null)
+    return "error";
+  return run.end_time == null ? "running" : "completed";
+}
+function writerOptions(config, projectName = config.project) {
+  return {
+    destinations: [{ apiKey: config.apiKey, apiUrl: config.apiUrl, projectName }],
+    ...config.replicas === void 0 ? {} : { replicas: uploadReplicas(config.replicas) },
+    redact: config.redact,
+    ...config.redactExtraRules === void 0 ? {} : {
+      redactExtraRules: config.redactExtraRules.map((rule) => ({
+        pattern: rule.pattern,
+        ...rule.replace === void 0 ? {} : { replace: rule.replace }
+      }))
+    }
+  };
+}
+function uploadReplicas(replicas2) {
+  return replicas2.map((replica) => {
+    if (Array.isArray(replica)) {
+      const [projectName, updates] = replica;
+      return {
+        projectName,
+        ...updates === void 0 ? {} : { updates }
+      };
+    }
+    return {
+      ...replica.apiKey === void 0 ? {} : { apiKey: replica.apiKey },
+      ...replica.apiUrl === void 0 ? {} : { apiUrl: replica.apiUrl },
+      ...replica.projectName === void 0 ? {} : { projectName: replica.projectName },
+      ...replica.workspaceId === void 0 ? {} : { workspaceId: replica.workspaceId },
+      ...replica.updates === void 0 ? {} : { updates: replica.updates }
+    };
+  });
+}
+function snapshotAfterStoredPatches(post, records) {
+  const submission = recordObject(post.normalizedPayload);
+  const snapshot = recordObject(submission?.run);
+  if (submission?.operation !== "post" || snapshot?.id !== post.runId) {
+    throw new Error("Persisted run post is invalid");
+  }
+  const current = { ...snapshot };
+  for (const record of records) {
+    if (record.runId !== post.runId || record.eventKind !== CURSOR_RUN_PATCH_EVENT_KIND || record.capturedAtMs <= post.capturedAtMs) {
+      continue;
+    }
+    const patchSubmission = recordObject(record.normalizedPayload);
+    if (patchSubmission?.operation !== "patch")
+      continue;
+    const patch = recordObject(patchSubmission.patch);
+    const values = recordObject(patch?.values);
+    if (!Array.isArray(patch?.fields) || !values)
+      continue;
+    for (const field2 of patch.fields) {
+      if (typeof field2 === "string" && Object.hasOwn(values, field2)) {
+        Object.assign(current, { [field2]: values[field2] });
+      }
+    }
+  }
+  return current;
+}
+function snapshotContext(snapshot) {
+  return {
+    id: snapshot.id,
+    name: snapshot.name,
+    run_type: snapshot.run_type,
+    ...snapshot.start_time === void 0 ? {} : { start_time: snapshot.start_time },
+    ...snapshot.parent_run_id === void 0 ? {} : { parent_run_id: snapshot.parent_run_id },
+    ...snapshot.trace_id === void 0 ? {} : { trace_id: snapshot.trace_id },
+    ...snapshot.dotted_order === void 0 ? {} : { dotted_order: snapshot.dotted_order }
+  };
+}
+function assertStableRunIdentity(previous, current) {
+  const fields = [
+    "id",
+    "name",
+    "run_type",
+    "start_time",
+    "parent_run_id",
+    "trace_id",
+    "dotted_order"
+  ];
+  if (fields.some((field2) => !isDeepStrictEqual(previous[field2], current[field2]))) {
+    throw new Error("Persisted run identity changed");
+  }
+}
+function recordObject(value) {
+  return value && typeof value === "object" && !Array.isArray(value) ? value : void 0;
+}
+function stableEventId(value) {
+  return createHash5("sha256").update(stableJson(value)).digest("hex");
+}
+function stableJson(value) {
+  if (value === null || typeof value !== "object") {
+    const serialized = JSON.stringify(value);
+    return serialized ?? "null";
+  }
+  if (Array.isArray(value))
+    return `[${value.map(stableJson).join(",")}]`;
+  const record = value;
+  const fields = Object.keys(record).filter((key) => record[key] !== void 0).sort().map((key) => `${JSON.stringify(key)}:${stableJson(record[key])}`);
+  return `{${fields.join(",")}}`;
+}
+
+// dist/src/langsmith.js
+init_logger();
+import { createHash as createHash6 } from "node:crypto";
+var client = void 0;
+var replicas = void 0;
 function initTracing(apiKey, apiUrl, providedReplicas, redact = true, extraRedactionRules, clientOverride) {
   const anonymizer = redact ? createSecretAnonymizer(extraRedactionRules ? { extraRules: extraRedactionRules } : void 0) : void 0;
   client = clientOverride ?? new Client({
     apiKey: apiKey || void 0,
     apiUrl,
-    anonymizer,
-    fetchImplementation: fetchRecordingRefusedWrites
+    anonymizer
   });
   replicas = providedReplicas;
   return client;
 }
-async function flushPendingTraces() {
-  debug("Awaiting pending trace batches...");
-  await Promise.all([
-    client?.awaitPendingTraceBatches(),
-    RunTree.getSharedClient().awaitPendingTraceBatches()
-  ]);
-  debug("Trace batches flushed");
-}
 async function uploadTurn(options) {
-  refusedWrite = void 0;
+  if (!options.tracingEngine) {
+    warn("Shared trace capture is unavailable; keeping the turn pending");
+    return false;
+  }
   await buildTurnRuns(options);
-  await flushPendingTraces();
-  if (refusedWrite === void 0)
-    return true;
-  warn(`Keeping the turn for a later retry: ${refusedWrite}`);
-  return false;
+  return true;
 }
 function uuidFromDigest(hex) {
   const variant = (parseInt(hex[16], 16) & 3 | 8).toString(16);
@@ -14424,7 +19972,7 @@ function uuidFromDigest(hex) {
 }
 function stableRunId(ctx, key) {
   const seed = `${ctx.threadId}\0${ctx.turnId ?? ""}\0${key}`;
-  return uuidFromDigest(createHash("sha256").update(seed).digest("hex"));
+  return uuidFromDigest(createHash6("sha256").update(seed).digest("hex"));
 }
 function withSystem(messages, systemPrompt) {
   return systemPrompt ? [{ role: "system", content: systemPrompt }, ...messages] : messages;
@@ -14500,6 +20048,11 @@ async function buildTurnRuns(options) {
     turnNumber: turnNum,
     runtimeVersion: options.runtimeVersion
   };
+  const capture = options.tracingEngine ? createRunTreeCapture({
+    ...options.tracingEngine,
+    turnId: buffer.generation_id,
+    privacyMode: mode
+  }) : void 0;
   const promptText = buffer.prompt ?? "";
   const userContent = userMessageContent(promptText, options.attachments ?? []);
   const toolEnds = buffer.tools.map((t) => t.endMs);
@@ -14516,15 +20069,23 @@ async function buildTurnRuns(options) {
     project_name: project,
     start_time: buffer.startMs,
     tags: DEFAULT_TAGS,
-    extra: { metadata: codingAgentMetadata({ ...ctx, runSpecific: { model: buffer.model } }) }
-  }, mode);
+    extra: {
+      metadata: codingAgentMetadata({
+        ...ctx,
+        runType: "root",
+        ...buffer.model === void 0 ? {} : { runSpecific: { model: buffer.model } }
+      })
+    }
+  }, mode, capture);
   await turnRun.postRun();
   const { ls_model_name, ls_provider } = deriveModelInfo(buffer.model);
   const llmName = ls_provider ?? ls_model_name;
   const llmMeta = {
-    ls_provider,
-    ls_model_name,
-    ls_invocation_params: { model: ls_model_name }
+    modelName: ls_model_name,
+    providerMetadata: {
+      ...ls_provider ? { ls_provider } : {},
+      ls_invocation_params: { model: ls_model_name }
+    }
   };
   const usageMetadata = buildUsageMetadata(buffer.usage);
   const thinking = buffer.thoughts.map((t) => ({ type: "thinking", thinking: t.text }));
@@ -14541,7 +20102,8 @@ async function buildTurnRuns(options) {
     llmMeta,
     usageMetadata,
     finalTextBlocks,
-    turnEndMs
+    turnEndMs,
+    capture
   }) : false;
   if (interleaved) {
   } else if (calls.length === 0) {
@@ -14556,7 +20118,9 @@ async function buildTurnRuns(options) {
       extra: {
         metadata: codingAgentMetadata({
           ...ctx,
-          runSpecific: { ...llmMeta, usage_metadata: usageMetadata }
+          runType: "llm",
+          ...llmMeta,
+          usageMetadata
         })
       }
     });
@@ -14573,13 +20137,15 @@ async function buildTurnRuns(options) {
       outputs: { messages: [{ role: "assistant", content: assistantDecision }] },
       start_time: buffer.startMs,
       end_time: Math.max(buffer.startMs, firstCallStart),
-      extra: { metadata: codingAgentMetadata({ ...ctx, runSpecific: { ...llmMeta } }) }
+      extra: {
+        metadata: codingAgentMetadata({ ...ctx, runType: "llm", ...llmMeta })
+      }
     });
     await decideRun.postRun();
     for (const [i, tool] of buffer.tools.entries())
       await postToolRun(tool, turnRun, ctx, `tool:${i}:${tool.tool_use_id}`);
     for (const [i, sub] of buffer.subagents.entries())
-      await postSubagentRun(sub, turnRun, ctx, `subagent:${i}:${sub.subagent_id}`);
+      await postSubagentRun(sub, turnRun, ctx, `subagent:${i}:${sub.subagent_id}`, capture);
     const answerRun = turnRun.createChild({
       id: stableRunId(ctx, "answer"),
       name: llmName,
@@ -14597,7 +20163,9 @@ async function buildTurnRuns(options) {
       extra: {
         metadata: codingAgentMetadata({
           ...ctx,
-          runSpecific: { ...llmMeta, usage_metadata: usageMetadata }
+          runType: "llm",
+          ...llmMeta,
+          usageMetadata
         })
       }
     });
@@ -14647,7 +20215,13 @@ async function postInterleavedRounds(p) {
       outputs: { messages: [{ role: "assistant", content: assistantContent }] },
       start_time: llmStart,
       end_time: llmEnd,
-      extra: { metadata: codingAgentMetadata({ ...p.ctx, runSpecific: { ...p.llmMeta } }) }
+      extra: {
+        metadata: codingAgentMetadata({
+          ...p.ctx,
+          runType: "llm",
+          ...p.llmMeta
+        })
+      }
     });
     await llmRun.postRun();
     for (const [i, t] of matched.entries())
@@ -14659,7 +20233,7 @@ async function postInterleavedRounds(p) {
       cursorMs = Math.max(cursorMs, ...matched.map((t) => t.endMs));
   }
   for (const [i, sub] of p.buffer.subagents.entries())
-    await postSubagentRun(sub, p.turnRun, p.ctx, `subagent:${i}:${sub.subagent_id}`);
+    await postSubagentRun(sub, p.turnRun, p.ctx, `subagent:${i}:${sub.subagent_id}`, p.capture);
   const answerContent = [...thinkingBlocks(finalRound?.thinking ?? []), ...p.finalTextBlocks];
   const answerRun = p.turnRun.createChild({
     id: stableRunId(p.ctx, "answer"),
@@ -14672,7 +20246,9 @@ async function postInterleavedRounds(p) {
     extra: {
       metadata: codingAgentMetadata({
         ...p.ctx,
-        runSpecific: { ...p.llmMeta, usage_metadata: p.usageMetadata }
+        runType: "llm",
+        ...p.llmMeta,
+        usageMetadata: p.usageMetadata
       })
     }
   });
@@ -14695,6 +20271,7 @@ async function postToolRun(tool, parent, ctx, key, clearSubagent = false) {
     extra: {
       metadata: codingAgentMetadata({
         ...ctx,
+        runType: "tool",
         clearSubagent,
         // run name == native tool name, so ls_tool_name is omitted; tool_name kept as alias.
         toolName: tool.name,
@@ -14732,6 +20309,7 @@ async function postSkillRun(parent, ctx, key, clearSubagent, opts) {
     extra: {
       metadata: codingAgentMetadata({
         ...ctx,
+        runType: "tool",
         clearSubagent,
         // Equal names are what suppress `ls_tool_name`.
         toolName: SKILL_RUN_NAME,
@@ -14744,7 +20322,7 @@ async function postSkillRun(parent, ctx, key, clearSubagent, opts) {
   });
   await run.postRun();
 }
-async function postSubagentRun(sub, parent, ctx, key) {
+async function postSubagentRun(sub, parent, ctx, key, capture) {
   const isError2 = sub.status != null && sub.status !== "completed";
   const tools = sub.tools ?? [];
   const startMs = sub.startMs;
@@ -14753,9 +20331,11 @@ async function postSubagentRun(sub, parent, ctx, key) {
   const subModel = deriveModelInfo(sub.model);
   const llmName = subModel.ls_provider ?? subModel.ls_model_name;
   const llmMeta = {
-    ls_provider: subModel.ls_provider,
-    ls_model_name: subModel.ls_model_name,
-    ls_invocation_params: { model: subModel.ls_model_name }
+    modelName: subModel.ls_model_name,
+    providerMetadata: {
+      ...subModel.ls_provider ? { ls_provider: subModel.ls_provider } : {},
+      ls_invocation_params: { model: subModel.ls_model_name }
+    }
   };
   const subagentCtx = { ...ctx, agentType: "subagent" };
   const subagentRun = createChildRun(parent, {
@@ -14777,6 +20357,7 @@ async function postSubagentRun(sub, parent, ctx, key) {
     extra: {
       metadata: codingAgentMetadata({
         ...subagentCtx,
+        runType: "subagent",
         subagentId: sub.subagent_id,
         subagentType: sub.subagent_type,
         runSpecific: {
@@ -14793,7 +20374,7 @@ async function postSubagentRun(sub, parent, ctx, key) {
         }
       })
     }
-  }, sub.tracingMode === "full" ? "full" : "metadata");
+  }, sub.tracingMode === "full" ? "full" : "metadata", capture);
   await subagentRun.postRun();
   const baseMessages = withSystem([{ role: "system", content: sub.task }], sub.systemPrompt);
   const finalBlocks = sub.resultText ? [{ type: "text", text: sub.resultText }] : [];
@@ -14810,8 +20391,9 @@ async function postSubagentRun(sub, parent, ctx, key) {
       extra: {
         metadata: codingAgentMetadata({
           ...subagentCtx,
+          runType: "llm",
           clearSubagent: true,
-          runSpecific: { ...llmMeta }
+          ...llmMeta
         })
       }
     });
@@ -14832,8 +20414,9 @@ async function postSubagentRun(sub, parent, ctx, key) {
     extra: {
       metadata: codingAgentMetadata({
         ...subagentCtx,
+        runType: "llm",
         clearSubagent: true,
-        runSpecific: { ...llmMeta }
+        ...llmMeta
       })
     }
   });
@@ -14857,8 +20440,9 @@ async function postSubagentRun(sub, parent, ctx, key) {
     extra: {
       metadata: codingAgentMetadata({
         ...subagentCtx,
+        runType: "llm",
         clearSubagent: true,
-        runSpecific: { ...llmMeta }
+        ...llmMeta
       })
     }
   });
@@ -14883,7 +20467,10 @@ async function uploadClaim(claim, options) {
   const { config, input } = options;
   const policy = getThreadTracingMode(tracingPolicyPath(), claim.conversationId, config.defaultMuted);
   const origin = claim.buffer.origin ?? originFromConfig(config, input);
+  const sessionId = claim.conversationId;
   try {
+    const tracingSession = createCursorTracingSession(config, sessionId, input.workspace_roots?.[0], void 0, origin.project);
+    const tracingEngine = tracingSession ? { ...tracingSession, sessionId, closureState: "provisional" } : void 0;
     return await uploadTurn({
       buffer: { ...claim.buffer, tracingMode: sweepTracingMode(claim.buffer.tracingMode, policy) },
       conversationId: claim.conversationId,
@@ -14891,7 +20478,8 @@ async function uploadClaim(claim, options) {
       project: origin.project,
       userEmail: origin.userEmail,
       customMetadata: origin.customMetadata,
-      runtimeVersion: origin.runtimeVersion
+      runtimeVersion: origin.runtimeVersion,
+      ...tracingEngine ? { tracingEngine } : {}
     });
   } catch (err) {
     warn(`Sweep could not upload turn ${claim.turnNum} of ${claim.conversationId}: ${err}`);
@@ -14911,7 +20499,7 @@ async function runSweep(options) {
   if (claims.length === 0)
     return [];
   debug(`sweep claimed ${claims.length} abandoned turn(s)`);
-  initTracing(config.apiKey, config.apiUrl, config.replicas, config.redact, config.redactExtraRules, options.client);
+  initTracing(config.apiKey, config.apiUrl, config.replicas, config.redact, config.redactExtraRules);
   const uploaded = [];
   for (const claim of claims) {
     if (!await uploadClaim(claim, options))
@@ -14923,6 +20511,7 @@ async function runSweep(options) {
 }
 
 // dist/src/hooks/session-start.js
+init_logger();
 async function main() {
   const input = await readStdin();
   const config = initHook(input.workspace_roots?.[0]);

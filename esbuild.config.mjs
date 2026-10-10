@@ -1,5 +1,5 @@
 import { build } from "esbuild";
-import { chmodSync, readFileSync } from "node:fs";
+import { chmodSync, readFileSync, writeFileSync } from "node:fs";
 
 // Inject the plugin version at BUILD TIME (the bundle has no runtime
 // package.json) via esbuild `define`.
@@ -36,7 +36,10 @@ await build({
 // Make hooks executable
 for (const entry of entryPoints) {
   const filename = entry.split("/").pop();
-  chmodSync(`bundle/${filename}`, 0o755);
+  const bundlePath = `bundle/${filename}`;
+  const bundle = readFileSync(bundlePath, "utf-8");
+  writeFileSync(bundlePath, bundle.replace(/[ \t]+$/gm, ""));
+  chmodSync(bundlePath, 0o755);
 }
 
 console.log(`Bundled ${entryPoints.length} hooks into bundle/`);

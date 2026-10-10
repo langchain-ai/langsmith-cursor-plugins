@@ -66,6 +66,9 @@ function writeCachedNodePath(nodePath, cacheFile = nodePathCacheFile(), now = Da
   }
 }
 
+// dist/src/constants.js
+var CURSOR_ENGINE_WORKER_FLAG = "--cursor-engine-worker";
+
 // dist/src/hooks/guard.js
 var hookName = process.argv[2];
 function resolveLoginShellNode() {
@@ -127,7 +130,8 @@ if (!hookName) {
   console.error("[langsmith] guard: missing hook name argument");
   process.exit(0);
 }
-await import(new URL(`./${hookName}.js`, import.meta.url).href).catch((err) => {
+var hookModule = hookName === CURSOR_ENGINE_WORKER_FLAG ? new URL("./stop.js", import.meta.url).href : new URL(`./${hookName}.js`, import.meta.url).href;
+await import(hookModule).catch((err) => {
   console.error(`[langsmith] hook ${hookName} failed:`, err);
   if (hookName === "before-submit-prompt") {
     console.log(JSON.stringify({ continue: true }));

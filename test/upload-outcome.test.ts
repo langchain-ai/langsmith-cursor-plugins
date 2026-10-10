@@ -27,32 +27,15 @@ function upload(): Promise<boolean> {
   });
 }
 
-describe("an upload is only settled when the server accepted every write", () => {
+describe("shared capture is required before a turn can be settled", () => {
   afterEach(() => vi.unstubAllGlobals());
 
-  it("stays unsettled when a write is refused", async () => {
-    vi.stubGlobal("fetch", serverAnswering((method) => (method === "GET" ? 200 : 403)));
+  it("does not send through the SDK when shared capture context is missing", async () => {
+    const request = serverAnswering(() => 202);
+    vi.stubGlobal("fetch", request);
     initTracing("key", API);
 
     expect(await upload()).toBe(false);
-  });
-
-  it("stays unsettled when the request never completes", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn<typeof fetch>(async () => {
-        throw Object.assign(new Error("The operation timed out."), { name: "TimeoutError" });
-      }),
-    );
-    initTracing("key", API);
-
-    expect(await upload()).toBe(false);
-  });
-
-  it("settles on accepted writes even when the instance refuses the client's own reads", async () => {
-    vi.stubGlobal("fetch", serverAnswering((method) => (method === "GET" ? 404 : 202)));
-    initTracing("key", API);
-
-    expect(await upload()).toBe(true);
+    expect(request).not.toHaveBeenCalled();
   });
 });

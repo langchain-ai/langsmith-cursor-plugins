@@ -1,10 +1,11 @@
-import type { Client } from "langsmith";
 import type { Config } from "./config.js";
 import { atomicUpdateState } from "./state.js";
 import { reduceSweep, reduceUploadSettled } from "./reducer.js";
 import { getThreadTracingMode, tracingPolicyPath } from "./tracing-policy.js";
 import { debug, warn } from "./logger.js";
 import { initTracing, uploadTurn } from "./langsmith.js";
+import { createCursorTracingSession } from "./tracing-engine.js";
+import type { TracingEngineTurnContext } from "./models/tracing-engine.js";
 import { originFromConfig } from "./turn-origin.js";
 import type { HookInputBase, SweepClaim, TracingMode, TracingState, TurnMode } from "./types.js";
 
@@ -13,7 +14,6 @@ export interface SweepOptions {
   input: HookInputBase;
   nowMs?: number;
   apply?: (state: TracingState) => TracingState;
-  client?: Client;
 }
 
 export function sweepTracingMode(buffered: TurnMode | undefined, policy: TracingMode): TracingMode {
@@ -28,7 +28,18 @@ async function uploadClaim(claim: SweepClaim, options: SweepOptions): Promise<bo
     config.defaultMuted,
   );
   const origin = claim.buffer.origin ?? originFromConfig(config, input);
+  const sessionId = claim.conversationId;
   try {
+    const tracingSession = createCursorTracingSession(
+      config,
+      sessionId,
+      input.workspace_roots?.[0],
+      undefined,
+      origin.project,
+    );
+    const tracingEngine: TracingEngineTurnContext | undefined = tracingSession
+      ? { ...tracingSession, sessionId, closureState: "provisional" }
+      : undefined;
     return await uploadTurn({
       buffer: { ...claim.buffer, tracingMode: sweepTracingMode(claim.buffer.tracingMode, policy) },
       conversationId: claim.conversationId,
@@ -37,6 +48,7 @@ async function uploadClaim(claim: SweepClaim, options: SweepOptions): Promise<bo
       userEmail: origin.userEmail,
       customMetadata: origin.customMetadata,
       runtimeVersion: origin.runtimeVersion,
+      ...(tracingEngine ? { tracingEngine } : {}),
     });
   } catch (err) {
     warn(`Sweep could not upload turn ${claim.turnNum} of ${claim.conversationId}: ${err}`);
@@ -69,9 +81,7 @@ export async function runSweep(options: SweepOptions): Promise<SweepClaim[]> {
     config.replicas,
     config.redact,
     config.redactExtraRules,
-    options.client,
   );
-
   const uploaded: SweepClaim[] = [];
   for (const claim of claims) {
     if (!(await uploadClaim(claim, options))) continue;
