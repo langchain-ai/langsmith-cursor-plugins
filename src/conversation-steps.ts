@@ -5,7 +5,7 @@
 
 import { DatabaseSync } from "node:sqlite";
 import { existsSync } from "node:fs";
-import { isRecord } from "./normalize.js";
+import { isRecord } from "./utils/validation/record.js";
 import { defaultCursorDbPath } from "./attachments.js";
 import { decodeConversationStateBlob } from "./system-prompt.js";
 import * as logger from "./logger.js";

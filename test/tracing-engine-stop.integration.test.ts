@@ -1,12 +1,20 @@
 import { spawn } from "node:child_process";
+import { createHash } from "node:crypto";
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
-import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, unlinkSync, writeFileSync } from "node:fs";
 import { DatabaseSync } from "node:sqlite";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createCaptureStore } from "@langchain/plugins-base/storage/capture";
 import { createLangSmithUploadWriter } from "@langchain/plugins-base/tracing/upload";
+import {
+  CURSOR_INTEGRATION,
+  CURSOR_RECONSTRUCTION_DIRECTORY,
+  CURSOR_TURN_SOURCE_DIRECTORY,
+  CURSOR_TURN_SOURCE_EVENT_KIND,
+} from "../src/constants.js";
+import { cursorStopReconstructionJobEventId } from "../src/tracing-engine.js";
 import { expect, it } from "vitest";
 import { MUTED_TRACE_CONTENT } from "../src/privacy.js";
 import { withWindowsProcessEnvironment } from "./utils/process-environment.js";
@@ -642,3 +650,172 @@ it.each([
   },
   30_000,
 );
+
+it("reuses the persisted Stop source when its first reconstruction enqueue fails", async () => {
+  const directory = mkdtempSync(join(tmpdir(), "cursor-stop-source-retry-"));
+  const workspace = join(directory, "workspace");
+  const stateFile = join(directory, "state.json");
+  const home = join(directory, "home");
+  const { mkdirSync } = await import("node:fs");
+  mkdirSync(workspace);
+  mkdirSync(home);
+
+  const conversationId = "stop-source-retry";
+  const generationId = "saved-generation";
+  const uploads: Upload[] = [];
+  const primaryUploads: Upload[] = [];
+  const server = createServer((request, response) => {
+    void reply(request, response, uploads);
+  });
+  const primaryServer = createServer((request, response) => {
+    void reply(request, response, primaryUploads);
+  });
+  await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
+  await new Promise<void>((resolve) => primaryServer.listen(0, "127.0.0.1", resolve));
+  const address = server.address();
+  const primaryAddress = primaryServer.address();
+  if (
+    !address ||
+    typeof address === "string" ||
+    !primaryAddress ||
+    typeof primaryAddress === "string"
+  ) {
+    throw new Error("Local upload server did not start");
+  }
+  const replicaUrl = `http://127.0.0.1:${address.port}`;
+  const primaryUrl = `http://127.0.0.1:${primaryAddress.port}`;
+  const replica = {
+    apiKey: "replica-test-key",
+    apiUrl: replicaUrl,
+    projectName: "replica-project",
+  };
+  const writer = createLangSmithUploadWriter({
+    destinations: [{ apiKey: "", apiUrl: primaryUrl, projectName: "stop-retry" }],
+    replicas: [replica],
+    redact: true,
+  });
+  const sourceStore = createCaptureStore(
+    join(
+      directory,
+      CURSOR_TURN_SOURCE_DIRECTORY,
+      createHash("sha256").update(writer.accountFingerprint).digest("hex"),
+    ),
+  );
+  const destinationId = writer.destinations[0]!.id;
+  const prompt = "prompt saved before the first Stop";
+  const shared = { workspace_roots: [workspace], session_id: conversationId };
+  const env = withWindowsProcessEnvironment({
+    HOME: home,
+    USERPROFILE: home,
+    TMPDIR: directory,
+    TEMP: directory,
+    TMP: directory,
+    LANG: "C.UTF-8",
+    TRACE_TO_LANGSMITH: "true",
+    LANGSMITH_CURSOR_API_KEY: "",
+    LANGSMITH_CURSOR_ENDPOINT: primaryUrl,
+    LANGSMITH_CURSOR_PROJECT: "stop-retry",
+    LANGSMITH_CURSOR_RUNS_ENDPOINTS: JSON.stringify([
+      { api_key: replica.apiKey, api_url: replica.apiUrl, project: replica.projectName },
+    ]),
+    LANGSMITH_CURSOR_STATE_FILE: stateFile,
+    LANGSMITH_CURSOR_ATTACHMENTS: "false",
+    LANGSMITH_CURSOR_SYSTEM_PROMPT: "false",
+    LANGSMITH_CURSOR_DB_PATH: join(directory, "cursor-state.db"),
+    LANGSMITH_CURSOR_LOG_FILE: join(directory, "hook.log"),
+  });
+
+  try {
+    await runGuard(
+      "before-submit-prompt",
+      {
+        ...shared,
+        hook_event_name: "beforeSubmitPrompt",
+        conversation_id: conversationId,
+        generation_id: generationId,
+        model: "claude-4.6-sonnet-medium-thinking",
+        prompt,
+      },
+      workspace,
+      env,
+    );
+    writeFileSync(join(directory, CURSOR_RECONSTRUCTION_DIRECTORY), "blocks the first enqueue");
+    await runGuard(
+      "stop",
+      {
+        ...shared,
+        hook_event_name: "stop",
+        conversation_id: conversationId,
+        generation_id: generationId,
+        model: "claude-4.6-sonnet-medium-thinking",
+        status: "completed",
+      },
+      workspace,
+      env,
+    );
+
+    const savedSources = (await sourceStore.enumerate(CURSOR_INTEGRATION, conversationId)).filter(
+      ({ record }) =>
+        record.turnId === generationId && record.eventKind === CURSOR_TURN_SOURCE_EVENT_KIND,
+    );
+    expect(savedSources).toHaveLength(1);
+    expect(JSON.stringify(savedSources[0]?.record.normalizedPayload)).toContain(prompt);
+
+    const state = JSON.parse(readFileSync(stateFile, "utf8")) as Record<
+      string,
+      { pending: Record<string, { buffer: { prompt?: string } }> }
+    >;
+    state[conversationId]!.pending[generationId]!.buffer.prompt = "changed after source capture";
+    writeFileSync(stateFile, JSON.stringify(state));
+    unlinkSync(join(directory, CURSOR_RECONSTRUCTION_DIRECTORY));
+
+    await runGuard(
+      "stop",
+      {
+        ...shared,
+        hook_event_name: "stop",
+        conversation_id: conversationId,
+        generation_id: generationId,
+        model: "claude-4.6-sonnet-medium-thinking",
+        status: "completed",
+      },
+      workspace,
+      env,
+    );
+    await waitForReceipts(directory, conversationId, generationId, destinationId);
+    const isRoot = (upload: Upload) =>
+      upload.payload.extra?.metadata?.thread_id === conversationId &&
+      upload.payload.extra?.metadata?.turn_id === generationId &&
+      upload.payload.parent_run_id == null;
+    const rootPost = uploads.find((upload) => upload.action === "post" && isRoot(upload));
+    expect(rootPost).toBeDefined();
+    expect(JSON.stringify(rootPost?.payload.inputs)).toContain(prompt);
+    expect(JSON.stringify(rootPost?.payload.inputs)).not.toContain("changed after source capture");
+    expect(primaryUploads).toEqual([]);
+    expect(
+      (await sourceStore.enumerate(CURSOR_INTEGRATION, conversationId)).filter(
+        ({ record }) =>
+          record.turnId === generationId && record.eventKind === CURSOR_TURN_SOURCE_EVENT_KIND,
+      ),
+    ).toHaveLength(1);
+    expect(
+      (
+        await createCaptureStore(join(directory, CURSOR_RECONSTRUCTION_DIRECTORY)).enumerate(
+          CURSOR_INTEGRATION,
+          conversationId,
+        )
+      ).filter(
+        ({ record }) =>
+          record.turnId === generationId &&
+          record.eventKind === "reconstruction-job-v1" &&
+          record.eventId === cursorStopReconstructionJobEventId(savedSources[0]!.record.eventId),
+      ),
+    ).toHaveLength(1);
+  } finally {
+    await Promise.all(
+      [server, primaryServer].map(
+        (activeServer) => new Promise<void>((resolve) => activeServer.close(() => resolve())),
+      ),
+    );
+  }
+});

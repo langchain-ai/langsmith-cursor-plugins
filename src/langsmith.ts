@@ -4,15 +4,24 @@ import { createRunTree, createChildRun, MUTED_TRACE_CONTENT } from "./privacy.js
 import { Client, RunTree, type RunTreeConfig } from "langsmith";
 import { createSecretAnonymizer } from "langsmith/anonymizer";
 import type { StringNodeRule } from "langsmith/anonymizer";
-import type { TurnBuffer, ToolEvent, SubagentEvent, ContentPart } from "./types.js";
+import type { TurnBuffer, ToolEvent, SubagentEvent, ContentPart, TurnOrigin } from "./types.js";
 import { buildUsageMetadata, deriveModelInfo } from "./normalize.js";
 import { DEFAULT_TAGS, SKILL_RUN_NAME, TURN_RUN_NAME } from "./constants.js";
 import { codingAgentMetadata, skillNameFromTool } from "./metadata.js";
 import type { InterleaveOptions } from "./models/interleave.js";
 import type { CodingAgentLLMMetadata, MetaCtx } from "./models/metadata.js";
-import { groupSteps, type Step } from "./conversation-steps.js";
-import { createRunTreeCapture } from "./tracing-engine.js";
-import type { RunTreeCapture, TracingEngineTurnContext } from "./models/tracing-engine.js";
+import { groupSteps, resolveTurnSteps, type Step } from "./conversation-steps.js";
+import { createCursorReconstructionCapture, createRunTreeCapture } from "./tracing-engine.js";
+import type {
+  CursorNativeReconstructionOptions,
+  RunTreeCapture,
+  TracingEngineTurnContext,
+} from "./models/tracing-engine.js";
+import type { ReconstructionResult } from "@langchain/plugins-base/tracing/reconstruction";
+import { readCursorNativeTurnSource } from "./native-turn-source.js";
+import { resolveTurnAttachments } from "./attachments.js";
+import { resolveSystemPrompts } from "./system-prompt.js";
+import { loadConfig } from "./config.js";
 import * as logger from "./logger.js";
 import { createHash } from "node:crypto";
 
@@ -62,6 +71,97 @@ export async function uploadTurn(options: BuildTurnOptions): Promise<boolean> {
   }
   await buildTurnRuns(options);
   return true;
+}
+
+export async function reconstructCursorTurn(
+  options: CursorNativeReconstructionOptions,
+): Promise<ReconstructionResult> {
+  if (options.job.sourceRefs.length !== 1) {
+    throw new Error("Cursor reconstruction job must reference one native turn source");
+  }
+  const sourceRef = options.job.sourceRefs[0]!;
+  const saved = await readCursorNativeTurnSource(
+    options.storageRoot,
+    options.sessionId,
+    options.job.turnId,
+    options.destinationFingerprint,
+    sourceRef,
+  );
+  const source = saved.source;
+  const buffer = structuredClone(source.buffer);
+  buffer.subagents = buffer.subagents.filter((subagent) => subagent.tracingMode !== "off");
+  const mode = buffer.tracingMode === "full" ? "full" : "metadata";
+  if (mode !== options.job.privacyMode) {
+    throw new Error("Cursor reconstruction privacy mode does not match its native source");
+  }
+  const cwd = saved.route?.cwd ?? options.cwd;
+  const config =
+    cwd === options.cwd ? options.config : loadConfig({ cwd, includeGitMetadata: false });
+  const origin: TurnOrigin = buffer.origin ?? {
+    project: config.project,
+    customMetadata: config.customMetadata,
+  };
+  let attachments: ContentPart[] = [];
+  if (config.attachmentsEnabled && mode === "full") {
+    attachments = resolveTurnAttachments({
+      conversationId: source.conversationId,
+      prompt: buffer.prompt,
+      dbPath: config.cursorDbPath,
+    });
+  }
+  let systemPrompt: string | undefined;
+  if (config.systemPromptEnabled && mode === "full") {
+    const childIds = buffer.subagents
+      .map((subagent) => subagent.childConversationId)
+      .filter((id): id is string => !!id);
+    const prompts = resolveSystemPrompts({
+      conversationIds: [source.conversationId, ...childIds],
+      dbPath: config.cursorDbPath,
+    });
+    systemPrompt = prompts.get(source.conversationId);
+    for (const subagent of buffer.subagents) {
+      if (subagent.childConversationId) {
+        subagent.systemPrompt = prompts.get(subagent.childConversationId);
+      }
+    }
+  }
+  const steps = resolveTurnSteps({
+    conversationId: source.conversationId,
+    toolUseIds: buffer.tools.map((tool) => tool.tool_use_id),
+    dbPath: config.cursorDbPath,
+  });
+  const capture = await createCursorReconstructionCapture({
+    session: options.session,
+    sessionId: options.sessionId,
+    turnId: options.job.turnId,
+    privacyMode: mode,
+    storageRoot: options.storageRoot,
+    destinationFingerprint: options.destinationFingerprint,
+    jobEventId: options.job.eventId,
+    sourceRef,
+    sourceAgeStartedAtMs: options.job.sourceAgeStartedAtMs ?? buffer.startMs,
+  });
+  await buildTurnRuns({
+    buffer,
+    conversationId: source.conversationId,
+    turnNum: source.turnNum,
+    project: origin.project,
+    userEmail: origin.userEmail,
+    customMetadata: origin.customMetadata,
+    runtimeVersion: origin.runtimeVersion,
+    attachments,
+    systemPrompt,
+    steps,
+    tracingEngine: {
+      session: options.session,
+      sessionId: options.sessionId,
+      closureState: "authoritative",
+      storageRoot: options.storageRoot,
+      destinationFingerprint: options.destinationFingerprint,
+      capture: capture.capture,
+    },
+  });
+  return { status: "ready", outputs: capture.outputs };
 }
 
 // ─── Dotted-order helpers (exported utilities) ───────────────────────────────
@@ -216,8 +316,11 @@ function orderedTurnCalls(buffer: TurnBuffer): TurnCall[] {
 export async function buildTurnRuns(options: BuildTurnOptions): Promise<void> {
   if (options.buffer.tracingMode === "off") return;
   const mode = options.buffer.tracingMode === "full" ? "full" : "metadata";
-  const { buffer, conversationId, turnNum, project, userEmail, customMetadata, systemPrompt } =
-    options;
+  const buffer = {
+    ...options.buffer,
+    subagents: options.buffer.subagents.filter((subagent) => subagent.tracingMode !== "off"),
+  };
+  const { conversationId, turnNum, project, userEmail, customMetadata, systemPrompt } = options;
 
   if (!client && !replicas) {
     throw new Error("LangSmith client not initialized — call initTracing() first");
@@ -233,13 +336,21 @@ export async function buildTurnRuns(options: BuildTurnOptions): Promise<void> {
     turnNumber: turnNum,
     runtimeVersion: options.runtimeVersion,
   };
-  const capture = options.tracingEngine
-    ? createRunTreeCapture({
-        ...options.tracingEngine,
-        turnId: buffer.generation_id,
-        privacyMode: mode,
-      })
-    : undefined;
+  const tracingEngine = options.tracingEngine;
+  const customCapture = tracingEngine?.capture;
+  const capture =
+    customCapture ??
+    (tracingEngine
+      ? createRunTreeCapture({
+          session: tracingEngine.session,
+          sessionId: tracingEngine.sessionId,
+          closureState: tracingEngine.closureState,
+          storageRoot: tracingEngine.storageRoot,
+          destinationFingerprint: tracingEngine.destinationFingerprint,
+          turnId: buffer.generation_id,
+          privacyMode: mode,
+        })
+      : undefined);
   const promptText = buffer.prompt ?? "";
   const userContent = userMessageContent(promptText, options.attachments ?? []);
 

@@ -6,7 +6,7 @@
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, join, basename } from "node:path";
 import { parseSubagentTranscript, type SubagentToolCall } from "./normalize.js";
-import { isRecord } from "./normalize.js";
+import { isRecord } from "./utils/validation/record.js";
 
 export interface ResolvedSubagentTranscript {
   /** Basename of the matched transcript file (= the subagent's conversation_id). */

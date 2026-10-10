@@ -25,7 +25,7 @@ export async function handlePromptSubmit(
     ) {
       throw new Error("Nonempty native conversation_id and generation_id required; update Cursor");
     }
-    const config = loadConfig({ cwd: input.workspace_roots?.[0] });
+    const config = loadConfig({ cwd: input.workspace_roots?.[0], includeGitMetadata: false });
     initLogger(config.debug);
     if (command) {
       const result = await setThreadTracingMode(

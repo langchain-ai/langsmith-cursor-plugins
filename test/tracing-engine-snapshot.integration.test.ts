@@ -13,7 +13,11 @@ import {
   CURSOR_RUN_POST_EVENT_KIND,
 } from "../src/constants.js";
 import { loadConfig } from "../src/config.js";
-import { createRunTreeCapture, createCursorTracingSession } from "../src/tracing-engine.js";
+import {
+  createRunTreeCapture,
+  createCursorReconstructionCapture,
+  createCursorTracingSession,
+} from "../src/tracing-engine.js";
 
 afterEach(() => {
   vi.unstubAllEnvs();
@@ -225,6 +229,50 @@ it("orders A to B to A snapshots and retains parent-child dependencies after res
     eventId: restartedChildHead.eventId,
   });
   expect(finalRootHead.turnEvidence).toMatchObject({ closureState: "authoritative" });
+});
+
+it("collects one final child snapshot from an unuploaded A to B to A reconstruction", async () => {
+  const directory = mkdtempSync(join(tmpdir(), "cursor-reconstruction-snapshot-"));
+  const sessionId = "reconstruction-session";
+  const turnId = "reconstruction-turn";
+  const rootId = "70000000-0000-4000-8000-000000000011";
+  const childId = "70000000-0000-4000-8000-000000000012";
+  const root = makeRun(sessionId, turnId, rootId, "chain", 100);
+  const child = makeRun(sessionId, turnId, childId, "tool", 200, root);
+  const session = { captureSnapshot: vi.fn() } as unknown as Parameters<
+    typeof createRunTreeCapture
+  >[0]["session"];
+  const reconstruction = await createCursorReconstructionCapture({
+    session,
+    sessionId,
+    turnId,
+    privacyMode: "full",
+    storageRoot: directory,
+    destinationFingerprint: "reconstruction-destination",
+    jobEventId: "reconstruction-job",
+    sourceRef: "reconstruction-source",
+    sourceAgeStartedAtMs: 1000,
+  });
+
+  await reconstruction.capture(root.run, "post");
+  await reconstruction.capture(child.run, "post");
+  child.payload.outputs = { result: "B" };
+  await reconstruction.capture(child.run, "patch");
+  child.payload.outputs = { result: "A" };
+  await reconstruction.capture(child.run, "patch");
+
+  const childOutputs = reconstruction.outputs.filter(
+    (output) => output.submission.run.id === childId,
+  );
+  expect(childOutputs).toHaveLength(1);
+  expect(childOutputs[0]?.submission.operation).toBe("post");
+  expect(
+    childOutputs[0]?.submission.operation === "post" && childOutputs[0].submission.run.outputs,
+  ).toEqual({ result: "A" });
+  expect(new Set(reconstruction.outputs.map((output) => output.eventId)).size).toBe(
+    reconstruction.outputs.length,
+  );
+  expect(session.captureSnapshot).not.toHaveBeenCalled();
 });
 
 it("propagates capture errors that are not worker wake failures", async () => {

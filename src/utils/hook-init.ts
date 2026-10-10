@@ -7,7 +7,7 @@ import { initLogger, error } from "../logger.js";
 
 /** Standard hook startup: load config, init logger, check enable + API key. */
 export function initHook(cwd?: string): Config | null {
-  const config = loadConfig({ cwd });
+  const config = loadConfig({ cwd, includeGitMetadata: false });
   initLogger(config.debug);
 
   if (!config.enabled) {

@@ -3,6 +3,18 @@
 // dist/src/constants.js
 var DEFAULT_PROJECT = "cursor";
 var DEFAULT_SWEEP_IDLE_MINUTES = 360;
+var GIT_PROVIDERS_REGEX = {
+  github: /[@/](?:github\.com)[:/](.+?)(?:\.git)?\s/,
+  gitlab: /[@/](?:gitlab\.com)[:/](.+?)(?:\.git)?\s/,
+  bitbucket: /[@/](?:bitbucket\.org)[:/](.+?)(?:\.git)?\s/,
+  devAzure: /[@/](?:dev\.azure\.com)[:/](.+?)(?:\.git)?\s/
+};
+var PROVIDER_HOSTS = {
+  github: "github.com",
+  gitlab: "gitlab.com",
+  bitbucket: "bitbucket.org",
+  devAzure: "dev.azure.com"
+};
 var LEADING_BYTE_ORDER_MARKS = /^\uFEFF+/;
 
 // dist/src/utils/stdin.js
@@ -22,13 +34,13 @@ function readStdin(stream = process.stdin) {
   });
 }
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/settings/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_9c0a01c7ecf3b287f10471d945b83fa2/node_modules/@langchain/plugins-base/dist/settings/constants.js
 var COMMON_BOOLEAN_SETTINGS = {
   enabled: { default: false, restrictive: false },
   defaultMuted: { default: false, restrictive: true }
 };
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/settings/common-config.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_9c0a01c7ecf3b287f10471d945b83fa2/node_modules/@langchain/plugins-base/dist/settings/common-config.js
 import { lstatSync, readFileSync, statSync } from "node:fs";
 function object(value) {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -191,7 +203,6 @@ function toSdkReplicas(replicas) {
 // dist/src/config.js
 import { userInfo } from "node:os";
 import { join } from "node:path";
-import { execSync } from "node:child_process";
 
 // dist/src/logger.js
 import { appendFileSync, mkdirSync, statSync as statSync2, renameSync } from "node:fs";
@@ -236,13 +247,76 @@ function debug(message) {
 
 // dist/src/config.js
 import { homedir as homedir2 } from "node:os";
+
+// dist/src/utils/git/repo-metadata.js
+import { execSync } from "node:child_process";
+function parseRepoName(remoteUrl) {
+  for (const [provider, regex] of Object.entries(GIT_PROVIDERS_REGEX)) {
+    const match = remoteUrl.match(regex);
+    if (match)
+      return { provider, name: match[1] };
+  }
+  return void 0;
+}
+function getRepoName(cwd) {
+  try {
+    const output = execSync("git remote -v", {
+      cwd,
+      encoding: "utf-8",
+      timeout: 5e3,
+      stdio: ["ignore", "pipe", "ignore"]
+    });
+    const remotes = [];
+    for (const line of output.trim().split("\n").filter(Boolean)) {
+      const parts = line.split(/\s+/);
+      if (parts.length >= 2 && line.includes("(fetch)")) {
+        remotes.push({ name: parts[0], url: parts[1] });
+      }
+    }
+    const origin = remotes.find((r) => r.name === "origin");
+    if (origin) {
+      const name = parseRepoName(origin.url + " ");
+      if (name)
+        return name;
+    }
+    for (const remote of remotes) {
+      const name = parseRepoName(remote.url + " ");
+      if (name)
+        return name;
+    }
+  } catch {
+  }
+  return void 0;
+}
+function getGitInfo(cwd) {
+  const result = {};
+  try {
+    const branch = execSync("git rev-parse --abbrev-ref HEAD", {
+      cwd,
+      encoding: "utf-8",
+      timeout: 5e3,
+      stdio: ["ignore", "pipe", "ignore"]
+    }).trim();
+    if (branch && branch !== "HEAD")
+      result.branch = branch;
+  } catch {
+  }
+  try {
+    const commit = execSync("git rev-parse HEAD", {
+      cwd,
+      encoding: "utf-8",
+      timeout: 5e3,
+      stdio: ["ignore", "pipe", "ignore"]
+    }).trim();
+    if (commit)
+      result.commit = commit;
+  } catch {
+  }
+  return result;
+}
+
+// dist/src/config.js
 var LS_INTEGRATION_VERSION = true ? "0.5.0" : process.env.LANGSMITH_CURSOR_INTEGRATION_VERSION || void 0;
-var PROVIDER_HOSTS = {
-  github: "github.com",
-  gitlab: "gitlab.com",
-  bitbucket: "bitbucket.org",
-  devAzure: "dev.azure.com"
-};
 var DEFAULT_API_URL = "https://api.smith.langchain.com";
 function parseBoolean(value) {
   if (typeof value === "boolean")
@@ -365,76 +439,6 @@ function normalizeReplicas(replicas) {
     ...r.updates ? { updates: r.updates } : {}
   });
 }
-var GIT_PROVIDERS_REGEX = {
-  github: /[@/](?:github\.com)[:/](.+?)(?:\.git)?\s/,
-  gitlab: /[@/](?:gitlab\.com)[:/](.+?)(?:\.git)?\s/,
-  bitbucket: /[@/](?:bitbucket\.org)[:/](.+?)(?:\.git)?\s/,
-  devAzure: /[@/](?:dev\.azure\.com)[:/](.+?)(?:\.git)?\s/
-};
-function parseRepoName(remoteUrl) {
-  for (const [provider, regex] of Object.entries(GIT_PROVIDERS_REGEX)) {
-    const match = remoteUrl.match(regex);
-    if (match)
-      return { provider, name: match[1] };
-  }
-  return void 0;
-}
-function getRepoName(cwd) {
-  try {
-    const output = execSync("git remote -v", {
-      cwd,
-      encoding: "utf-8",
-      timeout: 5e3,
-      stdio: ["ignore", "pipe", "ignore"]
-    });
-    const remotes = [];
-    for (const line of output.trim().split("\n").filter(Boolean)) {
-      const parts = line.split(/\s+/);
-      if (parts.length >= 2 && line.includes("(fetch)")) {
-        remotes.push({ name: parts[0], url: parts[1] });
-      }
-    }
-    const origin = remotes.find((r) => r.name === "origin");
-    if (origin) {
-      const name = parseRepoName(origin.url + " ");
-      if (name)
-        return name;
-    }
-    for (const remote of remotes) {
-      const name = parseRepoName(remote.url + " ");
-      if (name)
-        return name;
-    }
-  } catch {
-  }
-  return void 0;
-}
-function getGitInfo(cwd) {
-  const result = {};
-  try {
-    const branch = execSync("git rev-parse --abbrev-ref HEAD", {
-      cwd,
-      encoding: "utf-8",
-      timeout: 5e3,
-      stdio: ["ignore", "pipe", "ignore"]
-    }).trim();
-    if (branch && branch !== "HEAD")
-      result.branch = branch;
-  } catch {
-  }
-  try {
-    const commit = execSync("git rev-parse HEAD", {
-      cwd,
-      encoding: "utf-8",
-      timeout: 5e3,
-      stdio: ["ignore", "pipe", "ignore"]
-    }).trim();
-    if (commit)
-      result.commit = commit;
-  } catch {
-  }
-  return result;
-}
 function loadConfig(options) {
   const cwd = options?.cwd ?? process.env.CURSOR_PROJECT_DIR ?? process.cwd();
   const userRootFile = readConfigFile(join(homedir2(), ".langsmith-plugins.json"));
@@ -475,19 +479,21 @@ function loadConfig(options) {
   const baseMetadata = { cwd };
   if (LS_INTEGRATION_VERSION)
     baseMetadata.ls_integration_version = LS_INTEGRATION_VERSION;
-  const repo = getRepoName(cwd);
-  if (repo) {
-    baseMetadata.repository_name = repo.name;
-    baseMetadata.repository_provider = repo.provider;
-    const host = PROVIDER_HOSTS[repo.provider];
-    if (host)
-      baseMetadata.repository_url = `https://${host}/${repo.name}`;
+  if (options?.includeGitMetadata !== false) {
+    const repo = getRepoName(cwd);
+    if (repo) {
+      baseMetadata.repository_name = repo.name;
+      baseMetadata.repository_provider = repo.provider;
+      const host = PROVIDER_HOSTS[repo.provider];
+      if (host)
+        baseMetadata.repository_url = `https://${host}/${repo.name}`;
+    }
+    const git = getGitInfo(cwd);
+    if (git.branch)
+      baseMetadata.git_branch = git.branch;
+    if (git.commit)
+      baseMetadata.git_commit_sha = git.commit;
   }
-  const git = getGitInfo(cwd);
-  if (git.branch)
-    baseMetadata.git_branch = git.branch;
-  if (git.commit)
-    baseMetadata.git_commit_sha = git.commit;
   baseMetadata.local_username = userInfo().username;
   const customMetadata = { ...baseMetadata, ...common.metadata };
   if (enabled && !apiKey && (!replicas || replicas.length === 0)) {
@@ -514,7 +520,7 @@ function loadConfig(options) {
 
 // dist/src/utils/hook-init.js
 function initHook(cwd) {
-  const config = loadConfig({ cwd });
+  const config = loadConfig({ cwd, includeGitMetadata: false });
   initLogger(config.debug);
   if (!config.enabled) {
     return null;

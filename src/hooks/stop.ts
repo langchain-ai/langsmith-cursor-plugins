@@ -5,25 +5,31 @@
  * run also sweeps up turns other threads left buffered with no stop.
  */
 
+import { join } from "node:path";
 import { readStdin } from "../utils/stdin.js";
 import { initHook } from "../utils/hook-init.js";
 import { loadConfig } from "../config.js";
-import { atomicUpdateState, getTurnBuffer } from "../state.js";
+import { atomicUpdateState, getTurnBuffer, ownEntry } from "../state.js";
 import { reduceStop, reduceUploadSettled } from "../reducer.js";
 import { runSweep } from "../sweep.js";
-import { initTracing, uploadTurn } from "../langsmith.js";
+import { CaptureWakeError, readSavedCaptureWake } from "@langchain/plugins-base/tracing";
+import { createCaptureStore } from "@langchain/plugins-base/storage/capture";
 import {
   createCursorTracingSession,
+  cursorStopReconstructionJobEventId,
   parseCursorEngineWorkerArguments,
   runCursorEngineWorker,
 } from "../tracing-engine.js";
 import { originFromConfig } from "../turn-origin.js";
-import { resolveTurnAttachments } from "../attachments.js";
-import { resolveSystemPrompts } from "../system-prompt.js";
-import { resolveTurnSteps } from "../conversation-steps.js";
-import { CURSOR_ENGINE_WORKER_FLAG } from "../constants.js";
-import { error, debug, warn } from "../logger.js";
-import type { ContentPart, StopInput, TracingState, TurnBuffer } from "../types.js";
+import { captureCursorNativeTurnSource } from "../native-turn-source.js";
+import {
+  CURSOR_ENGINE_WORKER_FLAG,
+  CURSOR_INTEGRATION,
+  CURSOR_RECONSTRUCTION_DIRECTORY,
+  CURSOR_STOP_SOURCE_EVENT_ID,
+} from "../constants.js";
+import { debug, warn } from "../logger.js";
+import type { StopInput, TracingState, TurnBuffer } from "../types.js";
 
 async function main(): Promise<void> {
   const input = await readStdin<StopInput>();
@@ -44,16 +50,19 @@ async function main(): Promise<void> {
   const finalizedAt = Date.now();
   let toTrace: TurnBuffer | undefined;
   let turnNum = 0;
+  let handoffClaimedAt = finalizedAt;
 
   await atomicUpdateState(config.stateFilePath, (s) => {
+    const pending = ownEntry(ownEntry(s, input.conversation_id)?.pending, input.generation_id);
     const r = reduceStop(s, input, finalizedAt);
-    toTrace = r.buffer;
-    turnNum = r.turnNum;
+    toTrace = r.buffer ?? pending?.buffer;
+    turnNum = r.buffer ? r.turnNum : (pending?.turnNum ?? r.turnNum);
+    handoffClaimedAt = pending?.claimedAt ?? finalizedAt;
     return r.state;
   });
 
   const clearThisTurnsPendingUpload = (s: TracingState) =>
-    reduceUploadSettled(s, input.conversation_id, input.generation_id, finalizedAt);
+    reduceUploadSettled(s, input.conversation_id, input.generation_id, handoffClaimedAt);
   const sweep = (apply?: (s: TracingState) => TracingState) => runSweep({ config, input, apply });
 
   if (!toTrace) {
@@ -67,88 +76,62 @@ async function main(): Promise<void> {
     return;
   }
 
-  initTracing(
-    config.apiKey,
-    config.apiUrl,
-    config.replicas,
-    config.redact,
-    config.redactExtraRules,
-  );
   const sessionId = input.session_id ?? input.conversation_id;
   const origin = toTrace.origin ?? originFromConfig(config, input);
+  const routeCwd =
+    typeof origin.customMetadata?.cwd === "string"
+      ? origin.customMetadata.cwd
+      : input.workspace_roots?.[0];
   const tracingSession = createCursorTracingSession(
     config,
     sessionId,
-    input.workspace_roots?.[0],
+    routeCwd,
     undefined,
     origin.project,
   );
-
-  // Best-effort attachment enrichment (read-only DB + disk); never throws, and an
-  // empty result leaves the turn unchanged.
-  let attachments: ContentPart[] = [];
-  if (config.attachmentsEnabled && toTrace.tracingMode === "full") {
-    attachments = resolveTurnAttachments({
-      conversationId: input.conversation_id,
-      prompt: toTrace.prompt,
-      dbPath: config.cursorDbPath,
-    });
-  }
-
-  // Best-effort system-prompt enrichment (read-only DB + protobuf field decode);
-  // never throws, and undefined leaves the llm runs unchanged.
-  let systemPrompt: string | undefined;
-  if (config.systemPromptEnabled && toTrace.tracingMode === "full") {
-    // Resolve the main turn + every subagent's child conversation over ONE DB
-    // connection (avoids an open-per-subagent explosion with many subagents).
-    const childIds = toTrace.subagents
-      .map((s) => s.childConversationId)
-      .filter((id): id is string => !!id);
-    const prompts = resolveSystemPrompts({
-      conversationIds: [input.conversation_id, ...childIds],
-      dbPath: config.cursorDbPath,
-    });
-    systemPrompt = prompts.get(input.conversation_id);
-    for (const sub of toTrace.subagents) {
-      if (sub.childConversationId) sub.systemPrompt = prompts.get(sub.childConversationId);
-    }
-  }
-
-  // Best-effort interleaved step fidelity; undefined falls back to the hook-built shape.
-  const steps = resolveTurnSteps({
+  if (!tracingSession) throw new Error("Shared trace capture is unavailable");
+  const persisted = await captureCursorNativeTurnSource({
+    storageRoot: tracingSession.storageRoot,
+    accountFingerprint: tracingSession.destinationFingerprint,
+    sessionId,
     conversationId: input.conversation_id,
-    toolUseIds: toTrace.tools.map((t) => t.tool_use_id),
-    dbPath: config.cursorDbPath,
+    sourceEventId: CURSOR_STOP_SOURCE_EVENT_ID,
+    turnNum,
+    buffer: toTrace,
+    cwd: routeCwd,
   });
-
-  let uploaded = false;
-  try {
-    uploaded = await uploadTurn({
-      buffer: toTrace,
-      conversationId: input.conversation_id,
-      turnNum,
-      project: origin.project,
-      userEmail: origin.userEmail,
-      customMetadata: origin.customMetadata,
-      runtimeVersion: origin.runtimeVersion,
-      attachments,
-      systemPrompt,
-      steps,
-      ...(tracingSession
-        ? {
-            tracingEngine: {
-              ...tracingSession,
-              sessionId,
-              closureState: "authoritative" as const,
-            },
-          }
-        : {}),
-    });
-  } catch (err) {
-    error(`Failed to build turn runs: ${err}`);
+  const jobEventId = cursorStopReconstructionJobEventId(persisted.sourceRef);
+  const jobResult = await (async () => {
+    try {
+      return await tracingSession.session.queueReconstruction({
+        turnId: input.generation_id,
+        eventId: jobEventId,
+        sourceRefs: [persisted.sourceRef],
+        privacyMode: persisted.source.buffer.tracingMode === "full" ? "full" : "metadata",
+        turnEvidence: { childRunIds: [], closureState: "authoritative" },
+        sourceAgeStartedAtMs: persisted.source.buffer.startMs,
+      });
+    } catch (err) {
+      if (!(err instanceof CaptureWakeError)) throw err;
+      const saved = await readSavedCaptureWake(err, {
+        store: createCaptureStore(
+          join(tracingSession.storageRoot, CURSOR_RECONSTRUCTION_DIRECTORY),
+        ),
+        integration: CURSOR_INTEGRATION,
+        sessionId,
+        turnId: input.generation_id,
+        destinationFingerprint: tracingSession.destinationFingerprint,
+        eventId: jobEventId,
+      });
+      if (!saved) throw err;
+      return saved;
+    }
+  })();
+  if (jobResult.status !== "published" && jobResult.status !== "duplicate") {
+    throw new Error(`Could not queue Cursor turn reconstruction: ${jobResult.status}`);
   }
-
-  await sweep(uploaded ? clearThisTurnsPendingUpload : undefined);
+  await atomicUpdateState(config.stateFilePath, clearThisTurnsPendingUpload);
+  await sweep();
 }
 
 async function runEngineWorker(): Promise<void> {

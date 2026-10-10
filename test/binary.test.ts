@@ -1,6 +1,6 @@
 import { spawn } from "node:child_process";
 import { createServer, type Server } from "node:http";
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { platform, tmpdir } from "node:os";
 import { join } from "node:path";
 import { DatabaseSync } from "node:sqlite";
@@ -28,6 +28,7 @@ const PNG = Buffer.from("89504e470d0a1a0a0000000d49484452", "hex");
 let home: string;
 let ingest: Server;
 let ingestUrl: string;
+let completedUploads = 0;
 
 function seedState(stateFile: string): void {
   writeFileSync(
@@ -99,14 +100,14 @@ function hookLog(): string {
   return existsSync(path) ? readFileSync(path, "utf8") : "";
 }
 
-function stopATracedTurn(withImage: boolean) {
+async function stopATracedTurn(withImage: boolean) {
   const dbPath = join(home, "state.vscdb");
   const imagePath = join(home, "shot.png");
   writeFileSync(imagePath, PNG);
   seedDatabase(dbPath, withImage ? imagePath : undefined);
   seedState(join(home, "state.json"));
 
-  return run(
+  const result = await run(
     ["stop"],
     JSON.stringify({
       hook_event_name: "stop",
@@ -125,6 +126,24 @@ function stopATracedTurn(withImage: boolean) {
       LANGSMITH_CURSOR_SYSTEM_PROMPT: "false",
     },
   );
+  await expect
+    .poll(
+      () => {
+        const files = readdirSync(home, { recursive: true }).map(String);
+        const active = files.some(
+          (path) =>
+            path.includes("background-worker") &&
+            (path.endsWith("wake.pending") ||
+              path.endsWith("wake.launching") ||
+              path.includes("wake.active.") ||
+              (path.includes(".claims") && path.endsWith(".json"))),
+        );
+        return completedUploads > 0 && !active;
+      },
+      { timeout: 15_000 },
+    )
+    .toBe(true);
+  return result;
 }
 
 beforeAll(async () => {
@@ -133,6 +152,7 @@ beforeAll(async () => {
     request.on("end", () => {
       response.writeHead(200, { "content-type": "application/json" });
       response.end("{}");
+      if (request.url?.startsWith("/runs")) completedUploads += 1;
     });
   });
   await new Promise<void>((resolve) => ingest.listen(0, "127.0.0.1", resolve));
@@ -146,6 +166,7 @@ afterAll(async () => {
 });
 
 beforeEach(() => {
+  completedUploads = 0;
   home = mkdtempSync(join(tmpdir(), "ls-cursor-binary-"));
 });
 

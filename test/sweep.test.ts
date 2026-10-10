@@ -663,9 +663,10 @@ describe("runSweep against the on-disk state file", () => {
   });
 
   it("keeps a saved turn project when Stop runs after the project setting changes", async () => {
+    const startedAtMs = Date.now() - MINUTE;
     saveState(stateFilePath, {
       c1: conversation([
-        turn("g1", T0, {
+        turn("g1", startedAtMs, {
           tracingMode: "full",
           prompt: "stop-origin-marker",
           origin: { project: "the-turns-project", customMetadata: { cwd: "/repo/the-turn" } },

@@ -12,12 +12,14 @@ import {
 } from "@langchain/plugins-base/settings";
 import { userInfo } from "node:os";
 import { join } from "node:path";
-import { execSync } from "node:child_process";
 import type { RunTreeConfig } from "langsmith";
 import { debug as logDebug, error as logError } from "./logger.js";
-import { DEFAULT_PROJECT, DEFAULT_SWEEP_IDLE_MINUTES } from "./constants.js";
+import { DEFAULT_PROJECT, DEFAULT_SWEEP_IDLE_MINUTES, PROVIDER_HOSTS } from "./constants.js";
 import { homedir } from "node:os";
-import type { RedactionRule } from "./models/config.js";
+import type { LoadConfigOptions, RedactionRule } from "./models/config.js";
+import { getGitInfo, getRepoName } from "./utils/git/repo-metadata.js";
+
+export { getGitInfo, getRepoName, parseRepoName } from "./utils/git/repo-metadata.js";
 
 /**
  * Plugin version, injected at build time by esbuild `define` (no runtime
@@ -28,14 +30,6 @@ export const LS_INTEGRATION_VERSION: string | undefined =
   typeof __LS_INTEGRATION_VERSION__ !== "undefined"
     ? __LS_INTEGRATION_VERSION__
     : process.env.LANGSMITH_CURSOR_INTEGRATION_VERSION || undefined;
-
-/** Host used to build a canonical https `repository_url` from a parsed provider. */
-const PROVIDER_HOSTS: Record<string, string> = {
-  github: "github.com",
-  gitlab: "gitlab.com",
-  bitbucket: "bitbucket.org",
-  devAzure: "dev.azure.com",
-};
 
 export interface Config {
   /** Master switch — tracing only runs when true. */
@@ -208,85 +202,9 @@ function normalizeReplicas(
   ) as RunTreeConfig["replicas"];
 }
 
-// ─── Git repo metadata (ported from the Claude Code integration) ─────────────
-
-const GIT_PROVIDERS_REGEX = {
-  github: /[@/](?:github\.com)[:/](.+?)(?:\.git)?\s/,
-  gitlab: /[@/](?:gitlab\.com)[:/](.+?)(?:\.git)?\s/,
-  bitbucket: /[@/](?:bitbucket\.org)[:/](.+?)(?:\.git)?\s/,
-  devAzure: /[@/](?:dev\.azure\.com)[:/](.+?)(?:\.git)?\s/,
-};
-
-export function parseRepoName(remoteUrl: string): { provider: string; name: string } | undefined {
-  for (const [provider, regex] of Object.entries(GIT_PROVIDERS_REGEX)) {
-    const match = remoteUrl.match(regex);
-    if (match) return { provider, name: match[1] };
-  }
-  return undefined;
-}
-
-export function getRepoName(cwd: string): { provider: string; name: string } | undefined {
-  try {
-    const output = execSync("git remote -v", {
-      cwd,
-      encoding: "utf-8",
-      timeout: 5000,
-      stdio: ["ignore", "pipe", "ignore"],
-    });
-    const remotes: Array<{ name: string; url: string }> = [];
-    for (const line of output.trim().split("\n").filter(Boolean)) {
-      const parts = line.split(/\s+/);
-      if (parts.length >= 2 && line.includes("(fetch)")) {
-        remotes.push({ name: parts[0], url: parts[1] });
-      }
-    }
-    const origin = remotes.find((r) => r.name === "origin");
-    if (origin) {
-      const name = parseRepoName(origin.url + " ");
-      if (name) return name;
-    }
-    for (const remote of remotes) {
-      const name = parseRepoName(remote.url + " ");
-      if (name) return name;
-    }
-  } catch {
-    // Not a git repo or git unavailable — skip.
-  }
-  return undefined;
-}
-
-/** Current branch + commit sha → coding-agent-v1 git_branch / git_commit_sha. */
-export function getGitInfo(cwd: string): { branch?: string; commit?: string } {
-  const result: { branch?: string; commit?: string } = {};
-  try {
-    const branch = execSync("git rev-parse --abbrev-ref HEAD", {
-      cwd,
-      encoding: "utf-8",
-      timeout: 5000,
-      stdio: ["ignore", "pipe", "ignore"],
-    }).trim();
-    // "HEAD" means detached — no branch name available.
-    if (branch && branch !== "HEAD") result.branch = branch;
-  } catch {
-    // Not a git repo / git unavailable — skip.
-  }
-  try {
-    const commit = execSync("git rev-parse HEAD", {
-      cwd,
-      encoding: "utf-8",
-      timeout: 5000,
-      stdio: ["ignore", "pipe", "ignore"],
-    }).trim();
-    if (commit) result.commit = commit;
-  } catch {
-    // Not a git repo / git unavailable — skip.
-  }
-  return result;
-}
-
 // ─── Main loader ─────────────────────────────────────────────────────────────
 
-export function loadConfig(options?: { cwd?: string }): Config {
+export function loadConfig(options?: LoadConfigOptions): Config {
   const cwd = options?.cwd ?? process.env.CURSOR_PROJECT_DIR ?? process.cwd();
 
   const userRootFile = readConfigFile(join(homedir(), ".langsmith-plugins.json"));
@@ -367,16 +285,18 @@ export function loadConfig(options?: { cwd?: string }): Config {
   if (LS_INTEGRATION_VERSION) baseMetadata.ls_integration_version = LS_INTEGRATION_VERSION;
 
   // Repo attribution: name + provider, and the canonical https repository_url.
-  const repo = getRepoName(cwd);
-  if (repo) {
-    baseMetadata.repository_name = repo.name;
-    baseMetadata.repository_provider = repo.provider;
-    const host = PROVIDER_HOSTS[repo.provider];
-    if (host) baseMetadata.repository_url = `https://${host}/${repo.name}`;
+  if (options?.includeGitMetadata !== false) {
+    const repo = getRepoName(cwd);
+    if (repo) {
+      baseMetadata.repository_name = repo.name;
+      baseMetadata.repository_provider = repo.provider;
+      const host = PROVIDER_HOSTS[repo.provider];
+      if (host) baseMetadata.repository_url = `https://${host}/${repo.name}`;
+    }
+    const git = getGitInfo(cwd);
+    if (git.branch) baseMetadata.git_branch = git.branch;
+    if (git.commit) baseMetadata.git_commit_sha = git.commit;
   }
-  const git = getGitInfo(cwd);
-  if (git.branch) baseMetadata.git_branch = git.branch;
-  if (git.commit) baseMetadata.git_commit_sha = git.commit;
 
   // user_id is not exposed by Cursor's hooks; user_email is added per-turn in buildTurnRuns.
   baseMetadata.local_username = userInfo().username;

@@ -8,7 +8,7 @@ import { existsSync, readFileSync, statSync } from "node:fs";
 import { homedir, platform } from "node:os";
 import { basename, join } from "node:path";
 import type { ContentPart } from "./types.js";
-import { isRecord } from "./normalize.js";
+import { isRecord } from "./utils/validation/record.js";
 import * as logger from "./logger.js";
 
 /** Skip attachments larger than this (raw bytes) — base64 inflates ~33% on top. */

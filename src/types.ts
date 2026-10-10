@@ -145,7 +145,7 @@ export interface ToolEvent {
 /** A subagent invocation, rendered as a Task tool run with nested tool children. */
 export interface SubagentEvent {
   /** Privacy-only launch snapshot; independent of the latest-turn topology join. */
-  tracingMode?: TracingMode;
+  tracingMode?: TurnMode;
   subagent_id: string;
   subagent_type: string;
   task: string;

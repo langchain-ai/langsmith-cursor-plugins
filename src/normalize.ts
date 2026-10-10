@@ -4,10 +4,9 @@
  */
 
 import type { UsageFields } from "./types.js";
+import { isRecord } from "./utils/validation/record.js";
 
-export function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
+export { isRecord };
 
 // ─── Model / provider ────────────────────────────────────────────────────────
 

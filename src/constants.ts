@@ -26,6 +26,22 @@ export const CONTROL_CHARACTER_PATTERN = /[\u0000-\u001f\u007f]/u;
 
 export const CURSOR_RUN_POST_EVENT_KIND = "run-post";
 export const CURSOR_RUN_PATCH_EVENT_KIND = "run-patch";
+export const CURSOR_TURN_SOURCE_DIRECTORY = "cursor-turn-sources-v1";
+export const CURSOR_TURN_ROUTE_DIRECTORY = "cursor-turn-routes-v1";
+export const CURSOR_RECONSTRUCTION_DIRECTORY = "reconstruction-v1";
+export const CURSOR_TURN_SOURCE_EVENT_KIND = "cursor-turn-source-v1";
+export const CURSOR_TURN_ROUTE_EVENT_KIND = "cursor-turn-route-v1";
+export const CURSOR_STOP_SOURCE_EVENT_ID = "stop";
+export const CURSOR_STOP_RECONSTRUCTION_EVENT_KIND = "stop-reconstruction";
+export const CURSOR_NATIVE_TURN_SOURCE_VERSION = 1;
+export const CURSOR_NATIVE_TURN_ROUTE_VERSION = 1;
+export const CURSOR_TURN_SOURCE_EVENT_ID_MAX_LENGTH = 1024;
+export const CURSOR_RECONSTRUCTION_PATCH_FIELDS = [
+  "inputs",
+  "outputs",
+  "end_time",
+  "error",
+] as const;
 
 export const CURSOR_ENGINE_NODE_SCRIPT = /\.(?:c|m)?js$|\.ts$/;
 
@@ -33,6 +49,23 @@ export const CURSOR_ENGINE_NODE_SCRIPT = /\.(?:c|m)?js$|\.ts$/;
 export const READ_TOOLS = new Set(["read_file_v2", "ReadFile", "Read"]);
 
 export const DEFAULT_SWEEP_IDLE_MINUTES = 360;
+
+// ─── Git repo metadata (ported from the Claude Code integration) ─────────────
+
+export const GIT_PROVIDERS_REGEX = {
+  github: /[@/](?:github\.com)[:/](.+?)(?:\.git)?\s/,
+  gitlab: /[@/](?:gitlab\.com)[:/](.+?)(?:\.git)?\s/,
+  bitbucket: /[@/](?:bitbucket\.org)[:/](.+?)(?:\.git)?\s/,
+  devAzure: /[@/](?:dev\.azure\.com)[:/](.+?)(?:\.git)?\s/,
+};
+
+/** Host used to build a canonical https `repository_url` from a parsed provider. */
+export const PROVIDER_HOSTS: Record<string, string> = {
+  github: "github.com",
+  gitlab: "gitlab.com",
+  bitbucket: "bitbucket.org",
+  devAzure: "dev.azure.com",
+};
 
 export const MAX_UPLOAD_ATTEMPTS = 3;
 

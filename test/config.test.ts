@@ -4,6 +4,7 @@ import { execFileSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { loadConfig, parseRepoName } from "../src/config.js";
+import * as repoMetadata from "../src/utils/git/repo-metadata.js";
 import * as logger from "../src/logger.js";
 
 function writeCursorConfig(dir: string, cfg: Record<string, unknown>): void {
@@ -63,6 +64,24 @@ function denyRead(file: string): () => void {
 }
 
 describe("loadConfig cascade", () => {
+  it("skips Git metadata when requested", () => {
+    clearEnv();
+    const home = mkdtempSync(join(tmpdir(), "home-"));
+    const proj = mkdtempSync(join(tmpdir(), "proj-"));
+    vi.stubEnv("HOME", home);
+    vi.stubEnv("USERPROFILE", home);
+    const getRepoName = vi.spyOn(repoMetadata, "getRepoName");
+    const getGitInfo = vi.spyOn(repoMetadata, "getGitInfo");
+
+    const cfg = loadConfig({ cwd: proj, includeGitMetadata: false });
+
+    expect(getRepoName).not.toHaveBeenCalled();
+    expect(getGitInfo).not.toHaveBeenCalled();
+    expect(cfg.customMetadata).toMatchObject({ cwd: proj });
+    expect(cfg.customMetadata).not.toHaveProperty("repository_name");
+    expect(cfg.customMetadata).not.toHaveProperty("git_branch");
+  });
+
   it("local .cursor/langsmith.json overrides global; env overrides both", () => {
     clearEnv();
     const home = mkdtempSync(join(tmpdir(), "home-"));

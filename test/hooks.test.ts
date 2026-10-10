@@ -12,11 +12,23 @@ const harness = vi.hoisted(() => ({
   config: undefined as Config | undefined,
   uploadError: undefined as Error | undefined,
   uploadAccepted: true,
+  reconstructionError: undefined as Error | undefined,
+  reconstructionStatus: "published" as "published" | "deferred",
   initTracing: vi.fn(),
   uploadTurn: vi.fn(async () => {
     if (harness.uploadError) throw harness.uploadError;
     return harness.uploadAccepted;
   }),
+  queueReconstruction: vi.fn(async () => {
+    if (harness.reconstructionError) throw harness.reconstructionError;
+    return { status: harness.reconstructionStatus };
+  }),
+  captureTurnSource: vi.fn(
+    async (input: { buffer: { tracingMode?: string; prompt?: string } }) => ({
+      sourceRef: "saved-source",
+      source: { buffer: structuredClone(input.buffer) },
+    }),
+  ),
 }));
 
 vi.mock("../src/utils/stdin.js", () => ({ readStdin: async () => harness.input }));
@@ -25,6 +37,19 @@ vi.mock("../src/conversation-steps.js", () => ({ resolveTurnSteps: () => undefin
 vi.mock("../src/langsmith.js", () => ({
   initTracing: harness.initTracing,
   uploadTurn: harness.uploadTurn,
+}));
+vi.mock("../src/tracing-engine.js", () => ({
+  createCursorTracingSession: () => ({
+    session: { queueReconstruction: harness.queueReconstruction },
+    storageRoot: "/tmp/cursor-hook-test",
+    destinationFingerprint: "cursor-hook-test-account",
+  }),
+  cursorStopReconstructionJobEventId: () => "saved-job",
+  parseCursorEngineWorkerArguments: vi.fn(),
+  runCursorEngineWorker: vi.fn(),
+}));
+vi.mock("../src/native-turn-source.js", () => ({
+  captureCursorNativeTurnSource: harness.captureTurnSource,
 }));
 
 const HOOKS = {
@@ -52,8 +77,12 @@ describe("hook wiring against the on-disk state file", () => {
     process.env.LANGSMITH_CURSOR_LOG_FILE = join(dir, "hook.log");
     harness.uploadError = undefined;
     harness.uploadAccepted = true;
+    harness.reconstructionError = undefined;
+    harness.reconstructionStatus = "published";
     harness.initTracing.mockClear();
     harness.uploadTurn.mockClear();
+    harness.queueReconstruction.mockClear();
+    harness.captureTurnSource.mockClear();
     harness.config = testConfig(stateFilePath);
     harness.input = {
       hook_event_name: "stop",
@@ -68,6 +97,7 @@ describe("hook wiring against the on-disk state file", () => {
 
   afterEach(() => {
     vi.useRealTimers();
+    vi.restoreAllMocks();
     if (savedPolicy === undefined) delete process.env.LANGSMITH_CURSOR_PRIVACY_FILE;
     else process.env.LANGSMITH_CURSOR_PRIVACY_FILE = savedPolicy;
     if (savedLogFile === undefined) delete process.env.LANGSMITH_CURSOR_LOG_FILE;
@@ -99,37 +129,59 @@ describe("hook wiring against the on-disk state file", () => {
     });
   }
 
-  it("clears its own pending upload when stop uploads the turn", async () => {
+  it("queues its saved source before clearing the completed turn", async () => {
     seedLiveTurn();
 
     await runHook("stop");
 
-    expect(harness.uploadTurn).toHaveBeenCalledTimes(1);
+    expect(harness.uploadTurn).not.toHaveBeenCalled();
+    expect(harness.captureTurnSource).toHaveBeenCalledWith(
+      expect.objectContaining({
+        conversationId: "live",
+        sessionId: "live",
+        turnNum: 1,
+        buffer: expect.objectContaining({ prompt: "trace me" }),
+      }),
+    );
+    expect(harness.queueReconstruction).toHaveBeenCalledWith(
+      expect.objectContaining({
+        turnId: "g1",
+        sourceRefs: ["saved-source"],
+        privacyMode: "full",
+        turnEvidence: { childRunIds: [], closureState: "authoritative" },
+      }),
+    );
     const after = loadState(stateFilePath);
     expect(after.live).toMatchObject({ turns: {}, turn_count: 1 });
     expect(after.live.pending).toBeUndefined();
   });
 
-  it("holds the turn pending when stop cannot upload it", async () => {
+  it("holds the turn pending when Stop cannot queue its reconstruction", async () => {
     seedLiveTurn();
-    harness.uploadError = new Error("upload rejected");
+    harness.reconstructionError = new Error("queue rejected");
+    const exit = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
 
     await runHook("stop");
 
     const after = loadState(stateFilePath);
     expect(after.live.pending!.g1.attempts).toBe(1);
     expect(after.live.pending!.g1.buffer.prompt).toBe("trace me");
+    expect(harness.queueReconstruction).toHaveBeenCalledTimes(1);
+    expect(exit).toHaveBeenCalledWith(0);
   });
 
-  it("holds the turn pending when the server refuses the upload", async () => {
+  it("holds the turn pending when the reconstruction queue refuses it", async () => {
     seedLiveTurn();
-    harness.uploadAccepted = false;
+    harness.reconstructionStatus = "deferred";
+    const exit = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
 
     await runHook("stop");
 
     const after = loadState(stateFilePath);
     expect(after.live.pending!.g1.attempts).toBe(1);
     expect(after.live.pending!.g1.buffer.prompt).toBe("trace me");
+    expect(harness.queueReconstruction).toHaveBeenCalledTimes(1);
+    expect(exit).toHaveBeenCalledWith(0);
   });
 
   it("recovers another thread's stranded turn from the stop hook", async () => {
@@ -140,7 +192,8 @@ describe("hook wiring against the on-disk state file", () => {
 
     await runHook("stop");
 
-    expect(harness.uploadTurn).toHaveBeenCalledTimes(2);
+    expect(harness.uploadTurn).toHaveBeenCalledTimes(1);
+    expect(harness.queueReconstruction).toHaveBeenCalledTimes(1);
     const after = loadState(stateFilePath);
     expect(after.stranded).toMatchObject({ turns: {}, turn_count: 1 });
     expect(after.stranded.pending).toBeUndefined();
@@ -225,8 +278,8 @@ describe("hook wiring against the on-disk state file", () => {
     vi.setSystemTime(T0 + 3 * HOUR + MINUTE);
     await runHook("stop");
 
-    expect(harness.uploadTurn).toHaveBeenCalledTimes(2);
-    const superseding = harness.uploadTurn.mock.calls[1][0] as {
+    expect(harness.uploadTurn).toHaveBeenCalledTimes(1);
+    const superseding = harness.captureTurnSource.mock.calls[0][0] as {
       turnNum: number;
       conversationId: string;
       buffer: { status?: string; prompt?: string };
