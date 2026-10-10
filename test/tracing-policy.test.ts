@@ -312,21 +312,56 @@ describe("standalone tracing preference", () => {
     expect(existsSync(`${policy}.lock`)).toBe(false);
   });
 
-  it("propagates lock acquisition errors without changing preferences", async () => {
-    await setThreadTracingMode(policy, "a", "metadata");
-    const before = readFileSync(policy, "utf8");
+  it("retries Windows EPERM while an existing lock path is held", async () => {
+    const lockPath = `${policy}.lock`;
+    mkdirSync(lockPath);
     const originalMkdir = fsPromises.mkdir;
     vi.spyOn(fsPromises, "mkdir").mockImplementation(async (path, options) => {
-      if (String(path) === `${policy}.lock`) {
-        throw Object.assign(new Error("permission denied"), { code: "EACCES" });
+      if (String(path) === lockPath && existsSync(lockPath)) {
+        throw Object.assign(new Error("operation not permitted"), { code: "EPERM" });
       }
       return originalMkdir(path, options);
     });
-    const rmdir = vi.spyOn(fsPromises, "rmdir");
-    await expect(setThreadTracingMode(policy, "a", "full")).rejects.toThrow("permission denied");
-    expect(readFileSync(policy, "utf8")).toBe(before);
-    expect(rmdir).not.toHaveBeenCalled();
+    let finished = false;
+    let failure: unknown;
+    const save = setThreadTracingMode(policy, "a", "metadata").then(
+      () => {
+        finished = true;
+      },
+      (error: unknown) => {
+        failure = error;
+        finished = true;
+      },
+    );
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      expect(finished).toBe(false);
+    } finally {
+      await fsPromises.rmdir(lockPath);
+    }
+    await save;
+    expect(failure).toBeUndefined();
+    expect(getThreadTracingMode(policy, "a")).toBe("metadata");
   });
+
+  it.each(["EACCES", "EPERM"])(
+    "propagates %s when lock acquisition is denied without an existing lock path",
+    async (code) => {
+      await setThreadTracingMode(policy, "a", "metadata");
+      const before = readFileSync(policy, "utf8");
+      const originalMkdir = fsPromises.mkdir;
+      vi.spyOn(fsPromises, "mkdir").mockImplementation(async (path, options) => {
+        if (String(path) === `${policy}.lock`) {
+          throw Object.assign(new Error("permission denied"), { code });
+        }
+        return originalMkdir(path, options);
+      });
+      const rmdir = vi.spyOn(fsPromises, "rmdir");
+      await expect(setThreadTracingMode(policy, "a", "full")).rejects.toThrow("permission denied");
+      expect(readFileSync(policy, "utf8")).toBe(before);
+      expect(rmdir).not.toHaveBeenCalled();
+    },
+  );
 });
 
 describe("exact command parser", () => {

@@ -9,6 +9,7 @@ import { createCaptureStore } from "@langchain/plugins-base/storage/capture";
 import { createLangSmithUploadWriter } from "@langchain/plugins-base/tracing/upload";
 import { expect, it } from "vitest";
 import { MUTED_TRACE_CONTENT } from "../src/privacy.js";
+import { withWindowsProcessEnvironment } from "./utils/process-environment.js";
 import type {
   CapturedRunPayload,
   CapturedRunRecord,
@@ -315,8 +316,7 @@ it.each([
       redact: true,
     }).destinations[0].id;
 
-    const env: NodeJS.ProcessEnv = {
-      PATH: process.env.PATH,
+    const env = withWindowsProcessEnvironment({
       HOME: home,
       USERPROFILE: home,
       TMPDIR: directory,
@@ -341,7 +341,7 @@ it.each([
       LANGSMITH_CURSOR_DB_PATH: dbPath,
       LANGSMITH_CURSOR_LOG_FILE: join(directory, "hook.log"),
       ...(muted ? { LANGSMITH_CURSOR_DEFAULT_MUTED: "true" } : {}),
-    };
+    });
     const shared = { workspace_roots: [workspace], session_id: conversationId };
 
     try {

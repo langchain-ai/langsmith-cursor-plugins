@@ -24,6 +24,7 @@ import { initTracing, buildTurnRuns } from "../src/langsmith.js";
 import { replayHookLog } from "./utils/replay.js";
 import { mockClient } from "./utils/mock_client.js";
 import { getAssumedTreeFromCalls } from "./utils/tree.js";
+import { withWindowsProcessEnvironment } from "./utils/process-environment.js";
 import type { SweepHttpUpload } from "./models/sweep.js";
 import { HOUR, MINUTE, T0, conversation, tool, turn } from "./utils/state.js";
 import type {
@@ -672,8 +673,7 @@ describe("runSweep against the on-disk state file", () => {
       ]),
     });
     vi.stubEnv("LANGSMITH_CURSOR_PROJECT", "the-sweepers-project");
-    const env = {
-      PATH: process.env.PATH ?? "/usr/bin:/bin",
+    const env = withWindowsProcessEnvironment({
       HOME: home,
       USERPROFILE: home,
       TMP: dir,
@@ -690,7 +690,7 @@ describe("runSweep against the on-disk state file", () => {
       LANGSMITH_CURSOR_ATTACHMENTS: "false",
       LANGSMITH_CURSOR_SYSTEM_PROMPT: "false",
       LANGSMITH_CURSOR_REDACT_EXTRA: "[]",
-    };
+    });
     await runHook(
       workerEntry,
       {

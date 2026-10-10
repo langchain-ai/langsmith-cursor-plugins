@@ -24,6 +24,17 @@ function hasCode(error: unknown, code: string): boolean {
   return isObject(error) && error.code === code;
 }
 
+function isHeldLock(error: unknown, lockPath: string): boolean {
+  if (hasCode(error, "EEXIST")) return true;
+  if (!hasCode(error, "EPERM")) return false;
+  try {
+    lstatSync(lockPath);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /** Missing policy has no overrides; every other read failure is fail-closed. */
 function readPolicy(path: string): TracingPolicy {
   let raw: string;
@@ -109,7 +120,7 @@ export async function setThreadTracingMode(
       await mkdir(lockPath, { mode: 0o700 });
       locked = true;
     } catch (error) {
-      if (!hasCode(error, "EEXIST")) throw error;
+      if (!isHeldLock(error, lockPath)) throw error;
       if (performance.now() >= deadline) {
         throw new Error(
           `Timed out waiting for tracing preference lock ${lockPath}. Retry; if it persists, remove the lock only after confirming no preference writer is running.`,

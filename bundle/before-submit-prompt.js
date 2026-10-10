@@ -704,6 +704,18 @@ function isObject(value) {
 function hasCode(error2, code) {
   return isObject(error2) && error2.code === code;
 }
+function isHeldLock(error2, lockPath2) {
+  if (hasCode(error2, "EEXIST"))
+    return true;
+  if (!hasCode(error2, "EPERM"))
+    return false;
+  try {
+    lstatSync2(lockPath2);
+    return true;
+  } catch {
+    return false;
+  }
+}
 function readPolicy(path) {
   let raw;
   try {
@@ -761,7 +773,7 @@ async function setThreadTracingMode(path, sessionId, mode) {
       await mkdir(lockPath2, { mode: 448 });
       locked = true;
     } catch (error2) {
-      if (!hasCode(error2, "EEXIST"))
+      if (!isHeldLock(error2, lockPath2))
         throw error2;
       if (performance2.now() >= deadline) {
         throw new Error(`Timed out waiting for tracing preference lock ${lockPath2}. Retry; if it persists, remove the lock only after confirming no preference writer is running.`);
