@@ -35,6 +35,7 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - run: pnpm exec vitest run test/config.test.ts
       - run: pnpm test:hooks
 
   test:

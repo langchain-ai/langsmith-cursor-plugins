@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, afterEach, beforeEach } from "vitest";
 import { mkdtempSync, mkdirSync, writeFileSync, symlinkSync, rmSync, chmodSync } from "node:fs";
+import { execFileSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { loadConfig, parseRepoName } from "../src/config.js";
@@ -37,12 +38,37 @@ function clearEnv(): void {
   }
 }
 
+function denyRead(file: string): () => void {
+  if (process.platform !== "win32") {
+    chmodSync(file, 0o000);
+    return () => chmodSync(file, 0o600);
+  }
+  const sid = /S-\d-\d+(?:-\d+)+/.exec(
+    execFileSync("whoami.exe", ["/user", "/fo", "csv", "/nh"], {
+      encoding: "utf8",
+      timeout: 5000,
+    }),
+  )?.[0];
+  if (!sid) throw new Error("Unable to resolve the Windows test account.");
+  const principal = `*${sid}`;
+  execFileSync("icacls.exe", [file, "/deny", `${principal}:(R)`], {
+    stdio: "ignore",
+    timeout: 5000,
+  });
+  return () =>
+    execFileSync("icacls.exe", [file, "/remove:d", principal], {
+      stdio: "ignore",
+      timeout: 5000,
+    });
+}
+
 describe("loadConfig cascade", () => {
   it("local .cursor/langsmith.json overrides global; env overrides both", () => {
     clearEnv();
     const home = mkdtempSync(join(tmpdir(), "home-"));
     const proj = mkdtempSync(join(tmpdir(), "proj-"));
     vi.stubEnv("HOME", home);
+    vi.stubEnv("USERPROFILE", home);
 
     writeCursorConfig(home, { enabled: true, api_key: "global-key", project: "global-proj" });
     writeCursorConfig(proj, { project: "local-proj" });
@@ -62,6 +88,7 @@ describe("loadConfig cascade", () => {
     const home = mkdtempSync(join(tmpdir(), "home-"));
     const proj = mkdtempSync(join(tmpdir(), "proj-"));
     vi.stubEnv("HOME", home);
+    vi.stubEnv("USERPROFILE", home);
     const cfg = loadConfig({ cwd: proj });
     expect(cfg.enabled).toBe(false);
     expect(cfg.project).toBe("cursor");
@@ -72,6 +99,7 @@ describe("loadConfig cascade", () => {
     clearEnv();
     const home = mkdtempSync(join(tmpdir(), "home-"));
     vi.stubEnv("HOME", home);
+    vi.stubEnv("USERPROFILE", home);
     vi.stubEnv("TRACE_TO_LANGSMITH", "true");
     vi.stubEnv("LANGSMITH_CURSOR_API_KEY", "k");
     const cfg = loadConfig({ cwd: home });
@@ -83,6 +111,7 @@ describe("loadConfig cascade", () => {
     clearEnv();
     const home = mkdtempSync(join(tmpdir(), "home-"));
     vi.stubEnv("HOME", home);
+    vi.stubEnv("USERPROFILE", home);
     expect(loadConfig({ cwd: home }).redact).toBe(true);
     vi.stubEnv("LANGSMITH_CURSOR_REDACT", "false");
     expect(loadConfig({ cwd: home }).redact).toBe(false);
@@ -92,6 +121,7 @@ describe("loadConfig cascade", () => {
     clearEnv();
     const home = mkdtempSync(join(tmpdir(), "home-"));
     vi.stubEnv("HOME", home);
+    vi.stubEnv("USERPROFILE", home);
     vi.stubEnv(
       "LANGSMITH_CURSOR_REDACT_EXTRA",
       JSON.stringify([{ pattern: "sk-\\w+", replace: "X" }, { pattern: 42 }, { replace: "Y" }]),
@@ -105,6 +135,7 @@ describe("loadConfig cascade", () => {
     clearEnv();
     const home = mkdtempSync(join(tmpdir(), "home-"));
     vi.stubEnv("HOME", home);
+    vi.stubEnv("USERPROFILE", home);
     const cfg = loadConfig({ cwd: home });
     expect(cfg.customMetadata?.local_username).toBeTruthy();
   });
@@ -136,6 +167,7 @@ describe("master environment-first privacy gate", () => {
     const home = mkdtempSync(join(tmpdir(), "cursor-master-home-"));
     const proj = mkdtempSync(join(tmpdir(), "cursor-master-proj-"));
     vi.stubEnv("HOME", home);
+    vi.stubEnv("USERPROFILE", home);
     vi.stubEnv("TRACE_TO_LANGSMITH", env);
     if (local !== undefined) writeCursorConfig(proj, { enabled: local });
     if (global !== undefined) writeCursorConfig(home, { enabled: global });
@@ -151,6 +183,7 @@ describe("master environment-first privacy gate", () => {
       const home = mkdtempSync(join(tmpdir(), "cursor-master-home-"));
       const proj = mkdtempSync(join(tmpdir(), "cursor-master-proj-"));
       vi.stubEnv("HOME", home);
+      vi.stubEnv("USERPROFILE", home);
       vi.stubEnv("TRACE_TO_LANGSMITH", undefined);
       writeCursorConfig(home, { enabled: true });
       mkdirSync(join(proj, ".cursor"));
@@ -171,6 +204,7 @@ describe("table-driven default mute configuration", () => {
     const home = mkdtempSync(join(tmpdir(), "cursor-default-home-"));
     const proj = mkdtempSync(join(tmpdir(), "cursor-default-proj-"));
     vi.stubEnv("HOME", home);
+    vi.stubEnv("USERPROFILE", home);
     return { home, proj };
   }
 
@@ -291,14 +325,16 @@ it.skipIf(process.getuid?.() === 0)("unreadable regular config restricts both se
   const home = mkdtempSync(join(tmpdir(), "cursor-unreadable-"));
   const file = join(home, ".cursor", "langsmith.json");
   vi.stubEnv("HOME", home);
+  vi.stubEnv("USERPROFILE", home);
   vi.stubEnv("TRACE_TO_LANGSMITH", undefined);
   vi.stubEnv("LANGSMITH_CURSOR_DEFAULT_MUTED", undefined);
   writeCursorConfig(home, { enabled: true, defaultMuted: false });
+  let restoreRead = () => {};
   try {
-    chmodSync(file, 0o000);
+    restoreRead = denyRead(file);
     expect(loadConfig({ cwd: home })).toMatchObject({ enabled: false, defaultMuted: true });
   } finally {
-    chmodSync(file, 0o600);
+    restoreRead();
     rmSync(home, { recursive: true, force: true });
   }
 });
@@ -316,6 +352,7 @@ describe("root project langsmith-plugins.json", () => {
     proj = join(home, "workspace");
     mkdirSync(proj);
     vi.stubEnv("HOME", home);
+    vi.stubEnv("USERPROFILE", home);
   });
 
   afterEach(() => {
@@ -436,11 +473,11 @@ describe("root project langsmith-plugins.json", () => {
     writeCursorConfig(home, { enabled: true, defaultMuted: false });
     writeRoot({ enabled: true, defaultMuted: false });
     const file = join(proj, "langsmith-plugins.json");
+    const restoreRead = denyRead(file);
     try {
-      chmodSync(file, 0o000);
       expect(loadConfig({ cwd: proj })).toMatchObject({ enabled: false, defaultMuted: true });
     } finally {
-      chmodSync(file, 0o600);
+      restoreRead();
     }
   });
 
@@ -681,6 +718,7 @@ describe("uniform environment-first and home-root precedence", () => {
     mkdirSync(join(cwd, ".cursor"), { recursive: true });
     mkdirSync(join(home, ".cursor"));
     vi.stubEnv("HOME", home);
+    vi.stubEnv("USERPROFILE", home);
     files = [
       join(home, ".langsmith-plugins.json"),
       join(home, ".cursor", "langsmith.json"),
