@@ -26,13 +26,13 @@ var LEADING_BYTE_ORDER_MARKS = /^\uFEFF+/;
 
 // dist/src/utils/stdin.js
 function readStdin(stream = process.stdin) {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve3, reject) => {
     let data = "";
     stream.setEncoding("utf-8");
     stream.on("data", (chunk) => data += chunk);
     stream.on("end", () => {
       try {
-        resolve(JSON.parse(data.replace(LEADING_BYTE_ORDER_MARKS, "")));
+        resolve3(JSON.parse(data.replace(LEADING_BYTE_ORDER_MARKS, "")));
       } catch (err) {
         reject(new Error(`Failed to parse hook input: ${err}`));
       }
@@ -526,48 +526,418 @@ function loadConfig(options) {
 }
 
 // dist/src/state.js
-import { readFileSync as readFileSync2, writeFileSync, mkdirSync as mkdirSync2, openSync, closeSync, unlinkSync, rmdirSync, renameSync as renameSync2, fsyncSync } from "node:fs";
-import { randomUUID } from "node:crypto";
+import { readFileSync as readFileSync2, writeFileSync, mkdirSync as mkdirSync2, openSync, closeSync, unlinkSync, renameSync as renameSync2, fsyncSync } from "node:fs";
+import { randomUUID as randomUUID2 } from "node:crypto";
+
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/storage/file-lock.js
+import { chmod, link, lstat, mkdir, readFile, readdir, rmdir, rename, unlink, writeFile } from "node:fs/promises";
 import { performance } from "node:perf_hooks";
-import { dirname as dirname2 } from "node:path";
-var LOCK_TIMEOUT_MS = 2e3;
-function lockPath(stateFilePath) {
-  return `${stateFilePath}.lock`;
+import { randomUUID } from "node:crypto";
+import { dirname as dirname2, join as join2, resolve as resolve2 } from "node:path";
+
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/storage/constants.js
+var FILE_LOCK_CLAIM_VERSION = 1;
+var FILE_LOCK_CLAIM_EXTENSION = ".json";
+var FILE_LOCK_DIRECTORY_SUFFIX = ".claims";
+var FILE_LOCK_LEGACY_DIRECTORY_SUFFIX = ".lock";
+var FILE_LOCK_TIMEOUT_ERROR_NAME = "FileLockTimeoutError";
+var FILE_LOCK_TEMP_PREFIX = ".";
+var FILE_LOCK_TEMP_SUFFIX = ".tmp";
+var FILE_LOCK_EXCLUSIVE_FLAG = "wx";
+var FILE_LOCK_ENCODING = "utf-8";
+var FILE_LOCK_DEFAULT_TIMEOUT_MS = 5e3;
+var FILE_LOCK_POLL_INTERVAL_MS = 10;
+var FILE_LOCK_DIRECTORY_MODE = 448;
+var FILE_LOCK_FILE_MODE = 384;
+var FILE_LOCK_UNSELECTED_TICKET = 0;
+var FILE_LOCK_NEGATIVE_TICKET_LIMIT = 0;
+var FILE_LOCK_TIMEOUT_MESSAGE = "Timed out waiting for file lock";
+var FILE_LOCK_TICKET_LIMIT_MESSAGE = "File lock ticket limit reached";
+var FILE_LOCK_RELEASE_MESSAGE = "Could not release file lock claim";
+var FILE_LOCK_INVALID_TIMEOUT_MESSAGE = "timeoutMs must be a finite positive number";
+var FILE_LOCK_ACQUIRE_MESSAGE = "Could not acquire file lock claim";
+var FILE_LOCK_UNSAFE_DIRECTORY_MESSAGE = "Unsafe file lock claims directory";
+var FILE_LOCK_EXISTS_CODE = "EEXIST";
+var FILE_LOCK_MISSING_CODE = "ENOENT";
+var FILE_LOCK_PROCESS_MISSING_CODE = "ESRCH";
+var FILE_LOCK_PROCESS_CHECK_SIGNAL = 0;
+var FILE_LOCK_RENAME_RETRY_TIMEOUT_MS = 100;
+var FILE_LOCK_RENAME_BUSY_CODE = "EPERM";
+var FILE_LOCK_WINDOWS_DIRECTORY_CONTENTION_CODES = ["EPERM", "EACCES"];
+var FILE_LOCK_COMPATIBLE_ACQUIRE_CLEANUP_MESSAGE = "Could not release the legacy lock gate after shared lock acquisition failed";
+var FILE_LOCK_COMPATIBLE_RELEASE_MESSAGE = "Could not release compatible file lock";
+var FILE_LOCK_COMPATIBLE_GATE_CHANGED_MESSAGE = "Legacy file lock gate changed before release";
+
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/storage/errors.js
+import { resolve } from "node:path";
+var FileLockTimeoutError = class extends Error {
+  constructor(filePath) {
+    super(`${FILE_LOCK_TIMEOUT_MESSAGE}: ${resolve(filePath)}`);
+    this.name = FILE_LOCK_TIMEOUT_ERROR_NAME;
+  }
+};
+
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/storage/file-lock.js
+function isRecord(value) {
+  return typeof value === "object" && value !== null;
 }
-function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+function parseClaim(value, id) {
+  if (!isRecord(value))
+    return void 0;
+  if (value.version !== FILE_LOCK_CLAIM_VERSION || value.id !== id || typeof value.pid !== "number" || !Number.isSafeInteger(value.pid) || value.pid <= 0 || typeof value.choosing !== "boolean" || typeof value.ticket !== "number" || !Number.isSafeInteger(value.ticket) || value.ticket < FILE_LOCK_NEGATIVE_TICKET_LIMIT || (value.choosing ? value.ticket !== FILE_LOCK_UNSELECTED_TICKET : value.ticket === FILE_LOCK_UNSELECTED_TICKET)) {
+    return void 0;
+  }
+  return value;
 }
-async function acquireLock(stateFilePath) {
-  const lock = lockPath(stateFilePath);
-  const deadline = performance.now() + LOCK_TIMEOUT_MS;
-  mkdirSync2(dirname2(stateFilePath), { recursive: true, mode: 448 });
-  while (true) {
+async function processIsAlive(pid) {
+  try {
+    process.kill(pid, FILE_LOCK_PROCESS_CHECK_SIGNAL);
+    return true;
+  } catch (error2) {
+    const code = error2.code;
+    if (code === FILE_LOCK_PROCESS_MISSING_CODE)
+      return false;
+    return void 0;
+  }
+}
+async function removeFile(filePath) {
+  try {
+    await unlink(filePath);
+    return true;
+  } catch (error2) {
+    if (error2.code === FILE_LOCK_MISSING_CODE)
+      return true;
+    return false;
+  }
+}
+async function publishClaim(filePath, claim, create, deadline) {
+  const temporaryPath = join2(dirname2(filePath), `${FILE_LOCK_TEMP_PREFIX}${claim.id}.${randomUUID()}${FILE_LOCK_TEMP_SUFFIX}`);
+  try {
+    await writeFile(temporaryPath, JSON.stringify(claim), {
+      flag: FILE_LOCK_EXCLUSIVE_FLAG,
+      mode: FILE_LOCK_FILE_MODE
+    });
+    if (create)
+      await link(temporaryPath, filePath);
+    else {
+      const replacementDeadline = deadline ?? performance.now() + FILE_LOCK_RENAME_RETRY_TIMEOUT_MS;
+      for (; ; ) {
+        try {
+          await rename(temporaryPath, filePath);
+          break;
+        } catch (error2) {
+          if (error2.code !== FILE_LOCK_RENAME_BUSY_CODE)
+            throw error2;
+          await waitForNextScan(replacementDeadline, filePath);
+        }
+      }
+    }
+  } finally {
+    await removeFile(temporaryPath);
+  }
+}
+async function createClaim(claimDirectory) {
+  for (; ; ) {
+    const id = randomUUID();
+    const claim = {
+      version: FILE_LOCK_CLAIM_VERSION,
+      id,
+      pid: process.pid,
+      choosing: true,
+      ticket: FILE_LOCK_UNSELECTED_TICKET
+    };
     try {
-      mkdirSync2(lock, { mode: 448 });
-      return;
+      await publishClaim(join2(claimDirectory, `${id}${FILE_LOCK_CLAIM_EXTENSION}`), claim, true);
+      return claim;
     } catch (error2) {
-      if (error2.code !== "EEXIST")
+      if (error2.code !== FILE_LOCK_EXISTS_CODE)
         throw error2;
-      if (performance.now() >= deadline)
-        throw new Error("Timed out waiting for turn-state lock; confirm no writer is running before removing it");
-      await sleep(10 + Math.random() * 20);
     }
   }
 }
-function releaseLock(stateFilePath) {
+async function scanClaims(claimDirectory) {
+  const entries = await readdir(claimDirectory, { withFileTypes: true });
+  const claims = [];
+  for (const entry of entries) {
+    if (!entry.name.endsWith(FILE_LOCK_CLAIM_EXTENSION))
+      continue;
+    const id = entry.name.slice(0, -FILE_LOCK_CLAIM_EXTENSION.length);
+    if (!entry.isFile())
+      return { claims, blocked: true };
+    let value;
+    try {
+      value = JSON.parse(await readFile(join2(claimDirectory, entry.name), FILE_LOCK_ENCODING));
+    } catch (error2) {
+      if (error2.code === FILE_LOCK_MISSING_CODE)
+        continue;
+      return { claims, blocked: true };
+    }
+    const claim = parseClaim(value, id);
+    if (!claim)
+      return { claims, blocked: true };
+    const alive = await processIsAlive(claim.pid);
+    if (alive === false) {
+      if (!await removeFile(join2(claimDirectory, entry.name)))
+        return { claims, blocked: true };
+      continue;
+    }
+    if (alive === void 0)
+      return { claims, blocked: true };
+    claims.push(claim);
+  }
+  return { claims, blocked: false };
+}
+function claimPath(claimDirectory, id) {
+  return join2(claimDirectory, `${id}${FILE_LOCK_CLAIM_EXTENSION}`);
+}
+function hasClaimState(claims, id, choosing, ticket) {
+  const claim = claims.find((peer) => peer.id === id);
+  return claim?.choosing === choosing && claim.ticket === ticket;
+}
+function makeHandle(claimDirectory, claim) {
+  let releasePromise;
+  return {
+    release() {
+      releasePromise ??= removeFile(claimPath(claimDirectory, claim.id)).then((removed) => {
+        if (!removed)
+          throw new Error(FILE_LOCK_RELEASE_MESSAGE);
+      });
+      return releasePromise;
+    }
+  };
+}
+async function beginClaim(filePath) {
+  const claimDirectory = `${resolve2(filePath)}${FILE_LOCK_DIRECTORY_SUFFIX}`;
+  await assertSafeClaimDirectory(claimDirectory);
+  await mkdir(claimDirectory, { recursive: true, mode: FILE_LOCK_DIRECTORY_MODE });
+  await assertSafeClaimDirectory(claimDirectory);
+  await chmod(claimDirectory, FILE_LOCK_DIRECTORY_MODE);
+  return { claimDirectory, claim: await createClaim(claimDirectory) };
+}
+async function assertSafeClaimDirectory(claimDirectory) {
+  let stat;
   try {
-    rmdirSync(lockPath(stateFilePath));
+    stat = await lstat(claimDirectory);
+  } catch (error2) {
+    if (error2.code === FILE_LOCK_MISSING_CODE)
+      return;
+    throw error2;
+  }
+  if (stat.isSymbolicLink() || !stat.isDirectory())
+    throw new Error(FILE_LOCK_UNSAFE_DIRECTORY_MESSAGE);
+}
+async function acquireClaim(filePath, waitForPeers, deadline) {
+  const { claimDirectory, claim } = await beginClaim(filePath);
+  const ownPath = claimPath(claimDirectory, claim.id);
+  let ownedClaim;
+  try {
+    for (; ; ) {
+      const scan = await scanClaims(claimDirectory);
+      if (scan.blocked || !hasClaimState(scan.claims, claim.id, true, FILE_LOCK_UNSELECTED_TICKET)) {
+        if (!await waitOrReleaseClaim(waitForPeers, deadline, filePath, claimDirectory, claim))
+          return void 0;
+        continue;
+      }
+      const peers = scan.claims.filter((peer) => peer.id !== claim.id);
+      if (!waitForPeers && peers.length > 0) {
+        await makeHandle(claimDirectory, claim).release();
+        return void 0;
+      }
+      let maxTicket = FILE_LOCK_UNSELECTED_TICKET;
+      for (const peer of scan.claims)
+        maxTicket = Math.max(maxTicket, peer.ticket);
+      if (maxTicket >= Number.MAX_SAFE_INTEGER)
+        throw new Error(FILE_LOCK_TICKET_LIMIT_MESSAGE);
+      ownedClaim = { ...claim, choosing: false, ticket: maxTicket + 1 };
+      await publishClaim(ownPath, ownedClaim, false, waitForPeers ? deadline : void 0);
+      break;
+    }
+    const ticketedClaim = ownedClaim;
+    if (!ticketedClaim)
+      throw new Error(FILE_LOCK_ACQUIRE_MESSAGE);
+    for (; ; ) {
+      const scan = await scanClaims(claimDirectory);
+      if (scan.blocked || !hasClaimState(scan.claims, claim.id, false, ticketedClaim.ticket)) {
+        if (!await waitOrReleaseClaim(waitForPeers, deadline, filePath, claimDirectory, claim))
+          return void 0;
+        continue;
+      }
+      const peers = scan.claims.filter((peer) => peer.id !== claim.id);
+      const blockedByPeer = peers.length > 0 && (!waitForPeers || peers.some((peer) => precedes(peer, ticketedClaim)));
+      if (blockedByPeer) {
+        if (!await waitOrReleaseClaim(waitForPeers, deadline, filePath, claimDirectory, claim))
+          return void 0;
+        continue;
+      }
+      if (waitForPeers && performance.now() > deadline)
+        throw timeoutError(filePath);
+      return { claimDirectory, claim: ticketedClaim };
+    }
+  } catch (error2) {
+    await makeHandle(claimDirectory, claim).release();
+    throw error2;
+  }
+}
+async function acquireLegacyDirectoryGate(filePath, deadline) {
+  const gatePath = `${filePath}${FILE_LOCK_LEGACY_DIRECTORY_SUFFIX}`;
+  await mkdir(dirname2(filePath), { recursive: true, mode: FILE_LOCK_DIRECTORY_MODE });
+  for (; ; ) {
+    if (performance.now() >= deadline)
+      throw timeoutError(filePath);
+    try {
+      await mkdir(gatePath, { mode: FILE_LOCK_DIRECTORY_MODE });
+      const stat = await lstat(gatePath);
+      if (!stat.isDirectory())
+        throw new Error(FILE_LOCK_COMPATIBLE_GATE_CHANGED_MESSAGE);
+      return { path: gatePath, dev: stat.dev, ino: stat.ino, birthtimeMs: stat.birthtimeMs };
+    } catch (error2) {
+      const code = error2.code;
+      if (code !== FILE_LOCK_EXISTS_CODE && !FILE_LOCK_WINDOWS_DIRECTORY_CONTENTION_CODES.some((candidate) => candidate === code)) {
+        throw error2;
+      }
+      let isDirectory = false;
+      try {
+        isDirectory = (await lstat(gatePath)).isDirectory();
+      } catch (statError) {
+        if (code === FILE_LOCK_EXISTS_CODE && statError.code === FILE_LOCK_MISSING_CODE) {
+          await waitForNextScan(deadline, filePath);
+          continue;
+        }
+        throw error2;
+      }
+      if (!isDirectory)
+        throw error2;
+      await waitForNextScan(deadline, filePath);
+    }
+  }
+}
+async function releaseLegacyDirectoryGate(gate) {
+  let stat;
+  try {
+    stat = await lstat(gate.path);
+  } catch (error2) {
+    if (error2.code === FILE_LOCK_MISSING_CODE)
+      return;
+    throw error2;
+  }
+  if (!stat.isDirectory() || stat.dev !== gate.dev || stat.ino !== gate.ino || stat.birthtimeMs !== gate.birthtimeMs) {
+    throw new Error(FILE_LOCK_COMPATIBLE_GATE_CHANGED_MESSAGE);
+  }
+  await rmdir(gate.path);
+}
+async function acquireCompatibleDirectoryFileLock(filePath, options) {
+  const resolvedPath = resolve2(filePath);
+  const deadline = performance.now() + timeoutMs(options);
+  const gate = await acquireLegacyDirectoryGate(resolvedPath, deadline);
+  let acquired;
+  try {
+    acquired = await acquireClaim(resolvedPath, true, deadline);
+    if (!acquired)
+      throw new Error(FILE_LOCK_ACQUIRE_MESSAGE);
+  } catch (error2) {
+    try {
+      await releaseLegacyDirectoryGate(gate);
+    } catch (cleanupError) {
+      throw new AggregateError([error2, cleanupError], FILE_LOCK_COMPATIBLE_ACQUIRE_CLEANUP_MESSAGE, {
+        cause: cleanupError
+      });
+    }
+    throw error2;
+  }
+  const sharedHandle = makeHandle(acquired.claimDirectory, acquired.claim);
+  let releasePromise;
+  return {
+    release() {
+      releasePromise ??= (async () => {
+        const errors = [];
+        try {
+          await sharedHandle.release();
+        } catch (error2) {
+          errors.push(error2);
+        }
+        try {
+          await releaseLegacyDirectoryGate(gate);
+        } catch (error2) {
+          errors.push(error2);
+        }
+        if (errors.length === 1)
+          throw errors[0];
+        if (errors.length > 1)
+          throw new AggregateError(errors, FILE_LOCK_COMPATIBLE_RELEASE_MESSAGE);
+      })();
+      return releasePromise;
+    }
+  };
+}
+function precedes(left, right) {
+  return left.ticket < right.ticket || left.ticket === right.ticket && left.id < right.id;
+}
+function timeoutError(filePath) {
+  return new FileLockTimeoutError(filePath);
+}
+function timeoutMs(options) {
+  const value = options?.timeoutMs ?? FILE_LOCK_DEFAULT_TIMEOUT_MS;
+  if (!Number.isFinite(value) || value <= 0)
+    throw new RangeError(FILE_LOCK_INVALID_TIMEOUT_MESSAGE);
+  return value;
+}
+function waitForNextScan(deadline, filePath) {
+  const remaining = deadline - performance.now();
+  if (remaining <= 0)
+    return Promise.reject(timeoutError(filePath));
+  return new Promise((resolvePromise) => setTimeout(resolvePromise, Math.min(FILE_LOCK_POLL_INTERVAL_MS, remaining)));
+}
+async function waitOrReleaseClaim(waitForPeers, deadline, filePath, claimDirectory, claim) {
+  if (!waitForPeers) {
+    await makeHandle(claimDirectory, claim).release();
+    return false;
+  }
+  await waitForNextScan(deadline, filePath);
+  return true;
+}
+
+// dist/src/state.js
+import { dirname as dirname3 } from "node:path";
+
+// dist/src/utils/errors.js
+function hasFileLockTimeoutError(error2) {
+  if (error2 instanceof FileLockTimeoutError)
+    return true;
+  return error2 instanceof AggregateError && error2.errors.some(hasFileLockTimeoutError);
+}
+
+// dist/src/state-constants.js
+var TURN_STATE_LOCK_TIMEOUT_MS = 2e3;
+var TURN_STATE_LOCK_TIMEOUT_MESSAGE = "Timed out waiting for turn-state lock; confirm no writer is running before removing it";
+var TURN_STATE_LOCK_CLEANUP_WARNING = "Turn-state lock cleanup failed; confirm no writer is running before removing it";
+
+// dist/src/state.js
+async function acquireLock(stateFilePath) {
+  try {
+    return await acquireCompatibleDirectoryFileLock(stateFilePath, {
+      timeoutMs: TURN_STATE_LOCK_TIMEOUT_MS
+    });
+  } catch (error2) {
+    if (hasFileLockTimeoutError(error2)) {
+      throw new Error(TURN_STATE_LOCK_TIMEOUT_MESSAGE, { cause: error2 });
+    }
+    throw error2;
+  }
+}
+async function releaseLock(lock) {
+  try {
+    await lock.release();
   } catch {
-    warn("Turn-state lock cleanup failed; confirm no writer is running before removing it");
+    warn(TURN_STATE_LOCK_CLEANUP_WARNING);
   }
 }
 async function atomicUpdateState(stateFilePath, fn) {
-  await acquireLock(stateFilePath);
+  const lock = await acquireLock(stateFilePath);
   try {
     const state = loadState(stateFilePath);
     saveState(stateFilePath, fn(state));
   } finally {
-    releaseLock(stateFilePath);
+    await releaseLock(lock);
   }
 }
 function loadState(stateFilePath) {
@@ -578,8 +948,8 @@ function loadState(stateFilePath) {
   }
 }
 function saveState(stateFilePath, state) {
-  mkdirSync2(dirname2(stateFilePath), { recursive: true, mode: 448 });
-  const temp = `${stateFilePath}.${process.pid}.${randomUUID()}.tmp`;
+  mkdirSync2(dirname3(stateFilePath), { recursive: true, mode: 448 });
+  const temp = `${stateFilePath}.${process.pid}.${randomUUID2()}.tmp`;
   let committed = false;
   try {
     const fd = openSync(temp, "wx", 384);
@@ -592,7 +962,7 @@ function saveState(stateFilePath, state) {
     renameSync2(temp, stateFilePath);
     committed = true;
     try {
-      const fd2 = openSync(dirname2(stateFilePath), "r");
+      const fd2 = openSync(dirname3(stateFilePath), "r");
       try {
         fsyncSync(fd2);
       } finally {
@@ -700,14 +1070,14 @@ function reduceBeforeSubmitPrompt(state, input, nowMs, mode = "full", origin) {
 }
 
 // dist/src/tracing-policy.js
-import { randomUUID as randomUUID2 } from "node:crypto";
+import { randomUUID as randomUUID3 } from "node:crypto";
 import { lstatSync as lstatSync2, readFileSync as readFileSync3 } from "node:fs";
-import { mkdir, open, rename, rmdir, unlink } from "node:fs/promises";
-import { dirname as dirname3 } from "node:path";
+import { mkdir as mkdir2, open, rename as rename2, rmdir as rmdir2, unlink as unlink2 } from "node:fs/promises";
+import { dirname as dirname4 } from "node:path";
 import { performance as performance2 } from "node:perf_hooks";
 import { setTimeout as delay } from "node:timers/promises";
 import { homedir as homedir3 } from "node:os";
-import { join as join2 } from "node:path";
+import { join as join3 } from "node:path";
 function isMode(value) {
   return value === "full" || value === "metadata";
 }
@@ -717,13 +1087,13 @@ function isObject(value) {
 function hasCode(error2, code) {
   return isObject(error2) && error2.code === code;
 }
-function isHeldLock(error2, lockPath2) {
+function isHeldLock(error2, lockPath) {
   if (hasCode(error2, "EEXIST"))
     return true;
   if (!hasCode(error2, "EPERM"))
     return false;
   try {
-    lstatSync2(lockPath2);
+    lstatSync2(lockPath);
     return true;
   } catch {
     return false;
@@ -754,7 +1124,7 @@ function readPolicy(path) {
   return value;
 }
 function tracingPolicyPath() {
-  return process.env.LANGSMITH_CURSOR_PRIVACY_FILE ?? join2(homedir3(), ".cursor", "langsmith-state.privacy.json");
+  return process.env.LANGSMITH_CURSOR_PRIVACY_FILE ?? join3(homedir3(), ".cursor", "langsmith-state.privacy.json");
 }
 function getThreadTracingMode(path, sessionId, defaultMuted = false) {
   try {
@@ -777,19 +1147,19 @@ async function setThreadTracingMode(path, sessionId, mode) {
   if (typeof sessionId !== "string" || !sessionId || !isMode(mode)) {
     throw new Error("A nonempty session ID and a full/metadata tracing mode are required");
   }
-  const lockPath2 = `${path}.lock`;
-  await mkdir(dirname3(path), { recursive: true, mode: 448 });
+  const lockPath = `${path}.lock`;
+  await mkdir2(dirname4(path), { recursive: true, mode: 448 });
   const deadline = performance2.now() + 2e3;
   let locked = false;
   while (!locked) {
     try {
-      await mkdir(lockPath2, { mode: 448 });
+      await mkdir2(lockPath, { mode: 448 });
       locked = true;
     } catch (error2) {
-      if (!isHeldLock(error2, lockPath2))
+      if (!isHeldLock(error2, lockPath))
         throw error2;
       if (performance2.now() >= deadline) {
-        throw new Error(`Timed out waiting for tracing preference lock ${lockPath2}. Retry; if it persists, remove the lock only after confirming no preference writer is running.`);
+        throw new Error(`Timed out waiting for tracing preference lock ${lockPath}. Retry; if it persists, remove the lock only after confirming no preference writer is running.`);
       }
       await delay(10 + Math.random() * 20);
     }
@@ -811,7 +1181,7 @@ async function setThreadTracingMode(path, sessionId, mode) {
       throw new Error(`Cannot read tracing preferences at ${path}. Refusing to overwrite them; repair the file or its permissions before retrying. No preferences were changed.`, { cause: error2 });
     }
     policy.threads = { ...policy.threads, [sessionId]: mode };
-    tempPath = `${path}.${process.pid}.${randomUUID2()}.tmp`;
+    tempPath = `${path}.${process.pid}.${randomUUID3()}.tmp`;
     const temp = await open(tempPath, "wx", 384);
     try {
       await temp.writeFile(`${JSON.stringify(policy)}
@@ -822,10 +1192,10 @@ async function setThreadTracingMode(path, sessionId, mode) {
       throw error2;
     }
     await temp.close();
-    await rename(tempPath, path);
+    await rename2(tempPath, path);
     tempPath = void 0;
     await bestEffort(async () => {
-      const directory = await open(dirname3(path), "r");
+      const directory = await open(dirname4(path), "r");
       try {
         await directory.sync();
       } finally {
@@ -834,15 +1204,15 @@ async function setThreadTracingMode(path, sessionId, mode) {
     }, "Preference is effective, but crash durability could not be confirmed; retry saving");
   } finally {
     if (tempPath) {
-      await bestEffort(() => unlink(tempPath), "Temporary file cleanup failed");
+      await bestEffort(() => unlink2(tempPath), "Temporary file cleanup failed");
     }
-    await bestEffort(() => rmdir(lockPath2), `Preference lock cleanup failed at ${lockPath2}. Before retrying, remove the lock only after confirming no preference writer is running`);
+    await bestEffort(() => rmdir2(lockPath), `Preference lock cleanup failed at ${lockPath}. Before retrying, remove the lock only after confirming no preference writer is running`);
   }
   return warnings.length ? { warning: warnings.join("; ") } : {};
 }
 
 // dist/src/turn-origin.js
-import { dirname as dirname4 } from "node:path";
+import { dirname as dirname5 } from "node:path";
 
 // node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/upload/destination-identity.js
 import { createHash } from "node:crypto";

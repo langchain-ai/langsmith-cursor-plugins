@@ -10,52 +10,44 @@ import {
   openSync,
   closeSync,
   unlinkSync,
-  rmdirSync,
   renameSync,
   fsyncSync,
 } from "node:fs";
 import { randomUUID } from "node:crypto";
-import { performance } from "node:perf_hooks";
+import {
+  acquireCompatibleDirectoryFileLock,
+  type FileLockHandle,
+} from "@langchain/plugins-base/storage";
 import { warn } from "./logger.js";
 import { dirname } from "node:path";
 import type { TracingState, ConversationState, TurnBuffer } from "./types.js";
+import { hasFileLockTimeoutError } from "./utils/errors.js";
+import {
+  TURN_STATE_LOCK_CLEANUP_WARNING,
+  TURN_STATE_LOCK_TIMEOUT_MESSAGE,
+  TURN_STATE_LOCK_TIMEOUT_MS,
+} from "./state-constants.js";
 
 // ─── Atomic read-modify-write ────────────────────────────────────────────────
 
-const LOCK_TIMEOUT_MS = 2_000;
-
-function lockPath(stateFilePath: string): string {
-  return `${stateFilePath}.lock`;
-}
-
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-async function acquireLock(stateFilePath: string): Promise<void> {
-  const lock = lockPath(stateFilePath);
-  const deadline = performance.now() + LOCK_TIMEOUT_MS;
-  mkdirSync(dirname(stateFilePath), { recursive: true, mode: 0o700 });
-  while (true) {
-    try {
-      mkdirSync(lock, { mode: 0o700 });
-      return;
-    } catch (error) {
-      if ((error as NodeJS.ErrnoException).code !== "EEXIST") throw error;
-      if (performance.now() >= deadline)
-        throw new Error(
-          "Timed out waiting for turn-state lock; confirm no writer is running before removing it",
-        );
-      await sleep(10 + Math.random() * 20);
+async function acquireLock(stateFilePath: string): Promise<FileLockHandle> {
+  try {
+    return await acquireCompatibleDirectoryFileLock(stateFilePath, {
+      timeoutMs: TURN_STATE_LOCK_TIMEOUT_MS,
+    });
+  } catch (error) {
+    if (hasFileLockTimeoutError(error)) {
+      throw new Error(TURN_STATE_LOCK_TIMEOUT_MESSAGE, { cause: error });
     }
+    throw error;
   }
 }
 
-function releaseLock(stateFilePath: string): void {
+async function releaseLock(lock: FileLockHandle): Promise<void> {
   try {
-    rmdirSync(lockPath(stateFilePath));
+    await lock.release();
   } catch {
-    warn("Turn-state lock cleanup failed; confirm no writer is running before removing it");
+    warn(TURN_STATE_LOCK_CLEANUP_WARNING);
   }
 }
 
@@ -64,12 +56,12 @@ export async function atomicUpdateState(
   stateFilePath: string,
   fn: (state: TracingState) => TracingState,
 ): Promise<void> {
-  await acquireLock(stateFilePath);
+  const lock = await acquireLock(stateFilePath);
   try {
     const state = loadState(stateFilePath);
     saveState(stateFilePath, fn(state));
   } finally {
-    releaseLock(stateFilePath);
+    await releaseLock(lock);
   }
 }
 

@@ -56,13 +56,13 @@ var LEADING_BYTE_ORDER_MARKS = /^\uFEFF+/;
 
 // dist/src/utils/stdin.js
 function readStdin(stream = process.stdin) {
-  return new Promise((resolve4, reject) => {
+  return new Promise((resolve6, reject) => {
     let data = "";
     stream.setEncoding("utf-8");
     stream.on("data", (chunk) => data += chunk);
     stream.on("end", () => {
       try {
-        resolve4(JSON.parse(data.replace(LEADING_BYTE_ORDER_MARKS, "")));
+        resolve6(JSON.parse(data.replace(LEADING_BYTE_ORDER_MARKS, "")));
       } catch (err) {
         reject(new Error(`Failed to parse hook input: ${err}`));
       }
@@ -570,48 +570,418 @@ function initHook(cwd) {
 }
 
 // dist/src/state.js
-import { readFileSync as readFileSync2, writeFileSync, mkdirSync as mkdirSync2, openSync, closeSync, unlinkSync, rmdirSync, renameSync as renameSync2, fsyncSync } from "node:fs";
-import { randomUUID } from "node:crypto";
+import { readFileSync as readFileSync2, writeFileSync, mkdirSync as mkdirSync2, openSync, closeSync, unlinkSync, renameSync as renameSync2, fsyncSync } from "node:fs";
+import { randomUUID as randomUUID2 } from "node:crypto";
+
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/storage/file-lock.js
+import { chmod, link, lstat, mkdir, readFile, readdir, rmdir, rename, unlink, writeFile } from "node:fs/promises";
 import { performance } from "node:perf_hooks";
-import { dirname as dirname2 } from "node:path";
-var LOCK_TIMEOUT_MS = 2e3;
-function lockPath(stateFilePath) {
-  return `${stateFilePath}.lock`;
+import { randomUUID } from "node:crypto";
+import { dirname as dirname2, join as join2, resolve as resolve2 } from "node:path";
+
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/storage/constants.js
+var FILE_LOCK_CLAIM_VERSION = 1;
+var FILE_LOCK_CLAIM_EXTENSION = ".json";
+var FILE_LOCK_DIRECTORY_SUFFIX = ".claims";
+var FILE_LOCK_LEGACY_DIRECTORY_SUFFIX = ".lock";
+var FILE_LOCK_TIMEOUT_ERROR_NAME = "FileLockTimeoutError";
+var FILE_LOCK_TEMP_PREFIX = ".";
+var FILE_LOCK_TEMP_SUFFIX = ".tmp";
+var FILE_LOCK_EXCLUSIVE_FLAG = "wx";
+var FILE_LOCK_ENCODING = "utf-8";
+var FILE_LOCK_DEFAULT_TIMEOUT_MS = 5e3;
+var FILE_LOCK_POLL_INTERVAL_MS = 10;
+var FILE_LOCK_DIRECTORY_MODE = 448;
+var FILE_LOCK_FILE_MODE = 384;
+var FILE_LOCK_UNSELECTED_TICKET = 0;
+var FILE_LOCK_NEGATIVE_TICKET_LIMIT = 0;
+var FILE_LOCK_TIMEOUT_MESSAGE = "Timed out waiting for file lock";
+var FILE_LOCK_TICKET_LIMIT_MESSAGE = "File lock ticket limit reached";
+var FILE_LOCK_RELEASE_MESSAGE = "Could not release file lock claim";
+var FILE_LOCK_INVALID_TIMEOUT_MESSAGE = "timeoutMs must be a finite positive number";
+var FILE_LOCK_ACQUIRE_MESSAGE = "Could not acquire file lock claim";
+var FILE_LOCK_UNSAFE_DIRECTORY_MESSAGE = "Unsafe file lock claims directory";
+var FILE_LOCK_EXISTS_CODE = "EEXIST";
+var FILE_LOCK_MISSING_CODE = "ENOENT";
+var FILE_LOCK_PROCESS_MISSING_CODE = "ESRCH";
+var FILE_LOCK_PROCESS_CHECK_SIGNAL = 0;
+var FILE_LOCK_RENAME_RETRY_TIMEOUT_MS = 100;
+var FILE_LOCK_RENAME_BUSY_CODE = "EPERM";
+var FILE_LOCK_WINDOWS_DIRECTORY_CONTENTION_CODES = ["EPERM", "EACCES"];
+var FILE_LOCK_COMPATIBLE_ACQUIRE_CLEANUP_MESSAGE = "Could not release the legacy lock gate after shared lock acquisition failed";
+var FILE_LOCK_COMPATIBLE_RELEASE_MESSAGE = "Could not release compatible file lock";
+var FILE_LOCK_COMPATIBLE_GATE_CHANGED_MESSAGE = "Legacy file lock gate changed before release";
+
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/storage/errors.js
+import { resolve } from "node:path";
+var FileLockTimeoutError = class extends Error {
+  constructor(filePath) {
+    super(`${FILE_LOCK_TIMEOUT_MESSAGE}: ${resolve(filePath)}`);
+    this.name = FILE_LOCK_TIMEOUT_ERROR_NAME;
+  }
+};
+
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/storage/file-lock.js
+function isRecord(value) {
+  return typeof value === "object" && value !== null;
 }
-function sleep(ms) {
-  return new Promise((resolve4) => setTimeout(resolve4, ms));
+function parseClaim(value, id) {
+  if (!isRecord(value))
+    return void 0;
+  if (value.version !== FILE_LOCK_CLAIM_VERSION || value.id !== id || typeof value.pid !== "number" || !Number.isSafeInteger(value.pid) || value.pid <= 0 || typeof value.choosing !== "boolean" || typeof value.ticket !== "number" || !Number.isSafeInteger(value.ticket) || value.ticket < FILE_LOCK_NEGATIVE_TICKET_LIMIT || (value.choosing ? value.ticket !== FILE_LOCK_UNSELECTED_TICKET : value.ticket === FILE_LOCK_UNSELECTED_TICKET)) {
+    return void 0;
+  }
+  return value;
 }
-async function acquireLock(stateFilePath) {
-  const lock = lockPath(stateFilePath);
-  const deadline = performance.now() + LOCK_TIMEOUT_MS;
-  mkdirSync2(dirname2(stateFilePath), { recursive: true, mode: 448 });
-  while (true) {
+async function processIsAlive(pid) {
+  try {
+    process.kill(pid, FILE_LOCK_PROCESS_CHECK_SIGNAL);
+    return true;
+  } catch (error2) {
+    const code = error2.code;
+    if (code === FILE_LOCK_PROCESS_MISSING_CODE)
+      return false;
+    return void 0;
+  }
+}
+async function removeFile(filePath) {
+  try {
+    await unlink(filePath);
+    return true;
+  } catch (error2) {
+    if (error2.code === FILE_LOCK_MISSING_CODE)
+      return true;
+    return false;
+  }
+}
+async function publishClaim(filePath, claim, create, deadline) {
+  const temporaryPath = join2(dirname2(filePath), `${FILE_LOCK_TEMP_PREFIX}${claim.id}.${randomUUID()}${FILE_LOCK_TEMP_SUFFIX}`);
+  try {
+    await writeFile(temporaryPath, JSON.stringify(claim), {
+      flag: FILE_LOCK_EXCLUSIVE_FLAG,
+      mode: FILE_LOCK_FILE_MODE
+    });
+    if (create)
+      await link(temporaryPath, filePath);
+    else {
+      const replacementDeadline = deadline ?? performance.now() + FILE_LOCK_RENAME_RETRY_TIMEOUT_MS;
+      for (; ; ) {
+        try {
+          await rename(temporaryPath, filePath);
+          break;
+        } catch (error2) {
+          if (error2.code !== FILE_LOCK_RENAME_BUSY_CODE)
+            throw error2;
+          await waitForNextScan(replacementDeadline, filePath);
+        }
+      }
+    }
+  } finally {
+    await removeFile(temporaryPath);
+  }
+}
+async function createClaim(claimDirectory) {
+  for (; ; ) {
+    const id = randomUUID();
+    const claim = {
+      version: FILE_LOCK_CLAIM_VERSION,
+      id,
+      pid: process.pid,
+      choosing: true,
+      ticket: FILE_LOCK_UNSELECTED_TICKET
+    };
     try {
-      mkdirSync2(lock, { mode: 448 });
-      return;
+      await publishClaim(join2(claimDirectory, `${id}${FILE_LOCK_CLAIM_EXTENSION}`), claim, true);
+      return claim;
     } catch (error2) {
-      if (error2.code !== "EEXIST")
+      if (error2.code !== FILE_LOCK_EXISTS_CODE)
         throw error2;
-      if (performance.now() >= deadline)
-        throw new Error("Timed out waiting for turn-state lock; confirm no writer is running before removing it");
-      await sleep(10 + Math.random() * 20);
     }
   }
 }
-function releaseLock(stateFilePath) {
+async function scanClaims(claimDirectory) {
+  const entries = await readdir(claimDirectory, { withFileTypes: true });
+  const claims = [];
+  for (const entry of entries) {
+    if (!entry.name.endsWith(FILE_LOCK_CLAIM_EXTENSION))
+      continue;
+    const id = entry.name.slice(0, -FILE_LOCK_CLAIM_EXTENSION.length);
+    if (!entry.isFile())
+      return { claims, blocked: true };
+    let value;
+    try {
+      value = JSON.parse(await readFile(join2(claimDirectory, entry.name), FILE_LOCK_ENCODING));
+    } catch (error2) {
+      if (error2.code === FILE_LOCK_MISSING_CODE)
+        continue;
+      return { claims, blocked: true };
+    }
+    const claim = parseClaim(value, id);
+    if (!claim)
+      return { claims, blocked: true };
+    const alive = await processIsAlive(claim.pid);
+    if (alive === false) {
+      if (!await removeFile(join2(claimDirectory, entry.name)))
+        return { claims, blocked: true };
+      continue;
+    }
+    if (alive === void 0)
+      return { claims, blocked: true };
+    claims.push(claim);
+  }
+  return { claims, blocked: false };
+}
+function claimPath(claimDirectory, id) {
+  return join2(claimDirectory, `${id}${FILE_LOCK_CLAIM_EXTENSION}`);
+}
+function hasClaimState(claims, id, choosing, ticket) {
+  const claim = claims.find((peer) => peer.id === id);
+  return claim?.choosing === choosing && claim.ticket === ticket;
+}
+function makeHandle(claimDirectory, claim) {
+  let releasePromise;
+  return {
+    release() {
+      releasePromise ??= removeFile(claimPath(claimDirectory, claim.id)).then((removed) => {
+        if (!removed)
+          throw new Error(FILE_LOCK_RELEASE_MESSAGE);
+      });
+      return releasePromise;
+    }
+  };
+}
+async function beginClaim(filePath) {
+  const claimDirectory = `${resolve2(filePath)}${FILE_LOCK_DIRECTORY_SUFFIX}`;
+  await assertSafeClaimDirectory(claimDirectory);
+  await mkdir(claimDirectory, { recursive: true, mode: FILE_LOCK_DIRECTORY_MODE });
+  await assertSafeClaimDirectory(claimDirectory);
+  await chmod(claimDirectory, FILE_LOCK_DIRECTORY_MODE);
+  return { claimDirectory, claim: await createClaim(claimDirectory) };
+}
+async function assertSafeClaimDirectory(claimDirectory) {
+  let stat;
   try {
-    rmdirSync(lockPath(stateFilePath));
+    stat = await lstat(claimDirectory);
+  } catch (error2) {
+    if (error2.code === FILE_LOCK_MISSING_CODE)
+      return;
+    throw error2;
+  }
+  if (stat.isSymbolicLink() || !stat.isDirectory())
+    throw new Error(FILE_LOCK_UNSAFE_DIRECTORY_MESSAGE);
+}
+async function acquireClaim(filePath, waitForPeers, deadline) {
+  const { claimDirectory, claim } = await beginClaim(filePath);
+  const ownPath = claimPath(claimDirectory, claim.id);
+  let ownedClaim;
+  try {
+    for (; ; ) {
+      const scan = await scanClaims(claimDirectory);
+      if (scan.blocked || !hasClaimState(scan.claims, claim.id, true, FILE_LOCK_UNSELECTED_TICKET)) {
+        if (!await waitOrReleaseClaim(waitForPeers, deadline, filePath, claimDirectory, claim))
+          return void 0;
+        continue;
+      }
+      const peers = scan.claims.filter((peer) => peer.id !== claim.id);
+      if (!waitForPeers && peers.length > 0) {
+        await makeHandle(claimDirectory, claim).release();
+        return void 0;
+      }
+      let maxTicket = FILE_LOCK_UNSELECTED_TICKET;
+      for (const peer of scan.claims)
+        maxTicket = Math.max(maxTicket, peer.ticket);
+      if (maxTicket >= Number.MAX_SAFE_INTEGER)
+        throw new Error(FILE_LOCK_TICKET_LIMIT_MESSAGE);
+      ownedClaim = { ...claim, choosing: false, ticket: maxTicket + 1 };
+      await publishClaim(ownPath, ownedClaim, false, waitForPeers ? deadline : void 0);
+      break;
+    }
+    const ticketedClaim = ownedClaim;
+    if (!ticketedClaim)
+      throw new Error(FILE_LOCK_ACQUIRE_MESSAGE);
+    for (; ; ) {
+      const scan = await scanClaims(claimDirectory);
+      if (scan.blocked || !hasClaimState(scan.claims, claim.id, false, ticketedClaim.ticket)) {
+        if (!await waitOrReleaseClaim(waitForPeers, deadline, filePath, claimDirectory, claim))
+          return void 0;
+        continue;
+      }
+      const peers = scan.claims.filter((peer) => peer.id !== claim.id);
+      const blockedByPeer = peers.length > 0 && (!waitForPeers || peers.some((peer) => precedes(peer, ticketedClaim)));
+      if (blockedByPeer) {
+        if (!await waitOrReleaseClaim(waitForPeers, deadline, filePath, claimDirectory, claim))
+          return void 0;
+        continue;
+      }
+      if (waitForPeers && performance.now() > deadline)
+        throw timeoutError(filePath);
+      return { claimDirectory, claim: ticketedClaim };
+    }
+  } catch (error2) {
+    await makeHandle(claimDirectory, claim).release();
+    throw error2;
+  }
+}
+async function acquireLegacyDirectoryGate(filePath, deadline) {
+  const gatePath = `${filePath}${FILE_LOCK_LEGACY_DIRECTORY_SUFFIX}`;
+  await mkdir(dirname2(filePath), { recursive: true, mode: FILE_LOCK_DIRECTORY_MODE });
+  for (; ; ) {
+    if (performance.now() >= deadline)
+      throw timeoutError(filePath);
+    try {
+      await mkdir(gatePath, { mode: FILE_LOCK_DIRECTORY_MODE });
+      const stat = await lstat(gatePath);
+      if (!stat.isDirectory())
+        throw new Error(FILE_LOCK_COMPATIBLE_GATE_CHANGED_MESSAGE);
+      return { path: gatePath, dev: stat.dev, ino: stat.ino, birthtimeMs: stat.birthtimeMs };
+    } catch (error2) {
+      const code = error2.code;
+      if (code !== FILE_LOCK_EXISTS_CODE && !FILE_LOCK_WINDOWS_DIRECTORY_CONTENTION_CODES.some((candidate) => candidate === code)) {
+        throw error2;
+      }
+      let isDirectory = false;
+      try {
+        isDirectory = (await lstat(gatePath)).isDirectory();
+      } catch (statError) {
+        if (code === FILE_LOCK_EXISTS_CODE && statError.code === FILE_LOCK_MISSING_CODE) {
+          await waitForNextScan(deadline, filePath);
+          continue;
+        }
+        throw error2;
+      }
+      if (!isDirectory)
+        throw error2;
+      await waitForNextScan(deadline, filePath);
+    }
+  }
+}
+async function releaseLegacyDirectoryGate(gate) {
+  let stat;
+  try {
+    stat = await lstat(gate.path);
+  } catch (error2) {
+    if (error2.code === FILE_LOCK_MISSING_CODE)
+      return;
+    throw error2;
+  }
+  if (!stat.isDirectory() || stat.dev !== gate.dev || stat.ino !== gate.ino || stat.birthtimeMs !== gate.birthtimeMs) {
+    throw new Error(FILE_LOCK_COMPATIBLE_GATE_CHANGED_MESSAGE);
+  }
+  await rmdir(gate.path);
+}
+async function acquireCompatibleDirectoryFileLock(filePath, options) {
+  const resolvedPath = resolve2(filePath);
+  const deadline = performance.now() + timeoutMs(options);
+  const gate = await acquireLegacyDirectoryGate(resolvedPath, deadline);
+  let acquired;
+  try {
+    acquired = await acquireClaim(resolvedPath, true, deadline);
+    if (!acquired)
+      throw new Error(FILE_LOCK_ACQUIRE_MESSAGE);
+  } catch (error2) {
+    try {
+      await releaseLegacyDirectoryGate(gate);
+    } catch (cleanupError) {
+      throw new AggregateError([error2, cleanupError], FILE_LOCK_COMPATIBLE_ACQUIRE_CLEANUP_MESSAGE, {
+        cause: cleanupError
+      });
+    }
+    throw error2;
+  }
+  const sharedHandle = makeHandle(acquired.claimDirectory, acquired.claim);
+  let releasePromise;
+  return {
+    release() {
+      releasePromise ??= (async () => {
+        const errors = [];
+        try {
+          await sharedHandle.release();
+        } catch (error2) {
+          errors.push(error2);
+        }
+        try {
+          await releaseLegacyDirectoryGate(gate);
+        } catch (error2) {
+          errors.push(error2);
+        }
+        if (errors.length === 1)
+          throw errors[0];
+        if (errors.length > 1)
+          throw new AggregateError(errors, FILE_LOCK_COMPATIBLE_RELEASE_MESSAGE);
+      })();
+      return releasePromise;
+    }
+  };
+}
+function precedes(left, right) {
+  return left.ticket < right.ticket || left.ticket === right.ticket && left.id < right.id;
+}
+function timeoutError(filePath) {
+  return new FileLockTimeoutError(filePath);
+}
+function timeoutMs(options) {
+  const value = options?.timeoutMs ?? FILE_LOCK_DEFAULT_TIMEOUT_MS;
+  if (!Number.isFinite(value) || value <= 0)
+    throw new RangeError(FILE_LOCK_INVALID_TIMEOUT_MESSAGE);
+  return value;
+}
+function waitForNextScan(deadline, filePath) {
+  const remaining = deadline - performance.now();
+  if (remaining <= 0)
+    return Promise.reject(timeoutError(filePath));
+  return new Promise((resolvePromise) => setTimeout(resolvePromise, Math.min(FILE_LOCK_POLL_INTERVAL_MS, remaining)));
+}
+async function waitOrReleaseClaim(waitForPeers, deadline, filePath, claimDirectory, claim) {
+  if (!waitForPeers) {
+    await makeHandle(claimDirectory, claim).release();
+    return false;
+  }
+  await waitForNextScan(deadline, filePath);
+  return true;
+}
+
+// dist/src/state.js
+import { dirname as dirname3 } from "node:path";
+
+// dist/src/utils/errors.js
+function hasFileLockTimeoutError(error2) {
+  if (error2 instanceof FileLockTimeoutError)
+    return true;
+  return error2 instanceof AggregateError && error2.errors.some(hasFileLockTimeoutError);
+}
+
+// dist/src/state-constants.js
+var TURN_STATE_LOCK_TIMEOUT_MS = 2e3;
+var TURN_STATE_LOCK_TIMEOUT_MESSAGE = "Timed out waiting for turn-state lock; confirm no writer is running before removing it";
+var TURN_STATE_LOCK_CLEANUP_WARNING = "Turn-state lock cleanup failed; confirm no writer is running before removing it";
+
+// dist/src/state.js
+async function acquireLock(stateFilePath) {
+  try {
+    return await acquireCompatibleDirectoryFileLock(stateFilePath, {
+      timeoutMs: TURN_STATE_LOCK_TIMEOUT_MS
+    });
+  } catch (error2) {
+    if (hasFileLockTimeoutError(error2)) {
+      throw new Error(TURN_STATE_LOCK_TIMEOUT_MESSAGE, { cause: error2 });
+    }
+    throw error2;
+  }
+}
+async function releaseLock(lock) {
+  try {
+    await lock.release();
   } catch {
-    warn("Turn-state lock cleanup failed; confirm no writer is running before removing it");
+    warn(TURN_STATE_LOCK_CLEANUP_WARNING);
   }
 }
 async function atomicUpdateState(stateFilePath, fn) {
-  await acquireLock(stateFilePath);
+  const lock = await acquireLock(stateFilePath);
   try {
     const state = loadState(stateFilePath);
     saveState(stateFilePath, fn(state));
   } finally {
-    releaseLock(stateFilePath);
+    await releaseLock(lock);
   }
 }
 function loadState(stateFilePath) {
@@ -622,8 +992,8 @@ function loadState(stateFilePath) {
   }
 }
 function saveState(stateFilePath, state) {
-  mkdirSync2(dirname2(stateFilePath), { recursive: true, mode: 448 });
-  const temp = `${stateFilePath}.${process.pid}.${randomUUID()}.tmp`;
+  mkdirSync2(dirname3(stateFilePath), { recursive: true, mode: 448 });
+  const temp = `${stateFilePath}.${process.pid}.${randomUUID2()}.tmp`;
   let committed = false;
   try {
     const fd = openSync(temp, "wx", 384);
@@ -636,7 +1006,7 @@ function saveState(stateFilePath, state) {
     renameSync2(temp, stateFilePath);
     committed = true;
     try {
-      const fd2 = openSync(dirname2(stateFilePath), "r");
+      const fd2 = openSync(dirname3(stateFilePath), "r");
       try {
         fsyncSync(fd2);
       } finally {
@@ -686,7 +1056,7 @@ function getTurnBuffer(state, conversationId, generationId) {
 var CONVERSATION_MAX_AGE_MS = 24 * 60 * 60 * 1e3;
 
 // dist/src/utils/validation/record.js
-function isRecord(value) {
+function isRecord2(value) {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
@@ -712,13 +1082,13 @@ var MCP_TOOL_PREFIX = "MCP:";
 function mcpContentToText(content) {
   if (!Array.isArray(content))
     return void 0;
-  const texts = content.filter(isRecord).map((part) => typeof part.text === "string" ? part.text : void 0).filter((text) => text != null && text !== "");
+  const texts = content.filter(isRecord2).map((part) => typeof part.text === "string" ? part.text : void 0).filter((text) => text != null && text !== "");
   return texts.length > 0 ? texts.join("\n") : void 0;
 }
 function extractMcpError(toolName, output) {
   if (!toolName.startsWith(MCP_TOOL_PREFIX))
     return void 0;
-  if (!isRecord(output) || output.isError !== true)
+  if (!isRecord2(output) || output.isError !== true)
     return void 0;
   return mcpContentToText(output.content) ?? "MCP tool returned isError: true";
 }
@@ -807,11 +1177,11 @@ import { createHash as createHash4 } from "node:crypto";
 
 // dist/src/native-turn-source.js
 import { createHash as createHash2 } from "node:crypto";
-import { join as join6 } from "node:path";
+import { join as join7 } from "node:path";
 
 // node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/storage/capture/capture-store.js
-import { lstat as lstat3 } from "node:fs/promises";
-import { join as join5, resolve as resolve3 } from "node:path";
+import { lstat as lstat4 } from "node:fs/promises";
+import { join as join6, resolve as resolve5 } from "node:path";
 
 // node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/storage/capture/constants.js
 var CAPTURE_DIRECTORY = "capture-v1";
@@ -828,7 +1198,7 @@ var JSON_ARRAY_INDEX_KEY = /^(0|[1-9]\d*)$/u;
 
 // node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/storage/capture/paths.js
 import { createHash } from "node:crypto";
-import { resolve, join as join2 } from "node:path";
+import { resolve as resolve3, join as join3 } from "node:path";
 function validateIntegration(value) {
   if (!CAPTURE_INTEGRATION.test(value))
     throw new TypeError("Invalid integration namespace");
@@ -850,47 +1220,47 @@ function identifierHash(value) {
   return createHash("sha256").update(value).digest("hex");
 }
 function captureDirectory(root) {
-  return join2(resolve(root), CAPTURE_DIRECTORY);
+  return join3(resolve3(root), CAPTURE_DIRECTORY);
 }
 function eventPath(root, scope) {
-  return join2(captureDirectory(root), "integrations", scope.integration, "sessions", identifierHash(scope.sessionId), "turns", identifierHash(scope.turnId), "events", `${identifierHash(scope.eventId)}.json`);
+  return join3(captureDirectory(root), "integrations", scope.integration, "sessions", identifierHash(scope.sessionId), "turns", identifierHash(scope.turnId), "events", `${identifierHash(scope.eventId)}.json`);
 }
 function receiptPath(root, scope, destination) {
-  return join2(captureDirectory(root), "integrations", scope.integration, "sessions", identifierHash(scope.sessionId), "turns", identifierHash(scope.turnId), "receipts", identifierHash(destination), `${identifierHash(scope.eventId)}.json`);
+  return join3(captureDirectory(root), "integrations", scope.integration, "sessions", identifierHash(scope.sessionId), "turns", identifierHash(scope.turnId), "receipts", identifierHash(destination), `${identifierHash(scope.eventId)}.json`);
 }
 
 // node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/storage/capture/utils/atomic-file.js
 import { constants as fsConstants } from "node:fs";
-import { chmod, link, lstat, mkdir, open, unlink } from "node:fs/promises";
-import { dirname as dirname3, isAbsolute, join as join3, relative, sep } from "node:path";
-import { randomUUID as randomUUID2 } from "node:crypto";
+import { chmod as chmod2, link as link2, lstat as lstat2, mkdir as mkdir2, open, unlink as unlink2 } from "node:fs/promises";
+import { dirname as dirname4, isAbsolute, join as join4, relative, sep } from "node:path";
+import { randomUUID as randomUUID3 } from "node:crypto";
 async function ensurePrivateDirectory(root, segments) {
-  await mkdir(root, { recursive: true, mode: CAPTURE_DIRECTORY_MODE });
-  const rootInfo = await lstat(root);
+  await mkdir2(root, { recursive: true, mode: CAPTURE_DIRECTORY_MODE });
+  const rootInfo = await lstat2(root);
   if (!rootInfo.isDirectory() || rootInfo.isSymbolicLink())
     throw new Error("Capture root must be a real directory");
   let current = root;
   for (const segment of segments) {
-    current = join3(current, segment);
+    current = join4(current, segment);
     try {
-      await mkdir(current, { mode: CAPTURE_DIRECTORY_MODE });
+      await mkdir2(current, { mode: CAPTURE_DIRECTORY_MODE });
     } catch (error2) {
       if (errorCode(error2) !== "EEXIST")
         throw error2;
     }
-    const info = await lstat(current);
+    const info = await lstat2(current);
     if (!info.isDirectory() || info.isSymbolicLink())
       throw new Error("Capture path contains a non-directory");
-    await chmod(current, CAPTURE_DIRECTORY_MODE);
-    const checked = await lstat(current);
+    await chmod2(current, CAPTURE_DIRECTORY_MODE);
+    const checked = await lstat2(current);
     if (!checked.isDirectory() || checked.isSymbolicLink())
       throw new Error("Capture path changed during setup");
   }
   return current;
 }
 async function publishExclusive(path, contents, beforeCommit) {
-  const directory = dirname3(path);
-  const stagingPath = join3(directory, `.${randomUUID2()}.tmp`);
+  const directory = dirname4(path);
+  const stagingPath = join4(directory, `.${randomUUID3()}.tmp`);
   const handle = await open(stagingPath, "wx", CAPTURE_FILE_MODE);
   try {
     await handle.writeFile(contents, "utf8");
@@ -901,7 +1271,7 @@ async function publishExclusive(path, contents, beforeCommit) {
   }
   try {
     beforeCommit?.();
-    await link(stagingPath, path);
+    await link2(stagingPath, path);
     await syncDirectory(directory);
     return true;
   } catch (error2) {
@@ -909,7 +1279,7 @@ async function publishExclusive(path, contents, beforeCommit) {
       return false;
     throw error2;
   } finally {
-    await unlink(stagingPath).catch((error2) => {
+    await unlink2(stagingPath).catch((error2) => {
       if (errorCode(error2) !== "ENOENT")
         throw error2;
     });
@@ -920,7 +1290,7 @@ async function readPrivateFile(root, path) {
     return void 0;
   let handle;
   try {
-    const info = await lstat(path);
+    const info = await lstat2(path);
     if (!info.isFile() || info.isSymbolicLink())
       throw new Error("Capture record must be a regular file");
     handle = await open(path, fsConstants.O_RDONLY | (fsConstants.O_NOFOLLOW ?? 0));
@@ -938,20 +1308,20 @@ async function readPrivateFile(root, path) {
   }
 }
 async function hasRealParentDirectories(root, path) {
-  const relativeDirectory = relative(root, dirname3(path));
+  const relativeDirectory = relative(root, dirname4(path));
   if (relativeDirectory === ".." || relativeDirectory.startsWith(`..${sep}`) || isAbsolute(relativeDirectory)) {
     throw new Error("Capture path is outside storage root");
   }
   const directories = [root];
   let current = root;
   for (const segment of relativeDirectory.split(sep).filter(Boolean)) {
-    current = join3(current, segment);
+    current = join4(current, segment);
     directories.push(current);
   }
   for (const directory of directories) {
     let info;
     try {
-      info = await lstat(directory);
+      info = await lstat2(directory);
     } catch (error2) {
       if (errorCode(error2) === "ENOENT")
         return false;
@@ -1029,11 +1399,11 @@ function canonicalValue(value, seen) {
 }
 
 // node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/utils/files/private-directory.js
-import { lstat as lstat2, readdir } from "node:fs/promises";
-import { isAbsolute as isAbsolute2, join as join4, relative as relative2, resolve as resolve2, sep as sep2 } from "node:path";
+import { lstat as lstat3, readdir as readdir2 } from "node:fs/promises";
+import { isAbsolute as isAbsolute2, join as join5, relative as relative2, resolve as resolve4, sep as sep2 } from "node:path";
 async function listPrivateDirectory(root, directory) {
-  const storageRoot = resolve2(root);
-  const target = resolve2(directory);
+  const storageRoot = resolve4(root);
+  const target = resolve4(directory);
   const relativePath = relative2(storageRoot, target);
   if (relativePath === ".." || relativePath.startsWith(`..${sep2}`) || isAbsolute2(relativePath)) {
     throw new Error("Private directory is outside storage root");
@@ -1041,22 +1411,22 @@ async function listPrivateDirectory(root, directory) {
   let current = storageRoot;
   for (const segment of ["", ...relativePath.split(sep2).filter(Boolean)]) {
     if (segment)
-      current = join4(current, segment);
+      current = join5(current, segment);
     const info = await lstatDirectory(current);
     if (!info)
       return void 0;
     if (!info.isDirectory() || info.isSymbolicLink())
       throw new Error("Private path contains a non-directory");
   }
-  const entries = await readdir(target, { withFileTypes: true });
-  const finalInfo = await lstat2(target);
+  const entries = await readdir2(target, { withFileTypes: true });
+  const finalInfo = await lstat3(target);
   if (!finalInfo.isDirectory() || finalInfo.isSymbolicLink())
     throw new Error("Private path changed during enumeration");
   return entries;
 }
 async function lstatDirectory(path) {
   try {
-    return await lstat2(path);
+    return await lstat3(path);
   } catch (error2) {
     if (errorCode2(error2) === "ENOENT")
       return void 0;
@@ -1093,7 +1463,7 @@ function requireNonNegativeInteger(value, name) {
 
 // node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/storage/capture/capture-store.js
 function createCaptureStore(root) {
-  const storageRoot = resolve3(root);
+  const storageRoot = resolve5(root);
   return {
     async capture(input) {
       let record;
@@ -1160,7 +1530,7 @@ function createCaptureStore(root) {
     async enumerate(integration, sessionId) {
       validateIntegration(integration);
       validateIdentifier(sessionId, "session ID");
-      const turnsDirectory = join5(captureDirectory(storageRoot), "integrations", integration, "sessions", identifierHash(sessionId), "turns");
+      const turnsDirectory = join6(captureDirectory(storageRoot), "integrations", integration, "sessions", identifierHash(sessionId), "turns");
       const turns = await listPrivateDirectory(storageRoot, turnsDirectory);
       if (turns === void 0)
         return [];
@@ -1168,7 +1538,7 @@ function createCaptureStore(root) {
       for (const turn of turns) {
         if (!turn.isDirectory() || turn.isSymbolicLink() || !CAPTURE_HASH.test(turn.name))
           throw new Error("Invalid capture turn directory");
-        const eventDirectory = join5(turnsDirectory, turn.name, "events");
+        const eventDirectory = join6(turnsDirectory, turn.name, "events");
         const events = await listPrivateDirectory(storageRoot, eventDirectory);
         if (events === void 0)
           continue;
@@ -1179,12 +1549,12 @@ function createCaptureStore(root) {
             continue;
           if (!CAPTURE_EVENT_FILE.test(event.name))
             throw new Error("Invalid capture event path");
-          const path = join5(eventDirectory, event.name);
+          const path = join6(eventDirectory, event.name);
           const record = await readRecord(storageRoot, path);
           if (record === void 0 || record.integration !== integration || record.sessionId !== sessionId || identifierHash(record.turnId) !== turn.name || `${identifierHash(record.eventId)}.json` !== event.name) {
             throw new Error("Capture event namespace does not match");
           }
-          const info = await lstat3(path);
+          const info = await lstat4(path);
           if (!info.isFile() || info.isSymbolicLink() || !Number.isFinite(info.mtimeMs))
             throw new Error("Capture event must be a regular file");
           captures.push({ record, capturedAtMs: record.capturedAtMs });
@@ -1197,7 +1567,7 @@ function createCaptureStore(root) {
     },
     async enumerateSessions(integration) {
       validateIntegration(integration);
-      const sessionsDirectory = join5(captureDirectory(storageRoot), "integrations", integration, "sessions");
+      const sessionsDirectory = join6(captureDirectory(storageRoot), "integrations", integration, "sessions");
       const directories = await listPrivateDirectory(storageRoot, sessionsDirectory);
       if (directories === void 0)
         return [];
@@ -1287,7 +1657,7 @@ async function enumerateTurnCaptures(root, integration, sessionId, turnId) {
   validateIntegration(integration);
   validateIdentifier(sessionId, "session ID");
   validateIdentifier(turnId, "turn ID");
-  const turnsDirectory = join5(captureDirectory(root), "integrations", integration, "sessions", identifierHash(sessionId), "turns");
+  const turnsDirectory = join6(captureDirectory(root), "integrations", integration, "sessions", identifierHash(sessionId), "turns");
   const turns = await listPrivateDirectory(root, turnsDirectory);
   if (turns === void 0)
     return [];
@@ -1297,7 +1667,7 @@ async function enumerateTurnCaptures(root, integration, sessionId, turnId) {
     return [];
   if (!turn.isDirectory() || turn.isSymbolicLink())
     throw new Error("Invalid capture turn directory");
-  const eventDirectory = join5(turnsDirectory, turnHash, "events");
+  const eventDirectory = join6(turnsDirectory, turnHash, "events");
   const events = await listPrivateDirectory(root, eventDirectory);
   if (events === void 0)
     return [];
@@ -1309,12 +1679,12 @@ async function enumerateTurnCaptures(root, integration, sessionId, turnId) {
       continue;
     if (!CAPTURE_EVENT_FILE.test(event.name))
       throw new Error("Invalid capture event path");
-    const path = join5(eventDirectory, event.name);
+    const path = join6(eventDirectory, event.name);
     const record = await readRecord(root, path);
     if (record === void 0 || record.integration !== integration || record.sessionId !== sessionId || record.turnId !== turnId || `${identifierHash(record.eventId)}.json` !== event.name) {
       throw new Error("Capture event namespace does not match");
     }
-    const info = await lstat3(path);
+    const info = await lstat4(path);
     if (!info.isFile() || info.isSymbolicLink() || !Number.isFinite(info.mtimeMs))
       throw new Error("Capture event must be a regular file");
     captures.push({ record, capturedAtMs: record.capturedAtMs });
@@ -1322,7 +1692,7 @@ async function enumerateTurnCaptures(root, integration, sessionId, turnId) {
   return captures.toSorted(compareCaptures);
 }
 async function enumerateSession(root, integration, sessionHash) {
-  const turnsDirectory = join5(captureDirectory(root), "integrations", integration, "sessions", sessionHash, "turns");
+  const turnsDirectory = join6(captureDirectory(root), "integrations", integration, "sessions", sessionHash, "turns");
   const turns = await listPrivateDirectory(root, turnsDirectory);
   if (turns === void 0)
     return void 0;
@@ -1331,7 +1701,7 @@ async function enumerateSession(root, integration, sessionHash) {
   for (const turn of turns) {
     if (!turn.isDirectory() || turn.isSymbolicLink() || !CAPTURE_HASH.test(turn.name))
       throw new Error("Invalid capture turn directory");
-    const eventDirectory = join5(turnsDirectory, turn.name, "events");
+    const eventDirectory = join6(turnsDirectory, turn.name, "events");
     const events = await listPrivateDirectory(root, eventDirectory);
     if (events === void 0)
       continue;
@@ -1342,13 +1712,13 @@ async function enumerateSession(root, integration, sessionHash) {
         continue;
       if (!CAPTURE_EVENT_FILE.test(event.name))
         throw new Error("Invalid capture event path");
-      const path = join5(eventDirectory, event.name);
+      const path = join6(eventDirectory, event.name);
       const record = await readRecord(root, path);
       if (record === void 0 || record.integration !== integration || identifierHash(record.sessionId) !== sessionHash || identifierHash(record.turnId) !== turn.name || `${identifierHash(record.eventId)}.json` !== event.name || sessionId !== void 0 && record.sessionId !== sessionId) {
         throw new Error("Capture event namespace does not match");
       }
       sessionId = record.sessionId;
-      const info = await lstat3(path);
+      const info = await lstat4(path);
       if (!info.isFile() || info.isSymbolicLink() || !Number.isFinite(info.mtimeMs))
         throw new Error("Capture event must be a regular file");
       captures.push({ record, capturedAtMs: record.capturedAtMs });
@@ -1822,10 +2192,10 @@ function parseRouteRecord(record, input, sourceRef) {
   return parseRoute(record.normalizedPayload);
 }
 function sourceStore(storageRoot, accountFingerprint) {
-  return createCaptureStore(join6(storageRoot, CURSOR_TURN_SOURCE_DIRECTORY, accountHash(accountFingerprint)));
+  return createCaptureStore(join7(storageRoot, CURSOR_TURN_SOURCE_DIRECTORY, accountHash(accountFingerprint)));
 }
 function routeStore(storageRoot, accountFingerprint) {
-  return createCaptureStore(join6(storageRoot, CURSOR_TURN_ROUTE_DIRECTORY, accountHash(accountFingerprint)));
+  return createCaptureStore(join7(storageRoot, CURSOR_TURN_ROUTE_DIRECTORY, accountHash(accountFingerprint)));
 }
 function accountHash(accountFingerprint) {
   return createHash2("sha256").update(accountFingerprint).digest("hex");
@@ -1879,7 +2249,7 @@ function metadataTool(tool) {
   };
 }
 function parseSource(value) {
-  if (!isRecord(value) || value.version !== CURSOR_NATIVE_TURN_SOURCE_VERSION || typeof value.sourceEventId !== "string" || !isValidBoundedText(value.sourceEventId, CURSOR_TURN_SOURCE_EVENT_ID_MAX_LENGTH) || typeof value.conversationId !== "string") {
+  if (!isRecord2(value) || value.version !== CURSOR_NATIVE_TURN_SOURCE_VERSION || typeof value.sourceEventId !== "string" || !isValidBoundedText(value.sourceEventId, CURSOR_TURN_SOURCE_EVENT_ID_MAX_LENGTH) || typeof value.conversationId !== "string") {
     throw new Error(CURSOR_NATIVE_SOURCE_ERRORS.sourceInvalid);
   }
   const turnNum = value.turnNum;
@@ -1896,19 +2266,19 @@ function parseSource(value) {
   };
 }
 function parseRoute(value) {
-  if (!isRecord(value) || value.version !== CURSOR_NATIVE_TURN_ROUTE_VERSION || typeof value.cwd !== "string" || !isValidBoundedText(value.cwd, CURSOR_ENGINE_WORKER_ARGUMENT_LIMITS.cwd)) {
+  if (!isRecord2(value) || value.version !== CURSOR_NATIVE_TURN_ROUTE_VERSION || typeof value.cwd !== "string" || !isValidBoundedText(value.cwd, CURSOR_ENGINE_WORKER_ARGUMENT_LIMITS.cwd)) {
     throw new Error(CURSOR_NATIVE_SOURCE_ERRORS.routeInvalid);
   }
   return { version: CURSOR_NATIVE_TURN_ROUTE_VERSION, cwd: value.cwd };
 }
 function isTurnBuffer(value) {
-  if (!isRecord(value))
+  if (!isRecord2(value))
     return false;
   return typeof value.generation_id === "string" && Number.isSafeInteger(value.startMs) && Array.isArray(value.tools) && Array.isArray(value.thoughts) && Array.isArray(value.subagents);
 }
 
 // dist/src/turn-origin.js
-import { dirname as dirname4 } from "node:path";
+import { dirname as dirname5 } from "node:path";
 
 // node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/upload/destination-identity.js
 import { createHash as createHash3 } from "node:crypto";
@@ -2135,7 +2505,7 @@ function resolveTurnOriginRoute(origin, fallbackSessionId) {
     config: routedConfig,
     cwd,
     sessionId,
-    storageRoot: dirname4(routedConfig.stateFilePath),
+    storageRoot: dirname5(routedConfig.stateFilePath),
     destinationFingerprint,
     origin
   };
