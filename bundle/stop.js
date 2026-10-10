@@ -42,7 +42,7 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 ));
 
 // dist/src/constants.js
-var TURN_RUN_NAME, SKILL_RUN_NAME, DEFAULT_TAGS, DEFAULT_PROJECT, CURSOR_INTEGRATION, CODING_AGENT_METADATA_OPTIONS, CURSOR_ENGINE_WORKER_FLAG, CURSOR_ENGINE_WORKER_ENTRY, CURSOR_ENGINE_WORKER_ARGUMENT_LIMITS, CONTROL_CHARACTER_PATTERN, CURSOR_RUN_POST_EVENT_KIND, CURSOR_RUN_PATCH_EVENT_KIND, CURSOR_ENGINE_NODE_SCRIPT, CURSOR_ENGINE_PATCH_FIELDS, READ_TOOLS, DEFAULT_SWEEP_IDLE_MINUTES, MAX_UPLOAD_ATTEMPTS, LEADING_BYTE_ORDER_MARKS;
+var TURN_RUN_NAME, SKILL_RUN_NAME, DEFAULT_TAGS, DEFAULT_PROJECT, CURSOR_INTEGRATION, CODING_AGENT_METADATA_OPTIONS, CURSOR_ENGINE_WORKER_FLAG, CURSOR_ENGINE_WORKER_ENTRY, CURSOR_ENGINE_WORKER_ARGUMENT_LIMITS, CONTROL_CHARACTER_PATTERN, CURSOR_RUN_POST_EVENT_KIND, CURSOR_RUN_PATCH_EVENT_KIND, CURSOR_ENGINE_NODE_SCRIPT, READ_TOOLS, DEFAULT_SWEEP_IDLE_MINUTES, MAX_UPLOAD_ATTEMPTS, LEADING_BYTE_ORDER_MARKS;
 var init_constants = __esm({
   "dist/src/constants.js"() {
     "use strict";
@@ -63,16 +63,6 @@ var init_constants = __esm({
     CURSOR_RUN_POST_EVENT_KIND = "run-post";
     CURSOR_RUN_PATCH_EVENT_KIND = "run-patch";
     CURSOR_ENGINE_NODE_SCRIPT = /\.(?:c|m)?js$|\.ts$/;
-    CURSOR_ENGINE_PATCH_FIELDS = [
-      "inputs",
-      "outputs",
-      "end_time",
-      "error",
-      "tags",
-      "serialized",
-      "events",
-      "reference_example_id"
-    ];
     READ_TOOLS = /* @__PURE__ */ new Set(["read_file_v2", "ReadFile", "Read"]);
     DEFAULT_SWEEP_IDLE_MINUTES = 360;
     MAX_UPLOAD_ATTEMPTS = 3;
@@ -80,10 +70,10 @@ var init_constants = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/settings/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/settings/constants.js
 var COMMON_BOOLEAN_SETTINGS;
 var init_constants2 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/settings/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/settings/constants.js"() {
     COMMON_BOOLEAN_SETTINGS = {
       enabled: { default: false, restrictive: false },
       defaultMuted: { default: false, restrictive: true }
@@ -91,7 +81,7 @@ var init_constants2 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/settings/common-config.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/settings/common-config.js
 import { lstatSync, readFileSync, statSync } from "node:fs";
 function object(value) {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -251,14 +241,14 @@ function toSdkReplicas(replicas2) {
   }));
 }
 var init_common_config = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/settings/common-config.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/settings/common-config.js"() {
     init_constants2();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/settings/index.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/settings/index.js
 var init_settings = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/settings/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/settings/index.js"() {
     init_constants2();
     init_common_config();
   }
@@ -14058,7 +14048,7 @@ var AsyncLocalStorageProviderSingleton = new AsyncLocalStorageProvider();
 // node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/index.js
 var __version__ = "0.10.2";
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/metadata/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/metadata/constants.js
 var CODING_AGENT_SCHEMA_VERSION = "coding-agent-v1";
 var CODING_AGENT_RUN_TYPES = [
   "root",
@@ -14170,7 +14160,7 @@ var CODING_AGENT_METADATA_PROJECTION_FIELDS = [
   ["modelName", "ls_model_name"]
 ];
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/metadata/contract.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/metadata/contract.js
 function field(key, options = {}) {
   return { key, ...CODING_AGENT_FIELD_DEFAULTS, ...options };
 }
@@ -14280,7 +14270,7 @@ var CODING_AGENT_V1_CONTRACT = {
   integrationPolicies: CODING_AGENT_INTEGRATION_POLICIES
 };
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/metadata/validation.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/metadata/validation.js
 function isRecord2(value) {
   return value !== null && typeof value === "object" && !Array.isArray(value);
 }
@@ -14329,7 +14319,7 @@ function normalizeProviderMetadata(value, integration, runType) {
   return Object.fromEntries(Object.entries(value).filter(([key, entry]) => entry !== void 0 && !issues.has(key)));
 }
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/metadata/builder.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/metadata/builder.js
 function buildCodingAgentMetadata(options) {
   const policy = CODING_AGENT_INTEGRATION_POLICIES[options.integration];
   const identity = {
@@ -14396,7 +14386,7 @@ function trustedCodingAgentMetadata(metadata) {
   return metadata?.[TRUSTED_METADATA];
 }
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/storage/capture/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/storage/capture/constants.js
 var CAPTURE_DIRECTORY = "capture-v1";
 var CAPTURE_RECORD_VERSION = 2;
 var CAPTURE_RECEIPT_VERSION = 1;
@@ -14409,7 +14399,7 @@ var CAPTURE_EVENT_FILE = /^[0-9a-f]{64}\.json$/u;
 var CAPTURE_STAGING_FILE = /^\.[0-9a-f-]{36}\.tmp$/u;
 var JSON_ARRAY_INDEX_KEY = /^(0|[1-9]\d*)$/u;
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/storage/capture/utils/serialization.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/storage/capture/utils/serialization.js
 function canonicalJson(value) {
   const result = JSON.stringify(canonicalValue(value, /* @__PURE__ */ new Set()));
   if (result === void 0)
@@ -14461,7 +14451,7 @@ function canonicalValue(value, seen) {
   return result;
 }
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/utils/validation/objects.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/utils/validation/objects.js
 function isPlainRecord(value) {
   return value !== null && typeof value === "object" && (Object.getPrototypeOf(value) === Object.prototype || Object.getPrototypeOf(value) === null);
 }
@@ -14529,8 +14519,13 @@ function requireSafeEpochMilliseconds(value, name) {
   }
   return value;
 }
+function requireNonNegativeInteger(value, name) {
+  if (typeof value !== "number" || !Number.isSafeInteger(value) || value < 0)
+    throw new TypeError(`${name} must be a non-negative safe integer`);
+  return value;
+}
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/metadata/privacy.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/metadata/privacy.js
 function projectCodingAgentMetadata(metadata, integration, status) {
   const safe = {};
   for (const [key, value] of Object.entries(metadata ?? {})) {
@@ -14552,7 +14547,7 @@ function metadataForMode(metadata, integration, mode = "full", status) {
   return projectCodingAgentMetadata(source, integration, status);
 }
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/metadata/provenance.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/metadata/provenance.js
 function prepareCodingAgentMetadataProvenance(value, integration, mode, status = "running") {
   const source = requirePlainRecord(value, "Run metadata");
   const declaredIntegration = ownDataField(source, "integration");
@@ -15572,14 +15567,13 @@ function resolveTurnSteps(opts) {
 // dist/src/tracing-engine.js
 import { createHash as createHash5 } from "node:crypto";
 import { spawn } from "node:child_process";
-import { dirname as dirname6, extname, join as join16 } from "node:path";
-import { isDeepStrictEqual } from "node:util";
+import { dirname as dirname6, extname, join as join17 } from "node:path";
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/storage/capture/capture-store.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/storage/capture/capture-store.js
 import { lstat as lstat3 } from "node:fs/promises";
 import { join as join7, resolve as resolve3 } from "node:path";
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/storage/capture/paths.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/storage/capture/paths.js
 import { createHash } from "node:crypto";
 import { resolve, join as join4 } from "node:path";
 function validateIntegration(value) {
@@ -15612,7 +15606,7 @@ function receiptPath(root, scope, destination) {
   return join4(captureDirectory(root), "integrations", scope.integration, "sessions", identifierHash(scope.sessionId), "turns", identifierHash(scope.turnId), "receipts", identifierHash(destination), `${identifierHash(scope.eventId)}.json`);
 }
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/storage/capture/utils/atomic-file.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/storage/capture/utils/atomic-file.js
 import { constants as fsConstants } from "node:fs";
 import { chmod, link, lstat, mkdir as mkdir4, open as open2, unlink as unlink3 } from "node:fs/promises";
 import { dirname as dirname4, isAbsolute, join as join5, relative, sep } from "node:path";
@@ -15729,7 +15723,7 @@ function errorCode(error2) {
   return error2 !== null && typeof error2 === "object" && "code" in error2 && typeof error2.code === "string" ? error2.code : void 0;
 }
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/utils/files/private-directory.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/utils/files/private-directory.js
 import { lstat as lstat2, readdir as readdir3 } from "node:fs/promises";
 import { isAbsolute as isAbsolute2, join as join6, relative as relative2, resolve as resolve2, sep as sep2 } from "node:path";
 async function listPrivateDirectory(root, directory) {
@@ -15768,7 +15762,7 @@ function errorCode2(error2) {
   return error2 !== null && typeof error2 === "object" && "code" in error2 && typeof error2.code === "string" ? error2.code : void 0;
 }
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/storage/capture/capture-store.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/storage/capture/capture-store.js
 function createCaptureStore(root) {
   const storageRoot = resolve3(root);
   return {
@@ -15796,6 +15790,9 @@ function createCaptureStore(root) {
           metadataProvenance: canonicalValue(input.metadataProvenance, /* @__PURE__ */ new Set()),
           ...input.sourceAgeStartedAtMs === void 0 ? {} : {
             sourceAgeStartedAtMs: requireSafeEpochMilliseconds(input.sourceAgeStartedAtMs, "Source age")
+          },
+          ...input.priorDeliveryAttempts === void 0 ? {} : {
+            priorDeliveryAttempts: requireNonNegativeInteger(input.priorDeliveryAttempts, "Prior delivery attempts")
           },
           ...dependencies === void 0 ? {} : { dependencies }
         };
@@ -15865,6 +15862,9 @@ function createCaptureStore(root) {
         }
       }
       return captures.toSorted(compareCaptures);
+    },
+    async enumerateTurn(integration, sessionId, turnId) {
+      return enumerateTurnCaptures(storageRoot, integration, sessionId, turnId);
     },
     async enumerateSessions(integration) {
       validateIntegration(integration);
@@ -15954,6 +15954,44 @@ function compareCaptures(left, right) {
     return 0;
   return left.record.eventId < right.record.eventId ? -1 : 1;
 }
+async function enumerateTurnCaptures(root, integration, sessionId, turnId) {
+  validateIntegration(integration);
+  validateIdentifier(sessionId, "session ID");
+  validateIdentifier(turnId, "turn ID");
+  const turnsDirectory = join7(captureDirectory(root), "integrations", integration, "sessions", identifierHash(sessionId), "turns");
+  const turns = await listPrivateDirectory(root, turnsDirectory);
+  if (turns === void 0)
+    return [];
+  const turnHash = identifierHash(turnId);
+  const turn = turns.find((entry) => entry.name === turnHash);
+  if (turn === void 0)
+    return [];
+  if (!turn.isDirectory() || turn.isSymbolicLink())
+    throw new Error("Invalid capture turn directory");
+  const eventDirectory = join7(turnsDirectory, turnHash, "events");
+  const events = await listPrivateDirectory(root, eventDirectory);
+  if (events === void 0)
+    return [];
+  const captures = [];
+  for (const event of events) {
+    if (event.isSymbolicLink() || !event.isFile())
+      throw new Error("Capture event must be a regular file");
+    if (CAPTURE_STAGING_FILE.test(event.name))
+      continue;
+    if (!CAPTURE_EVENT_FILE.test(event.name))
+      throw new Error("Invalid capture event path");
+    const path3 = join7(eventDirectory, event.name);
+    const record = await readRecord(root, path3);
+    if (record === void 0 || record.integration !== integration || record.sessionId !== sessionId || record.turnId !== turnId || `${identifierHash(record.eventId)}.json` !== event.name) {
+      throw new Error("Capture event namespace does not match");
+    }
+    const info = await lstat3(path3);
+    if (!info.isFile() || info.isSymbolicLink() || !Number.isFinite(info.mtimeMs))
+      throw new Error("Capture event must be a regular file");
+    captures.push({ record, capturedAtMs: record.capturedAtMs });
+  }
+  return captures.toSorted(compareCaptures);
+}
 async function enumerateSession(root, integration, sessionHash) {
   const turnsDirectory = join7(captureDirectory(root), "integrations", integration, "sessions", sessionHash, "turns");
   const turns = await listPrivateDirectory(root, turnsDirectory);
@@ -16022,6 +16060,8 @@ async function readRecord(root, path3) {
   if ("sourceAgeStartedAtMs" in value) {
     requireSafeEpochMilliseconds(value["sourceAgeStartedAtMs"], "Stored source age");
   }
+  if ("priorDeliveryAttempts" in value)
+    requireNonNegativeInteger(value["priorDeliveryAttempts"], "Stored prior delivery attempts");
   for (const [identifier, name] of [
     [value.runId, "run ID"],
     [value.destinationFingerprint, "destination fingerprint"],
@@ -16118,19 +16158,19 @@ function errorCode3(error2) {
   return error2 !== null && typeof error2 === "object" && "code" in error2 && typeof error2.code === "string" ? error2.code : void 0;
 }
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/background-worker/worker.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/tracing/background-worker/worker.js
 import { randomUUID as randomUUID5 } from "node:crypto";
 import { unlink as unlink5 } from "node:fs/promises";
 import { join as join10, resolve as resolve6 } from "node:path";
 import { setTimeout as delay2 } from "node:timers/promises";
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/storage/file-lock.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/storage/file-lock.js
 import { chmod as chmod2, link as link2, lstat as lstat4, mkdir as mkdir5, readFile, readdir as readdir4, rename as rename3, unlink as unlink4, writeFile as writeFile2 } from "node:fs/promises";
 import { performance as performance4 } from "node:perf_hooks";
 import { randomUUID as randomUUID4 } from "node:crypto";
 import { dirname as dirname5, join as join8, resolve as resolve4 } from "node:path";
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/storage/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/storage/constants.js
 var FILE_LOCK_CLAIM_VERSION = 1;
 var FILE_LOCK_CLAIM_EXTENSION = ".json";
 var FILE_LOCK_DIRECTORY_SUFFIX = ".claims";
@@ -16157,7 +16197,7 @@ var FILE_LOCK_PROCESS_CHECK_SIGNAL = 0;
 var FILE_LOCK_RENAME_RETRY_TIMEOUT_MS = 100;
 var FILE_LOCK_RENAME_BUSY_CODE = "EPERM";
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/storage/file-lock.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/storage/file-lock.js
 function isRecord3(value) {
   return typeof value === "object" && value !== null;
 }
@@ -16427,7 +16467,7 @@ async function withFileLock(filePath, callback, options) {
   }
 }
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/background-worker/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/tracing/background-worker/constants.js
 var BACKGROUND_WORKER_DIRECTORY = "background-worker";
 var BACKGROUND_WORKER_INTEGRATIONS_DIRECTORY = "integrations";
 var BACKGROUND_WORKER_SESSIONS_DIRECTORY = "sessions";
@@ -16449,7 +16489,7 @@ var BACKGROUND_WORKER_OWNER_WAIT_MS = 3e4;
 var BACKGROUND_WORKER_STARTUP_WAIT_MS = 2e3;
 var BACKGROUND_WORKER_LAUNCH_LEASE_MS = 3e4;
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/background-worker/paths.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/tracing/background-worker/paths.js
 import { join as join9, resolve as resolve5 } from "node:path";
 function validateWorkerScope(scope) {
   validateIntegration(scope.integration);
@@ -16476,7 +16516,7 @@ function workerLaunchPath(storageRoot, scope) {
   return join9(workerDirectory(storageRoot, scope), BACKGROUND_WORKER_LAUNCHING_FILE);
 }
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/background-worker/worker.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/tracing/background-worker/worker.js
 function createBackgroundWorker(options) {
   validateOptions(options);
   const storageRoot = resolve6(options.storageRoot);
@@ -16863,13 +16903,13 @@ function parseObject2(contents) {
   return value;
 }
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/bridge.js
-import { join as join13, resolve as resolve9 } from "node:path";
+// node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/bridge.js
+import { join as join14, resolve as resolve9 } from "node:path";
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/delivery/coordinator.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/tracing/delivery/coordinator.js
 import { join as join12, resolve as resolve8 } from "node:path";
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/delivery/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/tracing/delivery/constants.js
 var DELIVERY_DIRECTORY = "delivery-v1";
 var DELIVERY_ATTEMPT_VERSION = 1;
 var DELIVERY_DEFAULT_MAX_ATTEMPTS = 5;
@@ -16882,7 +16922,7 @@ var DELIVERY_CAPACITY_REASON = "capacity";
 var DELIVERY_RETRY_EXHAUSTED_REASON = "retry-exhausted";
 var DELIVERY_DEPENDENCY_DROPPED_REASON = "dependency-dropped";
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/delivery/attempt-store.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/tracing/delivery/attempt-store.js
 import { join as join11, resolve as resolve7 } from "node:path";
 function createDeliveryAttemptStore(root) {
   const storageRoot = resolve7(root);
@@ -16987,7 +17027,7 @@ function validateTimestamp(value) {
     throw new TypeError("Invalid delivery attempt timestamp");
 }
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/delivery/coordinator.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/tracing/delivery/coordinator.js
 function createDeliveryCoordinator(options) {
   const { integration, sessionId } = options;
   validateIntegration(integration);
@@ -17092,7 +17132,8 @@ async function drainLocked(captureStore, attemptStore, integration, sessionId, p
           continue;
         }
         const attemptCount = await attemptStore.count(candidate.scope, destination.id);
-        if (attemptCount >= policy.maxAttempts) {
+        const remainingAttempts = policy.maxAttempts - (candidate.entry.record.priorDeliveryAttempts ?? 0);
+        if (attemptCount >= remainingAttempts) {
           dropped += await recordDropped(drainCache, candidate.scope, destination.id, DELIVERY_RETRY_EXHAUSTED_REASON);
           progressed = true;
           continue;
@@ -17105,7 +17146,7 @@ async function drainLocked(captureStore, attemptStore, integration, sessionId, p
           await request.writer.send(structuredClone(candidate.entry.record), destination, request.writer.accountFingerprint);
         } catch {
           failed += 1;
-          if (attempt >= policy.maxAttempts) {
+          if (attempt >= remainingAttempts) {
             dropped += await recordDropped(drainCache, candidate.scope, destination.id, DELIVERY_RETRY_EXHAUSTED_REASON);
             progressed = true;
           }
@@ -17296,7 +17337,7 @@ function resolvePolicy(policy) {
   return resolved;
 }
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/privacy/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/privacy/constants.js
 var MUTED_TRACE_CONTENT2 = "[LangSmith system notice: content omitted because tracing is muted.]";
 var METADATA_MODE_RUN_CONFIG_FIELDS = [
   "client",
@@ -17313,7 +17354,7 @@ var METADATA_MODE_RUN_CONFIG_FIELDS = [
   "distributedParentId"
 ];
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/privacy/run-tree.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/privacy/run-tree.js
 function mutedContent(role) {
   return { messages: [{ role, content: MUTED_TRACE_CONTENT2 }] };
 }
@@ -17430,10 +17471,10 @@ function survivingCodingAgentPatchFields(projectedRun, fields) {
   });
 }
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/upload/destinations.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/tracing/upload/destinations.js
 import { createHash as createHash2 } from "node:crypto";
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/upload/client.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/tracing/upload/client.js
 function createUploadClient(options) {
   const { apiKey, apiUrl, workspaceId, anonymizer, redactedFields } = options;
   return new Client({
@@ -17452,7 +17493,7 @@ function createUploadClient(options) {
   });
 }
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/upload/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/tracing/upload/constants.js
 var UPLOAD_ACCOUNT_FINGERPRINT_PREFIX = "account_";
 var UPLOAD_DESTINATION_ID_PREFIX = "destination_";
 var UPLOAD_FINGERPRINT_LENGTH = 32;
@@ -17498,7 +17539,7 @@ var UPLOAD_PATCH_FIELDS = /* @__PURE__ */ new Set([
 ]);
 var UPLOAD_REDACTED_FIELDS = ["inputs", "outputs"];
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/upload/redaction.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/tracing/upload/redaction.js
 function createUploadAnonymizer(enabled, extraRules) {
   if (!enabled)
     return void 0;
@@ -17528,7 +17569,7 @@ function normalizedRedactedFields(value) {
   return UPLOAD_REDACTED_FIELDS.filter((field2) => value.includes(field2));
 }
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/upload/destinations.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/tracing/upload/destinations.js
 function resolveUploadDestinations(options) {
   if (!Array.isArray(options.destinations) || options.destinations.length === 0) {
     throw new TypeError("At least one upload destination is required");
@@ -17661,7 +17702,7 @@ function fingerprint(value) {
   return createHash2("sha256").update(value).digest("hex").slice(0, UPLOAD_FINGERPRINT_LENGTH);
 }
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/upload/replica-identifiers.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/tracing/upload/replica-identifiers.js
 import { createHash as createHash3 } from "node:crypto";
 function remapReplicaRunContext(context, sourceProjectName, destinationProjectName) {
   if (sourceProjectName === destinationProjectName)
@@ -17694,7 +17735,7 @@ function remapReplicaDottedOrder(dottedOrder, projectName) {
   }).join(".");
 }
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/upload/upload.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/tracing/upload/upload.js
 function createLangSmithUploadWriter(options) {
   const resolved = resolveUploadDestinations(options);
   const destinations = resolved.destinations.map(({ id }) => Object.freeze({ id }));
@@ -17917,11 +17958,11 @@ function validatePatch(submission) {
   }
 }
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/capture-wake-constants.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/tracing/capture-wake-constants.js
 var CAPTURE_WAKE_ERROR_NAME = "CaptureWakeError";
 var CAPTURE_WAKE_FAILURE_MESSAGE = "Trace work was saved but its worker could not start";
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/capture-wake.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/tracing/capture-wake.js
 var CaptureWakeError = class extends Error {
   captureResult;
   constructor(captureResult, cause) {
@@ -17938,10 +17979,10 @@ async function wakeCapturedWork(captureResult, wake) {
   }
 }
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/settlement/pass.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/tracing/settlement/pass.js
 import { createHash as createHash4 } from "node:crypto";
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/constants.js
 var ROOT_RUN_EXECUTION_ORDER = 1;
 var DOTTED_ORDER_TIME_PREFIX_LENGTH = 18;
 var DOTTED_ORDER_SEGMENT_PATTERN = /^(\d{8}T\d{12}Z)([^.]+)$/u;
@@ -17955,9 +17996,21 @@ var LIFECYCLE_SETTLEMENT_LOCK_FILE = "drain";
 var LIFECYCLE_SETTLEMENT_LOCK_INTEGRATIONS_DIRECTORY = "integrations";
 var LIFECYCLE_SETTLEMENT_LOCK_SESSIONS_DIRECTORY = "sessions";
 var LIFECYCLE_SETTLEMENT_LOCK_ACCOUNTS_DIRECTORY = "accounts";
+var LIFECYCLE_SNAPSHOT_LOCK_DIRECTORY = "lifecycle-snapshot-v1";
+var LIFECYCLE_SNAPSHOT_LOCK_FILE = "capture";
+var LIFECYCLE_SNAPSHOT_REVISION_EVENT_ID_PREFIX = "run-snapshot-v1:";
+var LIFECYCLE_SNAPSHOT_OPTIONAL_RUN_FIELDS = [
+  "outputs",
+  "end_time",
+  "error",
+  "tags",
+  "serialized",
+  "events",
+  "reference_example_id"
+];
 var LIFECYCLE_TURN_CLOSURE_STATES = ["open", "provisional", "authoritative"];
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/closure.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/closure.js
 function deriveAttributionReadiness(value, integration) {
   const source = requirePlainRecord(value, "Prepared run submission");
   const metadata = prepareCodingAgentMetadataProvenance(requireOwnDataField(source, "metadata"), integration, "full");
@@ -18102,7 +18155,7 @@ function captureScopeKey(scope) {
   return JSON.stringify([scope.integration, scope.sessionId, scope.turnId, scope.eventId]);
 }
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/identity.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/identity.js
 function createRunIdentity(input) {
   const id = requireNonBlankString(input.id, "Run ID");
   const start_time = requireTimestamp(input.start_time);
@@ -18162,7 +18215,7 @@ function dottedOrderSegment(startTime, runId) {
   return `${precisionTime.replace(DOTTED_ORDER_STRIP_PATTERN, "")}${runId}`;
 }
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/projection.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/projection.js
 function projectSubmission(value, integration, priorIdentity) {
   const source = requirePlainRecord(value, "Prepared run submission");
   if (requireOwnDataField(source, "integration") !== integration) {
@@ -18193,7 +18246,8 @@ function projectSubmission(value, integration, priorIdentity) {
         ...privacyMode === "metadata" ? { privacyContext: { status } } : {},
         run: privacyMode === "metadata" ? projectPost(run2, metadata2.value, status) : run2
       },
-      metadata: metadata2.value
+      metadata: metadata2.value,
+      privacyStatus: status
     };
     return { status: "ready", value: projected2 };
   }
@@ -18213,9 +18267,28 @@ function projectSubmission(value, integration, priorIdentity) {
       privacyContext,
       patch: privacyMode === "metadata" ? projectPatch(run, patch, integration, metadata.value, privacyContext) : patch
     },
-    metadata: metadata.value
+    metadata: metadata.value,
+    privacyStatus: privacyContext.status
   };
   return { status: "ready", value: projected };
+}
+function projectTurnEvidence(value, mode, attributionReady) {
+  const source = requirePlainRecord(value, "Lifecycle turn evidence");
+  const childRunIds = requireStringArray(requireOwnDataField(source, "childRunIds"), "Child run IDs").map((runId) => requireNonBlankString(runId, "Child run ID"));
+  const closureState = requireOwnDataField(source, "closureState");
+  if (typeof closureState !== "string" || !LIFECYCLE_TURN_CLOSURE_STATES.includes(closureState)) {
+    throw new TypeError("Lifecycle turn evidence has an invalid closure state");
+  }
+  const structural2 = {
+    childRunIds,
+    closureState
+  };
+  const persisted = { ...structural2, [LIFECYCLE_ATTRIBUTION_READY_FIELD]: attributionReady };
+  const rootRunId = ownDataField(source, "rootRunId");
+  if (rootRunId.present && rootRunId.value !== void 0) {
+    persisted.rootRunId = requireNonBlankString(rootRunId.value, "Root run ID");
+  }
+  return canonicalJsonValue(mode === "metadata" ? persisted : { ...source, ...persisted });
 }
 function projectPost(run, metadata, status) {
   const tree = createCodingAgentRunTree({
@@ -18404,7 +18477,7 @@ function requiredText(source, key, name) {
   return requireNonBlankString(requireOwnDataField(source, key), name);
 }
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/settlement/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/tracing/settlement/constants.js
 var TURN_REPOSITORY_KEYS = [
   "repository_name",
   "repository_provider",
@@ -18416,8 +18489,9 @@ var REPOSITORY_METADATA_KEYS = [...TURN_REPOSITORY_KEYS, "ls_attribution_identif
 var REPOSITORY_NAME_KEY = "repository_name";
 var ATTRIBUTION_IDENTIFIER_KEY = "ls_attribution_identifier";
 var SETTLEMENT_EVENT_ID_PREFIX = "turn-settlement-";
+var SETTLEMENT_EVENT_ID_PATTERN = /^turn-settlement-[0-9a-f]{64}$/u;
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/settlement/settlement.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/tracing/settlement/settlement.js
 function attributionOf(metadata) {
   const carried = {};
   for (const key of REPOSITORY_METADATA_KEYS) {
@@ -18450,7 +18524,7 @@ function metadataAfterFill(run, filled) {
   return { ...run.metadata, ...Object.fromEntries(missing) };
 }
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/settlement/pass.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/tracing/settlement/pass.js
 async function settleCapturedTurns(options) {
   if (options.destinations.length === 0)
     throw new TypeError("At least one settlement destination is required");
@@ -18737,6 +18811,7 @@ function patchPayload(source, metadata, integration, endTime, causalRunError = f
     operation: "patch",
     integration,
     privacyMode: source.payload.privacyMode,
+    ...source.payload.redactedFields === void 0 ? {} : { redactedFields: source.payload.redactedFields },
     metadata,
     run: {
       id: context.id,
@@ -18961,7 +19036,7 @@ function report(turnId, status, reason, runIds = [], destinations = []) {
   };
 }
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/utils/validation/snapshot.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/utils/validation/snapshot.js
 function snapshotData(value) {
   return copySnapshot(value, /* @__PURE__ */ new WeakMap());
 }
@@ -19001,7 +19076,311 @@ function copySnapshot(value, copies) {
   return copy;
 }
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/bridge.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/snapshot.js
+import { join as join13 } from "node:path";
+async function captureLifecycleSnapshot(options, input) {
+  const captureInput = snapshotData(requirePlainRecord(input, "Lifecycle snapshot capture"));
+  const snapshot = requirePlainRecord(captureInput, "Lifecycle snapshot capture");
+  const turnId = requireNonBlankString(snapshot["turnId"], "Turn ID");
+  const eventId = requireNonBlankString(snapshot["eventId"], "Event ID");
+  validateIdentifier(turnId, "turn ID");
+  validateIdentifier(eventId, "event ID");
+  const submission = requirePlainRecord(snapshot["submission"], "Prepared run snapshot");
+  if (submission["operation"] !== "post")
+    throw new TypeError("A full run snapshot must be a POST");
+  const sourceRun = requirePlainRecord(requireOwnDataField(submission, "run"), "Run snapshot");
+  const runId = requireNonBlankString(requireOwnDataField(sourceRun, "id"), "Run ID");
+  validateIdentifier(runId, "run ID");
+  const streamHash = identifierHash(`${options.integration}\0${options.sessionId}\0${turnId}\0${runId}`);
+  const revisionPrefix = `${LIFECYCLE_SNAPSHOT_REVISION_EVENT_ID_PREFIX}${streamHash}:`;
+  const lockDirectory = await ensurePrivateDirectory(options.storageRoot, [
+    LIFECYCLE_SNAPSHOT_LOCK_DIRECTORY,
+    "integrations",
+    options.integration,
+    "sessions",
+    identifierHash(options.sessionId),
+    "turns",
+    identifierHash(turnId),
+    "runs",
+    identifierHash(runId)
+  ]);
+  return withFileLock(join13(lockDirectory, LIFECYCLE_SNAPSHOT_LOCK_FILE), async () => {
+    const records = (await options.store.enumerateTurn(options.integration, options.sessionId, turnId)).map(({ record }) => record).filter((record) => record.runId === runId);
+    const state = readSnapshotState(records, options.destinationFingerprint, revisionPrefix);
+    if (state === "conflict")
+      return { status: "conflict" };
+    if (state === void 0) {
+      if (records.length > 0)
+        return { status: "conflict" };
+      return options.capture(captureInput);
+    }
+    if (state.post.destinationFingerprint !== options.destinationFingerprint) {
+      return { status: "conflict" };
+    }
+    const projected = projectSubmission(snapshot["submission"], options.integration, runContext(state.post));
+    if (projected.status === "deferred") {
+      return { status: "deferred", reason: "missing-thread-identity" };
+    }
+    if (projected.value.payload.operation !== "post")
+      return { status: "conflict" };
+    if (projected.value.payload.privacyMode !== state.privacyMode || !sameCanonical(normalizedRedactedFields(projected.value.payload.redactedFields), state.redactedFields)) {
+      return { status: "conflict" };
+    }
+    const candidateRun = applySnapshotOmissions(projected.value.payload.run, state.run, sourceRun);
+    if (!sameRunIdentity(state.run, candidateRun))
+      return { status: "conflict" };
+    const privacyStatus2 = state.privacyMode === "metadata" ? projected.value.privacyStatus : runPrivacyStatus(candidateRun);
+    const evidence = projectTurnEvidence(snapshot["turnEvidence"], state.privacyMode, deriveAttributionReadiness(snapshot["submission"], options.integration));
+    const metadata = canonicalJsonValue(projected.value.metadata);
+    const changedFields = snapshotPatchFields(state.run, candidateRun);
+    const newDependencies = (captureInput.dependencies ?? []).some((dependency) => !sameCanonical(dependency, captureScope3(state.head)) && !state.snapshotDependencies.some((persisted) => sameCanonical(dependency, persisted)));
+    if (changedFields.length === 0 && sameCanonical(state.metadataProvenance, metadata) && sameCanonical(state.turnEvidence, evidence) && state.privacyStatus === privacyStatus2 && !newDependencies) {
+      const result = { status: "duplicate", record: state.head };
+      await wakeCapturedWork(result, options.wake);
+      return result;
+    }
+    const patchValues = {};
+    for (const field2 of changedFields) {
+      const value = ownDataField(sourceRun, field2);
+      if (!value.present || value.value === void 0)
+        return { status: "conflict" };
+      patchValues[field2] = value.value;
+    }
+    const patch = {
+      operation: "patch",
+      integration: options.integration,
+      privacyMode: state.privacyMode,
+      ...submission["redactedFields"] === void 0 ? {} : { redactedFields: normalizedRedactedFields(submission["redactedFields"]) },
+      metadata: captureInput.submission.metadata,
+      run: runContext(state.post),
+      privacyContext: { status: privacyStatus2 },
+      patch: { fields: changedFields, values: patchValues }
+    };
+    const nextRevision = state.revisionCount + 1;
+    const revisionInput = {
+      turnId,
+      eventId: `${revisionPrefix}${String(nextRevision).padStart(12, "0")}`,
+      submission: patch,
+      turnEvidence: captureInput.turnEvidence,
+      dependencies: [
+        captureScope3(state.head),
+        ...(captureInput.dependencies ?? []).filter((dependency) => !sameCanonical(dependency, captureScope3(state.head)))
+      ],
+      sourceAgeStartedAtMs: state.post.sourceAgeStartedAtMs ?? state.post.capturedAtMs
+    };
+    return options.capture(revisionInput);
+  });
+}
+function readSnapshotState(records, destinationFingerprint, revisionPrefix) {
+  const posts = records.filter((record) => record.eventKind === LIFECYCLE_POST_EVENT_KIND);
+  const revisionCandidates = records.filter((record) => record.eventId.startsWith(revisionPrefix));
+  if (posts.length > 1)
+    return "conflict";
+  const post = posts[0];
+  if (post === void 0)
+    return records.length === 0 ? void 0 : "conflict";
+  if (post.destinationFingerprint !== destinationFingerprint || recordOperation(post) !== "post") {
+    return "conflict";
+  }
+  const postPayload = payloadObject(post);
+  const privacyMode = readPrivacyMode(postPayload);
+  const run = storedRun(postPayload, post.runId);
+  const redactedFields = storedRedactedFields(postPayload);
+  let metadataProvenance = canonicalJsonValue(post.metadataProvenance);
+  let turnEvidence = canonicalJsonValue(post.turnEvidence);
+  let privacyStatus2 = storedPrivacyStatus(postPayload, run, privacyMode);
+  const runFields = run;
+  let head = post;
+  const orderedRevisions = revisionCandidates.toSorted((left, right) => left.eventId.localeCompare(right.eventId));
+  let expectedPrevious = post;
+  for (let index = 0; index < orderedRevisions.length; index += 1) {
+    const revision = orderedRevisions[index];
+    const expectedId = `${revisionPrefix}${String(index + 1).padStart(12, "0")}`;
+    if (revision.eventId !== expectedId || revision.eventKind !== LIFECYCLE_PATCH_EVENT_KIND || revision.destinationFingerprint !== destinationFingerprint || !sameDependencies(revision, expectedPrevious)) {
+      return "conflict";
+    }
+    const payload = payloadObject(revision);
+    if (readPrivacyMode(payload) !== privacyMode)
+      return "conflict";
+    const candidateFields = storedRedactedFields(payload);
+    if (!sameCanonical(candidateFields, redactedFields))
+      return "conflict";
+    const patch = requirePlainRecord(requireOwnDataField(payload, "patch"), "Stored run patch");
+    const values = requirePlainRecord(requireOwnDataField(patch, "values"), "Stored patch values");
+    const fields = requireStringArray(requireOwnDataField(patch, "fields"), "Stored patch fields");
+    const seen = /* @__PURE__ */ new Set();
+    for (const field2 of fields) {
+      if (!UPLOAD_PATCH_FIELDS.has(field2) || seen.has(field2))
+        return "conflict";
+      const value = ownDataField(values, field2);
+      if (!value.present || value.value === void 0)
+        return "conflict";
+      runFields[field2] = value.value;
+      seen.add(field2);
+    }
+    const runContextValue = requirePlainRecord(requireOwnDataField(payload, "run"), "Stored run context");
+    if (!sameRunIdentity(run, runContextValue))
+      return "conflict";
+    privacyStatus2 = readPrivacyStatus(requireOwnDataField(payload, "privacyContext"));
+    metadataProvenance = canonicalJsonValue(revision.metadataProvenance);
+    turnEvidence = canonicalJsonValue(revision.turnEvidence);
+    head = revision;
+    expectedPrevious = revision;
+  }
+  const snapshotChain = [post, ...orderedRevisions];
+  for (const record of records) {
+    if (snapshotChain.includes(record))
+      continue;
+    if (record.eventKind !== LIFECYCLE_SETTLEMENT_EVENT_KIND || !SETTLEMENT_EVENT_ID_PATTERN.test(record.eventId) || record.destinationFingerprint !== destinationFingerprint || !validSettlementRecord(record, run, privacyMode, redactedFields, snapshotChain)) {
+      return "conflict";
+    }
+  }
+  return {
+    post,
+    head,
+    run,
+    metadataProvenance,
+    turnEvidence,
+    privacyMode,
+    redactedFields,
+    privacyStatus: privacyStatus2,
+    revisionCount: orderedRevisions.length,
+    snapshotDependencies: snapshotChain.flatMap((record) => record.dependencies ?? [])
+  };
+}
+function payloadObject(record) {
+  return requirePlainRecord(record.normalizedPayload, "Stored run payload");
+}
+function recordOperation(record) {
+  return payloadObject(record)["operation"];
+}
+function validSettlementRecord(record, currentRun, privacyMode, redactedFields, snapshotChain) {
+  const payload = payloadObject(record);
+  if (recordOperation(record) !== "patch" || readPrivacyMode(payload) !== privacyMode)
+    return false;
+  if (!sameCanonical(storedRedactedFields(payload), redactedFields))
+    return false;
+  readPrivacyStatus(requireOwnDataField(payload, "privacyContext"));
+  const run = requirePlainRecord(requireOwnDataField(payload, "run"), "Settlement run context");
+  if (!sameRunIdentity(currentRun, run))
+    return false;
+  const patch = requirePlainRecord(requireOwnDataField(payload, "patch"), "Settlement run patch");
+  const fields = requireStringArray(requireOwnDataField(patch, "fields"), "Settlement patch fields");
+  const values = requirePlainRecord(requireOwnDataField(patch, "values"), "Settlement patch values");
+  const seen = /* @__PURE__ */ new Set();
+  for (const field2 of fields) {
+    if (!UPLOAD_PATCH_FIELDS.has(field2) || seen.has(field2))
+      return false;
+    const value = ownDataField(values, field2);
+    if (!value.present || value.value === void 0)
+      return false;
+    seen.add(field2);
+  }
+  return (record.dependencies ?? []).some((dependency) => snapshotChain.some((source) => sameCanonical(dependency, captureScope3(source))));
+}
+function readPrivacyMode(payload) {
+  const value = requireOwnDataField(payload, "privacyMode");
+  if (value !== "full" && value !== "metadata")
+    throw new TypeError("Stored privacy mode is invalid");
+  return value;
+}
+function storedRun(payload, runId) {
+  const run = canonicalJsonValue(requireOwnDataField(payload, "run"));
+  const source = requirePlainRecord(run, "Stored run snapshot");
+  if (source["id"] !== runId)
+    throw new TypeError("Stored run ID does not match its capture");
+  requireNonBlankString(source["name"], "Run name");
+  requireNonBlankString(source["run_type"], "Run type");
+  return source;
+}
+function storedRedactedFields(payload) {
+  const field2 = ownDataField(payload, "redactedFields");
+  return normalizedRedactedFields(field2.present ? field2.value : void 0);
+}
+function storedPrivacyStatus(payload, run, privacyMode) {
+  if (privacyMode === "metadata")
+    return readPrivacyStatus(requireOwnDataField(payload, "privacyContext"));
+  return runPrivacyStatus(run);
+}
+function readPrivacyStatus(value) {
+  const context = requirePlainRecord(value, "Run privacy context");
+  const status = requireOwnDataField(context, "status");
+  if (status !== "running" && status !== "completed" && status !== "error") {
+    throw new TypeError("Invalid run privacy status");
+  }
+  return status;
+}
+function runPrivacyStatus(run) {
+  if (run.error !== void 0)
+    return "error";
+  if (run.end_time !== void 0)
+    return "completed";
+  return "running";
+}
+function applySnapshotOmissions(current, previous, sourceRun) {
+  const result = { ...current };
+  const resultFields = result;
+  const previousFields = previous;
+  for (const field2 of LIFECYCLE_SNAPSHOT_OPTIONAL_RUN_FIELDS) {
+    const supplied = ownDataField(sourceRun, field2);
+    if (supplied.present && supplied.value !== void 0)
+      continue;
+    const oldValue = ownDataField(previousFields, field2);
+    if (oldValue.present)
+      resultFields[field2] = oldValue.value;
+    else
+      delete resultFields[field2];
+  }
+  return result;
+}
+function snapshotPatchFields(previous, current) {
+  const previousFields = previous;
+  const currentFields = current;
+  return [...UPLOAD_PATCH_FIELDS].filter((field2) => {
+    const oldValue = ownDataField(previousFields, field2);
+    const nextValue = ownDataField(currentFields, field2);
+    if (oldValue.present !== nextValue.present)
+      return true;
+    return oldValue.present && nextValue.present && !sameCanonical(oldValue.value, nextValue.value);
+  });
+}
+function sameRunIdentity(left, right) {
+  return left.id === right.id && left.name === right.name && left.run_type === right.run_type && sameTimestamp(left.start_time, right.start_time) && left.parent_run_id === right.parent_run_id && left.trace_id === right.trace_id && left.dotted_order === right.dotted_order;
+}
+function sameTimestamp(left, right) {
+  if (left === void 0 || right === void 0)
+    return left === right;
+  return new Date(left).getTime() === new Date(right).getTime();
+}
+function runContext(record) {
+  const run = storedRun(payloadObject(record), record.runId);
+  return {
+    id: run.id,
+    name: run.name,
+    run_type: run.run_type,
+    ...run.start_time === void 0 ? {} : { start_time: run.start_time },
+    ...run.parent_run_id === void 0 ? {} : { parent_run_id: run.parent_run_id },
+    ...run.trace_id === void 0 ? {} : { trace_id: run.trace_id },
+    ...run.dotted_order === void 0 ? {} : { dotted_order: run.dotted_order }
+  };
+}
+function sameDependencies(record, previous) {
+  const dependencies = record.dependencies ?? [];
+  return dependencies.some((dependency) => sameCanonical(dependency, captureScope3(previous)));
+}
+function captureScope3(record) {
+  return {
+    integration: record.integration,
+    sessionId: record.sessionId,
+    turnId: record.turnId,
+    eventId: record.eventId
+  };
+}
+function sameCanonical(left, right) {
+  return JSON.stringify(canonicalJsonValue(left)) === JSON.stringify(canonicalJsonValue(right));
+}
+
+// node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/bridge.js
 function createLifecycleBridge(options) {
   const integration = options.integration;
   const wake = options.wake;
@@ -19015,54 +19394,69 @@ function createLifecycleBridge(options) {
     ...options.policy === void 0 ? {} : { policy: options.policy }
   });
   const writer = createLangSmithUploadWriter(options.writer);
+  const capture = async (input) => {
+    const captureRecord = requirePlainRecord(snapshotData(requirePlainRecord(input, "Lifecycle capture")), "Lifecycle capture");
+    const turnId = requireNonBlankString(captureRecord["turnId"], "Turn ID");
+    const eventId = requireNonBlankString(captureRecord["eventId"], "Event ID");
+    const sourceAge = ownDataField(captureRecord, "sourceAgeStartedAtMs");
+    const sourceAgeStartedAtMs = sourceAge.present ? requireSafeEpochMilliseconds(sourceAge.value, "Source age") : void 0;
+    const priorAttempts = ownDataField(captureRecord, "priorDeliveryAttempts");
+    const priorDeliveryAttempts = priorAttempts.present ? requireNonNegativeInteger(priorAttempts.value, "Prior delivery attempts") : void 0;
+    const scope = { integration, sessionId, turnId, eventId };
+    const previous = await captureStore.read(scope);
+    const projected = projectSubmission(captureRecord["submission"], integration, previous === void 0 ? void 0 : previousRunContext(previous));
+    if (projected.status === "deferred") {
+      return { status: "deferred", reason: "missing-thread-identity" };
+    }
+    const turnEvidence = projectTurnEvidence(captureRecord["turnEvidence"], projected.value.payload.privacyMode, deriveAttributionReadiness(captureRecord["submission"], integration));
+    const dependencies = captureRecord["dependencies"];
+    const identityPresence = projected.value.payload.operation === "post" ? suppliedRunIdentityFields(captureRecord["submission"]) : void 0;
+    const captureProjected = (value) => coordinator.capture({
+      turnId,
+      eventId,
+      runId: value.payload.run.id,
+      destinationFingerprint: writer.accountFingerprint,
+      eventKind: value.payload.operation === "post" ? LIFECYCLE_POST_EVENT_KIND : LIFECYCLE_PATCH_EVENT_KIND,
+      normalizedPayload: canonicalJsonValue(value.payload),
+      turnEvidence,
+      metadataProvenance: canonicalJsonValue(value.metadata),
+      ...sourceAgeStartedAtMs === void 0 ? {} : { sourceAgeStartedAtMs },
+      ...priorDeliveryAttempts === void 0 ? {} : { priorDeliveryAttempts },
+      ...dependencies === void 0 ? {} : { dependencies }
+    });
+    let result = await captureProjected(projected.value);
+    if (result.status === "conflict" && previous === void 0 && identityPresence !== void 0 && projected.value.payload.operation === "post") {
+      const winner = await captureStore.read(scope);
+      if (winner?.runId === projected.value.payload.run.id) {
+        const run = { ...projected.value.payload.run };
+        if (!identityPresence.startTime)
+          delete run.start_time;
+        if (!identityPresence.traceId)
+          delete run.trace_id;
+        if (!identityPresence.dottedOrder)
+          delete run.dotted_order;
+        const retry = projectSubmission({ ...projected.value.payload, run, metadata: projected.value.metadata }, integration, previousRunContext(winner));
+        if (retry.status === "ready")
+          result = await captureProjected(retry.value);
+      }
+    }
+    if (result.status === "published" || result.status === "duplicate")
+      await wakeCapturedWork(result, () => wake?.());
+    return result;
+  };
   return Object.freeze({
     accountFingerprint: writer.accountFingerprint,
-    async capture(input) {
-      const capture = requirePlainRecord(snapshotData(requirePlainRecord(input, "Lifecycle capture")), "Lifecycle capture");
-      const turnId = requireNonBlankString(capture["turnId"], "Turn ID");
-      const eventId = requireNonBlankString(capture["eventId"], "Event ID");
-      const sourceAge = ownDataField(capture, "sourceAgeStartedAtMs");
-      const sourceAgeStartedAtMs = sourceAge.present ? requireSafeEpochMilliseconds(sourceAge.value, "Source age") : void 0;
-      const scope = { integration, sessionId, turnId, eventId };
-      const previous = await captureStore.read(scope);
-      const projected = projectSubmission(capture["submission"], integration, previous === void 0 ? void 0 : previousRunContext(previous));
-      if (projected.status === "deferred") {
-        return { status: "deferred", reason: "missing-thread-identity" };
-      }
-      const turnEvidence = projectTurnEvidence(capture["turnEvidence"], projected.value.payload.privacyMode, deriveAttributionReadiness(capture["submission"], integration));
-      const dependencies = capture["dependencies"];
-      const identityPresence = projected.value.payload.operation === "post" ? suppliedRunIdentityFields(capture["submission"]) : void 0;
-      const captureProjected = (value) => coordinator.capture({
-        turnId,
-        eventId,
-        runId: value.payload.run.id,
+    capture,
+    captureSnapshot(input) {
+      return captureLifecycleSnapshot({
+        storageRoot,
+        integration,
+        sessionId,
         destinationFingerprint: writer.accountFingerprint,
-        eventKind: value.payload.operation === "post" ? LIFECYCLE_POST_EVENT_KIND : LIFECYCLE_PATCH_EVENT_KIND,
-        normalizedPayload: canonicalJsonValue(value.payload),
-        turnEvidence,
-        metadataProvenance: canonicalJsonValue(value.metadata),
-        ...sourceAgeStartedAtMs === void 0 ? {} : { sourceAgeStartedAtMs },
-        ...dependencies === void 0 ? {} : { dependencies }
-      });
-      let result = await captureProjected(projected.value);
-      if (result.status === "conflict" && previous === void 0 && identityPresence !== void 0 && projected.value.payload.operation === "post") {
-        const winner = await captureStore.read(scope);
-        if (winner?.runId === projected.value.payload.run.id) {
-          const run = { ...projected.value.payload.run };
-          if (!identityPresence.startTime)
-            delete run.start_time;
-          if (!identityPresence.traceId)
-            delete run.trace_id;
-          if (!identityPresence.dottedOrder)
-            delete run.dotted_order;
-          const retry = projectSubmission({ ...projected.value.payload, run, metadata: projected.value.metadata }, integration, previousRunContext(winner));
-          if (retry.status === "ready")
-            result = await captureProjected(retry.value);
-        }
-      }
-      if (result.status === "published" || result.status === "duplicate")
-        await wakeCapturedWork(result, () => wake?.());
-      return result;
+        store: captureStore,
+        capture,
+        wake: async () => wake?.()
+      }, input);
     },
     async drain(input = {}) {
       const settlementLockDirectory = await ensurePrivateDirectory(storageRoot, [
@@ -19074,7 +19468,7 @@ function createLifecycleBridge(options) {
         LIFECYCLE_SETTLEMENT_LOCK_ACCOUNTS_DIRECTORY,
         identifierHash(writer.accountFingerprint)
       ]);
-      const settlementLock = await tryAcquireFileLock(join13(settlementLockDirectory, LIFECYCLE_SETTLEMENT_LOCK_FILE));
+      const settlementLock = await tryAcquireFileLock(join14(settlementLockDirectory, LIFECYCLE_SETTLEMENT_LOCK_FILE));
       if (settlementLock === void 0)
         return { status: "busy", settlement: { captured: 0, turns: [] } };
       let drainResult;
@@ -19115,7 +19509,7 @@ function createLifecycleBridge(options) {
           sessionId,
           destinationFingerprint: writer.accountFingerprint,
           destinations: writer.destinations,
-          capture: (capture) => coordinator.capture(capture),
+          capture: (captureInput) => coordinator.capture(captureInput),
           readOutcome
         });
         let result = first;
@@ -19185,24 +19579,6 @@ function previousRunContext(record) {
   }
   return context;
 }
-function projectTurnEvidence(value, mode, attributionReady) {
-  const source = requirePlainRecord(value, "Lifecycle turn evidence");
-  const childRunIds = requireStringArray(requireOwnDataField(source, "childRunIds"), "Child run IDs").map((runId) => requireNonBlankString(runId, "Child run ID"));
-  const closureState = requireOwnDataField(source, "closureState");
-  if (typeof closureState !== "string" || !LIFECYCLE_TURN_CLOSURE_STATES.includes(closureState)) {
-    throw new TypeError("Lifecycle turn evidence has an invalid closure state");
-  }
-  const structural2 = {
-    childRunIds,
-    closureState
-  };
-  const persisted = { ...structural2, [LIFECYCLE_ATTRIBUTION_READY_FIELD]: attributionReady };
-  const rootRunId = ownDataField(source, "rootRunId");
-  if (rootRunId.present && rootRunId.value !== void 0) {
-    persisted.rootRunId = requireNonBlankString(rootRunId.value, "Root run ID");
-  }
-  return canonicalJsonValue(mode === "metadata" ? persisted : { ...source, ...persisted });
-}
 function restoreSubmission(record, integration) {
   const payload = canonicalJsonObject(record.normalizedPayload, "Stored run payload");
   if (payload["integration"] !== integration)
@@ -19222,10 +19598,10 @@ function restoreSubmission(record, integration) {
   return { ...projected.value.payload, metadata: projected.value.metadata };
 }
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/worker.js
-import { join as join14, resolve as resolve10 } from "node:path";
+// node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/worker.js
+import { join as join15, resolve as resolve10 } from "node:path";
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/constants.js
 var RECONSTRUCTION_DIRECTORY = "reconstruction-v1";
 var RECONSTRUCTION_WORKER_DIRECTORY = "workers";
 var RECONSTRUCTION_SESSIONS_DIRECTORY = "sessions";
@@ -19282,7 +19658,7 @@ var RECONSTRUCTION_DEPENDENCY_KEYS = [
   "turnId"
 ];
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/worker.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/worker.js
 function createReconstructionWorker(options) {
   const integration = options.integration;
   const sessionId = requireNonBlankString(options.sessionId, "Session ID");
@@ -19295,7 +19671,7 @@ function createReconstructionWorker(options) {
   validateIdentifier(sessionId, "session ID");
   validateIdentifier(accountFingerprint, "account fingerprint");
   const policy = resolvePolicy2(options.policy);
-  const storageRoot = join14(resolve10(options.storageRoot), RECONSTRUCTION_DIRECTORY);
+  const storageRoot = join15(resolve10(options.storageRoot), RECONSTRUCTION_DIRECTORY);
   const captureStore = createCaptureStore(storageRoot);
   const attemptStore = createDeliveryAttemptStore(storageRoot);
   return {
@@ -19313,7 +19689,7 @@ function createReconstructionWorker(options) {
         RECONSTRUCTION_SESSIONS_DIRECTORY,
         identifierHash(sessionId)
       ]);
-      const lock = await tryAcquireFileLock(join14(lockDirectory, RECONSTRUCTION_DRAIN_LOCK));
+      const lock = await tryAcquireFileLock(join15(lockDirectory, RECONSTRUCTION_DRAIN_LOCK));
       if (!lock)
         return { status: "busy" };
       const counts = { captured: 0, deferred: 0, failed: 0, dropped: 0 };
@@ -19925,7 +20301,7 @@ function mappingScope(job) {
   return { ...scopeOf2(job), eventId };
 }
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/engine/pass-results.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/tracing/engine/pass-results.js
 function reconstructionPassResult(result) {
   if (result.status === "busy")
     return "retryable-failure";
@@ -19937,7 +20313,7 @@ function lifecyclePassResult(result) {
   return result.settlement.captured > 0 || result.delivered > 0 || result.dropped > 0 || result.failed > 0 ? "progressed" : "idle";
 }
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/engine/options.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/tracing/engine/options.js
 import { resolve as resolve11 } from "node:path";
 function snapshotEngineOptions(options) {
   return Object.freeze({
@@ -19972,13 +20348,13 @@ function snapshotPolicy(policy) {
   return Object.freeze({ ...policy });
 }
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery.js
-import { join as join15 } from "node:path";
+// node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery.js
+import { join as join16 } from "node:path";
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/engine/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/tracing/engine/constants.js
 var TRACING_ENGINE_FOREIGN_SESSION_MIN_AGE_MS = 2 * 60 * 60 * 1e3;
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery.js
 async function recoverTracingSessions(runtime, request) {
   const now = request.now ?? Date.now();
   if (!Number.isSafeInteger(now) || !Number.isFinite(new Date(now).getTime()))
@@ -19990,7 +20366,7 @@ async function recoverTracingSessions(runtime, request) {
     throw new TypeError("Session recovery options callback is required");
   const optionsForSession = request.optionsForSession;
   const lifecycleStore = createCaptureStore(runtime.storageRoot);
-  const reconstructionStore = createCaptureStore(join15(runtime.storageRoot, RECONSTRUCTION_DIRECTORY));
+  const reconstructionStore = createCaptureStore(join16(runtime.storageRoot, RECONSTRUCTION_DIRECTORY));
   const [lifecycleSessions, reconstructionSessions] = await Promise.all([
     lifecycleStore.enumerateSessions(runtime.integration),
     reconstructionStore.enumerateSessions(runtime.integration)
@@ -20094,7 +20470,7 @@ async function recoverTracingSessions(runtime, request) {
   return { scheduled, failed };
 }
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/tracing/engine/engine.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_1d615cfc00719a6f4f84f541b727092e/node_modules/@langchain/plugins-base/dist/tracing/engine/engine.js
 function createTracingEngine(options) {
   const config = snapshotEngineOptions(options);
   function forSession(sessionOptions) {
@@ -20136,6 +20512,9 @@ function createTracingEngine(options) {
     return Object.freeze({
       async capture(input) {
         return lifecycleBridge.capture(input);
+      },
+      async captureSnapshot(input) {
+        return lifecycleBridge.captureSnapshot(input);
       },
       async queueReconstruction(input) {
         const result = await reconstructionWorker.enqueue(input);
@@ -20210,21 +20589,25 @@ function createCursorTracingSession(config, sessionId, cwd, launchWorker, destin
   };
 }
 function createRunTreeCapture(options) {
-  const postEventByRunId = /* @__PURE__ */ new Map();
-  const eventsByRunId = /* @__PURE__ */ new Map();
-  const snapshots = /* @__PURE__ */ new WeakMap();
+  const inputsByRun = /* @__PURE__ */ new WeakMap();
   const captureStore = createCaptureStore(options.storageRoot);
   let persistedCaptures;
+  let storedRecords;
   const storedEvents = async () => {
     if (!persistedCaptures) {
-      persistedCaptures = captureStore.enumerate(CURSOR_INTEGRATION, options.sessionId).then((captures) => captures.map(({ record }) => record).filter((record) => record.turnId === options.turnId && record.destinationFingerprint === options.destinationFingerprint && (record.eventKind === CURSOR_RUN_POST_EVENT_KIND || record.eventKind === CURSOR_RUN_PATCH_EVENT_KIND)).sort((left, right) => left.capturedAtMs - right.capturedAtMs));
+      persistedCaptures = captureStore.enumerate(CURSOR_INTEGRATION, options.sessionId).then((captures) => captures.map(({ record }) => record).filter((record) => record.turnId === options.turnId && record.destinationFingerprint === options.destinationFingerprint && (record.eventKind === CURSOR_RUN_POST_EVENT_KIND || record.eventKind === CURSOR_RUN_PATCH_EVENT_KIND)));
     }
-    return persistedCaptures;
+    storedRecords ??= await persistedCaptures;
+    return storedRecords;
   };
-  const rememberEvent = (runId, eventId) => {
-    const events = eventsByRunId.get(runId) ?? /* @__PURE__ */ new Set();
-    events.add(eventId);
-    eventsByRunId.set(runId, events);
+  const rememberRecord = (record) => {
+    const records = storedRecords ?? [];
+    const index = records.findIndex((candidate) => candidate.eventId === record.eventId);
+    if (index === -1)
+      records.push(record);
+    else
+      records[index] = record;
+    storedRecords = records;
   };
   return async (run, operation, patchOptions) => {
     const metadata = run.extra?.metadata;
@@ -20234,115 +20617,86 @@ function createRunTreeCapture(options) {
     const payload = run.toJSON();
     const snapshot = normalizedSnapshot(payload);
     const root = rootRun(run);
-    const priorEvents = await storedEvents();
-    for (const event of priorEvents)
-      rememberEvent(event.runId, event.eventId);
-    const storedPosts = priorEvents.filter((event) => event.runId === run.id && event.eventKind === CURSOR_RUN_POST_EVENT_KIND);
-    const storedPost = storedPosts.at(-1);
-    const isReplayPost = operation === "post" && storedPost !== void 0;
-    let before = snapshots.get(run);
-    if (isReplayPost) {
-      before = snapshotAfterStoredPatches(storedPost, priorEvents);
-      assertStableRunIdentity(before, snapshot);
-      postEventByRunId.set(run.id, storedPost.eventId);
-      snapshots.set(run, before);
-    }
-    const captureOperation = isReplayPost ? "patch" : operation;
-    const rootPatch = captureOperation === "patch" && run.id === root.id;
+    const records = await storedEvents();
+    const rootPatch = operation === "patch" && run.id === root.id;
     const provisionalRootPatch = rootPatch && options.closureState === "provisional";
     if (provisionalRootPatch && snapshot.error === "incomplete")
       delete snapshot.error;
+    const previousInputs = inputsByRun.get(run);
+    if (operation === "patch" && patchOptions?.excludeInputs && previousInputs) {
+      snapshot.inputs = structuredClone(previousInputs);
+    }
     const privacyContext = {
       status: provisionalRootPatch ? "running" : statusOfRun2(run)
     };
-    let submission;
-    if (captureOperation === "post") {
-      snapshots.set(run, snapshot);
-      submission = {
-        operation: captureOperation,
-        integration: CURSOR_INTEGRATION,
-        privacyMode: options.privacyMode,
-        metadata: metadataOptions,
-        privacyContext,
-        run: snapshot
-      };
-    } else {
-      const fields = CURSOR_ENGINE_PATCH_FIELDS.filter((field2) => !(patchOptions?.excludeInputs && field2 === "inputs") && snapshot[field2] !== void 0 && !isDeepStrictEqual(before?.[field2], snapshot[field2]));
-      const values = Object.fromEntries(fields.map((field2) => [field2, snapshot[field2]]));
-      submission = {
-        operation: captureOperation,
-        integration: CURSOR_INTEGRATION,
-        privacyMode: options.privacyMode,
-        metadata: metadataOptions,
-        privacyContext,
-        run: isReplayPost && before ? snapshotContext(before) : normalizedContext(payload),
-        patch: { fields, values }
-      };
-    }
+    const submission = {
+      operation: "post",
+      integration: CURSOR_INTEGRATION,
+      privacyMode: options.privacyMode,
+      metadata: metadataOptions,
+      privacyContext,
+      run: snapshot
+    };
     const childRunIds = descendantRunIds(root);
-    const dependencies = /* @__PURE__ */ new Set();
-    if (captureOperation === "post" && run.parent_run) {
-      const parentEvent = postEventByRunId.get(run.parent_run.id);
-      if (parentEvent)
-        dependencies.add(parentEvent);
-    } else if (captureOperation === "patch") {
-      const ownPost = postEventByRunId.get(run.id);
-      if (ownPost)
-        dependencies.add(ownPost);
-      if (rootPatch) {
-        for (const runId of [root.id, ...childRunIds]) {
-          for (const eventId2 of eventsByRunId.get(runId) ?? []) {
-            dependencies.add(eventId2);
-          }
-        }
+    const dependencyIds = /* @__PURE__ */ new Set();
+    if (operation === "post" && run.parent_run) {
+      for (const eventId of snapshotHeadEventIds(records, run.parent_run.id)) {
+        dependencyIds.add(eventId);
       }
     }
-    const dependencyIds = [...dependencies].sort();
-    const turnEvidence = {
-      rootRunId: root.id,
-      childRunIds,
-      closureState: rootPatch && !isReplayPost ? options.closureState : "open"
-    };
-    const eventIdentity = {
+    if (rootPatch) {
+      for (const runId of childRunIds) {
+        for (const eventId of snapshotHeadEventIds(records, runId))
+          dependencyIds.add(eventId);
+      }
+    }
+    const dependencies = [...dependencyIds].sort().map((eventId) => ({
       integration: CURSOR_INTEGRATION,
       sessionId: options.sessionId,
       turnId: options.turnId,
-      destinationFingerprint: options.destinationFingerprint,
-      operation: captureOperation,
-      runId: submission.run.id
+      eventId
+    }));
+    const turnEvidence = {
+      rootRunId: root.id,
+      childRunIds,
+      closureState: rootPatch ? options.closureState : "open"
     };
-    const eventId = stableEventId(captureOperation === "post" ? eventIdentity : {
-      ...eventIdentity,
-      submission,
-      turnEvidence,
-      dependencies: dependencyIds
-    });
-    if (isReplayPost && submission.operation === "patch" && submission.patch.fields.length === 0) {
-      snapshots.set(run, snapshot);
-      return;
-    }
-    const result = await options.session.capture({
+    const captureInput = {
       turnId: options.turnId,
-      eventId,
+      eventId: stableEventId(options, snapshot.id),
       submission,
       turnEvidence,
-      ...dependencyIds.length === 0 ? {} : {
-        dependencies: dependencyIds.map((dependencyEventId) => ({
+      ...dependencies.length === 0 ? {} : { dependencies }
+    };
+    const result = await (async () => {
+      try {
+        return await options.session.captureSnapshot(captureInput);
+      } catch (error2) {
+        if (!(error2 instanceof CaptureWakeError))
+          throw error2;
+        const record = error2.captureResult.record;
+        if (!isExpectedSnapshotRecord(record, options, snapshot.id))
+          throw error2;
+        const persisted = await captureStore.read({
           integration: CURSOR_INTEGRATION,
           sessionId: options.sessionId,
           turnId: options.turnId,
-          eventId: dependencyEventId
-        }))
+          eventId: record.eventId
+        });
+        if (!persisted || !isExpectedSnapshotRecord(persisted, options, snapshot.id) || persisted.eventId !== record.eventId) {
+          throw error2;
+        }
+        return error2.captureResult;
       }
-    });
+    })();
     if (result.status !== "published" && result.status !== "duplicate") {
       throw new Error("Shared trace capture failed");
     }
-    if (captureOperation === "post")
-      postEventByRunId.set(run.id, eventId);
-    else
-      snapshots.set(run, snapshot);
-    rememberEvent(run.id, eventId);
+    if (!isExpectedSnapshotRecord(result.record, options, snapshot.id)) {
+      throw new Error("Shared trace capture returned an invalid run snapshot");
+    }
+    inputsByRun.set(run, structuredClone(snapshot.inputs));
+    rememberRecord(result.record);
   };
 }
 async function runCursorEngineWorker(sessionId, cwd, destinationProject) {
@@ -20362,7 +20716,7 @@ function launchEngineWorker(sessionId, cwd, destinationProject) {
     throw new Error("Hook entrypoint is unavailable for shared trace worker");
   const nodeScript = CURSOR_ENGINE_NODE_SCRIPT.test(entry);
   const args = [
-    ...nodeScript ? [join16(dirname6(entry), `${CURSOR_ENGINE_WORKER_ENTRY}${extname(entry)}`)] : [],
+    ...nodeScript ? [join17(dirname6(entry), `${CURSOR_ENGINE_WORKER_ENTRY}${extname(entry)}`)] : [],
     CURSOR_ENGINE_WORKER_FLAG,
     sessionId,
     cwd ?? process.cwd(),
@@ -20420,20 +20774,6 @@ function normalizedSnapshot(payload) {
     ...typeof payload.serialized === "object" && payload.serialized !== null ? { serialized: payload.serialized } : {},
     ...Array.isArray(payload.events) ? { events: payload.events } : {},
     ...typeof payload.reference_example_id === "string" ? { reference_example_id: payload.reference_example_id } : {}
-  };
-}
-function normalizedContext(payload) {
-  if (typeof payload.id !== "string" || typeof payload.name !== "string" || typeof payload.run_type !== "string") {
-    throw new Error("Run identity is unavailable");
-  }
-  return {
-    id: payload.id,
-    name: payload.name,
-    run_type: payload.run_type,
-    ...isTimestamp(payload.start_time) ? { start_time: payload.start_time } : {},
-    ...typeof payload.parent_run_id === "string" ? { parent_run_id: payload.parent_run_id } : {},
-    ...typeof payload.trace_id === "string" ? { trace_id: payload.trace_id } : {},
-    ...typeof payload.dotted_order === "string" ? { dotted_order: payload.dotted_order } : {}
   };
 }
 function isTimestamp(value) {
@@ -20498,73 +20838,30 @@ function uploadReplicas(replicas2) {
     };
   });
 }
-function snapshotAfterStoredPatches(post, records) {
-  const submission = recordObject(post.normalizedPayload);
-  const snapshot = recordObject(submission?.run);
-  if (submission?.operation !== "post" || snapshot?.id !== post.runId) {
-    throw new Error("Persisted run post is invalid");
-  }
-  const current = { ...snapshot };
-  for (const record of records) {
-    if (record.runId !== post.runId || record.eventKind !== CURSOR_RUN_PATCH_EVENT_KIND || record.capturedAtMs <= post.capturedAtMs) {
-      continue;
-    }
-    const patchSubmission = recordObject(record.normalizedPayload);
-    if (patchSubmission?.operation !== "patch")
-      continue;
-    const patch = recordObject(patchSubmission.patch);
-    const values = recordObject(patch?.values);
-    if (!Array.isArray(patch?.fields) || !values)
-      continue;
-    for (const field2 of patch.fields) {
-      if (typeof field2 === "string" && Object.hasOwn(values, field2)) {
-        Object.assign(current, { [field2]: values[field2] });
+function snapshotHeadEventIds(records, runId) {
+  const runRecords = records.filter((record) => record.runId === runId);
+  const eventIds = new Set(runRecords.map((record) => record.eventId));
+  const referenced = /* @__PURE__ */ new Set();
+  for (const record of runRecords) {
+    for (const dependency of record.dependencies ?? []) {
+      if (dependency.integration === CURSOR_INTEGRATION && dependency.sessionId === record.sessionId && dependency.turnId === record.turnId && eventIds.has(dependency.eventId)) {
+        referenced.add(dependency.eventId);
       }
     }
   }
-  return current;
+  return runRecords.filter((record) => !referenced.has(record.eventId)).map((record) => record.eventId).sort();
 }
-function snapshotContext(snapshot) {
-  return {
-    id: snapshot.id,
-    name: snapshot.name,
-    run_type: snapshot.run_type,
-    ...snapshot.start_time === void 0 ? {} : { start_time: snapshot.start_time },
-    ...snapshot.parent_run_id === void 0 ? {} : { parent_run_id: snapshot.parent_run_id },
-    ...snapshot.trace_id === void 0 ? {} : { trace_id: snapshot.trace_id },
-    ...snapshot.dotted_order === void 0 ? {} : { dotted_order: snapshot.dotted_order }
-  };
+function isExpectedSnapshotRecord(record, options, runId) {
+  return record.integration === CURSOR_INTEGRATION && record.sessionId === options.sessionId && record.turnId === options.turnId && record.destinationFingerprint === options.destinationFingerprint && record.runId === runId && (record.eventKind === CURSOR_RUN_POST_EVENT_KIND || record.eventKind === CURSOR_RUN_PATCH_EVENT_KIND);
 }
-function assertStableRunIdentity(previous, current) {
-  const fields = [
-    "id",
-    "name",
-    "run_type",
-    "start_time",
-    "parent_run_id",
-    "trace_id",
-    "dotted_order"
-  ];
-  if (fields.some((field2) => !isDeepStrictEqual(previous[field2], current[field2]))) {
-    throw new Error("Persisted run identity changed");
-  }
-}
-function recordObject(value) {
-  return value && typeof value === "object" && !Array.isArray(value) ? value : void 0;
-}
-function stableEventId(value) {
-  return createHash5("sha256").update(stableJson(value)).digest("hex");
-}
-function stableJson(value) {
-  if (value === null || typeof value !== "object") {
-    const serialized = JSON.stringify(value);
-    return serialized ?? "null";
-  }
-  if (Array.isArray(value))
-    return `[${value.map(stableJson).join(",")}]`;
-  const record = value;
-  const fields = Object.keys(record).filter((key) => record[key] !== void 0).sort().map((key) => `${JSON.stringify(key)}:${stableJson(record[key])}`);
-  return `{${fields.join(",")}}`;
+function stableEventId(options, runId) {
+  return createHash5("sha256").update(JSON.stringify([
+    CURSOR_INTEGRATION,
+    options.sessionId,
+    options.turnId,
+    options.destinationFingerprint,
+    runId
+  ])).digest("hex");
 }
 
 // dist/src/langsmith.js

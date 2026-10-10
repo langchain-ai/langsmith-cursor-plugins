@@ -1,11 +1,9 @@
 import { createHash } from "node:crypto";
 import { spawn } from "node:child_process";
 import { dirname, extname, join } from "node:path";
-import { isDeepStrictEqual } from "node:util";
-import { createCaptureStore } from "@langchain/plugins-base/storage/capture";
-import { createTracingEngine } from "@langchain/plugins-base/tracing";
+import { createCaptureStore, type StoredCapture } from "@langchain/plugins-base/storage/capture";
+import { CaptureWakeError, createTracingEngine } from "@langchain/plugins-base/tracing";
 import { createLangSmithUploadWriter } from "@langchain/plugins-base/tracing/upload";
-import type { StoredCapture } from "@langchain/plugins-base/storage/capture";
 import type {
   NormalizedRunSnapshot,
   PreparedRunSubmission,
@@ -15,7 +13,6 @@ import { loadConfig, type Config } from "./config.js";
 import {
   CODING_AGENT_METADATA_OPTIONS,
   CURSOR_ENGINE_WORKER_ARGUMENT_LIMITS,
-  CURSOR_ENGINE_PATCH_FIELDS,
   CURSOR_ENGINE_NODE_SCRIPT,
   CURSOR_ENGINE_WORKER_FLAG,
   CURSOR_ENGINE_WORKER_ENTRY,
@@ -26,9 +23,7 @@ import {
 import { isValidBoundedText } from "./utils/validation/text.js";
 import type {
   CursorTracingSessionContext,
-  CursorRunContext,
   CursorRunMetadataOptions,
-  CursorRunPatchValues,
   CursorUploadReplica,
   CursorEngineWorkerArguments,
   RunTreeCaptureOptions,
@@ -76,11 +71,10 @@ export function createCursorTracingSession(
 }
 
 export function createRunTreeCapture(options: RunTreeCaptureOptions) {
-  const postEventByRunId = new Map<string, string>();
-  const eventsByRunId = new Map<string, Set<string>>();
-  const snapshots = new WeakMap<RunTree, NormalizedRunSnapshot>();
+  const inputsByRun = new WeakMap<RunTree, Record<string, unknown>>();
   const captureStore = createCaptureStore(options.storageRoot);
   let persistedCaptures: Promise<StoredCapture[]> | undefined;
+  let storedRecords: StoredCapture[] | undefined;
 
   const storedEvents = async () => {
     if (!persistedCaptures) {
@@ -95,17 +89,19 @@ export function createRunTreeCapture(options: RunTreeCaptureOptions) {
                 record.destinationFingerprint === options.destinationFingerprint &&
                 (record.eventKind === CURSOR_RUN_POST_EVENT_KIND ||
                   record.eventKind === CURSOR_RUN_PATCH_EVENT_KIND),
-            )
-            .sort((left, right) => left.capturedAtMs - right.capturedAtMs),
+            ),
         );
     }
-    return persistedCaptures;
+    storedRecords ??= await persistedCaptures;
+    return storedRecords;
   };
 
-  const rememberEvent = (runId: string, eventId: string) => {
-    const events = eventsByRunId.get(runId) ?? new Set<string>();
-    events.add(eventId);
-    eventsByRunId.set(runId, events);
+  const rememberRecord = (record: StoredCapture) => {
+    const records = storedRecords ?? [];
+    const index = records.findIndex((candidate) => candidate.eventId === record.eventId);
+    if (index === -1) records.push(record);
+    else records[index] = record;
+    storedRecords = records;
   };
 
   return async (
@@ -120,128 +116,88 @@ export function createRunTreeCapture(options: RunTreeCaptureOptions) {
     const payload = run.toJSON() as unknown as Record<string, unknown>;
     const snapshot = normalizedSnapshot(payload);
     const root = rootRun(run);
-    const priorEvents = await storedEvents();
-    for (const event of priorEvents) rememberEvent(event.runId, event.eventId);
-    const storedPosts = priorEvents.filter(
-      (event) => event.runId === run.id && event.eventKind === CURSOR_RUN_POST_EVENT_KIND,
-    );
-    const storedPost = storedPosts.at(-1);
-    const isReplayPost = operation === "post" && storedPost !== undefined;
-    let before = snapshots.get(run);
-    if (isReplayPost) {
-      before = snapshotAfterStoredPatches(storedPost, priorEvents);
-      assertStableRunIdentity(before, snapshot);
-      postEventByRunId.set(run.id, storedPost.eventId);
-      snapshots.set(run, before);
-    }
-    const captureOperation = isReplayPost ? "patch" : operation;
-    const rootPatch = captureOperation === "patch" && run.id === root.id;
+    const records = await storedEvents();
+    const rootPatch = operation === "patch" && run.id === root.id;
     const provisionalRootPatch = rootPatch && options.closureState === "provisional";
     if (provisionalRootPatch && snapshot.error === "incomplete") delete snapshot.error;
+    const previousInputs = inputsByRun.get(run);
+    if (operation === "patch" && patchOptions?.excludeInputs && previousInputs) {
+      snapshot.inputs = structuredClone(previousInputs);
+    }
 
     const privacyContext = {
       status: provisionalRootPatch ? "running" : statusOfRun(run),
     } as const;
-    let submission: PreparedRunSubmission;
-    if (captureOperation === "post") {
-      snapshots.set(run, snapshot);
-      submission = {
-        operation: captureOperation,
-        integration: CURSOR_INTEGRATION,
-        privacyMode: options.privacyMode,
-        metadata: metadataOptions,
-        privacyContext,
-        run: snapshot,
-      };
-    } else {
-      const fields = CURSOR_ENGINE_PATCH_FIELDS.filter(
-        (field) =>
-          !(patchOptions?.excludeInputs && field === "inputs") &&
-          snapshot[field] !== undefined &&
-          !isDeepStrictEqual(before?.[field], snapshot[field]),
-      );
-      const values = Object.fromEntries(
-        fields.map((field) => [field, snapshot[field]]),
-      ) as CursorRunPatchValues;
-      submission = {
-        operation: captureOperation,
-        integration: CURSOR_INTEGRATION,
-        privacyMode: options.privacyMode,
-        metadata: metadataOptions,
-        privacyContext,
-        run: isReplayPost && before ? snapshotContext(before) : normalizedContext(payload),
-        patch: { fields, values },
-      };
-    }
+    const submission = {
+      operation: "post",
+      integration: CURSOR_INTEGRATION,
+      privacyMode: options.privacyMode,
+      metadata: metadataOptions,
+      privacyContext,
+      run: snapshot,
+    } satisfies Extract<PreparedRunSubmission, { operation: "post" }>;
 
     const childRunIds = descendantRunIds(root);
-    const dependencies = new Set<string>();
-    if (captureOperation === "post" && run.parent_run) {
-      const parentEvent = postEventByRunId.get(run.parent_run.id);
-      if (parentEvent) dependencies.add(parentEvent);
-    } else if (captureOperation === "patch") {
-      const ownPost = postEventByRunId.get(run.id);
-      if (ownPost) dependencies.add(ownPost);
-      if (rootPatch) {
-        for (const runId of [root.id, ...childRunIds]) {
-          for (const eventId of eventsByRunId.get(runId) ?? []) {
-            dependencies.add(eventId);
-          }
-        }
+    const dependencyIds = new Set<string>();
+    if (operation === "post" && run.parent_run) {
+      for (const eventId of snapshotHeadEventIds(records, run.parent_run.id)) {
+        dependencyIds.add(eventId);
       }
     }
-    const dependencyIds = [...dependencies].sort();
-    const turnEvidence = {
-      rootRunId: root.id,
-      childRunIds,
-      closureState: rootPatch && !isReplayPost ? options.closureState : "open",
-    } as const;
-    const eventIdentity = {
+    if (rootPatch) {
+      for (const runId of childRunIds) {
+        for (const eventId of snapshotHeadEventIds(records, runId)) dependencyIds.add(eventId);
+      }
+    }
+    const dependencies = [...dependencyIds].sort().map((eventId) => ({
       integration: CURSOR_INTEGRATION,
       sessionId: options.sessionId,
       turnId: options.turnId,
-      destinationFingerprint: options.destinationFingerprint,
-      operation: captureOperation,
-      runId: submission.run.id,
-    };
-    const eventId = stableEventId(
-      captureOperation === "post"
-        ? eventIdentity
-        : {
-            ...eventIdentity,
-            submission,
-            turnEvidence,
-            dependencies: dependencyIds,
-          },
-    );
-
-    if (isReplayPost && submission.operation === "patch" && submission.patch.fields.length === 0) {
-      snapshots.set(run, snapshot);
-      return;
-    }
-
-    const result = await options.session.capture({
-      turnId: options.turnId,
       eventId,
+    }));
+    const turnEvidence = {
+      rootRunId: root.id,
+      childRunIds,
+      closureState: rootPatch ? options.closureState : "open",
+    } as const;
+    const captureInput = {
+      turnId: options.turnId,
+      eventId: stableEventId(options, snapshot.id),
       submission,
       turnEvidence,
-      ...(dependencyIds.length === 0
-        ? {}
-        : {
-            dependencies: dependencyIds.map((dependencyEventId) => ({
-              integration: CURSOR_INTEGRATION,
-              sessionId: options.sessionId,
-              turnId: options.turnId,
-              eventId: dependencyEventId,
-            })),
-          }),
-    });
+      ...(dependencies.length === 0 ? {} : { dependencies }),
+    };
+    const result = await (async () => {
+      try {
+        return await options.session.captureSnapshot(captureInput);
+      } catch (error) {
+        if (!(error instanceof CaptureWakeError)) throw error;
+        const record = error.captureResult.record;
+        if (!isExpectedSnapshotRecord(record, options, snapshot.id)) throw error;
+        const persisted = await captureStore.read({
+          integration: CURSOR_INTEGRATION,
+          sessionId: options.sessionId,
+          turnId: options.turnId,
+          eventId: record.eventId,
+        });
+        if (
+          !persisted ||
+          !isExpectedSnapshotRecord(persisted, options, snapshot.id) ||
+          persisted.eventId !== record.eventId
+        ) {
+          throw error;
+        }
+        return error.captureResult;
+      }
+    })();
     if (result.status !== "published" && result.status !== "duplicate") {
       throw new Error("Shared trace capture failed");
     }
-    if (captureOperation === "post") postEventByRunId.set(run.id, eventId);
-    else snapshots.set(run, snapshot);
-    rememberEvent(run.id, eventId);
+    if (!isExpectedSnapshotRecord(result.record, options, snapshot.id)) {
+      throw new Error("Shared trace capture returned an invalid run snapshot");
+    }
+    inputsByRun.set(run, structuredClone(snapshot.inputs));
+    rememberRecord(result.record);
   };
 }
 
@@ -342,25 +298,6 @@ function normalizedSnapshot(payload: Record<string, unknown>): NormalizedRunSnap
   };
 }
 
-function normalizedContext(payload: Record<string, unknown>): CursorRunContext {
-  if (
-    typeof payload.id !== "string" ||
-    typeof payload.name !== "string" ||
-    typeof payload.run_type !== "string"
-  ) {
-    throw new Error("Run identity is unavailable");
-  }
-  return {
-    id: payload.id,
-    name: payload.name,
-    run_type: payload.run_type,
-    ...(isTimestamp(payload.start_time) ? { start_time: payload.start_time } : {}),
-    ...(typeof payload.parent_run_id === "string" ? { parent_run_id: payload.parent_run_id } : {}),
-    ...(typeof payload.trace_id === "string" ? { trace_id: payload.trace_id } : {}),
-    ...(typeof payload.dotted_order === "string" ? { dotted_order: payload.dotted_order } : {}),
-  };
-}
-
 function isTimestamp(value: unknown): value is number | string {
   return typeof value === "number" || typeof value === "string";
 }
@@ -432,88 +369,54 @@ function uploadReplicas(replicas: NonNullable<Config["replicas"]>): CursorUpload
   });
 }
 
-function snapshotAfterStoredPatches(
-  post: StoredCapture,
-  records: StoredCapture[],
-): NormalizedRunSnapshot {
-  const submission = recordObject(post.normalizedPayload);
-  const snapshot = recordObject(submission?.run);
-  if (submission?.operation !== "post" || snapshot?.id !== post.runId) {
-    throw new Error("Persisted run post is invalid");
-  }
-  const current = { ...snapshot } as unknown as NormalizedRunSnapshot;
-  for (const record of records) {
-    if (
-      record.runId !== post.runId ||
-      record.eventKind !== CURSOR_RUN_PATCH_EVENT_KIND ||
-      record.capturedAtMs <= post.capturedAtMs
-    ) {
-      continue;
-    }
-    const patchSubmission = recordObject(record.normalizedPayload);
-    if (patchSubmission?.operation !== "patch") continue;
-    const patch = recordObject(patchSubmission.patch);
-    const values = recordObject(patch?.values);
-    if (!Array.isArray(patch?.fields) || !values) continue;
-    for (const field of patch.fields) {
-      if (typeof field === "string" && Object.hasOwn(values, field)) {
-        Object.assign(current, { [field]: values[field] });
+function snapshotHeadEventIds(records: readonly StoredCapture[], runId: string): string[] {
+  const runRecords = records.filter((record) => record.runId === runId);
+  const eventIds = new Set(runRecords.map((record) => record.eventId));
+  const referenced = new Set<string>();
+  for (const record of runRecords) {
+    for (const dependency of record.dependencies ?? []) {
+      if (
+        dependency.integration === CURSOR_INTEGRATION &&
+        dependency.sessionId === record.sessionId &&
+        dependency.turnId === record.turnId &&
+        eventIds.has(dependency.eventId)
+      ) {
+        referenced.add(dependency.eventId);
       }
     }
   }
-  return current;
+  return runRecords
+    .filter((record) => !referenced.has(record.eventId))
+    .map((record) => record.eventId)
+    .sort();
 }
 
-function snapshotContext(snapshot: NormalizedRunSnapshot): CursorRunContext {
-  return {
-    id: snapshot.id,
-    name: snapshot.name,
-    run_type: snapshot.run_type,
-    ...(snapshot.start_time === undefined ? {} : { start_time: snapshot.start_time }),
-    ...(snapshot.parent_run_id === undefined ? {} : { parent_run_id: snapshot.parent_run_id }),
-    ...(snapshot.trace_id === undefined ? {} : { trace_id: snapshot.trace_id }),
-    ...(snapshot.dotted_order === undefined ? {} : { dotted_order: snapshot.dotted_order }),
-  };
+function isExpectedSnapshotRecord(
+  record: StoredCapture,
+  options: RunTreeCaptureOptions,
+  runId: string,
+): boolean {
+  return (
+    record.integration === CURSOR_INTEGRATION &&
+    record.sessionId === options.sessionId &&
+    record.turnId === options.turnId &&
+    record.destinationFingerprint === options.destinationFingerprint &&
+    record.runId === runId &&
+    (record.eventKind === CURSOR_RUN_POST_EVENT_KIND ||
+      record.eventKind === CURSOR_RUN_PATCH_EVENT_KIND)
+  );
 }
 
-function assertStableRunIdentity(
-  previous: NormalizedRunSnapshot,
-  current: NormalizedRunSnapshot,
-): void {
-  const fields = [
-    "id",
-    "name",
-    "run_type",
-    "start_time",
-    "parent_run_id",
-    "trace_id",
-    "dotted_order",
-  ] as const;
-  if (fields.some((field) => !isDeepStrictEqual(previous[field], current[field]))) {
-    throw new Error("Persisted run identity changed");
-  }
-}
-
-function recordObject(value: unknown): Record<string, unknown> | undefined {
-  return value && typeof value === "object" && !Array.isArray(value)
-    ? (value as Record<string, unknown>)
-    : undefined;
-}
-
-function stableEventId(value: unknown): string {
-  return createHash("sha256").update(stableJson(value)).digest("hex");
-}
-
-function stableJson(value: unknown): string {
-  if (value === null || typeof value !== "object") {
-    const serialized = JSON.stringify(value);
-    return serialized ?? "null";
-  }
-  if (Array.isArray(value)) return `[${value.map(stableJson).join(",")}]`;
-  const record = value as Record<string, unknown>;
-  const fields = Object.keys(record)
-    .filter((key) => record[key] !== undefined)
-    .sort()
-    .map((key) => `${JSON.stringify(key)}:${stableJson(record[key])}`);
-  return `{${fields.join(",")}}`;
+function stableEventId(options: RunTreeCaptureOptions, runId: string): string {
+  return createHash("sha256")
+    .update(
+      JSON.stringify([
+        CURSOR_INTEGRATION,
+        options.sessionId,
+        options.turnId,
+        options.destinationFingerprint,
+        runId,
+      ]),
+    )
+    .digest("hex");
 }

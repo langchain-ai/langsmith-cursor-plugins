@@ -49,37 +49,6 @@ export interface CursorUploadReplica {
   updates?: Record<string, unknown>;
 }
 
-export type CursorRunPatchField =
-  | "inputs"
-  | "outputs"
-  | "end_time"
-  | "error"
-  | "tags"
-  | "serialized"
-  | "events"
-  | "reference_example_id";
-
-export interface CursorRunPatchValues {
-  inputs?: Record<string, unknown>;
-  outputs?: Record<string, unknown>;
-  end_time?: number | string;
-  error?: string;
-  tags?: string[];
-  serialized?: object;
-  events?: RunTree["events"];
-  reference_example_id?: string;
-}
-
-export interface CursorRunContext {
-  id: string;
-  name: string;
-  run_type: string;
-  start_time?: number | string;
-  parent_run_id?: string;
-  trace_id?: string;
-  dotted_order?: string;
-}
-
 export interface CursorRunMetadataOptions extends Record<string, unknown> {
   [CODING_AGENT_METADATA_OPTIONS]?: CodingAgentMetadataOptions;
 }

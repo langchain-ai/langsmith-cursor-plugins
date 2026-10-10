@@ -16,6 +16,7 @@ import type {
   Upload,
   UploadPayload,
 } from "./models/tracing-engine-stop.js";
+import { hasDependencyPath } from "./utils/tracing-engine-snapshot.js";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const guard = join(root, "bundle/guard.js");
@@ -527,11 +528,9 @@ it.each([
           );
         });
         expect(changedPromptPatch).toBeDefined();
-        expect(
-          changedPromptPatch!.dependencies?.some(
-            (dependency) => dependency.eventId === rootPost!.eventId,
-          ),
-        ).toBe(true);
+        expect(hasDependencyPath(runCaptures, changedPromptPatch!.eventId, rootPost!.eventId)).toBe(
+          true,
+        );
       }
       const authoritativeRootPatch = runCaptures.find((record) => {
         const evidence = record.turnEvidence;
@@ -573,16 +572,21 @@ it.each([
         });
         expect(subagentChildPosts.length).toBeGreaterThan(0);
       }
-      const closureDependencies = new Set(
-        authoritativeRootPatch!.dependencies?.map((dependency) => dependency.eventId),
-      );
-      expect(closureDependencies.has(rootPost!.eventId)).toBe(true);
+      expect(
+        hasDependencyPath(runCaptures, authoritativeRootPatch!.eventId, rootPost!.eventId),
+      ).toBe(true);
       if (subagent) {
         const subagentPost = subagentPosts[0]!;
-        expect(closureDependencies.has(subagentPost.eventId)).toBe(true);
+        expect(
+          hasDependencyPath(runCaptures, authoritativeRootPatch!.eventId, subagentPost.eventId),
+        ).toBe(true);
       }
       expect(childPosts.length).toBeGreaterThan(0);
-      expect(childPosts.every((child) => closureDependencies.has(child.eventId))).toBe(true);
+      expect(
+        childPosts.every((child) =>
+          hasDependencyPath(runCaptures, authoritativeRootPatch!.eventId, child.eventId),
+        ),
+      ).toBe(true);
 
       const accountFingerprint = createLangSmithUploadWriter({
         destinations: [{ apiKey: "", apiUrl: primaryUrl, projectName: "stop-regression" }],

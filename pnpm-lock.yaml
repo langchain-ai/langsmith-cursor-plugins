@@ -13,8 +13,8 @@ importers:
         version: 0.10.2
     devDependencies:
       '@langchain/plugins-base':
-        specifier: github:langchain-ai/langsmith-plugin-binary#4bd0cf7e3fe8236c0ea70559b45391761237909c
-        version: https://codeload.github.com/langchain-ai/langsmith-plugin-binary/tar.gz/4bd0cf7e3fe8236c0ea70559b45391761237909c
+        specifier: github:langchain-ai/langsmith-plugin-binary#26e0b421e283438e50d2d6fa103e34cc725eab25
+        version: https://codeload.github.com/langchain-ai/langsmith-plugin-binary/tar.gz/26e0b421e283438e50d2d6fa103e34cc725eab25(langsmith@0.10.2)
       '@types/node':
         specifier: ^26.4.1
         version: 26.4.1
@@ -217,11 +217,13 @@ packages:
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
 
-  '@langchain/plugins-base@https://codeload.github.com/langchain-ai/langsmith-plugin-binary/tar.gz/4bd0cf7e3fe8236c0ea70559b45391761237909c':
-    resolution: {tarball: https://codeload.github.com/langchain-ai/langsmith-plugin-binary/tar.gz/4bd0cf7e3fe8236c0ea70559b45391761237909c}
+  '@langchain/plugins-base@https://codeload.github.com/langchain-ai/langsmith-plugin-binary/tar.gz/26e0b421e283438e50d2d6fa103e34cc725eab25':
+    resolution: {tarball: https://codeload.github.com/langchain-ai/langsmith-plugin-binary/tar.gz/26e0b421e283438e50d2d6fa103e34cc725eab25}
     version: 0.1.0
     engines: {node: '>=20'}
     hasBin: true
+    peerDependencies:
+      langsmith: ^0.9.0 || ^0.10.0
 
   '@napi-rs/wasm-runtime@1.2.4':
     resolution: {integrity: sha512-AJxoUD2/15ESHbvpcyjU274nsAPLuOtPHCk0vKJM5pj//Fg/B1FXNWjPnXTT9PymCYYiHo4zPj0ZomXBKhoy7g==}
@@ -1169,7 +1171,9 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@langchain/plugins-base@https://codeload.github.com/langchain-ai/langsmith-plugin-binary/tar.gz/4bd0cf7e3fe8236c0ea70559b45391761237909c': {}
+  '@langchain/plugins-base@https://codeload.github.com/langchain-ai/langsmith-plugin-binary/tar.gz/26e0b421e283438e50d2d6fa103e34cc725eab25(langsmith@0.10.2)':
+    dependencies:
+      langsmith: 0.10.2
 
   '@napi-rs/wasm-runtime@1.2.4(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)':
     dependencies:

@@ -1,5 +1,3 @@
-import type { CursorRunPatchField } from "./models/tracing-engine.js";
-
 /** Display name for the per-turn root (chain) run. */
 export const TURN_RUN_NAME = "Cursor Turn";
 
@@ -30,17 +28,6 @@ export const CURSOR_RUN_POST_EVENT_KIND = "run-post";
 export const CURSOR_RUN_PATCH_EVENT_KIND = "run-patch";
 
 export const CURSOR_ENGINE_NODE_SCRIPT = /\.(?:c|m)?js$|\.ts$/;
-
-export const CURSOR_ENGINE_PATCH_FIELDS: readonly CursorRunPatchField[] = [
-  "inputs",
-  "outputs",
-  "end_time",
-  "error",
-  "tags",
-  "serialized",
-  "events",
-  "reference_example_id",
-];
 
 /** Read tools only, so a glob or grep naming SKILL.md is not counted as an invocation. */
 export const READ_TOOLS = new Set(["read_file_v2", "ReadFile", "Read"]);
