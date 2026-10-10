@@ -66,10 +66,10 @@ var init_constants = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/settings/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/settings/constants.js
 var COMMON_BOOLEAN_SETTINGS;
 var init_constants2 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/settings/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/settings/constants.js"() {
     COMMON_BOOLEAN_SETTINGS = {
       enabled: { default: false, restrictive: false },
       defaultMuted: { default: false, restrictive: true }
@@ -77,7 +77,7 @@ var init_constants2 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/settings/common-config.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/settings/common-config.js
 import { lstatSync, readFileSync, statSync } from "node:fs";
 function object(value) {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -237,14 +237,14 @@ function toSdkReplicas(replicas) {
   }));
 }
 var init_common_config = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/settings/common-config.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/settings/common-config.js"() {
     init_constants2();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/settings/index.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/settings/index.js
 var init_settings = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/settings/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/settings/index.js"() {
     init_constants2();
     init_common_config();
   }
@@ -584,59 +584,59 @@ var init_config = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/storage/capture/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/storage/capture/constants.js
 var init_constants3 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/storage/capture/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/storage/capture/constants.js"() {
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/storage/capture/paths.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/storage/capture/paths.js
 import { createHash } from "node:crypto";
 import { resolve, join as join2 } from "node:path";
 var init_paths = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/storage/capture/paths.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/storage/capture/paths.js"() {
     init_constants3();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/storage/capture/utils/atomic-file.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/storage/capture/utils/atomic-file.js
 import { constants as fsConstants } from "node:fs";
 import { chmod, link, lstat, mkdir, open, unlink } from "node:fs/promises";
 import { dirname as dirname2, isAbsolute, join as join3, relative, sep } from "node:path";
 import { randomUUID } from "node:crypto";
 var init_atomic_file = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/storage/capture/utils/atomic-file.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/storage/capture/utils/atomic-file.js"() {
     init_constants3();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/storage/capture/utils/serialization.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/storage/capture/utils/serialization.js
 var init_serialization = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/storage/capture/utils/serialization.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/storage/capture/utils/serialization.js"() {
     init_constants3();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/utils/files/private-directory.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/utils/files/private-directory.js
 import { lstat as lstat2, readdir } from "node:fs/promises";
 import { isAbsolute as isAbsolute2, join as join4, relative as relative2, resolve as resolve2, sep as sep2 } from "node:path";
 var init_private_directory = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/utils/files/private-directory.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/utils/files/private-directory.js"() {
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/utils/validation/objects.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/utils/validation/objects.js
 var init_objects = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/utils/validation/objects.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/utils/validation/objects.js"() {
     init_serialization();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/storage/capture/capture-store.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/storage/capture/capture-store.js
 import { lstat as lstat3 } from "node:fs/promises";
 import { join as join5, resolve as resolve3 } from "node:path";
 var init_capture_store = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/storage/capture/capture-store.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/storage/capture/capture-store.js"() {
     init_constants3();
     init_paths();
     init_atomic_file();
@@ -646,75 +646,75 @@ var init_capture_store = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/storage/capture/index.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/storage/capture/index.js
 var init_capture = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/storage/capture/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/storage/capture/index.js"() {
     init_capture_store();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/storage/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/storage/constants.js
 var init_constants4 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/storage/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/storage/constants.js"() {
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/storage/errors.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/storage/errors.js
 import { resolve as resolve4 } from "node:path";
 var init_errors = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/storage/errors.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/storage/errors.js"() {
     init_constants4();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/storage/file-lock.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/storage/file-lock.js
 import { chmod as chmod2, link as link2, lstat as lstat4, mkdir as mkdir2, readFile, readdir as readdir2, rmdir, rename, unlink as unlink2, writeFile } from "node:fs/promises";
 import { performance as performance2 } from "node:perf_hooks";
 import { randomUUID as randomUUID2 } from "node:crypto";
 import { dirname as dirname3, join as join6, resolve as resolve5 } from "node:path";
 var init_file_lock = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/storage/file-lock.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/storage/file-lock.js"() {
     init_constants4();
     init_errors();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/storage/index.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/storage/index.js
 var init_storage = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/storage/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/storage/index.js"() {
     init_file_lock();
     init_errors();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/background-worker/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/background-worker/constants.js
 var init_constants5 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/background-worker/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/background-worker/constants.js"() {
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/background-worker/paths.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/background-worker/paths.js
 import { join as join7, resolve as resolve6 } from "node:path";
 var init_paths2 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/background-worker/paths.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/background-worker/paths.js"() {
     init_paths();
     init_constants5();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/background-worker/utils/scope.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/background-worker/utils/scope.js
 var init_scope = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/background-worker/utils/scope.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/background-worker/utils/scope.js"() {
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/background-worker/worker.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/background-worker/worker.js
 import { randomUUID as randomUUID3 } from "node:crypto";
 import { unlink as unlink3 } from "node:fs/promises";
 import { join as join8, resolve as resolve7 } from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
 var init_worker = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/background-worker/worker.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/background-worker/worker.js"() {
     init_storage();
     init_atomic_file();
     init_paths();
@@ -726,25 +726,25 @@ var init_worker = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/background-worker/index.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/background-worker/index.js
 var init_background_worker = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/background-worker/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/background-worker/index.js"() {
     init_worker();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/delivery/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/delivery/constants.js
 var DELIVERY_DEFAULT_MAX_AGE_MS;
 var init_constants6 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/delivery/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/delivery/constants.js"() {
     DELIVERY_DEFAULT_MAX_AGE_MS = 24 * 60 * 60 * 1e3;
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/delivery/attempt-store.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/delivery/attempt-store.js
 import { join as join9, resolve as resolve8 } from "node:path";
 var init_attempt_store = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/delivery/attempt-store.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/delivery/attempt-store.js"() {
     init_constants6();
     init_paths();
     init_atomic_file();
@@ -752,10 +752,10 @@ var init_attempt_store = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/delivery/coordinator.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/delivery/coordinator.js
 import { join as join10, resolve as resolve9 } from "node:path";
 var init_coordinator = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/delivery/coordinator.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/delivery/coordinator.js"() {
     init_storage();
     init_capture();
     init_paths();
@@ -765,18 +765,19 @@ var init_coordinator = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/delivery/index.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/delivery/index.js
 var init_delivery = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/delivery/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/delivery/index.js"() {
     init_coordinator();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/metadata/constants.js
-var CODING_AGENT_SCHEMA_VERSION, CODING_AGENT_RUN_TYPES, CODING_AGENT_RUN_SCOPES, CODING_AGENT_SCHEMA_INTEGRATIONS, CODING_AGENT_SUPPORTED_INTEGRATIONS, CODING_AGENT_CORE_INTEGRATIONS, CODING_AGENT_CODEX_INTEGRATION, CODING_AGENT_AGENT_TYPES, CODING_AGENT_ALWAYS_FIELD_OPTIONS, CODING_AGENT_WHERE_KNOWN_FIELD_OPTIONS, CODING_AGENT_FIELD_DEFAULTS, CODING_AGENT_STRUCTURAL_FIELD_DEFAULTS, CODING_AGENT_PROVIDER_FIELD_DEFAULTS, CODING_AGENT_INTEGRATION_POLICIES;
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/metadata/constants.js
+var CODING_AGENT_SCHEMA_VERSION, CODING_AGENT_PURPOSE, CODING_AGENT_RUN_TYPES, CODING_AGENT_RUN_SCOPES, CODING_AGENT_SCHEMA_INTEGRATIONS, CODING_AGENT_SUPPORTED_INTEGRATIONS, CODING_AGENT_CORE_INTEGRATIONS, CODING_AGENT_CODEX_INTEGRATION, CODING_AGENT_AGENT_TYPES, CODING_AGENT_ALWAYS_FIELD_OPTIONS, CODING_AGENT_WHERE_KNOWN_FIELD_OPTIONS, CODING_AGENT_FIELD_DEFAULTS, CODING_AGENT_STRUCTURAL_FIELD_DEFAULTS, CODING_AGENT_PROVIDER_FIELD_DEFAULTS, CODING_AGENT_INTEGRATION_POLICIES;
 var init_constants7 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/metadata/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/metadata/constants.js"() {
     CODING_AGENT_SCHEMA_VERSION = "coding-agent-v1";
+    CODING_AGENT_PURPOSE = "coding";
     CODING_AGENT_RUN_TYPES = [
       "root",
       "llm",
@@ -853,13 +854,13 @@ var init_constants7 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/metadata/contract.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/metadata/contract.js
 function field(key, options = {}) {
   return { key, ...CODING_AGENT_FIELD_DEFAULTS, ...options };
 }
 var structural, provider, CODING_AGENT_V1_CONTRACT;
 var init_contract = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/metadata/contract.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/metadata/contract.js"() {
     init_constants7();
     structural = (key, options = {}) => field(key, { ...CODING_AGENT_STRUCTURAL_FIELD_DEFAULTS, ...options });
     provider = (key, options = {}) => field(key, { ...CODING_AGENT_PROVIDER_FIELD_DEFAULTS, ...options });
@@ -876,7 +877,7 @@ var init_contract = __esm({
       keys: [
         structural("ls_agent_purpose", {
           ...CODING_AGENT_ALWAYS_FIELD_OPTIONS,
-          allowedValues: ["coding"]
+          allowedValues: [CODING_AGENT_PURPOSE]
         }),
         structural("ls_integration", {
           ...CODING_AGENT_ALWAYS_FIELD_OPTIONS,
@@ -969,25 +970,25 @@ var init_contract = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/metadata/validation.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/metadata/validation.js
 var init_validation = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/metadata/validation.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/metadata/validation.js"() {
     init_contract();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/metadata/builder.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/metadata/builder.js
 var init_builder = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/metadata/builder.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/metadata/builder.js"() {
     init_constants7();
     init_contract();
     init_validation();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/metadata/privacy.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/metadata/privacy.js
 var init_privacy = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/metadata/privacy.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/metadata/privacy.js"() {
     init_constants7();
     init_contract();
     init_builder();
@@ -995,9 +996,9 @@ var init_privacy = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/metadata/provenance.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/metadata/provenance.js
 var init_provenance = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/metadata/provenance.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/metadata/provenance.js"() {
     init_objects();
     init_constants7();
     init_constants7();
@@ -1007,9 +1008,9 @@ var init_provenance = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/metadata/index.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/metadata/index.js
 var init_metadata = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/metadata/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/metadata/index.js"() {
     init_builder();
     init_constants7();
     init_contract();
@@ -14624,49 +14625,50 @@ var init_langsmith = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/privacy/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/privacy/constants.js
 var init_constants10 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/privacy/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/privacy/constants.js"() {
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/privacy/run-tree.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/privacy/run-tree.js
 var init_run_tree = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/privacy/run-tree.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/privacy/run-tree.js"() {
     init_langsmith();
     init_metadata();
     init_constants10();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/privacy/index.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/privacy/index.js
 var init_privacy2 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/privacy/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/privacy/index.js"() {
+    init_run_tree();
     init_run_tree();
     init_constants10();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/upload/client.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/upload/client.js
 var init_client3 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/upload/client.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/upload/client.js"() {
     init_langsmith();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/upload/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/upload/constants.js
 var UPLOAD_REPLICA_UUID_V5_NAMESPACE, UPLOAD_REPLICA_UUID_V5_NAMESPACE_BYTES;
 var init_constants11 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/upload/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/upload/constants.js"() {
     UPLOAD_REPLICA_UUID_V5_NAMESPACE = "6ba7b810-9dad-11d1-80b4-00c04fd430c8";
     UPLOAD_REPLICA_UUID_V5_NAMESPACE_BYTES = Buffer.from(UPLOAD_REPLICA_UUID_V5_NAMESPACE.replaceAll("-", ""), "hex");
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/upload/destination-identity.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/upload/destination-identity.js
 import { createHash as createHash2 } from "node:crypto";
 var init_destination_identity = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/upload/destination-identity.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/upload/destination-identity.js"() {
     init_objects();
     init_constants11();
   }
@@ -14783,35 +14785,35 @@ var init_anonymizer2 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/upload/redaction.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/upload/redaction.js
 var init_redaction = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/upload/redaction.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/upload/redaction.js"() {
     init_anonymizer2();
     init_constants11();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/upload/destinations.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/upload/destinations.js
 var init_destinations = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/upload/destinations.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/upload/destinations.js"() {
     init_client3();
     init_destination_identity();
     init_redaction();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/upload/replica-identifiers.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/upload/replica-identifiers.js
 import { createHash as createHash3 } from "node:crypto";
 var init_replica_identifiers = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/upload/replica-identifiers.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/upload/replica-identifiers.js"() {
     init_langsmith();
     init_constants11();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/upload/upload.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/upload/upload.js
 var init_upload = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/upload/upload.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/upload/upload.js"() {
     init_metadata();
     init_privacy2();
     init_objects();
@@ -14823,53 +14825,53 @@ var init_upload = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/upload/index.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/upload/index.js
 var init_upload2 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/upload/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/upload/index.js"() {
     init_upload();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/capture-wake-constants.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/capture-wake-constants.js
 var init_capture_wake_constants = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/capture-wake-constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/capture-wake-constants.js"() {
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/capture-wake.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/capture-wake.js
 var init_capture_wake = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/capture-wake.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/capture-wake.js"() {
     init_capture_wake_constants();
     init_serialization();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/constants.js
 var init_constants12 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/constants.js"() {
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/closure.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/closure.js
 var init_closure = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/closure.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/closure.js"() {
     init_metadata();
     init_objects();
     init_constants12();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/identity.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/identity.js
 var init_identity = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/identity.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/identity.js"() {
     init_objects();
     init_constants12();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/projection.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/projection.js
 var init_projection = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/projection.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/projection.js"() {
     init_metadata();
     init_privacy2();
     init_objects();
@@ -14880,10 +14882,10 @@ var init_projection = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/settlement/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/settlement/constants.js
 var TURN_REPOSITORY_KEYS, REPOSITORY_METADATA_KEYS;
 var init_constants13 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/settlement/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/settlement/constants.js"() {
     TURN_REPOSITORY_KEYS = [
       "repository_name",
       "repository_provider",
@@ -14895,17 +14897,17 @@ var init_constants13 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/settlement/settlement.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/settlement/settlement.js
 var init_settlement = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/settlement/settlement.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/settlement/settlement.js"() {
     init_constants13();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/settlement/pass.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/settlement/pass.js
 import { createHash as createHash4 } from "node:crypto";
 var init_pass = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/settlement/pass.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/settlement/pass.js"() {
     init_metadata();
     init_objects();
     init_constants12();
@@ -14916,16 +14918,16 @@ var init_pass = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/utils/validation/snapshot.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/utils/validation/snapshot.js
 var init_snapshot = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/utils/validation/snapshot.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/utils/validation/snapshot.js"() {
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/snapshot.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/snapshot.js
 import { join as join11 } from "node:path";
 var init_snapshot2 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/snapshot.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/snapshot.js"() {
     init_storage();
     init_paths();
     init_atomic_file();
@@ -14941,10 +14943,10 @@ var init_snapshot2 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/bridge.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/bridge.js
 import { join as join12, resolve as resolve10 } from "node:path";
 var init_bridge = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/bridge.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/bridge.js"() {
     init_storage();
     init_capture();
     init_paths();
@@ -14962,24 +14964,24 @@ var init_bridge = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/index.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/index.js
 var init_lifecycle = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/index.js"() {
     init_bridge();
     init_identity();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/constants.js
 var init_constants14 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/constants.js"() {
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/worker.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/worker.js
 import { join as join13, resolve as resolve11 } from "node:path";
 var init_worker2 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/worker.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/worker.js"() {
     init_storage();
     init_capture();
     init_paths();
@@ -14995,54 +14997,54 @@ var init_worker2 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/index.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/index.js
 var init_reconstruction = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/index.js"() {
     init_worker2();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/utils/errors.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/utils/errors.js
 var init_errors3 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/utils/errors.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/utils/errors.js"() {
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/engine/pass-results.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/engine/pass-results.js
 var init_pass_results = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/engine/pass-results.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/engine/pass-results.js"() {
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/engine/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/engine/constants.js
 var TRACING_ENGINE_FOREIGN_SESSION_MIN_AGE_MS, TRACING_ENGINE_BACKGROUND_RECOVERY_COOLDOWN_MS;
 var init_constants15 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/engine/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/engine/constants.js"() {
     TRACING_ENGINE_FOREIGN_SESSION_MIN_AGE_MS = 2 * 60 * 60 * 1e3;
     TRACING_ENGINE_BACKGROUND_RECOVERY_COOLDOWN_MS = 5 * 60 * 1e3;
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/engine/options.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/engine/options.js
 import { resolve as resolve12 } from "node:path";
 var init_options = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/engine/options.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/engine/options.js"() {
     init_constants15();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery-settlement.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery-settlement.js
 var init_recovery_settlement = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery-settlement.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery-settlement.js"() {
     init_serialization();
     init_pass();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery.js
 import { join as join14 } from "node:path";
 var init_recovery = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery.js"() {
     init_capture();
     init_constants14();
     init_constants12();
@@ -15052,19 +15054,19 @@ var init_recovery = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery-paths.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery-paths.js
 import { join as join15, resolve as resolve13 } from "node:path";
 var init_recovery_paths = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery-paths.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery-paths.js"() {
     init_paths();
     init_constants15();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/engine/background-recovery.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/engine/background-recovery.js
 import { unlink as unlink5 } from "node:fs/promises";
 var init_background_recovery = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/engine/background-recovery.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/engine/background-recovery.js"() {
     init_atomic_file();
     init_file_lock();
     init_errors3();
@@ -15074,9 +15076,9 @@ var init_background_recovery = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/engine/engine.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/engine/engine.js
 var init_engine = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/engine/engine.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/engine/engine.js"() {
     init_background_worker();
     init_scope();
     init_lifecycle();
@@ -15091,24 +15093,24 @@ var init_engine = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/engine/index.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/engine/index.js
 var init_engine2 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/engine/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/engine/index.js"() {
     init_engine();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/index.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/index.js
 var init_tracing = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/index.js"() {
     init_engine2();
     init_capture_wake();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/upload/identity.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/upload/identity.js
 var init_identity2 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/upload/identity.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/upload/identity.js"() {
     init_destination_identity();
   }
 });

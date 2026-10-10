@@ -3,12 +3,12 @@ import {
   metadataForMode as sharedMetadataForMode,
   projectCodingAgentMetadata,
 } from "@langchain/plugins-base/metadata";
+import { MUTED_TRACE_CONTENT, projectReplica } from "@langchain/plugins-base/privacy";
 import { CODING_AGENT_METADATA_OPTIONS, CURSOR_INTEGRATION } from "./constants.js";
 import type { TracingMode } from "./types.js";
 import type { RunTreeCapture } from "./models/tracing-engine.js";
 
-export const MUTED_TRACE_CONTENT =
-  "[LangSmith system notice: content omitted because tracing is muted.]";
+export { MUTED_TRACE_CONTENT };
 
 // Also used at the wire boundary, on CURRENT (possibly anonymized) metadata.
 // It must not retrieve provenance there and restore pre-anonymization values.
@@ -40,11 +40,8 @@ export function metadataForMode(
 }
 
 function sanitizeReplica(replica: unknown, mode: TracingMode): unknown {
-  if (mode === "full" || !replica || typeof replica !== "object") return replica;
-  // The SDK also accepts [projectName, updates] tuples.
-  if (Array.isArray(replica)) return { projectName: replica[0] };
-  const { updates: _updates, ...safe } = replica as Record<string, unknown>;
-  return safe;
+  if (mode === "full") return replica;
+  return projectReplica(replica);
 }
 
 export function runConfigForMode<T extends Record<string, unknown>>(
