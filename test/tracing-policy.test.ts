@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { FileLockTimeoutError, tryAcquireFileLock } from "@langchain/plugins-base/storage";
 import {
   existsSync,
   lstatSync,
@@ -26,6 +27,38 @@ import {
   tracingPolicyPath,
 } from "../src/tracing-policy.js";
 
+const lockFaults = vi.hoisted(() => ({
+  acquireAttempts: 0,
+  acquireCode: "",
+  acquireError: undefined as unknown,
+  releaseFailure: "",
+}));
+
+vi.mock("@langchain/plugins-base/storage", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@langchain/plugins-base/storage")>();
+  return {
+    ...actual,
+    acquireCompatibleDirectoryFileLock: async (
+      ...args: Parameters<typeof actual.acquireCompatibleDirectoryFileLock>
+    ) => {
+      lockFaults.acquireAttempts += 1;
+      if (lockFaults.acquireError) throw lockFaults.acquireError;
+      if (lockFaults.acquireCode) {
+        throw Object.assign(new Error("permission denied"), { code: lockFaults.acquireCode });
+      }
+      const lock = await actual.acquireCompatibleDirectoryFileLock(...args);
+      if (lockFaults.releaseFailure) {
+        return {
+          release: async () => {
+            throw new Error(lockFaults.releaseFailure);
+          },
+        };
+      }
+      return lock;
+    },
+  };
+});
+
 vi.mock("node:fs/promises", async (importOriginal) => ({
   ...(await importOriginal<typeof import("node:fs/promises")>()),
 }));
@@ -34,6 +67,10 @@ let dir: string;
 let state: string;
 let policy: string;
 beforeEach(() => {
+  lockFaults.acquireAttempts = 0;
+  lockFaults.acquireCode = "";
+  lockFaults.acquireError = undefined;
+  lockFaults.releaseFailure = "";
   dir = mkdtempSync(join(tmpdir(), "tracing-policy-"));
   state = join(dir, "state.json");
   policy = join(dir, "state.privacy.json");
@@ -60,7 +97,7 @@ type FsFault =
 function injectFsFaults(...faults: FsFault[]) {
   const originalOpen = fsPromises.open;
   const originalUnlink = fsPromises.unlink;
-  const originalRmdir = fsPromises.rmdir;
+  if (faults.includes("lock rmdir")) lockFaults.releaseFailure = "lock rmdir failed";
   vi.spyOn(fsPromises, "open").mockImplementation(async (path, flags, mode) => {
     const kind = String(path) === dir ? "directory" : "temp";
     if (faults.includes(`${kind} open` as FsFault)) throw new Error(`${kind} open failed`);
@@ -79,10 +116,6 @@ function injectFsFaults(...faults: FsFault[]) {
   vi.spyOn(fsPromises, "unlink").mockImplementation(async (path) => {
     if (faults.includes("temp unlink")) throw new Error("temp unlink failed");
     return originalUnlink(path);
-  });
-  vi.spyOn(fsPromises, "rmdir").mockImplementation(async (path) => {
-    if (faults.includes("lock rmdir")) throw new Error("lock rmdir failed");
-    return originalRmdir(path);
   });
 }
 
@@ -108,7 +141,7 @@ describe("standalone tracing preference", () => {
     expect(getThreadTracingMode(policy, "a")).toBe("full");
     expect(getThreadTracingMode(policy, "b")).toBe("metadata");
     if (process.platform !== "win32") expect(statSync(policy).mode & 0o777).toBe(0o600);
-    expect(readdirSync(dir)).toEqual(["state.privacy.json"]);
+    expect(readdirSync(dir).sort()).toEqual(["state.privacy.json", "state.privacy.json.claims"]);
   });
 
   it("creates missing parents and leaves existing tracing state untouched", async () => {
@@ -209,7 +242,7 @@ describe("standalone tracing preference", () => {
     vi.spyOn(fsPromises, "rename").mockRejectedValueOnce(new Error("rename failed"));
     await expect(setThreadTracingMode(policy, "a", "full")).rejects.toThrow("rename failed");
     expect(readFileSync(policy, "utf8")).toBe(before);
-    expect(readdirSync(dir)).toEqual(["state.privacy.json"]);
+    expect(readdirSync(dir).sort()).toEqual(["state.privacy.json", "state.privacy.json.claims"]);
   });
 
   it.each(postcommitFaults)("returns a warning after committed %s failure", async (fault) => {
@@ -243,7 +276,7 @@ describe("standalone tracing preference", () => {
       injectFsFaults(fault);
       await expect(setThreadTracingMode(policy, "a", "full")).rejects.toThrow(`${fault} failed`);
       expect(readFileSync(policy, "utf8")).toBe(before);
-      expect(readdirSync(dir)).toEqual(["state.privacy.json"]);
+      expect(readdirSync(dir).sort()).toEqual(["state.privacy.json", "state.privacy.json.claims"]);
     },
   );
 
@@ -261,7 +294,6 @@ describe("standalone tracing preference", () => {
       failure === "write" ? "temp writeFile failed" : "rename failed",
     );
     expect(readFileSync(policy, "utf8")).toBe(before);
-    expect(fsPromises.rmdir).toHaveBeenCalledWith(`${policy}.lock`);
     expect(fsPromises.unlink).toHaveBeenCalledTimes(1);
   });
 
@@ -273,9 +305,15 @@ describe("standalone tracing preference", () => {
       if (kind === "directory") mkdirSync(`${policy}.lock`);
       else writeFileSync(`${policy}.lock`, `${process.pid}\n`);
       utimesSync(`${policy}.lock`, new Date(0), new Date(0));
-      await expect(setThreadTracingMode(policy, "a", "full")).rejects.toThrow("Timed out");
-      if (kind === "directory") expect(readdirSync(`${policy}.lock`)).toEqual([]);
-      else expect(readFileSync(`${policy}.lock`, "utf8")).toBe(`${process.pid}\n`);
+      if (kind === "directory") {
+        await expect(setThreadTracingMode(policy, "a", "full")).rejects.toThrow("Timed out");
+        expect(readdirSync(`${policy}.lock`)).toEqual([]);
+      } else {
+        await expect(setThreadTracingMode(policy, "a", "full")).rejects.toMatchObject({
+          code: "EEXIST",
+        });
+        expect(readFileSync(`${policy}.lock`, "utf8")).toBe(`${process.pid}\n`);
+      }
       expect(readFileSync(policy, "utf8")).toBe(before);
     },
   );
@@ -286,12 +324,14 @@ describe("standalone tracing preference", () => {
       expect(statSync(`${policy}.lock`).isDirectory()).toBe(true);
       if (process.platform !== "win32") expect(statSync(`${policy}.lock`).mode & 0o777).toBe(0o700);
       expect(readdirSync(`${policy}.lock`)).toEqual([]);
+      expect(readdirSync(`${policy}.claims`)).toHaveLength(1);
+      expect(await tryAcquireFileLock(policy)).toBeUndefined();
       return originalRename(from, to);
     });
-    const mkdir = vi.spyOn(fsPromises, "mkdir");
     await setThreadTracingMode(policy, "a", "metadata");
-    expect(mkdir).toHaveBeenCalledWith(`${policy}.lock`, { mode: 0o700 });
+    expect(lockFaults.acquireAttempts).toBe(1);
     expect(existsSync(`${policy}.lock`)).toBe(false);
+    expect(readdirSync(`${policy}.claims`)).toEqual([]);
   });
 
   it("retries until a held directory lock is released", async () => {
@@ -312,36 +352,18 @@ describe("standalone tracing preference", () => {
     expect(existsSync(`${policy}.lock`)).toBe(false);
   });
 
-  it("retries Windows EPERM while an existing lock path is held", async () => {
-    const lockPath = `${policy}.lock`;
-    mkdirSync(lockPath);
-    const originalMkdir = fsPromises.mkdir;
-    vi.spyOn(fsPromises, "mkdir").mockImplementation(async (path, options) => {
-      if (String(path) === lockPath && existsSync(lockPath)) {
-        throw Object.assign(new Error("operation not permitted"), { code: "EPERM" });
-      }
-      return originalMkdir(path, options);
-    });
-    let finished = false;
-    let failure: unknown;
-    const save = setThreadTracingMode(policy, "a", "metadata").then(
-      () => {
-        finished = true;
-      },
-      (error: unknown) => {
-        failure = error;
-        finished = true;
-      },
+  it("maps a nested shared-lock timeout to an actionable preference error", async () => {
+    await setThreadTracingMode(policy, "a", "metadata");
+    const before = readFileSync(policy, "utf8");
+    lockFaults.acquireError = new AggregateError([
+      new Error("legacy gate cleanup failed"),
+      new FileLockTimeoutError(policy),
+    ]);
+    await expect(setThreadTracingMode(policy, "a", "full")).rejects.toThrow(
+      `Timed out waiting for tracing preference lock ${policy}.lock. Retry; if it persists`,
     );
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 100));
-      expect(finished).toBe(false);
-    } finally {
-      await fsPromises.rmdir(lockPath);
-    }
-    await save;
-    expect(failure).toBeUndefined();
-    expect(getThreadTracingMode(policy, "a")).toBe("metadata");
+    expect(lockFaults.acquireAttempts).toBe(2);
+    expect(readFileSync(policy, "utf8")).toBe(before);
   });
 
   it.each(["EACCES", "EPERM"])(
@@ -349,17 +371,10 @@ describe("standalone tracing preference", () => {
     async (code) => {
       await setThreadTracingMode(policy, "a", "metadata");
       const before = readFileSync(policy, "utf8");
-      const originalMkdir = fsPromises.mkdir;
-      vi.spyOn(fsPromises, "mkdir").mockImplementation(async (path, options) => {
-        if (String(path) === `${policy}.lock`) {
-          throw Object.assign(new Error("permission denied"), { code });
-        }
-        return originalMkdir(path, options);
-      });
-      const rmdir = vi.spyOn(fsPromises, "rmdir");
+      lockFaults.acquireCode = code;
       await expect(setThreadTracingMode(policy, "a", "full")).rejects.toThrow("permission denied");
+      expect(lockFaults.acquireAttempts).toBe(2);
       expect(readFileSync(policy, "utf8")).toBe(before);
-      expect(rmdir).not.toHaveBeenCalled();
     },
   );
 });

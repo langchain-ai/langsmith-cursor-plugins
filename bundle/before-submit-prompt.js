@@ -41,13 +41,13 @@ function readStdin(stream = process.stdin) {
   });
 }
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/settings/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/settings/constants.js
 var COMMON_BOOLEAN_SETTINGS = {
   enabled: { default: false, restrictive: false },
   defaultMuted: { default: false, restrictive: true }
 };
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/settings/common-config.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/settings/common-config.js
 import { lstatSync, readFileSync, statSync } from "node:fs";
 function object(value) {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -529,13 +529,13 @@ function loadConfig(options) {
 import { readFileSync as readFileSync2, writeFileSync, mkdirSync as mkdirSync2, openSync, closeSync, unlinkSync, renameSync as renameSync2, fsyncSync } from "node:fs";
 import { randomUUID as randomUUID2 } from "node:crypto";
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/storage/file-lock.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/storage/file-lock.js
 import { chmod, link, lstat, mkdir, readFile, readdir, rmdir, rename, unlink, writeFile } from "node:fs/promises";
 import { performance } from "node:perf_hooks";
 import { randomUUID } from "node:crypto";
 import { dirname as dirname2, join as join2, resolve as resolve2 } from "node:path";
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/storage/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/storage/constants.js
 var FILE_LOCK_CLAIM_VERSION = 1;
 var FILE_LOCK_CLAIM_EXTENSION = ".json";
 var FILE_LOCK_DIRECTORY_SUFFIX = ".claims";
@@ -568,7 +568,7 @@ var FILE_LOCK_COMPATIBLE_ACQUIRE_CLEANUP_MESSAGE = "Could not release the legacy
 var FILE_LOCK_COMPATIBLE_RELEASE_MESSAGE = "Could not release compatible file lock";
 var FILE_LOCK_COMPATIBLE_GATE_CHANGED_MESSAGE = "Legacy file lock gate changed before release";
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/storage/errors.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/storage/errors.js
 import { resolve } from "node:path";
 var FileLockTimeoutError = class extends Error {
   constructor(filePath) {
@@ -577,7 +577,7 @@ var FileLockTimeoutError = class extends Error {
   }
 };
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/storage/file-lock.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/storage/file-lock.js
 function isRecord(value) {
   return typeof value === "object" && value !== null;
 }
@@ -781,6 +781,7 @@ async function acquireClaim(filePath, waitForPeers, deadline) {
 async function acquireLegacyDirectoryGate(filePath, deadline) {
   const gatePath = `${filePath}${FILE_LOCK_LEGACY_DIRECTORY_SUFFIX}`;
   await mkdir(dirname2(filePath), { recursive: true, mode: FILE_LOCK_DIRECTORY_MODE });
+  let retriedMissingPermission = false;
   for (; ; ) {
     if (performance.now() >= deadline)
       throw timeoutError(filePath);
@@ -792,21 +793,30 @@ async function acquireLegacyDirectoryGate(filePath, deadline) {
       return { path: gatePath, dev: stat.dev, ino: stat.ino, birthtimeMs: stat.birthtimeMs };
     } catch (error2) {
       const code = error2.code;
-      if (code !== FILE_LOCK_EXISTS_CODE && !FILE_LOCK_WINDOWS_DIRECTORY_CONTENTION_CODES.some((candidate) => candidate === code)) {
+      const permissionDenied = FILE_LOCK_WINDOWS_DIRECTORY_CONTENTION_CODES.some((candidate) => candidate === code);
+      if (code !== FILE_LOCK_EXISTS_CODE && !permissionDenied) {
         throw error2;
       }
       let isDirectory = false;
       try {
         isDirectory = (await lstat(gatePath)).isDirectory();
       } catch (statError) {
-        if (code === FILE_LOCK_EXISTS_CODE && statError.code === FILE_LOCK_MISSING_CODE) {
-          await waitForNextScan(deadline, filePath);
-          continue;
+        if (statError.code === FILE_LOCK_MISSING_CODE) {
+          if (code === FILE_LOCK_EXISTS_CODE) {
+            retriedMissingPermission = false;
+            await waitForNextScan(deadline, filePath);
+            continue;
+          }
+          if (permissionDenied && !retriedMissingPermission) {
+            retriedMissingPermission = true;
+            continue;
+          }
         }
         throw error2;
       }
       if (!isDirectory)
         throw error2;
+      retriedMissingPermission = false;
       await waitForNextScan(deadline, filePath);
     }
   }
@@ -1072,12 +1082,18 @@ function reduceBeforeSubmitPrompt(state, input, nowMs, mode = "full", origin) {
 // dist/src/tracing-policy.js
 import { randomUUID as randomUUID3 } from "node:crypto";
 import { lstatSync as lstatSync2, readFileSync as readFileSync3 } from "node:fs";
-import { mkdir as mkdir2, open, rename as rename2, rmdir as rmdir2, unlink as unlink2 } from "node:fs/promises";
+import { open, rename as rename2, unlink as unlink2 } from "node:fs/promises";
 import { dirname as dirname4 } from "node:path";
-import { performance as performance2 } from "node:perf_hooks";
-import { setTimeout as delay } from "node:timers/promises";
 import { homedir as homedir3 } from "node:os";
 import { join as join3 } from "node:path";
+
+// dist/src/tracing-policy-constants.js
+var TRACING_POLICY_LOCK_SUFFIX = ".lock";
+var TRACING_POLICY_LOCK_TIMEOUT_MS = 2e3;
+var TRACING_POLICY_LOCK_TIMEOUT_ERROR = "Timed out waiting for tracing preference lock";
+var TRACING_POLICY_LOCK_TIMEOUT_MESSAGE = "Retry; if it persists, remove the lock only after confirming no preference writer is running.";
+
+// dist/src/tracing-policy.js
 function isMode(value) {
   return value === "full" || value === "metadata";
 }
@@ -1086,18 +1102,6 @@ function isObject(value) {
 }
 function hasCode(error2, code) {
   return isObject(error2) && error2.code === code;
-}
-function isHeldLock(error2, lockPath) {
-  if (hasCode(error2, "EEXIST"))
-    return true;
-  if (!hasCode(error2, "EPERM"))
-    return false;
-  try {
-    lstatSync2(lockPath);
-    return true;
-  } catch {
-    return false;
-  }
 }
 function readPolicy(path) {
   let raw;
@@ -1147,23 +1151,15 @@ async function setThreadTracingMode(path, sessionId, mode) {
   if (typeof sessionId !== "string" || !sessionId || !isMode(mode)) {
     throw new Error("A nonempty session ID and a full/metadata tracing mode are required");
   }
-  const lockPath = `${path}.lock`;
-  await mkdir2(dirname4(path), { recursive: true, mode: 448 });
-  const deadline = performance2.now() + 2e3;
-  let locked = false;
-  while (!locked) {
-    try {
-      await mkdir2(lockPath, { mode: 448 });
-      locked = true;
-    } catch (error2) {
-      if (!isHeldLock(error2, lockPath))
-        throw error2;
-      if (performance2.now() >= deadline) {
-        throw new Error(`Timed out waiting for tracing preference lock ${lockPath}. Retry; if it persists, remove the lock only after confirming no preference writer is running.`);
-      }
-      await delay(10 + Math.random() * 20);
+  const lockPath = `${path}${TRACING_POLICY_LOCK_SUFFIX}`;
+  const lock = await acquireCompatibleDirectoryFileLock(path, {
+    timeoutMs: TRACING_POLICY_LOCK_TIMEOUT_MS
+  }).catch((error2) => {
+    if (hasFileLockTimeoutError(error2)) {
+      throw new Error(`${TRACING_POLICY_LOCK_TIMEOUT_ERROR} ${lockPath}. ${TRACING_POLICY_LOCK_TIMEOUT_MESSAGE}`, { cause: error2 });
     }
-  }
+    throw error2;
+  });
   const warnings = [];
   async function bestEffort(action, message) {
     try {
@@ -1206,7 +1202,7 @@ async function setThreadTracingMode(path, sessionId, mode) {
     if (tempPath) {
       await bestEffort(() => unlink2(tempPath), "Temporary file cleanup failed");
     }
-    await bestEffort(() => rmdir2(lockPath), `Preference lock cleanup failed at ${lockPath}. Before retrying, remove the lock only after confirming no preference writer is running`);
+    await bestEffort(() => lock.release(), `Preference lock cleanup failed at ${lockPath}. Before retrying, remove the lock only after confirming no preference writer is running`);
   }
   return warnings.length ? { warning: warnings.join("; ") } : {};
 }
@@ -1214,13 +1210,13 @@ async function setThreadTracingMode(path, sessionId, mode) {
 // dist/src/turn-origin.js
 import { dirname as dirname5 } from "node:path";
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/upload/destination-identity.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/upload/destination-identity.js
 import { createHash } from "node:crypto";
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/storage/capture/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/storage/capture/constants.js
 var JSON_ARRAY_INDEX_KEY = /^(0|[1-9]\d*)$/u;
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/storage/capture/utils/serialization.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/storage/capture/utils/serialization.js
 function canonicalValue(value, seen) {
   if (value === null || typeof value === "string" || typeof value === "boolean")
     return value;
@@ -1266,7 +1262,7 @@ function canonicalValue(value, seen) {
   return result;
 }
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/utils/validation/objects.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/utils/validation/objects.js
 function isPlainRecord(value) {
   return value !== null && typeof value === "object" && (Object.getPrototypeOf(value) === Object.prototype || Object.getPrototypeOf(value) === null);
 }
@@ -1279,7 +1275,7 @@ function canonicalJsonObject(value, name) {
   return canonicalValue(requirePlainRecord(value, name), /* @__PURE__ */ new Set());
 }
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/upload/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/upload/constants.js
 var UPLOAD_ACCOUNT_FINGERPRINT_PREFIX = "account_";
 var UPLOAD_DESTINATION_ID_PREFIX = "destination_";
 var UPLOAD_FINGERPRINT_LENGTH = 32;
@@ -1310,7 +1306,7 @@ var UPLOAD_REPLICA_PATCH_UPDATE_FIELDS = /* @__PURE__ */ new Set([
   "events"
 ]);
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/upload/destination-identity.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/upload/destination-identity.js
 function resolveUploadDestinationIdentities(options) {
   if (!Array.isArray(options.destinations) || options.destinations.length === 0) {
     throw new TypeError("At least one upload destination is required");
@@ -1434,7 +1430,7 @@ function fingerprint(value) {
   return createHash("sha256").update(value).digest("hex").slice(0, UPLOAD_FINGERPRINT_LENGTH);
 }
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/upload/identity.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/upload/identity.js
 function resolveUploadDestinationFingerprint(options) {
   return resolveUploadDestinationIdentities(options).accountFingerprint;
 }

@@ -34,13 +34,13 @@ function readStdin(stream = process.stdin) {
   });
 }
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/settings/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/settings/constants.js
 var COMMON_BOOLEAN_SETTINGS = {
   enabled: { default: false, restrictive: false },
   defaultMuted: { default: false, restrictive: true }
 };
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/settings/common-config.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/settings/common-config.js
 import { lstatSync, readFileSync, statSync } from "node:fs";
 function object(value) {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -536,13 +536,13 @@ function initHook(cwd) {
 import { readFileSync as readFileSync2, writeFileSync, mkdirSync as mkdirSync2, openSync, closeSync, unlinkSync, renameSync as renameSync2, fsyncSync } from "node:fs";
 import { randomUUID as randomUUID2 } from "node:crypto";
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/storage/file-lock.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/storage/file-lock.js
 import { chmod, link, lstat, mkdir, readFile, readdir, rmdir, rename, unlink, writeFile } from "node:fs/promises";
 import { performance } from "node:perf_hooks";
 import { randomUUID } from "node:crypto";
 import { dirname as dirname2, join as join2, resolve as resolve2 } from "node:path";
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/storage/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/storage/constants.js
 var FILE_LOCK_CLAIM_VERSION = 1;
 var FILE_LOCK_CLAIM_EXTENSION = ".json";
 var FILE_LOCK_DIRECTORY_SUFFIX = ".claims";
@@ -575,7 +575,7 @@ var FILE_LOCK_COMPATIBLE_ACQUIRE_CLEANUP_MESSAGE = "Could not release the legacy
 var FILE_LOCK_COMPATIBLE_RELEASE_MESSAGE = "Could not release compatible file lock";
 var FILE_LOCK_COMPATIBLE_GATE_CHANGED_MESSAGE = "Legacy file lock gate changed before release";
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/storage/errors.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/storage/errors.js
 import { resolve } from "node:path";
 var FileLockTimeoutError = class extends Error {
   constructor(filePath) {
@@ -584,7 +584,7 @@ var FileLockTimeoutError = class extends Error {
   }
 };
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/storage/file-lock.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/storage/file-lock.js
 function isRecord(value) {
   return typeof value === "object" && value !== null;
 }
@@ -788,6 +788,7 @@ async function acquireClaim(filePath, waitForPeers, deadline) {
 async function acquireLegacyDirectoryGate(filePath, deadline) {
   const gatePath = `${filePath}${FILE_LOCK_LEGACY_DIRECTORY_SUFFIX}`;
   await mkdir(dirname2(filePath), { recursive: true, mode: FILE_LOCK_DIRECTORY_MODE });
+  let retriedMissingPermission = false;
   for (; ; ) {
     if (performance.now() >= deadline)
       throw timeoutError(filePath);
@@ -799,21 +800,30 @@ async function acquireLegacyDirectoryGate(filePath, deadline) {
       return { path: gatePath, dev: stat.dev, ino: stat.ino, birthtimeMs: stat.birthtimeMs };
     } catch (error2) {
       const code = error2.code;
-      if (code !== FILE_LOCK_EXISTS_CODE && !FILE_LOCK_WINDOWS_DIRECTORY_CONTENTION_CODES.some((candidate) => candidate === code)) {
+      const permissionDenied = FILE_LOCK_WINDOWS_DIRECTORY_CONTENTION_CODES.some((candidate) => candidate === code);
+      if (code !== FILE_LOCK_EXISTS_CODE && !permissionDenied) {
         throw error2;
       }
       let isDirectory = false;
       try {
         isDirectory = (await lstat(gatePath)).isDirectory();
       } catch (statError) {
-        if (code === FILE_LOCK_EXISTS_CODE && statError.code === FILE_LOCK_MISSING_CODE) {
-          await waitForNextScan(deadline, filePath);
-          continue;
+        if (statError.code === FILE_LOCK_MISSING_CODE) {
+          if (code === FILE_LOCK_EXISTS_CODE) {
+            retriedMissingPermission = false;
+            await waitForNextScan(deadline, filePath);
+            continue;
+          }
+          if (permissionDenied && !retriedMissingPermission) {
+            retriedMissingPermission = true;
+            continue;
+          }
         }
         throw error2;
       }
       if (!isDirectory)
         throw error2;
+      retriedMissingPermission = false;
       await waitForNextScan(deadline, filePath);
     }
   }

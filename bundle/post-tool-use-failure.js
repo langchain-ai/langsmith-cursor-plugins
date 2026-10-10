@@ -71,13 +71,13 @@ function readStdin(stream = process.stdin) {
   });
 }
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/settings/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/settings/constants.js
 var COMMON_BOOLEAN_SETTINGS = {
   enabled: { default: false, restrictive: false },
   defaultMuted: { default: false, restrictive: true }
 };
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/settings/common-config.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/settings/common-config.js
 import { lstatSync, readFileSync, statSync } from "node:fs";
 function object(value) {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -573,13 +573,13 @@ function initHook(cwd) {
 import { readFileSync as readFileSync2, writeFileSync, mkdirSync as mkdirSync2, openSync, closeSync, unlinkSync, renameSync as renameSync2, fsyncSync } from "node:fs";
 import { randomUUID as randomUUID2 } from "node:crypto";
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/storage/file-lock.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/storage/file-lock.js
 import { chmod, link, lstat, mkdir, readFile, readdir, rmdir, rename, unlink, writeFile } from "node:fs/promises";
 import { performance } from "node:perf_hooks";
 import { randomUUID } from "node:crypto";
 import { dirname as dirname2, join as join2, resolve as resolve2 } from "node:path";
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/storage/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/storage/constants.js
 var FILE_LOCK_CLAIM_VERSION = 1;
 var FILE_LOCK_CLAIM_EXTENSION = ".json";
 var FILE_LOCK_DIRECTORY_SUFFIX = ".claims";
@@ -612,7 +612,7 @@ var FILE_LOCK_COMPATIBLE_ACQUIRE_CLEANUP_MESSAGE = "Could not release the legacy
 var FILE_LOCK_COMPATIBLE_RELEASE_MESSAGE = "Could not release compatible file lock";
 var FILE_LOCK_COMPATIBLE_GATE_CHANGED_MESSAGE = "Legacy file lock gate changed before release";
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/storage/errors.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/storage/errors.js
 import { resolve } from "node:path";
 var FileLockTimeoutError = class extends Error {
   constructor(filePath) {
@@ -621,7 +621,7 @@ var FileLockTimeoutError = class extends Error {
   }
 };
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/storage/file-lock.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/storage/file-lock.js
 function isRecord(value) {
   return typeof value === "object" && value !== null;
 }
@@ -825,6 +825,7 @@ async function acquireClaim(filePath, waitForPeers, deadline) {
 async function acquireLegacyDirectoryGate(filePath, deadline) {
   const gatePath = `${filePath}${FILE_LOCK_LEGACY_DIRECTORY_SUFFIX}`;
   await mkdir(dirname2(filePath), { recursive: true, mode: FILE_LOCK_DIRECTORY_MODE });
+  let retriedMissingPermission = false;
   for (; ; ) {
     if (performance.now() >= deadline)
       throw timeoutError(filePath);
@@ -836,21 +837,30 @@ async function acquireLegacyDirectoryGate(filePath, deadline) {
       return { path: gatePath, dev: stat.dev, ino: stat.ino, birthtimeMs: stat.birthtimeMs };
     } catch (error2) {
       const code = error2.code;
-      if (code !== FILE_LOCK_EXISTS_CODE && !FILE_LOCK_WINDOWS_DIRECTORY_CONTENTION_CODES.some((candidate) => candidate === code)) {
+      const permissionDenied = FILE_LOCK_WINDOWS_DIRECTORY_CONTENTION_CODES.some((candidate) => candidate === code);
+      if (code !== FILE_LOCK_EXISTS_CODE && !permissionDenied) {
         throw error2;
       }
       let isDirectory = false;
       try {
         isDirectory = (await lstat(gatePath)).isDirectory();
       } catch (statError) {
-        if (code === FILE_LOCK_EXISTS_CODE && statError.code === FILE_LOCK_MISSING_CODE) {
-          await waitForNextScan(deadline, filePath);
-          continue;
+        if (statError.code === FILE_LOCK_MISSING_CODE) {
+          if (code === FILE_LOCK_EXISTS_CODE) {
+            retriedMissingPermission = false;
+            await waitForNextScan(deadline, filePath);
+            continue;
+          }
+          if (permissionDenied && !retriedMissingPermission) {
+            retriedMissingPermission = true;
+            continue;
+          }
         }
         throw error2;
       }
       if (!isDirectory)
         throw error2;
+      retriedMissingPermission = false;
       await waitForNextScan(deadline, filePath);
     }
   }
@@ -938,6 +948,18 @@ async function waitOrReleaseClaim(waitForPeers, deadline, filePath, claimDirecto
   }
   await waitForNextScan(deadline, filePath);
   return true;
+}
+async function withFileLock(filePath, callback, options) {
+  const waitMs = timeoutMs(options);
+  const deadline = performance.now() + waitMs;
+  const acquired = await acquireClaim(filePath, true, deadline);
+  if (!acquired)
+    throw new Error(FILE_LOCK_ACQUIRE_MESSAGE);
+  try {
+    return await callback();
+  } finally {
+    await makeHandle(acquired.claimDirectory, acquired.claim).release();
+  }
 }
 
 // dist/src/state.js
@@ -1173,20 +1195,24 @@ function reducePostToolUseFailure(state, input, nowMs) {
 }
 
 // dist/src/early-tool-capture.js
-import { createHash as createHash4 } from "node:crypto";
+import { createHash as createHash5 } from "node:crypto";
 
 // dist/src/native-turn-source.js
-import { createHash as createHash2 } from "node:crypto";
+import { createHash as createHash3 } from "node:crypto";
 import { join as join7 } from "node:path";
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/storage/capture/capture-store.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/storage/capture/capture-store.js
 import { lstat as lstat4 } from "node:fs/promises";
 import { join as join6, resolve as resolve5 } from "node:path";
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/storage/capture/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/storage/capture/constants.js
 var CAPTURE_DIRECTORY = "capture-v1";
 var CAPTURE_RECORD_VERSION = 2;
+var CAPTURE_COMPACTED_RECORD_VERSION = 3;
+var CAPTURE_RECONSTRUCTION_JOB_KIND = "reconstruction-job-v1";
+var CAPTURE_SOURCE_SNAPSHOT_CLEANUP_VERSION = 1;
 var CAPTURE_RECEIPT_VERSION = 1;
+var CAPTURE_RECORD_LOCK_DIRECTORY = "record-lock-v1";
 var CAPTURE_DIRECTORY_MODE = 448;
 var CAPTURE_FILE_MODE = 384;
 var CAPTURE_INTEGRATION = /^[a-z][a-z0-9-]{0,62}$/;
@@ -1196,7 +1222,7 @@ var CAPTURE_EVENT_FILE = /^[0-9a-f]{64}\.json$/u;
 var CAPTURE_STAGING_FILE = /^\.[0-9a-f-]{36}\.tmp$/u;
 var JSON_ARRAY_INDEX_KEY = /^(0|[1-9]\d*)$/u;
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/storage/capture/paths.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/storage/capture/paths.js
 import { createHash } from "node:crypto";
 import { resolve as resolve3, join as join3 } from "node:path";
 function validateIntegration(value) {
@@ -1229,9 +1255,9 @@ function receiptPath(root, scope, destination) {
   return join3(captureDirectory(root), "integrations", scope.integration, "sessions", identifierHash(scope.sessionId), "turns", identifierHash(scope.turnId), "receipts", identifierHash(destination), `${identifierHash(scope.eventId)}.json`);
 }
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/storage/capture/utils/atomic-file.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/storage/capture/utils/atomic-file.js
 import { constants as fsConstants } from "node:fs";
-import { chmod as chmod2, link as link2, lstat as lstat2, mkdir as mkdir2, open, unlink as unlink2 } from "node:fs/promises";
+import { chmod as chmod2, link as link2, lstat as lstat2, mkdir as mkdir2, open, rename as rename2, unlink as unlink2 } from "node:fs/promises";
 import { dirname as dirname4, isAbsolute, join as join4, relative, sep } from "node:path";
 import { randomUUID as randomUUID3 } from "node:crypto";
 async function ensurePrivateDirectory(root, segments) {
@@ -1284,6 +1310,65 @@ async function publishExclusive(path, contents, beforeCommit) {
         throw error2;
     });
   }
+}
+async function replacePrivateFile(root, path, contents) {
+  if (!await hasRealParentDirectories(root, path))
+    throw new Error("Capture record parent directory is missing");
+  const original = await lstat2(path);
+  if (!original.isFile() || original.isSymbolicLink() || !hasPrivateFileMode(original.mode)) {
+    throw new Error("Capture record must be a private regular file");
+  }
+  const directory = dirname4(path);
+  const stagingPath = join4(directory, `.${randomUUID3()}.tmp`);
+  let handle;
+  let stagingCreated = false;
+  let operationFailed = false;
+  let operationError;
+  try {
+    handle = await open(stagingPath, "wx", CAPTURE_FILE_MODE);
+    stagingCreated = true;
+    await handle.writeFile(contents, "utf8");
+    await handle.chmod(CAPTURE_FILE_MODE);
+    await handle.sync();
+    await handle.close();
+    handle = void 0;
+    const current = await lstat2(path);
+    if (!current.isFile() || current.isSymbolicLink() || current.dev !== original.dev || current.ino !== original.ino || !hasPrivateFileMode(current.mode)) {
+      throw new Error("Capture record changed during replacement");
+    }
+    await rename2(stagingPath, path);
+    await syncDirectory(directory);
+  } catch (error2) {
+    operationFailed = true;
+    operationError = error2;
+  }
+  const cleanupErrors = [];
+  if (handle !== void 0) {
+    try {
+      await handle.close();
+    } catch (error2) {
+      cleanupErrors.push(error2);
+    }
+  }
+  if (stagingCreated) {
+    try {
+      await unlink2(stagingPath);
+    } catch (error2) {
+      if (errorCode(error2) !== "ENOENT")
+        cleanupErrors.push(error2);
+    }
+  }
+  if (operationFailed && cleanupErrors.length > 0)
+    throw new AggregateError([operationError, ...cleanupErrors], "Capture replacement failed");
+  if (operationFailed)
+    throw operationError;
+  if (cleanupErrors.length === 1)
+    throw cleanupErrors[0];
+  if (cleanupErrors.length > 1)
+    throw new AggregateError(cleanupErrors, "Capture replacement cleanup failed");
+}
+function hasPrivateFileMode(mode) {
+  return process.platform === "win32" || (mode & 63) === 0;
 }
 async function readPrivateFile(root, path) {
   if (!await hasRealParentDirectories(root, path))
@@ -1346,7 +1431,10 @@ function errorCode(error2) {
   return error2 !== null && typeof error2 === "object" && "code" in error2 && typeof error2.code === "string" ? error2.code : void 0;
 }
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/storage/capture/utils/serialization.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/storage/capture/compaction.js
+import { createHash as createHash2 } from "node:crypto";
+
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/storage/capture/utils/serialization.js
 function canonicalJson(value) {
   const result = JSON.stringify(canonicalValue(value, /* @__PURE__ */ new Set()));
   if (result === void 0)
@@ -1398,7 +1486,176 @@ function canonicalValue(value, seen) {
   return result;
 }
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/utils/files/private-directory.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/storage/capture/compaction.js
+function captureContentDigest(record) {
+  if ("compaction" in record && record.compaction !== void 0)
+    return record.compaction.originalContentDigest;
+  if ("sourceSnapshotCleanup" in record && record.sourceSnapshotCleanup !== void 0)
+    return record.sourceSnapshotCleanup.originalContentDigest;
+  const content = { ...record };
+  delete content.version;
+  delete content.capturedAtMs;
+  delete content.compaction;
+  delete content.sourceSnapshotCleanup;
+  return createHash2("sha256").update(canonicalJson(content)).digest("hex");
+}
+function compactCaptureRecord(record, originalContentDigest) {
+  const normalizedPayload = compactPayload(record);
+  if (normalizedPayload === void 0)
+    return void 0;
+  return {
+    ...record,
+    version: CAPTURE_COMPACTED_RECORD_VERSION,
+    normalizedPayload: normalizedPayload.value,
+    compaction: {
+      version: 1,
+      originalContentDigest,
+      fields: normalizedPayload.fields
+    }
+  };
+}
+function compactReconstructionJobRecord(record, originalContentDigest) {
+  if (record.eventKind !== CAPTURE_RECONSTRUCTION_JOB_KIND)
+    return void 0;
+  const payload = canonicalValue(record.normalizedPayload, /* @__PURE__ */ new Set());
+  if (!isJsonObject(payload) || !Object.hasOwn(payload, "sourceSnapshots"))
+    return void 0;
+  delete payload.sourceSnapshots;
+  return {
+    ...record,
+    normalizedPayload: payload,
+    sourceSnapshotCleanup: {
+      version: CAPTURE_SOURCE_SNAPSHOT_CLEANUP_VERSION,
+      originalContentDigest
+    }
+  };
+}
+function validateSourceSnapshotCleanup(value, eventKind, normalizedPayload) {
+  if (eventKind !== CAPTURE_RECONSTRUCTION_JOB_KIND || !isObjectRecord(value) || !hasExactKeys(value, ["version", "originalContentDigest"]) || value.version !== CAPTURE_SOURCE_SNAPSHOT_CLEANUP_VERSION || typeof value.originalContentDigest !== "string" || !CAPTURE_HASH.test(value.originalContentDigest) || !isJsonObject(normalizedPayload) || Object.hasOwn(normalizedPayload, "sourceSnapshots")) {
+    throw new Error("Invalid reconstruction source snapshot cleanup marker");
+  }
+  return {
+    version: CAPTURE_SOURCE_SNAPSHOT_CLEANUP_VERSION,
+    originalContentDigest: value.originalContentDigest
+  };
+}
+function validateCompactionMarker(value, eventKind, normalizedPayload) {
+  if (!isObjectRecord(value) || !hasExactKeys(value, ["version", "originalContentDigest", "fields"])) {
+    throw new Error("Invalid compacted capture marker");
+  }
+  if (value.version !== 1 || typeof value.originalContentDigest !== "string" || !CAPTURE_HASH.test(value.originalContentDigest) || !isObjectRecord(value.fields) || !hasExactKeys(value.fields, ["inputs", "outputs"])) {
+    throw new Error("Invalid compacted capture marker");
+  }
+  const payload = isJsonObject(normalizedPayload) ? normalizedPayload : void 0;
+  if (payload === void 0)
+    throw new Error("Invalid compacted capture payload");
+  let target;
+  let patchFields;
+  if (eventKind === "run-post" && payload.operation === "post" && isJsonObject(payload.run)) {
+    target = payload.run;
+  } else if (eventKind === "run-patch" && payload.operation === "patch" && isJsonObject(payload.patch) && isJsonObject(payload.patch.values) && Array.isArray(payload.patch.fields) && payload.patch.fields.every((field2) => typeof field2 === "string")) {
+    target = payload.patch.values;
+    patchFields = payload.patch.fields;
+  } else {
+    throw new Error("Invalid compacted capture payload");
+  }
+  const fields = {
+    inputs: readCompactedField(value.fields.inputs),
+    outputs: readCompactedField(value.fields.outputs)
+  };
+  if (![fields.inputs, fields.outputs].some((field2) => field2.state === "value"))
+    throw new Error("Compacted capture marker has no removed fields");
+  for (const field2 of ["inputs", "outputs"]) {
+    const state = fields[field2];
+    const present = Object.hasOwn(target, field2);
+    const included = patchFields?.includes(field2);
+    if ((state.state === "preserve" ? !present : present) || included !== void 0 && state.state === "preserve" !== included) {
+      throw new Error("Compacted capture field does not match its marker");
+    }
+  }
+  return {
+    version: 1,
+    originalContentDigest: value.originalContentDigest,
+    fields
+  };
+}
+function compactPayload(record) {
+  if (record.eventKind !== "run-post" && record.eventKind !== "run-patch")
+    return void 0;
+  const payloadValue = canonicalValue(record.normalizedPayload, /* @__PURE__ */ new Set());
+  if (!isJsonObject(payloadValue))
+    return void 0;
+  const fields = {
+    inputs: { state: "absent" },
+    outputs: { state: "absent" }
+  };
+  let compactedAny = false;
+  if (record.eventKind === "run-post") {
+    if (payloadValue.operation !== "post" || !isJsonObject(payloadValue.run))
+      return void 0;
+    for (const field2 of ["inputs", "outputs"]) {
+      if (Object.hasOwn(payloadValue.run, field2)) {
+        fields[field2] = { state: "value", digest: valueDigest(payloadValue.run[field2]) };
+        delete payloadValue.run[field2];
+        compactedAny = true;
+      }
+    }
+  } else {
+    if (payloadValue.operation !== "patch" || !isJsonObject(payloadValue.patch))
+      return void 0;
+    if (!Array.isArray(payloadValue.patch.fields) || !isJsonObject(payloadValue.patch.values))
+      return void 0;
+    const patchFields = payloadValue.patch.fields;
+    if (patchFields.some((field2) => typeof field2 !== "string") || new Set(patchFields).size !== patchFields.length) {
+      return void 0;
+    }
+    for (const field2 of ["inputs", "outputs"]) {
+      const included = patchFields.includes(field2);
+      const present = Object.hasOwn(payloadValue.patch.values, field2);
+      if (included !== present)
+        return void 0;
+      if (present) {
+        fields[field2] = {
+          state: "value",
+          digest: valueDigest(payloadValue.patch.values[field2])
+        };
+        delete payloadValue.patch.values[field2];
+        compactedAny = true;
+      }
+    }
+    payloadValue.patch.fields = patchFields.filter((field2) => field2 !== "inputs" && field2 !== "outputs");
+  }
+  return compactedAny ? { value: payloadValue, fields } : void 0;
+}
+function readCompactedField(value) {
+  if (!isObjectRecord(value) || typeof value.state !== "string")
+    throw new Error("Invalid compacted capture field");
+  if (value.state === "preserve" && hasExactKeys(value, ["state"]))
+    return { state: "preserve" };
+  if (value.state === "absent" && hasExactKeys(value, ["state"]))
+    return { state: "absent" };
+  if (value.state === "value" && hasExactKeys(value, ["state", "digest"]) && typeof value.digest === "string" && CAPTURE_HASH.test(value.digest)) {
+    return { state: "value", digest: value.digest };
+  }
+  throw new Error("Invalid compacted capture field");
+}
+function isJsonObject(value) {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+function isObjectRecord(value) {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+function hasExactKeys(value, keys) {
+  if (Object.keys(value).length !== keys.length)
+    return false;
+  const expected = new Set(keys);
+  return Object.keys(value).every((key) => expected.has(key));
+}
+function valueDigest(value) {
+  return createHash2("sha256").update(canonicalJson(value)).digest("hex");
+}
+
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/utils/files/private-directory.js
 import { lstat as lstat3, readdir as readdir2 } from "node:fs/promises";
 import { isAbsolute as isAbsolute2, join as join5, relative as relative2, resolve as resolve4, sep as sep2 } from "node:path";
 async function listPrivateDirectory(root, directory) {
@@ -1437,7 +1694,7 @@ function errorCode2(error2) {
   return error2 !== null && typeof error2 === "object" && "code" in error2 && typeof error2.code === "string" ? error2.code : void 0;
 }
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/utils/validation/objects.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/utils/validation/objects.js
 function isPlainRecord(value) {
   return value !== null && typeof value === "object" && (Object.getPrototypeOf(value) === Object.prototype || Object.getPrototypeOf(value) === null);
 }
@@ -1461,7 +1718,7 @@ function requireNonNegativeInteger(value, name) {
   return value;
 }
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/storage/capture/capture-store.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/storage/capture/capture-store.js
 function createCaptureStore(root) {
   const storageRoot = resolve5(root);
   return {
@@ -1501,19 +1758,21 @@ function createCaptureStore(root) {
       }
       try {
         const path = eventPath(storageRoot, input);
-        await ensureDirectories(input.integration, input.sessionId, input.turnId, "events");
-        if (await publishExclusive(path, contents))
-          return { status: "published", record };
-        const previous = await readRecord(storageRoot, path);
-        if (previous === void 0)
-          return {
-            status: "failed",
-            code: "STORAGE_FAILED",
-            message: "Published event disappeared"
-          };
-        if (!sameScope(previous, input))
-          return { status: "conflict" };
-        return sameCapture(previous, record) ? { status: "duplicate", record: previous } : { status: "conflict" };
+        return await withRecordLock(storageRoot, input, async () => {
+          await ensureDirectories(input.integration, input.sessionId, input.turnId, "events");
+          if (await publishExclusive(path, contents))
+            return { status: "published", record };
+          const previous = await readRecord(storageRoot, path);
+          if (previous === void 0)
+            return {
+              status: "failed",
+              code: "STORAGE_FAILED",
+              message: "Published event disappeared"
+            };
+          if (!sameScope(previous, input))
+            return { status: "conflict" };
+          return sameCapture(previous, record) ? { status: "duplicate", record: previous } : { status: "conflict" };
+        });
       } catch (error2) {
         return failure("STORAGE_FAILED", error2);
       }
@@ -1526,6 +1785,71 @@ function createCaptureStore(root) {
       if (!sameScope(record, scope))
         throw new Error("Capture namespace does not match");
       return record;
+    },
+    async compact(scope, expected) {
+      try {
+        validateScope(scope);
+        if (!sameScope(expected, scope))
+          throw new TypeError("Capture namespace does not match");
+        const expectedOriginalContentDigest = expected.compaction?.originalContentDigest ?? captureContentDigest(expected);
+        if (!CAPTURE_HASH.test(expectedOriginalContentDigest))
+          throw new TypeError("Invalid original capture digest");
+        return await withRecordLock(storageRoot, scope, async () => {
+          const path = eventPath(storageRoot, scope);
+          const previous = await readRecord(storageRoot, path);
+          if (previous === void 0)
+            return { status: "missing-capture" };
+          const originalContentDigest = previous.compaction?.originalContentDigest ?? captureContentDigest(previous);
+          if (originalContentDigest !== expectedOriginalContentDigest)
+            return { status: "changed" };
+          if (previous.compaction !== void 0)
+            return { status: "already-compacted", record: previous };
+          const record = compactCaptureRecord(previous, originalContentDigest);
+          if (record === void 0)
+            return { status: "changed" };
+          await replacePrivateFile(storageRoot, path, canonicalJson(record));
+          return { status: "compacted", record };
+        });
+      } catch (error2) {
+        return failure("STORAGE_FAILED", error2);
+      }
+    },
+    async compactReconstructionJob(scope, expected, destination) {
+      try {
+        validateScope(scope);
+        validateIdentifier(destination, "destination");
+        if (!sameScope(expected, scope) || expected.eventKind !== CAPTURE_RECONSTRUCTION_JOB_KIND)
+          throw new TypeError("Capture is not the expected reconstruction job");
+        if (destination !== expected.destinationFingerprint)
+          throw new TypeError("Reconstruction job destination does not match");
+        const expectedOriginalContentDigest = captureContentDigest(expected);
+        if (!CAPTURE_HASH.test(expectedOriginalContentDigest))
+          throw new TypeError("Invalid original reconstruction job digest");
+        return await withRecordLock(storageRoot, scope, async () => {
+          const path = eventPath(storageRoot, scope);
+          const previous = await readRecord(storageRoot, path);
+          if (previous === void 0)
+            return { status: "missing-capture" };
+          if (captureContentDigest(previous) !== expectedOriginalContentDigest)
+            return { status: "changed" };
+          if (previous.sourceSnapshotCleanup !== void 0)
+            return { status: "already-compacted", record: previous };
+          const payload = previous.normalizedPayload;
+          if (payload === null || typeof payload !== "object" || Array.isArray(payload) || !Object.hasOwn(payload, "sourceSnapshots")) {
+            return { status: "unchanged" };
+          }
+          const receipt = await readReceipt(storageRoot, receiptPath(storageRoot, scope, destination));
+          if (receipt?.outcome !== "delivered" || receipt.destination !== destination || !sameScope(receipt, scope))
+            return { status: "not-delivered" };
+          const compacted = compactReconstructionJobRecord(previous, expectedOriginalContentDigest);
+          if (compacted === void 0)
+            return { status: "changed" };
+          await replacePrivateFile(storageRoot, path, canonicalJson(compacted));
+          return { status: "compacted", record: compacted };
+        });
+      } catch (error2) {
+        return failure("STORAGE_FAILED", error2);
+      }
     },
     async enumerate(integration, sessionId) {
       validateIntegration(integration);
@@ -1591,22 +1915,24 @@ function createCaptureStore(root) {
           throw new TypeError("Invalid outcome");
         if (input.reason !== void 0)
           validateIdentifier(input.reason, "outcome reason");
-        if (await this.read(input) === void 0)
-          return { status: "missing-capture" };
-        const path = receiptPath(storageRoot, input, input.destination);
-        await ensureDirectories(input.integration, input.sessionId, input.turnId, "receipts", input.destination);
-        const comparable = receiptValue(input, (/* @__PURE__ */ new Date()).toISOString());
-        const contents = canonicalJson(comparable);
-        if (await publishExclusive(path, contents))
-          return { status: "recorded", receipt: comparable };
-        const previous = await readReceipt(storageRoot, path);
-        if (previous === void 0)
-          return {
-            status: "failed",
-            code: "STORAGE_FAILED",
-            message: "Published receipt disappeared"
-          };
-        return sameReceipt(previous, input) ? { status: "duplicate", receipt: previous } : { status: "conflict" };
+        return await withRecordLock(storageRoot, input, async () => {
+          if (await readRecord(storageRoot, eventPath(storageRoot, input)) === void 0)
+            return { status: "missing-capture" };
+          const path = receiptPath(storageRoot, input, input.destination);
+          await ensureDirectories(input.integration, input.sessionId, input.turnId, "receipts", input.destination);
+          const comparable = receiptValue(input, (/* @__PURE__ */ new Date()).toISOString());
+          const contents = canonicalJson(comparable);
+          if (await publishExclusive(path, contents))
+            return { status: "recorded", receipt: comparable };
+          const previous = await readReceipt(storageRoot, path);
+          if (previous === void 0)
+            return {
+              status: "failed",
+              code: "STORAGE_FAILED",
+              message: "Published receipt disappeared"
+            };
+          return sameReceipt(previous, input) ? { status: "duplicate", receipt: previous } : { status: "conflict" };
+        });
       } catch (error2) {
         return failure("STORAGE_FAILED", error2);
       }
@@ -1615,7 +1941,7 @@ function createCaptureStore(root) {
       try {
         validateScope(scope);
         validateIdentifier(destination, "destination");
-        if (await this.read(scope) === void 0)
+        if (await readRecord(storageRoot, eventPath(storageRoot, scope)) === void 0)
           return { status: "missing-capture" };
         const receipt = await readReceipt(storageRoot, receiptPath(storageRoot, scope, destination));
         if (receipt === void 0)
@@ -1728,12 +2054,28 @@ async function enumerateSession(root, integration, sessionHash) {
     return void 0;
   return { sessionId, captures: captures.toSorted(compareCaptures) };
 }
+async function withRecordLock(root, scope, operation) {
+  validateScope(scope);
+  return withRecordLockByHashes(root, scope.integration, identifierHash(scope.sessionId), identifierHash(scope.turnId), identifierHash(scope.eventId), operation);
+}
+async function withRecordLockByHashes(root, integration, sessionHash, turnHash, eventHash, operation) {
+  if (![sessionHash, turnHash, eventHash].every((value) => CAPTURE_HASH.test(value)))
+    throw new TypeError("Invalid capture record lock path");
+  const directory = await ensurePrivateDirectory(root, [
+    CAPTURE_RECORD_LOCK_DIRECTORY,
+    "integrations",
+    integration,
+    "sessions",
+    sessionHash,
+    "turns",
+    turnHash,
+    "events"
+  ]);
+  return withFileLock(join6(directory, `${eventHash}.lock`), operation);
+}
 function sameCapture(left, right) {
-  const leftContent = { ...left };
-  const rightContent = { ...right };
-  delete leftContent.capturedAtMs;
-  delete rightContent.capturedAtMs;
-  return canonicalJson(leftContent) === canonicalJson(rightContent);
+  const leftDigest = left.compaction?.originalContentDigest ?? captureContentDigest(left);
+  return leftDigest === captureContentDigest(right);
 }
 function receiptValue(input, recordedAt) {
   return {
@@ -1753,7 +2095,7 @@ async function readRecord(root, path) {
   if (contents === void 0)
     return void 0;
   const value = parseObject(contents);
-  if (value.version !== CAPTURE_RECORD_VERSION || typeof value.capturedAtMs !== "number" || !Number.isSafeInteger(value.capturedAtMs) || !Number.isFinite(new Date(value.capturedAtMs).getTime()) || typeof value.integration !== "string" || typeof value.sessionId !== "string" || typeof value.turnId !== "string" || typeof value.eventId !== "string" || typeof value.runId !== "string" || typeof value.destinationFingerprint !== "string" || typeof value.eventKind !== "string" || !("normalizedPayload" in value) || !("turnEvidence" in value) || !("metadataProvenance" in value)) {
+  if (value.version !== CAPTURE_RECORD_VERSION && value.version !== CAPTURE_COMPACTED_RECORD_VERSION || typeof value.capturedAtMs !== "number" || !Number.isSafeInteger(value.capturedAtMs) || !Number.isFinite(new Date(value.capturedAtMs).getTime()) || typeof value.integration !== "string" || typeof value.sessionId !== "string" || typeof value.turnId !== "string" || typeof value.eventId !== "string" || typeof value.runId !== "string" || typeof value.destinationFingerprint !== "string" || typeof value.eventKind !== "string" || !("normalizedPayload" in value) || !("turnEvidence" in value) || !("metadataProvenance" in value)) {
     throw new Error("Unsupported capture record");
   }
   if ("sourceAgeStartedAtMs" in value) {
@@ -1776,9 +2118,19 @@ async function readRecord(root, path) {
   };
   validateScope(scope);
   const dependencies = normalizeDependencies(value.dependencies, scope);
+  const normalizedPayload = canonicalValue(value.normalizedPayload, /* @__PURE__ */ new Set());
+  const compaction = value.version === CAPTURE_COMPACTED_RECORD_VERSION ? validateCompactionMarker(value.compaction, value.eventKind, normalizedPayload) : void 0;
+  if (value.version === CAPTURE_RECORD_VERSION && "compaction" in value)
+    throw new Error("Invalid compacted capture marker");
+  if (value.version === CAPTURE_COMPACTED_RECORD_VERSION && "sourceSnapshotCleanup" in value)
+    throw new Error("Invalid reconstruction source snapshot cleanup marker");
+  const sourceSnapshotCleanup = "sourceSnapshotCleanup" in value ? validateSourceSnapshotCleanup(value.sourceSnapshotCleanup, value.eventKind, normalizedPayload) : void 0;
   return {
     ...value,
-    ...dependencies === void 0 ? {} : { dependencies }
+    normalizedPayload,
+    ...dependencies === void 0 ? {} : { dependencies },
+    ...compaction === void 0 ? {} : { compaction },
+    ...sourceSnapshotCleanup === void 0 ? {} : { sourceSnapshotCleanup }
   };
 }
 async function readReceipt(root, path) {
@@ -1865,7 +2217,7 @@ function toJsonValue(value, errorMessage) {
   return JSON.parse(encoded);
 }
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/metadata/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/metadata/constants.js
 var CODING_AGENT_SCHEMA_VERSION = "coding-agent-v1";
 var CODING_AGENT_PURPOSE = "coding";
 var CODING_AGENT_RUN_TYPES = [
@@ -1942,7 +2294,7 @@ var CODING_AGENT_INTEGRATION_POLICIES = {
   }
 };
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/metadata/contract.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/metadata/contract.js
 function field(key, options = {}) {
   return { key, ...CODING_AGENT_FIELD_DEFAULTS, ...options };
 }
@@ -2075,7 +2427,7 @@ function isValidBoundedText(value, maxLength) {
 
 // dist/src/native-turn-source.js
 function cursorTurnSourceRef(sessionId, conversationId, turnId, accountFingerprint, sourceEventId) {
-  return createHash2("sha256").update(JSON.stringify([
+  return createHash3("sha256").update(JSON.stringify([
     CURSOR_INTEGRATION,
     sessionId,
     conversationId,
@@ -2199,7 +2551,7 @@ function routeStore(storageRoot, accountFingerprint) {
   return createCaptureStore(join7(storageRoot, CURSOR_TURN_ROUTE_DIRECTORY, accountHash(accountFingerprint)));
 }
 function accountHash(accountFingerprint) {
-  return createHash2("sha256").update(accountFingerprint).digest("hex");
+  return createHash3("sha256").update(accountFingerprint).digest("hex");
 }
 function sourceBuffer(buffer) {
   if (buffer.tracingMode === "full") {
@@ -2281,10 +2633,10 @@ function isTurnBuffer(value) {
 // dist/src/turn-origin.js
 import { dirname as dirname5 } from "node:path";
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/upload/destination-identity.js
-import { createHash as createHash3 } from "node:crypto";
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/upload/destination-identity.js
+import { createHash as createHash4 } from "node:crypto";
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/upload/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/upload/constants.js
 var UPLOAD_ACCOUNT_FINGERPRINT_PREFIX = "account_";
 var UPLOAD_DESTINATION_ID_PREFIX = "destination_";
 var UPLOAD_FINGERPRINT_LENGTH = 32;
@@ -2315,7 +2667,7 @@ var UPLOAD_REPLICA_PATCH_UPDATE_FIELDS = /* @__PURE__ */ new Set([
   "events"
 ]);
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/upload/destination-identity.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/upload/destination-identity.js
 function resolveUploadDestinationIdentities(options) {
   if (!Array.isArray(options.destinations) || options.destinations.length === 0) {
     throw new TypeError("At least one upload destination is required");
@@ -2436,10 +2788,10 @@ function normalizeRequiredText(value, name) {
   return value.trim();
 }
 function fingerprint(value) {
-  return createHash3("sha256").update(value).digest("hex").slice(0, UPLOAD_FINGERPRINT_LENGTH);
+  return createHash4("sha256").update(value).digest("hex").slice(0, UPLOAD_FINGERPRINT_LENGTH);
 }
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/upload/identity.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/upload/identity.js
 function resolveUploadDestinationFingerprint(options) {
   return resolveUploadDestinationIdentities(options).accountFingerprint;
 }
@@ -2545,7 +2897,7 @@ async function captureEarlyCursorToolSource(config, input, nowMs) {
   });
 }
 function earlyToolSourceEventId(toolUseId) {
-  return `${CURSOR_EARLY_TOOL_SOURCE_EVENT_PREFIX}${createHash4("sha256").update(toolUseId).digest("hex")}`;
+  return `${CURSOR_EARLY_TOOL_SOURCE_EVENT_PREFIX}${createHash5("sha256").update(toolUseId).digest("hex")}`;
 }
 function isKnownChildConversation(state, conversationId) {
   return Object.entries(state).some(([parentId, conversation]) => parentId !== conversationId && allBuffers(conversation).some((turn) => turn.subagents.some((subagent) => subagent.childConversationId === conversationId)));

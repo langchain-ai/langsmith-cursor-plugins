@@ -126,10 +126,10 @@ var init_constants = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/settings/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/settings/constants.js
 var COMMON_BOOLEAN_SETTINGS;
 var init_constants2 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/settings/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/settings/constants.js"() {
     COMMON_BOOLEAN_SETTINGS = {
       enabled: { default: false, restrictive: false },
       defaultMuted: { default: false, restrictive: true }
@@ -137,7 +137,7 @@ var init_constants2 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/settings/common-config.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/settings/common-config.js
 import { lstatSync, readFileSync, statSync } from "node:fs";
 function object(value) {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -297,14 +297,14 @@ function toSdkReplicas(replicas2) {
   }));
 }
 var init_common_config = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/settings/common-config.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/settings/common-config.js"() {
     init_constants2();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/settings/index.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/settings/index.js
 var init_settings = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/settings/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/settings/index.js"() {
     init_constants2();
     init_common_config();
   }
@@ -658,10 +658,10 @@ var init_config = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/storage/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/storage/constants.js
 var FILE_LOCK_CLAIM_VERSION, FILE_LOCK_CLAIM_EXTENSION, FILE_LOCK_DIRECTORY_SUFFIX, FILE_LOCK_LEGACY_DIRECTORY_SUFFIX, FILE_LOCK_TIMEOUT_ERROR_NAME, FILE_LOCK_TEMP_PREFIX, FILE_LOCK_TEMP_SUFFIX, FILE_LOCK_EXCLUSIVE_FLAG, FILE_LOCK_ENCODING, FILE_LOCK_DEFAULT_TIMEOUT_MS, FILE_LOCK_POLL_INTERVAL_MS, FILE_LOCK_DIRECTORY_MODE, FILE_LOCK_FILE_MODE, FILE_LOCK_UNSELECTED_TICKET, FILE_LOCK_NEGATIVE_TICKET_LIMIT, FILE_LOCK_TIMEOUT_MESSAGE, FILE_LOCK_TICKET_LIMIT_MESSAGE, FILE_LOCK_RELEASE_MESSAGE, FILE_LOCK_INVALID_TIMEOUT_MESSAGE, FILE_LOCK_ACQUIRE_MESSAGE, FILE_LOCK_UNSAFE_DIRECTORY_MESSAGE, FILE_LOCK_EXISTS_CODE, FILE_LOCK_MISSING_CODE, FILE_LOCK_PROCESS_MISSING_CODE, FILE_LOCK_PROCESS_CHECK_SIGNAL, FILE_LOCK_RENAME_RETRY_TIMEOUT_MS, FILE_LOCK_RENAME_BUSY_CODE, FILE_LOCK_WINDOWS_DIRECTORY_CONTENTION_CODES, FILE_LOCK_COMPATIBLE_ACQUIRE_CLEANUP_MESSAGE, FILE_LOCK_COMPATIBLE_RELEASE_MESSAGE, FILE_LOCK_COMPATIBLE_GATE_CHANGED_MESSAGE;
 var init_constants3 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/storage/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/storage/constants.js"() {
     FILE_LOCK_CLAIM_VERSION = 1;
     FILE_LOCK_CLAIM_EXTENSION = ".json";
     FILE_LOCK_DIRECTORY_SUFFIX = ".claims";
@@ -696,11 +696,11 @@ var init_constants3 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/storage/errors.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/storage/errors.js
 import { resolve } from "node:path";
 var FileLockTimeoutError;
 var init_errors = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/storage/errors.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/storage/errors.js"() {
     init_constants3();
     FileLockTimeoutError = class extends Error {
       constructor(filePath) {
@@ -711,7 +711,7 @@ var init_errors = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/storage/file-lock.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/storage/file-lock.js
 import { chmod, link, lstat, mkdir, readFile, readdir, rmdir, rename, unlink, writeFile } from "node:fs/promises";
 import { performance as performance2 } from "node:perf_hooks";
 import { randomUUID } from "node:crypto";
@@ -925,6 +925,7 @@ async function tryAcquireFileLock(filePath) {
 async function acquireLegacyDirectoryGate(filePath, deadline) {
   const gatePath = `${filePath}${FILE_LOCK_LEGACY_DIRECTORY_SUFFIX}`;
   await mkdir(dirname2(filePath), { recursive: true, mode: FILE_LOCK_DIRECTORY_MODE });
+  let retriedMissingPermission = false;
   for (; ; ) {
     if (performance2.now() >= deadline)
       throw timeoutError(filePath);
@@ -936,21 +937,30 @@ async function acquireLegacyDirectoryGate(filePath, deadline) {
       return { path: gatePath, dev: stat3.dev, ino: stat3.ino, birthtimeMs: stat3.birthtimeMs };
     } catch (error2) {
       const code = error2.code;
-      if (code !== FILE_LOCK_EXISTS_CODE && !FILE_LOCK_WINDOWS_DIRECTORY_CONTENTION_CODES.some((candidate) => candidate === code)) {
+      const permissionDenied = FILE_LOCK_WINDOWS_DIRECTORY_CONTENTION_CODES.some((candidate) => candidate === code);
+      if (code !== FILE_LOCK_EXISTS_CODE && !permissionDenied) {
         throw error2;
       }
       let isDirectory = false;
       try {
         isDirectory = (await lstat(gatePath)).isDirectory();
       } catch (statError) {
-        if (code === FILE_LOCK_EXISTS_CODE && statError.code === FILE_LOCK_MISSING_CODE) {
-          await waitForNextScan(deadline, filePath);
-          continue;
+        if (statError.code === FILE_LOCK_MISSING_CODE) {
+          if (code === FILE_LOCK_EXISTS_CODE) {
+            retriedMissingPermission = false;
+            await waitForNextScan(deadline, filePath);
+            continue;
+          }
+          if (permissionDenied && !retriedMissingPermission) {
+            retriedMissingPermission = true;
+            continue;
+          }
         }
         throw error2;
       }
       if (!isDirectory)
         throw error2;
+      retriedMissingPermission = false;
       await waitForNextScan(deadline, filePath);
     }
   }
@@ -1076,15 +1086,15 @@ async function withFileLock(filePath, callback, options) {
   }
 }
 var init_file_lock = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/storage/file-lock.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/storage/file-lock.js"() {
     init_constants3();
     init_errors();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/storage/index.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/storage/index.js
 var init_storage = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/storage/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/storage/index.js"() {
     init_file_lock();
     init_errors();
   }
@@ -1568,13 +1578,17 @@ var init_reducer = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/storage/capture/constants.js
-var CAPTURE_DIRECTORY, CAPTURE_RECORD_VERSION, CAPTURE_RECEIPT_VERSION, CAPTURE_DIRECTORY_MODE, CAPTURE_FILE_MODE, CAPTURE_INTEGRATION, CAPTURE_MAX_IDENTIFIER_BYTES, CAPTURE_HASH, CAPTURE_EVENT_FILE, CAPTURE_STAGING_FILE, JSON_ARRAY_INDEX_KEY;
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/storage/capture/constants.js
+var CAPTURE_DIRECTORY, CAPTURE_RECORD_VERSION, CAPTURE_COMPACTED_RECORD_VERSION, CAPTURE_RECONSTRUCTION_JOB_KIND, CAPTURE_SOURCE_SNAPSHOT_CLEANUP_VERSION, CAPTURE_RECEIPT_VERSION, CAPTURE_RECORD_LOCK_DIRECTORY, CAPTURE_DIRECTORY_MODE, CAPTURE_FILE_MODE, CAPTURE_INTEGRATION, CAPTURE_MAX_IDENTIFIER_BYTES, CAPTURE_HASH, CAPTURE_EVENT_FILE, CAPTURE_STAGING_FILE, JSON_ARRAY_INDEX_KEY;
 var init_constants4 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/storage/capture/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/storage/capture/constants.js"() {
     CAPTURE_DIRECTORY = "capture-v1";
     CAPTURE_RECORD_VERSION = 2;
+    CAPTURE_COMPACTED_RECORD_VERSION = 3;
+    CAPTURE_RECONSTRUCTION_JOB_KIND = "reconstruction-job-v1";
+    CAPTURE_SOURCE_SNAPSHOT_CLEANUP_VERSION = 1;
     CAPTURE_RECEIPT_VERSION = 1;
+    CAPTURE_RECORD_LOCK_DIRECTORY = "record-lock-v1";
     CAPTURE_DIRECTORY_MODE = 448;
     CAPTURE_FILE_MODE = 384;
     CAPTURE_INTEGRATION = /^[a-z][a-z0-9-]{0,62}$/;
@@ -1586,9 +1600,9 @@ var init_constants4 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/storage/capture/utils/atomic-file.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/storage/capture/utils/atomic-file.js
 import { constants as fsConstants } from "node:fs";
-import { chmod as chmod2, link as link2, lstat as lstat2, mkdir as mkdir2, open, unlink as unlink2 } from "node:fs/promises";
+import { chmod as chmod2, link as link2, lstat as lstat2, mkdir as mkdir2, open, rename as rename2, unlink as unlink2 } from "node:fs/promises";
 import { dirname as dirname4, isAbsolute, join as join3, relative, sep } from "node:path";
 import { randomUUID as randomUUID3 } from "node:crypto";
 async function ensurePrivateDirectory(root, segments) {
@@ -1641,6 +1655,65 @@ async function publishExclusive(path3, contents, beforeCommit) {
         throw error2;
     });
   }
+}
+async function replacePrivateFile(root, path3, contents) {
+  if (!await hasRealParentDirectories(root, path3))
+    throw new Error("Capture record parent directory is missing");
+  const original = await lstat2(path3);
+  if (!original.isFile() || original.isSymbolicLink() || !hasPrivateFileMode(original.mode)) {
+    throw new Error("Capture record must be a private regular file");
+  }
+  const directory = dirname4(path3);
+  const stagingPath = join3(directory, `.${randomUUID3()}.tmp`);
+  let handle;
+  let stagingCreated = false;
+  let operationFailed = false;
+  let operationError;
+  try {
+    handle = await open(stagingPath, "wx", CAPTURE_FILE_MODE);
+    stagingCreated = true;
+    await handle.writeFile(contents, "utf8");
+    await handle.chmod(CAPTURE_FILE_MODE);
+    await handle.sync();
+    await handle.close();
+    handle = void 0;
+    const current = await lstat2(path3);
+    if (!current.isFile() || current.isSymbolicLink() || current.dev !== original.dev || current.ino !== original.ino || !hasPrivateFileMode(current.mode)) {
+      throw new Error("Capture record changed during replacement");
+    }
+    await rename2(stagingPath, path3);
+    await syncDirectory(directory);
+  } catch (error2) {
+    operationFailed = true;
+    operationError = error2;
+  }
+  const cleanupErrors = [];
+  if (handle !== void 0) {
+    try {
+      await handle.close();
+    } catch (error2) {
+      cleanupErrors.push(error2);
+    }
+  }
+  if (stagingCreated) {
+    try {
+      await unlink2(stagingPath);
+    } catch (error2) {
+      if (errorCode(error2) !== "ENOENT")
+        cleanupErrors.push(error2);
+    }
+  }
+  if (operationFailed && cleanupErrors.length > 0)
+    throw new AggregateError([operationError, ...cleanupErrors], "Capture replacement failed");
+  if (operationFailed)
+    throw operationError;
+  if (cleanupErrors.length === 1)
+    throw cleanupErrors[0];
+  if (cleanupErrors.length > 1)
+    throw new AggregateError(cleanupErrors, "Capture replacement cleanup failed");
+}
+function hasPrivateFileMode(mode) {
+  return process.platform === "win32" || (mode & 63) === 0;
 }
 async function readPrivateFile(root, path3) {
   if (!await hasRealParentDirectories(root, path3))
@@ -1703,12 +1776,12 @@ function errorCode(error2) {
   return error2 !== null && typeof error2 === "object" && "code" in error2 && typeof error2.code === "string" ? error2.code : void 0;
 }
 var init_atomic_file = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/storage/capture/utils/atomic-file.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/storage/capture/utils/atomic-file.js"() {
     init_constants4();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/storage/capture/paths.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/storage/capture/paths.js
 import { createHash } from "node:crypto";
 import { resolve as resolve3, join as join4 } from "node:path";
 function validateIntegration(value) {
@@ -1741,12 +1814,12 @@ function receiptPath(root, scope, destination) {
   return join4(captureDirectory(root), "integrations", scope.integration, "sessions", identifierHash(scope.sessionId), "turns", identifierHash(scope.turnId), "receipts", identifierHash(destination), `${identifierHash(scope.eventId)}.json`);
 }
 var init_paths = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/storage/capture/paths.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/storage/capture/paths.js"() {
     init_constants4();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/utils/files/private-directory.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/utils/files/private-directory.js
 import { lstat as lstat3, readdir as readdir2 } from "node:fs/promises";
 import { isAbsolute as isAbsolute2, join as join5, relative as relative2, resolve as resolve4, sep as sep2 } from "node:path";
 async function listPrivateDirectory(root, directory) {
@@ -1785,14 +1858,14 @@ function errorCode2(error2) {
   return error2 !== null && typeof error2 === "object" && "code" in error2 && typeof error2.code === "string" ? error2.code : void 0;
 }
 var init_private_directory = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/utils/files/private-directory.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/utils/files/private-directory.js"() {
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/background-worker/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/background-worker/constants.js
 var BACKGROUND_WORKER_DIRECTORY, BACKGROUND_WORKER_INTEGRATIONS_DIRECTORY, BACKGROUND_WORKER_SESSIONS_DIRECTORY, BACKGROUND_WORKER_ACCOUNTS_DIRECTORY, BACKGROUND_WORKER_LOCK_FILE, BACKGROUND_WORKER_PENDING_FILE, BACKGROUND_WORKER_ACTIVE_PREFIX, BACKGROUND_WORKER_LAUNCHING_FILE, BACKGROUND_WORKER_STAGING_FILE, BACKGROUND_WORKER_MARKER_ID_PATTERN, BACKGROUND_WORKER_ACTIVE_MARKER_NAME, BACKGROUND_WORKER_ATTEMPT_NAME, BACKGROUND_WORKER_MARKER_VERSION, BACKGROUND_WORKER_ATTEMPT_VERSION, BACKGROUND_WORKER_LAUNCH_VERSION, BACKGROUND_WORKER_DEFAULT_MAX_ATTEMPTS, BACKGROUND_WORKER_DEFAULT_RETRY_DELAY_MS, BACKGROUND_WORKER_OWNER_WAIT_MS, BACKGROUND_WORKER_STARTUP_WAIT_MS, BACKGROUND_WORKER_LAUNCH_LEASE_MS;
 var init_constants5 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/background-worker/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/background-worker/constants.js"() {
     BACKGROUND_WORKER_DIRECTORY = "background-worker";
     BACKGROUND_WORKER_INTEGRATIONS_DIRECTORY = "integrations";
     BACKGROUND_WORKER_SESSIONS_DIRECTORY = "sessions";
@@ -1816,7 +1889,7 @@ var init_constants5 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/background-worker/paths.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/background-worker/paths.js
 import { join as join6, resolve as resolve5 } from "node:path";
 function validateWorkerScope(scope) {
   validateIntegration(scope.integration);
@@ -1843,23 +1916,23 @@ function workerLaunchPath(storageRoot, scope) {
   return join6(workerDirectory(storageRoot, scope), BACKGROUND_WORKER_LAUNCHING_FILE);
 }
 var init_paths2 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/background-worker/paths.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/background-worker/paths.js"() {
     init_paths();
     init_constants5();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/background-worker/utils/scope.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/background-worker/utils/scope.js
 async function matchesScope(resolveScope, expected) {
   const actual = await resolveScope();
   return actual.integration === expected.integration && actual.sessionId === expected.sessionId && actual.accountFingerprint === expected.accountFingerprint;
 }
 var init_scope = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/background-worker/utils/scope.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/background-worker/utils/scope.js"() {
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/background-worker/worker.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/background-worker/worker.js
 import { randomUUID as randomUUID4 } from "node:crypto";
 import { unlink as unlink3 } from "node:fs/promises";
 import { join as join7, resolve as resolve6 } from "node:path";
@@ -2246,7 +2319,7 @@ function parseObject(contents) {
   return value;
 }
 var init_worker = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/background-worker/worker.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/background-worker/worker.js"() {
     init_storage();
     init_atomic_file();
     init_paths();
@@ -2258,14 +2331,14 @@ var init_worker = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/background-worker/index.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/background-worker/index.js
 var init_background_worker = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/background-worker/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/background-worker/index.js"() {
     init_worker();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/storage/capture/utils/serialization.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/storage/capture/utils/serialization.js
 function canonicalJson(value) {
   const result = JSON.stringify(canonicalValue(value, /* @__PURE__ */ new Set()));
   if (result === void 0)
@@ -2317,12 +2390,188 @@ function canonicalValue(value, seen) {
   return result;
 }
 var init_serialization = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/storage/capture/utils/serialization.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/storage/capture/utils/serialization.js"() {
     init_constants4();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/utils/validation/objects.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/storage/capture/compaction.js
+import { createHash as createHash2 } from "node:crypto";
+function captureContentDigest(record) {
+  if ("compaction" in record && record.compaction !== void 0)
+    return record.compaction.originalContentDigest;
+  if ("sourceSnapshotCleanup" in record && record.sourceSnapshotCleanup !== void 0)
+    return record.sourceSnapshotCleanup.originalContentDigest;
+  const content = { ...record };
+  delete content.version;
+  delete content.capturedAtMs;
+  delete content.compaction;
+  delete content.sourceSnapshotCleanup;
+  return createHash2("sha256").update(canonicalJson(content)).digest("hex");
+}
+function compactCaptureRecord(record, originalContentDigest) {
+  const normalizedPayload = compactPayload(record);
+  if (normalizedPayload === void 0)
+    return void 0;
+  return {
+    ...record,
+    version: CAPTURE_COMPACTED_RECORD_VERSION,
+    normalizedPayload: normalizedPayload.value,
+    compaction: {
+      version: 1,
+      originalContentDigest,
+      fields: normalizedPayload.fields
+    }
+  };
+}
+function compactReconstructionJobRecord(record, originalContentDigest) {
+  if (record.eventKind !== CAPTURE_RECONSTRUCTION_JOB_KIND)
+    return void 0;
+  const payload = canonicalValue(record.normalizedPayload, /* @__PURE__ */ new Set());
+  if (!isJsonObject(payload) || !Object.hasOwn(payload, "sourceSnapshots"))
+    return void 0;
+  delete payload.sourceSnapshots;
+  return {
+    ...record,
+    normalizedPayload: payload,
+    sourceSnapshotCleanup: {
+      version: CAPTURE_SOURCE_SNAPSHOT_CLEANUP_VERSION,
+      originalContentDigest
+    }
+  };
+}
+function validateSourceSnapshotCleanup(value, eventKind, normalizedPayload) {
+  if (eventKind !== CAPTURE_RECONSTRUCTION_JOB_KIND || !isObjectRecord(value) || !hasExactKeys(value, ["version", "originalContentDigest"]) || value.version !== CAPTURE_SOURCE_SNAPSHOT_CLEANUP_VERSION || typeof value.originalContentDigest !== "string" || !CAPTURE_HASH.test(value.originalContentDigest) || !isJsonObject(normalizedPayload) || Object.hasOwn(normalizedPayload, "sourceSnapshots")) {
+    throw new Error("Invalid reconstruction source snapshot cleanup marker");
+  }
+  return {
+    version: CAPTURE_SOURCE_SNAPSHOT_CLEANUP_VERSION,
+    originalContentDigest: value.originalContentDigest
+  };
+}
+function validateCompactionMarker(value, eventKind, normalizedPayload) {
+  if (!isObjectRecord(value) || !hasExactKeys(value, ["version", "originalContentDigest", "fields"])) {
+    throw new Error("Invalid compacted capture marker");
+  }
+  if (value.version !== 1 || typeof value.originalContentDigest !== "string" || !CAPTURE_HASH.test(value.originalContentDigest) || !isObjectRecord(value.fields) || !hasExactKeys(value.fields, ["inputs", "outputs"])) {
+    throw new Error("Invalid compacted capture marker");
+  }
+  const payload = isJsonObject(normalizedPayload) ? normalizedPayload : void 0;
+  if (payload === void 0)
+    throw new Error("Invalid compacted capture payload");
+  let target;
+  let patchFields;
+  if (eventKind === "run-post" && payload.operation === "post" && isJsonObject(payload.run)) {
+    target = payload.run;
+  } else if (eventKind === "run-patch" && payload.operation === "patch" && isJsonObject(payload.patch) && isJsonObject(payload.patch.values) && Array.isArray(payload.patch.fields) && payload.patch.fields.every((field2) => typeof field2 === "string")) {
+    target = payload.patch.values;
+    patchFields = payload.patch.fields;
+  } else {
+    throw new Error("Invalid compacted capture payload");
+  }
+  const fields = {
+    inputs: readCompactedField(value.fields.inputs),
+    outputs: readCompactedField(value.fields.outputs)
+  };
+  if (![fields.inputs, fields.outputs].some((field2) => field2.state === "value"))
+    throw new Error("Compacted capture marker has no removed fields");
+  for (const field2 of ["inputs", "outputs"]) {
+    const state = fields[field2];
+    const present = Object.hasOwn(target, field2);
+    const included = patchFields?.includes(field2);
+    if ((state.state === "preserve" ? !present : present) || included !== void 0 && state.state === "preserve" !== included) {
+      throw new Error("Compacted capture field does not match its marker");
+    }
+  }
+  return {
+    version: 1,
+    originalContentDigest: value.originalContentDigest,
+    fields
+  };
+}
+function compactPayload(record) {
+  if (record.eventKind !== "run-post" && record.eventKind !== "run-patch")
+    return void 0;
+  const payloadValue = canonicalValue(record.normalizedPayload, /* @__PURE__ */ new Set());
+  if (!isJsonObject(payloadValue))
+    return void 0;
+  const fields = {
+    inputs: { state: "absent" },
+    outputs: { state: "absent" }
+  };
+  let compactedAny = false;
+  if (record.eventKind === "run-post") {
+    if (payloadValue.operation !== "post" || !isJsonObject(payloadValue.run))
+      return void 0;
+    for (const field2 of ["inputs", "outputs"]) {
+      if (Object.hasOwn(payloadValue.run, field2)) {
+        fields[field2] = { state: "value", digest: valueDigest(payloadValue.run[field2]) };
+        delete payloadValue.run[field2];
+        compactedAny = true;
+      }
+    }
+  } else {
+    if (payloadValue.operation !== "patch" || !isJsonObject(payloadValue.patch))
+      return void 0;
+    if (!Array.isArray(payloadValue.patch.fields) || !isJsonObject(payloadValue.patch.values))
+      return void 0;
+    const patchFields = payloadValue.patch.fields;
+    if (patchFields.some((field2) => typeof field2 !== "string") || new Set(patchFields).size !== patchFields.length) {
+      return void 0;
+    }
+    for (const field2 of ["inputs", "outputs"]) {
+      const included = patchFields.includes(field2);
+      const present = Object.hasOwn(payloadValue.patch.values, field2);
+      if (included !== present)
+        return void 0;
+      if (present) {
+        fields[field2] = {
+          state: "value",
+          digest: valueDigest(payloadValue.patch.values[field2])
+        };
+        delete payloadValue.patch.values[field2];
+        compactedAny = true;
+      }
+    }
+    payloadValue.patch.fields = patchFields.filter((field2) => field2 !== "inputs" && field2 !== "outputs");
+  }
+  return compactedAny ? { value: payloadValue, fields } : void 0;
+}
+function readCompactedField(value) {
+  if (!isObjectRecord(value) || typeof value.state !== "string")
+    throw new Error("Invalid compacted capture field");
+  if (value.state === "preserve" && hasExactKeys(value, ["state"]))
+    return { state: "preserve" };
+  if (value.state === "absent" && hasExactKeys(value, ["state"]))
+    return { state: "absent" };
+  if (value.state === "value" && hasExactKeys(value, ["state", "digest"]) && typeof value.digest === "string" && CAPTURE_HASH.test(value.digest)) {
+    return { state: "value", digest: value.digest };
+  }
+  throw new Error("Invalid compacted capture field");
+}
+function isJsonObject(value) {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+function isObjectRecord(value) {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+function hasExactKeys(value, keys) {
+  if (Object.keys(value).length !== keys.length)
+    return false;
+  const expected = new Set(keys);
+  return Object.keys(value).every((key) => expected.has(key));
+}
+function valueDigest(value) {
+  return createHash2("sha256").update(canonicalJson(value)).digest("hex");
+}
+var init_compaction = __esm({
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/storage/capture/compaction.js"() {
+    init_constants4();
+    init_serialization();
+  }
+});
+
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/utils/validation/objects.js
 function isPlainRecord(value) {
   return value !== null && typeof value === "object" && (Object.getPrototypeOf(value) === Object.prototype || Object.getPrototypeOf(value) === null);
 }
@@ -2396,12 +2645,12 @@ function requireNonNegativeInteger(value, name) {
   return value;
 }
 var init_objects = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/utils/validation/objects.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/utils/validation/objects.js"() {
     init_serialization();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/storage/capture/capture-store.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/storage/capture/capture-store.js
 import { lstat as lstat4 } from "node:fs/promises";
 import { join as join8, resolve as resolve7 } from "node:path";
 function createCaptureStore(root) {
@@ -2443,19 +2692,21 @@ function createCaptureStore(root) {
       }
       try {
         const path3 = eventPath(storageRoot, input);
-        await ensureDirectories(input.integration, input.sessionId, input.turnId, "events");
-        if (await publishExclusive(path3, contents))
-          return { status: "published", record };
-        const previous = await readRecord(storageRoot, path3);
-        if (previous === void 0)
-          return {
-            status: "failed",
-            code: "STORAGE_FAILED",
-            message: "Published event disappeared"
-          };
-        if (!sameScope(previous, input))
-          return { status: "conflict" };
-        return sameCapture(previous, record) ? { status: "duplicate", record: previous } : { status: "conflict" };
+        return await withRecordLock(storageRoot, input, async () => {
+          await ensureDirectories(input.integration, input.sessionId, input.turnId, "events");
+          if (await publishExclusive(path3, contents))
+            return { status: "published", record };
+          const previous = await readRecord(storageRoot, path3);
+          if (previous === void 0)
+            return {
+              status: "failed",
+              code: "STORAGE_FAILED",
+              message: "Published event disappeared"
+            };
+          if (!sameScope(previous, input))
+            return { status: "conflict" };
+          return sameCapture(previous, record) ? { status: "duplicate", record: previous } : { status: "conflict" };
+        });
       } catch (error2) {
         return failure("STORAGE_FAILED", error2);
       }
@@ -2468,6 +2719,71 @@ function createCaptureStore(root) {
       if (!sameScope(record, scope))
         throw new Error("Capture namespace does not match");
       return record;
+    },
+    async compact(scope, expected) {
+      try {
+        validateScope(scope);
+        if (!sameScope(expected, scope))
+          throw new TypeError("Capture namespace does not match");
+        const expectedOriginalContentDigest = expected.compaction?.originalContentDigest ?? captureContentDigest(expected);
+        if (!CAPTURE_HASH.test(expectedOriginalContentDigest))
+          throw new TypeError("Invalid original capture digest");
+        return await withRecordLock(storageRoot, scope, async () => {
+          const path3 = eventPath(storageRoot, scope);
+          const previous = await readRecord(storageRoot, path3);
+          if (previous === void 0)
+            return { status: "missing-capture" };
+          const originalContentDigest = previous.compaction?.originalContentDigest ?? captureContentDigest(previous);
+          if (originalContentDigest !== expectedOriginalContentDigest)
+            return { status: "changed" };
+          if (previous.compaction !== void 0)
+            return { status: "already-compacted", record: previous };
+          const record = compactCaptureRecord(previous, originalContentDigest);
+          if (record === void 0)
+            return { status: "changed" };
+          await replacePrivateFile(storageRoot, path3, canonicalJson(record));
+          return { status: "compacted", record };
+        });
+      } catch (error2) {
+        return failure("STORAGE_FAILED", error2);
+      }
+    },
+    async compactReconstructionJob(scope, expected, destination) {
+      try {
+        validateScope(scope);
+        validateIdentifier(destination, "destination");
+        if (!sameScope(expected, scope) || expected.eventKind !== CAPTURE_RECONSTRUCTION_JOB_KIND)
+          throw new TypeError("Capture is not the expected reconstruction job");
+        if (destination !== expected.destinationFingerprint)
+          throw new TypeError("Reconstruction job destination does not match");
+        const expectedOriginalContentDigest = captureContentDigest(expected);
+        if (!CAPTURE_HASH.test(expectedOriginalContentDigest))
+          throw new TypeError("Invalid original reconstruction job digest");
+        return await withRecordLock(storageRoot, scope, async () => {
+          const path3 = eventPath(storageRoot, scope);
+          const previous = await readRecord(storageRoot, path3);
+          if (previous === void 0)
+            return { status: "missing-capture" };
+          if (captureContentDigest(previous) !== expectedOriginalContentDigest)
+            return { status: "changed" };
+          if (previous.sourceSnapshotCleanup !== void 0)
+            return { status: "already-compacted", record: previous };
+          const payload = previous.normalizedPayload;
+          if (payload === null || typeof payload !== "object" || Array.isArray(payload) || !Object.hasOwn(payload, "sourceSnapshots")) {
+            return { status: "unchanged" };
+          }
+          const receipt = await readReceipt(storageRoot, receiptPath(storageRoot, scope, destination));
+          if (receipt?.outcome !== "delivered" || receipt.destination !== destination || !sameScope(receipt, scope))
+            return { status: "not-delivered" };
+          const compacted = compactReconstructionJobRecord(previous, expectedOriginalContentDigest);
+          if (compacted === void 0)
+            return { status: "changed" };
+          await replacePrivateFile(storageRoot, path3, canonicalJson(compacted));
+          return { status: "compacted", record: compacted };
+        });
+      } catch (error2) {
+        return failure("STORAGE_FAILED", error2);
+      }
     },
     async enumerate(integration, sessionId) {
       validateIntegration(integration);
@@ -2533,22 +2849,24 @@ function createCaptureStore(root) {
           throw new TypeError("Invalid outcome");
         if (input.reason !== void 0)
           validateIdentifier(input.reason, "outcome reason");
-        if (await this.read(input) === void 0)
-          return { status: "missing-capture" };
-        const path3 = receiptPath(storageRoot, input, input.destination);
-        await ensureDirectories(input.integration, input.sessionId, input.turnId, "receipts", input.destination);
-        const comparable = receiptValue(input, (/* @__PURE__ */ new Date()).toISOString());
-        const contents = canonicalJson(comparable);
-        if (await publishExclusive(path3, contents))
-          return { status: "recorded", receipt: comparable };
-        const previous = await readReceipt(storageRoot, path3);
-        if (previous === void 0)
-          return {
-            status: "failed",
-            code: "STORAGE_FAILED",
-            message: "Published receipt disappeared"
-          };
-        return sameReceipt(previous, input) ? { status: "duplicate", receipt: previous } : { status: "conflict" };
+        return await withRecordLock(storageRoot, input, async () => {
+          if (await readRecord(storageRoot, eventPath(storageRoot, input)) === void 0)
+            return { status: "missing-capture" };
+          const path3 = receiptPath(storageRoot, input, input.destination);
+          await ensureDirectories(input.integration, input.sessionId, input.turnId, "receipts", input.destination);
+          const comparable = receiptValue(input, (/* @__PURE__ */ new Date()).toISOString());
+          const contents = canonicalJson(comparable);
+          if (await publishExclusive(path3, contents))
+            return { status: "recorded", receipt: comparable };
+          const previous = await readReceipt(storageRoot, path3);
+          if (previous === void 0)
+            return {
+              status: "failed",
+              code: "STORAGE_FAILED",
+              message: "Published receipt disappeared"
+            };
+          return sameReceipt(previous, input) ? { status: "duplicate", receipt: previous } : { status: "conflict" };
+        });
       } catch (error2) {
         return failure("STORAGE_FAILED", error2);
       }
@@ -2557,7 +2875,7 @@ function createCaptureStore(root) {
       try {
         validateScope(scope);
         validateIdentifier(destination, "destination");
-        if (await this.read(scope) === void 0)
+        if (await readRecord(storageRoot, eventPath(storageRoot, scope)) === void 0)
           return { status: "missing-capture" };
         const receipt = await readReceipt(storageRoot, receiptPath(storageRoot, scope, destination));
         if (receipt === void 0)
@@ -2670,12 +2988,28 @@ async function enumerateSession(root, integration, sessionHash) {
     return void 0;
   return { sessionId, captures: captures.toSorted(compareCaptures) };
 }
+async function withRecordLock(root, scope, operation) {
+  validateScope(scope);
+  return withRecordLockByHashes(root, scope.integration, identifierHash(scope.sessionId), identifierHash(scope.turnId), identifierHash(scope.eventId), operation);
+}
+async function withRecordLockByHashes(root, integration, sessionHash, turnHash, eventHash, operation) {
+  if (![sessionHash, turnHash, eventHash].every((value) => CAPTURE_HASH.test(value)))
+    throw new TypeError("Invalid capture record lock path");
+  const directory = await ensurePrivateDirectory(root, [
+    CAPTURE_RECORD_LOCK_DIRECTORY,
+    "integrations",
+    integration,
+    "sessions",
+    sessionHash,
+    "turns",
+    turnHash,
+    "events"
+  ]);
+  return withFileLock(join8(directory, `${eventHash}.lock`), operation);
+}
 function sameCapture(left, right) {
-  const leftContent = { ...left };
-  const rightContent = { ...right };
-  delete leftContent.capturedAtMs;
-  delete rightContent.capturedAtMs;
-  return canonicalJson(leftContent) === canonicalJson(rightContent);
+  const leftDigest = left.compaction?.originalContentDigest ?? captureContentDigest(left);
+  return leftDigest === captureContentDigest(right);
 }
 function receiptValue(input, recordedAt) {
   return {
@@ -2695,7 +3029,7 @@ async function readRecord(root, path3) {
   if (contents === void 0)
     return void 0;
   const value = parseObject2(contents);
-  if (value.version !== CAPTURE_RECORD_VERSION || typeof value.capturedAtMs !== "number" || !Number.isSafeInteger(value.capturedAtMs) || !Number.isFinite(new Date(value.capturedAtMs).getTime()) || typeof value.integration !== "string" || typeof value.sessionId !== "string" || typeof value.turnId !== "string" || typeof value.eventId !== "string" || typeof value.runId !== "string" || typeof value.destinationFingerprint !== "string" || typeof value.eventKind !== "string" || !("normalizedPayload" in value) || !("turnEvidence" in value) || !("metadataProvenance" in value)) {
+  if (value.version !== CAPTURE_RECORD_VERSION && value.version !== CAPTURE_COMPACTED_RECORD_VERSION || typeof value.capturedAtMs !== "number" || !Number.isSafeInteger(value.capturedAtMs) || !Number.isFinite(new Date(value.capturedAtMs).getTime()) || typeof value.integration !== "string" || typeof value.sessionId !== "string" || typeof value.turnId !== "string" || typeof value.eventId !== "string" || typeof value.runId !== "string" || typeof value.destinationFingerprint !== "string" || typeof value.eventKind !== "string" || !("normalizedPayload" in value) || !("turnEvidence" in value) || !("metadataProvenance" in value)) {
     throw new Error("Unsupported capture record");
   }
   if ("sourceAgeStartedAtMs" in value) {
@@ -2718,9 +3052,19 @@ async function readRecord(root, path3) {
   };
   validateScope(scope);
   const dependencies = normalizeDependencies(value.dependencies, scope);
+  const normalizedPayload = canonicalValue(value.normalizedPayload, /* @__PURE__ */ new Set());
+  const compaction = value.version === CAPTURE_COMPACTED_RECORD_VERSION ? validateCompactionMarker(value.compaction, value.eventKind, normalizedPayload) : void 0;
+  if (value.version === CAPTURE_RECORD_VERSION && "compaction" in value)
+    throw new Error("Invalid compacted capture marker");
+  if (value.version === CAPTURE_COMPACTED_RECORD_VERSION && "sourceSnapshotCleanup" in value)
+    throw new Error("Invalid reconstruction source snapshot cleanup marker");
+  const sourceSnapshotCleanup = "sourceSnapshotCleanup" in value ? validateSourceSnapshotCleanup(value.sourceSnapshotCleanup, value.eventKind, normalizedPayload) : void 0;
   return {
     ...value,
-    ...dependencies === void 0 ? {} : { dependencies }
+    normalizedPayload,
+    ...dependencies === void 0 ? {} : { dependencies },
+    ...compaction === void 0 ? {} : { compaction },
+    ...sourceSnapshotCleanup === void 0 ? {} : { sourceSnapshotCleanup }
   };
 }
 async function readReceipt(root, path3) {
@@ -2799,27 +3143,29 @@ function errorCode3(error2) {
   return error2 !== null && typeof error2 === "object" && "code" in error2 && typeof error2.code === "string" ? error2.code : void 0;
 }
 var init_capture_store = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/storage/capture/capture-store.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/storage/capture/capture-store.js"() {
+    init_storage();
     init_constants4();
     init_paths();
     init_atomic_file();
+    init_compaction();
     init_serialization();
     init_private_directory();
     init_objects();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/storage/capture/index.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/storage/capture/index.js
 var init_capture = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/storage/capture/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/storage/capture/index.js"() {
     init_capture_store();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/delivery/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/delivery/constants.js
 var DELIVERY_DIRECTORY, DELIVERY_ATTEMPT_VERSION, DELIVERY_DEFAULT_MAX_ATTEMPTS, DELIVERY_DEFAULT_MAX_AGE_MS, DELIVERY_DEFAULT_MAX_ENTRIES, DELIVERY_ATTEMPT_FILE, DELIVERY_STAGING_FILE, DELIVERY_EXPIRED_REASON, DELIVERY_CAPACITY_REASON, DELIVERY_RETRY_EXHAUSTED_REASON, DELIVERY_DEPENDENCY_DROPPED_REASON;
 var init_constants6 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/delivery/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/delivery/constants.js"() {
     DELIVERY_DIRECTORY = "delivery-v1";
     DELIVERY_ATTEMPT_VERSION = 1;
     DELIVERY_DEFAULT_MAX_ATTEMPTS = 5;
@@ -2834,7 +3180,7 @@ var init_constants6 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/delivery/attempt-store.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/delivery/attempt-store.js
 import { join as join9, resolve as resolve8 } from "node:path";
 function createDeliveryAttemptStore(root) {
   const storageRoot = resolve8(root);
@@ -2939,7 +3285,7 @@ function validateTimestamp(value) {
     throw new TypeError("Invalid delivery attempt timestamp");
 }
 var init_attempt_store = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/delivery/attempt-store.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/delivery/attempt-store.js"() {
     init_constants6();
     init_paths();
     init_atomic_file();
@@ -2947,7 +3293,7 @@ var init_attempt_store = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/delivery/coordinator.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/delivery/coordinator.js
 import { join as join10, resolve as resolve9 } from "node:path";
 function createDeliveryCoordinator(options) {
   const { integration, sessionId } = options;
@@ -2991,19 +3337,36 @@ function createDeliveryCoordinator(options) {
         await lock.release();
       }
       const captures = await captureStore.enumerate(integration, sessionId);
-      const eligible = captures.filter(({ record }) => record.destinationFingerprint === writer.accountFingerprint);
+      const accountEligible = captures.filter(({ record }) => record.destinationFingerprint === writer.accountFingerprint);
+      await requireDeliveredCompactionReceipts(captureStore, accountEligible, writer.destinations);
+      const eligible = accountEligible.filter(({ record }) => record.compaction === void 0);
       return {
         status: "drained",
         ...counts,
         pending: await countPending(drainCache, eligible, writer.destinations),
-        accountMismatch: captures.length - eligible.length
+        accountMismatch: captures.length - accountEligible.length
       };
     }
   };
 }
+async function requireDeliveredCompactionReceipts(captureStore, captures, destinations) {
+  for (const { record } of captures) {
+    if (record.compaction === void 0)
+      continue;
+    const scope = scopeOf(record);
+    for (const destination of destinations) {
+      const outcome = await captureStore.readOutcome(scope, destination.id);
+      if (outcome.status === "failed")
+        throw new Error(`Could not verify compacted capture receipt: ${outcome.code}`);
+      if (outcome.status !== "settled" || outcome.receipt.outcome !== "delivered") {
+        throw new Error(`Compacted capture ${record.eventId} has no delivered receipt for destination ${destination.id}`);
+      }
+    }
+  }
+}
 async function drainLocked(captureStore, attemptStore, integration, sessionId, policy, request, drainCache) {
   const captures = await captureStore.enumerate(integration, sessionId);
-  const eligible = captures.filter(({ record }) => record.destinationFingerprint === request.writer.accountFingerprint);
+  const eligible = captures.filter(({ record }) => record.destinationFingerprint === request.writer.accountFingerprint && record.compaction === void 0);
   for (const { record } of eligible)
     drainCache.rememberCapture(record);
   let dropped = 0;
@@ -3258,7 +3621,7 @@ function resolvePolicy(policy) {
   return resolved;
 }
 var init_coordinator = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/delivery/coordinator.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/delivery/coordinator.js"() {
     init_storage();
     init_capture();
     init_paths();
@@ -3268,17 +3631,17 @@ var init_coordinator = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/delivery/index.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/delivery/index.js
 var init_delivery = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/delivery/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/delivery/index.js"() {
     init_coordinator();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/metadata/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/metadata/constants.js
 var CODING_AGENT_SCHEMA_VERSION, CODING_AGENT_PURPOSE, CODING_AGENT_RUN_TYPES, CODING_AGENT_RUN_SCOPES, CODING_AGENT_SCHEMA_INTEGRATIONS, CODING_AGENT_SUPPORTED_INTEGRATIONS, CODING_AGENT_CORE_INTEGRATIONS, CODING_AGENT_CODEX_INTEGRATION, CODING_AGENT_AGENT_TYPES, CODING_AGENT_ALWAYS_FIELD_OPTIONS, CODING_AGENT_WHERE_KNOWN_FIELD_OPTIONS, CODING_AGENT_FIELD_DEFAULTS, CODING_AGENT_STRUCTURAL_FIELD_DEFAULTS, CODING_AGENT_PROVIDER_FIELD_DEFAULTS, CODING_AGENT_INTEGRATION_POLICIES, TRUSTED_METADATA, METADATA_MODE_STATUS_VALUES, METADATA_MODE_NAME, CODING_AGENT_METADATA_PROVENANCE_FIELDS, CODING_AGENT_METADATA_PROJECTION_FIELDS;
 var init_constants7 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/metadata/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/metadata/constants.js"() {
     CODING_AGENT_SCHEMA_VERSION = "coding-agent-v1";
     CODING_AGENT_PURPOSE = "coding";
     CODING_AGENT_RUN_TYPES = [
@@ -3393,13 +3756,13 @@ var init_constants7 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/metadata/contract.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/metadata/contract.js
 function field(key, options = {}) {
   return { key, ...CODING_AGENT_FIELD_DEFAULTS, ...options };
 }
 var structural, provider, CODING_AGENT_V1_CONTRACT;
 var init_contract = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/metadata/contract.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/metadata/contract.js"() {
     init_constants7();
     structural = (key, options = {}) => field(key, { ...CODING_AGENT_STRUCTURAL_FIELD_DEFAULTS, ...options });
     provider = (key, options = {}) => field(key, { ...CODING_AGENT_PROVIDER_FIELD_DEFAULTS, ...options });
@@ -3509,7 +3872,7 @@ var init_contract = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/metadata/validation.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/metadata/validation.js
 function isRecord3(value) {
   return value !== null && typeof value === "object" && !Array.isArray(value);
 }
@@ -3558,12 +3921,12 @@ function normalizeProviderMetadata(value, integration, runType) {
   return Object.fromEntries(Object.entries(value).filter(([key, entry]) => entry !== void 0 && !issues.has(key)));
 }
 var init_validation = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/metadata/validation.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/metadata/validation.js"() {
     init_contract();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/metadata/builder.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/metadata/builder.js
 function buildCodingAgentMetadata(options) {
   const policy = CODING_AGENT_INTEGRATION_POLICIES[options.integration];
   const identity = {
@@ -3630,14 +3993,14 @@ function trustedCodingAgentMetadata(metadata) {
   return metadata?.[TRUSTED_METADATA];
 }
 var init_builder = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/metadata/builder.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/metadata/builder.js"() {
     init_constants7();
     init_contract();
     init_validation();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/metadata/privacy.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/metadata/privacy.js
 function projectCodingAgentMetadata(metadata, integration, status) {
   const safe = {};
   for (const [key, value] of Object.entries(metadata ?? {})) {
@@ -3659,7 +4022,7 @@ function metadataForMode(metadata, integration, mode = "full", status) {
   return projectCodingAgentMetadata(source, integration, status);
 }
 var init_privacy = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/metadata/privacy.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/metadata/privacy.js"() {
     init_constants7();
     init_contract();
     init_builder();
@@ -3667,7 +4030,7 @@ var init_privacy = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/metadata/provenance.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/metadata/provenance.js
 function prepareCodingAgentMetadataProvenance(value, integration, mode, status = "running") {
   const source = requirePlainRecord(value, "Run metadata");
   const declaredIntegration = ownDataField(source, "integration");
@@ -3742,7 +4105,7 @@ function projectedString(source, key) {
   return value;
 }
 var init_provenance = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/metadata/provenance.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/metadata/provenance.js"() {
     init_objects();
     init_constants7();
     init_constants7();
@@ -3752,9 +4115,9 @@ var init_provenance = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/metadata/index.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/metadata/index.js
 var init_metadata = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/metadata/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/metadata/index.js"() {
     init_builder();
     init_constants7();
     init_contract();
@@ -5392,14 +5755,14 @@ var require_dist = __commonJS({
       _isIntervalPaused() {
         const now = Date.now();
         if (this._intervalId === void 0) {
-          const delay3 = this._intervalEnd - now;
-          if (delay3 < 0) {
+          const delay2 = this._intervalEnd - now;
+          if (delay2 < 0) {
             this._intervalCount = this._carryoverConcurrencyCount ? this._pendingCount : 0;
           } else {
             if (this._timeoutId === void 0) {
               this._timeoutId = setTimeout(() => {
                 this._onResumeInterval();
-              }, delay3);
+              }, delay2);
             }
             return true;
           }
@@ -17380,10 +17743,10 @@ var init_langsmith = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/privacy/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/privacy/constants.js
 var MUTED_TRACE_CONTENT, METADATA_MODE_RUN_CONFIG_FIELDS;
 var init_constants10 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/privacy/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/privacy/constants.js"() {
     MUTED_TRACE_CONTENT = "[LangSmith system notice: content omitted because tracing is muted.]";
     METADATA_MODE_RUN_CONFIG_FIELDS = [
       "client",
@@ -17402,7 +17765,7 @@ var init_constants10 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/privacy/run-tree.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/privacy/run-tree.js
 function mutedContent(role) {
   return { messages: [{ role, content: MUTED_TRACE_CONTENT }] };
 }
@@ -17519,23 +17882,23 @@ function survivingCodingAgentPatchFields(projectedRun, fields) {
   });
 }
 var init_run_tree = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/privacy/run-tree.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/privacy/run-tree.js"() {
     init_langsmith();
     init_metadata();
     init_constants10();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/privacy/index.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/privacy/index.js
 var init_privacy2 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/privacy/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/privacy/index.js"() {
     init_run_tree();
     init_run_tree();
     init_constants10();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/upload/client.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/upload/client.js
 function createUploadClient(options) {
   const { apiKey, apiUrl, workspaceId, anonymizer, redactedFields } = options;
   return new Client({
@@ -17554,15 +17917,15 @@ function createUploadClient(options) {
   });
 }
 var init_client3 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/upload/client.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/upload/client.js"() {
     init_langsmith();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/upload/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/upload/constants.js
 var UPLOAD_ACCOUNT_FINGERPRINT_PREFIX, UPLOAD_DESTINATION_ID_PREFIX, UPLOAD_FINGERPRINT_LENGTH, UPLOAD_CONTROL_CHARACTER_PATTERN, UPLOAD_API_URL_TRAILING_SLASH_PATTERN, UPLOAD_UUID_PATTERN, UPLOAD_REPLICA_UUID_V7_PATTERN, UPLOAD_REPLICA_UUID_V5_NAMESPACE, UPLOAD_REPLICA_UUID_V5_NAMESPACE_BYTES, UPLOAD_REPLICA_UUID_V5_DOMAIN, UPLOAD_REPLICA_DOTTED_ORDER_ID_LENGTH, UPLOAD_REPLICA_IDENTITY_UPDATE_FIELDS, UPLOAD_REPLICA_PATCH_UPDATE_FIELDS, UPLOAD_PATCH_FIELDS, UPLOAD_REDACTED_FIELDS;
 var init_constants11 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/upload/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/upload/constants.js"() {
     UPLOAD_ACCOUNT_FINGERPRINT_PREFIX = "account_";
     UPLOAD_DESTINATION_ID_PREFIX = "destination_";
     UPLOAD_FINGERPRINT_LENGTH = 32;
@@ -17610,8 +17973,8 @@ var init_constants11 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/upload/destination-identity.js
-import { createHash as createHash2 } from "node:crypto";
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/upload/destination-identity.js
+import { createHash as createHash3 } from "node:crypto";
 function resolveUploadDestinationIdentities(options) {
   if (!Array.isArray(options.destinations) || options.destinations.length === 0) {
     throw new TypeError("At least one upload destination is required");
@@ -17732,10 +18095,10 @@ function normalizeRequiredText(value, name) {
   return value.trim();
 }
 function fingerprint(value) {
-  return createHash2("sha256").update(value).digest("hex").slice(0, UPLOAD_FINGERPRINT_LENGTH);
+  return createHash3("sha256").update(value).digest("hex").slice(0, UPLOAD_FINGERPRINT_LENGTH);
 }
 var init_destination_identity = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/upload/destination-identity.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/upload/destination-identity.js"() {
     init_objects();
     init_constants11();
   }
@@ -17963,7 +18326,7 @@ var init_anonymizer2 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/upload/redaction.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/upload/redaction.js
 function createUploadAnonymizer(enabled, extraRules) {
   if (!enabled)
     return void 0;
@@ -17993,13 +18356,13 @@ function normalizedRedactedFields(value) {
   return UPLOAD_REDACTED_FIELDS.filter((field2) => value.includes(field2));
 }
 var init_redaction = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/upload/redaction.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/upload/redaction.js"() {
     init_anonymizer2();
     init_constants11();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/upload/destinations.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/upload/destinations.js
 function resolveUploadDestinations(options) {
   const resolved = resolveUploadDestinationIdentities(options);
   const destinations = resolved.destinations.map((destination) => {
@@ -18019,15 +18382,15 @@ function resolveUploadDestinations(options) {
   return { accountFingerprint: resolved.accountFingerprint, destinations };
 }
 var init_destinations = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/upload/destinations.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/upload/destinations.js"() {
     init_client3();
     init_destination_identity();
     init_redaction();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/upload/replica-identifiers.js
-import { createHash as createHash3 } from "node:crypto";
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/upload/replica-identifiers.js
+import { createHash as createHash4 } from "node:crypto";
 function remapReplicaRunContext(context, sourceProjectName, destinationProjectName) {
   if (sourceProjectName === destinationProjectName)
     return context;
@@ -18046,7 +18409,7 @@ function remapReplicaRunId(runId, projectName) {
     return computeRunIdForSecondaryReplica(runId, projectName);
   }
   const name = JSON.stringify([UPLOAD_REPLICA_UUID_V5_DOMAIN, projectName, runId.toLowerCase()]);
-  const hash = createHash3("sha1").update(UPLOAD_REPLICA_UUID_V5_NAMESPACE_BYTES).update(name).digest();
+  const hash = createHash4("sha1").update(UPLOAD_REPLICA_UUID_V5_NAMESPACE_BYTES).update(name).digest();
   hash[6] = hash[6] & 15 | 80;
   hash[8] = hash[8] & 63 | 128;
   const value = hash.subarray(0, 16).toString("hex");
@@ -18059,13 +18422,13 @@ function remapReplicaDottedOrder(dottedOrder, projectName) {
   }).join(".");
 }
 var init_replica_identifiers = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/upload/replica-identifiers.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/upload/replica-identifiers.js"() {
     init_langsmith();
     init_constants11();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/upload/upload.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/upload/upload.js
 function createLangSmithUploadWriter(options) {
   const resolved = resolveUploadDestinations(options);
   const destinations = resolved.destinations.map(({ id }) => Object.freeze({ id }));
@@ -18288,7 +18651,7 @@ function validatePatch(submission) {
   }
 }
 var init_upload = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/upload/upload.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/upload/upload.js"() {
     init_metadata();
     init_privacy2();
     init_objects();
@@ -18300,23 +18663,23 @@ var init_upload = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/upload/index.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/upload/index.js
 var init_upload2 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/upload/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/upload/index.js"() {
     init_upload();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/capture-wake-constants.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/capture-wake-constants.js
 var CAPTURE_WAKE_ERROR_NAME, CAPTURE_WAKE_FAILURE_MESSAGE;
 var init_capture_wake_constants = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/capture-wake-constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/capture-wake-constants.js"() {
     CAPTURE_WAKE_ERROR_NAME = "CaptureWakeError";
     CAPTURE_WAKE_FAILURE_MESSAGE = "Trace work was saved but its worker could not start";
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/capture-wake.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/capture-wake.js
 async function wakeCapturedWork(captureResult, wake) {
   try {
     await wake();
@@ -18337,12 +18700,31 @@ async function readSavedCaptureWake(error2, options) {
     turnId: record.turnId,
     eventId: record.eventId
   });
-  return saved !== void 0 && canonicalJson(saved) === canonicalJson(record) ? result : void 0;
+  return saved !== void 0 && matchesPersistedCapture(saved, record) ? { ...result, record: saved } : void 0;
+}
+function matchesPersistedCapture(saved, reported) {
+  if (canonicalJson(saved) === canonicalJson(reported))
+    return true;
+  if (reported.version !== CAPTURE_RECORD_VERSION || reported.compaction !== void 0 || reported.sourceSnapshotCleanup !== void 0 || saved.capturedAtMs !== reported.capturedAtMs) {
+    return false;
+  }
+  const originalContentDigest = captureContentDigest(reported);
+  if (saved.compaction !== void 0 && saved.compaction.originalContentDigest === originalContentDigest) {
+    const compacted = compactCaptureRecord(reported, originalContentDigest);
+    return compacted !== void 0 && canonicalJson(compacted) === canonicalJson(saved);
+  }
+  if (saved.sourceSnapshotCleanup !== void 0 && saved.sourceSnapshotCleanup.originalContentDigest === originalContentDigest) {
+    const cleaned = compactReconstructionJobRecord(reported, originalContentDigest);
+    return cleaned !== void 0 && canonicalJson(cleaned) === canonicalJson(saved);
+  }
+  return false;
 }
 var CaptureWakeError;
 var init_capture_wake = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/capture-wake.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/capture-wake.js"() {
     init_capture_wake_constants();
+    init_constants4();
+    init_compaction();
     init_serialization();
     CaptureWakeError = class extends Error {
       captureResult;
@@ -18355,10 +18737,10 @@ var init_capture_wake = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/constants.js
 var ROOT_RUN_EXECUTION_ORDER, DOTTED_ORDER_TIME_PREFIX_LENGTH, DOTTED_ORDER_SEGMENT_PATTERN, DOTTED_ORDER_STRIP_PATTERN, LIFECYCLE_POST_EVENT_KIND, LIFECYCLE_PATCH_EVENT_KIND, LIFECYCLE_SETTLEMENT_EVENT_KIND, LIFECYCLE_ATTRIBUTION_READY_FIELD, LIFECYCLE_SETTLEMENT_LOCK_DIRECTORY, LIFECYCLE_SETTLEMENT_LOCK_FILE, LIFECYCLE_SETTLEMENT_LOCK_INTEGRATIONS_DIRECTORY, LIFECYCLE_SETTLEMENT_LOCK_SESSIONS_DIRECTORY, LIFECYCLE_SETTLEMENT_LOCK_ACCOUNTS_DIRECTORY, LIFECYCLE_SNAPSHOT_LOCK_DIRECTORY, LIFECYCLE_SNAPSHOT_LOCK_FILE, LIFECYCLE_SNAPSHOT_REVISION_EVENT_ID_PREFIX, LIFECYCLE_SNAPSHOT_OPTIONAL_RUN_FIELDS, LIFECYCLE_TURN_CLOSURE_STATES;
 var init_constants12 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/constants.js"() {
     ROOT_RUN_EXECUTION_ORDER = 1;
     DOTTED_ORDER_TIME_PREFIX_LENGTH = 18;
     DOTTED_ORDER_SEGMENT_PATTERN = /^(\d{8}T\d{12}Z)([^.]+)$/u;
@@ -18388,7 +18770,7 @@ var init_constants12 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/closure.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/closure.js
 function deriveAttributionReadiness(value, integration) {
   const source = requirePlainRecord(value, "Prepared run submission");
   const metadata = prepareCodingAgentMetadataProvenance(requireOwnDataField(source, "metadata"), integration, "full");
@@ -18533,14 +18915,14 @@ function captureScopeKey(scope) {
   return JSON.stringify([scope.integration, scope.sessionId, scope.turnId, scope.eventId]);
 }
 var init_closure = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/closure.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/closure.js"() {
     init_metadata();
     init_objects();
     init_constants12();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/identity.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/identity.js
 function createRunIdentity(input) {
   const id = requireNonBlankString(input.id, "Run ID");
   const start_time = requireTimestamp(input.start_time);
@@ -18600,13 +18982,13 @@ function dottedOrderSegment(startTime, runId) {
   return `${precisionTime.replace(DOTTED_ORDER_STRIP_PATTERN, "")}${runId}`;
 }
 var init_identity = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/identity.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/identity.js"() {
     init_objects();
     init_constants12();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/projection.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/projection.js
 function projectSubmission(value, integration, priorIdentity) {
   const source = requirePlainRecord(value, "Prepared run submission");
   if (requireOwnDataField(source, "integration") !== integration) {
@@ -18868,7 +19250,7 @@ function requiredText(source, key, name) {
   return requireNonBlankString(requireOwnDataField(source, key), name);
 }
 var init_projection = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/projection.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/projection.js"() {
     init_metadata();
     init_privacy2();
     init_objects();
@@ -18879,10 +19261,10 @@ var init_projection = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/settlement/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/settlement/constants.js
 var TURN_REPOSITORY_KEYS, REPOSITORY_METADATA_KEYS, REPOSITORY_NAME_KEY, ATTRIBUTION_IDENTIFIER_KEY, SETTLEMENT_EVENT_ID_PREFIX, SETTLEMENT_EVENT_ID_PATTERN;
 var init_constants13 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/settlement/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/settlement/constants.js"() {
     TURN_REPOSITORY_KEYS = [
       "repository_name",
       "repository_provider",
@@ -18898,7 +19280,7 @@ var init_constants13 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/settlement/settlement.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/settlement/settlement.js
 function attributionOf(metadata) {
   const carried = {};
   for (const key of REPOSITORY_METADATA_KEYS) {
@@ -18931,14 +19313,14 @@ function metadataAfterFill(run, filled) {
 }
 var namesARepository;
 var init_settlement = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/settlement/settlement.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/settlement/settlement.js"() {
     init_constants13();
     namesARepository = (carried) => carried[REPOSITORY_NAME_KEY] !== void 0;
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/settlement/pass.js
-import { createHash as createHash4 } from "node:crypto";
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/settlement/pass.js
+import { createHash as createHash5 } from "node:crypto";
 async function settleCapturedTurns(options) {
   if (options.destinations.length === 0)
     throw new TypeError("At least one settlement destination is required");
@@ -19156,6 +19538,11 @@ async function settleOneTurn(turnId, events, generated, allByRunId, options) {
 }
 function projectCapture(record, integration) {
   const rawPayload = canonicalJsonObject(record.normalizedPayload, "Stored run payload");
+  if (record.compaction?.fields.inputs.state === "value") {
+    const run = requirePlainRecord(rawPayload["run"], "Stored compacted run");
+    if (!Object.hasOwn(run, "inputs"))
+      run["inputs"] = {};
+  }
   const submission = projectSubmission({ ...rawPayload, metadata: record.metadataProvenance }, integration);
   if (submission.status === "deferred")
     return void 0;
@@ -19323,7 +19710,7 @@ async function captureReadiness(scopes, destinations, readOutcome) {
   return dropped.size > 0 ? { status: "dropped", destinations: [...dropped].toSorted() } : pending.size > 0 ? { status: "pending", destinations: [...pending].toSorted() } : { status: "delivered", destinations: [] };
 }
 function settlementEventId(turnId, runId, dependencies, rootRunId, childRunIds, attribution) {
-  const revision = createHash4("sha256").update(JSON.stringify({
+  const revision = createHash5("sha256").update(JSON.stringify({
     turnId,
     runId,
     rootRunId,
@@ -19450,7 +19837,7 @@ function report(turnId, status, reason, runIds = [], destinations = []) {
   };
 }
 var init_pass = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/settlement/pass.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/settlement/pass.js"() {
     init_metadata();
     init_objects();
     init_constants12();
@@ -19461,7 +19848,7 @@ var init_pass = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/utils/validation/snapshot.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/utils/validation/snapshot.js
 function snapshotData(value) {
   return copySnapshot(value, /* @__PURE__ */ new WeakMap());
 }
@@ -19501,11 +19888,12 @@ function copySnapshot(value, copies) {
   return copy;
 }
 var init_snapshot = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/utils/validation/snapshot.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/utils/validation/snapshot.js"() {
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/snapshot.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/snapshot.js
+import { createHash as createHash6 } from "node:crypto";
 import { join as join11 } from "node:path";
 async function captureLifecycleSnapshot(options, input) {
   const captureInput = snapshotData(requirePlainRecord(input, "Lifecycle snapshot capture"));
@@ -19522,18 +19910,7 @@ async function captureLifecycleSnapshot(options, input) {
   validateIdentifier(runId, "run ID");
   const streamHash = identifierHash(`${options.integration}\0${options.sessionId}\0${turnId}\0${runId}`);
   const revisionPrefix = `${LIFECYCLE_SNAPSHOT_REVISION_EVENT_ID_PREFIX}${streamHash}:`;
-  const lockDirectory = await ensurePrivateDirectory(options.storageRoot, [
-    LIFECYCLE_SNAPSHOT_LOCK_DIRECTORY,
-    "integrations",
-    options.integration,
-    "sessions",
-    identifierHash(options.sessionId),
-    "turns",
-    identifierHash(turnId),
-    "runs",
-    identifierHash(runId)
-  ]);
-  return withFileLock(join11(lockDirectory, LIFECYCLE_SNAPSHOT_LOCK_FILE), async () => {
+  return withLifecycleSnapshotLock(options, turnId, runId, async () => {
     const records = (await options.store.enumerateTurn(options.integration, options.sessionId, turnId)).map(({ record }) => record).filter((record) => record.runId === runId);
     const state = readSnapshotState(records, options.destinationFingerprint, revisionPrefix);
     if (state === "conflict")
@@ -19561,7 +19938,7 @@ async function captureLifecycleSnapshot(options, input) {
     const privacyStatus2 = state.privacyMode === "metadata" ? projected.value.privacyStatus : runPrivacyStatus(candidateRun);
     const evidence = projectTurnEvidence(snapshot["turnEvidence"], state.privacyMode, deriveAttributionReadiness(snapshot["submission"], options.integration));
     const metadata = canonicalJsonValue(projected.value.metadata);
-    const changedFields = snapshotPatchFields(state.run, candidateRun);
+    const changedFields = snapshotPatchFields(state.run, candidateRun, state.inputOutputStates, sourceRun);
     const newDependencies = (captureInput.dependencies ?? []).some((dependency) => !sameCanonical(dependency, captureScope3(state.head)) && !state.snapshotDependencies.some((persisted) => sameCanonical(dependency, persisted)));
     if (changedFields.length === 0 && sameCanonical(state.metadataProvenance, metadata) && sameCanonical(state.turnEvidence, evidence) && state.privacyStatus === privacyStatus2 && !newDependencies) {
       const result = { status: "duplicate", record: state.head };
@@ -19600,6 +19977,22 @@ async function captureLifecycleSnapshot(options, input) {
     return options.capture(revisionInput);
   });
 }
+async function withLifecycleSnapshotLock(options, turnId, runId, operation) {
+  validateIdentifier(turnId, "turn ID");
+  validateIdentifier(runId, "run ID");
+  const lockDirectory = await ensurePrivateDirectory(options.storageRoot, [
+    LIFECYCLE_SNAPSHOT_LOCK_DIRECTORY,
+    "integrations",
+    options.integration,
+    "sessions",
+    identifierHash(options.sessionId),
+    "turns",
+    identifierHash(turnId),
+    "runs",
+    identifierHash(runId)
+  ]);
+  return withFileLock(join11(lockDirectory, LIFECYCLE_SNAPSHOT_LOCK_FILE), operation);
+}
 function readSnapshotState(records, destinationFingerprint, revisionPrefix) {
   const posts = records.filter((record) => record.eventKind === LIFECYCLE_POST_EVENT_KIND);
   const revisionCandidates = records.filter((record) => record.eventId.startsWith(revisionPrefix));
@@ -19614,11 +20007,15 @@ function readSnapshotState(records, destinationFingerprint, revisionPrefix) {
   const postPayload = payloadObject(post);
   const privacyMode = readPrivacyMode(postPayload);
   const run = storedRun(postPayload, post.runId);
+  const runFields = run;
+  const inputOutputStates = post.compaction?.fields ?? {
+    inputs: presentFieldState(runFields, "inputs"),
+    outputs: presentFieldState(runFields, "outputs")
+  };
   const redactedFields = storedRedactedFields(postPayload);
   let metadataProvenance = canonicalJsonValue(post.metadataProvenance);
   let turnEvidence = canonicalJsonValue(post.turnEvidence);
   let privacyStatus2 = storedPrivacyStatus(postPayload, run, privacyMode);
-  const runFields = run;
   let head = post;
   const orderedRevisions = revisionCandidates.toSorted((left, right) => left.eventId.localeCompare(right.eventId));
   let expectedPrevious = post;
@@ -19647,6 +20044,15 @@ function readSnapshotState(records, destinationFingerprint, revisionPrefix) {
       runFields[field2] = value.value;
       seen.add(field2);
     }
+    for (const field2 of ["inputs", "outputs"]) {
+      const compactedField = revision.compaction?.fields[field2];
+      if (compactedField?.state === "value") {
+        delete runFields[field2];
+        inputOutputStates[field2] = compactedField;
+      } else if (fields.includes(field2)) {
+        inputOutputStates[field2] = { state: "preserve" };
+      }
+    }
     const runContextValue = requirePlainRecord(requireOwnDataField(payload, "run"), "Stored run context");
     if (!sameRunIdentity(run, runContextValue))
       return "conflict";
@@ -19672,6 +20078,7 @@ function readSnapshotState(records, destinationFingerprint, revisionPrefix) {
     turnEvidence,
     privacyMode,
     redactedFields,
+    inputOutputStates,
     privacyStatus: privacyStatus2,
     revisionCount: orderedRevisions.length,
     snapshotDependencies: snapshotChain.flatMap((record) => record.dependencies ?? [])
@@ -19762,16 +20169,39 @@ function applySnapshotOmissions(current, previous, sourceRun) {
   }
   return result;
 }
-function snapshotPatchFields(previous, current) {
+function snapshotPatchFields(previous, current, inputOutputStates, sourceRun) {
   const previousFields = previous;
   const currentFields = current;
   return [...UPLOAD_PATCH_FIELDS].filter((field2) => {
+    if (field2 === "inputs" || field2 === "outputs") {
+      const state = inputOutputStates[field2];
+      const previousValue = ownDataField(previousFields, field2);
+      const nextValue2 = ownDataField(currentFields, field2);
+      if (state.state === "value") {
+        if (field2 === "outputs" && !ownDataField(sourceRun, field2).present)
+          return false;
+        if (!nextValue2.present)
+          return false;
+        return fieldDigest(nextValue2.value) !== state.digest;
+      }
+      if (state.state === "absent")
+        return nextValue2.present;
+      if (previousValue.present !== nextValue2.present)
+        return true;
+      return previousValue.present && nextValue2.present && !sameCanonical(previousValue.value, nextValue2.value);
+    }
     const oldValue = ownDataField(previousFields, field2);
     const nextValue = ownDataField(currentFields, field2);
     if (oldValue.present !== nextValue.present)
       return true;
     return oldValue.present && nextValue.present && !sameCanonical(oldValue.value, nextValue.value);
   });
+}
+function presentFieldState(value, field2) {
+  return Object.hasOwn(value, field2) ? { state: "preserve" } : { state: "absent" };
+}
+function fieldDigest(value) {
+  return createHash6("sha256").update(JSON.stringify(canonicalJsonValue(value))).digest("hex");
 }
 function sameRunIdentity(left, right) {
   return left.id === right.id && left.name === right.name && left.run_type === right.run_type && sameTimestamp(left.start_time, right.start_time) && left.parent_run_id === right.parent_run_id && left.trace_id === right.trace_id && left.dotted_order === right.dotted_order;
@@ -19809,7 +20239,7 @@ function sameCanonical(left, right) {
   return JSON.stringify(canonicalJsonValue(left)) === JSON.stringify(canonicalJsonValue(right));
 }
 var init_snapshot2 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/snapshot.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/snapshot.js"() {
     init_storage();
     init_paths();
     init_atomic_file();
@@ -19825,7 +20255,90 @@ var init_snapshot2 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/bridge.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/retention.js
+async function compactSettledCaptures(options) {
+  const captures = options.eligibleCaptures;
+  const runs = /* @__PURE__ */ new Map();
+  for (const { record } of captures) {
+    if (record.destinationFingerprint !== options.destinationFingerprint || !isRunPayload(record)) {
+      continue;
+    }
+    const key = JSON.stringify([record.turnId, record.runId]);
+    const run = runs.get(key) ?? { turnId: record.turnId, runId: record.runId, records: [] };
+    run.records.push(record);
+    runs.set(key, run);
+  }
+  for (const [key, run] of runs) {
+    if (run.records.every((record) => record.compaction !== void 0))
+      runs.delete(key);
+  }
+  if (runs.size === 0)
+    return 0;
+  const settledTurns = new Set(options.settledTurnIds);
+  let compacted = 0;
+  for (const { turnId, runId, records } of runs.values()) {
+    if (!settledTurns.has(turnId))
+      continue;
+    await withLifecycleSnapshotLock(options, turnId, runId, async () => {
+      const current = await options.store.enumerateTurn(options.integration, options.sessionId, turnId);
+      const currentRecords = current.filter(({ record }) => record.turnId === turnId && record.runId === runId && record.destinationFingerprint === options.destinationFingerprint && isRunPayload(record)).map(({ record }) => record);
+      if (!sameRunRecords(records, currentRecords))
+        return;
+      for (const record of currentRecords) {
+        if (record.compaction !== void 0)
+          continue;
+        if (!await hasDeliveredReceipts(record, options.destinations, options.readOutcome))
+          continue;
+        const result = await options.store.compact(captureScope4(record), record);
+        if (result.status === "failed")
+          throw new Error(`Capture compaction failed: ${result.code}`);
+        if (result.status === "compacted")
+          compacted += 1;
+      }
+    });
+  }
+  return compacted;
+}
+function sameRunRecords(expected, current) {
+  if (expected.length !== current.length)
+    return false;
+  const currentByEventId = new Map(current.map((record) => [record.eventId, record]));
+  return expected.every((record) => {
+    const found = currentByEventId.get(record.eventId);
+    return found !== void 0 && captureContentDigest(found) === captureContentDigest(record);
+  });
+}
+function isRunPayload(record) {
+  return record.eventKind === LIFECYCLE_POST_EVENT_KIND || record.eventKind === LIFECYCLE_PATCH_EVENT_KIND;
+}
+async function hasDeliveredReceipts(record, destinations, readOutcome) {
+  const scope = captureScope4(record);
+  for (const destination of destinations) {
+    const outcome = await readOutcome(scope, destination.id);
+    if (outcome.status === "failed")
+      throw new Error(`Could not read capture receipt: ${outcome.code}`);
+    if (outcome.status !== "settled" || outcome.receipt.outcome !== "delivered")
+      return false;
+  }
+  return true;
+}
+function captureScope4(record) {
+  return {
+    integration: record.integration,
+    sessionId: record.sessionId,
+    turnId: record.turnId,
+    eventId: record.eventId
+  };
+}
+var init_retention = __esm({
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/retention.js"() {
+    init_compaction();
+    init_constants12();
+    init_snapshot2();
+  }
+});
+
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/bridge.js
 import { join as join12, resolve as resolve10 } from "node:path";
 function createLifecycleBridge(options) {
   const integration = options.integration;
@@ -19949,8 +20462,9 @@ function createLifecycleBridge(options) {
         if (first.status === "busy")
           return { status: "busy", settlement: { captured: 0, turns: [] } };
         const readOutcome = (scope, destination) => captureStore.readOutcome(scope, destination);
+        const settlementCaptures = await captureStore.enumerate(integration, sessionId);
         const work = await settleCapturedTurns({
-          captures: await captureStore.enumerate(integration, sessionId),
+          captures: settlementCaptures,
           integration,
           sessionId,
           destinationFingerprint: writer.accountFingerprint,
@@ -19973,6 +20487,17 @@ function createLifecycleBridge(options) {
           }
         }
         const settlement = await refreshSettlementProgress(work, writer.destinations, readOutcome);
+        await compactSettledCaptures({
+          storageRoot,
+          integration,
+          sessionId,
+          destinationFingerprint: writer.accountFingerprint,
+          store: captureStore,
+          destinations: writer.destinations,
+          settledTurnIds: settlement.turns.filter((entry) => entry.status === "settled").map((entry) => entry.turnId),
+          eligibleCaptures: settlementCaptures,
+          readOutcome
+        });
         drainResult = { ...result, settlement };
       } finally {
         await settlementLock.release();
@@ -20026,6 +20551,8 @@ function previousRunContext(record) {
   return context;
 }
 function restoreSubmission(record, integration) {
+  if (record.compaction !== void 0)
+    throw new TypeError("Compacted capture data cannot be restored for delivery");
   const payload = canonicalJsonObject(record.normalizedPayload, "Stored run payload");
   if (payload["integration"] !== integration)
     throw new TypeError("Stored integration does not match the lifecycle bridge");
@@ -20044,7 +20571,7 @@ function restoreSubmission(record, integration) {
   return { ...projected.value.payload, metadata: projected.value.metadata };
 }
 var init_bridge = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/bridge.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/bridge.js"() {
     init_storage();
     init_capture();
     init_paths();
@@ -20058,29 +20585,31 @@ var init_bridge = __esm({
     init_constants12();
     init_projection();
     init_snapshot2();
+    init_retention();
     init_closure();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/index.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/index.js
 var init_lifecycle = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/index.js"() {
     init_bridge();
     init_identity();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/constants.js
 var RECONSTRUCTION_DIRECTORY, RECONSTRUCTION_WORKER_DIRECTORY, RECONSTRUCTION_SESSIONS_DIRECTORY, RECONSTRUCTION_DRAIN_LOCK, RECONSTRUCTION_RUN_ID_PREFIX, RECONSTRUCTION_MAPPING_EVENT_ID_PREFIX, RECONSTRUCTION_JOB_KIND, RECONSTRUCTION_MAPPING_KIND, RECONSTRUCTION_RECORD_VERSION, RECONSTRUCTION_DEFERRED_REASON, RECONSTRUCTION_CLOSURE_STATES, RECONSTRUCTION_JOB_INPUT_KEYS, RECONSTRUCTION_JOB_OPTIONAL_INPUT_KEYS, RECONSTRUCTION_SOURCE_SNAPSHOT_KEYS, RECONSTRUCTION_SOURCE_SNAPSHOT_OPTIONAL_KEYS, RECONSTRUCTION_STORED_JOB_KEYS, RECONSTRUCTION_STORED_JOB_OPTIONAL_KEYS, RECONSTRUCTION_ATTRIBUTION_CONTEXT_KEYS, RECONSTRUCTION_ATTRIBUTION_CONTEXT_OPTIONAL_KEYS, RECONSTRUCTION_TOOL_ORIGIN_KEYS, RECONSTRUCTION_TOOL_ORIGIN_OPTIONAL_KEYS, RECONSTRUCTION_OUTPUT_KEYS, RECONSTRUCTION_OUTPUT_OPTIONAL_KEYS, RECONSTRUCTION_TURN_EVIDENCE_KEYS, RECONSTRUCTION_TURN_EVIDENCE_KEYS_WITH_ROOT, RECONSTRUCTION_DEPENDENCY_KEYS;
 var init_constants14 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/constants.js"() {
+    init_constants4();
     RECONSTRUCTION_DIRECTORY = "reconstruction-v1";
     RECONSTRUCTION_WORKER_DIRECTORY = "workers";
     RECONSTRUCTION_SESSIONS_DIRECTORY = "sessions";
     RECONSTRUCTION_DRAIN_LOCK = "drain";
     RECONSTRUCTION_RUN_ID_PREFIX = "reconstruction:";
     RECONSTRUCTION_MAPPING_EVENT_ID_PREFIX = "reconstruction-map:";
-    RECONSTRUCTION_JOB_KIND = "reconstruction-job-v1";
+    RECONSTRUCTION_JOB_KIND = CAPTURE_RECONSTRUCTION_JOB_KIND;
     RECONSTRUCTION_MAPPING_KIND = "reconstruction-map-v1";
     RECONSTRUCTION_RECORD_VERSION = 1;
     RECONSTRUCTION_DEFERRED_REASON = "missing-thread-identity";
@@ -20136,7 +20665,7 @@ var init_constants14 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/worker.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/worker.js
 import { join as join13, resolve as resolve11 } from "node:path";
 function createReconstructionWorker(options) {
   const integration = options.integration;
@@ -20172,11 +20701,7 @@ function createReconstructionWorker(options) {
       });
       if (saved === void 0)
         return void 0;
-      return canonicalJson(saved.record) === canonicalJson({
-        ...expected,
-        version: saved.record.version,
-        capturedAtMs: saved.record.capturedAtMs
-      }) ? saved : void 0;
+      return captureContentDigest(saved.record) === captureContentDigest(expected) ? saved : void 0;
     },
     async drain(request = {}) {
       const now = request.now ?? Date.now();
@@ -20209,10 +20734,23 @@ function createReconstructionWorker(options) {
             throw new Error(outcome.message);
           if (outcome.status === "missing-capture")
             throw new Error("Reconstruction job disappeared");
-          if (outcome.status === "settled")
+          if (outcome.status === "settled") {
+            if (job.accountFingerprint === accountFingerprint) {
+              if (entry.record.sourceSnapshotCleanup !== void 0 && outcome.receipt.outcome !== "delivered") {
+                throw new Error("Compacted reconstruction job has no delivered receipt");
+              }
+              if (job.sourceSnapshots !== void 0 && outcome.receipt.outcome === "delivered") {
+                const cleanup = await captureStore.compactReconstructionJob(scope, entry.record, job.accountFingerprint);
+                if (cleanup.status !== "compacted" && cleanup.status !== "already-compacted")
+                  throw new Error(`Could not compact delivered reconstruction job: ${cleanup.status}`);
+              }
+            }
             continue;
+          }
           if (job.accountFingerprint !== accountFingerprint)
             continue;
+          if (entry.record.sourceSnapshotCleanup !== void 0)
+            throw new Error("Compacted reconstruction job has no delivered receipt");
           if (now - jobAgeStartedAtMs(job, entry.capturedAtMs) >= policy.maxAgeMs) {
             counts.dropped += Number(await recordTerminal(captureStore, scope, job.accountFingerprint, "dropped", DELIVERY_EXPIRED_REASON));
             continue;
@@ -20224,7 +20762,7 @@ function createReconstructionWorker(options) {
           counts.dropped += Number(await recordTerminal(captureStore, candidate.scope, candidate.job.accountFingerprint, "dropped", DELIVERY_CAPACITY_REASON));
         }
         for (const candidate of candidates.slice(overCapacity)) {
-          const result = await processJob(candidate.job, candidate.entry.capturedAtMs, candidate.scope, reconstruct, bridge, captureStore, attemptStore, policy.maxAttempts, counts);
+          const result = await processJob(candidate.job, candidate.entry.record, candidate.entry.capturedAtMs, candidate.scope, reconstruct, bridge, captureStore, attemptStore, policy.maxAttempts, counts);
           if (result === "deferred")
             counts.deferred += 1;
         }
@@ -20251,7 +20789,7 @@ function createReconstructionWorker(options) {
     }
   };
 }
-async function processJob(job, jobCapturedAtMs, scope, reconstruct, bridge, store, attempts, maxAttempts, counts) {
+async function processJob(job, storedJob, jobCapturedAtMs, scope, reconstruct, bridge, store, attempts, maxAttempts, counts) {
   const attemptCount = await attempts.count(scope, job.accountFingerprint);
   if (attemptCount >= maxAttempts) {
     counts.dropped += Number(await recordTerminal(store, scope, job.accountFingerprint, "dropped", DELIVERY_RETRY_EXHAUSTED_REASON));
@@ -20328,6 +20866,11 @@ async function processJob(job, jobCapturedAtMs, scope, reconstruct, bridge, stor
       counts.captured += 1;
   }
   await recordTerminal(store, scope, job.accountFingerprint, "delivered");
+  if (job.sourceSnapshots !== void 0) {
+    const cleanup = await store.compactReconstructionJob(scope, storedJob, job.accountFingerprint);
+    if (cleanup.status !== "compacted" && cleanup.status !== "already-compacted")
+      throw new Error(`Could not compact delivered reconstruction job: ${cleanup.status}`);
+  }
   return "complete";
 }
 async function recordFailure(store, attempts, scope, accountFingerprint, maxAttempts, counts) {
@@ -20812,13 +21355,14 @@ function mappingScope(job) {
   return { ...scopeOf2(job), eventId };
 }
 var init_worker2 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/worker.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/worker.js"() {
     init_storage();
     init_capture();
     init_paths();
     init_atomic_file();
     init_attempt_store();
     init_capture_wake();
+    init_compaction();
     init_constants6();
     init_serialization();
     init_objects();
@@ -20828,23 +21372,23 @@ var init_worker2 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/index.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/index.js
 var init_reconstruction = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/index.js"() {
     init_worker2();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/utils/errors.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/utils/errors.js
 function describe(error2) {
   return error2 instanceof Error ? error2.message : String(error2);
 }
 var init_errors4 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/utils/errors.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/utils/errors.js"() {
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/engine/pass-results.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/engine/pass-results.js
 function reconstructionPassResult(result) {
   if (result.status === "busy")
     return "retryable-failure";
@@ -20856,14 +21400,14 @@ function lifecyclePassResult(result) {
   return result.settlement.captured > 0 || result.delivered > 0 || result.dropped > 0 || result.failed > 0 ? "progressed" : "idle";
 }
 var init_pass_results = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/engine/pass-results.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/engine/pass-results.js"() {
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/engine/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/engine/constants.js
 var TRACING_ENGINE_FOREIGN_SESSION_MIN_AGE_MS, TRACING_ENGINE_BACKGROUND_RECOVERY_COOLDOWN_MS, TRACING_ENGINE_BACKGROUND_RECOVERY_DIRECTORY, TRACING_ENGINE_BACKGROUND_RECOVERY_INTEGRATIONS_DIRECTORY, TRACING_ENGINE_BACKGROUND_RECOVERY_ACCOUNTS_DIRECTORY, TRACING_ENGINE_BACKGROUND_RECOVERY_LOCK_FILE, TRACING_ENGINE_BACKGROUND_RECOVERY_MARKER_FILE, TRACING_ENGINE_BACKGROUND_RECOVERY_MARKER_VERSION, TRACING_ENGINE_BACKGROUND_RECOVERY_MARKER_EXISTS_ERROR, TRACING_ENGINE_BACKGROUND_RECOVERY_RETRY_RANGE_ERROR, TRACING_ENGINE_BACKGROUND_RECOVERY_REPORT_ERROR, TRACING_ENGINE_BACKGROUND_RECOVERY_FILE_NOT_FOUND_CODE, TRACING_ENGINE_BACKGROUND_RECOVERY_SESSION_CALLBACK_ERROR, TRACING_ENGINE_BACKGROUND_RECOVERY_REPORT_CALLBACK_ERROR, TRACING_ENGINE_BACKGROUND_RECOVERY_MINIMUM_AGE_ERROR, TRACING_ENGINE_BACKGROUND_RECOVERY_COOLDOWN_RANGE_ERROR;
 var init_constants15 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/engine/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/engine/constants.js"() {
     TRACING_ENGINE_FOREIGN_SESSION_MIN_AGE_MS = 2 * 60 * 60 * 1e3;
     TRACING_ENGINE_BACKGROUND_RECOVERY_COOLDOWN_MS = 5 * 60 * 1e3;
     TRACING_ENGINE_BACKGROUND_RECOVERY_DIRECTORY = "background-recovery";
@@ -20883,7 +21427,7 @@ var init_constants15 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/engine/options.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/engine/options.js
 import { resolve as resolve12 } from "node:path";
 function snapshotEngineOptions(options) {
   return Object.freeze({
@@ -20931,12 +21475,12 @@ function snapshotPolicy(policy) {
   return Object.freeze({ ...policy });
 }
 var init_options = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/engine/options.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/engine/options.js"() {
     init_constants15();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery-settlement.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery-settlement.js
 async function hasUnsettledRecoverySettlement(options) {
   const missingSettlementCapture = /* @__PURE__ */ Symbol();
   try {
@@ -20978,13 +21522,13 @@ async function hasUnsettledRecoverySettlement(options) {
   }
 }
 var init_recovery_settlement = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery-settlement.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery-settlement.js"() {
     init_serialization();
     init_pass();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery.js
 import { join as join14 } from "node:path";
 async function recoverTracingSessions(runtime, request, scopeGuard) {
   const now = request.now ?? Date.now();
@@ -21117,7 +21661,7 @@ async function recoverTracingSessions(runtime, request, scopeGuard) {
   return { scheduled, failed };
 }
 var init_recovery = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery.js"() {
     init_capture();
     init_constants14();
     init_constants12();
@@ -21127,7 +21671,7 @@ var init_recovery = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery-paths.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery-paths.js
 import { join as join15, resolve as resolve13 } from "node:path";
 function backgroundRecoveryPathSegments(scope) {
   return [
@@ -21147,13 +21691,13 @@ function backgroundRecoveryPaths(storageRoot, scope) {
   };
 }
 var init_recovery_paths = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery-paths.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery-paths.js"() {
     init_paths();
     init_constants15();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/engine/background-recovery.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/engine/background-recovery.js
 import { unlink as unlink5 } from "node:fs/promises";
 async function runBackgroundRecovery(runtime, options, scopeGuard) {
   const cooldownMs = options.cooldownMs ?? TRACING_ENGINE_BACKGROUND_RECOVERY_COOLDOWN_MS;
@@ -21270,7 +21814,7 @@ async function writeMarker(path3, marker) {
     throw new Error(TRACING_ENGINE_BACKGROUND_RECOVERY_MARKER_EXISTS_ERROR);
 }
 var init_background_recovery = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/engine/background-recovery.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/engine/background-recovery.js"() {
     init_atomic_file();
     init_file_lock();
     init_errors4();
@@ -21280,7 +21824,7 @@ var init_background_recovery = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/engine/engine.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/engine/engine.js
 function createTracingEngine(options) {
   const config = snapshotEngineOptions(options);
   function forSession(sessionOptions) {
@@ -21381,7 +21925,7 @@ function createTracingEngine(options) {
   return Object.freeze({ forSession });
 }
 var init_engine = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/engine/engine.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/engine/engine.js"() {
     init_background_worker();
     init_scope();
     init_lifecycle();
@@ -21396,27 +21940,27 @@ var init_engine = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/engine/index.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/engine/index.js
 var init_engine2 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/engine/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/engine/index.js"() {
     init_engine();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/index.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/index.js
 var init_tracing = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/index.js"() {
     init_engine2();
     init_capture_wake();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/upload/identity.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/upload/identity.js
 function resolveUploadDestinationFingerprint(options) {
   return resolveUploadDestinationIdentities(options).accountFingerprint;
 }
 var init_identity2 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_2e0f32732827b03eda3ec0038aa9e19b/node_modules/@langchain/plugins-base/dist/tracing/upload/identity.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_162ae748324fb860f7b803d415a28ef5/node_modules/@langchain/plugins-base/dist/tracing/upload/identity.js"() {
     init_destination_identity();
   }
 });
@@ -22252,10 +22796,10 @@ var init_conversation_steps = __esm({
 });
 
 // dist/src/native-turn-source.js
-import { createHash as createHash5 } from "node:crypto";
+import { createHash as createHash7 } from "node:crypto";
 import { join as join17 } from "node:path";
 function cursorTurnSourceRef(sessionId, conversationId, turnId, accountFingerprint, sourceEventId) {
-  return createHash5("sha256").update(JSON.stringify([
+  return createHash7("sha256").update(JSON.stringify([
     CURSOR_INTEGRATION,
     sessionId,
     conversationId,
@@ -22440,7 +22984,7 @@ function routeStore(storageRoot, accountFingerprint) {
   return createCaptureStore(join17(storageRoot, CURSOR_TURN_ROUTE_DIRECTORY, accountHash(accountFingerprint)));
 }
 function accountHash(accountFingerprint) {
-  return createHash5("sha256").update(accountFingerprint).digest("hex");
+  return createHash7("sha256").update(accountFingerprint).digest("hex");
 }
 function sourceBuffer(buffer) {
   if (buffer.tracingMode === "full") {
@@ -22541,7 +23085,7 @@ __export(langsmith_exports, {
   reconstructCursorTurn: () => reconstructCursorTurn,
   uploadTurn: () => uploadTurn
 });
-import { createHash as createHash6 } from "node:crypto";
+import { createHash as createHash8 } from "node:crypto";
 function initTracing(apiKey, apiUrl, providedReplicas, redact = true, extraRedactionRules, clientOverride) {
   const anonymizer = redact ? createSecretAnonymizer(extraRedactionRules ? { extraRules: extraRedactionRules } : void 0) : void 0;
   client = clientOverride ?? new Client({
@@ -22677,7 +23221,7 @@ function uuidFromDigest(hex) {
 }
 function stableRunId(ctx, key) {
   const seed = `${ctx.threadId}\0${ctx.turnId ?? ""}\0${key}`;
-  return uuidFromDigest(createHash6("sha256").update(seed).digest("hex"));
+  return uuidFromDigest(createHash8("sha256").update(seed).digest("hex"));
 }
 function withSystem(messages, systemPrompt) {
   return systemPrompt ? [{ role: "system", content: systemPrompt }, ...messages] : messages;
@@ -23185,13 +23729,18 @@ var init_langsmith2 = __esm({
   }
 });
 
+// dist/src/tracing-policy-constants.js
+var init_tracing_policy_constants = __esm({
+  "dist/src/tracing-policy-constants.js"() {
+    "use strict";
+  }
+});
+
 // dist/src/tracing-policy.js
 import { randomUUID as randomUUID5 } from "node:crypto";
 import { lstatSync as lstatSync2, readFileSync as readFileSync6 } from "node:fs";
-import { mkdir as mkdir5, open as open2, rename as rename3, rmdir as rmdir2, unlink as unlink6 } from "node:fs/promises";
+import { open as open2, rename as rename4, unlink as unlink6 } from "node:fs/promises";
 import { dirname as dirname5 } from "node:path";
-import { performance as performance3 } from "node:perf_hooks";
-import { setTimeout as delay2 } from "node:timers/promises";
 import { homedir as homedir4 } from "node:os";
 import { join as join18 } from "node:path";
 function isMode(value) {
@@ -23243,6 +23792,9 @@ function getThreadTracingMode(path3, sessionId, defaultMuted = false) {
 var init_tracing_policy = __esm({
   "dist/src/tracing-policy.js"() {
     "use strict";
+    init_storage();
+    init_tracing_policy_constants();
+    init_errors2();
   }
 });
 
@@ -23372,7 +23924,7 @@ var init_sweep = __esm({
 });
 
 // dist/src/tracing-engine.js
-import { createHash as createHash7 } from "node:crypto";
+import { createHash as createHash9 } from "node:crypto";
 import { spawn } from "node:child_process";
 import { dirname as dirname7, extname, join as join19 } from "node:path";
 function createCursorTracingSession(config, sessionId, cwd, launchWorker, destinationProject = config.project, reconstruct) {
@@ -23703,7 +24255,7 @@ function uniqueDependencies(dependencies) {
   });
 }
 function reconstructionOutputEventId(jobEventId, runId, phase) {
-  return createHash7("sha256").update(JSON.stringify([CURSOR_INTEGRATION, jobEventId, runId, phase, "reconstruction-output"])).digest("hex");
+  return createHash9("sha256").update(JSON.stringify([CURSOR_INTEGRATION, jobEventId, runId, phase, "reconstruction-output"])).digest("hex");
 }
 async function runCursorEngineWorker(worker) {
   const { loadConfig: loadConfig2 } = await Promise.resolve().then(() => (init_config(), config_exports));
@@ -23888,7 +24440,7 @@ function isExpectedSnapshotRecord(record, options, runId) {
   return record.integration === CURSOR_INTEGRATION && record.sessionId === options.sessionId && record.turnId === options.turnId && record.destinationFingerprint === options.destinationFingerprint && record.runId === runId && (record.eventKind === CURSOR_RUN_POST_EVENT_KIND || record.eventKind === CURSOR_RUN_PATCH_EVENT_KIND);
 }
 function stableEventId(options, runId) {
-  return createHash7("sha256").update(JSON.stringify([
+  return createHash9("sha256").update(JSON.stringify([
     CURSOR_INTEGRATION,
     options.sessionId,
     options.turnId,
@@ -23897,7 +24449,7 @@ function stableEventId(options, runId) {
   ])).digest("hex");
 }
 function cursorStopReconstructionJobEventId(sourceRef) {
-  return createHash7("sha256").update(JSON.stringify([CURSOR_INTEGRATION, sourceRef, CURSOR_STOP_RECONSTRUCTION_EVENT_KIND])).digest("hex");
+  return createHash9("sha256").update(JSON.stringify([CURSOR_INTEGRATION, sourceRef, CURSOR_STOP_RECONSTRUCTION_EVENT_KIND])).digest("hex");
 }
 var init_tracing_engine = __esm({
   "dist/src/tracing-engine.js"() {
