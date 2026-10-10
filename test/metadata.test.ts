@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { join } from "node:path";
 import type { Run } from "langsmith";
+import { CODING_AGENT_V1_CONTRACT } from "@langchain/plugins-base/metadata";
 import {
   codingAgentMetadata,
   type CodingAgentMetadataOptions,
@@ -49,9 +50,10 @@ async function tracedRuns(
 // ─── Helper unit tests ────────────────────────────────────────────────────────
 
 describe("codingAgentMetadata helper", () => {
-  const bare = () => codingAgentMetadata({ agentType: "root", threadId: "conv-1" });
+  const bare = () =>
+    codingAgentMetadata({ agentType: "root", runType: "root", threadId: "conv-1" });
   const withOpts = (opts: Partial<CodingAgentMetadataOptions>) =>
-    codingAgentMetadata({ agentType: "root", threadId: "c", ...opts });
+    codingAgentMetadata({ agentType: "root", runType: "root", threadId: "c", ...opts });
 
   it("stamps the frozen cursor identity block on every run", () => {
     expect(bare()).toMatchObject({
@@ -68,7 +70,9 @@ describe("codingAgentMetadata helper", () => {
   it.each<LSAgentType>(["root", "subagent", "middleware", "compaction"])(
     "supports the %s agent type",
     (agentType) => {
-      expect(codingAgentMetadata({ agentType, threadId: "c" }).ls_agent_type).toBe(agentType);
+      expect(codingAgentMetadata({ agentType, runType: "root", threadId: "c" }).ls_agent_type).toBe(
+        agentType,
+      );
     },
   );
 
@@ -100,7 +104,7 @@ describe("codingAgentMetadata helper", () => {
     ["omits ls_tool_name when the run name is the tool name", "Bash", "Bash", undefined],
     ["emits ls_tool_name when they differ", "Task", "Agent", "Task"],
   ])("%s", (_case, toolName, runName, expected) => {
-    expect(withOpts({ toolName, runName }).ls_tool_name).toBe(expected);
+    expect(withOpts({ runType: "tool", toolName, runName }).ls_tool_name).toBe(expected);
   });
 
   it("lets base config win on a key collision", () => {
@@ -268,13 +272,6 @@ describe("the Skill run", () => {
 // ─── Contract gate against a real fixture replay ──────────────────────────────
 // Mirrors validate-thread.mjs's classify + required-key/leak rules in-process.
 
-const ALWAYS = [
-  ["ls_agent_purpose", "coding"],
-  ["ls_integration", "cursor"],
-  ["ls_agent_runtime", "Cursor"],
-  ["ls_trace_schema_version", "coding-agent-v1"],
-] as const;
-
 /** Structural run classification (validator's cursor profile). */
 function classify(run: Run): "root" | "interrupted" | "subagent" | "llm" | "tool" {
   if (run.run_type === "llm") return "llm";
@@ -312,8 +309,22 @@ describe("coding-agent-v1 contract on the produced run tree", () => {
       const runType = classify(run);
       seenTypes.add(runType);
 
-      // Always-present identity keys with the frozen values.
-      for (const [k, v] of ALWAYS) expect(md[k], `${k} on ${runType}`).toBe(v);
+      for (const field of CODING_AGENT_V1_CONTRACT.keys) {
+        const applies = field.appliesTo.includes(runType);
+        const value = md[field.key];
+        if (field.requirement === "always" || field.requiredWhereKnown) {
+          if (applies) expect(value, `${field.key} on ${runType}`).toBeDefined();
+        }
+        if (value !== undefined) {
+          expect(applies, `${field.key} scope on ${runType}`).toBe(true);
+          if (field.allowedValues) {
+            expect(field.allowedValues, `${field.key} value on ${runType}`).toContain(value);
+          }
+        }
+      }
+      expect(md.ls_integration).toBe("cursor");
+      expect(md.ls_agent_runtime).toBe(CODING_AGENT_V1_CONTRACT.runtimeNames.cursor);
+      expect(md.ls_trace_schema_version).toBe(CODING_AGENT_V1_CONTRACT.schemaVersion);
       expect(md).not.toHaveProperty("ls_agent_kind");
 
       let ownerType = runType === "subagent" ? "subagent" : "root";

@@ -10,7 +10,7 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { pathToFileURL } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { spawnSync } from "node:child_process";
 import { getThreadTracingMode } from "../src/tracing-policy.js";
 import { loadState } from "../src/state.js";
@@ -44,7 +44,7 @@ function submit(prompt: string, generation_id = "generation", cwd = dir) {
   expect(match).not.toBeNull();
   const result = spawnSync(
     process.execPath,
-    [new URL("../bundle/guard.js", import.meta.url).pathname, match![1]],
+    [fileURLToPath(new URL("../bundle/guard.js", import.meta.url)), match![1]],
     {
       cwd,
       env,
@@ -76,7 +76,7 @@ it("registers the blocking contract on the one entry the plugin owns", () => {
 function raw(input: string) {
   return spawnSync(
     process.execPath,
-    [new URL("../bundle/guard.js", import.meta.url).pathname, "before-submit-prompt"],
+    [fileURLToPath(new URL("../bundle/guard.js", import.meta.url)), "before-submit-prompt"],
     { cwd: dir, env, encoding: "utf8", timeout: 10000, input },
   );
 }
@@ -96,10 +96,16 @@ it("lets the prompt through when Node is too old to trace", () => {
     [
       "--import",
       pathToFileURL(shim).href,
-      new URL("../bundle/guard.js", import.meta.url).pathname,
+      fileURLToPath(new URL("../bundle/guard.js", import.meta.url)),
       "before-submit-prompt",
     ],
-    { cwd: dir, env, encoding: "utf8", timeout: 10000, input: "{}" },
+    {
+      cwd: dir,
+      env: { ...env, LANGSMITH_CURSOR_NODE_HANDOFF: "1" },
+      encoding: "utf8",
+      timeout: 10000,
+      input: "{}",
+    },
   );
   expect(result.stderr).toContain("node:sqlite");
   expect(result.status, result.stderr).toBe(0);
@@ -108,7 +114,7 @@ it("lets the prompt through when Node is too old to trace", () => {
 
 it("lets the prompt through when the hook itself cannot be loaded", () => {
   const alone = mkdtempSync(join(tmpdir(), "cursor alone "));
-  cpSync(new URL("../bundle/guard.js", import.meta.url).pathname, join(alone, "guard.js"));
+  cpSync(fileURLToPath(new URL("../bundle/guard.js", import.meta.url)), join(alone, "guard.js"));
   const result = spawnSync(process.execPath, [join(alone, "guard.js"), "before-submit-prompt"], {
     cwd: dir,
     env,
@@ -217,7 +223,7 @@ function event(name: string, generation_id = "generation", extra: Record<string,
   expect(match).not.toBeNull();
   const result = spawnSync(
     process.execPath,
-    [new URL("../bundle/guard.js", import.meta.url).pathname, match![1]],
+    [fileURLToPath(new URL("../bundle/guard.js", import.meta.url)), match![1]],
     {
       cwd: dir,
       env,

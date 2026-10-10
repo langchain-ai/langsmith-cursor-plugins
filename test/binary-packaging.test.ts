@@ -1,3 +1,4 @@
+import { fileURLToPath } from "node:url";
 import { execFileSync, spawnSync } from "node:child_process";
 import {
   chmodSync,
@@ -105,7 +106,7 @@ describe("the folder the released builds land in", () => {
 
   it("survives a clone runnable", () => {
     const mode = execFileSync("git", ["ls-files", "--stage", "--", picker], {
-      cwd: new URL(root).pathname,
+      cwd: fileURLToPath(root),
       encoding: "utf8",
     }).slice(0, 6);
     expect(mode).toBe("100755");
@@ -126,7 +127,7 @@ describe("the folder the released builds land in", () => {
     mkdirSync(fakeBin, { recursive: true });
     mkdirSync(join(plugin, "binary"), { recursive: true });
     mkdirSync(join(plugin, "bundle"), { recursive: true });
-    cpSync(new URL(picker, root).pathname, join(plugin, picker));
+    cpSync(fileURLToPath(new URL(picker, root)), join(plugin, picker));
     chmodSync(join(plugin, picker), 0o755);
     writeFileSync(
       join(plugin, "bundle", "guard.js"),
@@ -157,7 +158,10 @@ describe("the folder the released builds land in", () => {
       },
       buildKilledAfterAnswering(name: string) {
         const path = join(plugin, "binary", name);
-        writeFileSync(path, `#!/bin/sh\ncat >/dev/null\nprintf '%s answered' "${name}"\nkill -9 $$\n`);
+        writeFileSync(
+          path,
+          `#!/bin/sh\ncat >/dev/null\nprintf '%s answered' "${name}"\nkill -9 $$\n`,
+        );
         chmodSync(path, 0o755);
       },
       refusingBuild(name: string) {
@@ -172,7 +176,8 @@ describe("the folder the released builds land in", () => {
       },
       buildReportingTurnPermissions(name: string) {
         const path = join(plugin, "binary", name);
-        const report = 'process.stdout.write(require("fs").fstatSync(0).mode.toString(8).slice(-3))';
+        const report =
+          'process.stdout.write(require("fs").fstatSync(0).mode.toString(8).slice(-3))';
         writeFileSync(path, `#!/bin/sh\nexec "${process.execPath}" -e '${report}'\n`);
         chmodSync(path, 0o755);
       },
@@ -248,7 +253,7 @@ describe("the folder the released builds land in", () => {
     const converted = execFileSync(
       "git",
       ["-c", "core.autocrlf=true", "cat-file", "--filters", `:${picker}`],
-      { cwd: new URL(root).pathname },
+      { cwd: fileURLToPath(root) },
     );
     const { plugin, build, fakeUname, pick } = sandbox();
 
@@ -437,7 +442,9 @@ describe("the folder the released builds land in", () => {
     try {
       fakeUname("arm64");
       unstartableBuild(`${settings.executableName}-darwin-arm64`);
-      const said = attempt().stderr.split("\n").filter((line) => line.includes("[langsmith]"));
+      const said = attempt()
+        .stderr.split("\n")
+        .filter((line) => line.includes("[langsmith]"));
       expect(said).toHaveLength(1);
       expect(said[0]).toContain("carried build did not run");
     } finally {
@@ -543,7 +550,7 @@ describe("the folder the released builds land in", () => {
     const committed = execFileSync(
       "git",
       ["ls-files", "--stage", "--", `${PLUGIN_BINARY_DIRECTORY_NAME}/`],
-      { cwd: new URL(root).pathname, encoding: "utf8" },
+      { cwd: fileURLToPath(root), encoding: "utf8" },
     )
       .trimEnd()
       .split("\n")

@@ -1,7 +1,11 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { join } from "node:path";
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { spawn } from "node:child_process";
+import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 import { tmpdir } from "node:os";
+import { createCaptureStore } from "@langchain/plugins-base/storage/capture";
+import { createLangSmithUploadWriter } from "@langchain/plugins-base/tracing/upload";
 import {
   reduceAfterAgentResponse,
   reducePostToolUse,
@@ -14,13 +18,14 @@ import { DEFAULT_SWEEP_IDLE_MINUTES, MAX_UPLOAD_ATTEMPTS } from "../src/constant
 import * as logger from "../src/logger.js";
 import { runSweep } from "../src/sweep.js";
 import { loadState, saveState } from "../src/state.js";
-import type { Config } from "../src/config.js";
+import { loadConfig, type Config } from "../src/config.js";
 import { MUTED_TRACE_CONTENT } from "../src/privacy.js";
 import { initTracing, buildTurnRuns } from "../src/langsmith.js";
 import { replayHookLog } from "./utils/replay.js";
 import { mockClient } from "./utils/mock_client.js";
 import { getAssumedTreeFromCalls } from "./utils/tree.js";
-import { HOUR, MINUTE, T0, conversation, testConfig, tool, turn } from "./utils/state.js";
+import type { SweepHttpUpload } from "./models/sweep.js";
+import { HOUR, MINUTE, T0, conversation, tool, turn } from "./utils/state.js";
 import type {
   AfterAgentResponseInput,
   ConversationState,
@@ -51,6 +56,41 @@ const FINAL_SWEEP = {
     callerConversationId: CALLER,
   },
 };
+
+async function readRequestBody(request: IncomingMessage): Promise<string> {
+  const chunks: Buffer[] = [];
+  for await (const chunk of request) chunks.push(Buffer.from(chunk));
+  return Buffer.concat(chunks).toString("utf8");
+}
+
+function runHook(
+  entry: string,
+  input: Record<string, unknown>,
+  cwd: string,
+  env: NodeJS.ProcessEnv,
+) {
+  return new Promise<void>((resolve, reject) => {
+    const child = spawn(process.execPath, [entry], {
+      cwd,
+      env,
+      stdio: ["pipe", "ignore", "pipe"],
+    });
+    let stderr = "";
+    const timer = setTimeout(() => {
+      child.kill();
+      reject(new Error("Hook timed out"));
+    }, 20_000);
+    child.stderr.setEncoding("utf8");
+    child.stderr.on("data", (chunk: string) => (stderr += chunk));
+    child.once("error", reject);
+    child.once("close", (code) => {
+      clearTimeout(timer);
+      if (code === 0) resolve();
+      else reject(new Error(`hook exited ${code}: ${stderr}`));
+    });
+    child.stdin.end(JSON.stringify(input));
+  });
+}
 
 function stranded(): TracingState {
   return { c1: conversation([turn("g1", T0)]) };
@@ -402,14 +442,61 @@ describe("headless cursor-agent run recovered by the sweep", () => {
 describe("runSweep against the on-disk state file", () => {
   let dir: string;
   let stateFilePath: string;
+  let home: string;
+  let workspace: string;
+  let endpoint: string;
   let config: Config;
-  const savedPolicy = process.env.LANGSMITH_CURSOR_PRIVACY_FILE;
+  let server: ReturnType<typeof createServer>;
+  let uploads: SweepHttpUpload[];
+  const apiKey = "synthetic-sweep-test-key";
+  const workerEntry = join(process.cwd(), "bundle/stop.js");
 
-  beforeEach(() => {
+  beforeEach(async () => {
     dir = mkdtempSync(join(tmpdir(), "sweep-state-"));
     stateFilePath = join(dir, "langsmith-state.json");
-    process.env.LANGSMITH_CURSOR_PRIVACY_FILE = join(dir, "absent-privacy.json");
-    config = testConfig(stateFilePath);
+    home = join(dir, "home");
+    workspace = join(dir, "workspace");
+    mkdirSync(home);
+    mkdirSync(workspace);
+    uploads = [];
+    server = createServer(async (request: IncomingMessage, response: ServerResponse) => {
+      const raw = await readRequestBody(request);
+      if (request.method !== "GET" && request.method !== "HEAD") {
+        const payload = (raw ? JSON.parse(raw) : {}) as SweepHttpUpload["payload"];
+        uploads.push({
+          action: request.method === "POST" ? "post" : "patch",
+          runId: typeof payload.id === "string" ? payload.id : undefined,
+          payload,
+        });
+      }
+      response.writeHead(200, { "content-type": "application/json" });
+      response.end(
+        request.method === "GET" && request.url?.endsWith("/info")
+          ? JSON.stringify({ batch_ingest_config: { use_multipart_endpoint: false } })
+          : "{}",
+      );
+    });
+    await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
+    const address = server.address();
+    if (!address || typeof address === "string") throw new Error("Upload server did not start");
+    endpoint = `http://127.0.0.1:${address.port}`;
+    vi.stubEnv("HOME", home);
+    vi.stubEnv("USERPROFILE", home);
+    vi.stubEnv("TEMP", dir);
+    vi.stubEnv("TMP", dir);
+    vi.stubEnv("TMPDIR", dir);
+    vi.stubEnv("TRACE_TO_LANGSMITH", "true");
+    vi.stubEnv("LANGSMITH_CURSOR_API_KEY", apiKey);
+    vi.stubEnv("LANGSMITH_CURSOR_ENDPOINT", endpoint);
+    vi.stubEnv("LANGSMITH_CURSOR_PROJECT", "cursor");
+    vi.stubEnv("LANGSMITH_CURSOR_STATE_FILE", stateFilePath);
+    vi.stubEnv("LANGSMITH_CURSOR_PRIVACY_FILE", join(dir, "absent-privacy.json"));
+    vi.stubEnv("LANGSMITH_CURSOR_LOG_FILE", join(dir, "hook.log"));
+    vi.stubEnv("LANGSMITH_CURSOR_ATTACHMENTS", "false");
+    vi.stubEnv("LANGSMITH_CURSOR_SYSTEM_PROMPT", "false");
+    vi.stubEnv("LANGSMITH_CURSOR_REDACT_EXTRA", "[]");
+    vi.stubEnv("LANGSMITH_CURSOR_SWEEP_IDLE_MINUTES", String(THRESHOLD / MINUTE));
+    config = loadConfig({ cwd: workspace });
     saveState(stateFilePath, {
       c1: conversation([
         turn("g1", T0, {
@@ -420,19 +507,76 @@ describe("runSweep against the on-disk state file", () => {
     });
   });
 
-  afterEach(() => {
-    if (savedPolicy === undefined) delete process.env.LANGSMITH_CURSOR_PRIVACY_FILE;
-    else process.env.LANGSMITH_CURSOR_PRIVACY_FILE = savedPolicy;
-    rmSync(dir, { recursive: true, force: true });
+  afterEach(async () => {
+    vi.unstubAllEnvs();
+    if (server) await new Promise<void>((resolve) => server.close(() => resolve()));
   });
 
+  async function runSweepWithWorkerEntry(options: Parameters<typeof runSweep>[0]) {
+    const originalEntry = process.argv[1];
+    process.argv[1] = workerEntry;
+    try {
+      return await runSweep(options);
+    } finally {
+      if (originalEntry === undefined) process.argv.splice(1, 1);
+      else process.argv[1] = originalEntry;
+    }
+  }
+
+  async function waitForDeliveredCaptures(
+    sessionId: string,
+    turnId: string,
+    project: string,
+  ): Promise<void> {
+    const store = createCaptureStore(dir);
+    const writer = createLangSmithUploadWriter({
+      destinations: [{ apiKey, apiUrl: endpoint, projectName: project }],
+      redact: true,
+      redactExtraRules: [],
+    });
+    const destinationId = writer.destinations[0]!.id;
+    const deadline = Date.now() + 15_000;
+    while (Date.now() < deadline) {
+      const records = (await store.enumerate("cursor", sessionId)).filter(
+        ({ record }) => record.turnId === turnId,
+      );
+      const outcomes = await Promise.all(
+        records.map(({ record }) =>
+          store.readOutcome(
+            {
+              integration: record.integration,
+              sessionId: record.sessionId,
+              turnId: record.turnId,
+              eventId: record.eventId,
+            },
+            destinationId,
+          ),
+        ),
+      );
+      if (
+        outcomes.some(
+          (outcome) => outcome.status === "settled" && outcome.receipt.outcome !== "delivered",
+        )
+      ) {
+        throw new Error("A captured sweep run failed delivery");
+      }
+      if (records.length > 0 && outcomes.every((outcome) => outcome.status === "settled")) {
+        return;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 25));
+    }
+    throw new Error("Sweep capture receipts did not settle");
+  }
+
+  function workspaceInput() {
+    return { ...CALLER_INPUT, workspace_roots: [workspace] };
+  }
+
   it("uploads a claimed turn once, under the same lock as the calling hook", async () => {
-    const { client, callSpy } = mockClient();
-    const uploaded = await runSweep({
+    const uploaded = await runSweepWithWorkerEntry({
       config,
-      input: CALLER_INPUT,
+      input: workspaceInput(),
       nowMs: T0 + 2 * HOUR,
-      client,
       apply: (state) => ({ ...state, c2: conversation([turn("g2", T0 + 2 * HOUR)]) }),
     });
 
@@ -442,21 +586,21 @@ describe("runSweep against the on-disk state file", () => {
     expect(after.c1.pending).toBeUndefined();
     expect(Object.keys(after.c2.turns)).toEqual(["g2"]);
 
-    const tree = await getAssumedTreeFromCalls(callSpy.mock.calls, client);
-    const root = Object.entries(tree.data).find(([id]) => id.startsWith("Cursor Turn 1:"))![1];
-    expect(JSON.stringify(root.inputs)).toContain("recover me");
-    expect(JSON.stringify(root.inputs)).not.toContain(MUTED_TRACE_CONTENT);
+    await waitForDeliveredCaptures("c1", "g1", "cursor");
+    expect(JSON.stringify(uploads)).toContain("recover me");
+    expect(JSON.stringify(uploads)).not.toContain(MUTED_TRACE_CONTENT);
+    const uploadCount = uploads.length;
 
-    const second = await runSweep({
+    const second = await runSweepWithWorkerEntry({
       config,
-      input: CALLER_INPUT,
+      input: workspaceInput(),
       nowMs: T0 + 2 * HOUR + MINUTE,
-      client,
     });
     expect(second).toEqual([]);
+    expect(uploads).toHaveLength(uploadCount);
   });
 
-  it("uploads a recovered turn to the project its own window was configured for", async () => {
+  it("routes a swept turn to the project saved with the turn", async () => {
     saveState(stateFilePath, {
       c1: conversation([
         turn("g1", T0, {
@@ -465,34 +609,35 @@ describe("runSweep against the on-disk state file", () => {
         }),
       ]),
     });
-    const { client, callSpy } = mockClient();
-
-    await runSweep({
+    await runSweepWithWorkerEntry({
       config: {
         ...config,
         project: "the-sweepers-project",
         customMetadata: { cwd: "/repo/sweep" },
       },
-      input: CALLER_INPUT,
+      input: workspaceInput(),
       nowMs: T0 + 2 * HOUR,
-      client,
     });
-
-    const posted = callSpy.mock.calls
-      .map(([, init]) => new TextDecoder().decode((init as RequestInit).body as Uint8Array))
-      .map((body) => JSON.parse(body))
-      .filter((run) => run.session_name);
+    await waitForDeliveredCaptures("c1", "g1", "the-turns-project");
+    const posted = uploads.filter((upload) => upload.action === "post");
     expect(posted.length).toBeGreaterThan(0);
-    expect([...new Set(posted.map((run) => run.session_name))]).toEqual(["the-turns-project"]);
-    expect([...new Set(posted.map((run) => run.extra.metadata.cwd))]).toEqual(["/repo/the-turn"]);
+    expect([...new Set(posted.map((upload) => upload.payload.session_name))]).toEqual([
+      "the-turns-project",
+    ]);
+    expect([...new Set(posted.map((upload) => upload.payload.extra?.metadata?.cwd))]).toEqual([
+      "/repo/the-turn",
+    ]);
   });
 
   async function sweptTurnInputs(): Promise<string> {
-    const { client, callSpy } = mockClient();
-    await runSweep({ config, input: CALLER_INPUT, nowMs: T0 + 2 * HOUR, client });
-    const tree = await getAssumedTreeFromCalls(callSpy.mock.calls, client);
-    const root = Object.entries(tree.data).find(([id]) => id.startsWith("Cursor Turn 1:"))![1];
-    return JSON.stringify(root.inputs);
+    await runSweepWithWorkerEntry({ config, input: workspaceInput(), nowMs: T0 + 2 * HOUR });
+    await waitForDeliveredCaptures("c1", "g1", "cursor");
+    const records = await createCaptureStore(dir).enumerate("cursor", "c1");
+    const turnRecords = records.filter(({ record }) => record.turnId === "g1");
+    expect(turnRecords.length).toBeGreaterThan(0);
+    expect(JSON.stringify(turnRecords)).toContain(MUTED_TRACE_CONTENT);
+    expect(JSON.stringify(turnRecords)).not.toContain("recover me");
+    return JSON.stringify(uploads);
   }
 
   it("uploads a muted thread's recovered turn without content", async () => {
@@ -514,6 +659,61 @@ describe("runSweep against the on-disk state file", () => {
     const inputs = await sweptTurnInputs();
     expect(inputs).toContain(MUTED_TRACE_CONTENT);
     expect(inputs).not.toContain("recover me");
+  });
+
+  it("keeps a saved turn project when Stop runs after the project setting changes", async () => {
+    saveState(stateFilePath, {
+      c1: conversation([
+        turn("g1", T0, {
+          tracingMode: "full",
+          prompt: "stop-origin-marker",
+          origin: { project: "the-turns-project", customMetadata: { cwd: "/repo/the-turn" } },
+        }),
+      ]),
+    });
+    vi.stubEnv("LANGSMITH_CURSOR_PROJECT", "the-sweepers-project");
+    const env = {
+      PATH: process.env.PATH ?? "/usr/bin:/bin",
+      HOME: home,
+      USERPROFILE: home,
+      TMP: dir,
+      TEMP: dir,
+      TMPDIR: dir,
+      LANG: "C.UTF-8",
+      TRACE_TO_LANGSMITH: "true",
+      LANGSMITH_CURSOR_API_KEY: apiKey,
+      LANGSMITH_CURSOR_ENDPOINT: endpoint,
+      LANGSMITH_CURSOR_PROJECT: "the-sweepers-project",
+      LANGSMITH_CURSOR_STATE_FILE: stateFilePath,
+      LANGSMITH_CURSOR_PRIVACY_FILE: join(dir, "absent-privacy.json"),
+      LANGSMITH_CURSOR_LOG_FILE: join(dir, "stop-hook.log"),
+      LANGSMITH_CURSOR_ATTACHMENTS: "false",
+      LANGSMITH_CURSOR_SYSTEM_PROMPT: "false",
+      LANGSMITH_CURSOR_REDACT_EXTRA: "[]",
+    };
+    await runHook(
+      workerEntry,
+      {
+        hook_event_name: "stop",
+        conversation_id: "c1",
+        session_id: "c1",
+        generation_id: "g1",
+        model: "default",
+        status: "completed",
+        workspace_roots: [workspace],
+      },
+      workspace,
+      env,
+    );
+    await waitForDeliveredCaptures("c1", "g1", "the-turns-project");
+    const records = await createCaptureStore(dir).enumerate("cursor", "c1");
+    expect(JSON.stringify(records)).not.toContain(apiKey);
+    expect(readFileSync(stateFilePath, "utf8")).not.toContain(apiKey);
+    const posted = uploads.filter((upload) => upload.action === "post");
+    expect([...new Set(posted.map((upload) => upload.payload.session_name))]).toEqual([
+      "the-turns-project",
+    ]);
+    expect(JSON.stringify(uploads)).toContain("stop-origin-marker");
   });
 });
 

@@ -14,10 +14,10 @@ import { userInfo } from "node:os";
 import { join } from "node:path";
 import { execSync } from "node:child_process";
 import type { RunTreeConfig } from "langsmith";
-import type { StringNodeRule } from "langsmith/anonymizer";
 import { debug as logDebug, error as logError } from "./logger.js";
 import { DEFAULT_PROJECT, DEFAULT_SWEEP_IDLE_MINUTES } from "./constants.js";
 import { homedir } from "node:os";
+import type { RedactionRule } from "./models/config.js";
 
 /**
  * Plugin version, injected at build time by esbuild `define` (no runtime
@@ -60,7 +60,7 @@ export interface Config {
   redact: boolean;
   sweepIdleMinutes: number;
   /** Extra user-supplied redaction rules (environment or common file config). */
-  redactExtraRules?: StringNodeRule[];
+  redactExtraRules?: RedactionRule[];
 }
 
 const DEFAULT_API_URL = "https://api.smith.langchain.com";
@@ -92,7 +92,7 @@ function parseJson<T = Record<string, unknown>>(value: unknown): T | undefined {
 }
 
 /** Type guard for a user redaction rule: { pattern: string, replace?: string }. */
-function isRedactRule(rule: unknown): rule is StringNodeRule {
+function isRedactRule(rule: unknown): rule is RedactionRule {
   if (typeof rule !== "object" || rule === null) return false;
   const r = rule as Record<string, unknown>;
   return (
@@ -101,14 +101,14 @@ function isRedactRule(rule: unknown): rule is StringNodeRule {
 }
 
 /** Parse a JSON array of { pattern, replace }; invalid rules are logged and skipped. */
-function parseRedactExtraRules(value: unknown): StringNodeRule[] | undefined {
+function parseRedactExtraRules(value: unknown): RedactionRule[] | undefined {
   const parsed = parseJson<unknown>(value);
   if (parsed === undefined) return undefined;
   if (!Array.isArray(parsed)) {
     logError("LANGSMITH_CURSOR_REDACT_EXTRA must be a JSON array of { pattern, replace }.");
     return undefined;
   }
-  const valid: StringNodeRule[] = [];
+  const valid: RedactionRule[] = [];
   for (const rule of parsed) {
     if (!isRedactRule(rule)) {
       logError("Skipping invalid LANGSMITH_CURSOR_REDACT_EXTRA rule.");

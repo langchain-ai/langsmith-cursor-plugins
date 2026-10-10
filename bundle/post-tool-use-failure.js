@@ -22,13 +22,13 @@ function readStdin(stream = process.stdin) {
   });
 }
 
-// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_628ff1d9f80989defbced4daf654782a/node_modules/@langchain/plugins-base/dist/settings/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/settings/constants.js
 var COMMON_BOOLEAN_SETTINGS = {
   enabled: { default: false, restrictive: false },
   defaultMuted: { default: false, restrictive: true }
 };
 
-// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_628ff1d9f80989defbced4daf654782a/node_modules/@langchain/plugins-base/dist/settings/common-config.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_74f35dc8b09a214a8afe6d2b764329a7/node_modules/@langchain/plugins-base/dist/settings/common-config.js
 import { lstatSync, readFileSync, statSync } from "node:fs";
 function object(value) {
   return typeof value === "object" && value !== null && !Array.isArray(value);

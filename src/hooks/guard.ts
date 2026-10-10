@@ -26,6 +26,7 @@ import {
   readCachedNodePath,
   writeCachedNodePath,
 } from "../utils/node-path-cache.js";
+import { CURSOR_ENGINE_WORKER_FLAG } from "../constants.js";
 
 const hookName = process.argv[2];
 
@@ -117,7 +118,11 @@ if (!hookName) {
 
 // Defer loading the real (sqlite-importing) hook until the version check passes.
 // Resolve relative to this file so it works regardless of cwd.
-await import(new URL(`./${hookName}.js`, import.meta.url).href).catch((err: unknown) => {
+const hookModule =
+  hookName === CURSOR_ENGINE_WORKER_FLAG
+    ? new URL("./stop.js", import.meta.url).href
+    : new URL(`./${hookName}.js`, import.meta.url).href;
+await import(hookModule).catch((err: unknown) => {
   console.error(`[langsmith] hook ${hookName} failed:`, err);
   if (hookName === "before-submit-prompt") {
     console.log(JSON.stringify({ continue: true }));
