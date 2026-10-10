@@ -11,7 +11,7 @@ import {
   createTracingEngine,
   readSavedCaptureWake,
 } from "@langchain/plugins-base/tracing";
-import { createLangSmithUploadWriter } from "@langchain/plugins-base/tracing/upload";
+import { resolveUploadDestinationFingerprint } from "@langchain/plugins-base/tracing/upload-identity";
 import type { LifecycleSnapshotCaptureInput } from "@langchain/plugins-base/tracing/lifecycle";
 import type {
   ReconstructionCallback,
@@ -42,6 +42,7 @@ import {
 import { isRecord } from "./utils/validation/record.js";
 import { toJsonValue } from "./utils/serialization/json.js";
 import { isValidBoundedText } from "./utils/validation/text.js";
+import { validateProjectName, writerOptions } from "./tracing-engine-config.js";
 import type {
   CursorReconstructionCapture,
   CursorReconstructionCaptureOptions,
@@ -51,7 +52,6 @@ import type {
   CursorReconstructionPatchSubmission,
   CursorTracingSessionContext,
   CursorRunMetadataOptions,
-  CursorUploadReplica,
   CursorEngineWorkerArguments,
   RunTreeCaptureOptions,
   RunTreeSnapshotCapture,
@@ -90,16 +90,14 @@ export function createCursorTracingSession(
       const currentWriter = writerOptions(currentConfig, destinationProject);
       return {
         ...expected,
-        accountFingerprint: currentWriter
-          ? createLangSmithUploadWriter(currentWriter).accountFingerprint
-          : "",
+        accountFingerprint: currentWriter ? resolveUploadDestinationFingerprint(currentWriter) : "",
       };
     },
   });
   return {
     session,
     storageRoot,
-    destinationFingerprint: createLangSmithUploadWriter(writer).accountFingerprint,
+    destinationFingerprint: resolveUploadDestinationFingerprint(writer),
   };
 }
 
@@ -667,12 +665,6 @@ export function launchCursorSweepWorker(
   });
 }
 
-function validateProjectName(project: string): void {
-  if (!isValidBoundedText(project, CURSOR_ENGINE_WORKER_ARGUMENT_LIMITS.project)) {
-    throw new Error("Shared trace worker project is invalid");
-  }
-}
-
 function validateWorkerArgument(value: string, maxLength: number): void {
   if (!isValidBoundedText(value, maxLength)) {
     throw new Error("Shared trace worker argument is invalid");
@@ -746,41 +738,6 @@ function statusOfRun(run: RunTree): "running" | "completed" | "error" {
   }
   if (run.error != null) return "error";
   return run.end_time == null ? "running" : "completed";
-}
-
-function writerOptions(config: Config, projectName = config.project) {
-  return {
-    destinations: [{ apiKey: config.apiKey, apiUrl: config.apiUrl, projectName }],
-    ...(config.replicas === undefined ? {} : { replicas: uploadReplicas(config.replicas) }),
-    redact: config.redact,
-    ...(config.redactExtraRules === undefined
-      ? {}
-      : {
-          redactExtraRules: config.redactExtraRules.map((rule) => ({
-            pattern: rule.pattern,
-            ...(rule.replace === undefined ? {} : { replace: rule.replace }),
-          })),
-        }),
-  };
-}
-
-function uploadReplicas(replicas: NonNullable<Config["replicas"]>): CursorUploadReplica[] {
-  return replicas.map((replica) => {
-    if (Array.isArray(replica)) {
-      const [projectName, updates] = replica;
-      return {
-        projectName,
-        ...(updates === undefined ? {} : { updates }),
-      };
-    }
-    return {
-      ...(replica.apiKey === undefined ? {} : { apiKey: replica.apiKey }),
-      ...(replica.apiUrl === undefined ? {} : { apiUrl: replica.apiUrl }),
-      ...(replica.projectName === undefined ? {} : { projectName: replica.projectName }),
-      ...(replica.workspaceId === undefined ? {} : { workspaceId: replica.workspaceId }),
-      ...(replica.updates === undefined ? {} : { updates: replica.updates }),
-    };
-  });
 }
 
 function snapshotHeadEventIds(records: readonly StoredCapture[], runId: string): string[] {

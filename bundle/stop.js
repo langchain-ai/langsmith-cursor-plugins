@@ -126,10 +126,10 @@ var init_constants = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/settings/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/settings/constants.js
 var COMMON_BOOLEAN_SETTINGS;
 var init_constants2 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/settings/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/settings/constants.js"() {
     COMMON_BOOLEAN_SETTINGS = {
       enabled: { default: false, restrictive: false },
       defaultMuted: { default: false, restrictive: true }
@@ -137,7 +137,7 @@ var init_constants2 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/settings/common-config.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/settings/common-config.js
 import { lstatSync, readFileSync, statSync } from "node:fs";
 function object(value) {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -297,14 +297,14 @@ function toSdkReplicas(replicas2) {
   }));
 }
 var init_common_config = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/settings/common-config.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/settings/common-config.js"() {
     init_constants2();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/settings/index.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/settings/index.js
 var init_settings = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/settings/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/settings/index.js"() {
     init_constants2();
     init_common_config();
   }
@@ -681,7 +681,7 @@ function lockPath(stateFilePath) {
   return `${stateFilePath}.lock`;
 }
 function sleep(ms) {
-  return new Promise((resolve13) => setTimeout(resolve13, ms));
+  return new Promise((resolve14) => setTimeout(resolve14, ms));
 }
 async function acquireLock(stateFilePath) {
   const lock = lockPath(stateFilePath);
@@ -1122,13 +1122,14 @@ var init_reducer = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/storage/constants.js
-var FILE_LOCK_CLAIM_VERSION, FILE_LOCK_CLAIM_EXTENSION, FILE_LOCK_DIRECTORY_SUFFIX, FILE_LOCK_TEMP_PREFIX, FILE_LOCK_TEMP_SUFFIX, FILE_LOCK_EXCLUSIVE_FLAG, FILE_LOCK_ENCODING, FILE_LOCK_DEFAULT_TIMEOUT_MS, FILE_LOCK_POLL_INTERVAL_MS, FILE_LOCK_DIRECTORY_MODE, FILE_LOCK_FILE_MODE, FILE_LOCK_UNSELECTED_TICKET, FILE_LOCK_NEGATIVE_TICKET_LIMIT, FILE_LOCK_TIMEOUT_MESSAGE, FILE_LOCK_TICKET_LIMIT_MESSAGE, FILE_LOCK_RELEASE_MESSAGE, FILE_LOCK_INVALID_TIMEOUT_MESSAGE, FILE_LOCK_ACQUIRE_MESSAGE, FILE_LOCK_UNSAFE_DIRECTORY_MESSAGE, FILE_LOCK_EXISTS_CODE, FILE_LOCK_MISSING_CODE, FILE_LOCK_PROCESS_MISSING_CODE, FILE_LOCK_PROCESS_CHECK_SIGNAL, FILE_LOCK_RENAME_RETRY_TIMEOUT_MS, FILE_LOCK_RENAME_BUSY_CODE;
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/storage/constants.js
+var FILE_LOCK_CLAIM_VERSION, FILE_LOCK_CLAIM_EXTENSION, FILE_LOCK_DIRECTORY_SUFFIX, FILE_LOCK_TIMEOUT_ERROR_NAME, FILE_LOCK_TEMP_PREFIX, FILE_LOCK_TEMP_SUFFIX, FILE_LOCK_EXCLUSIVE_FLAG, FILE_LOCK_ENCODING, FILE_LOCK_DEFAULT_TIMEOUT_MS, FILE_LOCK_POLL_INTERVAL_MS, FILE_LOCK_DIRECTORY_MODE, FILE_LOCK_FILE_MODE, FILE_LOCK_UNSELECTED_TICKET, FILE_LOCK_NEGATIVE_TICKET_LIMIT, FILE_LOCK_TIMEOUT_MESSAGE, FILE_LOCK_TICKET_LIMIT_MESSAGE, FILE_LOCK_RELEASE_MESSAGE, FILE_LOCK_INVALID_TIMEOUT_MESSAGE, FILE_LOCK_ACQUIRE_MESSAGE, FILE_LOCK_UNSAFE_DIRECTORY_MESSAGE, FILE_LOCK_EXISTS_CODE, FILE_LOCK_MISSING_CODE, FILE_LOCK_PROCESS_MISSING_CODE, FILE_LOCK_PROCESS_CHECK_SIGNAL, FILE_LOCK_RENAME_RETRY_TIMEOUT_MS, FILE_LOCK_RENAME_BUSY_CODE;
 var init_constants3 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/storage/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/storage/constants.js"() {
     FILE_LOCK_CLAIM_VERSION = 1;
     FILE_LOCK_CLAIM_EXTENSION = ".json";
     FILE_LOCK_DIRECTORY_SUFFIX = ".claims";
+    FILE_LOCK_TIMEOUT_ERROR_NAME = "FileLockTimeoutError";
     FILE_LOCK_TEMP_PREFIX = ".";
     FILE_LOCK_TEMP_SUFFIX = ".tmp";
     FILE_LOCK_EXCLUSIVE_FLAG = "wx";
@@ -1154,11 +1155,26 @@ var init_constants3 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/storage/file-lock.js
-import { chmod, link, lstat, mkdir, readFile, readdir, rename, unlink, writeFile } from "node:fs/promises";
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/storage/errors.js
+import { resolve } from "node:path";
+var FileLockTimeoutError;
+var init_errors = __esm({
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/storage/errors.js"() {
+    init_constants3();
+    FileLockTimeoutError = class extends Error {
+      constructor(filePath) {
+        super(`${FILE_LOCK_TIMEOUT_MESSAGE}: ${resolve(filePath)}`);
+        this.name = FILE_LOCK_TIMEOUT_ERROR_NAME;
+      }
+    };
+  }
+});
+
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/storage/file-lock.js
+import { chmod, link, lstat, mkdir, readFile, readdir, rmdir, rename, unlink, writeFile } from "node:fs/promises";
 import { performance as performance3 } from "node:perf_hooks";
 import { randomUUID as randomUUID2 } from "node:crypto";
-import { dirname as dirname3, join as join2, resolve } from "node:path";
+import { dirname as dirname3, join as join2, resolve as resolve2 } from "node:path";
 function isRecord2(value) {
   return typeof value === "object" && value !== null;
 }
@@ -1288,7 +1304,7 @@ function makeHandle(claimDirectory, claim) {
   };
 }
 async function beginClaim(filePath) {
-  const claimDirectory = `${resolve(filePath)}${FILE_LOCK_DIRECTORY_SUFFIX}`;
+  const claimDirectory = `${resolve2(filePath)}${FILE_LOCK_DIRECTORY_SUFFIX}`;
   await assertSafeClaimDirectory(claimDirectory);
   await mkdir(claimDirectory, { recursive: true, mode: FILE_LOCK_DIRECTORY_MODE });
   await assertSafeClaimDirectory(claimDirectory);
@@ -1370,7 +1386,7 @@ async function waitForFileLockClaim(filePath, pid, options) {
     throw new TypeError("Invalid file lock process ID");
   const waitMs = timeoutMs(options);
   const deadline = performance3.now() + waitMs;
-  const claimDirectory = `${resolve(filePath)}${FILE_LOCK_DIRECTORY_SUFFIX}`;
+  const claimDirectory = `${resolve2(filePath)}${FILE_LOCK_DIRECTORY_SUFFIX}`;
   for (; ; ) {
     await assertSafeClaimDirectory(claimDirectory);
     try {
@@ -1393,7 +1409,7 @@ function precedes(left, right) {
   return left.ticket < right.ticket || left.ticket === right.ticket && left.id < right.id;
 }
 function timeoutError(filePath) {
-  return new Error(`${FILE_LOCK_TIMEOUT_MESSAGE}: ${resolve(filePath)}`);
+  return new FileLockTimeoutError(filePath);
 }
 function timeoutMs(options) {
   const value = options?.timeoutMs ?? FILE_LOCK_DEFAULT_TIMEOUT_MS;
@@ -1428,22 +1444,24 @@ async function withFileLock(filePath, callback, options) {
   }
 }
 var init_file_lock = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/storage/file-lock.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/storage/file-lock.js"() {
     init_constants3();
+    init_errors();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/storage/index.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/storage/index.js
 var init_storage = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/storage/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/storage/index.js"() {
     init_file_lock();
+    init_errors();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/storage/capture/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/storage/capture/constants.js
 var CAPTURE_DIRECTORY, CAPTURE_RECORD_VERSION, CAPTURE_RECEIPT_VERSION, CAPTURE_DIRECTORY_MODE, CAPTURE_FILE_MODE, CAPTURE_INTEGRATION, CAPTURE_MAX_IDENTIFIER_BYTES, CAPTURE_HASH, CAPTURE_EVENT_FILE, CAPTURE_STAGING_FILE, JSON_ARRAY_INDEX_KEY;
 var init_constants4 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/storage/capture/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/storage/capture/constants.js"() {
     CAPTURE_DIRECTORY = "capture-v1";
     CAPTURE_RECORD_VERSION = 2;
     CAPTURE_RECEIPT_VERSION = 1;
@@ -1458,7 +1476,7 @@ var init_constants4 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/storage/capture/utils/atomic-file.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/storage/capture/utils/atomic-file.js
 import { constants as fsConstants } from "node:fs";
 import { chmod as chmod2, link as link2, lstat as lstat2, mkdir as mkdir2, open, unlink as unlink2 } from "node:fs/promises";
 import { dirname as dirname4, isAbsolute, join as join3, relative, sep } from "node:path";
@@ -1575,14 +1593,14 @@ function errorCode(error2) {
   return error2 !== null && typeof error2 === "object" && "code" in error2 && typeof error2.code === "string" ? error2.code : void 0;
 }
 var init_atomic_file = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/storage/capture/utils/atomic-file.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/storage/capture/utils/atomic-file.js"() {
     init_constants4();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/storage/capture/paths.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/storage/capture/paths.js
 import { createHash } from "node:crypto";
-import { resolve as resolve2, join as join4 } from "node:path";
+import { resolve as resolve3, join as join4 } from "node:path";
 function validateIntegration(value) {
   if (!CAPTURE_INTEGRATION.test(value))
     throw new TypeError("Invalid integration namespace");
@@ -1604,7 +1622,7 @@ function identifierHash(value) {
   return createHash("sha256").update(value).digest("hex");
 }
 function captureDirectory(root) {
-  return join4(resolve2(root), CAPTURE_DIRECTORY);
+  return join4(resolve3(root), CAPTURE_DIRECTORY);
 }
 function eventPath(root, scope) {
   return join4(captureDirectory(root), "integrations", scope.integration, "sessions", identifierHash(scope.sessionId), "turns", identifierHash(scope.turnId), "events", `${identifierHash(scope.eventId)}.json`);
@@ -1613,17 +1631,17 @@ function receiptPath(root, scope, destination) {
   return join4(captureDirectory(root), "integrations", scope.integration, "sessions", identifierHash(scope.sessionId), "turns", identifierHash(scope.turnId), "receipts", identifierHash(destination), `${identifierHash(scope.eventId)}.json`);
 }
 var init_paths = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/storage/capture/paths.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/storage/capture/paths.js"() {
     init_constants4();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/utils/files/private-directory.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/utils/files/private-directory.js
 import { lstat as lstat3, readdir as readdir2 } from "node:fs/promises";
-import { isAbsolute as isAbsolute2, join as join5, relative as relative2, resolve as resolve3, sep as sep2 } from "node:path";
+import { isAbsolute as isAbsolute2, join as join5, relative as relative2, resolve as resolve4, sep as sep2 } from "node:path";
 async function listPrivateDirectory(root, directory) {
-  const storageRoot = resolve3(root);
-  const target = resolve3(directory);
+  const storageRoot = resolve4(root);
+  const target = resolve4(directory);
   const relativePath = relative2(storageRoot, target);
   if (relativePath === ".." || relativePath.startsWith(`..${sep2}`) || isAbsolute2(relativePath)) {
     throw new Error("Private directory is outside storage root");
@@ -1657,14 +1675,14 @@ function errorCode2(error2) {
   return error2 !== null && typeof error2 === "object" && "code" in error2 && typeof error2.code === "string" ? error2.code : void 0;
 }
 var init_private_directory = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/utils/files/private-directory.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/utils/files/private-directory.js"() {
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/background-worker/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/background-worker/constants.js
 var BACKGROUND_WORKER_DIRECTORY, BACKGROUND_WORKER_INTEGRATIONS_DIRECTORY, BACKGROUND_WORKER_SESSIONS_DIRECTORY, BACKGROUND_WORKER_ACCOUNTS_DIRECTORY, BACKGROUND_WORKER_LOCK_FILE, BACKGROUND_WORKER_PENDING_FILE, BACKGROUND_WORKER_ACTIVE_PREFIX, BACKGROUND_WORKER_LAUNCHING_FILE, BACKGROUND_WORKER_STAGING_FILE, BACKGROUND_WORKER_MARKER_ID_PATTERN, BACKGROUND_WORKER_ACTIVE_MARKER_NAME, BACKGROUND_WORKER_ATTEMPT_NAME, BACKGROUND_WORKER_MARKER_VERSION, BACKGROUND_WORKER_ATTEMPT_VERSION, BACKGROUND_WORKER_LAUNCH_VERSION, BACKGROUND_WORKER_DEFAULT_MAX_ATTEMPTS, BACKGROUND_WORKER_DEFAULT_RETRY_DELAY_MS, BACKGROUND_WORKER_OWNER_WAIT_MS, BACKGROUND_WORKER_STARTUP_WAIT_MS, BACKGROUND_WORKER_LAUNCH_LEASE_MS;
 var init_constants5 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/background-worker/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/background-worker/constants.js"() {
     BACKGROUND_WORKER_DIRECTORY = "background-worker";
     BACKGROUND_WORKER_INTEGRATIONS_DIRECTORY = "integrations";
     BACKGROUND_WORKER_SESSIONS_DIRECTORY = "sessions";
@@ -1688,8 +1706,8 @@ var init_constants5 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/background-worker/paths.js
-import { join as join6, resolve as resolve4 } from "node:path";
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/background-worker/paths.js
+import { join as join6, resolve as resolve5 } from "node:path";
 function validateWorkerScope(scope) {
   validateIntegration(scope.integration);
   validateIdentifier(scope.sessionId, "session ID");
@@ -1697,7 +1715,7 @@ function validateWorkerScope(scope) {
 }
 function workerDirectory(storageRoot, scope) {
   validateWorkerScope(scope);
-  return join6(resolve4(storageRoot), BACKGROUND_WORKER_DIRECTORY, BACKGROUND_WORKER_INTEGRATIONS_DIRECTORY, scope.integration, BACKGROUND_WORKER_SESSIONS_DIRECTORY, identifierHash(scope.sessionId), BACKGROUND_WORKER_ACCOUNTS_DIRECTORY, identifierHash(scope.accountFingerprint));
+  return join6(resolve5(storageRoot), BACKGROUND_WORKER_DIRECTORY, BACKGROUND_WORKER_INTEGRATIONS_DIRECTORY, scope.integration, BACKGROUND_WORKER_SESSIONS_DIRECTORY, identifierHash(scope.sessionId), BACKGROUND_WORKER_ACCOUNTS_DIRECTORY, identifierHash(scope.accountFingerprint));
 }
 function workerLockPath(storageRoot, scope) {
   return join6(workerDirectory(storageRoot, scope), BACKGROUND_WORKER_LOCK_FILE);
@@ -1715,30 +1733,30 @@ function workerLaunchPath(storageRoot, scope) {
   return join6(workerDirectory(storageRoot, scope), BACKGROUND_WORKER_LAUNCHING_FILE);
 }
 var init_paths2 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/background-worker/paths.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/background-worker/paths.js"() {
     init_paths();
     init_constants5();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/background-worker/utils/scope.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/background-worker/utils/scope.js
 async function matchesScope(resolveScope, expected) {
   const actual = await resolveScope();
   return actual.integration === expected.integration && actual.sessionId === expected.sessionId && actual.accountFingerprint === expected.accountFingerprint;
 }
 var init_scope = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/background-worker/utils/scope.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/background-worker/utils/scope.js"() {
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/background-worker/worker.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/background-worker/worker.js
 import { randomUUID as randomUUID4 } from "node:crypto";
 import { unlink as unlink3 } from "node:fs/promises";
-import { join as join7, resolve as resolve5 } from "node:path";
+import { join as join7, resolve as resolve6 } from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
 function createBackgroundWorker(options) {
   validateOptions(options);
-  const storageRoot = resolve5(options.storageRoot);
+  const storageRoot = resolve6(options.storageRoot);
   const scope = Object.freeze({ ...options.scope });
   const retryPolicy = {
     maxAttempts: options.retryPolicy?.maxAttempts ?? BACKGROUND_WORKER_DEFAULT_MAX_ATTEMPTS,
@@ -2118,7 +2136,7 @@ function parseObject(contents) {
   return value;
 }
 var init_worker = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/background-worker/worker.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/background-worker/worker.js"() {
     init_storage();
     init_atomic_file();
     init_paths();
@@ -2130,14 +2148,14 @@ var init_worker = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/background-worker/index.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/background-worker/index.js
 var init_background_worker = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/background-worker/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/background-worker/index.js"() {
     init_worker();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/storage/capture/utils/serialization.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/storage/capture/utils/serialization.js
 function canonicalJson(value) {
   const result = JSON.stringify(canonicalValue(value, /* @__PURE__ */ new Set()));
   if (result === void 0)
@@ -2189,12 +2207,12 @@ function canonicalValue(value, seen) {
   return result;
 }
 var init_serialization = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/storage/capture/utils/serialization.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/storage/capture/utils/serialization.js"() {
     init_constants4();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/utils/validation/objects.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/utils/validation/objects.js
 function isPlainRecord(value) {
   return value !== null && typeof value === "object" && (Object.getPrototypeOf(value) === Object.prototype || Object.getPrototypeOf(value) === null);
 }
@@ -2268,16 +2286,16 @@ function requireNonNegativeInteger(value, name) {
   return value;
 }
 var init_objects = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/utils/validation/objects.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/utils/validation/objects.js"() {
     init_serialization();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/storage/capture/capture-store.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/storage/capture/capture-store.js
 import { lstat as lstat4 } from "node:fs/promises";
-import { join as join8, resolve as resolve6 } from "node:path";
+import { join as join8, resolve as resolve7 } from "node:path";
 function createCaptureStore(root) {
-  const storageRoot = resolve6(root);
+  const storageRoot = resolve7(root);
   return {
     async capture(input) {
       let record;
@@ -2671,7 +2689,7 @@ function errorCode3(error2) {
   return error2 !== null && typeof error2 === "object" && "code" in error2 && typeof error2.code === "string" ? error2.code : void 0;
 }
 var init_capture_store = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/storage/capture/capture-store.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/storage/capture/capture-store.js"() {
     init_constants4();
     init_paths();
     init_atomic_file();
@@ -2681,17 +2699,17 @@ var init_capture_store = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/storage/capture/index.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/storage/capture/index.js
 var init_capture = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/storage/capture/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/storage/capture/index.js"() {
     init_capture_store();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/delivery/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/delivery/constants.js
 var DELIVERY_DIRECTORY, DELIVERY_ATTEMPT_VERSION, DELIVERY_DEFAULT_MAX_ATTEMPTS, DELIVERY_DEFAULT_MAX_AGE_MS, DELIVERY_DEFAULT_MAX_ENTRIES, DELIVERY_ATTEMPT_FILE, DELIVERY_STAGING_FILE, DELIVERY_EXPIRED_REASON, DELIVERY_CAPACITY_REASON, DELIVERY_RETRY_EXHAUSTED_REASON, DELIVERY_DEPENDENCY_DROPPED_REASON;
 var init_constants6 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/delivery/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/delivery/constants.js"() {
     DELIVERY_DIRECTORY = "delivery-v1";
     DELIVERY_ATTEMPT_VERSION = 1;
     DELIVERY_DEFAULT_MAX_ATTEMPTS = 5;
@@ -2706,10 +2724,10 @@ var init_constants6 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/delivery/attempt-store.js
-import { join as join9, resolve as resolve7 } from "node:path";
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/delivery/attempt-store.js
+import { join as join9, resolve as resolve8 } from "node:path";
 function createDeliveryAttemptStore(root) {
-  const storageRoot = resolve7(root);
+  const storageRoot = resolve8(root);
   return {
     async count(scope, destination) {
       validateAttemptScope(scope, destination);
@@ -2811,7 +2829,7 @@ function validateTimestamp(value) {
     throw new TypeError("Invalid delivery attempt timestamp");
 }
 var init_attempt_store = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/delivery/attempt-store.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/delivery/attempt-store.js"() {
     init_constants6();
     init_paths();
     init_atomic_file();
@@ -2819,13 +2837,13 @@ var init_attempt_store = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/delivery/coordinator.js
-import { join as join10, resolve as resolve8 } from "node:path";
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/delivery/coordinator.js
+import { join as join10, resolve as resolve9 } from "node:path";
 function createDeliveryCoordinator(options) {
   const { integration, sessionId } = options;
   validateIntegration(integration);
   validateIdentifier(sessionId, "session ID");
-  const storageRoot = resolve8(options.storageRoot);
+  const storageRoot = resolve9(options.storageRoot);
   const policy = resolvePolicy(options.policy);
   const captureStore = createCaptureStore(storageRoot);
   const attemptStore = createDeliveryAttemptStore(storageRoot);
@@ -3130,7 +3148,7 @@ function resolvePolicy(policy) {
   return resolved;
 }
 var init_coordinator = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/delivery/coordinator.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/delivery/coordinator.js"() {
     init_storage();
     init_capture();
     init_paths();
@@ -3140,17 +3158,17 @@ var init_coordinator = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/delivery/index.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/delivery/index.js
 var init_delivery = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/delivery/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/delivery/index.js"() {
     init_coordinator();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/metadata/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/metadata/constants.js
 var CODING_AGENT_SCHEMA_VERSION, CODING_AGENT_RUN_TYPES, CODING_AGENT_RUN_SCOPES, CODING_AGENT_SCHEMA_INTEGRATIONS, CODING_AGENT_SUPPORTED_INTEGRATIONS, CODING_AGENT_CORE_INTEGRATIONS, CODING_AGENT_CODEX_INTEGRATION, CODING_AGENT_AGENT_TYPES, CODING_AGENT_ALWAYS_FIELD_OPTIONS, CODING_AGENT_WHERE_KNOWN_FIELD_OPTIONS, CODING_AGENT_FIELD_DEFAULTS, CODING_AGENT_STRUCTURAL_FIELD_DEFAULTS, CODING_AGENT_PROVIDER_FIELD_DEFAULTS, CODING_AGENT_INTEGRATION_POLICIES, TRUSTED_METADATA, METADATA_MODE_STATUS_VALUES, METADATA_MODE_NAME, CODING_AGENT_METADATA_PROVENANCE_FIELDS, CODING_AGENT_METADATA_PROJECTION_FIELDS;
 var init_constants7 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/metadata/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/metadata/constants.js"() {
     CODING_AGENT_SCHEMA_VERSION = "coding-agent-v1";
     CODING_AGENT_RUN_TYPES = [
       "root",
@@ -3264,13 +3282,13 @@ var init_constants7 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/metadata/contract.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/metadata/contract.js
 function field(key, options = {}) {
   return { key, ...CODING_AGENT_FIELD_DEFAULTS, ...options };
 }
 var structural, provider, CODING_AGENT_V1_CONTRACT;
 var init_contract = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/metadata/contract.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/metadata/contract.js"() {
     init_constants7();
     structural = (key, options = {}) => field(key, { ...CODING_AGENT_STRUCTURAL_FIELD_DEFAULTS, ...options });
     provider = (key, options = {}) => field(key, { ...CODING_AGENT_PROVIDER_FIELD_DEFAULTS, ...options });
@@ -3380,7 +3398,7 @@ var init_contract = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/metadata/validation.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/metadata/validation.js
 function isRecord3(value) {
   return value !== null && typeof value === "object" && !Array.isArray(value);
 }
@@ -3429,12 +3447,12 @@ function normalizeProviderMetadata(value, integration, runType) {
   return Object.fromEntries(Object.entries(value).filter(([key, entry]) => entry !== void 0 && !issues.has(key)));
 }
 var init_validation = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/metadata/validation.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/metadata/validation.js"() {
     init_contract();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/metadata/builder.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/metadata/builder.js
 function buildCodingAgentMetadata(options) {
   const policy = CODING_AGENT_INTEGRATION_POLICIES[options.integration];
   const identity = {
@@ -3501,14 +3519,14 @@ function trustedCodingAgentMetadata(metadata) {
   return metadata?.[TRUSTED_METADATA];
 }
 var init_builder = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/metadata/builder.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/metadata/builder.js"() {
     init_constants7();
     init_contract();
     init_validation();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/metadata/privacy.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/metadata/privacy.js
 function projectCodingAgentMetadata(metadata, integration, status) {
   const safe = {};
   for (const [key, value] of Object.entries(metadata ?? {})) {
@@ -3530,7 +3548,7 @@ function metadataForMode(metadata, integration, mode = "full", status) {
   return projectCodingAgentMetadata(source, integration, status);
 }
 var init_privacy = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/metadata/privacy.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/metadata/privacy.js"() {
     init_constants7();
     init_contract();
     init_builder();
@@ -3538,7 +3556,7 @@ var init_privacy = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/metadata/provenance.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/metadata/provenance.js
 function prepareCodingAgentMetadataProvenance(value, integration, mode, status = "running") {
   const source = requirePlainRecord(value, "Run metadata");
   const declaredIntegration = ownDataField(source, "integration");
@@ -3613,7 +3631,7 @@ function projectedString(source, key) {
   return value;
 }
 var init_provenance = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/metadata/provenance.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/metadata/provenance.js"() {
     init_objects();
     init_constants7();
     init_constants7();
@@ -3623,9 +3641,9 @@ var init_provenance = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/metadata/index.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/metadata/index.js
 var init_metadata = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/metadata/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/metadata/index.js"() {
     init_builder();
     init_constants7();
     init_contract();
@@ -4803,7 +4821,7 @@ async function onAttemptFailure({ error: error2, attemptNumber, retriesConsumed,
   const delayTime = calculateDelay(retriesConsumed, options);
   const finalDelay = Math.min(delayTime, remainingTime);
   if (finalDelay > 0) {
-    await new Promise((resolve13, reject) => {
+    await new Promise((resolve14, reject) => {
       const onAbort = () => {
         clearTimeout(timeoutToken);
         options.signal?.removeEventListener("abort", onAbort);
@@ -4811,7 +4829,7 @@ async function onAttemptFailure({ error: error2, attemptNumber, retriesConsumed,
       };
       const timeoutToken = setTimeout(() => {
         options.signal?.removeEventListener("abort", onAbort);
-        resolve13();
+        resolve14();
       }, finalDelay);
       if (options.unref) {
         timeoutToken.unref?.();
@@ -5073,11 +5091,11 @@ var require_p_finally = __commonJS({
       onFinally = onFinally || (() => {
       });
       return promise.then(
-        (val) => new Promise((resolve13) => {
-          resolve13(onFinally());
+        (val) => new Promise((resolve14) => {
+          resolve14(onFinally());
         }).then(() => val),
-        (err) => new Promise((resolve13) => {
-          resolve13(onFinally());
+        (err) => new Promise((resolve14) => {
+          resolve14(onFinally());
         }).then(() => {
           throw err;
         })
@@ -5097,18 +5115,18 @@ var require_p_timeout = __commonJS({
         this.name = "TimeoutError";
       }
     };
-    var pTimeout = (promise, milliseconds, fallback) => new Promise((resolve13, reject) => {
+    var pTimeout = (promise, milliseconds, fallback) => new Promise((resolve14, reject) => {
       if (typeof milliseconds !== "number" || milliseconds < 0) {
         throw new TypeError("Expected `milliseconds` to be a positive number");
       }
       if (milliseconds === Infinity) {
-        resolve13(promise);
+        resolve14(promise);
         return;
       }
       const timer = setTimeout(() => {
         if (typeof fallback === "function") {
           try {
-            resolve13(fallback());
+            resolve14(fallback());
           } catch (error2) {
             reject(error2);
           }
@@ -5123,7 +5141,7 @@ var require_p_timeout = __commonJS({
       }, milliseconds);
       pFinally(
         // eslint-disable-next-line promise/prefer-await-to-then
-        promise.then(resolve13, reject),
+        promise.then(resolve14, reject),
         () => {
           clearTimeout(timer);
         }
@@ -5341,7 +5359,7 @@ var require_dist = __commonJS({
       Adds a sync or async task to the queue. Always returns a promise.
       */
       async add(fn, options = {}) {
-        return new Promise((resolve13, reject) => {
+        return new Promise((resolve14, reject) => {
           const run = async () => {
             this._pendingCount++;
             this._intervalCount++;
@@ -5352,7 +5370,7 @@ var require_dist = __commonJS({
                 }
                 return void 0;
               });
-              resolve13(await operation);
+              resolve14(await operation);
             } catch (error2) {
               reject(error2);
             }
@@ -5403,11 +5421,11 @@ var require_dist = __commonJS({
         if (this._queue.size === 0) {
           return;
         }
-        return new Promise((resolve13) => {
+        return new Promise((resolve14) => {
           const existingResolve = this._resolveEmpty;
           this._resolveEmpty = () => {
             existingResolve();
-            resolve13();
+            resolve14();
           };
         });
       }
@@ -5420,11 +5438,11 @@ var require_dist = __commonJS({
         if (this._pendingCount === 0 && this._queue.size === 0) {
           return;
         }
-        return new Promise((resolve13) => {
+        return new Promise((resolve14) => {
           const existingResolve = this._resolveIdle;
           this._resolveIdle = () => {
             existingResolve();
-            resolve13();
+            resolve14();
           };
         });
       }
@@ -5655,7 +5673,7 @@ function isAbortError(err) {
   "message" in err && String(err.message).includes("FetchRequestCanceledException"));
 }
 var castToError;
-var init_errors = __esm({
+var init_errors2 = __esm({
   "node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/_openapi_client/internal/errors.js"() {
     castToError = (err) => {
       if (err instanceof Error)
@@ -5688,7 +5706,7 @@ var init_errors = __esm({
 var LangsmithError, APIError, APIUserAbortError, APIConnectionError, APIConnectionTimeoutError, BadRequestError, AuthenticationError, PermissionDeniedError, NotFoundError, ConflictError, UnprocessableEntityError, RateLimitError, InternalServerError;
 var init_error = __esm({
   "node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/_openapi_client/core/error.js"() {
-    init_errors();
+    init_errors2();
     LangsmithError = class extends Error {
     };
     APIError = class _APIError extends LangsmithError {
@@ -5847,7 +5865,7 @@ var init_values = __esm({
 var sleep2;
 var init_sleep = __esm({
   "node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/_openapi_client/internal/utils/sleep.js"() {
-    sleep2 = (ms) => new Promise((resolve13) => setTimeout(resolve13, ms));
+    sleep2 = (ms) => new Promise((resolve14) => setTimeout(resolve14, ms));
   }
 });
 
@@ -6585,8 +6603,8 @@ var init_api_promise = __esm({
     };
     APIPromise = class _APIPromise extends Promise {
       constructor(client2, responsePromise, parseResponse = defaultParseResponse) {
-        super((resolve13) => {
-          resolve13(null);
+        super((resolve14) => {
+          resolve14(null);
         });
         Object.defineProperty(this, "responsePromise", {
           enumerable: true,
@@ -8247,7 +8265,7 @@ var init_client = __esm({
     init_uuid();
     init_values();
     init_sleep();
-    init_errors();
+    init_errors2();
     init_detect_platform();
     init_shims();
     init_request_options();
@@ -9857,7 +9875,7 @@ var init_fetch = __esm({
 
 // node_modules/.pnpm/langsmith@0.10.2/node_modules/langsmith/dist/utils/profile-lock.js
 function sleep3(ms) {
-  return new Promise((resolve13) => setTimeout(resolve13, ms));
+  return new Promise((resolve14) => setTimeout(resolve14, ms));
 }
 function isEEXIST(err) {
   return typeof err === "object" && err !== null && err.code === "EEXIST";
@@ -10878,8 +10896,8 @@ parentPort.on("message", (msg) => {
         if (!ok)
           return null;
         const id = this.nextId++;
-        return new Promise((resolve13, reject) => {
-          this.pending.set(id, { resolve: resolve13, reject });
+        return new Promise((resolve14, reject) => {
+          this.pending.set(id, { resolve: resolve14, reject });
           try {
             this.worker.postMessage({ id, op: "serialize", payload });
           } catch (e) {
@@ -11070,7 +11088,7 @@ var init_client2 = __esm({
       if (response?.status === 429) {
         const retryAfter = parseInt(response.headers.get("retry-after") ?? "10", 10) * 1e3;
         if (retryAfter > 0) {
-          await new Promise((resolve13) => setTimeout(resolve13, retryAfter));
+          await new Promise((resolve14) => setTimeout(resolve14, retryAfter));
           return true;
         }
       }
@@ -11107,8 +11125,8 @@ var init_client2 = __esm({
       }
       push(item) {
         let itemPromiseResolve;
-        const itemPromise = new Promise((resolve13) => {
-          itemPromiseResolve = resolve13;
+        const itemPromise = new Promise((resolve14) => {
+          itemPromiseResolve = resolve14;
         });
         const size = estimateSerializedSize(item.item).size;
         if (this.sizeBytes + size > this.maxSizeBytes && this.items.length > 0) {
@@ -16106,7 +16124,7 @@ Message: ${Array.isArray(result.detail) ? result.detail.join("\n") : "Unspecifie
           console.warn("[WARNING]: When tracing in manual flush mode, you must call `await client.flush()` manually to submit trace batches.");
           return Promise.resolve();
         }
-        await new Promise((resolve13) => setTimeout(resolve13, 1));
+        await new Promise((resolve14) => setTimeout(resolve14, 1));
         while (this._pendingDrains.size > 0) {
           await Promise.all([...this._pendingDrains]);
         }
@@ -17251,10 +17269,10 @@ var init_langsmith = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/privacy/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/privacy/constants.js
 var MUTED_TRACE_CONTENT, METADATA_MODE_RUN_CONFIG_FIELDS;
 var init_constants10 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/privacy/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/privacy/constants.js"() {
     MUTED_TRACE_CONTENT = "[LangSmith system notice: content omitted because tracing is muted.]";
     METADATA_MODE_RUN_CONFIG_FIELDS = [
       "client",
@@ -17273,7 +17291,7 @@ var init_constants10 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/privacy/run-tree.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/privacy/run-tree.js
 function mutedContent(role) {
   return { messages: [{ role, content: MUTED_TRACE_CONTENT }] };
 }
@@ -17390,22 +17408,22 @@ function survivingCodingAgentPatchFields(projectedRun, fields) {
   });
 }
 var init_run_tree = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/privacy/run-tree.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/privacy/run-tree.js"() {
     init_langsmith();
     init_metadata();
     init_constants10();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/privacy/index.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/privacy/index.js
 var init_privacy2 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/privacy/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/privacy/index.js"() {
     init_run_tree();
     init_constants10();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/upload/client.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/upload/client.js
 function createUploadClient(options) {
   const { apiKey, apiUrl, workspaceId, anonymizer, redactedFields } = options;
   return new Client({
@@ -17424,15 +17442,15 @@ function createUploadClient(options) {
   });
 }
 var init_client3 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/upload/client.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/upload/client.js"() {
     init_langsmith();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/upload/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/upload/constants.js
 var UPLOAD_ACCOUNT_FINGERPRINT_PREFIX, UPLOAD_DESTINATION_ID_PREFIX, UPLOAD_FINGERPRINT_LENGTH, UPLOAD_CONTROL_CHARACTER_PATTERN, UPLOAD_API_URL_TRAILING_SLASH_PATTERN, UPLOAD_UUID_PATTERN, UPLOAD_REPLICA_UUID_V7_PATTERN, UPLOAD_REPLICA_UUID_V5_NAMESPACE, UPLOAD_REPLICA_UUID_V5_NAMESPACE_BYTES, UPLOAD_REPLICA_UUID_V5_DOMAIN, UPLOAD_REPLICA_DOTTED_ORDER_ID_LENGTH, UPLOAD_REPLICA_IDENTITY_UPDATE_FIELDS, UPLOAD_REPLICA_PATCH_UPDATE_FIELDS, UPLOAD_PATCH_FIELDS, UPLOAD_REDACTED_FIELDS;
 var init_constants11 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/upload/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/upload/constants.js"() {
     UPLOAD_ACCOUNT_FINGERPRINT_PREFIX = "account_";
     UPLOAD_DESTINATION_ID_PREFIX = "destination_";
     UPLOAD_FINGERPRINT_LENGTH = 32;
@@ -17477,6 +17495,137 @@ var init_constants11 = __esm({
       "reference_example_id"
     ]);
     UPLOAD_REDACTED_FIELDS = ["inputs", "outputs"];
+  }
+});
+
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/upload/destination-identity.js
+import { createHash as createHash2 } from "node:crypto";
+function resolveUploadDestinationIdentities(options) {
+  if (!Array.isArray(options.destinations) || options.destinations.length === 0) {
+    throw new TypeError("At least one upload destination is required");
+  }
+  if (options.replicas !== void 0 && !Array.isArray(options.replicas)) {
+    throw new TypeError("Upload replicas must be an array");
+  }
+  if (typeof options.redact !== "boolean")
+    throw new TypeError("A redaction setting is required");
+  const replicas2 = options.replicas ?? [];
+  if (replicas2.length > 0 && options.destinations.length !== 1) {
+    throw new TypeError("A replica upload requires exactly one primary destination");
+  }
+  const primary = options.destinations[0];
+  const primaryProjectName = replicas2.length === 0 || primary === void 0 ? void 0 : normalizeRequiredText(primary.projectName, "project name");
+  const destinations = replicas2.length === 0 ? options.destinations.map((destination) => resolveDestination(destination)) : replicas2.map((replica) => resolveReplicaDestination(replica, primary, primaryProjectName));
+  const ids = /* @__PURE__ */ new Set();
+  for (const destination of destinations) {
+    if (ids.has(destination.id))
+      throw new TypeError("Upload destinations must be unique");
+    ids.add(destination.id);
+  }
+  const fingerprints = destinations.map(({ id }) => id).toSorted();
+  const accountFingerprint = `${UPLOAD_ACCOUNT_FINGERPRINT_PREFIX}${fingerprint(JSON.stringify({
+    destinations: fingerprints,
+    redact: options.redact,
+    redactExtraRules: options.redactExtraRules ?? null
+  }))}`;
+  return { accountFingerprint, destinations };
+}
+function resolveDestination(config, sourceProjectName, updates) {
+  if (!config || typeof config !== "object")
+    throw new TypeError("Invalid upload destination");
+  if (typeof config.apiKey !== "string" || config.apiKey.trim().length === 0) {
+    throw new TypeError("An API key is required for each upload destination");
+  }
+  const apiUrl = normalizeApiUrl(config.apiUrl);
+  const projectName = normalizeRequiredText(config.projectName, "project name");
+  const workspaceId = config.workspaceId === void 0 ? void 0 : normalizeRequiredText(config.workspaceId, "workspace ID");
+  const identity = JSON.stringify({
+    apiKey: config.apiKey,
+    apiUrl,
+    projectName,
+    workspaceId: workspaceId ?? null,
+    ...sourceProjectName === void 0 ? {} : { sourceProjectName, updates: updates ?? null }
+  });
+  const id = `${UPLOAD_DESTINATION_ID_PREFIX}${fingerprint(identity)}`;
+  return {
+    id,
+    apiKey: config.apiKey,
+    apiUrl,
+    projectName,
+    ...workspaceId === void 0 ? {} : { workspaceId },
+    ...sourceProjectName === void 0 ? {} : { sourceProjectName },
+    ...updates === void 0 ? {} : { updates }
+  };
+}
+function resolveReplicaDestination(replica, primary, primaryProjectName) {
+  if (!replica || typeof replica !== "object")
+    throw new TypeError("Invalid upload replica");
+  const updates = snapshotReplicaUpdates(replica.updates);
+  const workspaceId = replica.workspaceId ?? primary.workspaceId;
+  return resolveDestination({
+    apiKey: replica.apiKey ?? primary.apiKey,
+    apiUrl: replica.apiUrl ?? primary.apiUrl,
+    projectName: replica.projectName ?? primary.projectName,
+    ...workspaceId === void 0 ? {} : { workspaceId }
+  }, primaryProjectName, updates);
+}
+function snapshotReplicaUpdates(value) {
+  if (value === void 0)
+    return void 0;
+  if (value === null || typeof value !== "object" || Array.isArray(value)) {
+    throw new TypeError("Replica updates must be an object");
+  }
+  let snapshot;
+  try {
+    snapshot = JSON.parse(JSON.stringify(value));
+  } catch {
+    throw new TypeError("Replica updates must be JSON serializable");
+  }
+  if (snapshot === null || typeof snapshot !== "object" || Array.isArray(snapshot)) {
+    throw new TypeError("Replica updates must be an object");
+  }
+  const updates = snapshot;
+  for (const field2 of Object.keys(updates)) {
+    if (UPLOAD_REPLICA_IDENTITY_UPDATE_FIELDS.has(field2)) {
+      throw new TypeError("Replica updates cannot override run identity");
+    }
+    if (!UPLOAD_REPLICA_PATCH_UPDATE_FIELDS.has(field2)) {
+      throw new TypeError("Unsupported replica update field");
+    }
+    if (field2 === "extra" && (updates[field2] === null || typeof updates[field2] !== "object" || Array.isArray(updates[field2]))) {
+      throw new TypeError("Replica extra updates must be an object");
+    }
+  }
+  return canonicalJsonObject(updates, "Replica updates");
+}
+function normalizeApiUrl(value) {
+  if (typeof value !== "string" || value.trim().length === 0) {
+    throw new TypeError("An API endpoint is required for each upload destination");
+  }
+  let endpoint;
+  try {
+    endpoint = new URL(value);
+  } catch {
+    throw new TypeError("Invalid upload API endpoint");
+  }
+  if (endpoint.protocol !== "https:" && endpoint.protocol !== "http:" || endpoint.username.length > 0 || endpoint.password.length > 0 || endpoint.search.length > 0 || endpoint.hash.length > 0) {
+    throw new TypeError("Invalid upload API endpoint");
+  }
+  return endpoint.toString().replace(UPLOAD_API_URL_TRAILING_SLASH_PATTERN, "");
+}
+function normalizeRequiredText(value, name) {
+  if (typeof value !== "string" || value.trim().length === 0 || UPLOAD_CONTROL_CHARACTER_PATTERN.test(value)) {
+    throw new TypeError(`Invalid upload ${name}`);
+  }
+  return value.trim();
+}
+function fingerprint(value) {
+  return createHash2("sha256").update(value).digest("hex").slice(0, UPLOAD_FINGERPRINT_LENGTH);
+}
+var init_destination_identity = __esm({
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/upload/destination-identity.js"() {
+    init_objects();
+    init_constants11();
   }
 });
 
@@ -17702,7 +17851,7 @@ var init_anonymizer2 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/upload/redaction.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/upload/redaction.js
 function createUploadAnonymizer(enabled, extraRules) {
   if (!enabled)
     return void 0;
@@ -17732,155 +17881,40 @@ function normalizedRedactedFields(value) {
   return UPLOAD_REDACTED_FIELDS.filter((field2) => value.includes(field2));
 }
 var init_redaction = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/upload/redaction.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/upload/redaction.js"() {
     init_anonymizer2();
     init_constants11();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/upload/destinations.js
-import { createHash as createHash2 } from "node:crypto";
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/upload/destinations.js
 function resolveUploadDestinations(options) {
-  if (!Array.isArray(options.destinations) || options.destinations.length === 0) {
-    throw new TypeError("At least one upload destination is required");
-  }
-  if (options.replicas !== void 0 && !Array.isArray(options.replicas)) {
-    throw new TypeError("Upload replicas must be an array");
-  }
-  if (typeof options.redact !== "boolean")
-    throw new TypeError("A redaction setting is required");
-  const replicas2 = options.replicas ?? [];
-  if (replicas2.length > 0 && options.destinations.length !== 1) {
-    throw new TypeError("A replica upload requires exactly one primary destination");
-  }
-  const primary = options.destinations[0];
-  const primaryProjectName = replicas2.length === 0 || primary === void 0 ? void 0 : normalizeRequiredText(primary.projectName, "project name");
-  const destinations = replicas2.length === 0 ? options.destinations.map((destination) => resolveDestination(destination, options)) : replicas2.map((replica) => resolveReplicaDestination(replica, primary, primaryProjectName, options));
-  const ids = /* @__PURE__ */ new Set();
-  for (const destination of destinations) {
-    if (ids.has(destination.id))
-      throw new TypeError("Upload destinations must be unique");
-    ids.add(destination.id);
-  }
-  const fingerprints = destinations.map(({ id }) => id).toSorted();
-  const accountFingerprint = `${UPLOAD_ACCOUNT_FINGERPRINT_PREFIX}${fingerprint(JSON.stringify({
-    destinations: fingerprints,
-    redact: options.redact,
-    redactExtraRules: options.redactExtraRules ?? null
-  }))}`;
-  return { accountFingerprint, destinations };
-}
-function resolveDestination(config, options, sourceProjectName, updates) {
-  if (!config || typeof config !== "object")
-    throw new TypeError("Invalid upload destination");
-  if (typeof config.apiKey !== "string" || config.apiKey.trim().length === 0) {
-    throw new TypeError("An API key is required for each upload destination");
-  }
-  const apiUrl = normalizeApiUrl(config.apiUrl);
-  const projectName = normalizeRequiredText(config.projectName, "project name");
-  const workspaceId = config.workspaceId === void 0 ? void 0 : normalizeRequiredText(config.workspaceId, "workspace ID");
-  const identity = JSON.stringify({
-    apiKey: config.apiKey,
-    apiUrl,
-    projectName,
-    workspaceId: workspaceId ?? null,
-    ...sourceProjectName === void 0 ? {} : { sourceProjectName, updates: updates ?? null }
+  const resolved = resolveUploadDestinationIdentities(options);
+  const destinations = resolved.destinations.map((destination) => {
+    const anonymizer = createUploadAnonymizer(options.redact, options.redactExtraRules);
+    const client2 = createUploadClient({
+      apiKey: destination.apiKey,
+      apiUrl: destination.apiUrl,
+      ...destination.workspaceId === void 0 ? {} : { workspaceId: destination.workspaceId },
+      ...anonymizer === void 0 ? {} : { anonymizer }
+    });
+    return {
+      ...destination,
+      ...anonymizer === void 0 ? {} : { anonymizer },
+      client: client2
+    };
   });
-  const id = `${UPLOAD_DESTINATION_ID_PREFIX}${fingerprint(identity)}`;
-  const anonymizer = createUploadAnonymizer(options.redact, options.redactExtraRules);
-  const client2 = createUploadClient({
-    apiKey: config.apiKey,
-    apiUrl,
-    ...workspaceId === void 0 ? {} : { workspaceId },
-    ...anonymizer === void 0 ? {} : { anonymizer }
-  });
-  return {
-    id,
-    apiKey: config.apiKey,
-    apiUrl,
-    projectName,
-    ...workspaceId === void 0 ? {} : { workspaceId },
-    ...sourceProjectName === void 0 ? {} : { sourceProjectName },
-    ...updates === void 0 ? {} : { updates },
-    ...anonymizer === void 0 ? {} : { anonymizer },
-    client: client2
-  };
-}
-function resolveReplicaDestination(replica, primary, primaryProjectName, options) {
-  if (!replica || typeof replica !== "object")
-    throw new TypeError("Invalid upload replica");
-  const updates = snapshotReplicaUpdates(replica.updates);
-  const workspaceId = replica.workspaceId ?? primary.workspaceId;
-  return resolveDestination({
-    apiKey: replica.apiKey ?? primary.apiKey,
-    apiUrl: replica.apiUrl ?? primary.apiUrl,
-    projectName: replica.projectName ?? primary.projectName,
-    ...workspaceId === void 0 ? {} : { workspaceId }
-  }, options, primaryProjectName, updates);
-}
-function snapshotReplicaUpdates(value) {
-  if (value === void 0)
-    return void 0;
-  if (value === null || typeof value !== "object" || Array.isArray(value)) {
-    throw new TypeError("Replica updates must be an object");
-  }
-  let snapshot;
-  try {
-    snapshot = JSON.parse(JSON.stringify(value));
-  } catch {
-    throw new TypeError("Replica updates must be JSON serializable");
-  }
-  if (snapshot === null || typeof snapshot !== "object" || Array.isArray(snapshot)) {
-    throw new TypeError("Replica updates must be an object");
-  }
-  const updates = snapshot;
-  for (const field2 of Object.keys(updates)) {
-    if (UPLOAD_REPLICA_IDENTITY_UPDATE_FIELDS.has(field2)) {
-      throw new TypeError("Replica updates cannot override run identity");
-    }
-    if (!UPLOAD_REPLICA_PATCH_UPDATE_FIELDS.has(field2)) {
-      throw new TypeError("Unsupported replica update field");
-    }
-    if (field2 === "extra" && (updates[field2] === null || typeof updates[field2] !== "object" || Array.isArray(updates[field2]))) {
-      throw new TypeError("Replica extra updates must be an object");
-    }
-  }
-  return canonicalJsonObject(updates, "Replica updates");
-}
-function normalizeApiUrl(value) {
-  if (typeof value !== "string" || value.trim().length === 0) {
-    throw new TypeError("An API endpoint is required for each upload destination");
-  }
-  let endpoint;
-  try {
-    endpoint = new URL(value);
-  } catch {
-    throw new TypeError("Invalid upload API endpoint");
-  }
-  if (endpoint.protocol !== "https:" && endpoint.protocol !== "http:" || endpoint.username.length > 0 || endpoint.password.length > 0 || endpoint.search.length > 0 || endpoint.hash.length > 0) {
-    throw new TypeError("Invalid upload API endpoint");
-  }
-  return endpoint.toString().replace(UPLOAD_API_URL_TRAILING_SLASH_PATTERN, "");
-}
-function normalizeRequiredText(value, name) {
-  if (typeof value !== "string" || value.trim().length === 0 || UPLOAD_CONTROL_CHARACTER_PATTERN.test(value)) {
-    throw new TypeError(`Invalid upload ${name}`);
-  }
-  return value.trim();
-}
-function fingerprint(value) {
-  return createHash2("sha256").update(value).digest("hex").slice(0, UPLOAD_FINGERPRINT_LENGTH);
+  return { accountFingerprint: resolved.accountFingerprint, destinations };
 }
 var init_destinations = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/upload/destinations.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/upload/destinations.js"() {
     init_client3();
-    init_objects();
-    init_constants11();
+    init_destination_identity();
     init_redaction();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/upload/replica-identifiers.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/upload/replica-identifiers.js
 import { createHash as createHash3 } from "node:crypto";
 function remapReplicaRunContext(context, sourceProjectName, destinationProjectName) {
   if (sourceProjectName === destinationProjectName)
@@ -17913,13 +17947,13 @@ function remapReplicaDottedOrder(dottedOrder, projectName) {
   }).join(".");
 }
 var init_replica_identifiers = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/upload/replica-identifiers.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/upload/replica-identifiers.js"() {
     init_langsmith();
     init_constants11();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/upload/upload.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/upload/upload.js
 function createLangSmithUploadWriter(options) {
   const resolved = resolveUploadDestinations(options);
   const destinations = resolved.destinations.map(({ id }) => Object.freeze({ id }));
@@ -18142,7 +18176,7 @@ function validatePatch(submission) {
   }
 }
 var init_upload = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/upload/upload.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/upload/upload.js"() {
     init_metadata();
     init_privacy2();
     init_objects();
@@ -18154,23 +18188,23 @@ var init_upload = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/upload/index.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/upload/index.js
 var init_upload2 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/upload/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/upload/index.js"() {
     init_upload();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/capture-wake-constants.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/capture-wake-constants.js
 var CAPTURE_WAKE_ERROR_NAME, CAPTURE_WAKE_FAILURE_MESSAGE;
 var init_capture_wake_constants = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/capture-wake-constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/capture-wake-constants.js"() {
     CAPTURE_WAKE_ERROR_NAME = "CaptureWakeError";
     CAPTURE_WAKE_FAILURE_MESSAGE = "Trace work was saved but its worker could not start";
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/capture-wake.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/capture-wake.js
 async function wakeCapturedWork(captureResult, wake) {
   try {
     await wake();
@@ -18195,7 +18229,7 @@ async function readSavedCaptureWake(error2, options) {
 }
 var CaptureWakeError;
 var init_capture_wake = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/capture-wake.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/capture-wake.js"() {
     init_capture_wake_constants();
     init_serialization();
     CaptureWakeError = class extends Error {
@@ -18209,10 +18243,10 @@ var init_capture_wake = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/constants.js
 var ROOT_RUN_EXECUTION_ORDER, DOTTED_ORDER_TIME_PREFIX_LENGTH, DOTTED_ORDER_SEGMENT_PATTERN, DOTTED_ORDER_STRIP_PATTERN, LIFECYCLE_POST_EVENT_KIND, LIFECYCLE_PATCH_EVENT_KIND, LIFECYCLE_SETTLEMENT_EVENT_KIND, LIFECYCLE_ATTRIBUTION_READY_FIELD, LIFECYCLE_SETTLEMENT_LOCK_DIRECTORY, LIFECYCLE_SETTLEMENT_LOCK_FILE, LIFECYCLE_SETTLEMENT_LOCK_INTEGRATIONS_DIRECTORY, LIFECYCLE_SETTLEMENT_LOCK_SESSIONS_DIRECTORY, LIFECYCLE_SETTLEMENT_LOCK_ACCOUNTS_DIRECTORY, LIFECYCLE_SNAPSHOT_LOCK_DIRECTORY, LIFECYCLE_SNAPSHOT_LOCK_FILE, LIFECYCLE_SNAPSHOT_REVISION_EVENT_ID_PREFIX, LIFECYCLE_SNAPSHOT_OPTIONAL_RUN_FIELDS, LIFECYCLE_TURN_CLOSURE_STATES;
 var init_constants12 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/constants.js"() {
     ROOT_RUN_EXECUTION_ORDER = 1;
     DOTTED_ORDER_TIME_PREFIX_LENGTH = 18;
     DOTTED_ORDER_SEGMENT_PATTERN = /^(\d{8}T\d{12}Z)([^.]+)$/u;
@@ -18242,7 +18276,7 @@ var init_constants12 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/closure.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/closure.js
 function deriveAttributionReadiness(value, integration) {
   const source = requirePlainRecord(value, "Prepared run submission");
   const metadata = prepareCodingAgentMetadataProvenance(requireOwnDataField(source, "metadata"), integration, "full");
@@ -18387,14 +18421,14 @@ function captureScopeKey(scope) {
   return JSON.stringify([scope.integration, scope.sessionId, scope.turnId, scope.eventId]);
 }
 var init_closure = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/closure.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/closure.js"() {
     init_metadata();
     init_objects();
     init_constants12();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/identity.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/identity.js
 function createRunIdentity(input) {
   const id = requireNonBlankString(input.id, "Run ID");
   const start_time = requireTimestamp(input.start_time);
@@ -18454,13 +18488,13 @@ function dottedOrderSegment(startTime, runId) {
   return `${precisionTime.replace(DOTTED_ORDER_STRIP_PATTERN, "")}${runId}`;
 }
 var init_identity = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/identity.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/identity.js"() {
     init_objects();
     init_constants12();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/projection.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/projection.js
 function projectSubmission(value, integration, priorIdentity) {
   const source = requirePlainRecord(value, "Prepared run submission");
   if (requireOwnDataField(source, "integration") !== integration) {
@@ -18722,7 +18756,7 @@ function requiredText(source, key, name) {
   return requireNonBlankString(requireOwnDataField(source, key), name);
 }
 var init_projection = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/projection.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/projection.js"() {
     init_metadata();
     init_privacy2();
     init_objects();
@@ -18733,10 +18767,10 @@ var init_projection = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/settlement/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/settlement/constants.js
 var TURN_REPOSITORY_KEYS, REPOSITORY_METADATA_KEYS, REPOSITORY_NAME_KEY, ATTRIBUTION_IDENTIFIER_KEY, SETTLEMENT_EVENT_ID_PREFIX, SETTLEMENT_EVENT_ID_PATTERN;
 var init_constants13 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/settlement/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/settlement/constants.js"() {
     TURN_REPOSITORY_KEYS = [
       "repository_name",
       "repository_provider",
@@ -18752,7 +18786,7 @@ var init_constants13 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/settlement/settlement.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/settlement/settlement.js
 function attributionOf(metadata) {
   const carried = {};
   for (const key of REPOSITORY_METADATA_KEYS) {
@@ -18785,13 +18819,13 @@ function metadataAfterFill(run, filled) {
 }
 var namesARepository;
 var init_settlement = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/settlement/settlement.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/settlement/settlement.js"() {
     init_constants13();
     namesARepository = (carried) => carried[REPOSITORY_NAME_KEY] !== void 0;
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/settlement/pass.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/settlement/pass.js
 import { createHash as createHash4 } from "node:crypto";
 async function settleCapturedTurns(options) {
   if (options.destinations.length === 0)
@@ -19304,7 +19338,7 @@ function report(turnId, status, reason, runIds = [], destinations = []) {
   };
 }
 var init_pass = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/settlement/pass.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/settlement/pass.js"() {
     init_metadata();
     init_objects();
     init_constants12();
@@ -19315,7 +19349,7 @@ var init_pass = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/utils/validation/snapshot.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/utils/validation/snapshot.js
 function snapshotData(value) {
   return copySnapshot(value, /* @__PURE__ */ new WeakMap());
 }
@@ -19355,11 +19389,11 @@ function copySnapshot(value, copies) {
   return copy;
 }
 var init_snapshot = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/utils/validation/snapshot.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/utils/validation/snapshot.js"() {
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/snapshot.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/snapshot.js
 import { join as join11 } from "node:path";
 async function captureLifecycleSnapshot(options, input) {
   const captureInput = snapshotData(requirePlainRecord(input, "Lifecycle snapshot capture"));
@@ -19663,7 +19697,7 @@ function sameCanonical(left, right) {
   return JSON.stringify(canonicalJsonValue(left)) === JSON.stringify(canonicalJsonValue(right));
 }
 var init_snapshot2 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/snapshot.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/snapshot.js"() {
     init_storage();
     init_paths();
     init_atomic_file();
@@ -19679,13 +19713,13 @@ var init_snapshot2 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/bridge.js
-import { join as join12, resolve as resolve9 } from "node:path";
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/bridge.js
+import { join as join12, resolve as resolve10 } from "node:path";
 function createLifecycleBridge(options) {
   const integration = options.integration;
   const wake = options.wake;
   const sessionId = requireNonBlankString(options.sessionId, "Session ID");
-  const storageRoot = resolve9(options.storageRoot);
+  const storageRoot = resolve10(options.storageRoot);
   const captureStore = createCaptureStore(storageRoot);
   const coordinator = createDeliveryCoordinator({
     storageRoot,
@@ -19898,7 +19932,7 @@ function restoreSubmission(record, integration) {
   return { ...projected.value.payload, metadata: projected.value.metadata };
 }
 var init_bridge = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/bridge.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/bridge.js"() {
     init_storage();
     init_capture();
     init_paths();
@@ -19916,18 +19950,18 @@ var init_bridge = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/index.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/index.js
 var init_lifecycle = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/index.js"() {
     init_bridge();
     init_identity();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/constants.js
 var RECONSTRUCTION_DIRECTORY, RECONSTRUCTION_WORKER_DIRECTORY, RECONSTRUCTION_SESSIONS_DIRECTORY, RECONSTRUCTION_DRAIN_LOCK, RECONSTRUCTION_RUN_ID_PREFIX, RECONSTRUCTION_MAPPING_EVENT_ID_PREFIX, RECONSTRUCTION_JOB_KIND, RECONSTRUCTION_MAPPING_KIND, RECONSTRUCTION_RECORD_VERSION, RECONSTRUCTION_DEFERRED_REASON, RECONSTRUCTION_CLOSURE_STATES, RECONSTRUCTION_JOB_INPUT_KEYS, RECONSTRUCTION_JOB_OPTIONAL_INPUT_KEYS, RECONSTRUCTION_SOURCE_SNAPSHOT_KEYS, RECONSTRUCTION_SOURCE_SNAPSHOT_OPTIONAL_KEYS, RECONSTRUCTION_STORED_JOB_KEYS, RECONSTRUCTION_STORED_JOB_OPTIONAL_KEYS, RECONSTRUCTION_ATTRIBUTION_CONTEXT_KEYS, RECONSTRUCTION_ATTRIBUTION_CONTEXT_OPTIONAL_KEYS, RECONSTRUCTION_TOOL_ORIGIN_KEYS, RECONSTRUCTION_TOOL_ORIGIN_OPTIONAL_KEYS, RECONSTRUCTION_OUTPUT_KEYS, RECONSTRUCTION_OUTPUT_OPTIONAL_KEYS, RECONSTRUCTION_TURN_EVIDENCE_KEYS, RECONSTRUCTION_TURN_EVIDENCE_KEYS_WITH_ROOT, RECONSTRUCTION_DEPENDENCY_KEYS;
 var init_constants14 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/constants.js"() {
     RECONSTRUCTION_DIRECTORY = "reconstruction-v1";
     RECONSTRUCTION_WORKER_DIRECTORY = "workers";
     RECONSTRUCTION_SESSIONS_DIRECTORY = "sessions";
@@ -19990,8 +20024,8 @@ var init_constants14 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/worker.js
-import { join as join13, resolve as resolve10 } from "node:path";
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/worker.js
+import { join as join13, resolve as resolve11 } from "node:path";
 function createReconstructionWorker(options) {
   const integration = options.integration;
   const sessionId = requireNonBlankString(options.sessionId, "Session ID");
@@ -20004,7 +20038,7 @@ function createReconstructionWorker(options) {
   validateIdentifier(sessionId, "session ID");
   validateIdentifier(accountFingerprint, "account fingerprint");
   const policy = resolvePolicy2(options.policy);
-  const storageRoot = join13(resolve10(options.storageRoot), RECONSTRUCTION_DIRECTORY);
+  const storageRoot = join13(resolve11(options.storageRoot), RECONSTRUCTION_DIRECTORY);
   const captureStore = createCaptureStore(storageRoot);
   const attemptStore = createDeliveryAttemptStore(storageRoot);
   return {
@@ -20666,7 +20700,7 @@ function mappingScope(job) {
   return { ...scopeOf2(job), eventId };
 }
 var init_worker2 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/worker.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/worker.js"() {
     init_storage();
     init_capture();
     init_paths();
@@ -20682,23 +20716,23 @@ var init_worker2 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/index.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/index.js
 var init_reconstruction = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/index.js"() {
     init_worker2();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/utils/errors.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/utils/errors.js
 function describe(error2) {
   return error2 instanceof Error ? error2.message : String(error2);
 }
-var init_errors2 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/utils/errors.js"() {
+var init_errors3 = __esm({
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/utils/errors.js"() {
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/engine/pass-results.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/engine/pass-results.js
 function reconstructionPassResult(result) {
   if (result.status === "busy")
     return "retryable-failure";
@@ -20710,14 +20744,14 @@ function lifecyclePassResult(result) {
   return result.settlement.captured > 0 || result.delivered > 0 || result.dropped > 0 || result.failed > 0 ? "progressed" : "idle";
 }
 var init_pass_results = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/engine/pass-results.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/engine/pass-results.js"() {
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/engine/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/engine/constants.js
 var TRACING_ENGINE_FOREIGN_SESSION_MIN_AGE_MS, TRACING_ENGINE_BACKGROUND_RECOVERY_COOLDOWN_MS, TRACING_ENGINE_BACKGROUND_RECOVERY_DIRECTORY, TRACING_ENGINE_BACKGROUND_RECOVERY_INTEGRATIONS_DIRECTORY, TRACING_ENGINE_BACKGROUND_RECOVERY_ACCOUNTS_DIRECTORY, TRACING_ENGINE_BACKGROUND_RECOVERY_LOCK_FILE, TRACING_ENGINE_BACKGROUND_RECOVERY_MARKER_FILE, TRACING_ENGINE_BACKGROUND_RECOVERY_MARKER_VERSION, TRACING_ENGINE_BACKGROUND_RECOVERY_MARKER_EXISTS_ERROR, TRACING_ENGINE_BACKGROUND_RECOVERY_RETRY_RANGE_ERROR, TRACING_ENGINE_BACKGROUND_RECOVERY_REPORT_ERROR, TRACING_ENGINE_BACKGROUND_RECOVERY_FILE_NOT_FOUND_CODE, TRACING_ENGINE_BACKGROUND_RECOVERY_SESSION_CALLBACK_ERROR, TRACING_ENGINE_BACKGROUND_RECOVERY_REPORT_CALLBACK_ERROR, TRACING_ENGINE_BACKGROUND_RECOVERY_MINIMUM_AGE_ERROR, TRACING_ENGINE_BACKGROUND_RECOVERY_COOLDOWN_RANGE_ERROR;
 var init_constants15 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/engine/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/engine/constants.js"() {
     TRACING_ENGINE_FOREIGN_SESSION_MIN_AGE_MS = 2 * 60 * 60 * 1e3;
     TRACING_ENGINE_BACKGROUND_RECOVERY_COOLDOWN_MS = 5 * 60 * 1e3;
     TRACING_ENGINE_BACKGROUND_RECOVERY_DIRECTORY = "background-recovery";
@@ -20737,12 +20771,12 @@ var init_constants15 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/engine/options.js
-import { resolve as resolve11 } from "node:path";
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/engine/options.js
+import { resolve as resolve12 } from "node:path";
 function snapshotEngineOptions(options) {
   return Object.freeze({
     ...options,
-    storageRoot: resolve11(options.storageRoot),
+    storageRoot: resolve12(options.storageRoot),
     writer: snapshotWriterOptions(options.writer),
     ...options.policy === void 0 ? {} : { policy: snapshotPolicy(options.policy) }
   });
@@ -20785,12 +20819,12 @@ function snapshotPolicy(policy) {
   return Object.freeze({ ...policy });
 }
 var init_options = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/engine/options.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/engine/options.js"() {
     init_constants15();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery-settlement.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery-settlement.js
 async function hasUnsettledRecoverySettlement(options) {
   const missingSettlementCapture = /* @__PURE__ */ Symbol();
   try {
@@ -20832,13 +20866,13 @@ async function hasUnsettledRecoverySettlement(options) {
   }
 }
 var init_recovery_settlement = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery-settlement.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery-settlement.js"() {
     init_serialization();
     init_pass();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery.js
 import { join as join14 } from "node:path";
 async function recoverTracingSessions(runtime, request, scopeGuard) {
   const now = request.now ?? Date.now();
@@ -20971,7 +21005,7 @@ async function recoverTracingSessions(runtime, request, scopeGuard) {
   return { scheduled, failed };
 }
 var init_recovery = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery.js"() {
     init_capture();
     init_constants14();
     init_constants12();
@@ -20981,8 +21015,8 @@ var init_recovery = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery-paths.js
-import { join as join15, resolve as resolve12 } from "node:path";
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery-paths.js
+import { join as join15, resolve as resolve13 } from "node:path";
 function backgroundRecoveryPathSegments(scope) {
   return [
     TRACING_ENGINE_BACKGROUND_RECOVERY_DIRECTORY,
@@ -20993,7 +21027,7 @@ function backgroundRecoveryPathSegments(scope) {
   ];
 }
 function backgroundRecoveryPaths(storageRoot, scope) {
-  const directory = join15(resolve12(storageRoot), ...backgroundRecoveryPathSegments(scope));
+  const directory = join15(resolve13(storageRoot), ...backgroundRecoveryPathSegments(scope));
   return {
     directory,
     lock: join15(directory, TRACING_ENGINE_BACKGROUND_RECOVERY_LOCK_FILE),
@@ -21001,13 +21035,13 @@ function backgroundRecoveryPaths(storageRoot, scope) {
   };
 }
 var init_recovery_paths = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery-paths.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery-paths.js"() {
     init_paths();
     init_constants15();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/engine/background-recovery.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/engine/background-recovery.js
 import { unlink as unlink5 } from "node:fs/promises";
 async function runBackgroundRecovery(runtime, options, scopeGuard) {
   const cooldownMs = options.cooldownMs ?? TRACING_ENGINE_BACKGROUND_RECOVERY_COOLDOWN_MS;
@@ -21124,17 +21158,17 @@ async function writeMarker(path3, marker) {
     throw new Error(TRACING_ENGINE_BACKGROUND_RECOVERY_MARKER_EXISTS_ERROR);
 }
 var init_background_recovery = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/engine/background-recovery.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/engine/background-recovery.js"() {
     init_atomic_file();
     init_file_lock();
-    init_errors2();
+    init_errors3();
     init_constants15();
     init_recovery();
     init_recovery_paths();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/engine/engine.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/engine/engine.js
 function createTracingEngine(options) {
   const config = snapshotEngineOptions(options);
   function forSession(sessionOptions) {
@@ -21235,13 +21269,13 @@ function createTracingEngine(options) {
   return Object.freeze({ forSession });
 }
 var init_engine = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/engine/engine.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/engine/engine.js"() {
     init_background_worker();
     init_scope();
     init_lifecycle();
     init_reconstruction();
     init_capture_wake();
-    init_errors2();
+    init_errors3();
     init_pass_results();
     init_options();
     init_recovery();
@@ -21250,18 +21284,28 @@ var init_engine = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/engine/index.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/engine/index.js
 var init_engine2 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/engine/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/engine/index.js"() {
     init_engine();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/index.js
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/index.js
 var init_tracing = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@htt_9d5260a2eb9c12655a1b417217298181/node_modules/@langchain/plugins-base/dist/tracing/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/index.js"() {
     init_engine2();
     init_capture_wake();
+  }
+});
+
+// node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/upload/identity.js
+function resolveUploadDestinationFingerprint(options) {
+  return resolveUploadDestinationIdentities(options).accountFingerprint;
+}
+var init_identity2 = __esm({
+  "node_modules/.pnpm/@langchain+plugins-base@htt_f5d2489d8a14349bc025e7cbb3c0797b/node_modules/@langchain/plugins-base/dist/tracing/upload/identity.js"() {
+    init_destination_identity();
   }
 });
 
@@ -21286,6 +21330,51 @@ var init_text = __esm({
   "dist/src/utils/validation/text.js"() {
     "use strict";
     init_constants();
+  }
+});
+
+// dist/src/tracing-engine-config.js
+function validateProjectName(project) {
+  if (!isValidBoundedText(project, CURSOR_ENGINE_WORKER_ARGUMENT_LIMITS.project)) {
+    throw new Error("Shared trace worker project is invalid");
+  }
+}
+function writerOptions(config, projectName = config.project) {
+  return {
+    destinations: [{ apiKey: config.apiKey, apiUrl: config.apiUrl, projectName }],
+    ...config.replicas === void 0 ? {} : { replicas: uploadReplicas(config.replicas) },
+    redact: config.redact,
+    ...config.redactExtraRules === void 0 ? {} : {
+      redactExtraRules: config.redactExtraRules.map((rule) => ({
+        pattern: rule.pattern,
+        ...rule.replace === void 0 ? {} : { replace: rule.replace }
+      }))
+    }
+  };
+}
+function uploadReplicas(replicas2) {
+  return replicas2.map((replica) => {
+    if (Array.isArray(replica)) {
+      const [projectName, updates] = replica;
+      return {
+        projectName,
+        ...updates === void 0 ? {} : { updates }
+      };
+    }
+    return {
+      ...replica.apiKey === void 0 ? {} : { apiKey: replica.apiKey },
+      ...replica.apiUrl === void 0 ? {} : { apiUrl: replica.apiUrl },
+      ...replica.projectName === void 0 ? {} : { projectName: replica.projectName },
+      ...replica.workspaceId === void 0 ? {} : { workspaceId: replica.workspaceId },
+      ...replica.updates === void 0 ? {} : { updates: replica.updates }
+    };
+  });
+}
+var init_tracing_engine_config = __esm({
+  "dist/src/tracing-engine-config.js"() {
+    "use strict";
+    init_constants();
+    init_text();
   }
 });
 
@@ -22991,7 +23080,7 @@ var init_langsmith2 = __esm({
 // dist/src/tracing-policy.js
 import { randomUUID as randomUUID5 } from "node:crypto";
 import { lstatSync as lstatSync2, readFileSync as readFileSync6 } from "node:fs";
-import { mkdir as mkdir5, open as open2, rename as rename3, rmdir, unlink as unlink6 } from "node:fs/promises";
+import { mkdir as mkdir5, open as open2, rename as rename3, rmdir as rmdir2, unlink as unlink6 } from "node:fs/promises";
 import { dirname as dirname5 } from "node:path";
 import { performance as performance4 } from "node:perf_hooks";
 import { setTimeout as delay2 } from "node:timers/promises";
@@ -23050,6 +23139,7 @@ var init_tracing_policy = __esm({
 });
 
 // dist/src/turn-origin.js
+import { dirname as dirname6 } from "node:path";
 function resolveTurnOriginRoute(origin, fallbackSessionId) {
   if (!origin)
     throw new Error(CURSOR_TURN_ORIGIN_ERRORS.unavailable);
@@ -23062,21 +23152,35 @@ function resolveTurnOriginRoute(origin, fallbackSessionId) {
   }
   const routedConfig = loadConfig({ cwd, includeGitMetadata: false });
   const sessionId = origin.sessionId ?? fallbackSessionId;
-  const tracingSession = createCursorTracingSession(routedConfig, sessionId, cwd, void 0, origin.project);
-  if (!tracingSession) {
+  const destinationFingerprint = destinationFingerprintForConfig(routedConfig, origin.project);
+  if (destinationFingerprint === void 0) {
     throw new Error(CURSOR_TURN_ORIGIN_ERRORS.destinationChanged);
   }
-  if (origin.destinationFingerprint !== tracingSession.destinationFingerprint) {
+  if (origin.destinationFingerprint !== destinationFingerprint) {
     throw new Error(CURSOR_TURN_ORIGIN_ERRORS.destinationChanged);
   }
-  return { config: routedConfig, cwd, sessionId, tracingSession, origin };
+  return {
+    config: routedConfig,
+    cwd,
+    sessionId,
+    storageRoot: dirname6(routedConfig.stateFilePath),
+    destinationFingerprint,
+    origin
+  };
+}
+function destinationFingerprintForConfig(config, projectName = config.project) {
+  if (!config.apiKey && !config.replicas?.length)
+    return void 0;
+  validateProjectName(projectName);
+  return resolveUploadDestinationFingerprint(writerOptions(config, projectName));
 }
 var init_turn_origin = __esm({
   "dist/src/turn-origin.js"() {
     "use strict";
+    init_identity2();
     init_config();
-    init_tracing_engine();
     init_constants();
+    init_tracing_engine_config();
   }
 });
 
@@ -23093,7 +23197,11 @@ async function uploadClaim(claim) {
   try {
     const origin = claim.buffer.origin;
     const route = resolveTurnOriginRoute(origin, claim.conversationId);
-    const { config: routedConfig, sessionId, tracingSession, origin: routedOrigin } = route;
+    const { config: routedConfig, sessionId, origin: routedOrigin } = route;
+    const tracingSession = createCursorTracingSession(routedConfig, sessionId, route.cwd, void 0, routedOrigin.project);
+    if (!tracingSession || tracingSession.destinationFingerprint !== route.destinationFingerprint) {
+      throw new Error(CURSOR_TURN_ORIGIN_ERRORS.destinationChanged);
+    }
     const policy = getThreadTracingMode(tracingPolicyPath(), claim.conversationId, routedConfig.defaultMuted);
     const tracingEngine = {
       ...tracingSession,
@@ -23150,19 +23258,21 @@ var init_sweep = __esm({
     init_langsmith2();
     init_native_turn_source();
     init_turn_origin();
+    init_tracing_engine();
+    init_constants();
   }
 });
 
 // dist/src/tracing-engine.js
 import { createHash as createHash7 } from "node:crypto";
 import { spawn } from "node:child_process";
-import { dirname as dirname6, extname, join as join19 } from "node:path";
+import { dirname as dirname7, extname, join as join19 } from "node:path";
 function createCursorTracingSession(config, sessionId, cwd, launchWorker, destinationProject = config.project, reconstruct) {
   if (!config.apiKey && !config.replicas?.length)
     return void 0;
   validateProjectName(destinationProject);
   const writer = writerOptions(config, destinationProject);
-  const storageRoot = dirname6(config.stateFilePath);
+  const storageRoot = dirname7(config.stateFilePath);
   const engine = createTracingEngine({
     storageRoot,
     integration: CURSOR_INTEGRATION,
@@ -23180,14 +23290,14 @@ function createCursorTracingSession(config, sessionId, cwd, launchWorker, destin
       const currentWriter = writerOptions(currentConfig, destinationProject);
       return {
         ...expected,
-        accountFingerprint: currentWriter ? createLangSmithUploadWriter(currentWriter).accountFingerprint : ""
+        accountFingerprint: currentWriter ? resolveUploadDestinationFingerprint(currentWriter) : ""
       };
     }
   });
   return {
     session,
     storageRoot,
-    destinationFingerprint: createLangSmithUploadWriter(writer).accountFingerprint
+    destinationFingerprint: resolveUploadDestinationFingerprint(writer)
   };
 }
 function createRunTreeCapture(options, snapshotCapture) {
@@ -23545,7 +23655,7 @@ function launchEngineWorker(sessionId, cwd, destinationProject, task) {
     throw new Error("Cursor sweep worker caller is missing");
   }
   const args = [
-    ...nodeScript ? [join19(dirname6(entry), `${CURSOR_ENGINE_WORKER_ENTRY}${extname(entry)}`)] : [],
+    ...nodeScript ? [join19(dirname7(entry), `${CURSOR_ENGINE_WORKER_ENTRY}${extname(entry)}`)] : [],
     CURSOR_ENGINE_WORKER_FLAG,
     sessionId,
     cwd ?? process.cwd(),
@@ -23594,11 +23704,6 @@ function launchCursorSweepWorker(config, input, pruneState = false) {
     callerConversationId: input.conversation_id,
     pruneState
   });
-}
-function validateProjectName(project) {
-  if (!isValidBoundedText(project, CURSOR_ENGINE_WORKER_ARGUMENT_LIMITS.project)) {
-    throw new Error("Shared trace worker project is invalid");
-  }
 }
 function validateWorkerArgument(value, maxLength) {
   if (!isValidBoundedText(value, maxLength)) {
@@ -23658,37 +23763,6 @@ function statusOfRun2(run) {
     return "error";
   return run.end_time == null ? "running" : "completed";
 }
-function writerOptions(config, projectName = config.project) {
-  return {
-    destinations: [{ apiKey: config.apiKey, apiUrl: config.apiUrl, projectName }],
-    ...config.replicas === void 0 ? {} : { replicas: uploadReplicas(config.replicas) },
-    redact: config.redact,
-    ...config.redactExtraRules === void 0 ? {} : {
-      redactExtraRules: config.redactExtraRules.map((rule) => ({
-        pattern: rule.pattern,
-        ...rule.replace === void 0 ? {} : { replace: rule.replace }
-      }))
-    }
-  };
-}
-function uploadReplicas(replicas2) {
-  return replicas2.map((replica) => {
-    if (Array.isArray(replica)) {
-      const [projectName, updates] = replica;
-      return {
-        projectName,
-        ...updates === void 0 ? {} : { updates }
-      };
-    }
-    return {
-      ...replica.apiKey === void 0 ? {} : { apiKey: replica.apiKey },
-      ...replica.apiUrl === void 0 ? {} : { apiUrl: replica.apiUrl },
-      ...replica.projectName === void 0 ? {} : { projectName: replica.projectName },
-      ...replica.workspaceId === void 0 ? {} : { workspaceId: replica.workspaceId },
-      ...replica.updates === void 0 ? {} : { updates: replica.updates }
-    };
-  });
-}
 function snapshotHeadEventIds(records, runId) {
   const runRecords = records.filter((record) => record.runId === runId);
   const eventIds = new Set(runRecords.map((record) => record.eventId));
@@ -23722,25 +23796,26 @@ var init_tracing_engine = __esm({
     "use strict";
     init_capture();
     init_tracing();
-    init_upload2();
+    init_identity2();
     init_config();
     init_constants();
     init_record();
     init_json();
     init_text();
+    init_tracing_engine_config();
   }
 });
 
 // dist/src/utils/stdin.js
 init_constants();
 function readStdin(stream = process.stdin) {
-  return new Promise((resolve13, reject) => {
+  return new Promise((resolve14, reject) => {
     let data = "";
     stream.setEncoding("utf-8");
     stream.on("data", (chunk) => data += chunk);
     stream.on("end", () => {
       try {
-        resolve13(JSON.parse(data.replace(LEADING_BYTE_ORDER_MARKS, "")));
+        resolve14(JSON.parse(data.replace(LEADING_BYTE_ORDER_MARKS, "")));
       } catch (err) {
         reject(new Error(`Failed to parse hook input: ${err}`));
       }
@@ -23809,10 +23884,15 @@ async function main() {
   }
   try {
     const origin = toTrace.origin;
-    const { sessionId, cwd: routeCwd, tracingSession } = resolveTurnOriginRoute(origin, input.session_id ?? input.conversation_id);
+    const route = resolveTurnOriginRoute(origin, input.session_id ?? input.conversation_id);
+    const { config: routedConfig, sessionId, cwd: routeCwd } = route;
+    const tracingSession = createCursorTracingSession(routedConfig, sessionId, routeCwd, void 0, origin?.project);
+    if (!tracingSession || tracingSession.destinationFingerprint !== route.destinationFingerprint) {
+      throw new Error(CURSOR_TURN_ORIGIN_ERRORS.destinationChanged);
+    }
     const persisted = await captureCursorNativeTurnSource({
-      storageRoot: tracingSession.storageRoot,
-      accountFingerprint: tracingSession.destinationFingerprint,
+      storageRoot: route.storageRoot,
+      accountFingerprint: route.destinationFingerprint,
       sessionId,
       conversationId: input.conversation_id,
       sourceEventId: CURSOR_STOP_SOURCE_EVENT_ID,

@@ -2,9 +2,11 @@ import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { join } from "node:path";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
+import { resolveUploadDestinationFingerprint } from "@langchain/plugins-base/tracing/upload-identity";
 import { loadState, saveState } from "../src/state.js";
 import { runSweep } from "../src/sweep.js";
 import { originFromConfig } from "../src/turn-origin.js";
+import { writerOptions } from "../src/tracing-engine-config.js";
 import type { TurnBuffer } from "../src/types.js";
 import type { Config } from "../src/config.js";
 import { HOUR, MINUTE, T0, conversation, testConfig, turn } from "./utils/state.js";
@@ -17,6 +19,7 @@ const harness = vi.hoisted(() => ({
   reconstructionError: undefined as Error | undefined,
   reconstructionStatus: "published" as "published" | "deferred",
   initTracing: vi.fn(),
+  createTracingSession: vi.fn(),
   uploadTurn: vi.fn(async () => {
     if (harness.uploadError) throw harness.uploadError;
     return harness.uploadAccepted;
@@ -43,11 +46,7 @@ vi.mock("../src/langsmith.js", () => ({
   uploadTurn: harness.uploadTurn,
 }));
 vi.mock("../src/tracing-engine.js", () => ({
-  createCursorTracingSession: () => ({
-    session: { queueReconstruction: harness.queueReconstruction },
-    storageRoot: "/tmp/cursor-hook-test",
-    destinationFingerprint: "cursor-hook-test-account",
-  }),
+  createCursorTracingSession: harness.createTracingSession,
   cursorStopReconstructionJobEventId: () => "saved-job",
   launchCursorSweepWorker: harness.launchSweepWorker,
   parseCursorEngineWorkerArguments: vi.fn(),
@@ -87,6 +86,21 @@ describe("hook wiring against the on-disk state file", () => {
     harness.reconstructionError = undefined;
     harness.reconstructionStatus = "published";
     harness.initTracing.mockClear();
+    harness.createTracingSession.mockImplementation(
+      (
+        config: Config,
+        _sessionId: string,
+        _cwd: string | undefined,
+        _launchWorker?: () => number | Promise<number>,
+        destinationProject = config.project,
+      ) => ({
+        session: { queueReconstruction: harness.queueReconstruction },
+        storageRoot: "/tmp/cursor-hook-test",
+        destinationFingerprint: resolveUploadDestinationFingerprint(
+          writerOptions(config, destinationProject),
+        ),
+      }),
+    );
     harness.uploadTurn.mockClear();
     harness.queueReconstruction.mockClear();
     harness.launchSweepWorker.mockClear();

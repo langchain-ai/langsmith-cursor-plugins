@@ -13,6 +13,7 @@ import { reduceStop, reduceUploadSettled } from "../reducer.js";
 import { CaptureWakeError } from "@langchain/plugins-base/tracing";
 import {
   cursorStopReconstructionJobEventId,
+  createCursorTracingSession,
   launchCursorSweepWorker,
   parseCursorEngineWorkerArguments,
   runCursorEngineWorker,
@@ -23,6 +24,7 @@ import {
   CURSOR_ENGINE_WORKER_FLAG,
   CURSOR_RECONSTRUCTION_ERRORS,
   CURSOR_STOP_SOURCE_EVENT_ID,
+  CURSOR_TURN_ORIGIN_ERRORS,
 } from "../constants.js";
 import { debug, warn } from "../logger.js";
 import type { StopInput, TracingState, TurnBuffer } from "../types.js";
@@ -74,14 +76,21 @@ async function main(): Promise<void> {
 
   try {
     const origin = toTrace.origin;
-    const {
+    const route = resolveTurnOriginRoute(origin, input.session_id ?? input.conversation_id);
+    const { config: routedConfig, sessionId, cwd: routeCwd } = route;
+    const tracingSession = createCursorTracingSession(
+      routedConfig,
       sessionId,
-      cwd: routeCwd,
-      tracingSession,
-    } = resolveTurnOriginRoute(origin, input.session_id ?? input.conversation_id);
+      routeCwd,
+      undefined,
+      origin?.project,
+    );
+    if (!tracingSession || tracingSession.destinationFingerprint !== route.destinationFingerprint) {
+      throw new Error(CURSOR_TURN_ORIGIN_ERRORS.destinationChanged);
+    }
     const persisted = await captureCursorNativeTurnSource({
-      storageRoot: tracingSession.storageRoot,
-      accountFingerprint: tracingSession.destinationFingerprint,
+      storageRoot: route.storageRoot,
+      accountFingerprint: route.destinationFingerprint,
       sessionId,
       conversationId: input.conversation_id,
       sourceEventId: CURSOR_STOP_SOURCE_EVENT_ID,

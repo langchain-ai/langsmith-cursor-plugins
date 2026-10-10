@@ -10,6 +10,8 @@ import {
   readCursorEarlyNativeTurnSources,
 } from "./native-turn-source.js";
 import { resolveTurnOriginRoute } from "./turn-origin.js";
+import { createCursorTracingSession } from "./tracing-engine.js";
+import { CURSOR_TURN_ORIGIN_ERRORS } from "./constants.js";
 import type { HookInputBase, SweepClaim, TracingMode, TracingState, TurnMode } from "./types.js";
 
 export interface SweepOptions {
@@ -27,7 +29,17 @@ async function uploadClaim(claim: SweepClaim): Promise<boolean> {
   try {
     const origin = claim.buffer.origin;
     const route = resolveTurnOriginRoute(origin, claim.conversationId);
-    const { config: routedConfig, sessionId, tracingSession, origin: routedOrigin } = route;
+    const { config: routedConfig, sessionId, origin: routedOrigin } = route;
+    const tracingSession = createCursorTracingSession(
+      routedConfig,
+      sessionId,
+      route.cwd,
+      undefined,
+      routedOrigin.project,
+    );
+    if (!tracingSession || tracingSession.destinationFingerprint !== route.destinationFingerprint) {
+      throw new Error(CURSOR_TURN_ORIGIN_ERRORS.destinationChanged);
+    }
     const policy = getThreadTracingMode(
       tracingPolicyPath(),
       claim.conversationId,

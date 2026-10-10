@@ -27,13 +27,13 @@ export async function captureEarlyCursorToolSource(
   const buffer = getTurnBuffer(next, input.conversation_id, input.generation_id);
   if (!buffer || !Number.isSafeInteger(buffer.turnNum)) return undefined;
   const origin = buffer.origin;
-  const { cwd, sessionId, tracingSession } = resolveTurnOriginRoute(
+  const { cwd, sessionId, storageRoot, destinationFingerprint } = resolveTurnOriginRoute(
     origin,
     input.session_id ?? input.conversation_id,
   );
   return captureCursorNativeTurnSource({
-    storageRoot: tracingSession.storageRoot,
-    accountFingerprint: tracingSession.destinationFingerprint,
+    storageRoot,
+    accountFingerprint: destinationFingerprint,
     sessionId,
     conversationId: input.conversation_id,
     sourceEventId: earlyToolSourceEventId(input.tool_use_id),
