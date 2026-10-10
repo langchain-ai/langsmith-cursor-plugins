@@ -862,6 +862,7 @@ describe.each(["project", "home"] as const)("common %s root config", (scope) => 
       vi.stubEnv("TRACE_TO_LANGSMITH", undefined);
       const home = mkdtempSync(join(tmpdir(), "cursor-config-wire-"));
       vi.stubEnv("HOME", home);
+      vi.stubEnv("USERPROFILE", home);
       vi.stubEnv("LANGSMITH_CURSOR_LOG_FILE", join(home, "hook.log"));
       const cwd = join(home, "workspace");
       mkdirSync(cwd);

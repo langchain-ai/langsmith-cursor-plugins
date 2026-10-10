@@ -260,7 +260,7 @@ it.each(["master-off", "no-credentials"] as const)(
       syncBuiltinESMExports();
     `,
     );
-    env.NODE_OPTIONS = `--import=${tripwire}`;
+    env.NODE_OPTIONS = `--import=${pathToFileURL(tripwire).href}`;
     env.LANGSMITH_CURSOR_DB_PATH = join(dir, "cursor.db");
     writeFileSync(env.LANGSMITH_CURSOR_DB_PATH, "tripwire DB");
     if (disabled === "master-off") env.LANGSMITH_API_KEY = "test";
@@ -413,7 +413,7 @@ it("registered hooks honor workspace root master-off over user and harness over 
     globalThis.fetch = () => { appendFileSync(${JSON.stringify(join(dir, "unexpected-upload"))}, "upload"); throw new Error("Unexpected upload"); };
   `,
   );
-  env.NODE_OPTIONS = `--import=${tripwire}`;
+  env.NODE_OPTIONS = `--import=${pathToFileURL(tripwire).href}`;
   event("stop", "off", { status: "completed" });
   expect(loadState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns).toEqual({});
   mkdirSync(join(dir, ".cursor"));

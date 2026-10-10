@@ -86,6 +86,8 @@ function shell(dir: string): string {
   const environment = { ...process.env, CURSOR_PLUGIN_ROOT: dir };
   const options = {
     encoding: "utf8" as const,
+    input: "",
+    timeout: SHELL_TIMEOUT_MS - 5_000,
     env: onWindows
       ? environment
       : { ...environment, PATH: `${join(dir, "machine")}${delimiter}${process.env.PATH ?? ""}` },

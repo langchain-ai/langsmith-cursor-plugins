@@ -23,6 +23,8 @@ import {
 } from "../src/constants.js";
 import type { CursorHooksFile } from "../src/types.js";
 
+const posix = it.runIf(process.platform !== "win32");
+
 const root = new URL("../", import.meta.url);
 const read = (path: string) => readFileSync(new URL(path, root), "utf8");
 const settings = JSON.parse(read("binary.config.json"));
@@ -70,7 +72,7 @@ describe("the caller workflow", () => {
   it("runs on every file the binary is built from", () => {
     const patterns = workflow
       .slice(workflow.indexOf("paths:"), workflow.indexOf("jobs:"))
-      .split("\n")
+      .split(/\r?\n/)
       .flatMap((line) => (line.startsWith("      - ") ? [line.slice("      - ".length)] : []));
     const inputs = [
       ".github/workflows/build-binary.yml",
@@ -249,7 +251,7 @@ describe("the folder the released builds land in", () => {
     };
   }
 
-  it("survives a Windows clone runnable, where Git rewrites line endings", () => {
+  posix("survives a Windows clone runnable, where Git rewrites line endings", () => {
     const converted = execFileSync(
       "git",
       ["-c", "core.autocrlf=true", "cat-file", "--filters", `:${picker}`],
@@ -268,7 +270,7 @@ describe("the folder the released builds land in", () => {
     }
   });
 
-  it("picks the Apple silicon build, then the Intel one, then Node", () => {
+  posix("picks the Apple silicon build, then the Intel one, then Node", () => {
     const { plugin, build, fakeUname, pick } = sandbox();
 
     try {
@@ -291,7 +293,7 @@ describe("the folder the released builds land in", () => {
     }
   });
 
-  it("falls back to Node when a build lost its executable bit", () => {
+  posix("falls back to Node when a build lost its executable bit", () => {
     const { plugin, build, fakeUname, pick } = sandbox();
 
     try {
@@ -304,7 +306,7 @@ describe("the folder the released builds land in", () => {
     }
   });
 
-  it("hands Node the whole turn when a build dies part way through reading it", () => {
+  posix("hands Node the whole turn when a build dies part way through reading it", () => {
     const { plugin, buildKilledMidTurn, countingGuard, fakeUname, attempt } = sandbox();
 
     try {
@@ -318,7 +320,7 @@ describe("the folder the released builds land in", () => {
     }
   });
 
-  it("keeps the spooled turn readable only by the user whose prompt it holds", () => {
+  posix("keeps the spooled turn readable only by the user whose prompt it holds", () => {
     const { plugin, buildReportingTurnPermissions, fakeUname, attempt } = sandbox();
 
     try {
@@ -330,7 +332,7 @@ describe("the folder the released builds land in", () => {
     }
   });
 
-  it("throws away a dead build's answer so the turn is only answered once", () => {
+  posix("throws away a dead build's answer so the turn is only answered once", () => {
     const { plugin, buildKilledAfterAnswering, fakeUname, pick } = sandbox();
 
     try {
@@ -343,7 +345,7 @@ describe("the folder the released builds land in", () => {
     }
   });
 
-  it("falls back to Node on a Mac it carries no build for", () => {
+  posix("falls back to Node on a Mac it carries no build for", () => {
     const { plugin, build, fakeUname, pick } = sandbox();
 
     try {
@@ -356,7 +358,7 @@ describe("the folder the released builds land in", () => {
     }
   });
 
-  it("falls back to Node off a Mac, so a Mac build is never started there", () => {
+  posix("falls back to Node off a Mac, so a Mac build is never started there", () => {
     const { plugin, build, fakeUname, pick } = sandbox();
 
     try {
@@ -369,7 +371,7 @@ describe("the folder the released builds land in", () => {
     }
   });
 
-  it("falls back to Node when every carried build is too broken to start", () => {
+  posix("falls back to Node when every carried build is too broken to start", () => {
     const { plugin, unstartableBuild, fakeUname, pick } = sandbox();
 
     try {
@@ -382,7 +384,7 @@ describe("the folder the released builds land in", () => {
     }
   });
 
-  it("falls back to Node when a build is killed the moment it starts", () => {
+  posix("falls back to Node when a build is killed the moment it starts", () => {
     const { plugin, killedBuild, fakeUname, pick } = sandbox();
 
     try {
@@ -395,7 +397,7 @@ describe("the folder the released builds land in", () => {
     }
   });
 
-  it("tries the Intel build when the Apple silicon one cannot start", () => {
+  posix("tries the Intel build when the Apple silicon one cannot start", () => {
     const { plugin, build, unstartableBuild, fakeUname, pick } = sandbox();
 
     try {
@@ -408,7 +410,7 @@ describe("the folder the released builds land in", () => {
     }
   });
 
-  it("traces the turn with Node when a carried build answers with anything but zero", () => {
+  posix("traces the turn with Node when a carried build answers with anything but zero", () => {
     const { plugin, refusingBuild, fakeUname, attempt } = sandbox();
 
     try {
@@ -422,7 +424,7 @@ describe("the folder the released builds land in", () => {
     }
   });
 
-  it("traces the turn with Node when a broken build lands on Cursor's block code", () => {
+  posix("traces the turn with Node when a broken build lands on Cursor's block code", () => {
     const { plugin, blockingBuild, fakeUname, attempt } = sandbox();
 
     try {
@@ -436,7 +438,7 @@ describe("the folder the released builds land in", () => {
     }
   });
 
-  it("says once that a carried build could not run, so the fallback is never silent", () => {
+  posix("says once that a carried build could not run, so the fallback is never silent", () => {
     const { plugin, unstartableBuild, fakeUname, attempt } = sandbox();
 
     try {
@@ -452,7 +454,7 @@ describe("the folder the released builds land in", () => {
     }
   });
 
-  it("still runs the hook when there is no event to read at all", () => {
+  posix("still runs the hook when there is no event to read at all", () => {
     const { plugin, unstartableBuild, fakeUname, attemptWithNoEventToRead } = sandbox();
 
     try {
@@ -466,7 +468,7 @@ describe("the folder the released builds land in", () => {
     }
   });
 
-  it("keeps the code a carried build answered with when nothing takes the answer", () => {
+  posix("keeps the code a carried build answered with when nothing takes the answer", () => {
     const { plugin, build, fakeUname, attemptWithNothingTakingTheAnswer } = sandbox();
 
     try {
@@ -478,7 +480,7 @@ describe("the folder the released builds land in", () => {
     }
   });
 
-  it("traces the turn with Node even when nothing will take the warning", () => {
+  posix("traces the turn with Node even when nothing will take the warning", () => {
     const { plugin, unstartableBuild, fakeUname, attemptWithNothingTakingTheWarning } = sandbox();
 
     try {
@@ -492,7 +494,7 @@ describe("the folder the released builds land in", () => {
     }
   });
 
-  it("traces the turn with Node even when the warning lands in a dead pipe", () => {
+  posix("traces the turn with Node even when the warning lands in a dead pipe", () => {
     const { plugin, unstartableBuild, fakeUname, attemptWithTheWarningGoingIntoADeadPipe } =
       sandbox();
 
@@ -505,7 +507,7 @@ describe("the folder the released builds land in", () => {
     }
   });
 
-  it("stays quiet when the carried build runs, so nothing precedes the Windows half", () => {
+  posix("stays quiet when the carried build runs, so nothing precedes the Windows half", () => {
     const { plugin, build, fakeUname, attempt } = sandbox();
 
     try {
@@ -517,7 +519,7 @@ describe("the folder the released builds land in", () => {
     }
   });
 
-  it("hands Node a turn far larger than a pipe buffer when no build starts", () => {
+  posix("hands Node a turn far larger than a pipe buffer when no build starts", () => {
     const { plugin, unstartableBuild, countingGuard, fakeUname, attempt } = sandbox();
 
     try {
@@ -531,7 +533,7 @@ describe("the folder the released builds land in", () => {
     }
   });
 
-  it("hands a working build a turn far larger than a pipe buffer", () => {
+  posix("hands a working build a turn far larger than a pipe buffer", () => {
     const { plugin, countingBuild, fakeUname, attempt } = sandbox();
 
     try {

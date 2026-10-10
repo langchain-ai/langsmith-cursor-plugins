@@ -107,7 +107,7 @@ describe("standalone tracing preference", () => {
     await setThreadTracingMode(policy, "a", "full");
     expect(getThreadTracingMode(policy, "a")).toBe("full");
     expect(getThreadTracingMode(policy, "b")).toBe("metadata");
-    expect(statSync(policy).mode & 0o777).toBe(0o600);
+    if (process.platform !== "win32") expect(statSync(policy).mode & 0o777).toBe(0o600);
     expect(readdirSync(dir)).toEqual(["state.privacy.json"]);
   });
 
@@ -284,7 +284,7 @@ describe("standalone tracing preference", () => {
     const originalRename = fsPromises.rename;
     vi.spyOn(fsPromises, "rename").mockImplementation(async (from, to) => {
       expect(statSync(`${policy}.lock`).isDirectory()).toBe(true);
-      expect(statSync(`${policy}.lock`).mode & 0o777).toBe(0o700);
+      if (process.platform !== "win32") expect(statSync(`${policy}.lock`).mode & 0o777).toBe(0o700);
       expect(readdirSync(`${policy}.lock`)).toEqual([]);
       return originalRename(from, to);
     });
