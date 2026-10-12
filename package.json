@@ -22,17 +22,17 @@
     "clean": "rm -rf bin dist bundle"
   },
   "dependencies": {
-    "langsmith": "^0.10.2"
+    "langsmith": "^0.10.8"
   },
   "devDependencies": {
     "@langchain/langsmith-plugin-binary": "github:langchain-ai/langsmith-plugin-binary#v0.3.0",
-    "@types/node": "^26.4.1",
+    "@types/node": "^26.6.4",
     "esbuild": "^0.28.2",
-    "oxfmt": "^0.66.0",
-    "oxlint": "^1.81.0",
-    "tsx": "^4.23.13",
+    "oxfmt": "^0.71.0",
+    "oxlint": "^1.86.0",
+    "tsx": "^4.23.15",
     "typescript": "^7.0.2",
-    "vitest": "^5.0.0"
+    "vitest": "^5.0.3"
   },
   "engines": {
     "node": ">=22.13.0"
