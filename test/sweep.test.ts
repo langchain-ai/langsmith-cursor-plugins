@@ -14,7 +14,7 @@ import { DEFAULT_SWEEP_IDLE_MINUTES, MAX_UPLOAD_ATTEMPTS } from "../src/constant
 import * as logger from "../src/logger.js";
 import { runSweep } from "../src/sweep.js";
 import { loadState, saveState } from "../src/state.js";
-import type { Config } from "../src/config.js";
+import type { Config } from "../src/models/config.js";
 import { MUTED_TRACE_CONTENT } from "../src/privacy.js";
 import { initTracing, buildTurnRuns } from "../src/langsmith.js";
 import { replayHookLog } from "./utils/replay.js";

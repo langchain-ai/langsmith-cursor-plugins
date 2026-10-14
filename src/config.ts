@@ -7,17 +7,23 @@
 import {
   COMMON_BOOLEAN_SETTINGS,
   mergeCommonConfig,
-  readCommonConfigFile,
+  readCommonConfigFiles,
   toSdkReplicas,
-} from "./shared-config.js";
-import { userInfo } from "node:os";
+} from "@langchain/plugins-base/settings";
+import { homedir, userInfo } from "node:os";
 import { join } from "node:path";
 import { execSync } from "node:child_process";
 import type { RunTreeConfig } from "langsmith";
 import type { StringNodeRule } from "langsmith/anonymizer";
 import { debug as logDebug, error as logError } from "./logger.js";
-import { DEFAULT_PROJECT, DEFAULT_SWEEP_IDLE_MINUTES } from "./constants.js";
-import { homedir } from "node:os";
+import {
+  CURSOR_DIRECTORY_NAME,
+  DEFAULT_API_URL,
+  DEFAULT_PROJECT,
+  DEFAULT_SWEEP_IDLE_MINUTES,
+} from "./constants.js";
+import type { Config, CursorExtensions, EnvBooleanOptions } from "./models/config.js";
+import { parseBoolean, parseJson, parsePositiveNumber } from "./utils/parse.js";
 
 /**
  * Plugin version, injected at build time by esbuild `define` (no runtime
@@ -36,60 +42,6 @@ const PROVIDER_HOSTS: Record<string, string> = {
   bitbucket: "bitbucket.org",
   devAzure: "dev.azure.com",
 };
-
-export interface Config {
-  /** Master switch — tracing only runs when true. */
-  enabled: boolean;
-  /** Fallback for threads without an explicit override; independent of enabled. */
-  defaultMuted: boolean;
-  apiKey: string;
-  apiUrl: string;
-  project: string;
-  debug: boolean;
-  stateFilePath: string;
-  replicas?: RunTreeConfig["replicas"];
-  /** Identity / repo / user metadata attached to every run. */
-  customMetadata?: Record<string, unknown>;
-  /** Enrich turns with image/file attachment bytes from Cursor's DB (default on). */
-  attachmentsEnabled: boolean;
-  /** Recover the turn's system prompt from Cursor's DB (default on). */
-  systemPromptEnabled: boolean;
-  /** Override the Cursor state.vscdb path used for DB enrichment. */
-  cursorDbPath?: string;
-  /** Redact detected secrets from traced data before upload (default on). */
-  redact: boolean;
-  sweepIdleMinutes: number;
-  /** Extra user-supplied redaction rules (environment or common file config). */
-  redactExtraRules?: StringNodeRule[];
-}
-
-const DEFAULT_API_URL = "https://api.smith.langchain.com";
-
-// ─── Primitive parsers ───────────────────────────────────────────────────────
-
-function parseBoolean(value: unknown): boolean | undefined {
-  if (typeof value === "boolean") return value;
-  if (typeof value !== "string") return undefined;
-  const v = value.trim().toLowerCase();
-  if (["1", "true", "yes", "on"].includes(v)) return true;
-  if (["0", "false", "no", "off"].includes(v)) return false;
-  return undefined;
-}
-
-function parsePositiveNumber(value: unknown): number | undefined {
-  if (typeof value !== "string" || value.trim().length === 0) return undefined;
-  const parsed = Number(value);
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined;
-}
-
-function parseJson<T = Record<string, unknown>>(value: unknown): T | undefined {
-  if (typeof value !== "string" || value.trim().length === 0) return undefined;
-  try {
-    return JSON.parse(value) as T;
-  } catch {
-    return undefined;
-  }
-}
 
 /** Type guard for a user redaction rule: { pattern: string, replace?: string }. */
 function isRedactRule(rule: unknown): rule is StringNodeRule {
@@ -122,36 +74,25 @@ function parseRedactExtraRules(value: unknown): StringNodeRule[] | undefined {
 
 // ─── Cursor extensions are validated independently of the common contract ─────
 
-interface CursorExtensions {
-  attachments?: boolean;
-  system_prompt?: boolean;
-  sweep_idle_minutes?: number;
-  cursor_db_path?: string;
-}
-
-function readConfigFile(file: string) {
-  const result = readCommonConfigFile(file);
-  for (const diagnostic of result.diagnostics) logError(diagnostic);
+function cursorExtensions(raw: Record<string, unknown> | undefined): CursorExtensions {
   const extensions: CursorExtensions = {};
-  const raw = result.raw;
-  if (raw) {
-    for (const field of ["attachments", "system_prompt"] as const) {
-      if (!Object.hasOwn(raw, field)) continue;
-      if (typeof raw[field] === "boolean") extensions[field] = raw[field];
-      else logError(`Invalid Cursor config extension ${field}; ignoring field.`);
-    }
-    if (Object.hasOwn(raw, "sweep_idle_minutes")) {
-      const minutes = raw.sweep_idle_minutes;
-      if (typeof minutes === "number" && Number.isFinite(minutes) && minutes > 0)
-        extensions.sweep_idle_minutes = minutes;
-      else logError("Invalid Cursor config extension sweep_idle_minutes; ignoring field.");
-    }
-    if (Object.hasOwn(raw, "cursor_db_path")) {
-      if (typeof raw.cursor_db_path === "string") extensions.cursor_db_path = raw.cursor_db_path;
-      else logError("Invalid Cursor config extension cursor_db_path; ignoring field.");
-    }
+  if (!raw) return extensions;
+  for (const field of ["attachments", "system_prompt"] as const) {
+    if (!Object.hasOwn(raw, field)) continue;
+    if (typeof raw[field] === "boolean") extensions[field] = raw[field];
+    else logError(`Invalid Cursor config extension ${field}; ignoring field.`);
   }
-  return { common: result.common, extensions };
+  if (Object.hasOwn(raw, "sweep_idle_minutes")) {
+    const minutes = raw.sweep_idle_minutes;
+    if (typeof minutes === "number" && Number.isFinite(minutes) && minutes > 0)
+      extensions.sweep_idle_minutes = minutes;
+    else logError("Invalid Cursor config extension sweep_idle_minutes; ignoring field.");
+  }
+  if (Object.hasOwn(raw, "cursor_db_path")) {
+    if (typeof raw.cursor_db_path === "string") extensions.cursor_db_path = raw.cursor_db_path;
+    else logError("Invalid Cursor config extension cursor_db_path; ignoring field.");
+  }
+  return extensions;
 }
 
 /** Default mute accepts only untrimmed true/false; other present values fail closed. */
@@ -161,26 +102,11 @@ function parseStrictBoolean(value: string): boolean | undefined {
   return undefined;
 }
 
-const BOOLEAN_SETTINGS = {
-  enabled: {
-    env: "TRACE_TO_LANGSMITH",
-    parse: parseBoolean,
-    ...COMMON_BOOLEAN_SETTINGS.enabled,
-  },
-  defaultMuted: {
-    env: "LANGSMITH_CURSOR_DEFAULT_MUTED",
-    parse: parseStrictBoolean,
-    ...COMMON_BOOLEAN_SETTINGS.defaultMuted,
-  },
-} as const;
-type BooleanSetting = keyof typeof BOOLEAN_SETTINGS;
-
 /** Environment parsers retain their historical behavior, separate from strict file booleans. */
-function envBoolean(field: BooleanSetting): boolean | undefined {
-  const setting = BOOLEAN_SETTINGS[field];
-  const env = process.env[setting.env];
-  if (env === undefined) return undefined;
-  return setting.parse(env) ?? setting.restrictive;
+function envBoolean({ name, parse, restrictive }: EnvBooleanOptions): boolean | undefined {
+  const value = process.env[name];
+  if (value === undefined) return undefined;
+  return parse(value) ?? restrictive;
 }
 
 /** Read LANGSMITH_CURSOR_<suffix>, falling back to LANGSMITH_<suffix>. */
@@ -289,10 +215,19 @@ export function getGitInfo(cwd: string): { branch?: string; commit?: string } {
 export function loadConfig(options?: { cwd?: string }): Config {
   const cwd = options?.cwd ?? process.env.CURSOR_PROJECT_DIR ?? process.cwd();
 
-  const userRootFile = readConfigFile(join(homedir(), ".langsmith-plugins.json"));
-  const globalFile = readConfigFile(join(homedir(), ".cursor", "langsmith.json"));
-  const rootFile = readConfigFile(join(cwd, "langsmith-plugins.json"));
-  const localFile = readConfigFile(join(cwd, ".cursor", "langsmith.json"));
+  const files = readCommonConfigFiles({
+    cwd,
+    home: homedir(),
+    harnessDirectory: CURSOR_DIRECTORY_NAME,
+  });
+  for (const { diagnostics } of Object.values(files)) {
+    for (const diagnostic of diagnostics) logError(diagnostic);
+  }
+  const extensions = [files.harness, files.root, files.user, files.userRoot].map(({ raw }) =>
+    cursorExtensions(raw),
+  );
+  const fromFiles = <K extends keyof CursorExtensions>(field: K) =>
+    extensions.find((source) => source[field] !== undefined)?.[field];
 
   const envMetadata = parseJson(getEnv("METADATA"));
   const envReplicas = parseJson<Array<Record<string, unknown>>>(getEnv("RUNS_ENDPOINTS"));
@@ -300,13 +235,21 @@ export function loadConfig(options?: { cwd?: string }): Config {
 
   const common = mergeCommonConfig(
     {
-      harness: localFile.common,
-      root: rootFile.common,
-      user: globalFile.common,
-      userRoot: userRootFile.common,
+      harness: files.harness.common,
+      root: files.root.common,
+      user: files.user.common,
+      userRoot: files.userRoot.common,
       env: {
-        enabled: envBoolean("enabled"),
-        defaultMuted: envBoolean("defaultMuted"),
+        enabled: envBoolean({
+          name: "TRACE_TO_LANGSMITH",
+          parse: parseBoolean,
+          restrictive: COMMON_BOOLEAN_SETTINGS.enabled.restrictive,
+        }),
+        defaultMuted: envBoolean({
+          name: "LANGSMITH_CURSOR_DEFAULT_MUTED",
+          parse: parseStrictBoolean,
+          restrictive: COMMON_BOOLEAN_SETTINGS.defaultMuted.restrictive,
+        }),
         api_key: getEnv("API_KEY"),
         api_url: getEnv("ENDPOINT"),
         project: getEnv("PROJECT"),
@@ -325,41 +268,23 @@ export function loadConfig(options?: { cwd?: string }): Config {
   // File replicas are canonical and strict. Do not reparse legacy environment values as files.
   const replicas = normalizeReplicas(envReplicas) ?? toSdkReplicas(common.replicas);
 
-  // Attachment enrichment defaults ON; opt out via config or LANGSMITH_CURSOR_ATTACHMENTS.
+  // Attachment and system-prompt enrichment default ON; opt out via config or the environment.
   const attachmentsEnabled =
-    parseBoolean(getEnv("ATTACHMENTS")) ??
-    localFile.extensions.attachments ??
-    rootFile.extensions.attachments ??
-    globalFile.extensions.attachments ??
-    userRootFile.extensions.attachments ??
-    true;
-  // System-prompt enrichment defaults ON; opt out via config or LANGSMITH_CURSOR_SYSTEM_PROMPT.
+    parseBoolean(getEnv("ATTACHMENTS")) ?? fromFiles("attachments") ?? true;
   const systemPromptEnabled =
-    parseBoolean(getEnv("SYSTEM_PROMPT")) ??
-    localFile.extensions.system_prompt ??
-    rootFile.extensions.system_prompt ??
-    globalFile.extensions.system_prompt ??
-    userRootFile.extensions.system_prompt ??
-    true;
+    parseBoolean(getEnv("SYSTEM_PROMPT")) ?? fromFiles("system_prompt") ?? true;
   const sweepIdleMinutes =
     parsePositiveNumber(getEnv("SWEEP_IDLE_MINUTES")) ??
-    localFile.extensions.sweep_idle_minutes ??
-    rootFile.extensions.sweep_idle_minutes ??
-    globalFile.extensions.sweep_idle_minutes ??
-    userRootFile.extensions.sweep_idle_minutes ??
+    fromFiles("sweep_idle_minutes") ??
     DEFAULT_SWEEP_IDLE_MINUTES;
-  const cursorDbPath =
-    getEnv("DB_PATH") ??
-    localFile.extensions.cursor_db_path ??
-    rootFile.extensions.cursor_db_path ??
-    globalFile.extensions.cursor_db_path ??
-    userRootFile.extensions.cursor_db_path;
+  const cursorDbPath = getEnv("DB_PATH") ?? fromFiles("cursor_db_path");
 
   const redactExtraRules =
     parseRedactExtraRules(getEnv("REDACT_EXTRA")) ?? common.redact_extra_rules;
 
   const stateFilePath =
-    process.env.LANGSMITH_CURSOR_STATE_FILE ?? join(homedir(), ".cursor", "langsmith-state.json");
+    process.env.LANGSMITH_CURSOR_STATE_FILE ??
+    join(homedir(), CURSOR_DIRECTORY_NAME, "langsmith-state.json");
 
   // coding-agent-v1 base metadata (later spreads win). Identity literals are
   // owned by codingAgentMetadata(), so they're not here.

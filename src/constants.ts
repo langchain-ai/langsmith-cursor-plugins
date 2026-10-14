@@ -12,6 +12,10 @@ export const DEFAULT_PROJECT = "cursor";
 
 export const DEFAULT_SWEEP_IDLE_MINUTES = 360;
 
+export const DEFAULT_API_URL = "https://api.smith.langchain.com";
+
+export const CURSOR_DIRECTORY_NAME = ".cursor";
+
 export const MAX_UPLOAD_ATTEMPTS = 3;
 
 /** Cursor hook event → the name the standalone binary is invoked with for it. */
