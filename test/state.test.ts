@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
-import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 
 const warnings = vi.hoisted(() => [] as string[]);
 
@@ -68,6 +68,25 @@ describe("atomicUpdateState", () => {
       return { ...s, a: { turns: {}, turn_count: 1, updated: "t" } };
     });
     expect(Object.keys(loadState(file))).toEqual(["a"]);
+  });
+
+  it("sets a state file it cannot parse aside, keeps one copy, and carries on from empty", async () => {
+    const file = tmpStateFile();
+    writeFileSync(file, "{not json");
+    warnings.length = 0;
+    await atomicUpdateState(file, (s) => {
+      expect(s).toEqual({});
+      return { ...s, a: { turns: {}, turn_count: 1, updated: "t" } };
+    });
+    expect(Object.keys(loadState(file))).toEqual(["a"]);
+    expect(warnings.join("\n")).toContain("unreadable");
+
+    writeFileSync(file, "{worse");
+    await atomicUpdateState(file, (s) => ({ ...s, b: { turns: {}, turn_count: 1, updated: "t" } }));
+    expect(Object.keys(loadState(file))).toEqual(["b"]);
+    expect(readFileSync(`${file}.corrupt`, "utf8")).toBe("{worse");
+    const copies = readdirSync(dirname(file)).filter((name) => name.includes("corrupt"));
+    expect(copies).toEqual(["state.json.corrupt"]);
   });
 });
 
