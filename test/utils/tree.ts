@@ -47,7 +47,16 @@ export async function getAssumedTreeFromCalls(
     }
     if (!body) continue;
 
-    if (req === "POST /runs" || req === "POST /api/v1/runs") {
+    if (req === "POST /runs/batch" || req === "POST /api/v1/runs/batch") {
+      const batch = body as unknown as { post?: Run[]; patch?: Run[] };
+      for (const run of [...(batch.post ?? []), ...(batch.patch ?? [])]) {
+        upsertId(run.id);
+        nodeMap[run.id] = { ...nodeMap[run.id], ...run };
+        if (nodeMap[run.id].parent_run_id) {
+          edges.push([nodeMap[run.id].parent_run_id!, run.id]);
+        }
+      }
+    } else if (req === "POST /runs" || req === "POST /api/v1/runs") {
       const id = body.id;
       upsertId(id);
       nodeMap[id] = { ...nodeMap[id], ...body };

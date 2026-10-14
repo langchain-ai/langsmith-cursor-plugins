@@ -13,7 +13,7 @@ import {
 import { getGitInfo, getRepoName, getRepoUrl } from "@langchain/plugins-base/git";
 import { homedir, userInfo } from "node:os";
 import { join } from "node:path";
-import type { RunTreeConfig } from "langsmith";
+import type { LangSmithUploadReplicaConfig } from "@langchain/plugins-base/tracing/upload";
 import type { StringNodeRule } from "langsmith/anonymizer";
 import { debug as logDebug, error as logError } from "./logger.js";
 import {
@@ -107,15 +107,15 @@ function getEnv(suffix: string): string | undefined {
   return process.env[`LANGSMITH_CURSOR_${suffix}`] ?? process.env[`LANGSMITH_${suffix}`];
 }
 
-/** Legacy environment parser only: keep SDK tuples and existing snake/camel aliases. */
+/** Legacy environment parser only: accept SDK tuples and the existing snake/camel aliases. */
 function normalizeReplicas(
   replicas: Array<Record<string, unknown>> | undefined,
-): RunTreeConfig["replicas"] | undefined {
+): LangSmithUploadReplicaConfig[] | undefined {
   if (!Array.isArray(replicas) || replicas.some((r) => !r || typeof r !== "object"))
     return undefined;
   return replicas.map((r) =>
     Array.isArray(r)
-      ? r
+      ? { projectName: r[0] as string, updates: r[1] as Record<string, unknown> }
       : {
           ...(r.api_url || r.apiUrl ? { apiUrl: (r.api_url ?? r.apiUrl) as string } : {}),
           ...(r.api_key || r.apiKey ? { apiKey: (r.api_key ?? r.apiKey) as string } : {}),
@@ -124,7 +124,7 @@ function normalizeReplicas(
             : {}),
           ...(r.updates ? { updates: r.updates as Record<string, unknown> } : {}),
         },
-  ) as RunTreeConfig["replicas"];
+  );
 }
 
 // ─── Main loader ─────────────────────────────────────────────────────────────
@@ -246,5 +246,6 @@ export function loadConfig(options?: { cwd?: string }): Config {
     redact,
     redactExtraRules,
     sweepIdleMinutes,
+    cwd,
   };
 }

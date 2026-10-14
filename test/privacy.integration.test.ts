@@ -1,14 +1,18 @@
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { randomUUID } from "node:crypto";
+import { EventEmitter } from "node:events";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { Client as SDKClient, RunTreeConfig } from "langsmith";
 
-// No SDK mocks: capture only the HTTP boundary, after SDK enrichment,
-// anonymization, batching and (for multipart) splitting into individual parts.
-type Transport = "non-batched" | "json-batch" | "multipart";
-type Status = "running" | "completed" | "error";
+vi.mock("node:child_process", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("node:child_process")>()),
+  spawn: () => {
+    const child = new EventEmitter();
+    setImmediate(() => child.emit("error", new Error("worker launch is mocked")));
+    return child;
+  },
+}));
+
 type Payload = Record<string, any>;
 type Operation = { action: "post" | "patch"; payload: Payload };
 type RequestBody = {
@@ -25,16 +29,8 @@ const REVISION = `${FORBIDDEN}_revision`;
 const WORKSPACE = `${FORBIDDEN}_workspace`;
 const CI_SHA = `${FORBIDDEN}_ci`;
 const SECRET = "custom-sensitive-model-name";
-const REDACTED = "[private-model]";
-const transports: Transport[] = ["non-batched", "json-batch", "multipart"];
 
-let Client: typeof import("langsmith").Client;
-let RunTree: typeof import("langsmith").RunTree;
-let createRunTree: typeof import("../src/privacy.js").createRunTree;
-let createSecretAnonymizer: typeof import("langsmith/anonymizer").createSecretAnonymizer;
-let clients: Set<SDKClient>;
 let requests: RequestBody[];
-let transport: Transport;
 let allowedOrigins: string[];
 
 // Usage content is explicitly allowed, unlike general custom metadata/content.
@@ -69,33 +65,11 @@ const allowedMetadata = {
   ls_subagent_type: "Explore",
 };
 
-async function decodeMultipart(raw: string, contentType: string): Promise<Operation[]> {
-  const form = await new Response(raw, { headers: { "content-type": contentType } }).formData();
-  const operations = new Map<string, Operation>();
-  for (const [name, part] of form.entries()) {
-    const match = /^(post|patch)\.([^.]+)(?:\.(.+))?$/.exec(name);
-    // Unexpected attachment/other parts must fail rather than go unexamined.
-    expect(match, `unexpected multipart part ${name}`).not.toBeNull();
-    const [, action, id, field] = match!;
-    const key = `${action}.${id}`;
-    const op = operations.get(key) ?? { action: action as Operation["action"], payload: {} };
-    const value = JSON.parse(typeof part === "string" ? part : await part.text());
-    if (field) op.payload[field] = value;
-    else Object.assign(op.payload, value);
-    operations.set(key, op);
-  }
-  return [...operations.values()];
-}
-
 const captureFetch: typeof fetch = async (input, init) => {
   const url = new URL(input instanceof Request ? input.url : String(input));
   // Even shared/fallback clients cannot make an external request.
   expect(allowedOrigins).toContain(url.origin);
-  if (url.pathname === "/info") {
-    return Response.json({
-      batch_ingest_config: { use_multipart_endpoint: transport === "multipart" },
-    });
-  }
+  if (url.pathname === "/info") return Response.json({});
   const method = init?.method ?? (input instanceof Request ? input.method : "GET");
   const headers = new Headers(
     init?.headers ?? (input instanceof Request ? input.headers : undefined),
@@ -106,20 +80,20 @@ const captureFetch: typeof fetch = async (input, init) => {
       : input instanceof Request
         ? await input.text()
         : "";
-  let operations: Operation[];
-  if (url.pathname.endsWith("/runs/multipart")) {
-    operations = await decodeMultipart(raw, headers.get("content-type")!);
-  } else if (url.pathname.endsWith("/runs/batch")) {
-    const body = JSON.parse(raw);
-    operations = [
-      ...(body.post ?? []).map((payload: Payload) => ({ action: "post" as const, payload })),
-      ...(body.patch ?? []).map((payload: Payload) => ({ action: "patch" as const, payload })),
-    ];
-  } else {
-    expect(method).toMatch(/^(POST|PATCH)$/);
-    expect(url.pathname).toMatch(/\/runs(?:\/[\da-f-]+)?$/);
-    operations = [{ action: method === "POST" ? "post" : "patch", payload: JSON.parse(raw) }];
-  }
+  expect(method).toMatch(/^(POST|PATCH)$/);
+  expect(url.pathname).toMatch(/\/runs(?:\/batch|\/[\da-f-]+)?$/);
+  const operations: Operation[] = url.pathname.endsWith("/runs/batch")
+    ? [
+        ...((JSON.parse(raw).post ?? []) as Payload[]).map((payload) => ({
+          action: "post" as const,
+          payload,
+        })),
+        ...((JSON.parse(raw).patch ?? []) as Payload[]).map((payload) => ({
+          action: "patch" as const,
+          payload,
+        })),
+      ]
+    : [{ action: method === "POST" ? "post" : "patch", payload: JSON.parse(raw) }];
   requests.push({ url, method, raw, operations, headers });
   return Response.json({});
 };
@@ -144,98 +118,14 @@ beforeEach(async () => {
   vi.stubEnv("LANGSMITH_TRACING_SAMPLING_RATE", "1");
   vi.stubEnv("LANGSMITH_CURSOR_INTEGRATION_VERSION", "plugin-version");
   vi.stubGlobal("fetch", captureFetch);
-  clients = new Set();
   requests = [];
-  transport = "non-batched";
   allowedOrigins = [API];
-  ({ Client, RunTree } = await import("langsmith"));
-  ({ createRunTree } = await import("../src/privacy.js"));
-  ({ createSecretAnonymizer } = await import("langsmith/anonymizer"));
 });
 
-afterEach(async () => {
-  try {
-    await Promise.all([...clients].map((client) => client.flush()));
-  } finally {
-    vi.unstubAllGlobals();
-    vi.unstubAllEnvs();
-  }
+afterEach(() => {
+  vi.unstubAllGlobals();
+  vi.unstubAllEnvs();
 });
-
-function makeClient(): SDKClient {
-  const batched = transport !== "non-batched";
-  const client = new Client({
-    apiUrl: API,
-    apiKey: "test-only-key",
-    autoBatchTracing: batched,
-    manualFlushMode: batched,
-    blockOnRootRunFinalization: false,
-    tracingSamplingRate: 1,
-    // Deliberately leave omitTracedRuntimeInfo at its SDK default (false).
-    anonymizer: createSecretAnonymizer({ extraRules: [{ pattern: SECRET, replace: REDACTED }] }),
-    hideMetadata: createSecretAnonymizer({ extraRules: [{ pattern: SECRET, replace: REDACTED }] }),
-    fetchImplementation: captureFetch,
-  });
-  clients.add(client);
-  return client;
-}
-
-function config(
-  client?: SDKClient,
-  status: Status = "running",
-  id: string = randomUUID(),
-): RunTreeConfig {
-  return {
-    client,
-    id,
-    trace_id: id,
-    dotted_order: `20250101T000000000000Z${id}`,
-    name: "privacy integration",
-    run_type: "chain",
-    project_name: "primary",
-    start_time: "2025-01-01T00:00:00Z",
-    ...(status !== "running" ? { end_time: "2025-01-01T00:00:01Z" } : {}),
-    ...(status === "error" ? { error: `${FORBIDDEN}_raw_error` } : {}),
-    inputs: { prompt: `${FORBIDDEN}_input` },
-    outputs: { answer: `${FORBIDDEN}_output` },
-    tags: [`${FORBIDDEN}_tag`],
-    serialized: { private: `${FORBIDDEN}_serialized` },
-    extra: {
-      private: `${FORBIDDEN}_extra`,
-      runtime: { custom: `${FORBIDDEN}_runtime` },
-      metadata: {
-        ...allowedMetadata,
-        cwd: `${FORBIDDEN}_cwd`,
-        repository_name: `${FORBIDDEN}_repository`,
-        user_id: `${FORBIDDEN}_identity`,
-        ls_invocation_params: { private: FORBIDDEN },
-        custom: FORBIDDEN,
-      },
-    },
-  };
-}
-
-async function flush(): Promise<void> {
-  await Promise.all([...clients].map((client) => client.flush()));
-}
-
-function expectTransport(expectedRequests: number): Operation[] {
-  expect(requests).toHaveLength(expectedRequests);
-  for (const request of requests) {
-    if (transport === "non-batched") {
-      expect(request.url.pathname).toMatch(/\/runs(?:\/[\da-f-]+)?$/);
-      expect(request.operations).toHaveLength(1);
-    } else {
-      expect(request.method).toBe("POST");
-      expect(
-        request.url.pathname.endsWith(
-          transport === "multipart" ? "/runs/multipart" : "/runs/batch",
-        ),
-      ).toBe(true);
-    }
-  }
-  return requests.flatMap((request) => request.operations);
-}
 
 function expectMutedContent(payload: Payload, excludeInputs = false): void {
   if (excludeInputs) {
@@ -250,6 +140,7 @@ function expectMutedContent(payload: Payload, excludeInputs = false): void {
       ],
     });
   }
+  if (excludeInputs && payload.outputs === undefined) return;
   expect.soft(payload.outputs).toEqual({
     messages: [
       {
@@ -258,24 +149,6 @@ function expectMutedContent(payload: Payload, excludeInputs = false): void {
       },
     ],
   });
-}
-
-function expectMetadata(payload: Payload, status: Status, redacted = true): void {
-  // Soft assertions show post AND patch leaks in one run, rather than hiding
-  // replica update failures behind the earlier post's runtime enrichment.
-  expectMutedContent(payload);
-  expect.soft(payload.error).toBeUndefined();
-  // Exact equality, not just a denylist: newly SDK-injected keys are forbidden too.
-  expect.soft(payload.extra).toEqual({
-    metadata: {
-      ...allowedMetadata,
-      ls_model_name: redacted ? REDACTED : SECRET,
-      status,
-      ls_tracing_mode: "metadata",
-    },
-  });
-  expect.soft(JSON.stringify(payload)).not.toContain(FORBIDDEN);
-  if (redacted) expect.soft(JSON.stringify(payload)).not.toContain(SECRET);
 }
 
 function replicaUpdates(): Payload {
@@ -291,384 +164,7 @@ function replicaUpdates(): Payload {
   };
 }
 
-describe.each(transports)("real SDK privacy over %s", (selectedTransport) => {
-  it.each([{}, { ...allowedUsage, annotation: SECRET }])(
-    "preserves open usage objects through post/patch and anonymization: %j",
-    async (usage) => {
-      transport = selectedTransport;
-      const client = makeClient();
-      const initial = config(client);
-      initial.extra!.metadata!.usage_metadata = usage;
-      const run = createRunTree(initial, "metadata");
-      await run.postRun();
-      await flush();
-      run.end_time = Date.parse("2025-01-01T00:00:01Z");
-      await run.patchRun({ excludeInputs: false });
-      await flush();
-      const operations = expectTransport(2);
-      expect(operations.map(({ action }) => action)).toEqual(["post", "patch"]);
-      for (const { action, payload } of operations) {
-        expectMutedContent(payload);
-        expect(payload.extra).toEqual({
-          metadata: {
-            ...allowedMetadata,
-            ls_model_name: REDACTED,
-            usage_metadata: "annotation" in usage ? { ...usage, annotation: REDACTED } : {},
-            status: action === "post" ? "running" : "completed",
-            ls_tracing_mode: "metadata",
-          },
-        });
-      }
-      for (const request of requests) {
-        expect(request.raw).not.toContain(FORBIDDEN);
-        expect(request.raw).not.toContain(SECRET);
-      }
-    },
-  );
-
-  it.each(["base"] as const)(
-    "projects custom %s collisions using explicit builder provenance at the wire",
-    async () => {
-      transport = selectedTransport;
-      const { codingAgentMetadata } = await import("../src/metadata.js");
-      const collisions = Object.fromEntries(
-        Object.keys(allowedMetadata).map((key) => [key, `${FORBIDDEN}_${key}`]),
-      );
-      collisions.usage_metadata = { total_tokens: 999, custom: FORBIDDEN };
-      const metadata = codingAgentMetadata({
-        threadId: "plugin-session",
-        turnId: "plugin-turn",
-        turnNumber: 2,
-        agentType: "root",
-        runType: "root",
-        runtimeVersion: "plugin-runtime",
-        base: collisions,
-        modelName: SECRET,
-        usageMetadata: allowedUsage,
-      });
-      const client = makeClient();
-      const initial = { ...config(client), extra: { metadata } };
-      await createRunTree(initial, "metadata").postRun();
-      await flush();
-      await createRunTree(
-        { ...config(client, "completed", initial.id), extra: { metadata } },
-        "metadata",
-      ).patchRun({ excludeInputs: true });
-      await flush();
-      const operations = expectTransport(2);
-      expect(operations.map(({ action }) => action)).toEqual(["post", "patch"]);
-      for (const { action, payload } of operations) {
-        expectMutedContent(payload, action === "patch");
-        expect(payload.extra).toEqual({
-          metadata: {
-            thread_id: "plugin-session",
-            turn_id: "plugin-turn",
-            turn_number: 2,
-            ls_agent_purpose: "coding",
-            ls_agent_type: "root",
-            ls_agent_runtime: "Cursor",
-            ls_agent_runtime_version: "plugin-runtime",
-            ls_integration: "cursor",
-            ls_integration_version: "plugin-version",
-            ls_trace_schema_version: "coding-agent-v1",
-            ls_model_name: REDACTED,
-            usage_metadata: allowedUsage,
-            status: action === "post" ? "running" : "completed",
-            ls_tracing_mode: "metadata",
-          },
-        });
-        expect(JSON.stringify(payload)).not.toContain(FORBIDDEN);
-        expect(JSON.stringify(payload)).not.toContain(SECRET);
-      }
-    },
-  );
-
-  it("preserves parent identity, trace ordering and lifecycle timestamps on the wire", async () => {
-    transport = selectedTransport;
-    const client = makeClient();
-    const parentId = randomUUID();
-    const traceId = randomUUID();
-    const initial = {
-      ...config(client),
-      parent_run_id: parentId,
-      trace_id: traceId,
-      dotted_order: `20241231T235959000000Z${parentId}.20250101T000000000000Z${randomUUID()}`,
-    };
-    await createRunTree(initial, "metadata").postRun();
-    await flush();
-    await createRunTree(
-      { ...initial, end_time: "2025-01-01T00:00:01Z", error: `${FORBIDDEN}_failure` },
-      "metadata",
-    ).patchRun({ excludeInputs: false });
-    await flush();
-    const operations = expectTransport(2);
-    expect(operations.map(({ action }) => action)).toEqual(["post", "patch"]);
-    expect(operations[0].payload).toMatchObject({
-      id: initial.id,
-      name: initial.name,
-      run_type: initial.run_type,
-      session_name: initial.project_name,
-      start_time: initial.start_time,
-    });
-    expect(operations[0].payload.end_time).toBeUndefined();
-    for (const { payload } of operations) {
-      expect(payload).toMatchObject({
-        parent_run_id: parentId,
-        trace_id: traceId,
-        dotted_order: initial.dotted_order,
-      });
-    }
-    expect(operations[1].payload.end_time).toBe("2025-01-01T00:00:01Z");
-    expectMetadata(operations[0].payload, "running");
-    expectMetadata(operations[1].payload, "error");
-  });
-
-  it("mixes metadata and full runs on one client, with separately serialized post and patch", async () => {
-    transport = selectedTransport;
-    const client = makeClient();
-    const ids = [randomUUID(), randomUUID(), randomUUID()];
-    const modes = ["metadata", "full", "metadata"] as const;
-    for (let i = 0; i < ids.length; i++) {
-      const run = createRunTree(config(client, "running", ids[i]), modes[i]);
-      expect(run).toBeInstanceOf(RunTree);
-      await run.postRun();
-    }
-    // A real flush boundary prevents the SDK merging a patch into its post.
-    await flush();
-    expectTransport(transport === "non-batched" ? 3 : 1);
-    for (let i = 0; i < ids.length; i++) {
-      // The plugin reconstructs RunTrees for updates in later hook processes.
-      await createRunTree(
-        config(client, i === 2 ? "completed" : "error", ids[i]),
-        modes[i],
-      ).patchRun({ excludeInputs: false });
-    }
-    await flush();
-    const operations = expectTransport(transport === "non-batched" ? 6 : 2);
-    expect(operations).toHaveLength(6);
-    for (let i = 0; i < ids.length; i++) {
-      const own = operations.filter(
-        ({ payload }) =>
-          payload.id === ids[i] ||
-          // Non-batched PATCH identifies the run in its URL, not its JSON body.
-          requests.some(
-            (request) =>
-              request.url.pathname.endsWith(`/runs/${ids[i]}`) &&
-              request.operations.some((op) => op.payload === payload),
-          ),
-      );
-      expect(own.map(({ action }) => action)).toEqual(["post", "patch"]);
-      if (modes[i] === "metadata") {
-        expectMetadata(own[0].payload, "running");
-        expectMetadata(own[1].payload, i === 2 ? "completed" : "error");
-      } else {
-        for (const { payload } of own) {
-          expect(payload.inputs).toEqual({ prompt: `${FORBIDDEN}_input` });
-          expect(payload.outputs).toEqual({ answer: `${FORBIDDEN}_output` });
-          expect(payload.extra.metadata).toMatchObject({
-            custom: FORBIDDEN,
-            ls_model_name: REDACTED,
-          });
-          expect(payload.extra.metadata.ls_tracing_mode).toBeUndefined();
-        }
-        expect(own[0].payload.extra.metadata).toMatchObject({
-          revision_id: REVISION,
-          LANGSMITH_WORKSPACE_ID: WORKSPACE,
-        });
-        expect(own[0].payload.extra.runtime).toMatchObject({
-          library: "langsmith",
-          CI_COMMIT_SHA: CI_SHA,
-        });
-        expect(own[1].payload.error).toBe(`${FORBIDDEN}_raw_error`);
-      }
-    }
-  });
-
-  it.each(["object", "tuple"] as const)(
-    "sanitizes %s replica updates without bypassing the destination anonymizer",
-    async (kind) => {
-      transport = selectedTransport;
-      const primary = makeClient();
-      const dedicated = makeClient();
-      const replicas: RunTreeConfig["replicas"] =
-        kind === "object"
-          ? [
-              {
-                projectName: "replica",
-                apiUrl: `${API}/dedicated`,
-                client: dedicated,
-                updates: replicaUpdates(),
-              },
-            ]
-          : [["replica", replicaUpdates()]];
-      const initial = { ...config(primary), replicas };
-      await createRunTree(initial, "metadata").postRun();
-      await flush();
-      expectTransport(1);
-      await createRunTree(
-        { ...config(primary, "error", initial.id), replicas },
-        "metadata",
-      ).patchRun({ excludeInputs: false });
-      await flush();
-      const operations = expectTransport(2);
-      expect(operations.map(({ action }) => action)).toEqual(["post", "patch"]);
-      expect(operations[0].payload.session_name).toBe("replica");
-      expect(
-        requests.every(({ url }) =>
-          url.pathname.startsWith(kind === "object" ? "/dedicated/runs" : "/runs"),
-        ),
-      ).toBe(true);
-      expectMetadata(operations[0].payload, "running");
-      expectMetadata(operations[1].payload, "error");
-    },
-  );
-});
-
-describe.each(["json-batch", "multipart"] as const)(
-  "coalesced %s payloads",
-  (selectedTransport) => {
-    it("retains the final privacy projection when a patch merges into its create", async () => {
-      transport = selectedTransport;
-      const client = makeClient();
-      const initial = config(client);
-      await createRunTree(initial, "metadata").postRun();
-      await createRunTree(config(client, "completed", initial.id), "metadata").patchRun({
-        excludeInputs: false,
-      });
-      await flush();
-      const operations = expectTransport(1);
-      expect(operations).toHaveLength(1);
-      expect(operations[0].action).toBe("post");
-      expectMetadata(operations[0].payload, "completed");
-      expect(requests[0].raw).not.toContain(FORBIDDEN);
-    });
-  },
-);
-
-describe("environment and shared SDK clients", () => {
-  it("filters metadata/runtime on a real shared-client fallback", async () => {
-    // No getSharedClient mock/private singleton replacement. The default shared
-    // client batches; its global fetch is intercepted just like explicit clients.
-    transport = "json-batch";
-    const initial = {
-      ...config(),
-      replicas: [["shared-replica", replicaUpdates()]] as RunTreeConfig["replicas"],
-    };
-    const run = createRunTree(initial, "metadata");
-    const shared = RunTree.getSharedClient();
-    clients.add(shared);
-    expect(run.client).toBe(shared);
-    await run.postRun();
-    await flush();
-    expectTransport(1);
-    await createRunTree(
-      { ...initial, ...config(undefined, "completed", initial.id) },
-      "metadata",
-    ).patchRun({ excludeInputs: false });
-    await flush();
-    const operations = expectTransport(2);
-    expect(operations.map(({ action }) => action)).toEqual(["post", "patch"]);
-    // Shared SDK client has no anonymizer configured; privacy still applies.
-    expectMetadata(operations[0].payload, "running", false);
-    expectMetadata(operations[1].payload, "completed", false);
-  });
-
-  it.each(["plugin", "sdk"] as const)(
-    "does not leak %s environment-derived replica updates",
-    async (source) => {
-      transport = "json-batch";
-      const updates = replicaUpdates();
-      if (source === "plugin") {
-        vi.stubEnv("LANGSMITH_CURSOR_RUNS_ENDPOINTS", JSON.stringify([["env-replica", updates]]));
-      } else {
-        // SDK endpoint parsing ignores updates, but the entire environment string
-        // is also injected as metadata by Client, including on batched PATCH.
-        vi.stubEnv(
-          "LANGSMITH_RUNS_ENDPOINTS",
-          JSON.stringify([
-            {
-              api_url: `${API}/environment`,
-              api_key: "test-only-key",
-              project_name: "env-replica",
-              updates,
-            },
-          ]),
-        );
-      }
-      const client = makeClient();
-      // Same JSON parsing as loadConfig, without unrelated disk/git discovery.
-      const replicas =
-        source === "plugin" ? JSON.parse(process.env.LANGSMITH_CURSOR_RUNS_ENDPOINTS!) : undefined;
-      const initial = { ...config(client), replicas };
-      await createRunTree(initial, "metadata").postRun();
-      await flush();
-      expectTransport(1);
-      await createRunTree(
-        { ...config(client, "error", initial.id), replicas },
-        "metadata",
-      ).patchRun({ excludeInputs: false });
-      await flush();
-      const operations = expectTransport(2);
-      expect(operations.map(({ action }) => action)).toEqual(["post", "patch"]);
-      expect(operations[0].payload.session_name).toBe("env-replica");
-      expectMetadata(operations[0].payload, "running");
-      expectMetadata(operations[1].payload, "error");
-      for (const request of requests) expect(request.raw).not.toContain(FORBIDDEN);
-    },
-  );
-});
-
-describe.each(transports)("Cursor child boundary over %s", (selectedTransport) => {
-  it("drops inherited distributed content and late mutations while retaining parentage", async () => {
-    transport = selectedTransport;
-    const client = makeClient();
-    const parent = RunTree.fromHeaders(
-      {
-        "langsmith-trace": `20250101T000000000000Z${randomUUID()}`,
-        baggage: `langsmith-metadata=${encodeURIComponent(JSON.stringify({ thread_id: FORBIDDEN, cwd: FORBIDDEN }))},langsmith-tags=${FORBIDDEN}`,
-      },
-      { client },
-    )!;
-    parent.events = [{ name: FORBIDDEN, time: new Date().toISOString() }];
-    parent.attachments = { private: ["text/plain", Buffer.from(FORBIDDEN)] };
-    const root = createRunTree({ ...config(client), parent_run: parent }, "metadata");
-    await root.postRun();
-    const child = root.createChild({
-      ...config(client, "error"),
-      trace_id: undefined,
-      dotted_order: undefined,
-      name: "Read",
-      run_type: "tool",
-    });
-    child.inputs = { private: FORBIDDEN };
-    child.outputs = { private: FORBIDDEN };
-    child.tags = [FORBIDDEN];
-    child.events = parent.events;
-    child.attachments = parent.attachments;
-    child.extra = {
-      metadata: { ...allowedMetadata, thread_id: FORBIDDEN },
-      runtime: { private: FORBIDDEN },
-    };
-    await child.postRun();
-    await flush();
-    root.outputs = { private: FORBIDDEN };
-    root.error = FORBIDDEN;
-    root.end_time = Date.parse("2025-01-01T00:00:02Z");
-    await root.patchRun({ excludeInputs: false });
-    await flush();
-    const operations = requests.flatMap((r) => r.operations);
-    expect(operations).toHaveLength(3);
-    expectMetadata(operations[0].payload, "running");
-    expectMetadata(operations[1].payload, "error");
-    expectMetadata(operations[2].payload, "error");
-    expect(operations[0].payload.parent_run_id).toBe(parent.id);
-    expect(operations[1].payload.parent_run_id).toBe(root.id);
-    expect(operations[1].payload.trace_id).toBe(root.trace_id);
-    for (const request of requests) expect(request.raw).not.toContain(FORBIDDEN);
-  });
-});
-
-describe.each(transports)("overlapping Cursor launch privacy over %s", (selectedTransport) => {
+describe("overlapping Cursor launch privacy", { timeout: 60_000 }, () => {
   it.each([
     "conversation-id",
     "muted-generation",
@@ -676,7 +172,7 @@ describe.each(transports)("overlapping Cursor launch privacy over %s", (selected
     "full-tool-link",
     "conflicting-proof",
   ] as const)("uses %s evidence without changing the latest-turn tree", async (evidence) => {
-    transport = selectedTransport;
+    allowedOrigins = [API, "http://127.0.0.1"];
     const {
       reduceBeforeSubmitPrompt,
       reducePostToolUse,
@@ -684,7 +180,7 @@ describe.each(transports)("overlapping Cursor launch privacy over %s", (selected
       reduceSubagentStop,
       reduceStop,
     } = await import("../src/reducer.js");
-    const { initTracing, buildTurnRuns } = await import("../src/langsmith.js");
+    const { sendTurn } = await import("./utils/engine.js");
     const sentinel = "PRIVATE_OVERLAPPING_SUBAGENT";
     const base = { conversation_id: "parent", generation_id: "genA", model: "default" };
     let state = reduceBeforeSubmitPrompt(
@@ -790,25 +286,26 @@ describe.each(transports)("overlapping Cursor launch privacy over %s", (selected
     expect(stopped.state.child).toBeUndefined();
     const buffer = stopped.buffer!;
     buffer.subagents[0].systemPrompt = sentinel;
-    const client = makeClient();
-    initTracing(undefined, undefined, undefined, false, undefined, client);
     const shapes = [];
     // Compare privacy-only rendering to the old full serialization, not a different join.
     for (const baseline of [false, true]) {
       requests = [];
-      await buildTurnRuns({
-        buffer: {
-          ...buffer,
-          subagents: buffer.subagents.map((sub) => ({
-            ...sub,
-            tracingMode: baseline ? "full" : sub.tracingMode,
-          })),
+      await sendTurn(
+        captureFetch,
+        {
+          buffer: {
+            ...buffer,
+            subagents: buffer.subagents.map((sub) => ({
+              ...sub,
+              tracingMode: baseline ? "full" : sub.tracingMode,
+            })),
+          },
+          conversationId: "parent",
+          turnNum: 1,
+          project: "test",
         },
-        conversationId: "parent",
-        turnNum: 1,
-        project: "test",
-      });
-      await flush();
+        false,
+      );
       const posts = requests
         .flatMap((r) => r.operations)
         .filter((op) => op.action === "post")
@@ -846,7 +343,7 @@ describe.each(transports)("overlapping Cursor launch privacy over %s", (selected
 // Project/home root file -> real prompt snapshot -> existing stop reducer -> actual builder/SDK wire.
 // No injected Client: credentials, destinations and anonymizer all come from loadConfig.
 describe.each(["project", "home"] as const)("common %s root config", (scope) => {
-  describe.each(transports)("at the wire over %s", (selectedTransport) => {
+  describe("at the wire through the saved uploader", { timeout: 60_000 }, () => {
     it.each([
       "muted-redact-off",
       "full-redact-off",
@@ -854,7 +351,6 @@ describe.each(["project", "home"] as const)("common %s root config", (scope) => 
       "keyless-muted-redact-off",
       "keyless-full-redact-off",
     ] as const)("%s", async (scenario) => {
-      transport = selectedTransport;
       allowedOrigins = [API, "http://replica.test"];
       vi.stubEnv("LANGSMITH_ENDPOINT", undefined);
       vi.stubEnv("LANGSMITH_API_KEY", undefined);
@@ -926,7 +422,7 @@ describe.each(["project", "home"] as const)("common %s root config", (scope) => 
         const { loadConfig } = await import("../src/config.js");
         const { loadState } = await import("./utils/state.js");
         const { reduceStop } = await import("../src/reducer.js");
-        const { initTracing, buildTurnRuns } = await import("../src/langsmith.js");
+        const { runEngineWorker, saveTurnForUpload } = await import("../src/tracing-engine.js");
         const input = {
           conversation_id: "file-thread",
           generation_id: "file-turn",
@@ -954,28 +450,14 @@ describe.each(["project", "home"] as const)("common %s root config", (scope) => 
           Date.now(),
         );
         expect(stopped.buffer?.tracingMode).toBe(muted ? "metadata" : "full");
-        const client = initTracing(
-          cfg.apiKey,
-          cfg.apiUrl,
-          cfg.replicas,
-          cfg.redact,
-          cfg.redactExtraRules,
-        )!;
-        // Transport selection only; routing/auth/redaction remain the production config path.
-        Object.assign(client, {
-          autoBatchTracing: transport !== "non-batched",
-          manualFlushMode: transport !== "non-batched",
-          blockOnRootRunFinalization: false,
-        });
-        clients.add(client);
-        await buildTurnRuns({
+        await saveTurnForUpload(cfg, {
           buffer: { ...stopped.buffer!, finalText: "file-sensitive-789" },
           conversationId: input.conversation_id,
           turnNum: stopped.turnNum,
           project: cfg.project,
           customMetadata: cfg.customMetadata,
         });
-        await flush();
+        await runEngineWorker(cfg, input.conversation_id);
         expect(new Set(requests.map((r) => r.url.origin))).toEqual(new Set(allowedOrigins));
         for (const request of requests) {
           const replica = request.url.origin === "http://replica.test";

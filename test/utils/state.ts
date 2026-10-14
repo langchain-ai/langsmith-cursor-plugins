@@ -54,6 +54,7 @@ export function testConfig(stateFilePath: string): Config {
     systemPromptEnabled: false,
     redact: true,
     sweepIdleMinutes: 60,
+    cwd: dirname(stateFilePath),
   };
 }
 

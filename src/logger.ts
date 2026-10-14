@@ -7,7 +7,7 @@ import { dirname } from "node:path";
 import { homedir } from "node:os";
 import { HOOK_LOG_FILE_NAME, MAX_LOG_BYTES } from "./constants.js";
 
-const LOG_FILE =
+export const LOG_FILE =
   process.env.LANGSMITH_CURSOR_LOG_FILE ?? `${homedir()}/.cursor/${HOOK_LOG_FILE_NAME}`;
 
 let debugEnabled = false;

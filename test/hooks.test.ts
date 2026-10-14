@@ -20,8 +20,8 @@ const harness = vi.hoisted(() => ({
   config: undefined as Config | undefined,
   uploadError: undefined as Error | undefined,
   uploadAccepted: true,
-  initTracing: vi.fn(),
-  uploadTurn: vi.fn(async () => {
+  recoverConversations: vi.fn(async () => {}),
+  saveTurnForUpload: vi.fn(async () => {
     if (harness.uploadError) throw harness.uploadError;
     return harness.uploadAccepted;
   }),
@@ -30,9 +30,9 @@ const harness = vi.hoisted(() => ({
 vi.mock("../src/utils/stdin.js", () => ({ readStdin: async () => harness.input }));
 vi.mock("../src/utils/hook-init.js", () => ({ initHook: () => harness.config ?? null }));
 vi.mock("../src/conversation-steps.js", () => ({ resolveTurnSteps: () => undefined }));
-vi.mock("../src/langsmith.js", () => ({
-  initTracing: harness.initTracing,
-  uploadTurn: harness.uploadTurn,
+vi.mock("../src/tracing-engine.js", () => ({
+  recoverConversations: harness.recoverConversations,
+  saveTurnForUpload: harness.saveTurnForUpload,
 }));
 
 const HOOKS = {
@@ -44,7 +44,7 @@ const HOOKS = {
 async function runHook(name: keyof typeof HOOKS): Promise<void> {
   vi.resetModules();
   const hook = await HOOKS[name]();
-  await hook.finished;
+  await hook.run();
 }
 
 describe("hook wiring against the on-disk state file", () => {
@@ -60,8 +60,8 @@ describe("hook wiring against the on-disk state file", () => {
     process.env.LANGSMITH_CURSOR_LOG_FILE = join(dir, "hook.log");
     harness.uploadError = undefined;
     harness.uploadAccepted = true;
-    harness.initTracing.mockClear();
-    harness.uploadTurn.mockClear();
+    harness.saveTurnForUpload.mockClear();
+    harness.recoverConversations.mockClear();
     harness.config = testConfig(stateFilePath);
     harness.input = {
       hook_event_name: "stop",
@@ -112,7 +112,7 @@ describe("hook wiring against the on-disk state file", () => {
 
     await runHook("stop");
 
-    expect(harness.uploadTurn).toHaveBeenCalledTimes(1);
+    expect(harness.saveTurnForUpload).toHaveBeenCalledTimes(1);
     const after = loadState(stateFilePath);
     expect(after.live).toMatchObject({ turns: {}, turn_count: 1 });
     expect(after.live.pending).toBeUndefined();
@@ -148,7 +148,7 @@ describe("hook wiring against the on-disk state file", () => {
 
     await runHook("stop");
 
-    expect(harness.uploadTurn).toHaveBeenCalledTimes(2);
+    expect(harness.saveTurnForUpload).toHaveBeenCalledTimes(2);
     const after = loadState(stateFilePath);
     expect(after.stranded).toMatchObject({ turns: {}, turn_count: 1 });
     expect(after.stranded.pending).toBeUndefined();
@@ -165,7 +165,7 @@ describe("hook wiring against the on-disk state file", () => {
 
     await runHook("session-start");
 
-    expect(harness.uploadTurn).toHaveBeenCalledTimes(1);
+    expect(harness.saveTurnForUpload).toHaveBeenCalledTimes(1);
     expect(loadState(stateFilePath).stranded.turn_count).toBe(1);
   });
 
@@ -187,7 +187,7 @@ describe("hook wiring against the on-disk state file", () => {
     const after = loadState(stateFilePath);
     expect(after.live.turns.g1.tools.map((t) => t.name)).toEqual(["Read"]);
     expect(Object.keys(after.stranded.turns)).toEqual(["gs"]);
-    expect(harness.uploadTurn).not.toHaveBeenCalled();
+    expect(harness.saveTurnForUpload).not.toHaveBeenCalled();
   });
 
   it("keeps a failed sweep upload pending for a later retry", async () => {
@@ -222,7 +222,7 @@ describe("hook wiring against the on-disk state file", () => {
 
     await sweepAsCaller(T0 + 3 * HOUR);
 
-    const provisional = harness.uploadTurn.mock.calls[0][0] as {
+    const provisional = harness.saveTurnForUpload.mock.calls[0][1] as {
       turnNum: number;
       buffer: { status?: string };
     };
@@ -233,8 +233,8 @@ describe("hook wiring against the on-disk state file", () => {
     vi.setSystemTime(T0 + 3 * HOUR + MINUTE);
     await runHook("stop");
 
-    expect(harness.uploadTurn).toHaveBeenCalledTimes(2);
-    const superseding = harness.uploadTurn.mock.calls[1][0] as {
+    expect(harness.saveTurnForUpload).toHaveBeenCalledTimes(2);
+    const superseding = harness.saveTurnForUpload.mock.calls[1][1] as {
       turnNum: number;
       conversationId: string;
       buffer: { status?: string; prompt?: string };
@@ -257,19 +257,20 @@ describe("hook wiring against the on-disk state file", () => {
     expect(loadState(stateFilePath).stranded.turns.gs.sweptAtMs).toBe(T0 + 3 * HOUR);
 
     await sweepAsCaller(T0 + 3 * HOUR + MINUTE);
-    expect(harness.uploadTurn).toHaveBeenCalledTimes(1);
+    expect(harness.saveTurnForUpload).toHaveBeenCalledTimes(1);
     expect(loadState(stateFilePath).stranded.turns.gs).toBeDefined();
 
     await sweepAsCaller(T0 + 5 * HOUR);
-    expect(harness.uploadTurn).toHaveBeenCalledTimes(1);
+    expect(harness.saveTurnForUpload).toHaveBeenCalledTimes(1);
     expect(loadState(stateFilePath).stranded.turns).toEqual({});
   });
 
-  it("loads the tracing module only once a turn is claimed", async () => {
-    saveState(stateFilePath, { live: conversation([turn("g1", T0 + 3 * HOUR)]) });
-
-    await sweepAsCaller(T0 + 3 * HOUR);
-
-    expect(harness.initTracing).not.toHaveBeenCalled();
+  it("restarts the uploader of an older conversation whose saved traces are waiting", async () => {
+    await sweepAsCaller(T0);
+    expect(harness.recoverConversations).toHaveBeenCalledWith(
+      harness.config,
+      "caller",
+      harness.config!.sweepIdleMinutes * MINUTE,
+    );
   });
 });
