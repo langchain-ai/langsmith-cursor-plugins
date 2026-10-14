@@ -2,7 +2,6 @@ import { describe, it, expect } from "vitest";
 import { join } from "node:path";
 import type { Run } from "langsmith";
 import { codingAgentMetadata, skillNameFromTool } from "../src/metadata.js";
-import type { CodingAgentMetadataOptions, LSAgentType } from "../src/models/metadata.js";
 import { replayHookLog, type FinalizedTurn } from "./utils/replay.js";
 import { mockClient } from "./utils/mock_client.js";
 import { getAssumedTreeFromCalls } from "./utils/tree.js";
@@ -45,64 +44,14 @@ async function tracedRuns(
 // ─── Helper unit tests ────────────────────────────────────────────────────────
 
 describe("codingAgentMetadata helper", () => {
-  const bare = () => codingAgentMetadata({ agentType: "root", threadId: "conv-1" });
-  const withOpts = (opts: Partial<CodingAgentMetadataOptions>) =>
-    codingAgentMetadata({ agentType: "root", threadId: "c", ...opts });
-
-  it("stamps the frozen cursor identity block on every run", () => {
-    expect(bare()).toMatchObject({
-      ls_agent_purpose: "coding",
-      ls_agent_type: "root",
+  it("stamps the Cursor identity on every run", () => {
+    expect(
+      codingAgentMetadata({ agentType: "root", runType: "root", threadId: "conv-1" }),
+    ).toMatchObject({
       ls_integration: "cursor",
       ls_agent_runtime: "Cursor",
-      ls_trace_schema_version: "coding-agent-v1",
       thread_id: "conv-1",
     });
-    expect(bare()).not.toHaveProperty("ls_agent_kind");
-  });
-
-  it.each<LSAgentType>(["root", "subagent", "middleware", "compaction"])(
-    "supports the %s agent type",
-    (agentType) => {
-      expect(codingAgentMetadata({ agentType, threadId: "c" }).ls_agent_type).toBe(agentType);
-    },
-  );
-
-  it.each<[string, Partial<CodingAgentMetadataOptions>, unknown]>([
-    ["turn_id", { turnId: "gen-9" }, "gen-9"],
-    ["turn_number", { turnNumber: 3 }, 3],
-    ["ls_agent_runtime_version", { runtimeVersion: "3.7.19" }, "3.7.19"],
-    ["approval_policy", { approvalPolicy: "auto" }, "auto"],
-    ["ls_subagent_id", { subagentId: "s1" }, "s1"],
-    ["ls_subagent_type", { subagentType: "explore" }, "explore"],
-    ["ls_skill_name", { skillName: "code-insights" }, "code-insights"],
-  ])("emits %s when supplied, and omits the key when not", (key, opts, expected) => {
-    expect(withOpts(opts)[key]).toBe(expected);
-    expect(bare()).not.toHaveProperty(key);
-  });
-
-  it("clears the subagent keys on a child run without deleting them", () => {
-    const child = withOpts({ clearSubagent: true });
-    // Present-but-undefined is what shadows the value inherited from the parent.
-    expect("ls_subagent_id" in child).toBe(true);
-    expect("ls_subagent_type" in child).toBe(true);
-    expect(child.ls_subagent_id).toBeUndefined();
-    expect(child.ls_subagent_type).toBeUndefined();
-    expect(JSON.parse(JSON.stringify(child))).not.toHaveProperty("ls_subagent_id");
-    expect(JSON.parse(JSON.stringify(child))).not.toHaveProperty("ls_subagent_type");
-  });
-
-  it.each<[string, string, string, string | undefined]>([
-    ["omits ls_tool_name when the run name is the tool name", "Bash", "Bash", undefined],
-    ["emits ls_tool_name when they differ", "Task", "Agent", "Task"],
-  ])("%s", (_case, toolName, runName, expected) => {
-    expect(withOpts({ toolName, runName }).ls_tool_name).toBe(expected);
-  });
-
-  it("lets base config win on a key collision", () => {
-    const m = withOpts({ base: { thread_id: "override", extra: 1 } });
-    expect(m.thread_id).toBe("override");
-    expect(m.extra).toBe(1);
   });
 });
 

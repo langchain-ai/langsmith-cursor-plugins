@@ -340,12 +340,11 @@ describe.each(transports)("real SDK privacy over %s", (selectedTransport) => {
         turnId: "plugin-turn",
         turnNumber: 2,
         agentType: "root",
+        runType: "root",
         runtimeVersion: "plugin-runtime",
         base: collisions,
-        runSpecific: {
-          ls_model_name: SECRET,
-          usage_metadata: allowedUsage,
-        },
+        modelName: SECRET,
+        usageMetadata: allowedUsage,
       });
       const client = makeClient();
       const initial = { ...config(client), extra: { metadata } };
