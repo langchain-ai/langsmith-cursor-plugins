@@ -65,15 +65,15 @@ var require_eventemitter3 = __commonJS({
       this._eventsCount = 0;
     }
     EventEmitter.prototype.eventNames = function eventNames() {
-      var names = [], events, name;
-      if (this._eventsCount === 0) return names;
+      var names2 = [], events, name;
+      if (this._eventsCount === 0) return names2;
       for (name in events = this._events) {
-        if (has2.call(events, name)) names.push(prefix ? name.slice(1) : name);
+        if (has2.call(events, name)) names2.push(prefix ? name.slice(1) : name);
       }
       if (Object.getOwnPropertySymbols) {
-        return names.concat(Object.getOwnPropertySymbols(events));
+        return names2.concat(Object.getOwnPropertySymbols(events));
       }
-      return names;
+      return names2;
     };
     EventEmitter.prototype.listeners = function listeners(event) {
       var evt = prefix ? prefix + event : event, handlers = this._events[evt];
@@ -199,11 +199,11 @@ var require_p_finally = __commonJS({
       onFinally = onFinally || (() => {
       });
       return promise.then(
-        (val) => new Promise((resolve) => {
-          resolve(onFinally());
+        (val) => new Promise((resolve12) => {
+          resolve12(onFinally());
         }).then(() => val),
-        (err) => new Promise((resolve) => {
-          resolve(onFinally());
+        (err) => new Promise((resolve12) => {
+          resolve12(onFinally());
         }).then(() => {
           throw err;
         })
@@ -223,18 +223,18 @@ var require_p_timeout = __commonJS({
         this.name = "TimeoutError";
       }
     };
-    var pTimeout = (promise, milliseconds, fallback) => new Promise((resolve, reject) => {
+    var pTimeout = (promise, milliseconds, fallback) => new Promise((resolve12, reject) => {
       if (typeof milliseconds !== "number" || milliseconds < 0) {
         throw new TypeError("Expected `milliseconds` to be a positive number");
       }
       if (milliseconds === Infinity) {
-        resolve(promise);
+        resolve12(promise);
         return;
       }
       const timer = setTimeout(() => {
         if (typeof fallback === "function") {
           try {
-            resolve(fallback());
+            resolve12(fallback());
           } catch (error2) {
             reject(error2);
           }
@@ -249,7 +249,7 @@ var require_p_timeout = __commonJS({
       }, milliseconds);
       pFinally(
         // eslint-disable-next-line promise/prefer-await-to-then
-        promise.then(resolve, reject),
+        promise.then(resolve12, reject),
         () => {
           clearTimeout(timer);
         }
@@ -389,14 +389,14 @@ var require_dist = __commonJS({
       _isIntervalPaused() {
         const now = Date.now();
         if (this._intervalId === void 0) {
-          const delay2 = this._intervalEnd - now;
-          if (delay2 < 0) {
+          const delay5 = this._intervalEnd - now;
+          if (delay5 < 0) {
             this._intervalCount = this._carryoverConcurrencyCount ? this._pendingCount : 0;
           } else {
             if (this._timeoutId === void 0) {
               this._timeoutId = setTimeout(() => {
                 this._onResumeInterval();
-              }, delay2);
+              }, delay5);
             }
             return true;
           }
@@ -467,7 +467,7 @@ var require_dist = __commonJS({
       Adds a sync or async task to the queue. Always returns a promise.
       */
       async add(fn, options = {}) {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve12, reject) => {
           const run = async () => {
             this._pendingCount++;
             this._intervalCount++;
@@ -478,7 +478,7 @@ var require_dist = __commonJS({
                 }
                 return void 0;
               });
-              resolve(await operation);
+              resolve12(await operation);
             } catch (error2) {
               reject(error2);
             }
@@ -529,11 +529,11 @@ var require_dist = __commonJS({
         if (this._queue.size === 0) {
           return;
         }
-        return new Promise((resolve) => {
+        return new Promise((resolve12) => {
           const existingResolve = this._resolveEmpty;
           this._resolveEmpty = () => {
             existingResolve();
-            resolve();
+            resolve12();
           };
         });
       }
@@ -546,11 +546,11 @@ var require_dist = __commonJS({
         if (this._pendingCount === 0 && this._queue.size === 0) {
           return;
         }
-        return new Promise((resolve) => {
+        return new Promise((resolve12) => {
           const existingResolve = this._resolveIdle;
           this._resolveIdle = () => {
             existingResolve();
-            resolve();
+            resolve12();
           };
         });
       }
@@ -629,13 +629,13 @@ var CURSOR_VENDOR_PREFIX = /^cursor-/i;
 
 // dist/src/utils/stdin.js
 function readStdin(stream = process.stdin) {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve12, reject) => {
     let data = "";
     stream.setEncoding("utf-8");
     stream.on("data", (chunk) => data += chunk);
     stream.on("end", () => {
       try {
-        resolve(JSON.parse(data.replace(LEADING_BYTE_ORDER_MARKS, "")));
+        resolve12(JSON.parse(data.replace(LEADING_BYTE_ORDER_MARKS, "")));
       } catch (err) {
         reject(new Error(`Failed to parse hook input: ${err}`));
       }
@@ -700,20 +700,20 @@ function parseCommonConfig(value) {
     return invalid();
   const common = {};
   const diagnostics = [];
-  for (const field of ["enabled", "defaultMuted"]) {
-    if (!Object.hasOwn(value, field))
+  for (const field2 of ["enabled", "defaultMuted"]) {
+    if (!Object.hasOwn(value, field2))
       continue;
-    const entry = value[field];
-    common[field] = typeof entry === "boolean" ? entry : COMMON_BOOLEAN_SETTINGS[field].restrictive;
+    const entry = value[field2];
+    common[field2] = typeof entry === "boolean" ? entry : COMMON_BOOLEAN_SETTINGS[field2].restrictive;
     if (typeof entry !== "boolean")
-      diagnostics.push(`Invalid ${field}; using restrictive value.`);
+      diagnostics.push(`Invalid ${field2}; using restrictive value.`);
   }
-  for (const field of ["api_key", "api_url", "project"]) {
-    if (!Object.hasOwn(value, field))
+  for (const field2 of ["api_key", "api_url", "project"]) {
+    if (!Object.hasOwn(value, field2))
       continue;
-    if (typeof value[field] !== "string")
+    if (typeof value[field2] !== "string")
       return invalid(value);
-    common[field] = value[field];
+    common[field2] = value[field2];
   }
   if (Object.hasOwn(value, "redact")) {
     if (typeof value.redact !== "boolean")
@@ -803,8 +803,8 @@ function readCommonConfigFiles(options) {
     userRoot: home ? readCommonConfigFile(join(home, COMMON_CONFIG_USER_ROOT_FILE_NAME)) : absent()
   };
 }
-function resolveField(sources, field) {
-  return sources.find((source) => source[field] !== void 0)?.[field];
+function resolveField(sources, field2) {
+  return sources.find((source) => source[field2] !== void 0)?.[field2];
 }
 function mergeCommonConfig(sources, options = {}) {
   const { harness = {}, root = {}, user = {}, userRoot = {}, env = {}, defaults: defaults2 = {} } = sources;
@@ -812,8 +812,8 @@ function mergeCommonConfig(sources, options = {}) {
   const precedence = [env, ...files, defaults2];
   const switches = options.envFirst ? precedence : [...files, env, defaults2];
   const merged = { enabled: false, defaultMuted: false, redact: true };
-  for (const field of ["enabled", "defaultMuted"]) {
-    merged[field] = resolveField(switches, field) ?? COMMON_BOOLEAN_SETTINGS[field].default;
+  for (const field2 of ["enabled", "defaultMuted"]) {
+    merged[field2] = resolveField(switches, field2) ?? COMMON_BOOLEAN_SETTINGS[field2].default;
   }
   merged.api_key = resolveField(precedence, "api_key");
   merged.api_url = resolveField(precedence, "api_url");
@@ -948,13 +948,13 @@ function cursorExtensions(raw) {
   const extensions = {};
   if (!raw)
     return extensions;
-  for (const field of ["attachments", "system_prompt"]) {
-    if (!Object.hasOwn(raw, field))
+  for (const field2 of ["attachments", "system_prompt"]) {
+    if (!Object.hasOwn(raw, field2))
       continue;
-    if (typeof raw[field] === "boolean")
-      extensions[field] = raw[field];
+    if (typeof raw[field2] === "boolean")
+      extensions[field2] = raw[field2];
     else
-      error(`Invalid Cursor config extension ${field}; ignoring field.`);
+      error(`Invalid Cursor config extension ${field2}; ignoring field.`);
   }
   if (Object.hasOwn(raw, "sweep_idle_minutes")) {
     const minutes = raw.sweep_idle_minutes;
@@ -1004,10 +1004,10 @@ var GIT_PROVIDERS_REGEX = {
   devAzure: /[@/](?:dev\.azure\.com)[:/](.+?)(?:\.git)?\s/
 };
 function parseRepoName(remoteUrl) {
-  for (const [provider, regex] of Object.entries(GIT_PROVIDERS_REGEX)) {
+  for (const [provider2, regex] of Object.entries(GIT_PROVIDERS_REGEX)) {
     const match = remoteUrl.match(regex);
     if (match)
-      return { provider, name: match[1] };
+      return { provider: provider2, name: match[1] };
   }
   return void 0;
 }
@@ -1079,7 +1079,7 @@ function loadConfig(options) {
       error(diagnostic);
   }
   const extensions = [files.harness, files.root, files.user, files.userRoot].map(({ raw }) => cursorExtensions(raw));
-  const fromFiles = (field) => extensions.find((source) => source[field] !== void 0)?.[field];
+  const fromFiles = (field2) => extensions.find((source) => source[field2] !== void 0)?.[field2];
   const envMetadata = parseJson(getEnv("METADATA"));
   const envReplicas = parseJson(getEnv("RUNS_ENDPOINTS"));
   const envDebug = parseBoolean(getEnv("DEBUG"));
@@ -1173,90 +1173,964 @@ function initHook(cwd) {
   return config;
 }
 
-// dist/src/state.js
-import { readFileSync as readFileSync2, writeFileSync, mkdirSync as mkdirSync2, openSync as openSync2, closeSync as closeSync2, unlinkSync, rmdirSync, renameSync as renameSync2, fsyncSync } from "node:fs";
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/storage/file-lock.js
+import { chmod, link, lstat as lstat2, mkdir as mkdir2, readFile as readFile2, readdir, rename as rename2, writeFile as writeFile2 } from "node:fs/promises";
+import { performance as performance4 } from "node:perf_hooks";
+import { setTimeout as delay } from "node:timers/promises";
+import { randomUUID as randomUUID2 } from "node:crypto";
+import { dirname as dirname4, join as join4, resolve as resolve2 } from "node:path";
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/utils/constants.js
+var FILE_MISSING_CODE = "ENOENT";
+var PROCESS_MISSING_CODE = "ESRCH";
+var PROCESS_CHECK_SIGNAL = 0;
+var WINDOWS_PLATFORM = "win32";
+var FILE_EXISTS_CODE = "EEXIST";
+var PERMISSION_DENIED_CODE = "EPERM";
+var FILE_ACCESS_DENIED_CODE = "EACCES";
+var FILE_BUSY_CODE = "EBUSY";
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/storage/capture/constants.js
+var CAPTURE_TURN_CEILING_MS = 7 * 24 * 60 * 60 * 1e3;
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/utils/validation/objects.js
+function isPlainRecord(value) {
+  return value !== null && typeof value === "object" && (Object.getPrototypeOf(value) === Object.prototype || Object.getPrototypeOf(value) === null);
+}
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/storage/constants.js
+var FILE_LOCK_CLAIM_VERSION = 1;
+var FILE_LOCK_CLAIM_EXTENSION = ".json";
+var FILE_LOCK_DIRECTORY_SUFFIX = ".claims";
+var FILE_LOCK_LEGACY_DIRECTORY_SUFFIX = ".lock";
+var FILE_LOCK_TIMEOUT_ERROR_NAME = "FileLockTimeoutError";
+var FILE_LOCK_TEMP_PREFIX = ".";
+var FILE_LOCK_TEMP_SUFFIX = ".tmp";
+var FILE_LOCK_EXCLUSIVE_FLAG = "wx";
+var FILE_LOCK_ENCODING = "utf-8";
+var FILE_LOCK_DEFAULT_TIMEOUT_MS = 5e3;
+var FILE_LOCK_POLL_INTERVAL_MS = 10;
+var FILE_LOCK_DIRECTORY_MODE = 448;
+var FILE_LOCK_FILE_MODE = 384;
+var FILE_LOCK_UNSELECTED_TICKET = 0;
+var FILE_LOCK_NEGATIVE_TICKET_LIMIT = 0;
+var FILE_LOCK_TIMEOUT_MESSAGE = "Timed out waiting for file lock";
+var FILE_LOCK_TICKET_LIMIT_MESSAGE = "File lock ticket limit reached";
+var FILE_LOCK_RELEASE_MESSAGE = "Could not release file lock claim";
+var FILE_LOCK_INVALID_TIMEOUT_MESSAGE = "timeoutMs must be a finite positive number";
+var FILE_LOCK_ACQUIRE_MESSAGE = "Could not acquire file lock claim";
+var FILE_LOCK_UNSAFE_DIRECTORY_MESSAGE = "Unsafe file lock claims directory";
+var FILE_LOCK_RENAME_RETRY_TIMEOUT_MS = 100;
+var FILE_LOCK_HEARTBEAT_MS = 500;
+var FILE_LOCK_STALE_CLAIM_MS = 3e3;
+var FILE_LOCK_TRY_CHOOSING_WAIT_MS = 1e3;
+var FILE_LOCK_DIRECTORY_CONTENTION_CODES = [
+  PERMISSION_DENIED_CODE,
+  FILE_ACCESS_DENIED_CODE
+];
+var FILE_LOCK_BUSY_FILE_CODES = [
+  ...FILE_LOCK_DIRECTORY_CONTENTION_CODES,
+  FILE_BUSY_CODE
+];
+var FILE_LOCK_HEARTBEAT_WARNING = "Could not refresh a file lock claim:";
+var FILE_LOCK_COMPATIBLE_ACQUIRE_CLEANUP_MESSAGE = "Could not release the legacy lock gate after shared lock acquisition failed";
+var FILE_LOCK_COMPATIBLE_RELEASE_MESSAGE = "Could not release compatible file lock";
+var FILE_LOCK_COMPATIBLE_GATE_CHANGED_MESSAGE = "Legacy file lock gate changed before release";
+var FILE_LOCK_COMPATIBLE_OWNER_FILE = "owner";
+var FILE_LOCK_COMPATIBLE_OWNER_MESSAGE = "Could not record the legacy file lock gate owner";
+var FILE_LOCK_COMPATIBLE_OWNER_PID_PATTERN = /^[1-9]\d*$/u;
+var FILE_LOCK_COMPATIBLE_ABANDONED_GATE_MS = 5e3;
+var FILE_LOCK_COMPATIBLE_STALE_SUFFIX = ".stale";
+var FILE_LOCK_GATE_CLEANUP_WARNING = "Could not remove a half-created lock folder:";
+var FILE_LOCK_STALE_GATE_CLEANUP_WARNING = "Could not remove an old lock folder:";
+var FILE_LOCK_WINDOWS_DENIED_RETRIES = 5;
+var STORAGE_NOT_WRITABLE_ERROR_NAME = "StorageNotWritableError";
+var STORAGE_NOT_WRITABLE_MESSAGE = "LangSmith can't write to its storage folder";
+var STORAGE_NOT_WRITABLE_FIX = "Fix that folder's permissions so your user account can create files in it, and tracing will resume.";
+var STORAGE_STALE_FILE_MAX_AGE_MS = 2 * 60 * 60 * 1e3;
+var FILE_LOCK_LOST_MESSAGE = "The file lock was taken over before the write finished";
+var STORAGE_UUID = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
+var STORAGE_ENGINE_FILE_PATTERNS = [
+  new RegExp(`^\\.${STORAGE_UUID}(\\.${STORAGE_UUID})?\\.tmp$`, "u"),
+  new RegExp(`^wake-[0-9a-f]{64}\\.active\\.${STORAGE_UUID}(\\.attempt\\.[1-9]\\d*)?\\.json$`, "u"),
+  /^wake-[0-9a-f]{64}\.launching$/u
+];
+var STORAGE_CLAIM_FILE = new RegExp(`^${STORAGE_UUID}\\.json$`, "u");
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/utils/errors.js
+function describe(error2) {
+  return error2 instanceof Error ? error2.message : String(error2);
+}
+function errorCode(error2) {
+  return error2 !== null && typeof error2 === "object" && "code" in error2 && typeof error2.code === "string" ? error2.code : void 0;
+}
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/storage/errors.js
+import { resolve } from "node:path";
+var FileLockTimeoutError = class extends Error {
+  blockedPath;
+  constructor(blockedPath) {
+    super(`${FILE_LOCK_TIMEOUT_MESSAGE}: ${resolve(blockedPath)}`);
+    this.name = FILE_LOCK_TIMEOUT_ERROR_NAME;
+    this.blockedPath = resolve(blockedPath);
+  }
+};
+var StorageNotWritableError = class extends Error {
+  folder;
+  code;
+  constructor(folder, cause) {
+    super(`${STORAGE_NOT_WRITABLE_MESSAGE} ${resolve(folder)}. ${STORAGE_NOT_WRITABLE_FIX}`, {
+      cause
+    });
+    this.name = STORAGE_NOT_WRITABLE_ERROR_NAME;
+    this.folder = resolve(folder);
+    this.code = errorCode(cause);
+  }
+};
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/storage/file-lock-heartbeat.js
+import { utimes } from "node:fs/promises";
+var heartbeats = /* @__PURE__ */ new Map();
+function startHeartbeat(path3, id) {
+  const timer = setInterval(() => {
+    const now = /* @__PURE__ */ new Date();
+    utimes(path3, now, now).catch(warnUnlessMissing);
+  }, FILE_LOCK_HEARTBEAT_MS);
+  timer.unref();
+  heartbeats.set(id, timer);
+}
+function stopHeartbeat(id) {
+  clearInterval(heartbeats.get(id));
+  heartbeats.delete(id);
+}
+function warnUnlessMissing(error2) {
+  if (errorCode(error2) !== FILE_MISSING_CODE)
+    console.warn(FILE_LOCK_HEARTBEAT_WARNING, describe(error2));
+}
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/storage/legacy-gate.js
+import { lstat, mkdir, readFile, rename, rmdir as rmdir2, writeFile } from "node:fs/promises";
+import { performance as performance3 } from "node:perf_hooks";
 import { randomUUID } from "node:crypto";
+import { dirname as dirname3, join as join3 } from "node:path";
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/storage/file-lock-support.js
+import { unlink } from "node:fs/promises";
 import { performance as performance2 } from "node:perf_hooks";
+function processIsAlive(pid) {
+  try {
+    process.kill(pid, PROCESS_CHECK_SIGNAL);
+    return true;
+  } catch (error2) {
+    if (errorCode(error2) === PROCESS_MISSING_CODE)
+      return false;
+    return void 0;
+  }
+}
+async function removeFile(filePath) {
+  try {
+    await unlink(filePath);
+    return true;
+  } catch (error2) {
+    if (errorCode(error2) === FILE_MISSING_CODE)
+      return true;
+    return false;
+  }
+}
+function isBusyFileError(error2) {
+  return FILE_LOCK_BUSY_FILE_CODES.includes(errorCode(error2) ?? "");
+}
+function timeoutMs(options) {
+  const value = options?.timeoutMs ?? FILE_LOCK_DEFAULT_TIMEOUT_MS;
+  if (!Number.isFinite(value) || value <= 0)
+    throw new RangeError(FILE_LOCK_INVALID_TIMEOUT_MESSAGE);
+  return value;
+}
+function waitForNextScan(deadline, blockedPath) {
+  const remaining = deadline - performance2.now();
+  if (remaining <= 0)
+    return Promise.reject(new FileLockTimeoutError(blockedPath));
+  return new Promise((resolvePromise) => setTimeout(resolvePromise, Math.min(FILE_LOCK_POLL_INTERVAL_MS, remaining)));
+}
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/utils/files/cleanup.js
+import { rmdir, unlink as unlink2 } from "node:fs/promises";
 import { dirname as dirname2 } from "node:path";
-var LOCK_TIMEOUT_MS = 2e3;
-function lockPath(stateFilePath) {
-  return `${stateFilePath}.lock`;
+async function removeDirectoryBestEffort(path3, warning) {
+  try {
+    await rmdir(path3);
+  } catch (error2) {
+    if (errorCode(error2) !== FILE_MISSING_CODE)
+      console.warn(warning, describe(error2));
+  }
 }
-function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/storage/legacy-gate.js
+async function createLegacyGate(gatePath) {
+  await mkdir(gatePath, { mode: FILE_LOCK_DIRECTORY_MODE });
+  const stat3 = await lstat(gatePath);
+  if (!stat3.isDirectory())
+    throw new Error(FILE_LOCK_COMPATIBLE_GATE_CHANGED_MESSAGE);
+  await recordLegacyGateOwner(gatePath);
+  startHeartbeat(join3(gatePath, FILE_LOCK_COMPATIBLE_OWNER_FILE), gatePath);
+  return { path: gatePath, dev: stat3.dev, ino: stat3.ino, birthtimeMs: stat3.birthtimeMs };
 }
-async function acquireLock(stateFilePath) {
-  const lock = lockPath(stateFilePath);
-  const deadline = performance2.now() + LOCK_TIMEOUT_MS;
-  mkdirSync2(dirname2(stateFilePath), { recursive: true, mode: 448 });
-  while (true) {
-    try {
-      mkdirSync2(lock, { mode: 448 });
+function resetMissingPermission(attempt) {
+  attempt.missingPermissionError = void 0;
+  attempt.windowsDeniedRetries = 0;
+}
+async function waitOutContention(attempt, error2) {
+  const { gatePath, filePath, deadline, tryAcquire } = attempt;
+  const code = errorCode(error2);
+  const permissionDenied = FILE_LOCK_DIRECTORY_CONTENTION_CODES.includes(code ?? "");
+  if (code !== FILE_EXISTS_CODE && !permissionDenied)
+    throw error2;
+  let isContended = false;
+  try {
+    const gate = await lstat(gatePath);
+    const isDirectory = gate.isDirectory();
+    isContended = isDirectory || gate.isFile() && code === FILE_EXISTS_CODE;
+    if (isContended && await legacyGateIsAbandoned(gatePath, isDirectory, gate.mtimeMs)) {
+      if (!await reclaimLegacyGate(gatePath, filePath, tryAcquire))
+        await waitForNextScan(deadline, gatePath);
       return;
+    }
+  } catch (statError) {
+    if (errorCode(statError) === FILE_MISSING_CODE) {
+      if (code === FILE_EXISTS_CODE) {
+        resetMissingPermission(attempt);
+        await waitForNextScan(deadline, gatePath);
+        return;
+      }
+      if (permissionDenied) {
+        const firstRetry = attempt.missingPermissionError === void 0;
+        attempt.missingPermissionError = new StorageNotWritableError(dirname3(gatePath), error2);
+        if (firstRetry)
+          return;
+        if (process.platform !== WINDOWS_PLATFORM || code !== PERMISSION_DENIED_CODE || attempt.windowsDeniedRetries >= FILE_LOCK_WINDOWS_DENIED_RETRIES)
+          throw attempt.missingPermissionError;
+        attempt.windowsDeniedRetries += 1;
+        const denied = attempt.missingPermissionError;
+        await waitForNextScan(deadline, gatePath).catch(() => Promise.reject(denied));
+        return;
+      }
+    }
+    throw error2;
+  }
+  if (!isContended)
+    throw error2;
+  resetMissingPermission(attempt);
+  await waitForNextScan(deadline, gatePath);
+}
+async function acquireLegacyDirectoryGate(filePath, deadline, tryAcquire) {
+  const gatePath = `${filePath}${FILE_LOCK_LEGACY_DIRECTORY_SUFFIX}`;
+  await mkdir(dirname3(filePath), { recursive: true, mode: FILE_LOCK_DIRECTORY_MODE });
+  const attempt = {
+    gatePath,
+    filePath,
+    deadline,
+    tryAcquire,
+    windowsDeniedRetries: 0
+  };
+  for (; ; ) {
+    if (performance3.now() >= deadline) {
+      throw attempt.missingPermissionError ?? new FileLockTimeoutError(gatePath);
+    }
+    try {
+      return await createLegacyGate(gatePath);
     } catch (error2) {
-      if (error2.code !== "EEXIST")
-        throw error2;
-      if (performance2.now() >= deadline)
-        throw new Error("Timed out waiting for turn-state lock; confirm no writer is running before removing it");
-      await sleep(10 + Math.random() * 20);
+      await waitOutContention(attempt, error2);
     }
   }
 }
-function releaseLock(stateFilePath) {
+async function releaseLegacyDirectoryGate(gate) {
+  stopHeartbeat(gate.path);
+  let stat3;
   try {
-    rmdirSync(lockPath(stateFilePath));
+    stat3 = await lstat(gate.path);
+  } catch (error2) {
+    if (errorCode(error2) === FILE_MISSING_CODE)
+      return;
+    throw error2;
+  }
+  if (!stat3.isDirectory() || stat3.dev !== gate.dev || stat3.ino !== gate.ino || stat3.birthtimeMs !== gate.birthtimeMs) {
+    throw new Error(FILE_LOCK_COMPATIBLE_GATE_CHANGED_MESSAGE);
+  }
+  await removeFile(join3(gate.path, FILE_LOCK_COMPATIBLE_OWNER_FILE));
+  await rmdir2(gate.path);
+}
+async function recordLegacyGateOwner(gatePath) {
+  try {
+    await writeFile(join3(gatePath, FILE_LOCK_COMPATIBLE_OWNER_FILE), String(process.pid), {
+      flag: FILE_LOCK_EXCLUSIVE_FLAG,
+      mode: FILE_LOCK_FILE_MODE
+    });
+  } catch (error2) {
+    await removeDirectoryBestEffort(gatePath, FILE_LOCK_GATE_CLEANUP_WARNING);
+    throw new Error(FILE_LOCK_COMPATIBLE_OWNER_MESSAGE, { cause: error2 });
+  }
+}
+async function legacyGateIsAbandoned(gatePath, isDirectory, modifiedAtMs) {
+  let contents;
+  try {
+    contents = await readFile(isDirectory ? join3(gatePath, FILE_LOCK_COMPATIBLE_OWNER_FILE) : gatePath, FILE_LOCK_ENCODING);
+  } catch (error2) {
+    if (errorCode(error2) !== FILE_MISSING_CODE)
+      return false;
+    contents = "";
+  }
+  const pid = FILE_LOCK_COMPATIBLE_OWNER_PID_PATTERN.test(contents.trim()) ? Number(contents.trim()) : void 0;
+  if (pid !== void 0 && Number.isSafeInteger(pid) && pid > 0)
+    return processIsAlive(pid) === false || isDirectory && await ownerHeartbeatStopped(gatePath);
+  return !isDirectory && Date.now() - modifiedAtMs >= FILE_LOCK_COMPATIBLE_ABANDONED_GATE_MS;
+}
+async function ownerHeartbeatStopped(gatePath) {
+  try {
+    const owner = await lstat(join3(gatePath, FILE_LOCK_COMPATIBLE_OWNER_FILE));
+    return Date.now() - owner.mtimeMs >= FILE_LOCK_STALE_CLAIM_MS;
   } catch {
-    warn("Turn-state lock cleanup failed; confirm no writer is running before removing it");
+    return false;
   }
 }
-async function atomicUpdateState(stateFilePath, fn) {
-  await acquireLock(stateFilePath);
+async function reclaimLegacyGate(gatePath, filePath, tryAcquire) {
+  const takeover = await tryAcquire(filePath);
+  if (!takeover)
+    return false;
   try {
-    const state = loadState(stateFilePath);
-    saveState(stateFilePath, fn(state));
+    let gate;
+    try {
+      gate = await lstat(gatePath);
+    } catch (error2) {
+      if (errorCode(error2) === FILE_MISSING_CODE)
+        return true;
+      throw error2;
+    }
+    const isDirectory = gate.isDirectory();
+    if (!await legacyGateIsAbandoned(gatePath, isDirectory, gate.mtimeMs))
+      return false;
+    const stalePath = `${gatePath}.${randomUUID()}${FILE_LOCK_COMPATIBLE_STALE_SUFFIX}`;
+    try {
+      await rename(gatePath, stalePath);
+    } catch (error2) {
+      if (isBusyFileError(error2))
+        return false;
+      throw error2;
+    }
+    if (!isDirectory) {
+      await removeFile(stalePath);
+      return true;
+    }
+    await removeFile(join3(stalePath, FILE_LOCK_COMPATIBLE_OWNER_FILE));
+    await removeDirectoryBestEffort(stalePath, FILE_LOCK_STALE_GATE_CLEANUP_WARNING);
+    return true;
   } finally {
-    releaseLock(stateFilePath);
+    await takeover.release();
   }
 }
-function loadState(stateFilePath) {
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/storage/file-lock.js
+function parseClaim(value, id) {
+  if (!isPlainRecord(value))
+    return void 0;
+  if (value.version !== FILE_LOCK_CLAIM_VERSION || value.id !== id || typeof value.pid !== "number" || !Number.isSafeInteger(value.pid) || value.pid <= 0 || typeof value.choosing !== "boolean" || typeof value.ticket !== "number" || !Number.isSafeInteger(value.ticket) || value.ticket < FILE_LOCK_NEGATIVE_TICKET_LIMIT || (value.choosing ? value.ticket !== FILE_LOCK_UNSELECTED_TICKET : value.ticket === FILE_LOCK_UNSELECTED_TICKET)) {
+    return void 0;
+  }
+  return value;
+}
+async function publishClaim(filePath, claim, create, deadline) {
+  const temporaryPath = join4(dirname4(filePath), `${FILE_LOCK_TEMP_PREFIX}${claim.id}.${randomUUID2()}${FILE_LOCK_TEMP_SUFFIX}`);
   try {
-    return JSON.parse(readFileSync2(stateFilePath, "utf-8"));
+    await writeFile2(temporaryPath, JSON.stringify(claim), {
+      flag: FILE_LOCK_EXCLUSIVE_FLAG,
+      mode: FILE_LOCK_FILE_MODE
+    });
+    if (create)
+      await link(temporaryPath, filePath);
+    else {
+      const replacementDeadline = deadline ?? performance4.now() + FILE_LOCK_RENAME_RETRY_TIMEOUT_MS;
+      for (; ; ) {
+        try {
+          await rename2(temporaryPath, filePath);
+          break;
+        } catch (error2) {
+          if (errorCode(error2) !== PERMISSION_DENIED_CODE)
+            throw error2;
+          await waitForNextScan(replacementDeadline, dirname4(filePath));
+        }
+      }
+    }
+  } finally {
+    await removeFile(temporaryPath);
+  }
+}
+async function createClaim(claimDirectory) {
+  for (; ; ) {
+    const id = randomUUID2();
+    const claim = {
+      version: FILE_LOCK_CLAIM_VERSION,
+      id,
+      pid: process.pid,
+      choosing: true,
+      ticket: FILE_LOCK_UNSELECTED_TICKET
+    };
+    try {
+      const path3 = join4(claimDirectory, `${id}${FILE_LOCK_CLAIM_EXTENSION}`);
+      await publishClaim(path3, claim, true);
+      startHeartbeat(path3, id);
+      return claim;
+    } catch (error2) {
+      if (errorCode(error2) !== FILE_EXISTS_CODE)
+        throw error2;
+    }
+  }
+}
+async function scanClaims(claimDirectory, ownPath) {
+  const entries = await readdir(claimDirectory, { withFileTypes: true });
+  const claims = [];
+  const reference = ownPath === void 0 ? void 0 : await modifiedAt(ownPath);
+  const abandoned = async (path3) => {
+    if (reference === void 0)
+      return false;
+    const modified = await modifiedAt(path3);
+    if (modified === void 0 || reference - modified < FILE_LOCK_STALE_CLAIM_MS)
+      return false;
+    return removeFile(path3);
+  };
+  for (const entry of entries) {
+    if (!entry.name.endsWith(FILE_LOCK_CLAIM_EXTENSION))
+      continue;
+    const id = entry.name.slice(0, -FILE_LOCK_CLAIM_EXTENSION.length);
+    const path3 = join4(claimDirectory, entry.name);
+    if (!entry.isFile())
+      return { claims, blocked: true };
+    let value;
+    try {
+      value = JSON.parse(await readFile2(path3, FILE_LOCK_ENCODING));
+    } catch (error2) {
+      if (errorCode(error2) === FILE_MISSING_CODE)
+        continue;
+      if (await abandoned(path3))
+        continue;
+      return {
+        claims,
+        blocked: true,
+        transient: isBusyFileError(error2)
+      };
+    }
+    const claim = parseClaim(value, id);
+    if (!claim) {
+      if (await abandoned(path3))
+        continue;
+      return { claims, blocked: true };
+    }
+    const alive = processIsAlive(claim.pid);
+    if (alive === false) {
+      if (!await removeFile(path3))
+        return { claims, blocked: true };
+      continue;
+    }
+    if (await abandoned(path3))
+      continue;
+    if (alive === void 0)
+      return { claims, blocked: true };
+    claims.push(claim);
+  }
+  return { claims, blocked: false };
+}
+async function modifiedAt(path3) {
+  try {
+    return (await lstat2(path3)).mtimeMs;
+  } catch (error2) {
+    if (errorCode(error2) === FILE_MISSING_CODE)
+      return void 0;
+    throw error2;
+  }
+}
+function claimPath(claimDirectory, id) {
+  return join4(claimDirectory, `${id}${FILE_LOCK_CLAIM_EXTENSION}`);
+}
+function hasClaimState(claims, id, choosing, ticket) {
+  const claim = claims.find((peer) => peer.id === id);
+  return claim?.choosing === choosing && claim.ticket === ticket;
+}
+function makeHandle(claimDirectory, claim) {
+  let releasePromise;
+  return {
+    async assertHeld() {
+      if (await modifiedAt(claimPath(claimDirectory, claim.id)) === void 0)
+        throw new Error(FILE_LOCK_LOST_MESSAGE);
+    },
+    release() {
+      stopHeartbeat(claim.id);
+      releasePromise ??= removeFile(claimPath(claimDirectory, claim.id)).then((removed) => {
+        if (!removed)
+          throw new Error(FILE_LOCK_RELEASE_MESSAGE);
+      });
+      return releasePromise;
+    }
+  };
+}
+async function beginClaim(filePath) {
+  const claimDirectory = `${resolve2(filePath)}${FILE_LOCK_DIRECTORY_SUFFIX}`;
+  for (; ; ) {
+    try {
+      await assertSafeClaimDirectory(claimDirectory);
+      await mkdir2(claimDirectory, { recursive: true, mode: FILE_LOCK_DIRECTORY_MODE });
+      await assertSafeClaimDirectory(claimDirectory);
+      await chmod(claimDirectory, FILE_LOCK_DIRECTORY_MODE);
+      return { claimDirectory, claim: await createClaim(claimDirectory) };
+    } catch (error2) {
+      if (errorCode(error2) !== FILE_MISSING_CODE)
+        throw error2;
+    }
+  }
+}
+async function assertSafeClaimDirectory(claimDirectory) {
+  let stat3;
+  try {
+    stat3 = await lstat2(claimDirectory);
+  } catch (error2) {
+    if (errorCode(error2) === FILE_MISSING_CODE)
+      return;
+    throw error2;
+  }
+  if (stat3.isSymbolicLink() || !stat3.isDirectory())
+    throw new Error(FILE_LOCK_UNSAFE_DIRECTORY_MESSAGE);
+}
+function isStillBusy(attempt, scan) {
+  return !attempt.waitForPeers && scan.blocked && scan.transient === true && performance4.now() < attempt.busyDeadline;
+}
+async function waitOrReleaseClaim(attempt) {
+  if (!attempt.waitForPeers) {
+    await makeHandle(attempt.claimDirectory, attempt.claim).release();
+    return false;
+  }
+  await waitForNextScan(attempt.deadline, attempt.claimDirectory);
+  return true;
+}
+async function observePeers(attempt, expectedChoosing, expectedTicket) {
+  for (; ; ) {
+    const scan = await scanClaims(attempt.claimDirectory, attempt.ownPath);
+    if (isStillBusy(attempt, scan)) {
+      await delay(FILE_LOCK_POLL_INTERVAL_MS);
+      continue;
+    }
+    if (scan.blocked || !hasClaimState(scan.claims, attempt.claim.id, expectedChoosing, expectedTicket)) {
+      if (!await waitOrReleaseClaim(attempt))
+        return void 0;
+      continue;
+    }
+    return scan.claims;
+  }
+}
+async function takeTicket(attempt) {
+  const { claim, claimDirectory, ownPath, waitForPeers } = attempt;
+  const claims = await observePeers(attempt, true, FILE_LOCK_UNSELECTED_TICKET);
+  if (claims === void 0)
+    return void 0;
+  if (!waitForPeers && claims.some((peer) => peer.id !== claim.id && !peer.choosing)) {
+    await makeHandle(claimDirectory, claim).release();
+    return void 0;
+  }
+  let maxTicket = FILE_LOCK_UNSELECTED_TICKET;
+  for (const peer of claims)
+    maxTicket = Math.max(maxTicket, peer.ticket);
+  if (maxTicket >= Number.MAX_SAFE_INTEGER)
+    throw new Error(FILE_LOCK_TICKET_LIMIT_MESSAGE);
+  const ticketedClaim = { ...claim, choosing: false, ticket: maxTicket + 1 };
+  await publishClaim(ownPath, ticketedClaim, false, waitForPeers ? attempt.deadline : attempt.busyDeadline);
+  return ticketedClaim;
+}
+async function waitForTurn(attempt, ticketedClaim) {
+  const { claim, claimDirectory, waitForPeers } = attempt;
+  const choosingDeadline = performance4.now() + FILE_LOCK_TRY_CHOOSING_WAIT_MS;
+  for (; ; ) {
+    const claims = await observePeers(attempt, false, ticketedClaim.ticket);
+    if (claims === void 0)
+      return void 0;
+    const peers = claims.filter((peer) => peer.id !== claim.id);
+    if (!waitForPeers && !peers.some((peer) => !peer.choosing && precedes(peer, ticketedClaim)) && peers.some((peer) => peer.choosing) && performance4.now() < choosingDeadline) {
+      await delay(FILE_LOCK_POLL_INTERVAL_MS);
+      continue;
+    }
+    if (peers.some((peer) => precedes(peer, ticketedClaim))) {
+      if (!await waitOrReleaseClaim(attempt))
+        return void 0;
+      continue;
+    }
+    if (waitForPeers && performance4.now() > attempt.deadline)
+      throw new FileLockTimeoutError(claimDirectory);
+    return { claimDirectory, claim: ticketedClaim };
+  }
+}
+async function acquireClaim(filePath, waitForPeers, deadline) {
+  const { claimDirectory, claim } = await beginClaim(filePath);
+  const attempt = {
+    filePath,
+    claimDirectory,
+    claim,
+    ownPath: claimPath(claimDirectory, claim.id),
+    waitForPeers,
+    deadline,
+    busyDeadline: performance4.now() + FILE_LOCK_TRY_CHOOSING_WAIT_MS
+  };
+  try {
+    const ticketedClaim = await takeTicket(attempt);
+    if (!ticketedClaim)
+      return void 0;
+    return await waitForTurn(attempt, ticketedClaim);
+  } catch (error2) {
+    await makeHandle(claimDirectory, claim).release();
+    throw error2;
+  }
+}
+async function tryAcquireFileLock(filePath) {
+  const acquired = await acquireClaim(filePath, false, 0);
+  if (!acquired)
+    return void 0;
+  return makeHandle(acquired.claimDirectory, acquired.claim);
+}
+async function acquireCompatibleDirectoryFileLock(filePath, options) {
+  const resolvedPath = resolve2(filePath);
+  const deadline = performance4.now() + timeoutMs(options);
+  const gate = await acquireLegacyDirectoryGate(resolvedPath, deadline, tryAcquireFileLock);
+  let acquired;
+  try {
+    acquired = await acquireClaim(resolvedPath, true, deadline);
+    if (!acquired)
+      throw new Error(FILE_LOCK_ACQUIRE_MESSAGE);
+  } catch (error2) {
+    try {
+      await releaseLegacyDirectoryGate(gate);
+    } catch (cleanupError) {
+      throw new AggregateError([error2, cleanupError], FILE_LOCK_COMPATIBLE_ACQUIRE_CLEANUP_MESSAGE, {
+        cause: cleanupError
+      });
+    }
+    throw error2;
+  }
+  const sharedHandle = makeHandle(acquired.claimDirectory, acquired.claim);
+  let releasePromise;
+  return {
+    assertHeld: () => sharedHandle.assertHeld(),
+    release() {
+      releasePromise ??= (async () => {
+        const errors = [];
+        try {
+          await sharedHandle.release();
+        } catch (error2) {
+          errors.push(error2);
+        }
+        try {
+          await releaseLegacyDirectoryGate(gate);
+        } catch (error2) {
+          errors.push(error2);
+        }
+        if (errors.length === 1)
+          throw errors[0];
+        if (errors.length > 1)
+          throw new AggregateError(errors, FILE_LOCK_COMPATIBLE_RELEASE_MESSAGE);
+      })();
+      return releasePromise;
+    }
+  };
+}
+function precedes(left, right) {
+  return left.ticket < right.ticket || left.ticket === right.ticket && left.id < right.id;
+}
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/storage/state-store.js
+import { readFileSync as readFileSync3, renameSync as renameSync3 } from "node:fs";
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/utils/files/publish.js
+import { closeSync as closeSync2, openSync as openSync2, renameSync as renameSync2, writeSync } from "node:fs";
+import { randomUUID as randomUUID3 } from "node:crypto";
+function publishByRename(path3, contents, tempSuffix, mode) {
+  const temp = `${path3}.${randomUUID3()}${tempSuffix}`;
+  const fd = openSync2(temp, "wx", mode);
+  try {
+    writeSync(fd, contents);
+  } finally {
+    closeSync2(fd);
+  }
+  renameSync2(temp, path3);
+}
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/storage/state-constants.js
+var STATE_TEMP_SUFFIX = ".state.tmp";
+var STATE_CORRUPT_SUFFIX = ".corrupt";
+var STATE_FILE_ENCODING = "utf-8";
+var STATE_LOCK_RELEASE_WARNING = "Could not release the shared state lock";
+var STATE_LOCK_BUSY_WARNING = "Another process holds the state lock, so state updates in this hook are saved for the next lock holder";
+var STATE_CORRUPT_WARNING = `State was unreadable; started over and kept the old file as ${STATE_CORRUPT_SUFFIX}`;
+var STATE_LOCK_WAIT_MS = 1e3;
+var STATE_LOCK_PROBE_MS = 200;
+var STATE_LOCK_BUSY_MEMORY_MS = 3e4;
+var PENDING_STATE_DIR_SUFFIX = ".pending";
+var PENDING_STATE_FILE_SUFFIX = ".json";
+var PENDING_STATE_TEMP_SUFFIX = ".pending.tmp";
+var PENDING_STATE_ABANDONED_MS = 6e4;
+var PENDING_STATE_TIME_WIDTH = 13;
+var PENDING_STATE_SEQUENCE_WIDTH = 6;
+var PENDING_STATE_WRITE_ATTEMPTS = 3;
+var STATE_PRIVATE_DIR_MODE = 448;
+var STATE_PRIVATE_FILE_MODE = 384;
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/storage/state-pending.js
+import { mkdirSync as mkdirSync2, readdirSync, readFileSync as readFileSync2, rmdirSync, rmSync, statSync as statSync2 } from "node:fs";
+import { join as join5 } from "node:path";
+var sequence = 0;
+var same = (left, right) => JSON.stringify(left) === JSON.stringify(right);
+function diffValue(path3, before, after, operations) {
+  if (same(before, after))
+    return;
+  if (isPlainRecord(before) && isPlainRecord(after)) {
+    for (const key of Object.keys(before)) {
+      if (before[key] !== void 0 && after[key] === void 0) {
+        operations.push({ path: [...path3, key], unset: true });
+      }
+    }
+    for (const [key, value] of Object.entries(after)) {
+      if (value !== void 0)
+        diffValue([...path3, key], before[key], value, operations);
+    }
+  } else if (Array.isArray(before) && Array.isArray(after)) {
+    const kept = new Set(after.map((item) => JSON.stringify(item)));
+    const known = new Set(before.map((item) => JSON.stringify(item)));
+    const add = after.filter((item) => !known.has(JSON.stringify(item)));
+    const remove = before.filter((item) => !kept.has(JSON.stringify(item)));
+    operations.push({ path: path3, add, remove });
+  } else {
+    operations.push({ path: path3, set: after });
+  }
+}
+function diffState(before, after) {
+  const patch = [];
+  for (const session of Object.keys(before)) {
+    if (!Object.hasOwn(after, session))
+      patch.push({ session, removed: true });
+  }
+  for (const [session, next] of Object.entries(after)) {
+    const operations = [];
+    if (Object.hasOwn(before, session))
+      diffValue([], before[session], next, operations);
+    else
+      operations.push({ path: [], set: next });
+    if (operations.length > 0)
+      patch.push({ session, operations });
+  }
+  return patch;
+}
+function applyOperation(root, operation) {
+  const { path: path3 } = operation;
+  if (path3.length === 0)
+    return operation.set;
+  const [key, ...rest] = path3;
+  const node = isPlainRecord(root) ? { ...root } : {};
+  if (rest.length > 0) {
+    node[key] = applyOperation(node[key], { ...operation, path: rest });
+  } else if (operation.unset) {
+    delete node[key];
+  } else if (operation.add || operation.remove) {
+    node[key] = mergeList(node[key], operation);
+  } else {
+    node[key] = operation.set;
+  }
+  return node;
+}
+function mergeList(current, operation) {
+  const removed = new Set((operation.remove ?? []).map((item) => JSON.stringify(item)));
+  const list = (Array.isArray(current) ? current : []).filter((item) => !removed.has(JSON.stringify(item)));
+  const present = new Set(list.map((item) => JSON.stringify(item)));
+  for (const item of operation.add ?? []) {
+    if (!present.has(JSON.stringify(item)))
+      list.push(item);
+  }
+  return list;
+}
+function applyPatches(state, patches) {
+  let result = state;
+  for (const patch of patches) {
+    for (const entry of patch) {
+      if (entry.removed) {
+        result = Object.fromEntries(Object.entries(result).filter(([id]) => id !== entry.session));
+        continue;
+      }
+      let session = result[entry.session];
+      for (const operation of entry.operations ?? [])
+        session = applyOperation(session, operation);
+      result = { ...result, [entry.session]: session };
+    }
+  }
+  return result;
+}
+var pendingDirectory = (stateFilePath) => `${stateFilePath}${PENDING_STATE_DIR_SUFFIX}`;
+function names(directory) {
+  try {
+    return readdirSync(directory);
+  } catch {
+    return [];
+  }
+}
+function writePending(stateFilePath, patch) {
+  if (patch.length === 0)
+    return;
+  const directory = pendingDirectory(stateFilePath);
+  const time = String(Date.now()).padStart(PENDING_STATE_TIME_WIDTH, "0");
+  const order = String(sequence++).padStart(PENDING_STATE_SEQUENCE_WIDTH, "0");
+  const file = join5(directory, `${time}-${order}-${process.pid}${PENDING_STATE_FILE_SUFFIX}`);
+  for (let attempt = 1; ; attempt++) {
+    try {
+      mkdirSync2(directory, { recursive: true, mode: STATE_PRIVATE_DIR_MODE });
+      publishByRename(file, JSON.stringify(patch), PENDING_STATE_TEMP_SUFFIX, STATE_PRIVATE_FILE_MODE);
+      return;
+    } catch (error2) {
+      if (attempt >= PENDING_STATE_WRITE_ATTEMPTS)
+        throw error2;
+    }
+  }
+}
+function readPending(stateFilePath) {
+  const directory = pendingDirectory(stateFilePath);
+  const files = [];
+  const patches = [];
+  for (const name of names(directory).filter((n2) => n2.endsWith(PENDING_STATE_FILE_SUFFIX)).toSorted()) {
+    const file = join5(directory, name);
+    files.push(file);
+    try {
+      patches.push(JSON.parse(readFileSync2(file, "utf-8")));
+    } catch {
+      continue;
+    }
+  }
+  return { files, patches };
+}
+function hasRecentPending(stateFilePath) {
+  const directory = pendingDirectory(stateFilePath);
+  return names(directory).some((name) => {
+    try {
+      return name.endsWith(PENDING_STATE_FILE_SUFFIX) && Date.now() - statSync2(join5(directory, name)).mtimeMs < STATE_LOCK_BUSY_MEMORY_MS;
+    } catch {
+      return false;
+    }
+  });
+}
+function removePending(stateFilePath, files) {
+  const directory = pendingDirectory(stateFilePath);
+  for (const file of files)
+    rmSync(file, { force: true });
+  for (const name of names(directory)) {
+    if (name.endsWith(PENDING_STATE_FILE_SUFFIX))
+      continue;
+    const file = join5(directory, name);
+    try {
+      if (Date.now() - statSync2(file).mtimeMs > PENDING_STATE_ABANDONED_MS)
+        rmSync(file, { force: true });
+    } catch {
+      continue;
+    }
+  }
+  if (names(directory).length > 0)
+    return;
+  try {
+    rmdirSync(directory);
+  } catch {
+    return;
+  }
+}
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/storage/state-store.js
+function createStateStore(options) {
+  const { path: path3 } = options;
+  const warn2 = options.warn ?? console.warn;
+  function read() {
+    const { patches } = readPending(path3);
+    return applyPatches(readStateFile(path3), patches);
+  }
+  async function update(fn) {
+    const waitMs = hasRecentPending(path3) ? STATE_LOCK_PROBE_MS : STATE_LOCK_WAIT_MS;
+    const ran = await withStateFileLock(path3, warn2, () => {
+      const { files, patches } = readPending(path3);
+      const current = readStateFile(path3, () => setAsideCorruptState(path3, warn2));
+      publishState(path3, fn(applyPatches(current, patches)));
+      removePending(path3, files);
+    }, waitMs);
+    if (ran)
+      return;
+    const before = read();
+    writePending(path3, diffState(before, fn(before)));
+  }
+  return { read, update };
+}
+function pruneStateEntries(state, maxAgeMs, now = Date.now()) {
+  const cutoff = now - maxAgeMs;
+  const pruned = {};
+  for (const [id, entry] of Object.entries(state)) {
+    const updatedMs = entry.updated ? new Date(entry.updated).getTime() : 0;
+    if (updatedMs >= cutoff) {
+      Object.defineProperty(pruned, id, {
+        value: entry,
+        writable: true,
+        enumerable: true,
+        configurable: true
+      });
+    }
+  }
+  return pruned;
+}
+function readStateFile(path3, onUnparseable) {
+  let raw;
+  try {
+    raw = readFileSync3(path3, STATE_FILE_ENCODING);
   } catch {
     return {};
   }
-}
-function saveState(stateFilePath, state) {
-  mkdirSync2(dirname2(stateFilePath), { recursive: true, mode: 448 });
-  const temp = `${stateFilePath}.${process.pid}.${randomUUID()}.tmp`;
-  let committed = false;
   try {
-    const fd = openSync2(temp, "wx", 384);
-    try {
-      writeFileSync(fd, JSON.stringify(state, null, 2));
-      fsyncSync(fd);
-    } finally {
-      closeSync2(fd);
-    }
-    renameSync2(temp, stateFilePath);
-    committed = true;
-    try {
-      const fd2 = openSync2(dirname2(stateFilePath), "r");
-      try {
-        fsyncSync(fd2);
-      } finally {
-        closeSync2(fd2);
-      }
-    } catch {
-      warn("Turn snapshot saved, but crash durability could not be confirmed");
-    }
+    const parsed = JSON.parse(raw);
+    return isPlainRecord(parsed) ? parsed : {};
+  } catch {
+    onUnparseable?.();
+    return {};
+  }
+}
+function setAsideCorruptState(path3, warn2) {
+  try {
+    renameSync3(path3, `${path3}${STATE_CORRUPT_SUFFIX}`);
+  } catch {
+  }
+  warn2(STATE_CORRUPT_WARNING);
+}
+function publishState(path3, state) {
+  publishByRename(path3, JSON.stringify(state, null, 2), STATE_TEMP_SUFFIX, STATE_PRIVATE_FILE_MODE);
+}
+async function withStateFileLock(path3, warn2, callback, waitMs) {
+  let lock;
+  try {
+    lock = await acquireCompatibleDirectoryFileLock(path3, { timeoutMs: waitMs });
+  } catch (error2) {
+    if (!(error2 instanceof FileLockTimeoutError))
+      throw error2;
+    warn2(STATE_LOCK_BUSY_WARNING);
+    return false;
+  }
+  try {
+    await callback();
   } finally {
-    if (!committed) {
-      try {
-        unlinkSync(temp);
-      } catch {
-      }
+    try {
+      await lock.release();
+    } catch (error2) {
+      warn2(`${STATE_LOCK_RELEASE_WARNING}: ${error2}`);
     }
   }
+  return true;
+}
+
+// dist/src/state.js
+async function atomicUpdateState(stateFilePath, fn) {
+  await stateStore(stateFilePath).update(fn);
+}
+function stateStore(stateFilePath) {
+  return createStateStore({ path: stateFilePath, warn });
 }
 function ownEntry(map, id) {
   return map !== void 0 && Object.hasOwn(map, id) ? map[id] : void 0;
@@ -1272,18 +2146,13 @@ function nextTurnNum(conv) {
   return conv.turns_started;
 }
 function pruneOldConversations(state, now = Date.now()) {
-  const cutoff = now - CONVERSATION_MAX_AGE_MS;
-  const pruned = {};
-  for (const [conversationId, conv] of Object.entries(state)) {
-    const updatedMs = conv.updated ? new Date(conv.updated).getTime() : 0;
-    if (updatedMs >= cutoff) {
-      setOwnEntry(pruned, conversationId, conv);
-    }
-  }
-  return pruned;
+  return pruneStateEntries(state, CONVERSATION_MAX_AGE_MS, now);
 }
 
 // dist/src/normalize.js
+function isRecord(value) {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
 function normKey(model) {
   return model.trim().toLowerCase().replace(PROVIDER_PREFIX, "");
 }
@@ -1507,61 +2376,389 @@ function reduceSweep(state, callerConversationId, nowMs, thresholdMs) {
   return { state: { ...state }, claims };
 }
 
-// dist/src/tracing-policy.js
-import { randomUUID as randomUUID2 } from "node:crypto";
-import { lstatSync as lstatSync2, readFileSync as readFileSync3 } from "node:fs";
-import { mkdir, open, rename, rmdir, unlink } from "node:fs/promises";
-import { dirname as dirname3 } from "node:path";
-import { performance as performance3 } from "node:perf_hooks";
-import { setTimeout as delay } from "node:timers/promises";
-import { homedir as homedir3 } from "node:os";
-import { join as join3 } from "node:path";
-function isMode(value) {
-  return value === "full" || value === "metadata";
-}
-function isObject(value) {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-function hasCode(error2, code) {
-  return isObject(error2) && error2.code === code;
-}
-function readPolicy(path3) {
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/plugin/constants.js
+var POLICY_NOT_REGULAR_MESSAGE = "Tracing preferences must be a regular, non-symlink file";
+var POLICY_FILE_ENCODING = "utf8";
+var WORKER_LOG_MAX_BYTES = 1024 * 1024;
+var POLICY_PARSE_RESULT_MESSAGE = "A policy parser must return a policy";
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/plugin/policy-file.js
+import { randomUUID as randomUUID4 } from "node:crypto";
+import { lstatSync as lstatSync2, readFileSync as readFileSync4 } from "node:fs";
+import { open, rename as rename3, unlink as unlink3 } from "node:fs/promises";
+import { dirname as dirname5 } from "node:path";
+function readPolicyFile(path3, options) {
   let raw;
   try {
-    if (!lstatSync2(path3).isFile())
-      throw new Error("Tracing preferences must be a regular, non-symlink file");
-    raw = readFileSync3(path3, "utf8");
+    if (options.requireRegularFile && !lstatSync2(path3).isFile())
+      throw new Error(POLICY_NOT_REGULAR_MESSAGE);
+    raw = readFileSync4(path3, POLICY_FILE_ENCODING);
   } catch (error2) {
-    if (hasCode(error2, "ENOENT")) {
+    if (errorCode(error2) === FILE_MISSING_CODE) {
       try {
         lstatSync2(path3);
       } catch (statError) {
-        if (hasCode(statError, "ENOENT"))
-          return { threads: {} };
+        if (errorCode(statError) === FILE_MISSING_CODE)
+          return options.empty();
         throw statError;
       }
     }
     throw error2;
   }
-  const value = JSON.parse(raw);
-  if (!isObject(value) || !isObject(value.threads) || Object.values(value.threads).some((mode) => !isMode(mode)) || Object.keys(value).some((key) => key !== "threads")) {
-    throw new Error("Invalid tracing preference format");
+  const policy = options.parse(JSON.parse(raw));
+  if (policy === void 0)
+    throw new TypeError(POLICY_PARSE_RESULT_MESSAGE);
+  return policy;
+}
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/storage/capture/capture-store.js
+import { lstat as lstat6 } from "node:fs/promises";
+import { basename as basename2, dirname as dirname8, join as join10, resolve as resolve5 } from "node:path";
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/storage/capture/paths.js
+import { createHash } from "node:crypto";
+import { resolve as resolve3, join as join6 } from "node:path";
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/storage/capture/utils/atomic-file.js
+import { constants as fsConstants } from "node:fs";
+import { chmod as chmod2, link as link2, lstat as lstat3, mkdir as mkdir3, open as open2, rename as rename4, unlink as unlink4 } from "node:fs/promises";
+import { dirname as dirname6, isAbsolute, join as join7, relative, sep } from "node:path";
+import { randomUUID as randomUUID5 } from "node:crypto";
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/utils/files/private-directory.js
+import { lstat as lstat4, readdir as readdir2 } from "node:fs/promises";
+import { isAbsolute as isAbsolute2, join as join8, relative as relative2, resolve as resolve4, sep as sep2 } from "node:path";
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/storage/capture/utils/digest.js
+import { createHash as createHash2 } from "node:crypto";
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/storage/capture/markers.js
+import { lstat as lstat5 } from "node:fs/promises";
+import { basename, dirname as dirname7, join as join9 } from "node:path";
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/tracing/background-worker/worker.js
+import { randomUUID as randomUUID6 } from "node:crypto";
+import { resolve as resolve7 } from "node:path";
+import { setTimeout as delay2 } from "node:timers/promises";
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/tracing/background-worker/paths.js
+import { join as join11, resolve as resolve6 } from "node:path";
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/tracing/background-worker/state.js
+import { join as join12 } from "node:path";
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/bridge.js
+import { join as join15, resolve as resolve9 } from "node:path";
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/storage/stale-files.js
+import { lstat as lstat7, readFile as readFile3, readdir as readdir3, rmdir as rmdir3 } from "node:fs/promises";
+import { basename as basename3, dirname as dirname9, join as join13 } from "node:path";
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/tracing/delivery/coordinator.js
+import { join as join14, resolve as resolve8 } from "node:path";
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/tracing/delivery/constants.js
+var DELIVERY_RETRY_MAX_MS = 30 * 60 * 1e3;
+var DELIVERY_DEFAULT_MAX_AGE_MS = 6 * 60 * 60 * 1e3;
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/storage/capture/retry-state.js
+var PROCESS_STARTED_AT_MS = Date.now();
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/tracing/delivery/deliver.js
+import { setTimeout as delay3 } from "node:timers/promises";
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/metadata/constants.js
+var CODING_AGENT_SCHEMA_VERSION = "coding-agent-v1";
+var CODING_AGENT_PURPOSE = "coding";
+var GIT_METADATA_KEYS = {
+  repository: "ls_git_repo",
+  repositoryUrl: "ls_git_repo_url",
+  provider: "ls_repo_provider",
+  branch: "ls_git_branch",
+  commit: "ls_git_commit_hash"
+};
+var LEGACY_GIT_METADATA_KEYS = {
+  repository: "repository_name",
+  repositoryUrl: "repository_url",
+  provider: "repository_provider",
+  branch: "git_branch",
+  commit: "git_commit_sha"
+};
+var ATTRIBUTION_IDENTIFIER_KEY = "ls_attribution_identifier";
+var REPOSITORY_METADATA_KEYS = [
+  GIT_METADATA_KEYS.repository,
+  GIT_METADATA_KEYS.provider,
+  GIT_METADATA_KEYS.repositoryUrl,
+  GIT_METADATA_KEYS.branch,
+  GIT_METADATA_KEYS.commit,
+  LEGACY_GIT_METADATA_KEYS.repository,
+  LEGACY_GIT_METADATA_KEYS.provider,
+  LEGACY_GIT_METADATA_KEYS.repositoryUrl,
+  LEGACY_GIT_METADATA_KEYS.branch,
+  LEGACY_GIT_METADATA_KEYS.commit,
+  ATTRIBUTION_IDENTIFIER_KEY
+];
+var CODING_AGENT_RUN_TYPES = [
+  "root",
+  "llm",
+  "tool",
+  "subagent",
+  "interrupted"
+];
+var CODING_AGENT_RUN_SCOPES = {
+  all: CODING_AGENT_RUN_TYPES,
+  rootInterrupted: ["root", "interrupted"],
+  subagent: ["subagent"],
+  tool: ["tool"],
+  llmTool: ["llm", "tool"],
+  chain: ["root", "subagent", "interrupted"]
+};
+var CODING_AGENT_AGENT_TYPES = ["root", "subagent", "middleware", "compaction"];
+var CODING_AGENT_SCHEMA_INTEGRATIONS = [
+  "claude-code",
+  "openai-codex",
+  "deepagents-code",
+  "cursor",
+  "pi"
+];
+var CODING_AGENT_CORE_INTEGRATIONS = [
+  "claude-code",
+  "cursor",
+  "openai-codex"
+];
+var CODING_AGENT_CODEX_INTEGRATION = ["openai-codex"];
+var CODING_AGENT_RUNTIME_NAMES = {
+  "claude-code": "Claude Code",
+  "openai-codex": "Codex",
+  "deepagents-code": "Deep Agents Code",
+  cursor: "Cursor",
+  pi: "Pi"
+};
+var CODING_AGENT_INTEGRATION_POLICIES = {
+  "claude-code": {
+    fullModePrecedence: "custom-wins",
+    metadataModeUsesDirectMetadata: true,
+    metadataModePreservesToolName: false,
+    legacyAliases: true
+  },
+  cursor: {
+    fullModePrecedence: "custom-wins",
+    metadataModeUsesDirectMetadata: true,
+    metadataModePreservesToolName: true,
+    legacyAliases: false
+  },
+  "openai-codex": {
+    fullModePrecedence: "structural-wins",
+    metadataModeUsesDirectMetadata: false,
+    metadataModePreservesToolName: false,
+    legacyAliases: false
   }
-  return value;
+};
+var CODING_AGENT_ALWAYS_FIELD_OPTIONS = {
+  requirement: "always"
+};
+var CODING_AGENT_WHERE_KNOWN_FIELD_OPTIONS = {
+  requirement: "where_known",
+  requiredWhereKnown: true
+};
+var CODING_AGENT_FIELD_DEFAULTS = {
+  appliesTo: CODING_AGENT_RUN_TYPES,
+  type: "string",
+  allowedValues: null,
+  requirement: "contextual",
+  requiredWhereKnown: false,
+  metadataModeIntegrations: []
+};
+var CODING_AGENT_STRUCTURAL_FIELD_DEFAULTS = {
+  metadataModeIntegrations: CODING_AGENT_CORE_INTEGRATIONS,
+  metadataSource: "structural"
+};
+var CODING_AGENT_PROVIDER_FIELD_DEFAULTS = {
+  metadataSource: "provider",
+  providerIntegrations: CODING_AGENT_CORE_INTEGRATIONS
+};
+var CODING_AGENT_RUNTIME_LIBRARY = "langsmith";
+var CODING_AGENT_RUNTIME_SDK = "langsmith-js";
+var CODING_AGENT_RELEASE_ENVIRONMENT_VARIABLES = [
+  "VERCEL_GIT_COMMIT_SHA",
+  "NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA",
+  "COMMIT_REF",
+  "RENDER_GIT_COMMIT",
+  "CI_COMMIT_SHA",
+  "CIRCLE_SHA1",
+  "CF_PAGES_COMMIT_SHA",
+  "REACT_APP_GIT_SHA",
+  "SOURCE_VERSION",
+  "GITHUB_SHA",
+  "TRAVIS_COMMIT",
+  "GIT_COMMIT",
+  "BUILD_VCS_NUMBER",
+  "bamboo_planRepository_revision",
+  "Build.SourceVersion",
+  "BITBUCKET_COMMIT",
+  "DRONE_COMMIT_SHA",
+  "SEMAPHORE_GIT_SHA",
+  "BUILDKITE_COMMIT"
+];
+var CODING_AGENT_ENVIRONMENT_METADATA_PREFIXES = ["LANGCHAIN_", "LANGSMITH_"];
+var CODING_AGENT_ENVIRONMENT_METADATA_EXCLUDED = [
+  "LANGCHAIN_API_KEY",
+  "LANGCHAIN_ENDPOINT",
+  "LANGCHAIN_TRACING_V2",
+  "LANGCHAIN_PROJECT",
+  "LANGCHAIN_SESSION",
+  "LANGSMITH_API_KEY",
+  "LANGSMITH_ENDPOINT",
+  "LANGSMITH_TRACING_V2",
+  "LANGSMITH_CONFIG_FILE",
+  "LANGSMITH_PROJECT",
+  "LANGSMITH_SESSION",
+  "LANGSMITH_AGENT_ID",
+  "LANGSMITH_AGENT_ENVIRONMENT"
+];
+var CODING_AGENT_ENVIRONMENT_METADATA_SENSITIVE_SUBSTRINGS = [
+  "key",
+  "secret",
+  "token",
+  "password",
+  "passwd",
+  "pwd",
+  "credential",
+  "email"
+];
+var CODING_AGENT_ENVIRONMENT_METADATA_ENDPOINT_SUBSTRINGS = [
+  "endpoint",
+  "proxy",
+  "url",
+  "auth",
+  "header"
+];
+var CODING_AGENT_REVISION_ID_VARIABLE = "LANGCHAIN_REVISION_ID";
+var CODING_AGENT_REVISION_ID_KEY = "revision_id";
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/metadata/contract.js
+function field(key, options = {}) {
+  return { key, ...CODING_AGENT_FIELD_DEFAULTS, ...options };
 }
-function tracingPolicyPath() {
-  return process.env.LANGSMITH_CURSOR_PRIVACY_FILE ?? join3(homedir3(), ".cursor", "langsmith-state.privacy.json");
-}
-function getThreadTracingMode(path3, sessionId, defaultMuted = false) {
-  try {
-    const policy = readPolicy(path3);
-    if (Object.hasOwn(policy.threads, sessionId))
-      return policy.threads[sessionId];
-    return defaultMuted ? "metadata" : "full";
-  } catch {
-    return "metadata";
-  }
-}
+var structural = (key, options = {}) => field(key, { ...CODING_AGENT_STRUCTURAL_FIELD_DEFAULTS, ...options });
+var provider = (key, options = {}) => field(key, { ...CODING_AGENT_PROVIDER_FIELD_DEFAULTS, ...options });
+var CODING_AGENT_V1_CONTRACT = {
+  schemaVersion: CODING_AGENT_SCHEMA_VERSION,
+  integrations: CODING_AGENT_SCHEMA_INTEGRATIONS,
+  runtimeNames: CODING_AGENT_RUNTIME_NAMES,
+  keys: [
+    structural("ls_agent_purpose", {
+      ...CODING_AGENT_ALWAYS_FIELD_OPTIONS,
+      allowedValues: [CODING_AGENT_PURPOSE]
+    }),
+    structural("ls_integration", {
+      ...CODING_AGENT_ALWAYS_FIELD_OPTIONS,
+      allowedValues: CODING_AGENT_SCHEMA_INTEGRATIONS
+    }),
+    structural("ls_agent_runtime", {
+      ...CODING_AGENT_ALWAYS_FIELD_OPTIONS,
+      allowedValues: Object.values(CODING_AGENT_RUNTIME_NAMES)
+    }),
+    structural("thread_id", CODING_AGENT_ALWAYS_FIELD_OPTIONS),
+    structural("ls_trace_schema_version", {
+      ...CODING_AGENT_ALWAYS_FIELD_OPTIONS,
+      allowedValues: [CODING_AGENT_SCHEMA_VERSION]
+    }),
+    structural("ls_agent_type", {
+      ...CODING_AGENT_ALWAYS_FIELD_OPTIONS,
+      allowedValues: CODING_AGENT_AGENT_TYPES
+    }),
+    structural("ls_integration_version", CODING_AGENT_WHERE_KNOWN_FIELD_OPTIONS),
+    structural("ls_agent_runtime_version", CODING_AGENT_WHERE_KNOWN_FIELD_OPTIONS),
+    structural("turn_id", CODING_AGENT_WHERE_KNOWN_FIELD_OPTIONS),
+    structural("turn_number", { ...CODING_AGENT_WHERE_KNOWN_FIELD_OPTIONS, type: "integer" }),
+    field(GIT_METADATA_KEYS.repositoryUrl, CODING_AGENT_WHERE_KNOWN_FIELD_OPTIONS),
+    field(GIT_METADATA_KEYS.provider, CODING_AGENT_WHERE_KNOWN_FIELD_OPTIONS),
+    field(GIT_METADATA_KEYS.repository, CODING_AGENT_WHERE_KNOWN_FIELD_OPTIONS),
+    field(GIT_METADATA_KEYS.branch, CODING_AGENT_WHERE_KNOWN_FIELD_OPTIONS),
+    field(GIT_METADATA_KEYS.commit, CODING_AGENT_WHERE_KNOWN_FIELD_OPTIONS),
+    field(LEGACY_GIT_METADATA_KEYS.repositoryUrl, CODING_AGENT_WHERE_KNOWN_FIELD_OPTIONS),
+    field(LEGACY_GIT_METADATA_KEYS.provider, CODING_AGENT_WHERE_KNOWN_FIELD_OPTIONS),
+    field(LEGACY_GIT_METADATA_KEYS.repository, CODING_AGENT_WHERE_KNOWN_FIELD_OPTIONS),
+    field(LEGACY_GIT_METADATA_KEYS.branch, CODING_AGENT_WHERE_KNOWN_FIELD_OPTIONS),
+    field(LEGACY_GIT_METADATA_KEYS.commit, CODING_AGENT_WHERE_KNOWN_FIELD_OPTIONS),
+    field("cwd", CODING_AGENT_WHERE_KNOWN_FIELD_OPTIONS),
+    field("ls_skill_name", {
+      appliesTo: CODING_AGENT_RUN_SCOPES.tool,
+      metadataModeIntegrations: CODING_AGENT_CORE_INTEGRATIONS
+    }),
+    field(ATTRIBUTION_IDENTIFIER_KEY),
+    field("user_id"),
+    field("local_username"),
+    field("user_email"),
+    field("sandbox_type"),
+    field("approval_policy", { appliesTo: CODING_AGENT_RUN_SCOPES.rootInterrupted }),
+    field("ls_subagent_id", {
+      appliesTo: CODING_AGENT_RUN_SCOPES.subagent,
+      metadataModeIntegrations: CODING_AGENT_CORE_INTEGRATIONS
+    }),
+    field("ls_subagent_type", {
+      appliesTo: CODING_AGENT_RUN_SCOPES.subagent,
+      metadataModeIntegrations: CODING_AGENT_CORE_INTEGRATIONS
+    }),
+    field("ls_tool_name", {
+      appliesTo: CODING_AGENT_RUN_SCOPES.tool,
+      metadataModeIntegrations: CODING_AGENT_CORE_INTEGRATIONS
+    }),
+    provider("ls_provider", {
+      appliesTo: CODING_AGENT_RUN_SCOPES.llmTool,
+      metadataModeIntegrations: CODING_AGENT_CODEX_INTEGRATION
+    }),
+    provider("ls_model_type", {
+      appliesTo: CODING_AGENT_RUN_SCOPES.llmTool,
+      metadataModeIntegrations: CODING_AGENT_CODEX_INTEGRATION,
+      providerIntegrations: CODING_AGENT_CODEX_INTEGRATION
+    }),
+    provider("ls_message_format", {
+      metadataModeIntegrations: CODING_AGENT_CODEX_INTEGRATION,
+      providerIntegrations: CODING_AGENT_CODEX_INTEGRATION
+    }),
+    provider("codex_cli_version", {
+      metadataModeIntegrations: CODING_AGENT_CODEX_INTEGRATION,
+      providerIntegrations: CODING_AGENT_CODEX_INTEGRATION
+    }),
+    provider("ls_raw_aggregated_usage", {
+      appliesTo: CODING_AGENT_RUN_SCOPES.chain,
+      type: "object",
+      metadataModeIntegrations: CODING_AGENT_CODEX_INTEGRATION,
+      providerIntegrations: CODING_AGENT_CODEX_INTEGRATION
+    }),
+    provider("ls_invocation_params", {
+      appliesTo: CODING_AGENT_RUN_SCOPES.llmTool,
+      type: "object"
+    }),
+    field("usage_metadata", {
+      type: "object",
+      metadataModeIntegrations: CODING_AGENT_CORE_INTEGRATIONS,
+      metadataSource: "explicit"
+    }),
+    field("ls_model_name", {
+      metadataModeIntegrations: CODING_AGENT_CORE_INTEGRATIONS,
+      metadataSource: "explicit"
+    })
+  ],
+  runtime: {
+    library: CODING_AGENT_RUNTIME_LIBRARY,
+    sdk: CODING_AGENT_RUNTIME_SDK,
+    releaseEnvironmentVariables: CODING_AGENT_RELEASE_ENVIRONMENT_VARIABLES,
+    environmentMetadata: {
+      prefixes: CODING_AGENT_ENVIRONMENT_METADATA_PREFIXES,
+      excluded: CODING_AGENT_ENVIRONMENT_METADATA_EXCLUDED,
+      sensitiveSubstrings: CODING_AGENT_ENVIRONMENT_METADATA_SENSITIVE_SUBSTRINGS,
+      endpointSubstrings: CODING_AGENT_ENVIRONMENT_METADATA_ENDPOINT_SUBSTRINGS,
+      revisionId: {
+        variable: CODING_AGENT_REVISION_ID_VARIABLE,
+        key: CODING_AGENT_REVISION_ID_KEY
+      }
+    }
+  },
+  integrationPolicies: CODING_AGENT_INTEGRATION_POLICIES
+};
 
 // node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/uuid/src/regex.js
 var regex_default = /^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$/i;
@@ -2641,7 +3838,7 @@ async function onAttemptFailure({ error: error2, attemptNumber, retriesConsumed,
   const delayTime = calculateDelay(retriesConsumed, options);
   const finalDelay = Math.min(delayTime, remainingTime);
   if (finalDelay > 0) {
-    await new Promise((resolve, reject) => {
+    await new Promise((resolve12, reject) => {
       const onAbort = () => {
         clearTimeout(timeoutToken);
         options.signal?.removeEventListener("abort", onAbort);
@@ -2649,7 +3846,7 @@ async function onAttemptFailure({ error: error2, attemptNumber, retriesConsumed,
       };
       const timeoutToken = setTimeout(() => {
         options.signal?.removeEventListener("abort", onAbort);
-        resolve();
+        resolve12();
       }, finalDelay);
       if (options.unref) {
         timeoutToken.unref?.();
@@ -3059,7 +4256,7 @@ var safeJSON = (text) => {
 };
 
 // node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/internal/utils/sleep.js
-var sleep2 = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+var sleep = (ms) => new Promise((resolve12) => setTimeout(resolve12, ms));
 
 // node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/version.js
 var VERSION = "0.0.1";
@@ -3738,8 +4935,8 @@ var __classPrivateFieldGet = function(receiver, state, kind, f2) {
 var _APIPromise_client;
 var APIPromise = class _APIPromise extends Promise {
   constructor(client2, responsePromise, parseResponse = defaultParseResponse) {
-    super((resolve) => {
-      resolve(null);
+    super((resolve12) => {
+      resolve12(null);
     });
     Object.defineProperty(this, "responsePromise", {
       enumerable: true,
@@ -5618,9 +6815,9 @@ var Langsmith = class {
     let timeoutMillis;
     const retryAfterMillisHeader = responseHeaders?.get("retry-after-ms");
     if (retryAfterMillisHeader) {
-      const timeoutMs = parseFloat(retryAfterMillisHeader);
-      if (!Number.isNaN(timeoutMs)) {
-        timeoutMillis = timeoutMs;
+      const timeoutMs2 = parseFloat(retryAfterMillisHeader);
+      if (!Number.isNaN(timeoutMs2)) {
+        timeoutMillis = timeoutMs2;
       }
     }
     const retryAfterHeader = responseHeaders?.get("retry-after");
@@ -5636,7 +6833,7 @@ var Langsmith = class {
       const maxRetries = options.maxRetries ?? this.maxRetries;
       timeoutMillis = this.calculateDefaultRetryTimeoutMillis(retriesRemaining, maxRetries);
     }
-    await sleep2(timeoutMillis);
+    await sleep(timeoutMillis);
     return this.makeRequest(options, retriesRemaining - 1, requestLogID);
   }
   calculateDefaultRetryTimeoutMillis(retriesRemaining, maxRetries) {
@@ -6186,18 +7383,18 @@ function nonCryptographicUuid7Deterministic(originalId, key) {
 // node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/sampling.js
 var SAMPLING_HASH_MODULUS = 1000000n;
 var encoder = new TextEncoder();
-var isSampledById = (identifier, samplingRate) => {
-  if (samplingRate === void 0 || samplingRate >= 1) {
+var isSampledById = (identifier, samplingRate2) => {
+  if (samplingRate2 === void 0 || samplingRate2 >= 1) {
     return true;
   }
-  if (samplingRate <= 0) {
+  if (samplingRate2 <= 0) {
     return false;
   }
   if (identifier == null) {
     return true;
   }
   const bucket = XXH3_128(encoder.encode(identifier.toLowerCase())) % SAMPLING_HASH_MODULUS;
-  return Number(bucket) / Number(SAMPLING_HASH_MODULUS) < samplingRate;
+  return Number(bucket) / Number(SAMPLING_HASH_MODULUS) < samplingRate2;
 };
 
 // node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/address.js
@@ -6439,7 +7636,7 @@ import * as nodeFs from "node:fs";
 import * as nodeFsPromises from "node:fs/promises";
 import * as nodePath from "node:path";
 var path2 = nodePath;
-async function mkdir3(dir) {
+async function mkdir5(dir) {
   await nodeFsPromises.mkdir(dir, { recursive: true });
 }
 async function writeFileAtomic(filePath, content) {
@@ -6450,7 +7647,7 @@ async function writeFileAtomic(filePath, content) {
   });
   await nodeFsPromises.rename(tempPath, filePath);
 }
-async function readdir2(dir) {
+async function readdir5(dir) {
   return nodeFsPromises.readdir(dir);
 }
 async function stat2(filePath) {
@@ -6462,16 +7659,16 @@ function existsSync2(p) {
 function mkdirSync4(dir) {
   nodeFs.mkdirSync(dir, { recursive: true });
 }
-function writeFileSync3(filePath, content) {
+function writeFileSync2(filePath, content) {
   nodeFs.writeFileSync(filePath, content);
 }
-function renameSync4(oldPath, newPath) {
+function renameSync5(oldPath, newPath) {
   nodeFs.renameSync(oldPath, newPath);
 }
-function unlinkSync3(filePath) {
+function unlinkSync2(filePath) {
   nodeFs.unlinkSync(filePath);
 }
-function readFileSync5(filePath) {
+function readFileSync6(filePath) {
   return nodeFs.readFileSync(filePath, "utf-8");
 }
 async function mkdirExclusive(dir) {
@@ -6657,11 +7854,11 @@ var PromptCache = class {
     }
     const tempPath = `${filePath}.tmp`;
     try {
-      writeFileSync3(tempPath, JSON.stringify({ entries }, null, 2));
-      renameSync4(tempPath, filePath);
+      writeFileSync2(tempPath, JSON.stringify({ entries }, null, 2));
+      renameSync5(tempPath, filePath);
     } catch (e) {
       if (existsSync2(tempPath)) {
-        unlinkSync3(tempPath);
+        unlinkSync2(tempPath);
       }
       throw e;
     }
@@ -6679,7 +7876,7 @@ var PromptCache = class {
     }
     let entries;
     try {
-      const content = readFileSync5(filePath);
+      const content = readFileSync6(filePath);
       const data = JSON.parse(content);
       entries = data.entries ?? null;
     } catch {
@@ -6791,15 +7988,15 @@ var _getFetchImplementation = (debug2) => {
 var LOCK_POLL_INTERVAL_MS = 10;
 var LOCK_STALE_AFTER_MS = 1e4;
 var LOCK_METADATA_FILE = "created_at";
-function sleep3(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+function sleep2(ms) {
+  return new Promise((resolve12) => setTimeout(resolve12, ms));
 }
 function isEEXIST(err) {
   return typeof err === "object" && err !== null && err.code === "EEXIST";
 }
 function lockMetadataLines(lockDir) {
   try {
-    return readFileSync5(path2.join(lockDir, LOCK_METADATA_FILE)).split("\n");
+    return readFileSync6(path2.join(lockDir, LOCK_METADATA_FILE)).split("\n");
   } catch {
     return void 0;
   }
@@ -6833,7 +8030,7 @@ async function acquireOAuthRefreshLock(configPath, deadline) {
   const lockDir = `${configPath}.oauth.lock.lock`;
   const parent = path2.dirname(lockDir);
   if (parent) {
-    await mkdir3(parent);
+    await mkdir5(parent);
   }
   const owner = globalThis.crypto.randomUUID();
   for (; ; ) {
@@ -6847,7 +8044,7 @@ async function acquireOAuthRefreshLock(configPath, deadline) {
         if (Date.now() >= deadline) {
           throw new Error("timed out acquiring OAuth refresh lock");
         }
-        await sleep3(Math.min(LOCK_POLL_INTERVAL_MS, Math.max(0, deadline - Date.now())));
+        await sleep2(Math.min(LOCK_POLL_INTERVAL_MS, Math.max(0, deadline - Date.now())));
       }
       continue;
     }
@@ -6914,7 +8111,7 @@ function loadProfileState() {
     return void 0;
   }
   try {
-    const config = JSON.parse(readFileSync5(configPath));
+    const config = JSON.parse(readFileSync6(configPath));
     const profileName = resolveProfileName(config);
     const profile = profileName ? config.profiles?.[profileName] : void 0;
     if (!profileName || !profile) {
@@ -7144,7 +8341,7 @@ var ProfileAuth = class {
   }
   reloadProfile() {
     try {
-      const config = JSON.parse(readFileSync5(this.state.configPath));
+      const config = JSON.parse(readFileSync6(this.state.configPath));
       const profile = config.profiles?.[this.state.profileName];
       if (!profile) {
         return void 0;
@@ -7728,8 +8925,8 @@ var SerializeWorker = class {
     if (!ok)
       return null;
     const id = this.nextId++;
-    return new Promise((resolve, reject) => {
-      this.pending.set(id, { resolve, reject });
+    return new Promise((resolve12, reject) => {
+      this.pending.set(id, { resolve: resolve12, reject });
       try {
         this.worker.postMessage({ id, op: "serialize", payload });
       } catch (e) {
@@ -7872,11 +9069,11 @@ var getTracingSamplingRate = (configRate) => {
   if (samplingRateStr === void 0) {
     return void 0;
   }
-  const samplingRate = parseFloat(samplingRateStr);
-  if (samplingRate < 0 || samplingRate > 1) {
-    throw new Error(`LANGSMITH_TRACING_SAMPLING_RATE must be between 0 and 1 if set. Got: ${samplingRate}`);
+  const samplingRate2 = parseFloat(samplingRateStr);
+  if (samplingRate2 < 0 || samplingRate2 > 1) {
+    throw new Error(`LANGSMITH_TRACING_SAMPLING_RATE must be between 0 and 1 if set. Got: ${samplingRate2}`);
   }
-  return samplingRate;
+  return samplingRate2;
 };
 var isLocalhost = (url) => {
   const strippedUrl = url.replace("http://", "").replace("https://", "");
@@ -7900,7 +9097,7 @@ var handle429 = async (response) => {
   if (response?.status === 429) {
     const retryAfter = parseInt(response.headers.get("retry-after") ?? "10", 10) * 1e3;
     if (retryAfter > 0) {
-      await new Promise((resolve) => setTimeout(resolve, retryAfter));
+      await new Promise((resolve12) => setTimeout(resolve12, retryAfter));
       return true;
     }
   }
@@ -7999,8 +9196,8 @@ var AutoBatchQueue = class {
   }
   push(item) {
     let itemPromiseResolve;
-    const itemPromise = new Promise((resolve) => {
-      itemPromiseResolve = resolve;
+    const itemPromise = new Promise((resolve12) => {
+      itemPromiseResolve = resolve12;
     });
     const size = estimateSerializedSize(item.item).size;
     if (this.sizeBytes + size > this.maxSizeBytes && this.items.length > 0) {
@@ -8661,19 +9858,19 @@ var Client = class _Client {
    * authenticate (see `hasExplicitAuthHeader`), so those must survive.
    */
   get _sdkControlledHeaders() {
-    const names = /* @__PURE__ */ new Set();
+    const names2 = /* @__PURE__ */ new Set();
     if (this.apiKey !== void 0) {
-      names.add("x-api-key");
+      names2.add("x-api-key");
     } else {
       const profileAuthHeader = this.profileAuth?.currentAuthHeader();
       if (profileAuthHeader) {
-        names.add(profileAuthHeader.name.toLowerCase());
+        names2.add(profileAuthHeader.name.toLowerCase());
       }
     }
     if (this.workspaceId) {
-      names.add("x-tenant-id");
+      names2.add("x-tenant-id");
     }
-    return names;
+    return names2;
   }
   /**
    * Headers supplied by the caller, through either `config.headers` or
@@ -9087,12 +10284,12 @@ var Client = class _Client {
       const filename = `trace_${Date.now()}_${v4_default().slice(0, 8)}.json`;
       const filepath = path2.join(directory, filename);
       if (!_Client._fallbackDirsCreated.has(directory)) {
-        await mkdir3(directory);
+        await mkdir5(directory);
         _Client._fallbackDirsCreated.add(directory);
       }
       if (maxBytes !== void 0 && maxBytes > 0) {
         try {
-          const entries = await readdir2(directory);
+          const entries = await readdir5(directory);
           const traceFiles = entries.filter((f2) => f2.startsWith("trace_") && f2.endsWith(".json"));
           let total = 0;
           for (const name of traceFiles) {
@@ -11091,7 +12288,7 @@ Message: ${Array.isArray(result.detail) ? result.detail.join("\n") : "Unspecifie
       params.append("filter", filter);
     }
     if (includeAttachments === true) {
-      ["attachment_urls", "outputs", "metadata"].forEach((field) => params.append("select", field));
+      ["attachment_urls", "outputs", "metadata"].forEach((field2) => params.append("select", field2));
     }
     let i = 0;
     for await (const rawExamples of this._getPaginated("/examples", params)) {
@@ -13014,7 +14211,7 @@ Message: ${Array.isArray(result.detail) ? result.detail.join("\n") : "Unspecifie
       console.warn("[WARNING]: When tracing in manual flush mode, you must call `await client.flush()` manually to submit trace batches.");
       return Promise.resolve();
     }
-    await new Promise((resolve) => setTimeout(resolve, 1));
+    await new Promise((resolve12) => setTimeout(resolve12, 1));
     while (this._pendingDrains.size > 0) {
       await Promise.all([...this._pendingDrains]);
     }
@@ -14163,225 +15360,13 @@ var AsyncLocalStorageProviderSingleton = new AsyncLocalStorageProvider();
 // node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/index.js
 var __version__ = "0.10.8";
 
-// dist/src/metadata.js
-var TRUSTED_METADATA = /* @__PURE__ */ Symbol("cursor.trustedMetadata");
-function trustedCodingAgentMetadata(metadata) {
-  return metadata ? metadata[TRUSTED_METADATA] : void 0;
-}
-function codingAgentMetadata(opts) {
-  const { agentType, threadId, base, turnId, turnNumber, runtimeVersion, approvalPolicy, subagentId, subagentType, clearSubagent, toolName, runName, skillName, runSpecific } = opts;
-  const meta = {
-    // Identity & grouping — always present.
-    ls_agent_purpose: LS_AGENT_PURPOSE,
-    ls_agent_type: agentType,
-    ls_integration: LS_INTEGRATION,
-    ls_agent_runtime: LS_AGENT_RUNTIME,
-    ls_trace_schema_version: LS_TRACE_SCHEMA_VERSION,
-    thread_id: threadId
-  };
-  if (turnId)
-    meta.turn_id = turnId;
-  if (typeof turnNumber === "number")
-    meta.turn_number = turnNumber;
-  if (runtimeVersion)
-    meta.ls_agent_runtime_version = runtimeVersion;
-  if (approvalPolicy)
-    meta.approval_policy = approvalPolicy;
-  if (subagentId)
-    meta.ls_subagent_id = subagentId;
-  if (subagentType)
-    meta.ls_subagent_type = subagentType;
-  if (clearSubagent) {
-    meta.ls_subagent_id = void 0;
-    meta.ls_subagent_type = void 0;
-  }
-  if (toolName && runName && toolName !== runName)
-    meta.ls_tool_name = toolName;
-  if (skillName)
-    meta.ls_skill_name = skillName;
-  const result = { ...meta, ...runSpecific, ...base };
-  Object.defineProperty(result, TRUSTED_METADATA, {
-    value: {
-      ...meta,
-      ...runSpecific,
-      ...toolName ? { ls_tool_name: toolName } : {},
-      ...LS_INTEGRATION_VERSION ? { ls_integration_version: LS_INTEGRATION_VERSION } : {}
-    }
-  });
-  return result;
-}
-function skillNameFromTool(toolName, toolInput) {
-  if (!SKILL_READ_TOOLS.has(toolName))
-    return void 0;
-  const input = toolInput;
-  const filePath = input?.path ?? input?.file_path;
-  if (typeof filePath !== "string")
-    return void 0;
-  const segments = filePath.split(PATH_SEPARATOR);
-  const file = segments.pop();
-  const name = segments.pop();
-  if (file !== "SKILL.md" || !name || name.startsWith("."))
-    return void 0;
-  return segments.includes("skills") ? name : void 0;
-}
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/tracing/upload/constants.js
+var UPLOAD_REPLICA_UUID_V5_NAMESPACE = "6ba7b810-9dad-11d1-80b4-00c04fd430c8";
+var UPLOAD_REPLICA_UUID_V5_NAMESPACE_BYTES = Buffer.from(UPLOAD_REPLICA_UUID_V5_NAMESPACE.replaceAll("-", ""), "hex");
+var UPLOAD_BATCH_LIMITS = { maxRuns: 100, maxBytes: 8 * 1024 * 1024 };
 
-// dist/src/privacy.js
-var MUTED_TRACE_CONTENT = "[LangSmith system notice: content omitted because tracing is muted.]";
-var METADATA_KEYS = /* @__PURE__ */ new Set([
-  "thread_id",
-  "turn_number",
-  "turn_id",
-  "status",
-  "ls_tracing_mode",
-  "ls_agent_purpose",
-  "ls_agent_type",
-  "ls_agent_runtime",
-  "ls_agent_runtime_version",
-  "ls_integration",
-  "ls_integration_version",
-  "ls_trace_schema_version",
-  "ls_model_name",
-  "ls_tool_name",
-  "ls_skill_name",
-  "usage_metadata",
-  "ls_subagent_id",
-  "ls_subagent_type"
-]);
-function usageForMetadata(value) {
-  if (!value || typeof value !== "object" || Array.isArray(value))
-    return void 0;
-  return value;
-}
-function projectMetadata(metadata, status) {
-  const safe = {};
-  for (const [key, value] of Object.entries(metadata ?? {})) {
-    if (!METADATA_KEYS.has(key))
-      continue;
-    if (key === "usage_metadata") {
-      const usage = usageForMetadata(value);
-      if (usage)
-        safe[key] = usage;
-    } else if (key === "turn_number") {
-      if (typeof value === "number" && Number.isSafeInteger(value) && value >= 1)
-        safe[key] = value;
-    } else if (typeof value === "string" && value.length) {
-      safe[key] = value;
-    }
-  }
-  safe.status = status === "error" || status === "completed" ? status : "running";
-  safe.ls_tracing_mode = "metadata";
-  return safe;
-}
-function metadataForMode(metadata, mode = "full", status) {
-  if (mode === "full")
-    return metadata;
-  return projectMetadata(trustedCodingAgentMetadata(metadata) ?? metadata, status);
-}
-function sanitizeReplica(replica, mode) {
-  if (mode === "full" || !replica || typeof replica !== "object")
-    return replica;
-  if (Array.isArray(replica))
-    return { projectName: replica[0] };
-  const { updates: _updates, ...safe } = replica;
-  return safe;
-}
-function runConfigForMode(config, mode = "full") {
-  if (mode === "full")
-    return config;
-  const status = config.error != null ? "error" : config.end_time != null ? "completed" : "running";
-  const extra = config.extra;
-  const safe = {};
-  for (const key of [
-    "client",
-    "id",
-    "name",
-    "run_type",
-    "project_name",
-    "start_time",
-    "end_time",
-    "parent_run_id",
-    "parent_run",
-    "distributedParentId",
-    "trace_id",
-    "dotted_order"
-  ]) {
-    if (key in config && config[key] !== void 0)
-      safe[key] = config[key];
-  }
-  if (Array.isArray(config.replicas)) {
-    safe.replicas = config.replicas.map((replica) => sanitizeReplica(replica, mode));
-  }
-  safe.inputs = { messages: [{ role: "user", content: MUTED_TRACE_CONTENT }] };
-  safe.outputs = { messages: [{ role: "assistant", content: MUTED_TRACE_CONTENT }] };
-  safe.extra = {
-    metadata: metadataForMode(extra?.metadata, mode, status),
-    // RunTree and Client both enrich extra AFTER construction. A client-level
-    // omitTracedRuntimeInfo flag alone does not suppress RunTree's additions,
-    // and replicas may use their own clients. Keep this method enumerable so it
-    // survives SDK object spreads and filters at the REST serialization boundary
-    // (including multipart .extra parts). Wire-payload tests guard this SDK behavior.
-    toJSON() {
-      return {
-        // Read the current metadata, not the constructor's copy: the client may
-        // have anonymized allowlisted values, which must not be restored here.
-        metadata: projectMetadata(this.metadata, typeof this.metadata?.status === "string" ? this.metadata.status : status)
-      };
-    }
-  };
-  return safe;
-}
-function createRunTree(config, mode = "full") {
-  const safe = runConfigForMode(config, mode);
-  return protectRun(new RunTree(safe), mode, safe.extra?.metadata);
-}
-function createChildRun(parent, config, mode) {
-  const safe = runConfigForMode(config, mode);
-  return protectRun(parent.createChild(safe), mode, safe.extra?.metadata);
-}
-function protectRun(run, mode, metadata) {
-  if (mode === "full")
-    return run;
-  const trusted = metadata;
-  let failed = trusted?.status === "error";
-  const sanitize = () => {
-    failed ||= run.error != null;
-    const safe = runConfigForMode({
-      inputs: run.inputs,
-      outputs: run.outputs,
-      error: failed ? "error" : void 0,
-      end_time: run.end_time,
-      extra: { metadata: trusted },
-      replicas: run.replicas
-    }, mode);
-    run.inputs = safe.inputs;
-    run.outputs = safe.outputs;
-    run.error = void 0;
-    run.extra = safe.extra;
-    run.replicas = safe.replicas;
-    run.tags = [];
-    run.events = void 0;
-    run.attachments = void 0;
-    run.serialized = {};
-    run.reference_example_id = void 0;
-  };
-  const createChild = run.createChild.bind(run);
-  run.createChild = (config) => {
-    const safe = runConfigForMode(config, mode);
-    return protectRun(createChild(safe), mode, safe.extra?.metadata);
-  };
-  const post = run.postRun.bind(run);
-  run.postRun = async (...args) => {
-    sanitize();
-    return post(...args);
-  };
-  const patch = run.patchRun.bind(run);
-  run.patchRun = async (...args) => {
-    sanitize();
-    return patch(...args);
-  };
-  sanitize();
-  return run;
-}
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/tracing/upload/destination-identity.js
+import { createHash as createHash3 } from "node:crypto";
 
 // node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/anonymizer/index.js
 function extractStringNodes(data, options) {
@@ -14593,14 +15578,302 @@ function createSecretAnonymizer(options) {
   return createAnonymizer(rules, { maxDepth: options?.maxDepth ?? 24 });
 }
 
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/tracing/upload/replica-identifiers.js
+import { createHash as createHash4 } from "node:crypto";
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/tracing/upload/sampling.js
+import { createHash as createHash5 } from "node:crypto";
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/constants.js
+var LIFECYCLE_CHILD_TURN_GRACE_MS = 60 * 60 * 1e3;
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/tracing/settlement/constants.js
+var REPOSITORY_NAME_KEY = GIT_METADATA_KEYS.repository;
+var SETTLEMENT_QUIET_TURN_MS = 2 * 60 * 60 * 1e3;
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/tracing/settlement/revision.js
+import { createHash as createHash6 } from "node:crypto";
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/worker.js
+import { join as join16, resolve as resolve10 } from "node:path";
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/tracing/engine/options.js
+import { resolve as resolve11 } from "node:path";
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/tracing/engine/constants.js
+var TRACING_ENGINE_FOREIGN_SESSION_MIN_AGE_MS = 2 * 60 * 60 * 1e3;
+var TRACING_ENGINE_MAX_RETRY_WAIT_MS = 2 * 60 * 1e3;
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/tracing/engine/retry-wait.js
+import { setTimeout as delay4 } from "node:timers/promises";
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/plugin/worker-launch.js
+import { spawn } from "node:child_process";
+import { closeSync as closeSync3, mkdirSync as mkdirSync5, openSync as openSync3, statSync as statSync4, writeSync as writeSync2 } from "node:fs";
+import { dirname as dirname10, join as join17 } from "node:path";
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/utils/tls/system-certificates.js
+import { readFileSync as readFileSync7, writeFileSync as writeFileSync3 } from "node:fs";
+import * as tls from "node:tls";
+
+// dist/src/tracing-policy.js
+import { homedir as homedir3 } from "node:os";
+import { join as join18 } from "node:path";
+function isMode(value) {
+  return value === "full" || value === "metadata";
+}
+var TRACING_POLICY_FILE = {
+  empty: () => ({ threads: {} }),
+  requireRegularFile: true,
+  parse(value) {
+    if (!isRecord(value) || !isRecord(value.threads) || Object.values(value.threads).some((mode) => !isMode(mode)) || Object.keys(value).some((key) => key !== "threads")) {
+      throw new Error("Invalid tracing preference format");
+    }
+    return value;
+  }
+};
+function tracingPolicyPath() {
+  return process.env.LANGSMITH_CURSOR_PRIVACY_FILE ?? join18(homedir3(), ".cursor", "langsmith-state.privacy.json");
+}
+function getThreadTracingMode(path3, sessionId, defaultMuted = false) {
+  try {
+    const policy = readPolicyFile(path3, TRACING_POLICY_FILE);
+    if (Object.hasOwn(policy.threads, sessionId))
+      return policy.threads[sessionId];
+    return defaultMuted ? "metadata" : "full";
+  } catch {
+    return "metadata";
+  }
+}
+
+// dist/src/metadata.js
+var TRUSTED_METADATA2 = /* @__PURE__ */ Symbol("cursor.trustedMetadata");
+function trustedCodingAgentMetadata2(metadata) {
+  return metadata ? metadata[TRUSTED_METADATA2] : void 0;
+}
+function codingAgentMetadata(opts) {
+  const { agentType, threadId, base, turnId, turnNumber, runtimeVersion, approvalPolicy, subagentId, subagentType, clearSubagent, toolName, runName, skillName, runSpecific } = opts;
+  const meta = {
+    // Identity & grouping — always present.
+    ls_agent_purpose: LS_AGENT_PURPOSE,
+    ls_agent_type: agentType,
+    ls_integration: LS_INTEGRATION,
+    ls_agent_runtime: LS_AGENT_RUNTIME,
+    ls_trace_schema_version: LS_TRACE_SCHEMA_VERSION,
+    thread_id: threadId
+  };
+  if (turnId)
+    meta.turn_id = turnId;
+  if (typeof turnNumber === "number")
+    meta.turn_number = turnNumber;
+  if (runtimeVersion)
+    meta.ls_agent_runtime_version = runtimeVersion;
+  if (approvalPolicy)
+    meta.approval_policy = approvalPolicy;
+  if (subagentId)
+    meta.ls_subagent_id = subagentId;
+  if (subagentType)
+    meta.ls_subagent_type = subagentType;
+  if (clearSubagent) {
+    meta.ls_subagent_id = void 0;
+    meta.ls_subagent_type = void 0;
+  }
+  if (toolName && runName && toolName !== runName)
+    meta.ls_tool_name = toolName;
+  if (skillName)
+    meta.ls_skill_name = skillName;
+  const result = { ...meta, ...runSpecific, ...base };
+  Object.defineProperty(result, TRUSTED_METADATA2, {
+    value: {
+      ...meta,
+      ...runSpecific,
+      ...toolName ? { ls_tool_name: toolName } : {},
+      ...LS_INTEGRATION_VERSION ? { ls_integration_version: LS_INTEGRATION_VERSION } : {}
+    }
+  });
+  return result;
+}
+function skillNameFromTool(toolName, toolInput) {
+  if (!SKILL_READ_TOOLS.has(toolName))
+    return void 0;
+  const input = toolInput;
+  const filePath = input?.path ?? input?.file_path;
+  if (typeof filePath !== "string")
+    return void 0;
+  const segments = filePath.split(PATH_SEPARATOR);
+  const file = segments.pop();
+  const name = segments.pop();
+  if (file !== "SKILL.md" || !name || name.startsWith("."))
+    return void 0;
+  return segments.includes("skills") ? name : void 0;
+}
+
+// dist/src/privacy.js
+var MUTED_TRACE_CONTENT2 = "[LangSmith system notice: content omitted because tracing is muted.]";
+var METADATA_KEYS = /* @__PURE__ */ new Set([
+  "thread_id",
+  "turn_number",
+  "turn_id",
+  "status",
+  "ls_tracing_mode",
+  "ls_agent_purpose",
+  "ls_agent_type",
+  "ls_agent_runtime",
+  "ls_agent_runtime_version",
+  "ls_integration",
+  "ls_integration_version",
+  "ls_trace_schema_version",
+  "ls_model_name",
+  "ls_tool_name",
+  "ls_skill_name",
+  "usage_metadata",
+  "ls_subagent_id",
+  "ls_subagent_type"
+]);
+function usageForMetadata(value) {
+  if (!value || typeof value !== "object" || Array.isArray(value))
+    return void 0;
+  return value;
+}
+function projectMetadata(metadata, status) {
+  const safe = {};
+  for (const [key, value] of Object.entries(metadata ?? {})) {
+    if (!METADATA_KEYS.has(key))
+      continue;
+    if (key === "usage_metadata") {
+      const usage = usageForMetadata(value);
+      if (usage)
+        safe[key] = usage;
+    } else if (key === "turn_number") {
+      if (typeof value === "number" && Number.isSafeInteger(value) && value >= 1)
+        safe[key] = value;
+    } else if (typeof value === "string" && value.length) {
+      safe[key] = value;
+    }
+  }
+  safe.status = status === "error" || status === "completed" ? status : "running";
+  safe.ls_tracing_mode = "metadata";
+  return safe;
+}
+function metadataForMode2(metadata, mode = "full", status) {
+  if (mode === "full")
+    return metadata;
+  return projectMetadata(trustedCodingAgentMetadata2(metadata) ?? metadata, status);
+}
+function sanitizeReplica(replica, mode) {
+  if (mode === "full" || !replica || typeof replica !== "object")
+    return replica;
+  if (Array.isArray(replica))
+    return { projectName: replica[0] };
+  const { updates: _updates, ...safe } = replica;
+  return safe;
+}
+function runConfigForMode(config, mode = "full") {
+  if (mode === "full")
+    return config;
+  const status = config.error != null ? "error" : config.end_time != null ? "completed" : "running";
+  const extra = config.extra;
+  const safe = {};
+  for (const key of [
+    "client",
+    "id",
+    "name",
+    "run_type",
+    "project_name",
+    "start_time",
+    "end_time",
+    "parent_run_id",
+    "parent_run",
+    "distributedParentId",
+    "trace_id",
+    "dotted_order"
+  ]) {
+    if (key in config && config[key] !== void 0)
+      safe[key] = config[key];
+  }
+  if (Array.isArray(config.replicas)) {
+    safe.replicas = config.replicas.map((replica) => sanitizeReplica(replica, mode));
+  }
+  safe.inputs = { messages: [{ role: "user", content: MUTED_TRACE_CONTENT2 }] };
+  safe.outputs = { messages: [{ role: "assistant", content: MUTED_TRACE_CONTENT2 }] };
+  safe.extra = {
+    metadata: metadataForMode2(extra?.metadata, mode, status),
+    // RunTree and Client both enrich extra AFTER construction. A client-level
+    // omitTracedRuntimeInfo flag alone does not suppress RunTree's additions,
+    // and replicas may use their own clients. Keep this method enumerable so it
+    // survives SDK object spreads and filters at the REST serialization boundary
+    // (including multipart .extra parts). Wire-payload tests guard this SDK behavior.
+    toJSON() {
+      return {
+        // Read the current metadata, not the constructor's copy: the client may
+        // have anonymized allowlisted values, which must not be restored here.
+        metadata: projectMetadata(this.metadata, typeof this.metadata?.status === "string" ? this.metadata.status : status)
+      };
+    }
+  };
+  return safe;
+}
+function createRunTree(config, mode = "full") {
+  const safe = runConfigForMode(config, mode);
+  return protectRun(new RunTree(safe), mode, safe.extra?.metadata);
+}
+function createChildRun(parent, config, mode) {
+  const safe = runConfigForMode(config, mode);
+  return protectRun(parent.createChild(safe), mode, safe.extra?.metadata);
+}
+function protectRun(run, mode, metadata) {
+  if (mode === "full")
+    return run;
+  const trusted = metadata;
+  let failed = trusted?.status === "error";
+  const sanitize = () => {
+    failed ||= run.error != null;
+    const safe = runConfigForMode({
+      inputs: run.inputs,
+      outputs: run.outputs,
+      error: failed ? "error" : void 0,
+      end_time: run.end_time,
+      extra: { metadata: trusted },
+      replicas: run.replicas
+    }, mode);
+    run.inputs = safe.inputs;
+    run.outputs = safe.outputs;
+    run.error = void 0;
+    run.extra = safe.extra;
+    run.replicas = safe.replicas;
+    run.tags = [];
+    run.events = void 0;
+    run.attachments = void 0;
+    run.serialized = {};
+    run.reference_example_id = void 0;
+  };
+  const createChild = run.createChild.bind(run);
+  run.createChild = (config) => {
+    const safe = runConfigForMode(config, mode);
+    return protectRun(createChild(safe), mode, safe.extra?.metadata);
+  };
+  const post = run.postRun.bind(run);
+  run.postRun = async (...args) => {
+    sanitize();
+    return post(...args);
+  };
+  const patch = run.patchRun.bind(run);
+  run.patchRun = async (...args) => {
+    sanitize();
+    return patch(...args);
+  };
+  sanitize();
+  return run;
+}
+
 // dist/src/conversation-steps.js
 import { existsSync as existsSync5 } from "node:fs";
 
 // dist/src/attachments.js
 import { DatabaseSync } from "node:sqlite";
-import { existsSync as existsSync3, readFileSync as readFileSync6, statSync as statSync3 } from "node:fs";
+import { existsSync as existsSync3, readFileSync as readFileSync8, statSync as statSync5 } from "node:fs";
 import { homedir as homedir4, platform } from "node:os";
-import { basename, join as join4 } from "node:path";
+import { basename as basename4, join as join19 } from "node:path";
 
 // dist/src/system-prompt.js
 import { existsSync as existsSync4 } from "node:fs";
@@ -14641,7 +15914,7 @@ ${step.text ?? ""}` : step.text;
 }
 
 // dist/src/langsmith.js
-import { createHash } from "node:crypto";
+import { createHash as createHash7 } from "node:crypto";
 var client = void 0;
 var replicas = void 0;
 var refusedWrite = void 0;
@@ -14703,7 +15976,7 @@ function uuidFromDigest(hex) {
 }
 function stableRunId(ctx, key) {
   const seed = `${ctx.threadId}\0${ctx.turnId ?? ""}\0${key}`;
-  return uuidFromDigest(createHash("sha256").update(seed).digest("hex"));
+  return uuidFromDigest(createHash7("sha256").update(seed).digest("hex"));
 }
 function withSystem(messages, systemPrompt) {
   return systemPrompt ? [{ role: "system", content: systemPrompt }, ...messages] : messages;
@@ -14745,7 +16018,7 @@ function orderedTurnCalls(buffer) {
         name: "Subagent",
         args: {
           subagent_type: s.subagent_type,
-          task: s.tracingMode === "full" ? s.task : MUTED_TRACE_CONTENT
+          task: s.tracingMode === "full" ? s.task : MUTED_TRACE_CONTENT2
         },
         id: s.subagent_id
       },
@@ -14755,7 +16028,7 @@ function orderedTurnCalls(buffer) {
         content: [
           {
             type: "text",
-            text: s.tracingMode === "full" ? s.resultText ?? `status: ${s.status ?? "completed"}` : MUTED_TRACE_CONTENT
+            text: s.tracingMode === "full" ? s.resultText ?? `status: ${s.status ?? "completed"}` : MUTED_TRACE_CONTENT2
           }
         ]
       }

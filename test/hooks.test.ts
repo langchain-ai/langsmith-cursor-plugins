@@ -2,10 +2,18 @@ import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { join } from "node:path";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { loadState, saveState } from "../src/state.js";
 import { runSweep } from "../src/sweep.js";
 import type { Config } from "../src/models/config.js";
-import { HOUR, MINUTE, T0, conversation, testConfig, turn } from "./utils/state.js";
+import {
+  HOUR,
+  MINUTE,
+  T0,
+  conversation,
+  loadState,
+  saveState,
+  testConfig,
+  turn,
+} from "./utils/state.js";
 
 const harness = vi.hoisted(() => ({
   input: {} as Record<string, unknown>,

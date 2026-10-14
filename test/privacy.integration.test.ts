@@ -925,7 +925,7 @@ describe.each(["project", "home"] as const)("common %s root config", (scope) => 
       try {
         const { handlePromptSubmit } = await import("../src/prompt-control.js");
         const { loadConfig } = await import("../src/config.js");
-        const { loadState } = await import("../src/state.js");
+        const { loadState } = await import("./utils/state.js");
         const { reduceStop } = await import("../src/reducer.js");
         const { initTracing, buildTurnRuns } = await import("../src/langsmith.js");
         const input = {
