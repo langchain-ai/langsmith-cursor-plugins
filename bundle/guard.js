@@ -5,6 +5,13 @@ import { execFileSync, spawnSync as spawnSync2 } from "node:child_process";
 import { appendFileSync } from "node:fs";
 import { userInfo, homedir as homedir2 } from "node:os";
 
+// dist/src/constants.js
+var MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024;
+var MAX_LOG_BYTES = 5 * 1024 * 1024;
+var CONVERSATION_MAX_AGE_MS = 24 * 60 * 60 * 1e3;
+var HOOK_LOG_FILE_NAME = "langsmith_hook.log";
+var NODE_PATH_CACHE_FILE_NAME = "langsmith_node.json";
+
 // dist/src/utils/node-version.js
 var MIN_NODE = [22, 13];
 function nodeTooOld(version, min = MIN_NODE) {
@@ -26,7 +33,7 @@ import { dirname, join } from "node:path";
 var NODE_PATH_CACHE_TTL_MS = 24 * 60 * 60 * 1e3;
 var NODE_PATH_VALIDATION_TIMEOUT_MS = 1e4;
 function nodePathCacheFile() {
-  return join(homedir(), ".cursor", "langsmith-node.json");
+  return join(homedir(), ".cursor", NODE_PATH_CACHE_FILE_NAME);
 }
 function readCachedNodePath(cacheFile = nodePathCacheFile(), now = Date.now()) {
   try {
@@ -112,7 +119,7 @@ if (!process.env.LANGSMITH_CURSOR_NODE_HANDOFF && nodeTooOld(process.versions.no
 }
 if (nodeTooOld(process.versions.node)) {
   const msg = `[langsmith] Node ${process.versions.node} at ${process.execPath} is too old for tracing (need >= ${MIN_NODE[0]}.${MIN_NODE[1]} for node:sqlite). This turn was NOT traced. The Node configured by your login shell could not be used; install Node >= ${MIN_NODE[0]}.${MIN_NODE[1]} or check your shell startup files. See README troubleshooting.`;
-  const logFile = process.env.LANGSMITH_CURSOR_LOG_FILE ?? `${homedir2()}/.cursor/langsmith-hook.log`;
+  const logFile = process.env.LANGSMITH_CURSOR_LOG_FILE ?? `${homedir2()}/.cursor/${HOOK_LOG_FILE_NAME}`;
   try {
     appendFileSync(logFile, msg + "\n");
   } catch {

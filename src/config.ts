@@ -21,6 +21,7 @@ import {
   DEFAULT_API_URL,
   DEFAULT_PROJECT,
   DEFAULT_SWEEP_IDLE_MINUTES,
+  STATE_FILE_NAME,
 } from "./constants.js";
 import type { Config, CursorExtensions, EnvBooleanOptions } from "./models/config.js";
 import { parseBoolean, parseJson, parsePositiveNumber } from "./utils/parse.js";
@@ -284,7 +285,7 @@ export function loadConfig(options?: { cwd?: string }): Config {
 
   const stateFilePath =
     process.env.LANGSMITH_CURSOR_STATE_FILE ??
-    join(homedir(), CURSOR_DIRECTORY_NAME, "langsmith-state.json");
+    join(homedir(), CURSOR_DIRECTORY_NAME, STATE_FILE_NAME);
 
   // coding-agent-v1 base metadata (later spreads win). Identity literals are
   // owned by codingAgentMetadata(), so they're not here.
