@@ -26,10 +26,54 @@ export const BINARY_HOOK_EVENTS = {
   sessionStart: "session-start",
 } as const;
 
-export const PLUGIN_BINARY_DIRECTORY_NAME = "binary";
-
-export const PLUGIN_LAUNCHER_NAME = "langsmith-tracing.cmd";
-
-export const PLUGIN_ROOT_PLACEHOLDER = "${CURSOR_PLUGIN_ROOT}";
-
 export const LEADING_BYTE_ORDER_MARKS = /^\uFEFF+/;
+
+export const LS_AGENT_PURPOSE = "coding";
+
+export const LS_INTEGRATION = "cursor";
+
+export const LS_AGENT_RUNTIME = "Cursor";
+
+export const LS_TRACE_SCHEMA_VERSION = "coding-agent-v1";
+
+/** Read tools only, so a glob or grep naming SKILL.md is not counted as an invocation. */
+export const SKILL_READ_TOOLS = new Set(["read_file_v2", "ReadFile", "Read"]);
+
+export const PATH_SEPARATOR = /[/\\]/;
+
+/** Skip attachments larger than this (raw bytes) — base64 inflates ~33% on top. */
+export const MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024; // 10 MB
+
+export const MAX_LOG_BYTES = 5 * 1024 * 1024; // 5 MB
+
+export const CONVERSATION_MAX_AGE_MS = 24 * 60 * 60 * 1000; // 24 hours
+
+export const WHITESPACE_RUN = /\s+/g;
+
+/** Reasoning-effort / thinking suffixes Cursor appends to model labels. */
+export const MODEL_SUFFIXES = new Set([
+  "thinking",
+  "minimal",
+  "low",
+  "medium",
+  "high",
+  "xhigh",
+  "max",
+]);
+
+export const PROVIDER_PREFIX = /^[a-z]+\//;
+
+export const CLAUDE_VERSIONED_MODEL = /^claude-(\d+)\.(\d+)-(sonnet|opus|haiku)$/;
+
+export const OPENAI_MODEL_PREFIX = /^(gpt|o\d)/;
+
+export const CURSOR_VENDOR_PREFIX = /^cursor-/i;
+
+/** MCP tool names arrive namespaced as "MCP:<tool>". */
+export const MCP_TOOL_PREFIX = "MCP:";
+
+/**
+ * UI-only pseudo-tools the agent emits but never fires a real postToolUse for —
+ * no I/O worth tracing.
+ */
+export const SUBAGENT_PSEUDO_TOOLS = new Set(["UpdateCurrentStep"]);

@@ -12,7 +12,7 @@ import {
   reduceSubagentStop,
 } from "../src/reducer.js";
 import { MUTED_TRACE_CONTENT } from "../src/privacy.js";
-import type { TurnMode } from "../src/types.js";
+import type { TurnMode } from "../src/models/types.js";
 
 it("replays identical full/muted topology and nested ownership without content backfill", async () => {
   const { finalized } = replayHookLog(join(process.cwd(), "test/fixtures/cursor-hooks.jsonl"));

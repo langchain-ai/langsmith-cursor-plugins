@@ -6,7 +6,7 @@ import { performance } from "node:perf_hooks";
 import { setTimeout as delay } from "node:timers/promises";
 import { homedir } from "node:os";
 import { join } from "node:path";
-import type { TracingMode } from "./types.js";
+import type { TracingMode } from "./models/types.js";
 
 interface TracingPolicy {
   threads: Record<string, TracingMode>;

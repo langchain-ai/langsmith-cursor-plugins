@@ -3,20 +3,16 @@
  * conversationState (protobuf field 1) → agentKv system message. Best-effort.
  */
 
-import { DatabaseSync } from "node:sqlite";
 import { existsSync } from "node:fs";
 import { isRecord } from "./normalize.js";
 import { defaultCursorDbPath } from "./attachments.js";
+import { openDbReader } from "./cursor-db.js";
+import { ROOT_PROMPT_MESSAGES_FIELD } from "./system-prompt-constants.js";
+import type { BlobReader } from "./models/cursor-db.js";
+import type { Cursor, ResolveSystemPromptsOptions } from "./models/system-prompt.js";
 import * as logger from "./logger.js";
 
-/** ConversationStateStructure.root_prompt_messages_json — repeated bytes, field 1. */
-const ROOT_PROMPT_MESSAGES_FIELD = 1;
-
 // ─── Wire-format reader (only what field-1 extraction needs) ─────────────────
-
-interface Cursor {
-  p: number;
-}
 
 /** Read a base-128 varint, advancing the cursor. Multiplies (not <<) to stay exact past 32 bits. */
 function readVarint(buf: Buffer, c: Cursor): number {
@@ -93,29 +89,6 @@ export function systemContentOf(buf: Buffer): string | undefined {
   return JSON.stringify(content); // array-of-parts form — keep the bytes
 }
 
-// ─── DB reader (injectable for tests) ─────────────────────────────────────────
-
-/** A read-only key→bytes lookup over one DB connection. */
-export interface BlobReader {
-  get(key: string): Buffer | undefined;
-  close(): void;
-}
-
-function openDbReader(dbPath: string): BlobReader {
-  const db = new DatabaseSync(dbPath, { readOnly: true });
-  const stmt = db.prepare("SELECT value FROM cursorDiskKV WHERE key = ?");
-  return {
-    get(key: string): Buffer | undefined {
-      const row = stmt.get(key) as { value?: unknown } | undefined;
-      const v = row?.value;
-      if (typeof v === "string") return Buffer.from(v);
-      if (v instanceof Uint8Array) return Buffer.from(v);
-      return undefined;
-    },
-    close: () => db.close(),
-  };
-}
-
 /** Resolve one conversation's system prompt using an already-open reader. Never throws. */
 function systemPromptFor(reader: BlobReader, conversationId: string): string | undefined {
   try {
@@ -144,14 +117,6 @@ function systemPromptFor(reader: BlobReader, conversationId: string): string | u
   }
 }
 
-export interface ResolveSystemPromptsOptions {
-  conversationIds: string[];
-  /** Override the DB path; defaults to the platform Cursor globalStorage DB. */
-  dbPath?: string;
-  /** Injectable reader factory (tests). Defaults to the read-only `node:sqlite` reader. */
-  openReader?: (dbPath: string) => BlobReader;
-}
-
 /** Resolve system prompts for several conversations over one shared connection. */
 export function resolveSystemPrompts(
   opts: ResolveSystemPromptsOptions,
@@ -178,19 +143,4 @@ export function resolveSystemPrompts(
     logger.warn(`system-prompt: resolution failed, skipping (${err})`);
   }
   return result;
-}
-
-export interface ResolveSystemPromptOptions {
-  conversationId: string;
-  dbPath?: string;
-  openReader?: (dbPath: string) => BlobReader;
-}
-
-/** Resolve a single conversation's system prompt (opens + closes one connection). */
-export function resolveTurnSystemPrompt(opts: ResolveSystemPromptOptions): string | undefined {
-  return resolveSystemPrompts({
-    conversationIds: [opts.conversationId],
-    dbPath: opts.dbPath,
-    openReader: opts.openReader,
-  }).get(opts.conversationId);
 }

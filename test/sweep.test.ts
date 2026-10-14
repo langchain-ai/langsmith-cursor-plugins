@@ -29,7 +29,7 @@ import type {
   SubagentStopInput,
   TracingState,
   TurnBuffer,
-} from "../src/types.js";
+} from "../src/models/types.js";
 
 const THRESHOLD = HOUR;
 const CALLER = "caller-conversation";

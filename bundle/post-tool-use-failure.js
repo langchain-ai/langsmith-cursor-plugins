@@ -4,6 +4,9 @@
 var DEFAULT_PROJECT = "cursor";
 var DEFAULT_SWEEP_IDLE_MINUTES = 360;
 var LEADING_BYTE_ORDER_MARKS = /^\uFEFF+/;
+var MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024;
+var MAX_LOG_BYTES = 5 * 1024 * 1024;
+var CONVERSATION_MAX_AGE_MS = 24 * 60 * 60 * 1e3;
 
 // dist/src/utils/stdin.js
 function readStdin(stream = process.stdin) {
@@ -195,7 +198,6 @@ import { execSync } from "node:child_process";
 import { appendFileSync, mkdirSync, statSync as statSync2, renameSync } from "node:fs";
 import { dirname } from "node:path";
 import { homedir } from "node:os";
-var MAX_LOG_BYTES = 5 * 1024 * 1024;
 var LOG_FILE = process.env.LANGSMITH_CURSOR_LOG_FILE ?? `${homedir()}/.cursor/langsmith-hook.log`;
 var debugEnabled = false;
 function initLogger(debug2) {
@@ -635,7 +637,6 @@ function newTurnBuffer(generationId, startMs, turnNum) {
     subagents: []
   };
 }
-var CONVERSATION_MAX_AGE_MS = 24 * 60 * 60 * 1e3;
 
 // dist/src/normalize.js
 function preferModel(current, incoming) {

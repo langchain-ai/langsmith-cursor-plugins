@@ -4,11 +4,18 @@ import { createRunTree, createChildRun, MUTED_TRACE_CONTENT } from "./privacy.js
 import { Client, RunTree, type RunTreeConfig } from "langsmith";
 import { createSecretAnonymizer } from "langsmith/anonymizer";
 import type { StringNodeRule } from "langsmith/anonymizer";
-import type { TurnBuffer, ToolEvent, SubagentEvent, ContentPart } from "./types.js";
+import type { TurnBuffer, ToolEvent, SubagentEvent, ContentPart } from "./models/types.js";
+import type {
+  BuildTurnOptions,
+  InterleaveOptions,
+  MetaCtx,
+  SkillRunOptions,
+  TurnCall,
+} from "./models/langsmith.js";
 import { buildUsageMetadata, deriveModelInfo } from "./normalize.js";
 import { DEFAULT_TAGS, SKILL_RUN_NAME, TURN_RUN_NAME } from "./constants.js";
-import { codingAgentMetadata, type LSAgentType, skillNameFromTool } from "./metadata.js";
-import { groupSteps, type Step } from "./conversation-steps.js";
+import { codingAgentMetadata, skillNameFromTool } from "./metadata.js";
+import { groupSteps } from "./conversation-steps.js";
 import * as logger from "./logger.js";
 import { createHash } from "node:crypto";
 
@@ -81,53 +88,7 @@ export async function uploadTurn(options: BuildTurnOptions): Promise<boolean> {
   return false;
 }
 
-// ─── Dotted-order helpers (exported utilities) ───────────────────────────────
-// RunTree.createChild derives dotted_order; these stay for consumers that parse it.
-
-/**
- * Generate a dotted-order segment: strip(ISO_timestamp_microseconds) + runId.
- * Accepts an ISO string or milliseconds-since-epoch.
- */
-export function generateDottedOrderSegment(time: string | number, runId: string): string {
-  const iso = typeof time === "string" ? time : new Date(time).toISOString();
-  const isoWithMicroseconds = `${iso.slice(0, -1)}000Z`;
-  const stripped = isoWithMicroseconds.replace(/[-:.]/g, "");
-  return stripped + runId;
-}
-
-function runIdFromSegment(segment: string): string {
-  const zIdx = segment.indexOf("Z");
-  return zIdx >= 0 ? segment.slice(zIdx + 1) : segment;
-}
-
-export function parseDottedOrder(dottedOrder: string): { traceId: string; runId: string } {
-  const segments = dottedOrder.split(".");
-  return {
-    traceId: runIdFromSegment(segments[0]),
-    runId: runIdFromSegment(segments[segments.length - 1]),
-  };
-}
-
 // ─── Turn → run tree ─────────────────────────────────────────────────────────
-
-export interface BuildTurnOptions {
-  buffer: TurnBuffer;
-  conversationId: string;
-  turnNum: number;
-  project: string;
-  /** user_email from the hook payload, attached to runs. */
-  userEmail?: string | null;
-  /** coding-agent-v1 base metadata from config (repo/git/cwd/user/version). */
-  customMetadata?: Record<string, unknown>;
-  /** Cursor runtime version (hook `cursor_version`) → ls_agent_runtime_version. */
-  runtimeVersion?: string;
-  /** Image/file parts for the user message, recovered from Cursor's DB. */
-  attachments?: ContentPart[];
-  /** The turn's system prompt, recovered from Cursor's DB (prepended to llm runs). */
-  systemPrompt?: string;
-  /** True interleaved step sequence from Cursor's DB; enables per-round llm/tool fidelity. */
-  steps?: Step[];
-}
 
 function uuidFromDigest(hex: string): string {
   const variant = ((parseInt(hex[16], 16) & 0x3) | 0x8).toString(16);
@@ -143,16 +104,6 @@ function uuidFromDigest(hex: string): string {
 function stableRunId(ctx: MetaCtx, key: string): string {
   const seed = `${ctx.threadId}\u0000${ctx.turnId ?? ""}\u0000${key}`;
   return uuidFromDigest(createHash("sha256").update(seed).digest("hex"));
-}
-
-/** Per-turn context shared by every run's coding-agent-v1 metadata. */
-interface MetaCtx {
-  agentType: LSAgentType;
-  threadId: string;
-  base?: Record<string, unknown>;
-  turnId?: string;
-  turnNumber?: number;
-  runtimeVersion?: string;
 }
 
 /** Prepend a system message to an llm run's input messages, when one was recovered. */
@@ -174,14 +125,6 @@ function userMessageContent(prompt: string, attachments: ContentPart[]): Content
 function toolStartMs(tool: ToolEvent): number {
   const durMs = (tool.duration ?? 0) * 1000;
   return Math.max(0, tool.endMs - durMs);
-}
-
-interface TurnCall {
-  startMs: number;
-  /** LangChain `tool_call` content block for the assistant message. */
-  toolCallBlock: Record<string, unknown>;
-  /** Tool-result message fed back into the final llm run's input. */
-  resultMessage: Record<string, unknown>;
 }
 
 /** Render a tool's output (or error) as text for a tool-result message. */
@@ -405,21 +348,6 @@ export async function buildTurnRuns(options: BuildTurnOptions): Promise<void> {
   );
 }
 
-/** Inputs for the interleaved per-step renderer. */
-interface InterleaveOptions {
-  turnRun: RunTree;
-  ctx: MetaCtx;
-  steps: Step[];
-  buffer: TurnBuffer;
-  userContent: ContentPart[];
-  systemPrompt?: string;
-  llmName: string;
-  llmMeta: Record<string, unknown>;
-  usageMetadata: ReturnType<typeof buildUsageMetadata>;
-  finalTextBlocks: Array<Record<string, unknown>>;
-  turnEndMs: number;
-}
-
 /** Thinking content blocks for the rounds with non-empty text. */
 function thinkingBlocks(
   thinking: Array<{ text?: string; durationMs?: number }>,
@@ -566,14 +494,6 @@ async function postToolRun(
       endMs: tool.endMs,
     });
   }
-}
-
-interface SkillRunOptions {
-  skillName: string;
-  /** Outcome of the read that loaded the skill, which is all Cursor reports. */
-  success: boolean;
-  startMs: number;
-  endMs: number;
 }
 
 /** Posts the one run that carries `ls_skill_name`, so an invocation is counted once. */

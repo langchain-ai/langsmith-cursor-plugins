@@ -9,7 +9,7 @@ import { initHook } from "../utils/hook-init.js";
 import { pruneOldConversations } from "../state.js";
 import { runSweep } from "../sweep.js";
 import { error, debug } from "../logger.js";
-import type { SessionStartInput } from "../types.js";
+import type { SessionStartInput } from "../models/types.js";
 
 async function main(): Promise<void> {
   const input = await readStdin<SessionStartInput>();

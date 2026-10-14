@@ -9,7 +9,7 @@ import { atomicUpdateState } from "../state.js";
 import { reduceSubagentStop } from "../reducer.js";
 import { resolveSubagentTranscript } from "../subagent-transcript.js";
 import { error, debug } from "../logger.js";
-import type { SubagentStopInput } from "../types.js";
+import type { SubagentStopInput } from "../models/types.js";
 
 async function main(): Promise<void> {
   const input = await readStdin<SubagentStopInput>();

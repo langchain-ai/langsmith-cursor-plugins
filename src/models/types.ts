@@ -3,7 +3,7 @@
  * Field names mirror the real captured payloads.
  */
 
-import type { BINARY_HOOK_EVENTS } from "./constants.js";
+import type { BINARY_HOOK_EVENTS } from "../constants.js";
 
 // ─── Multimodal content ──────────────────────────────────────────────────────
 
@@ -53,12 +53,6 @@ export interface UsageFields {
 export interface AfterAgentResponseInput extends HookInputBase, UsageFields {
   hook_event_name: "afterAgentResponse";
   text: string;
-}
-
-export interface AfterAgentThoughtInput extends HookInputBase {
-  hook_event_name: "afterAgentThought";
-  text: string;
-  duration_ms?: number;
 }
 
 export interface StopInput extends HookInputBase, UsageFields {
@@ -176,7 +170,7 @@ export interface SubagentEvent {
 }
 
 /** An assistant thinking block. */
-export interface ThoughtEvent {
+interface ThoughtEvent {
   text: string;
   duration_ms?: number;
 }
@@ -213,7 +207,7 @@ export interface TurnBuffer {
   status?: string;
 }
 
-export interface PendingUpload {
+interface PendingUpload {
   buffer: TurnBuffer;
   turnNum: number;
   claimedAt: number;
@@ -256,17 +250,3 @@ export interface SweepClaim {
 export type BinaryHookName = (typeof BINARY_HOOK_EVENTS)[keyof typeof BINARY_HOOK_EVENTS];
 
 export type LoadedHook = { finished?: Promise<unknown> };
-
-/** One command Cursor runs for an event, as it appears in hooks.json. */
-export interface CursorHook {
-  command?: string;
-  failClosed?: boolean;
-  timeout?: number;
-}
-
-export type CursorHooksManifest = Record<string, CursorHook[]>;
-
-export interface CursorHooksFile {
-  version?: number;
-  hooks?: CursorHooksManifest;
-}

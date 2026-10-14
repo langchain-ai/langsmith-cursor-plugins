@@ -1,22 +1,13 @@
-import type { Client } from "langsmith";
-import type { Config } from "./config.js";
 import { atomicUpdateState } from "./state.js";
 import { reduceSweep, reduceUploadSettled } from "./reducer.js";
 import { getThreadTracingMode, tracingPolicyPath } from "./tracing-policy.js";
 import { debug, warn } from "./logger.js";
 import { initTracing, uploadTurn } from "./langsmith.js";
 import { originFromConfig } from "./turn-origin.js";
-import type { HookInputBase, SweepClaim, TracingMode, TracingState, TurnMode } from "./types.js";
+import type { SweepClaim, TracingMode, TurnMode } from "./models/types.js";
+import type { SweepOptions } from "./models/sweep.js";
 
-export interface SweepOptions {
-  config: Config;
-  input: HookInputBase;
-  nowMs?: number;
-  apply?: (state: TracingState) => TracingState;
-  client?: Client;
-}
-
-export function sweepTracingMode(buffered: TurnMode | undefined, policy: TracingMode): TracingMode {
+function sweepTracingMode(buffered: TurnMode | undefined, policy: TracingMode): TracingMode {
   return buffered === "metadata" ? "metadata" : policy;
 }
 

@@ -5,20 +5,10 @@
 
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, join, basename } from "node:path";
-import { parseSubagentTranscript, type SubagentToolCall } from "./normalize.js";
+import { parseSubagentTranscript } from "./normalize.js";
 import { isRecord } from "./normalize.js";
-
-export interface ResolvedSubagentTranscript {
-  /** Basename of the matched transcript file (= the subagent's conversation_id). */
-  childConversationId: string;
-  toolCalls: SubagentToolCall[];
-  resultText?: string;
-}
-
-/** Collapse all whitespace runs to single spaces for tolerant matching. */
-function normalizeWs(text: string): string {
-  return text.replace(/\s+/g, " ").trim();
-}
+import { normalizeWs } from "./utils/text.js";
+import type { ResolvedSubagentTranscript } from "./models/subagent-transcript.js";
 
 function readJsonl(path: string): unknown[] {
   const rows: unknown[] = [];
