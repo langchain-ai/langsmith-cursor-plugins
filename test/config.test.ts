@@ -3,7 +3,7 @@ import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { loadConfig, parseRepoName } from "../src/config.js";
+import { loadConfig } from "../src/config.js";
 import * as logger from "../src/logger.js";
 
 afterEach(() => {
@@ -318,19 +318,6 @@ describe("loadConfig", () => {
         file: true,
         local_username: "from-env",
       });
-    });
-  });
-});
-
-describe("parseRepoName", () => {
-  it("extracts owner/repo from common remotes", () => {
-    expect(parseRepoName("git@github.com:langchain-ai/langsmith-cursor-plugins.git ")).toEqual({
-      provider: "github",
-      name: "langchain-ai/langsmith-cursor-plugins",
-    });
-    expect(parseRepoName("https://gitlab.com/acme/widget.git ")).toEqual({
-      provider: "gitlab",
-      name: "acme/widget",
     });
   });
 });

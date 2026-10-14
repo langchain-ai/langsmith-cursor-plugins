@@ -15,6 +15,7 @@ import type {
 import { buildUsageMetadata, deriveModelInfo } from "./normalize.js";
 import { DEFAULT_TAGS, SKILL_RUN_NAME, TURN_RUN_NAME } from "./constants.js";
 import { codingAgentMetadata, skillNameFromTool } from "./metadata.js";
+import type { LlmMetadata } from "./models/metadata.js";
 import { groupSteps } from "./conversation-steps.js";
 import * as logger from "./logger.js";
 import { createHash } from "node:crypto";
@@ -223,7 +224,13 @@ export async function buildTurnRuns(options: BuildTurnOptions): Promise<void> {
       project_name: project,
       start_time: buffer.startMs,
       tags: DEFAULT_TAGS,
-      extra: { metadata: codingAgentMetadata({ ...ctx, runSpecific: { model: buffer.model } }) },
+      extra: {
+        metadata: codingAgentMetadata({
+          ...ctx,
+          runType: "root",
+          runSpecific: { model: buffer.model },
+        }),
+      },
     },
     mode,
   );
@@ -232,10 +239,10 @@ export async function buildTurnRuns(options: BuildTurnOptions): Promise<void> {
   // 2. llm + tool runs, created in invocation order. Turn-level usage goes on one llm run.
   const { ls_model_name, ls_provider } = deriveModelInfo(buffer.model);
   const llmName = ls_provider ?? ls_model_name;
-  const llmMeta = {
-    ls_provider,
-    ls_model_name,
-    ls_invocation_params: { model: ls_model_name },
+  const llmMeta: LlmMetadata = {
+    runType: "llm",
+    modelName: ls_model_name,
+    runSpecific: { ls_provider, ls_invocation_params: { model: ls_model_name } },
   };
   const usageMetadata = buildUsageMetadata(buffer.usage);
   const thinking = buffer.thoughts.map((t) => ({ type: "thinking", thinking: t.text }));
@@ -275,7 +282,8 @@ export async function buildTurnRuns(options: BuildTurnOptions): Promise<void> {
       extra: {
         metadata: codingAgentMetadata({
           ...ctx,
-          runSpecific: { ...llmMeta, usage_metadata: usageMetadata },
+          ...llmMeta,
+          usageMetadata,
         }),
       },
     });
@@ -299,7 +307,7 @@ export async function buildTurnRuns(options: BuildTurnOptions): Promise<void> {
       outputs: { messages: [{ role: "assistant", content: assistantDecision }] },
       start_time: buffer.startMs,
       end_time: Math.max(buffer.startMs, firstCallStart),
-      extra: { metadata: codingAgentMetadata({ ...ctx, runSpecific: { ...llmMeta } }) },
+      extra: { metadata: codingAgentMetadata({ ...ctx, ...llmMeta }) },
     });
     await decideRun.postRun();
 
@@ -330,7 +338,8 @@ export async function buildTurnRuns(options: BuildTurnOptions): Promise<void> {
       extra: {
         metadata: codingAgentMetadata({
           ...ctx,
-          runSpecific: { ...llmMeta, usage_metadata: usageMetadata },
+          ...llmMeta,
+          usageMetadata,
         }),
       },
     });
@@ -406,7 +415,7 @@ async function postInterleavedRounds(p: InterleaveOptions): Promise<boolean> {
       outputs: { messages: [{ role: "assistant", content: assistantContent }] },
       start_time: llmStart,
       end_time: llmEnd,
-      extra: { metadata: codingAgentMetadata({ ...p.ctx, runSpecific: { ...p.llmMeta } }) },
+      extra: { metadata: codingAgentMetadata({ ...p.ctx, ...p.llmMeta }) },
     });
     await llmRun.postRun();
 
@@ -436,7 +445,8 @@ async function postInterleavedRounds(p: InterleaveOptions): Promise<boolean> {
     extra: {
       metadata: codingAgentMetadata({
         ...p.ctx,
-        runSpecific: { ...p.llmMeta, usage_metadata: p.usageMetadata },
+        ...p.llmMeta,
+        usageMetadata: p.usageMetadata,
       }),
     },
   });
@@ -470,6 +480,7 @@ async function postToolRun(
     extra: {
       metadata: codingAgentMetadata({
         ...ctx,
+        runType: "tool",
         clearSubagent,
         // run name == native tool name, so ls_tool_name is omitted; tool_name kept as alias.
         toolName: tool.name,
@@ -516,6 +527,7 @@ async function postSkillRun(
     extra: {
       metadata: codingAgentMetadata({
         ...ctx,
+        runType: "tool",
         clearSubagent,
         // Equal names are what suppress `ls_tool_name`.
         toolName: SKILL_RUN_NAME,
@@ -545,10 +557,13 @@ async function postSubagentRun(
   const runName = sub.subagent_type ? `${sub.subagent_type} Subagent` : "Subagent";
   const subModel = deriveModelInfo(sub.model);
   const llmName = subModel.ls_provider ?? subModel.ls_model_name;
-  const llmMeta = {
-    ls_provider: subModel.ls_provider,
-    ls_model_name: subModel.ls_model_name,
-    ls_invocation_params: { model: subModel.ls_model_name },
+  const llmMeta: LlmMetadata = {
+    runType: "llm",
+    modelName: subModel.ls_model_name,
+    runSpecific: {
+      ls_provider: subModel.ls_provider,
+      ls_invocation_params: { model: subModel.ls_model_name },
+    },
   };
   const subagentCtx: MetaCtx = { ...ctx, agentType: "subagent" };
 
@@ -575,6 +590,7 @@ async function postSubagentRun(
       extra: {
         metadata: codingAgentMetadata({
           ...subagentCtx,
+          runType: "subagent",
           subagentId: sub.subagent_id,
           subagentType: sub.subagent_type,
           runSpecific: {
@@ -621,7 +637,7 @@ async function postSubagentRun(
         metadata: codingAgentMetadata({
           ...subagentCtx,
           clearSubagent: true,
-          runSpecific: { ...llmMeta },
+          ...llmMeta,
         }),
       },
     });
@@ -646,7 +662,7 @@ async function postSubagentRun(
       metadata: codingAgentMetadata({
         ...subagentCtx,
         clearSubagent: true,
-        runSpecific: { ...llmMeta },
+        ...llmMeta,
       }),
     },
   });
@@ -673,7 +689,7 @@ async function postSubagentRun(
       metadata: codingAgentMetadata({
         ...subagentCtx,
         clearSubagent: true,
-        runSpecific: { ...llmMeta },
+        ...llmMeta,
       }),
     },
   });

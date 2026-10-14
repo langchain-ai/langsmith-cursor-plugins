@@ -1,5 +1,6 @@
 import type { RunTree } from "langsmith";
-import type { LSAgentType } from "./metadata.js";
+import type { CodingAgentAgentType } from "@langchain/plugins-base/metadata";
+import type { LlmMetadata } from "./metadata.js";
 import type { ContentPart, TurnBuffer } from "./types.js";
 import type { Step } from "./conversation-steps.js";
 import type { UsageMetadata } from "./normalize.js";
@@ -25,7 +26,7 @@ export interface BuildTurnOptions {
 
 /** Per-turn context shared by every run's coding-agent-v1 metadata. */
 export interface MetaCtx {
-  agentType: LSAgentType;
+  agentType: CodingAgentAgentType;
   threadId: string;
   base?: Record<string, unknown>;
   turnId?: string;
@@ -50,7 +51,7 @@ export interface InterleaveOptions {
   userContent: ContentPart[];
   systemPrompt?: string;
   llmName: string;
-  llmMeta: Record<string, unknown>;
+  llmMeta: LlmMetadata;
   usageMetadata: UsageMetadata | undefined;
   finalTextBlocks: Array<Record<string, unknown>>;
   turnEndMs: number;
