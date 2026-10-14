@@ -3,8 +3,6 @@
  * Field names mirror the real captured payloads.
  */
 
-import type { BINARY_HOOK_EVENTS } from "../constants.js";
-
 // ─── Multimodal content ──────────────────────────────────────────────────────
 
 /**
@@ -244,9 +242,3 @@ export interface SweepClaim {
   turnNum: number;
   claimedAt: number;
 }
-
-// ─── Standalone binary ──────────────────────────────────────────────────────
-
-export type BinaryHookName = (typeof BINARY_HOOK_EVENTS)[keyof typeof BINARY_HOOK_EVENTS];
-
-export type LoadedHook = { finished?: Promise<unknown> };

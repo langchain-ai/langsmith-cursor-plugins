@@ -161,7 +161,10 @@ describe("the folder the released builds land in", () => {
       },
       buildKilledAfterAnswering(name: string) {
         const path = join(plugin, "binary", name);
-        writeFileSync(path, `#!/bin/sh\ncat >/dev/null\nprintf '%s answered' "${name}"\nkill -9 $$\n`);
+        writeFileSync(
+          path,
+          `#!/bin/sh\ncat >/dev/null\nprintf '%s answered' "${name}"\nkill -9 $$\n`,
+        );
         chmodSync(path, 0o755);
       },
       refusingBuild(name: string) {
@@ -176,7 +179,8 @@ describe("the folder the released builds land in", () => {
       },
       buildReportingTurnPermissions(name: string) {
         const path = join(plugin, "binary", name);
-        const report = 'process.stdout.write(require("fs").fstatSync(0).mode.toString(8).slice(-3))';
+        const report =
+          'process.stdout.write(require("fs").fstatSync(0).mode.toString(8).slice(-3))';
         writeFileSync(path, `#!/bin/sh\nexec "${process.execPath}" -e '${report}'\n`);
         chmodSync(path, 0o755);
       },
@@ -441,7 +445,9 @@ describe("the folder the released builds land in", () => {
     try {
       fakeUname("arm64");
       unstartableBuild(`${settings.executableName}-darwin-arm64`);
-      const said = attempt().stderr.split("\n").filter((line) => line.includes("[langsmith]"));
+      const said = attempt()
+        .stderr.split("\n")
+        .filter((line) => line.includes("[langsmith]"));
       expect(said).toHaveLength(1);
       expect(said[0]).toContain("carried build did not run");
     } finally {

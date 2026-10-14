@@ -112,12 +112,20 @@ function inSandbox(builds: string[], check: (dir: string) => void, startable = t
 it.each(Object.values(BINARY_HOOK_EVENTS))(
   "lets a turn through when %s cannot make sense of the event",
   (hook) => {
-    const result = spawnSync(process.execPath, [fileURLToPath(new URL(`bundle/${hook}.js`, root))], {
-      encoding: "utf8",
-      input: "this is not an event",
-      env: { ...process.env, LANGSMITH_CURSOR_LOG_FILE: join(mkdtempSync(join(tmpdir(), "ls ")), "log") },
-    });
+    const result = spawnSync(
+      process.execPath,
+      [fileURLToPath(new URL("bundle/guard.js", root)), hook],
+      {
+        encoding: "utf8",
+        input: "this is not an event",
+        env: {
+          ...process.env,
+          LANGSMITH_CURSOR_LOG_FILE: join(mkdtempSync(join(tmpdir(), "ls ")), "log"),
+        },
+      },
+    );
     expect(result.status, result.stderr).toBe(0);
+    expect(result.stdout).toBe(hook === "before-submit-prompt" ? '{"continue":true}\n' : "");
   },
   SHELL_TIMEOUT_MS,
 );

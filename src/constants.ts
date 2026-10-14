@@ -75,3 +75,27 @@ export const MCP_TOOL_PREFIX = "MCP:";
  * no I/O worth tracing.
  */
 export const SUBAGENT_PSEUDO_TOOLS = new Set(["UpdateCurrentStep"]);
+
+export const HOOK_CONTINUE_OUTPUT = `${JSON.stringify({ continue: true })}\n`;
+
+export const ENGINE_WORKER_COMMAND = "engine-worker";
+
+export const ENGINE_STORAGE_DIR_NAME = "langsmith_engine";
+
+export const RUN_EVENT_PREFIX = "post:";
+
+export const RUN_SNAPSHOT_FIELDS = [
+  "id",
+  "name",
+  "run_type",
+  "start_time",
+  "end_time",
+  "inputs",
+  "outputs",
+  "trace_id",
+  "dotted_order",
+  "tags",
+  "error",
+] as const;
+
+export const SQLITE_EXPERIMENTAL_WARNING = /^SQLite is an experimental feature/;

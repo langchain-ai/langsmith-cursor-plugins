@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 /**
  * subagentStop hook — finalizes a buffered subagent with status + duration.
  */
@@ -8,10 +7,10 @@ import { initHook } from "../utils/hook-init.js";
 import { atomicUpdateState } from "../state.js";
 import { reduceSubagentStop } from "../reducer.js";
 import { resolveSubagentTranscript } from "../subagent-transcript.js";
-import { error, debug } from "../logger.js";
+import { debug } from "../logger.js";
 import type { SubagentStopInput } from "../models/types.js";
 
-async function main(): Promise<void> {
+export async function run(): Promise<void> {
   const input = await readStdin<SubagentStopInput>();
   const config = initHook(input.workspace_roots?.[0]);
   if (!config) return;
@@ -31,12 +30,3 @@ async function main(): Promise<void> {
     reduceSubagentStop(s, input, Date.now(), resolved),
   );
 }
-
-main().catch((err) => {
-  try {
-    error(`subagentStop hook error: ${err}`);
-  } catch {
-    /* last resort */
-  }
-  process.exit(0);
-});

@@ -1,8 +1,8 @@
 import { atomicUpdateState } from "./state.js";
-import { reduceSweep, reduceUploadSettled } from "./reducer.js";
+import { reduceSweep, reduceSavedForUpload } from "./reducer.js";
 import { getThreadTracingMode, tracingPolicyPath } from "./tracing-policy.js";
 import { debug, warn } from "./logger.js";
-import { initTracing, uploadTurn } from "./langsmith.js";
+import { recoverConversations, saveTurnForUpload } from "./tracing-engine.js";
 import { originFromConfig } from "./turn-origin.js";
 import type { SweepClaim, TracingMode, TurnMode } from "./models/types.js";
 import type { SweepOptions } from "./models/sweep.js";
@@ -11,7 +11,7 @@ function sweepTracingMode(buffered: TurnMode | undefined, policy: TracingMode): 
   return buffered === "metadata" ? "metadata" : policy;
 }
 
-async function uploadClaim(claim: SweepClaim, options: SweepOptions): Promise<boolean> {
+async function saveClaimForUpload(claim: SweepClaim, options: SweepOptions): Promise<boolean> {
   const { config, input } = options;
   const policy = getThreadTracingMode(
     tracingPolicyPath(),
@@ -20,7 +20,7 @@ async function uploadClaim(claim: SweepClaim, options: SweepOptions): Promise<bo
   );
   const origin = claim.buffer.origin ?? originFromConfig(config, input);
   try {
-    return await uploadTurn({
+    return await saveTurnForUpload(config, {
       buffer: { ...claim.buffer, tracingMode: sweepTracingMode(claim.buffer.tracingMode, policy) },
       conversationId: claim.conversationId,
       turnNum: claim.turnNum,
@@ -51,25 +51,21 @@ export async function runSweep(options: SweepOptions): Promise<SweepClaim[]> {
     claims = result.claims;
     return result.state;
   });
+  try {
+    await recoverConversations(config, options.input.conversation_id, thresholdMs);
+  } catch (err) {
+    warn(`Could not check older conversations for saved traces: ${err}`);
+  }
   if (claims.length === 0) return [];
 
   debug(`sweep claimed ${claims.length} abandoned turn(s)`);
-  initTracing(
-    config.apiKey,
-    config.apiUrl,
-    config.replicas,
-    config.redact,
-    config.redactExtraRules,
-    options.client,
-  );
-
-  const uploaded: SweepClaim[] = [];
+  const saved: SweepClaim[] = [];
   for (const claim of claims) {
-    if (!(await uploadClaim(claim, options))) continue;
+    if (!(await saveClaimForUpload(claim, options))) continue;
     await atomicUpdateState(config.stateFilePath, (state) =>
-      reduceUploadSettled(state, claim.conversationId, claim.generationId, claim.claimedAt),
+      reduceSavedForUpload(state, claim.conversationId, claim.generationId, claim.claimedAt),
     );
-    uploaded.push(claim);
+    saved.push(claim);
   }
-  return uploaded;
+  return saved;
 }
