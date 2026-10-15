@@ -6,10 +6,9 @@ import {
   readProtoLenField,
   decodeConversationStateBlob,
   systemContentOf,
-  resolveTurnSystemPrompt,
   resolveSystemPrompts,
-  type BlobReader,
 } from "../src/system-prompt.js";
+import type { BlobReader } from "../src/models/cursor-db.js";
 
 // ─── Minimal protobuf encoders (mirror Cursor's wire output) ─────────────────
 
@@ -95,7 +94,7 @@ describe("systemContentOf", () => {
   });
 });
 
-describe("resolveTurnSystemPrompt", () => {
+describe("resolveSystemPrompts", () => {
   // A real (empty) file so existsSync(dbPath) passes; the reader is injected.
   function tmpDb(): string {
     const path = join(mkdtempSync(join(tmpdir(), "sysprompt-")), "state.vscdb");
@@ -122,21 +121,21 @@ describe("resolveTurnSystemPrompt", () => {
       ],
     ]);
 
-    const got = resolveTurnSystemPrompt({
-      conversationId: "conv1",
+    const got = resolveSystemPrompts({
+      conversationIds: ["conv1"],
       dbPath: tmpDb(),
       openReader: mapReader(map),
     });
-    expect(got).toBe("SYSTEM PROMPT");
+    expect(got.get("conv1")).toBe("SYSTEM PROMPT");
   });
 
   it("returns undefined when no composerData / no system message exists", () => {
-    const empty = resolveTurnSystemPrompt({
-      conversationId: "missing",
+    const empty = resolveSystemPrompts({
+      conversationIds: ["missing"],
       dbPath: tmpDb(),
       openReader: mapReader(new Map()),
     });
-    expect(empty).toBeUndefined();
+    expect(empty.get("missing")).toBeUndefined();
 
     const stateBlob = lenField(1, Buffer.from([0x01]));
     const noSystem = new Map<string, Buffer>([
@@ -147,18 +146,18 @@ describe("resolveTurnSystemPrompt", () => {
       ["agentKv:blob:01", Buffer.from(JSON.stringify({ role: "user", content: "hi" }))],
     ]);
     expect(
-      resolveTurnSystemPrompt({
-        conversationId: "conv2",
+      resolveSystemPrompts({
+        conversationIds: ["conv2"],
         dbPath: tmpDb(),
         openReader: mapReader(noSystem),
-      }),
+      }).get("conv2"),
     ).toBeUndefined();
   });
 
   it("returns undefined (never throws) when the DB path does not exist", () => {
     expect(
-      resolveTurnSystemPrompt({ conversationId: "conv1", dbPath: "/no/such/state.vscdb" }),
-    ).toBeUndefined();
+      resolveSystemPrompts({ conversationIds: ["conv1"], dbPath: "/no/such/state.vscdb" }).size,
+    ).toBe(0);
   });
 
   it("resolveSystemPrompts opens ONE connection for many conversations (deduped)", () => {

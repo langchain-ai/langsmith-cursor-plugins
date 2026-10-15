@@ -13,14 +13,13 @@ import { delimiter, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { expect, it } from "vitest";
 
+import { BINARY_HOOK_EVENTS, LEADING_BYTE_ORDER_MARKS } from "../src/constants.js";
+import type { CursorHooksFile } from "../src/models/cursor-hooks.js";
 import {
-  BINARY_HOOK_EVENTS,
   PLUGIN_BINARY_DIRECTORY_NAME,
   PLUGIN_LAUNCHER_NAME,
-  LEADING_BYTE_ORDER_MARKS,
   PLUGIN_ROOT_PLACEHOLDER,
-} from "../src/constants.js";
-import type { CursorHooksFile } from "../src/types.js";
+} from "./utils/plugin-layout.js";
 
 const root = new URL("../", import.meta.url);
 const read = (path: string) => readFileSync(new URL(path, root), "utf8");

@@ -7,12 +7,12 @@ import { DatabaseSync } from "node:sqlite";
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { homedir, platform } from "node:os";
 import { basename, join } from "node:path";
-import type { ContentPart } from "./types.js";
+import type { ContentPart } from "./models/types.js";
+import type { ResolveAttachmentsOptions } from "./models/attachments.js";
 import { isRecord } from "./normalize.js";
+import { MAX_ATTACHMENT_BYTES } from "./constants.js";
+import { normalizeWs } from "./utils/text.js";
 import * as logger from "./logger.js";
-
-/** Skip attachments larger than this (raw bytes) — base64 inflates ~33% on top. */
-const MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024; // 10 MB
 
 /** Platform-aware default path to Cursor's global state.vscdb. */
 export function defaultCursorDbPath(): string {
@@ -26,11 +26,6 @@ export function defaultCursorDbPath(): string {
     default:
       return join(process.env.XDG_CONFIG_HOME ?? join(home, ".config"), ...tail);
   }
-}
-
-/** Collapse whitespace runs so a typed prompt matches the stored bubble text. */
-function normalizeWs(text: string): string {
-  return text.replace(/\s+/g, " ").trim();
 }
 
 /** Query a conversation's bubbles via built-in `node:sqlite`, read-only (no native dep). */
@@ -172,16 +167,6 @@ export function fileToContentPart(path: string): ContentPart {
     logger.warn(`attachments: read failed, skipping: ${path} (${err})`);
     return placeholder(`[attachment unavailable: ${name}]`);
   }
-}
-
-export interface ResolveAttachmentsOptions {
-  conversationId: string;
-  /** The turn's prompt — used to attribute the attachment to the right turn. */
-  prompt?: string;
-  /** Override the DB path; defaults to the platform Cursor globalStorage DB. */
-  dbPath?: string;
-  /** Injectable bubble reader (tests). Defaults to the `node:sqlite` query. */
-  readBubbles?: (dbPath: string, conversationId: string) => unknown[];
 }
 
 /** Resolve a turn's attachments as content parts. Best-effort: returns `[]` on failure. */

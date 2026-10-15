@@ -5,8 +5,8 @@ import { replayHookLog } from "./utils/replay.js";
 import { mockClient } from "./utils/mock_client.js";
 import { getAssumedTreeFromCalls } from "./utils/tree.js";
 import { initTracing, buildTurnRuns, flushPendingTraces } from "../src/langsmith.js";
-import type { TurnBuffer } from "../src/types.js";
-import type { Step } from "../src/conversation-steps.js";
+import type { TurnBuffer } from "../src/models/types.js";
+import type { Step } from "../src/models/conversation-steps.js";
 
 const CAPTURE = join(process.cwd(), "test/fixtures/cursor-hooks.jsonl");
 const PARENT_CONV = "6bd3db3e-e838-485e-befc-b5f0d05b18cd";

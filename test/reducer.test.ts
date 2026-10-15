@@ -11,7 +11,7 @@ import type {
   PostToolUseInput,
   StopInput,
   TracingState,
-} from "../src/types.js";
+} from "../src/models/types.js";
 import { MINUTE, T0, conversation, turn } from "./utils/state.js";
 
 const CONV = "c1";

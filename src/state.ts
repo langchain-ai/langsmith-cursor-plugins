@@ -16,9 +16,10 @@ import {
 } from "node:fs";
 import { randomUUID } from "node:crypto";
 import { performance } from "node:perf_hooks";
+import { CONVERSATION_MAX_AGE_MS } from "./constants.js";
 import { warn } from "./logger.js";
 import { dirname } from "node:path";
-import type { TracingState, ConversationState, TurnBuffer } from "./types.js";
+import type { TracingState, ConversationState, TurnBuffer } from "./models/types.js";
 
 // ─── Atomic read-modify-write ────────────────────────────────────────────────
 
@@ -164,8 +165,6 @@ export function getTurnBuffer(
 }
 
 // ─── Pruning ───────────────────────────────────────────────────────────────
-
-const CONVERSATION_MAX_AGE_MS = 24 * 60 * 60 * 1000; // 24 hours
 
 /** Remove conversations whose `updated` timestamp is older than 24 hours. */
 export function pruneOldConversations(state: TracingState, now: number = Date.now()): TracingState {

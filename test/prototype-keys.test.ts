@@ -17,7 +17,7 @@ import {
   pruneOldConversations,
   saveState,
 } from "../src/state.js";
-import type { TracingState } from "../src/types.js";
+import type { TracingState } from "../src/models/types.js";
 import { HOUR, MINUTE, T0, conversation, turn } from "./utils/state.js";
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";

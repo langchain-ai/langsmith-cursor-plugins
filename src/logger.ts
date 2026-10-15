@@ -5,8 +5,7 @@
 import { appendFileSync, mkdirSync, statSync, renameSync } from "node:fs";
 import { dirname } from "node:path";
 import { homedir } from "node:os";
-
-const MAX_LOG_BYTES = 5 * 1024 * 1024; // 5 MB
+import { MAX_LOG_BYTES } from "./constants.js";
 
 const LOG_FILE = process.env.LANGSMITH_CURSOR_LOG_FILE ?? `${homedir()}/.cursor/langsmith-hook.log`;
 

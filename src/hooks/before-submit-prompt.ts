@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { readStdin } from "../utils/stdin.js";
 import { handlePromptSubmit } from "../prompt-control.js";
-import type { BeforeSubmitPromptInput } from "../types.js";
+import type { BeforeSubmitPromptInput } from "../models/types.js";
 
 async function main(): Promise<void> {
   const input = await readStdin<BeforeSubmitPromptInput>();

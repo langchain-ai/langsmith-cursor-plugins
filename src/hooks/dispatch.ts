@@ -1,7 +1,7 @@
 import { binary } from "../binary-target.js";
 import { LS_INTEGRATION_VERSION } from "../config.js";
 import { BINARY_HOOK_EVENTS } from "../constants.js";
-import type { BinaryHookName, LoadedHook } from "../types.js";
+import type { BinaryHookName, LoadedHook } from "../models/types.js";
 
 const HOOK_MODULES: Record<BinaryHookName, () => Promise<LoadedHook>> = {
   "before-submit-prompt": () => import("./before-submit-prompt.js"),

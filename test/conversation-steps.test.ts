@@ -2,14 +2,9 @@ import { describe, it, expect } from "vitest";
 import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import {
-  scanFields,
-  decodeStep,
-  groupSteps,
-  resolveTurnSteps,
-  type Step,
-  type BlobReader,
-} from "../src/conversation-steps.js";
+import { scanFields, decodeStep, groupSteps, resolveTurnSteps } from "../src/conversation-steps.js";
+import type { Step } from "../src/models/conversation-steps.js";
+import type { BlobReader } from "../src/models/cursor-db.js";
 
 /** Real empty file so existsSync(dbPath) passes; the reader is injected. */
 function tmpDb(): string {

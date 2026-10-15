@@ -1,4 +1,13 @@
 import { LS_INTEGRATION_VERSION } from "./config.js";
+import {
+  LS_AGENT_PURPOSE,
+  LS_AGENT_RUNTIME,
+  LS_INTEGRATION,
+  LS_TRACE_SCHEMA_VERSION,
+  PATH_SEPARATOR,
+  SKILL_READ_TOOLS,
+} from "./constants.js";
+import type { CodingAgentMetadataOptions } from "./models/metadata.js";
 
 const TRUSTED_METADATA = Symbol("cursor.trustedMetadata");
 export function trustedCodingAgentMetadata(
@@ -13,54 +22,6 @@ export function trustedCodingAgentMetadata(
  * coding-agent-v1 trace metadata for the Cursor integration. See
  * ../../coding-agent-v1/validator.json for the contract.
  */
-
-// ─── Frozen literals (identity block) ────────────────────────────────────────
-
-export const LS_AGENT_PURPOSE = "coding";
-export type LSAgentType = "root" | "subagent" | "middleware" | "compaction";
-export const LS_INTEGRATION = "cursor";
-export const LS_AGENT_RUNTIME = "Cursor";
-export const LS_TRACE_SCHEMA_VERSION = "coding-agent-v1";
-
-// ─── Helper input ─────────────────────────────────────────────────────────────
-
-export interface CodingAgentMetadataOptions {
-  /** Role of the run within the coding-agent trace. Required on every run. */
-  agentType: LSAgentType;
-
-  /** Stable conversation id → `thread_id`. Required on every run. */
-  threadId: string;
-
-  /** Static base metadata (repo/git/cwd/user/version). Spread LAST so user keys win. */
-  base?: Record<string, unknown>;
-
-  /** Per-turn id (`turn_id`) — Cursor `generation_id`. */
-  turnId?: string;
-  /** 1-based turn index (`turn_number`). */
-  turnNumber?: number;
-  /** Cursor runtime version (`ls_agent_runtime_version`) — hook `cursor_version`. */
-  runtimeVersion?: string;
-
-  /** Permission mode for the turn (`approval_policy`). Root + interrupted only. */
-  approvalPolicy?: string;
-
-  /** Subagent identity (subagent runs only) → `ls_subagent_id` / `ls_subagent_type`. */
-  subagentId?: string;
-  subagentType?: string;
-  /** On a subagent's child runs, clears the subagent-only keys so they don't leak down. */
-  clearSubagent?: boolean;
-
-  /** Native tool name (tool runs). Emits `ls_tool_name` only when it differs from `runName`. */
-  toolName?: string;
-  /** Run `name`, used to decide whether `ls_tool_name` is needed. */
-  runName?: string;
-
-  /** Skill this run represents, set on the `Skill` run only. */
-  skillName?: string;
-
-  /** Run-type-specific keys (ls_provider, ls_model_name, usage_metadata, …). */
-  runSpecific?: Record<string, unknown>;
-}
 
 // ─── Helper ───────────────────────────────────────────────────────────────────
 
@@ -136,19 +97,16 @@ export function codingAgentMetadata(opts: CodingAgentMetadataOptions): Record<st
 
 // ─── Skill detection ──────────────────────────────────────────────────────────
 
-/** Read tools only, so a glob or grep naming SKILL.md is not counted as an invocation. */
-const READ_TOOLS = new Set(["read_file_v2", "ReadFile", "Read"]);
-
 /** A heuristic: Cursor has no Skill tool, so a skill read looks like any other read. */
 export function skillNameFromTool(toolName: string, toolInput: unknown): string | undefined {
-  if (!READ_TOOLS.has(toolName)) return undefined;
+  if (!SKILL_READ_TOOLS.has(toolName)) return undefined;
   // Older captures use `file_path`.
   const input = toolInput as { path?: unknown; file_path?: unknown } | null | undefined;
   const filePath = input?.path ?? input?.file_path;
   if (typeof filePath !== "string") return undefined;
 
   // Not a regex: any path regex backtracks quadratically here (CodeQL `js/polynomial-redos`).
-  const segments = filePath.split(/[/\\]/);
+  const segments = filePath.split(PATH_SEPARATOR);
   const file = segments.pop();
   const name = segments.pop();
   // A leading dot would let "." or ".." stand in for the skill name.
