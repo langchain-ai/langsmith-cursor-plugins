@@ -23426,7 +23426,7 @@ var init_git = __esm({
 });
 
 // dist/src/constants.js
-var TURN_RUN_NAME, SKILL_RUN_NAME, DEFAULT_TAGS, DEFAULT_PROJECT, DEFAULT_SWEEP_IDLE_MINUTES, DEFAULT_API_URL2, CURSOR_DIRECTORY_NAME, MAX_UPLOAD_ATTEMPTS, BINARY_HOOK_EVENTS, LEADING_BYTE_ORDER_MARKS, LS_INTEGRATION, SKILL_READ_TOOLS, PATH_SEPARATOR, MAX_ATTACHMENT_BYTES, MAX_LOG_BYTES, CONVERSATION_MAX_AGE_MS, WHITESPACE_RUN, MODEL_SUFFIXES, PROVIDER_PREFIX, CLAUDE_VERSIONED_MODEL, OPENAI_MODEL_PREFIX, CURSOR_VENDOR_PREFIX, MCP_TOOL_PREFIX, SUBAGENT_PSEUDO_TOOLS, HOOK_CONTINUE_OUTPUT, ENGINE_WORKER_COMMAND, ENGINE_STORAGE_DIR_NAME, RUN_EVENT_PREFIX, RUN_SNAPSHOT_FIELDS, SQLITE_EXPERIMENTAL_WARNING;
+var TURN_RUN_NAME, SKILL_RUN_NAME, DEFAULT_TAGS, DEFAULT_PROJECT, DEFAULT_SWEEP_IDLE_MINUTES, DEFAULT_API_URL2, CURSOR_DIRECTORY_NAME, MAX_UPLOAD_ATTEMPTS, BINARY_HOOK_EVENTS, LEADING_BYTE_ORDER_MARKS, LS_INTEGRATION, SKILL_READ_TOOLS, PATH_SEPARATOR, MAX_ATTACHMENT_BYTES, MAX_LOG_BYTES, CONVERSATION_MAX_AGE_MS, WHITESPACE_RUN, MODEL_SUFFIXES, PROVIDER_PREFIX, CLAUDE_VERSIONED_MODEL, OPENAI_MODEL_PREFIX, CURSOR_VENDOR_PREFIX, MCP_TOOL_PREFIX, SUBAGENT_PSEUDO_TOOLS, HOOK_CONTINUE_OUTPUT, ENGINE_WORKER_COMMAND, ENGINE_STORAGE_DIR_NAME, RUN_EVENT_PREFIX, PATCH_EVENT_PREFIX, RUN_SNAPSHOT_FIELDS, RUN_PATCH_FIELDS, CAPTURE_PUBLISHED_STATUS, CAPTURE_DUPLICATE_STATUS, CAPTURE_CONFLICT_STATUS, TURN_ON_OTHER_ACCOUNT_MESSAGE, SQLITE_EXPERIMENTAL_WARNING;
 var init_constants18 = __esm({
   "dist/src/constants.js"() {
     "use strict";
@@ -23476,6 +23476,7 @@ var init_constants18 = __esm({
     ENGINE_WORKER_COMMAND = "engine-worker";
     ENGINE_STORAGE_DIR_NAME = "langsmith_engine";
     RUN_EVENT_PREFIX = "post:";
+    PATCH_EVENT_PREFIX = "patch:";
     RUN_SNAPSHOT_FIELDS = [
       "id",
       "name",
@@ -23489,6 +23490,11 @@ var init_constants18 = __esm({
       "tags",
       "error"
     ];
+    RUN_PATCH_FIELDS = ["outputs", "end_time", "error"];
+    CAPTURE_PUBLISHED_STATUS = "published";
+    CAPTURE_DUPLICATE_STATUS = "duplicate";
+    CAPTURE_CONFLICT_STATUS = "conflict";
+    TURN_ON_OTHER_ACCOUNT_MESSAGE = "its first runs were saved under another API key";
     SQLITE_EXPERIMENTAL_WARNING = /^SQLite is an experimental feature/;
   }
 });
@@ -24560,54 +24566,18 @@ var init_after_agent_response = __esm({
   }
 });
 
-// dist/src/hooks/post-tool-use.js
-var post_tool_use_exports = {};
-__export(post_tool_use_exports, {
-  run: () => run3
-});
-var run3;
-var init_post_tool_use = __esm({
-  "dist/src/hooks/post-tool-use.js"() {
-    "use strict";
-    init_reducer();
-    init_state_hook();
-    run3 = stateHook({
-      describe: (input) => `postToolUse ${input.tool_name} conv=${input.conversation_id} gen=${input.generation_id}`,
-      reduce: reducePostToolUse
-    });
-  }
-});
-
-// dist/src/hooks/post-tool-use-failure.js
-var post_tool_use_failure_exports = {};
-__export(post_tool_use_failure_exports, {
-  run: () => run4
-});
-var run4;
-var init_post_tool_use_failure = __esm({
-  "dist/src/hooks/post-tool-use-failure.js"() {
-    "use strict";
-    init_reducer();
-    init_state_hook();
-    run4 = stateHook({
-      describe: (input) => `postToolUseFailure ${input.tool_name} conv=${input.conversation_id}`,
-      reduce: reducePostToolUseFailure
-    });
-  }
-});
-
 // dist/src/hooks/subagent-start.js
 var subagent_start_exports = {};
 __export(subagent_start_exports, {
-  run: () => run5
+  run: () => run3
 });
-var run5;
+var run3;
 var init_subagent_start = __esm({
   "dist/src/hooks/subagent-start.js"() {
     "use strict";
     init_reducer();
     init_state_hook();
-    run5 = stateHook({
+    run3 = stateHook({
       describe: (input) => `subagentStart ${input.subagent_type} (${input.subagent_id})`,
       reduce: reduceSubagentStart
     });
@@ -24692,9 +24662,9 @@ var init_subagent_transcript = __esm({
 // dist/src/hooks/subagent-stop.js
 var subagent_stop_exports = {};
 __export(subagent_stop_exports, {
-  run: () => run6
+  run: () => run4
 });
-async function run6() {
+async function run4() {
   const input = await readStdin();
   const config = initHook(input.workspace_roots?.[0]);
   if (!config)
@@ -24755,9 +24725,43 @@ function turnCaptures(runs) {
         privacyContext: { status: runStatus(run10) },
         run: runSnapshot(run10, mode)
       },
-      turnEvidence: run10.id === rootRunId ? { rootRunId, childRunIds, closureState: "authoritative" } : { childRunIds: [], closureState: "open" }
+      turnEvidence: run10.id !== rootRunId ? { childRunIds: [run10.id], closureState: "open" } : run10.end_time != null ? { rootRunId, childRunIds, closureState: "authoritative" } : { rootRunId, childRunIds: [], closureState: "open" }
     };
   });
+}
+function rootPatch(post, sessionId) {
+  const { submission } = post;
+  if (submission.operation !== "post")
+    return post;
+  const { id, name, run_type, start_time, parent_run_id, trace_id, dotted_order } = submission.run;
+  const context = withoutUndefined({
+    id,
+    name,
+    run_type,
+    start_time,
+    parent_run_id,
+    trace_id,
+    dotted_order
+  });
+  const { outputs, end_time, error: error2 } = submission.run;
+  const values = withoutUndefined({ outputs, end_time, error: error2 });
+  return {
+    turnId: post.turnId,
+    eventId: post.eventId.replace(RUN_EVENT_PREFIX, PATCH_EVENT_PREFIX),
+    submission: {
+      operation: "patch",
+      integration: submission.integration,
+      privacyMode: submission.privacyMode,
+      metadata: submission.metadata,
+      privacyContext: submission.privacyContext,
+      run: context,
+      patch: { fields: RUN_PATCH_FIELDS.filter((field4) => values[field4] !== void 0), values }
+    },
+    turnEvidence: { rootRunId: id, childRunIds: [], closureState: "authoritative" },
+    dependencies: [
+      { integration: LS_INTEGRATION, sessionId, turnId: post.turnId, eventId: post.eventId }
+    ]
+  };
 }
 function runStatus(run10) {
   if (run10.error != null)
@@ -25532,6 +25536,17 @@ function buildTurnRuns(options) {
   log(`Traced ${TURN_RUN_NAME} ${turnNum} (conv=${conversationId}): ${buffer.tools.length} tool(s), ${buffer.subagents.length} subagent(s)`);
   return turn.runs;
 }
+function buildToolRuns(options, toolIndex) {
+  const tool = options.buffer.tools[toolIndex];
+  if (!tool)
+    return [];
+  const turn = createTurnContext(options);
+  addToolRun(turn, addRootRun(turn), turn.ctx, tool, toolKey(toolIndex, tool));
+  return turn.runs;
+}
+function toolKey(index, tool) {
+  return `tool:${index}:${tool.tool_use_id}`;
+}
 function createTurnContext(options) {
   const { buffer, conversationId, turnNum, userEmail, customMetadata } = options;
   const ctx = {
@@ -25642,7 +25657,7 @@ function addAgenticRuns(turn, turnRun) {
     metadata: { ...ctx, ...turn.llmMeta }
   });
   for (const [i, tool] of buffer.tools.entries())
-    addToolRun(turn, turnRun, ctx, tool, `tool:${i}:${tool.tool_use_id}`);
+    addToolRun(turn, turnRun, ctx, tool, toolKey(i, tool));
   for (const [i, sub] of buffer.subagents.entries())
     addSubagentRun(turn, turnRun, sub, `subagent:${i}:${sub.subagent_id}`);
   addLlmRun(turn, turnRun, {
@@ -25698,8 +25713,8 @@ function addInterleavedRounds(turn, turnRun) {
       endMs: calls.length ? Math.max(cursorMs, Math.min(...calls.map((c) => c.startMs))) : cursorMs,
       metadata: { ...ctx, ...turn.llmMeta }
     });
-    for (const [i, t] of matched.entries())
-      addToolRun(turn, turnRun, ctx, t, `round:${roundIndex}:tool:${i}:${t.tool_use_id}`);
+    for (const t of matched)
+      addToolRun(turn, turnRun, ctx, t, toolKey(buffer.tools.indexOf(t), t));
     msgs.push({ role: "assistant", content: assistantContent });
     for (const c of calls)
       msgs.push(c.resultMessage);
@@ -25963,13 +25978,56 @@ async function saveTurnForUpload(config, options) {
     return true;
   const plugin = openSession(config, options.conversationId, options.project);
   try {
-    for (const input of captures)
-      await captureInto(plugin, input);
+    const [root, ...children] = captures;
+    const saved = await readSaved(plugin, root);
+    if (saved && saved.destinationFingerprint !== plugin.fingerprint) {
+      throw new Error(TURN_ON_OTHER_ACCOUNT_MESSAGE);
+    }
+    const closeLater = await saveRootUnlessOpen(plugin, root);
+    for (const input of children) {
+      if (!await readSaved(plugin, input))
+        await captureInto(plugin, input);
+    }
+    if (closeLater)
+      await captureInto(plugin, rootPatch(root, plugin.sessionId));
     return true;
   } catch (err) {
     warn(`Keeping the turn for a later retry: ${err}`);
     return false;
   }
+}
+async function saveToolForUpload(config, options, toolIndex, attachments) {
+  const captures = turnCaptures(buildToolRuns(options, toolIndex));
+  if (captures.length === 0)
+    return;
+  const plugin = openSession(config, options.conversationId, options.project);
+  try {
+    const { turnId } = captures[0];
+    if (await plugin.store.readSettledTurn(LS_INTEGRATION, plugin.sessionId, turnId))
+      return;
+    const root = await readSaved(plugin, captures[0]);
+    if (root && root.destinationFingerprint !== plugin.fingerprint)
+      return;
+    const withRoot = root ? captures : turnCaptures(buildToolRuns({ ...options, attachments: attachments() }, toolIndex));
+    for (const input of withRoot)
+      await captureInto(plugin, input);
+  } catch (err) {
+    warn(`Leaving tool ${toolIndex} for stop to save: ${err}`);
+  }
+}
+async function saveRootUnlessOpen(plugin, input) {
+  if (!await readSaved(plugin, input) && await captureInto(plugin, input) !== CAPTURE_CONFLICT_STATUS)
+    return false;
+  const saved = await readSaved(plugin, input);
+  return !(isRecord(saved?.turnEvidence) && saved.turnEvidence.closureState === "authoritative");
+}
+function readSaved(plugin, input) {
+  return plugin.store.read({
+    integration: LS_INTEGRATION,
+    sessionId: plugin.sessionId,
+    turnId: input.turnId,
+    eventId: input.eventId
+  });
 }
 async function runEngineWorker(config, sessionId) {
   const result = await openSession(config, sessionId, config.project).session.drain();
@@ -25994,11 +26052,12 @@ async function recoverConversations(config, conversationId, minimumForeignAgeMs)
 async function captureInto(plugin, input) {
   try {
     const result = await plugin.session.capture(input);
-    if (result.status === "conflict")
+    if (result.status === CAPTURE_CONFLICT_STATUS)
       debug(`Run ${input.eventId} was already saved`);
-    else if (result.status !== "published" && result.status !== "duplicate") {
+    else if (result.status !== CAPTURE_PUBLISHED_STATUS && result.status !== CAPTURE_DUPLICATE_STATUS) {
       throw new Error(`Could not save ${input.eventId} for upload: ${result.status}`);
     }
+    return result.status;
   } catch (err) {
     const saved = await readSavedCaptureWake(err, {
       store: plugin.store,
@@ -26011,6 +26070,7 @@ async function captureInto(plugin, input) {
     if (!saved)
       throw err;
     warn(`Saved ${input.eventId} for upload, but its uploader did not start: ${err}`);
+    return CAPTURE_PUBLISHED_STATUS;
   }
 }
 function reportRecovery(result) {
@@ -26041,6 +26101,7 @@ var init_tracing_engine = __esm({
     init_constants18();
     init_langsmith2();
     init_logger();
+    init_normalize();
     init_console();
     init_reconstruction2();
     init_writer_options();
@@ -26112,9 +26173,9 @@ var init_sweep = __esm({
 // dist/src/hooks/stop.js
 var stop_exports = {};
 __export(stop_exports, {
-  run: () => run7
+  run: () => run5
 });
-async function run7() {
+async function run5() {
   const input = await readStdin();
   const config = initHook(input.workspace_roots?.[0]);
   if (!config) {
@@ -26202,6 +26263,97 @@ var init_stop = __esm({
     init_system_prompt();
     init_conversation_steps();
     init_logger();
+  }
+});
+
+// dist/src/hooks/tool-hook.js
+function toolHook({ describe: describe2, reduce }) {
+  return async () => {
+    const input = await readStdin();
+    const config = initHook(input.workspace_roots?.[0]);
+    if (!config)
+      return;
+    debug(describe2(input));
+    let live;
+    await atomicUpdateState(config.stateFilePath, (s) => {
+      const next = reduce(s, input, Date.now());
+      live = addedLiveTool(next, input);
+      return next;
+    });
+    if (!live)
+      return;
+    const { buffer, turnNum, toolIndex } = live;
+    await saveToolForUpload(config, {
+      buffer,
+      conversationId: input.conversation_id,
+      turnNum,
+      project: config.project,
+      userEmail: input.user_email,
+      customMetadata: config.customMetadata,
+      runtimeVersion: input.cursor_version
+    }, toolIndex, () => config.attachmentsEnabled && buffer.tracingMode === "full" ? resolveTurnAttachments({
+      conversationId: input.conversation_id,
+      prompt: buffer.prompt,
+      dbPath: config.cursorDbPath
+    }) : []);
+  };
+}
+function addedLiveTool(state, input) {
+  const buffer = getTurnBuffer(state, input.conversation_id, input.generation_id);
+  if (!buffer || buffer.turnNum === void 0)
+    return void 0;
+  if (buffer.tracingMode !== "full" && buffer.tracingMode !== "metadata")
+    return void 0;
+  const swept = ownEntry(state, input.conversation_id)?.sweepFinalizedGenerations;
+  if (swept?.includes(input.generation_id))
+    return void 0;
+  return { buffer, turnNum: buffer.turnNum, toolIndex: buffer.tools.length - 1 };
+}
+var init_tool_hook = __esm({
+  "dist/src/hooks/tool-hook.js"() {
+    "use strict";
+    init_attachments();
+    init_logger();
+    init_state2();
+    init_tracing_engine();
+    init_hook_init();
+    init_stdin();
+  }
+});
+
+// dist/src/hooks/post-tool-use.js
+var post_tool_use_exports = {};
+__export(post_tool_use_exports, {
+  run: () => run6
+});
+var run6;
+var init_post_tool_use = __esm({
+  "dist/src/hooks/post-tool-use.js"() {
+    "use strict";
+    init_reducer();
+    init_tool_hook();
+    run6 = toolHook({
+      describe: (input) => `postToolUse ${input.tool_name} conv=${input.conversation_id} gen=${input.generation_id}`,
+      reduce: reducePostToolUse
+    });
+  }
+});
+
+// dist/src/hooks/post-tool-use-failure.js
+var post_tool_use_failure_exports = {};
+__export(post_tool_use_failure_exports, {
+  run: () => run7
+});
+var run7;
+var init_post_tool_use_failure = __esm({
+  "dist/src/hooks/post-tool-use-failure.js"() {
+    "use strict";
+    init_reducer();
+    init_tool_hook();
+    run7 = toolHook({
+      describe: (input) => `postToolUseFailure ${input.tool_name} conv=${input.conversation_id}`,
+      reduce: reducePostToolUseFailure
+    });
   }
 });
 
@@ -26332,11 +26484,11 @@ Hook names: ${Object.values(BINARY_HOOK_EVENTS).join(", ")}`;
 var HOOK_RUNNERS = {
   [BINARY_HOOK_EVENTS.beforeSubmitPrompt]: () => Promise.resolve().then(() => (init_before_submit_prompt(), before_submit_prompt_exports)).then((hook) => hook.run()),
   [BINARY_HOOK_EVENTS.afterAgentResponse]: () => Promise.resolve().then(() => (init_after_agent_response(), after_agent_response_exports)).then((hook) => hook.run()),
-  [BINARY_HOOK_EVENTS.postToolUse]: () => Promise.resolve().then(() => (init_post_tool_use(), post_tool_use_exports)).then((hook) => hook.run()),
-  [BINARY_HOOK_EVENTS.postToolUseFailure]: () => Promise.resolve().then(() => (init_post_tool_use_failure(), post_tool_use_failure_exports)).then((hook) => hook.run()),
   [BINARY_HOOK_EVENTS.subagentStart]: () => Promise.resolve().then(() => (init_subagent_start(), subagent_start_exports)).then((hook) => hook.run()),
   [BINARY_HOOK_EVENTS.subagentStop]: () => Promise.resolve().then(() => (init_subagent_stop(), subagent_stop_exports)).then((hook) => hook.run()),
   [BINARY_HOOK_EVENTS.stop]: () => Promise.resolve().then(() => (init_stop(), stop_exports)).then((hook) => hook.run()),
+  [BINARY_HOOK_EVENTS.postToolUse]: () => Promise.resolve().then(() => (init_post_tool_use(), post_tool_use_exports)).then((hook) => hook.run()),
+  [BINARY_HOOK_EVENTS.postToolUseFailure]: () => Promise.resolve().then(() => (init_post_tool_use_failure(), post_tool_use_failure_exports)).then((hook) => hook.run()),
   [BINARY_HOOK_EVENTS.sessionStart]: () => Promise.resolve().then(() => (init_session_start(), session_start_exports)).then((hook) => hook.run())
 };
 var HOOK_COMMAND_OPTIONS = {

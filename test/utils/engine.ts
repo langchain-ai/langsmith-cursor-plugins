@@ -1,3 +1,7 @@
+import { chmodSync, writeFileSync } from "node:fs";
+import { spawnSync } from "node:child_process";
+import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { vi } from "vitest";
 import { createLangSmithUploadWriter } from "@langchain/plugins-base/tracing/upload";
 import { buildTurnRuns } from "../../src/langsmith.js";
@@ -21,4 +25,27 @@ export async function sendTurn(
   } finally {
     vi.unstubAllGlobals();
   }
+}
+
+const DISPATCH = fileURLToPath(new URL("../../src/hooks/dispatch.ts", import.meta.url));
+
+export function writeWorkerScript(dir: string): string {
+  const script = join(dir, "worker.sh");
+  writeFileSync(
+    script,
+    `#!/bin/sh\nwhile [ "$1" != "engine-worker" ]; do shift; done\nexport NODE_OPTIONS="--import tsx"\nexec "${process.execPath}" "${DISPATCH}" "$@"\n`,
+  );
+  chmodSync(script, 0o755);
+  return script;
+}
+
+export async function until(done: () => boolean, ms = 30_000): Promise<boolean> {
+  const deadline = Date.now() + ms;
+  while (!done() && Date.now() < deadline) await new Promise((resolve) => setTimeout(resolve, 50));
+  return done();
+}
+
+export async function waitForWorkers(dir: string): Promise<void> {
+  const running = () => spawnSync("pgrep", ["-f", dir]).status === 0;
+  if (!(await until(() => !running(), 20_000))) spawnSync("pkill", ["-f", dir]);
 }
