@@ -1,12 +1,12 @@
 /**
- * postToolUse hook — appends a completed tool call to the current turn buffer.
+ * postToolUse hook — appends a completed tool call to the current turn buffer and saves its run.
  */
 
 import { reducePostToolUse } from "../reducer.js";
 import type { PostToolUseInput } from "../models/types.js";
-import { stateHook } from "./state-hook.js";
+import { toolHook } from "./tool-hook.js";
 
-export const run = stateHook<PostToolUseInput>({
+export const run = toolHook<PostToolUseInput>({
   describe: (input) =>
     `postToolUse ${input.tool_name} conv=${input.conversation_id} gen=${input.generation_id}`,
   reduce: reducePostToolUse,

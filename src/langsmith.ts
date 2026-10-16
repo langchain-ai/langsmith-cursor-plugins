@@ -138,6 +138,18 @@ export function buildTurnRuns(options: BuildTurnOptions): CapturedRun[] {
   return turn.runs;
 }
 
+export function buildToolRuns(options: BuildTurnOptions, toolIndex: number): CapturedRun[] {
+  const tool = options.buffer.tools[toolIndex];
+  if (!tool) return [];
+  const turn = createTurnContext(options);
+  addToolRun(turn, addRootRun(turn), turn.ctx, tool, toolKey(toolIndex, tool));
+  return turn.runs;
+}
+
+function toolKey(index: number, tool: ToolEvent): string {
+  return `tool:${index}:${tool.tool_use_id}`;
+}
+
 function createTurnContext(options: BuildTurnOptions): TurnContext {
   const { buffer, conversationId, turnNum, userEmail, customMetadata } = options;
   // coding-agent-v1 context, stamped on the root and propagated to children
@@ -270,7 +282,7 @@ function addAgenticRuns(turn: TurnContext, turnRun: RunTree): void {
 
   // Tool runs (and subagent Task runs) between the two llm calls.
   for (const [i, tool] of buffer.tools.entries())
-    addToolRun(turn, turnRun, ctx, tool, `tool:${i}:${tool.tool_use_id}`);
+    addToolRun(turn, turnRun, ctx, tool, toolKey(i, tool));
   for (const [i, sub] of buffer.subagents.entries())
     addSubagentRun(turn, turnRun, sub, `subagent:${i}:${sub.subagent_id}`);
 
@@ -350,8 +362,7 @@ function addInterleavedRounds(turn: TurnContext, turnRun: RunTree): boolean {
       metadata: { ...ctx, ...turn.llmMeta },
     });
 
-    for (const [i, t] of matched.entries())
-      addToolRun(turn, turnRun, ctx, t, `round:${roundIndex}:tool:${i}:${t.tool_use_id}`);
+    for (const t of matched) addToolRun(turn, turnRun, ctx, t, toolKey(buffer.tools.indexOf(t), t));
 
     // Thread this round's assistant turn + tool results into the running conversation.
     msgs.push({ role: "assistant", content: assistantContent });

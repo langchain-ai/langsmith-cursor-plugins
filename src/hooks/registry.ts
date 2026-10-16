@@ -15,11 +15,11 @@ Hook names: ${Object.values(BINARY_HOOK_EVENTS).join(", ")}`;
 const HOOK_RUNNERS: Record<string, HookRunner> = {
   [BINARY_HOOK_EVENTS.beforeSubmitPrompt]: () => import("./before-submit-prompt.js").then((hook) => hook.run()),
   [BINARY_HOOK_EVENTS.afterAgentResponse]: () => import("./after-agent-response.js").then((hook) => hook.run()),
-  [BINARY_HOOK_EVENTS.postToolUse]: () => import("./post-tool-use.js").then((hook) => hook.run()),
-  [BINARY_HOOK_EVENTS.postToolUseFailure]: () => import("./post-tool-use-failure.js").then((hook) => hook.run()),
   [BINARY_HOOK_EVENTS.subagentStart]: () => import("./subagent-start.js").then((hook) => hook.run()),
   [BINARY_HOOK_EVENTS.subagentStop]: () => import("./subagent-stop.js").then((hook) => hook.run()),
   [BINARY_HOOK_EVENTS.stop]: () => import("./stop.js").then((hook) => hook.run()),
+  [BINARY_HOOK_EVENTS.postToolUse]: () => import("./post-tool-use.js").then((hook) => hook.run()),
+  [BINARY_HOOK_EVENTS.postToolUseFailure]: () => import("./post-tool-use-failure.js").then((hook) => hook.run()),
   [BINARY_HOOK_EVENTS.sessionStart]: () => import("./session-start.js").then((hook) => hook.run()),
 };
 
