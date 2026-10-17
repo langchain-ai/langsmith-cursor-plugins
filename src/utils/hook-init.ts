@@ -2,7 +2,8 @@
  * Shared hook startup utilities.
  */
 
-import { loadConfig, type Config } from "../config.js";
+import { loadConfig } from "../config.js";
+import type { Config } from "../models/config.js";
 import { initLogger, error } from "../logger.js";
 
 /** Standard hook startup: load config, init logger, check enable + API key. */

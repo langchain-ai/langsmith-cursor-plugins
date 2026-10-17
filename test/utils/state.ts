@@ -1,4 +1,4 @@
-import type { Config } from "../../src/config.js";
+import type { Config } from "../../src/models/config.js";
 import type { ConversationState, ToolEvent, TurnBuffer } from "../../src/models/types.js";
 
 export const MINUTE = 60_000;
