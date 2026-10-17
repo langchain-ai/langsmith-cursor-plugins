@@ -1,59 +1,30 @@
-import { randomUUID } from "node:crypto";
-import { lstatSync, readFileSync } from "node:fs";
-import { mkdir, open, rename, rmdir, unlink } from "node:fs/promises";
-import { dirname } from "node:path";
-import { performance } from "node:perf_hooks";
-import { setTimeout as delay } from "node:timers/promises";
+import { readPolicyFile, updatePolicyFile } from "@langchain/plugins-base/plugin";
+import type { PolicyFileOptions } from "@langchain/plugins-base/plugin";
 import { homedir } from "node:os";
 import { join } from "node:path";
+import type { TracingPolicy } from "./models/tracing-policy.js";
+import { isRecord } from "./normalize.js";
 import type { TracingMode } from "./models/types.js";
-
-interface TracingPolicy {
-  threads: Record<string, TracingMode>;
-}
 
 function isMode(value: unknown): value is TracingMode {
   return value === "full" || value === "metadata";
 }
 
-function isObject(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function hasCode(error: unknown, code: string): boolean {
-  return isObject(error) && error.code === code;
-}
-
-/** Missing policy has no overrides; every other read failure is fail-closed. */
-function readPolicy(path: string): TracingPolicy {
-  let raw: string;
-  try {
-    if (!lstatSync(path).isFile())
-      throw new Error("Tracing preferences must be a regular, non-symlink file");
-    raw = readFileSync(path, "utf8");
-  } catch (error) {
-    if (hasCode(error, "ENOENT")) {
-      // A dangling symlink is an unreadable policy, not an absent preference.
-      try {
-        lstatSync(path);
-      } catch (statError) {
-        if (hasCode(statError, "ENOENT")) return { threads: {} };
-        throw statError;
-      }
+const TRACING_POLICY_FILE: PolicyFileOptions<TracingPolicy> = {
+  empty: () => ({ threads: {} }),
+  requireRegularFile: true,
+  parse(value) {
+    if (
+      !isRecord(value) ||
+      !isRecord(value.threads) ||
+      Object.values(value.threads).some((mode) => !isMode(mode)) ||
+      Object.keys(value).some((key) => key !== "threads")
+    ) {
+      throw new Error("Invalid tracing preference format");
     }
-    throw error;
-  }
-  const value: unknown = JSON.parse(raw);
-  if (
-    !isObject(value) ||
-    !isObject(value.threads) ||
-    Object.values(value.threads).some((mode) => !isMode(mode)) ||
-    Object.keys(value).some((key) => key !== "threads")
-  ) {
-    throw new Error("Invalid tracing preference format");
-  }
-  return value as unknown as TracingPolicy;
-}
+    return value as unknown as TracingPolicy;
+  },
+};
 
 export function tracingPolicyPath(): string {
   return (
@@ -68,7 +39,7 @@ export function getThreadTracingMode(
   defaultMuted = false,
 ): TracingMode {
   try {
-    const policy = readPolicy(path);
+    const policy = readPolicyFile(path, TRACING_POLICY_FILE);
     if (Object.hasOwn(policy.threads, sessionId)) return policy.threads[sessionId];
     return defaultMuted ? "metadata" : "full";
   } catch {
@@ -99,80 +70,8 @@ export async function setThreadTracingMode(
   if (typeof sessionId !== "string" || !sessionId || !isMode(mode)) {
     throw new Error("A nonempty session ID and a full/metadata tracing mode are required");
   }
-  const lockPath = `${path}.lock`;
-  await mkdir(dirname(path), { recursive: true, mode: 0o700 });
-  const deadline = performance.now() + 2000;
-  let locked = false;
-  while (!locked) {
-    try {
-      // Must not be recursive: an existing directory means another writer owns it.
-      await mkdir(lockPath, { mode: 0o700 });
-      locked = true;
-    } catch (error) {
-      if (!hasCode(error, "EEXIST")) throw error;
-      if (performance.now() >= deadline) {
-        throw new Error(
-          `Timed out waiting for tracing preference lock ${lockPath}. Retry; if it persists, remove the lock only after confirming no preference writer is running.`,
-        );
-      }
-      // Jitter keeps competing writers from retrying in lockstep.
-      await delay(10 + Math.random() * 20);
-    }
-  }
-
-  const warnings: string[] = [];
-  // Cleanup attempts are independent and must never replace a precommit error.
-  // These filesystem details are for local command output only, never tracing.
-  async function bestEffort(action: () => Promise<unknown>, message: string): Promise<void> {
-    try {
-      await action();
-    } catch (error) {
-      warnings.push(`${message}: ${error instanceof Error ? error.message : String(error)}`);
-    }
-  }
-
-  let tempPath: string | undefined;
-  try {
-    let policy: TracingPolicy;
-    try {
-      policy = readPolicy(path);
-    } catch (error) {
-      throw new Error(
-        `Cannot read tracing preferences at ${path}. Refusing to overwrite them; repair the file or its permissions before retrying. No preferences were changed.`,
-        { cause: error },
-      );
-    }
-    // Computed property + spread handle session IDs such as "__proto__" safely.
-    policy.threads = { ...policy.threads, [sessionId]: mode };
-    tempPath = `${path}.${process.pid}.${randomUUID()}.tmp`;
-    const temp = await open(tempPath, "wx", 0o600);
-    try {
-      await temp.writeFile(`${JSON.stringify(policy)}\n`, "utf8");
-      await temp.sync();
-    } catch (error) {
-      await bestEffort(() => temp.close(), "Temporary file close failed");
-      throw error;
-    }
-    await temp.close();
-    await rename(tempPath, path);
-    // Commit point: readers now see the requested mode, even if fsync fails.
-    tempPath = undefined;
-    await bestEffort(async () => {
-      const directory = await open(dirname(path), "r");
-      try {
-        await directory.sync();
-      } finally {
-        await bestEffort(() => directory.close(), "Directory close cleanup failed");
-      }
-    }, "Preference is effective, but crash durability could not be confirmed; retry saving");
-  } finally {
-    if (tempPath) {
-      await bestEffort(() => unlink(tempPath!), "Temporary file cleanup failed");
-    }
-    await bestEffort(
-      () => rmdir(lockPath),
-      `Preference lock cleanup failed at ${lockPath}. Before retrying, remove the lock only after confirming no preference writer is running`,
-    );
-  }
-  return warnings.length ? { warning: warnings.join("; ") } : {};
+  // Computed property + spread handle session IDs such as "__proto__" safely.
+  return updatePolicyFile(path, TRACING_POLICY_FILE, (policy) => ({
+    threads: { ...policy.threads, [sessionId]: mode },
+  }));
 }

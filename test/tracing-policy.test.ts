@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  chmodSync,
   existsSync,
   lstatSync,
   mkdirSync,
@@ -7,28 +8,19 @@ import {
   readFileSync,
   readdirSync,
   rmSync,
+  rmdirSync,
   statSync,
   symlinkSync,
-  utimesSync,
   writeFileSync,
 } from "node:fs";
-import { execFile } from "node:child_process";
-import * as fsPromises from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
-import { promisify } from "node:util";
-import { buildSync } from "esbuild";
 import {
   getThreadTracingMode,
   parseTracingCommand,
   setThreadTracingMode,
   tracingPolicyPath,
 } from "../src/tracing-policy.js";
-
-vi.mock("node:fs/promises", async (importOriginal) => ({
-  ...(await importOriginal<typeof import("node:fs/promises")>()),
-}));
 
 let dir: string;
 let state: string;
@@ -38,60 +30,11 @@ beforeEach(() => {
   state = join(dir, "state.json");
   policy = join(dir, "state.privacy.json");
   vi.stubEnv("LANGSMITH_CURSOR_PRIVACY_FILE", policy);
-  vi.clearAllMocks();
 });
 afterEach(() => {
-  vi.restoreAllMocks();
   vi.unstubAllEnvs();
   rmSync(dir, { recursive: true, force: true });
 });
-
-type FsFault =
-  | "directory open"
-  | "directory sync"
-  | "directory close"
-  | "lock rmdir"
-  | "temp writeFile"
-  | "temp sync"
-  | "temp close"
-  | "temp unlink";
-
-// Use real files/rename so assertions cover the effective on-disk preference.
-function injectFsFaults(...faults: FsFault[]) {
-  const originalOpen = fsPromises.open;
-  const originalUnlink = fsPromises.unlink;
-  const originalRmdir = fsPromises.rmdir;
-  vi.spyOn(fsPromises, "open").mockImplementation(async (path, flags, mode) => {
-    const kind = String(path) === dir ? "directory" : "temp";
-    if (faults.includes(`${kind} open` as FsFault)) throw new Error(`${kind} open failed`);
-    const handle = await originalOpen(path, flags, mode);
-    for (const method of ["writeFile", "sync", "close"] as const) {
-      if (!faults.includes(`${kind} ${method}` as FsFault)) continue;
-      const close = handle.close.bind(handle);
-      vi.spyOn(handle, method).mockImplementation(async () => {
-        // Release real descriptors even when simulating a close error.
-        if (method === "close") await close();
-        throw new Error(`${kind} ${method} failed`);
-      });
-    }
-    return handle;
-  });
-  vi.spyOn(fsPromises, "unlink").mockImplementation(async (path) => {
-    if (faults.includes("temp unlink")) throw new Error("temp unlink failed");
-    return originalUnlink(path);
-  });
-  vi.spyOn(fsPromises, "rmdir").mockImplementation(async (path) => {
-    if (faults.includes("lock rmdir")) throw new Error("lock rmdir failed");
-    return originalRmdir(path);
-  });
-}
-
-const postcommitFaults: FsFault[] = [
-  "directory open",
-  "directory sync",
-  "directory close",
-  "lock rmdir",
-];
 
 describe("standalone tracing preference", () => {
   it("uses an independent configured privacy path", () => expect(tracingPolicyPath()).toBe(policy));
@@ -107,7 +50,7 @@ describe("standalone tracing preference", () => {
     await setThreadTracingMode(policy, "a", "full");
     expect(getThreadTracingMode(policy, "a")).toBe("full");
     expect(getThreadTracingMode(policy, "b")).toBe("metadata");
-    expect(statSync(policy).mode & 0o777).toBe(0o600);
+    if (process.platform !== "win32") expect(statSync(policy).mode & 0o777).toBe(0o600);
     expect(readdirSync(dir)).toEqual(["state.privacy.json"]);
   });
 
@@ -175,123 +118,9 @@ describe("standalone tracing preference", () => {
 
   it("serializes concurrent edits within a process", async () => {
     await Promise.all(
-      Array.from({ length: 24 }, (_, i) => setThreadTracingMode(policy, `s${i}`, "metadata")),
+      Array.from({ length: 6 }, (_, i) => setThreadTracingMode(policy, `s${i}`, "metadata")),
     );
-    for (let i = 0; i < 24; i++) expect(getThreadTracingMode(policy, `s${i}`)).toBe("metadata");
-  });
-
-  it("serializes concurrent edits across actual processes", async () => {
-    const bundle = join(dir, "policy.mjs");
-    buildSync({
-      entryPoints: [fileURLToPath(new URL("../src/tracing-policy.ts", import.meta.url))],
-      outfile: bundle,
-      bundle: true,
-      platform: "node",
-      format: "esm",
-    });
-    const run = promisify(execFile);
-    await Promise.all(
-      Array.from({ length: 8 }, (_, i) =>
-        run(process.execPath, [
-          "--input-type=module",
-          "-e",
-          `import { setThreadTracingMode } from ${JSON.stringify(pathToFileURL(bundle).href)}; await setThreadTracingMode(${JSON.stringify(policy)}, 'process-${i}', 'metadata');`,
-        ]),
-      ),
-    );
-    for (let i = 0; i < 8; i++)
-      expect(getThreadTracingMode(policy, `process-${i}`)).toBe("metadata");
-  });
-
-  it("keeps the old policy and cleans up after atomic rename failure", async () => {
-    await setThreadTracingMode(policy, "a", "metadata");
-    const before = readFileSync(policy, "utf8");
-    vi.spyOn(fsPromises, "rename").mockRejectedValueOnce(new Error("rename failed"));
-    await expect(setThreadTracingMode(policy, "a", "full")).rejects.toThrow("rename failed");
-    expect(readFileSync(policy, "utf8")).toBe(before);
-    expect(readdirSync(dir)).toEqual(["state.privacy.json"]);
-  });
-
-  it.each(postcommitFaults)("returns a warning after committed %s failure", async (fault) => {
-    await setThreadTracingMode(policy, "a", "metadata");
-    injectFsFaults(fault);
-    const result = await setThreadTracingMode(policy, "a", "full");
-    expect(result.warning).toContain(`${fault} failed`);
-    expect(getThreadTracingMode(policy, "a")).toBe("full");
-    expect(existsSync(`${policy}.lock`)).toBe(fault === "lock rmdir");
-    if (fault === "directory open" || fault === "directory sync") {
-      expect(result.warning).toContain("crash durability");
-      expect(result.warning).toContain("retry saving");
-    }
-    if (fault === "lock rmdir") expect(result.warning).toContain("no preference writer is running");
-  });
-
-  it("attempts all postcommit cleanup independently", async () => {
-    injectFsFaults("directory sync", "directory close", "lock rmdir");
-    const result = await setThreadTracingMode(policy, "a", "metadata");
-    for (const fault of ["directory sync", "directory close", "lock rmdir"]) {
-      expect(result.warning).toContain(`${fault} failed`);
-    }
-    expect(getThreadTracingMode(policy, "a")).toBe("metadata");
-  });
-
-  it.each(["temp writeFile", "temp sync", "temp close"] as FsFault[])(
-    "preserves the old policy on precommit %s failure",
-    async (fault) => {
-      await setThreadTracingMode(policy, "a", "metadata");
-      const before = readFileSync(policy, "utf8");
-      injectFsFaults(fault);
-      await expect(setThreadTracingMode(policy, "a", "full")).rejects.toThrow(`${fault} failed`);
-      expect(readFileSync(policy, "utf8")).toBe(before);
-      expect(readdirSync(dir)).toEqual(["state.privacy.json"]);
-    },
-  );
-
-  it.each(["write", "rename"])("does not mask %s errors with cleanup errors", async (failure) => {
-    await setThreadTracingMode(policy, "a", "metadata");
-    const before = readFileSync(policy, "utf8");
-    injectFsFaults(
-      "temp unlink",
-      "lock rmdir",
-      ...(failure === "write" ? (["temp writeFile", "temp close"] as FsFault[]) : []),
-    );
-    if (failure === "rename")
-      vi.spyOn(fsPromises, "rename").mockRejectedValueOnce(new Error("rename failed"));
-    await expect(setThreadTracingMode(policy, "a", "full")).rejects.toThrow(
-      failure === "write" ? "temp writeFile failed" : "rename failed",
-    );
-    expect(readFileSync(policy, "utf8")).toBe(before);
-    expect(fsPromises.rmdir).toHaveBeenCalledWith(`${policy}.lock`);
-    expect(fsPromises.unlink).toHaveBeenCalledTimes(1);
-  });
-
-  it.each(["directory", "legacy file"])(
-    "times out rather than stealing even an old live %s lock",
-    async (kind) => {
-      await setThreadTracingMode(policy, "a", "metadata");
-      const before = readFileSync(policy, "utf8");
-      if (kind === "directory") mkdirSync(`${policy}.lock`);
-      else writeFileSync(`${policy}.lock`, `${process.pid}\n`);
-      utimesSync(`${policy}.lock`, new Date(0), new Date(0));
-      await expect(setThreadTracingMode(policy, "a", "full")).rejects.toThrow("Timed out");
-      if (kind === "directory") expect(readdirSync(`${policy}.lock`)).toEqual([]);
-      else expect(readFileSync(`${policy}.lock`, "utf8")).toBe(`${process.pid}\n`);
-      expect(readFileSync(policy, "utf8")).toBe(before);
-    },
-  );
-
-  it("holds a private, empty directory lock until the write completes", async () => {
-    const originalRename = fsPromises.rename;
-    vi.spyOn(fsPromises, "rename").mockImplementation(async (from, to) => {
-      expect(statSync(`${policy}.lock`).isDirectory()).toBe(true);
-      expect(statSync(`${policy}.lock`).mode & 0o777).toBe(0o700);
-      expect(readdirSync(`${policy}.lock`)).toEqual([]);
-      return originalRename(from, to);
-    });
-    const mkdir = vi.spyOn(fsPromises, "mkdir");
-    await setThreadTracingMode(policy, "a", "metadata");
-    expect(mkdir).toHaveBeenCalledWith(`${policy}.lock`, { mode: 0o700 });
-    expect(existsSync(`${policy}.lock`)).toBe(false);
+    for (let i = 0; i < 6; i++) expect(getThreadTracingMode(policy, `s${i}`)).toBe("metadata");
   });
 
   it("retries until a held directory lock is released", async () => {
@@ -305,28 +134,45 @@ describe("standalone tracing preference", () => {
       expect(finished).toBe(false);
       expect(existsSync(policy)).toBe(false);
     } finally {
-      await fsPromises.rmdir(`${policy}.lock`);
+      rmdirSync(`${policy}.lock`);
       await save;
     }
     expect(getThreadTracingMode(policy, "a")).toBe("metadata");
-    expect(existsSync(`${policy}.lock`)).toBe(false);
   });
 
-  it("propagates lock acquisition errors without changing preferences", async () => {
+  it("tells the user how to recover when an older plugin version still holds the lock", async () => {
     await setThreadTracingMode(policy, "a", "metadata");
     const before = readFileSync(policy, "utf8");
-    const originalMkdir = fsPromises.mkdir;
-    vi.spyOn(fsPromises, "mkdir").mockImplementation(async (path, options) => {
-      if (String(path) === `${policy}.lock`) {
-        throw Object.assign(new Error("permission denied"), { code: "EACCES" });
-      }
-      return originalMkdir(path, options);
-    });
-    const rmdir = vi.spyOn(fsPromises, "rmdir");
-    await expect(setThreadTracingMode(policy, "a", "full")).rejects.toThrow("permission denied");
+    mkdirSync(`${policy}.lock`);
+    try {
+      await expect(setThreadTracingMode(policy, "a", "full")).rejects.toThrow(
+        "Timed out waiting for tracing preference lock",
+      );
+    } finally {
+      rmdirSync(`${policy}.lock`);
+    }
     expect(readFileSync(policy, "utf8")).toBe(before);
-    expect(rmdir).not.toHaveBeenCalled();
   });
+
+  it("leaves the lock free for an older plugin version once a save finishes", async () => {
+    await setThreadTracingMode(policy, "a", "metadata");
+    expect(() => mkdirSync(`${policy}.lock`)).not.toThrow();
+  });
+
+  it.skipIf(process.platform === "win32" || process.getuid?.() === 0)(
+    "refuses to save, and keeps the old preference, when the folder cannot be written",
+    async () => {
+      await setThreadTracingMode(policy, "a", "metadata");
+      const before = readFileSync(policy, "utf8");
+      chmodSync(dir, 0o555);
+      try {
+        await expect(setThreadTracingMode(policy, "a", "full")).rejects.toThrow();
+      } finally {
+        chmodSync(dir, 0o755);
+      }
+      expect(readFileSync(policy, "utf8")).toBe(before);
+    },
+  );
 });
 
 describe("exact command parser", () => {

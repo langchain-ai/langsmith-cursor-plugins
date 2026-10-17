@@ -13,7 +13,7 @@ import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { spawnSync } from "node:child_process";
 import { getThreadTracingMode } from "../src/tracing-policy.js";
-import { loadState } from "../src/state.js";
+import { loadState } from "./utils/state.js";
 import { MIN_NODE } from "../src/utils/node-version.js";
 
 let dir: string;
