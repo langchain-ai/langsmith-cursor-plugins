@@ -1,13 +1,20 @@
 import { createHash } from "node:crypto";
-import { JOB_REF_PREFIX } from "./constants.js";
-import type { QueuedJobRef, UploadJobContext } from "./models/job-context.js";
-import type { TracingState } from "./models/types.js";
-import { deleteOwnEntry, getConversationState, ownEntry, setOwnEntry } from "./state.js";
+import { JOB_REF_PREFIX, TOOL_JOB_REF_PREFIX } from "./constants.js";
+import type { QueuedJobRef, ToolJobRef, UploadJobContext } from "./models/job-context.js";
+import type { TracingState, TurnOrigin } from "./models/types.js";
+import {
+  deleteOwnEntry,
+  getConversationState,
+  getTurnBuffer,
+  ownEntry,
+  setOwnEntry,
+} from "./state.js";
 
 export function jobDigest(sessionId: string, context: UploadJobContext): string {
-  const { kind, buffer } = context;
+  const { kind, buffer, toolIndex } = context;
+  const toolUseId = toolIndex === undefined ? null : buffer.tools[toolIndex]?.tool_use_id;
   return createHash("sha256")
-    .update(JSON.stringify([sessionId, kind, buffer.generation_id]))
+    .update(JSON.stringify([sessionId, kind, buffer.generation_id, toolIndex ?? null, toolUseId]))
     .digest("hex");
 }
 
@@ -75,4 +82,50 @@ export function finishedJobRefs(
   return [...built]
     .filter(([eventId]) => !pendingEventIds.has(eventId))
     .flatMap(([, ref]) => parseJobRef(ref) ?? []);
+}
+
+export function toolJobRef(ref: ToolJobRef): string {
+  const { conversationId, generationId, toolIndex, toolUseId, model, withRoot } = ref;
+  const value = [conversationId, generationId, toolIndex, toolUseId, model ?? null, withRoot];
+  return `${TOOL_JOB_REF_PREFIX}${Buffer.from(JSON.stringify(value)).toString("base64url")}`;
+}
+
+export function parseToolJobRef(ref: string | undefined): ToolJobRef | undefined {
+  if (!ref?.startsWith(TOOL_JOB_REF_PREFIX)) return undefined;
+  try {
+    const [conversationId, generationId, toolIndex, toolUseId, model, withRoot] = JSON.parse(
+      Buffer.from(ref.slice(TOOL_JOB_REF_PREFIX.length), "base64url").toString("utf8"),
+    );
+    return {
+      conversationId,
+      generationId,
+      toolIndex,
+      toolUseId,
+      model: model ?? undefined,
+      withRoot,
+    };
+  } catch {
+    return undefined;
+  }
+}
+
+export function toolJobContext(
+  state: TracingState,
+  ref: ToolJobRef,
+  fallbackOrigin: TurnOrigin,
+): UploadJobContext | undefined {
+  const conv = ownEntry(state, ref.conversationId);
+  const buffer =
+    getTurnBuffer(state, ref.conversationId, ref.generationId) ??
+    ownEntry(conv?.pending, ref.generationId)?.buffer ??
+    ownEntry(conv?.queued, ref.generationId)?.buffer;
+  if (buffer?.tools[ref.toolIndex]?.tool_use_id !== ref.toolUseId) return undefined;
+  return {
+    kind: "tool",
+    conversationId: ref.conversationId,
+    turnNum: buffer.turnNum ?? 0,
+    buffer: { ...buffer, model: ref.model },
+    origin: buffer.origin ?? fallbackOrigin,
+    toolIndex: ref.toolIndex,
+  };
 }

@@ -23238,446 +23238,9 @@ var init_settings = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.4_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/paths.js
-import { statSync as statSync4 } from "node:fs";
-import { dirname as dirname10 } from "node:path";
-function nearestExistingDirectory(path3) {
-  let current = path3;
-  for (; ; ) {
-    const parent = dirname10(current);
-    const reachedFilesystemRoot = parent === current;
-    if (reachedFilesystemRoot)
-      return void 0;
-    try {
-      if (statSync4(current).isDirectory())
-        return current;
-    } catch {
-    }
-    current = parent;
-  }
-}
-var init_paths3 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.4_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/paths.js"() {
-  }
-});
-
-// node_modules/.pnpm/@langchain+plugins-base@0.4.4_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/constants.js
-var GIT_LOCATION_ENV_KEYS, NOT_A_REPOSITORY, REMOTE_PATH_EDGE_SLASHES, REMOTE_PATH_TRAILING_SLASHES, REMOTE_GIT_SUFFIX, REMOTE_LINE_WHITESPACE, SCP_REMOTE_PATTERN, GIT_DIRECTORY_NAME, GIT_FILE_POINTER, GIT_MARKERS, GIT_PROVIDERS, SELF_HOSTED_PROVIDER_HINTS, PROVIDER_HOSTS, GIT_COMMAND_TIMEOUT_MS, GH_LOGIN_COMMAND, GH_LOGIN_ARGUMENTS, GH_LOGIN_TIMEOUT_MS, GH_LOGIN_PATTERN, GH_LOGIN_NULL_OUTPUT, GH_LOGIN_RETRY_AFTER_MS;
-var init_constants17 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.4_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/constants.js"() {
-    GIT_LOCATION_ENV_KEYS = [
-      "GIT_DIR",
-      "GIT_WORK_TREE",
-      "GIT_COMMON_DIR",
-      "GIT_INDEX_FILE",
-      "GIT_CEILING_DIRECTORIES"
-    ];
-    NOT_A_REPOSITORY = /not a git repository \(or any of the parent directories\)/i;
-    REMOTE_PATH_EDGE_SLASHES = /^\/+|\/+$/g;
-    REMOTE_PATH_TRAILING_SLASHES = /\/+$/;
-    REMOTE_GIT_SUFFIX = /\.git$/;
-    REMOTE_LINE_WHITESPACE = /\s+/;
-    SCP_REMOTE_PATTERN = /^(?:[^@]+@)?([^:]+):\/?(.+)$/;
-    GIT_DIRECTORY_NAME = ".git";
-    GIT_FILE_POINTER = /^gitdir:\s*(.+?)\s*$/m;
-    GIT_MARKERS = {
-      REPOSITORY_ROOT: "repository root",
-      ONLY_GIT_CAN_SAY: "only git can say",
-      NOTHING_HERE: "nothing here"
-    };
-    GIT_PROVIDERS = {
-      "github.com": "github",
-      "gitlab.com": "gitlab",
-      "bitbucket.org": "bitbucket",
-      "dev.azure.com": "devAzure"
-    };
-    SELF_HOSTED_PROVIDER_HINTS = ["github", "gitlab", "bitbucket"];
-    PROVIDER_HOSTS = {
-      github: "github.com",
-      gitlab: "gitlab.com",
-      bitbucket: "bitbucket.org",
-      devAzure: "dev.azure.com"
-    };
-    GIT_COMMAND_TIMEOUT_MS = 5e3;
-    GH_LOGIN_COMMAND = "gh";
-    GH_LOGIN_ARGUMENTS = ["api", "user", "--jq", ".login"];
-    GH_LOGIN_TIMEOUT_MS = 5e3;
-    GH_LOGIN_PATTERN = /^[A-Za-z0-9][A-Za-z0-9-]{0,38}$/;
-    GH_LOGIN_NULL_OUTPUT = "null";
-    GH_LOGIN_RETRY_AFTER_MS = 24 * 60 * 60 * 1e3;
-  }
-});
-
-// node_modules/.pnpm/@langchain+plugins-base@0.4.4_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/repository.js
-import { execFileSync } from "node:child_process";
-import { resolve as resolve12 } from "node:path";
-function parseRepoName(remoteUrl) {
-  const value = remoteUrl.trim();
-  try {
-    const url = new URL(value);
-    const name = url.pathname.replace(REMOTE_PATH_EDGE_SLASHES, "").replace(REMOTE_GIT_SUFFIX, "");
-    const repository = repositoryOnHost(url.hostname, name);
-    if (repository)
-      return repository;
-  } catch {
-  }
-  const scpMatch = value.match(SCP_REMOTE_PATTERN);
-  if (scpMatch) {
-    const host = scpMatch[1];
-    const path3 = scpMatch[2];
-    if (host && path3) {
-      const name = path3.replace(REMOTE_PATH_TRAILING_SLASHES, "").replace(REMOTE_GIT_SUFFIX, "");
-      return repositoryOnHost(host, name);
-    }
-  }
-  return void 0;
-}
-function repositoryOnHost(hostname, name) {
-  const host = hostname.toLowerCase();
-  if (!name)
-    return void 0;
-  const provider2 = GIT_PROVIDERS[host];
-  if (provider2)
-    return { provider: provider2, name };
-  if (!host.includes("."))
-    return void 0;
-  const hinted = SELF_HOSTED_PROVIDER_HINTS.find((hint) => host.includes(hint));
-  return { provider: hinted ?? host, name, host };
-}
-function gitOutput(args, cwd) {
-  const env = { ...process.env, LC_ALL: "C", LANG: "C" };
-  for (const key of GIT_LOCATION_ENV_KEYS)
-    delete env[key];
-  return execFileSync("git", args, {
-    cwd,
-    env,
-    encoding: "utf-8",
-    timeout: GIT_COMMAND_TIMEOUT_MS,
-    stdio: ["ignore", "pipe", "pipe"]
-  });
-}
-function getRepoName(cwd) {
-  try {
-    const output = gitOutput(["remote", "-v"], cwd);
-    const lines = output.trim().split("\n").filter(Boolean);
-    const remotes = [];
-    for (const line of lines) {
-      const parts = line.split(REMOTE_LINE_WHITESPACE);
-      const name = parts[0];
-      const url = parts[1];
-      if (name && url && line.includes("(fetch)"))
-        remotes.push({ name, url });
-    }
-    const origin = remotes.find((remote) => remote.name === "origin");
-    if (origin) {
-      const name = parseRepoName(origin.url);
-      if (name)
-        return name;
-    }
-    for (const remote of remotes) {
-      const name = parseRepoName(remote.url);
-      if (name)
-        return name;
-    }
-  } catch {
-  }
-  return void 0;
-}
-function getRepoUrl(provider2, name) {
-  const host = PROVIDER_HOSTS[provider2];
-  return host ? `https://${host}/${name}` : void 0;
-}
-function getRepoRoot(cwd) {
-  try {
-    const root = gitOutput(["rev-parse", "--show-toplevel"], cwd).trim();
-    return root ? resolve12(root) : void 0;
-  } catch (error2) {
-    const stderr = String(error2?.stderr ?? "");
-    return NOT_A_REPOSITORY.test(stderr) ? null : void 0;
-  }
-}
-function getGitUserName(cwd, options) {
-  try {
-    const name = gitOutput(["config", "user.name"], cwd).trim();
-    if (name)
-      return name;
-  } catch {
-  }
-  return options?.githubLogin?.();
-}
-function getGitInfo(cwd) {
-  const result = {};
-  try {
-    const branch = gitOutput(["rev-parse", "--abbrev-ref", "HEAD"], cwd).trim();
-    if (branch && branch !== "HEAD")
-      result.branch = branch;
-  } catch {
-  }
-  try {
-    const commit = gitOutput(["rev-parse", "HEAD"], cwd).trim();
-    if (commit)
-      result.commit = commit;
-  } catch {
-  }
-  return result;
-}
-function getRepositoryMetadata(cwd) {
-  const metadata = {};
-  const repoName = getRepoName(cwd);
-  if (repoName) {
-    metadata[GIT_METADATA_KEYS.repository] = repoName.name;
-    metadata[GIT_METADATA_KEYS.provider] = repoName.provider;
-    const url = repoName.host ? `https://${repoName.host}/${repoName.name}` : getRepoUrl(repoName.provider, repoName.name);
-    if (url)
-      metadata[GIT_METADATA_KEYS.repositoryUrl] = url;
-  }
-  const gitInfo = getGitInfo(cwd);
-  if (gitInfo.branch)
-    metadata[GIT_METADATA_KEYS.branch] = gitInfo.branch;
-  if (gitInfo.commit)
-    metadata[GIT_METADATA_KEYS.commit] = gitInfo.commit;
-  return withBothGitMetadataNames(metadata);
-}
-function githubLoginLookup() {
-  return execFileSync(GH_LOGIN_COMMAND, GH_LOGIN_ARGUMENTS, {
-    encoding: "utf-8",
-    timeout: GH_LOGIN_TIMEOUT_MS,
-    stdio: ["ignore", "pipe", "ignore"]
-  }).trim();
-}
-function isGitHubLogin(printed) {
-  return printed !== GH_LOGIN_NULL_OUTPUT && GH_LOGIN_PATTERN.test(printed);
-}
-var init_repository = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.4_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/repository.js"() {
-    init_constants17();
-    init_constants7();
-    init_git_names();
-  }
-});
-
-// node_modules/.pnpm/@langchain+plugins-base@0.4.4_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/github-login.js
-import { mkdirSync as mkdirSync5, readFileSync as readFileSync8, renameSync as renameSync5, writeFileSync as writeFileSync4 } from "node:fs";
-import { dirname as dirname11 } from "node:path";
-function createGitHubLoginFallback(options) {
-  const now = options.now ?? Date.now;
-  const retryAfterMs = options.retryAfterMs ?? GH_LOGIN_RETRY_AFTER_MS;
-  let alreadyTried = false;
-  let login;
-  function failedRecently() {
-    try {
-      const marker = JSON.parse(readFileSync8(options.markerPath, "utf-8"));
-      const failed = new Date(marker.failed).getTime();
-      const since = now() - failed;
-      return since >= 0 && since < retryAfterMs;
-    } catch {
-      return false;
-    }
-  }
-  function recordFailure2() {
-    try {
-      mkdirSync5(dirname11(options.markerPath), { recursive: true });
-      const partial = `${options.markerPath}.${process.pid}`;
-      const marker = { failed: new Date(now()).toISOString() };
-      writeFileSync4(partial, JSON.stringify(marker));
-      renameSync5(partial, options.markerPath);
-    } catch {
-    }
-  }
-  return () => {
-    if (alreadyTried)
-      return login;
-    alreadyTried = true;
-    if (failedRecently())
-      return void 0;
-    try {
-      const printed = githubLoginLookup();
-      if (isGitHubLogin(printed))
-        login = printed;
-    } catch {
-    }
-    if (login === void 0)
-      recordFailure2();
-    return login;
-  };
-}
-var init_github_login = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.4_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/github-login.js"() {
-    init_constants17();
-    init_repository();
-  }
-});
-
-// node_modules/.pnpm/@langchain+plugins-base@0.4.4_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/paths.js
-import { readFileSync as readFileSync9, statSync as statSync5 } from "node:fs";
-import { dirname as dirname12, join as join17, resolve as resolve13 } from "node:path";
-function gitMarkerAt(directory) {
-  const marker = join17(directory, GIT_DIRECTORY_NAME);
-  try {
-    if (statSync5(marker).isDirectory())
-      return GIT_MARKERS.REPOSITORY_ROOT;
-  } catch {
-    return GIT_MARKERS.NOTHING_HERE;
-  }
-  return pointsAtGitDirectory(directory, marker) ? GIT_MARKERS.REPOSITORY_ROOT : GIT_MARKERS.ONLY_GIT_CAN_SAY;
-}
-function pointsAtGitDirectory(directory, marker) {
-  try {
-    const pointer = readFileSync9(marker, "utf-8").match(GIT_FILE_POINTER)?.[1];
-    return pointer !== void 0 && statSync5(resolve13(directory, pointer)).isDirectory();
-  } catch {
-    return false;
-  }
-}
-function rootFromGitMarker(directory) {
-  let current = resolve13(directory);
-  for (; ; ) {
-    const marker = gitMarkerAt(current);
-    if (marker === GIT_MARKERS.REPOSITORY_ROOT)
-      return current;
-    if (marker === GIT_MARKERS.ONLY_GIT_CAN_SAY)
-      return void 0;
-    const parent = dirname12(current);
-    const reachedFilesystemRoot = parent === current;
-    if (reachedFilesystemRoot)
-      return null;
-    current = parent;
-  }
-}
-var init_paths4 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.4_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/paths.js"() {
-    init_constants17();
-  }
-});
-
-// node_modules/.pnpm/@langchain+plugins-base@0.4.4_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/attribution.js
-import { isAbsolute as isAbsolute3 } from "node:path";
-function createRepositoryAttributor(options) {
-  const rootByDirectory = /* @__PURE__ */ new Map();
-  const attributionByRoot = /* @__PURE__ */ new Map();
-  const identifierByRoot = /* @__PURE__ */ new Map();
-  const githubLogin = createGitHubLoginFallback({ markerPath: options.githubLoginMarkerPath });
-  function rootForPath(path3) {
-    const directory = nearestExistingDirectory(path3);
-    if (!directory)
-      return void 0;
-    if (rootByDirectory.has(directory))
-      return rootByDirectory.get(directory);
-    const walked = rootFromGitMarker(directory);
-    const onlyGitCanSay = walked === void 0;
-    const root = onlyGitCanSay ? getRepoRoot(directory) : walked;
-    rootByDirectory.set(directory, root);
-    return root;
-  }
-  function isSessionsOwnRepository(sessionCwd, root) {
-    return sessionCwd ? rootForPath(sessionCwd) === root : false;
-  }
-  function identifierForRoot(root) {
-    const cached = identifierByRoot.get(root);
-    if (cached)
-      return cached;
-    const userName = getGitUserName(root, { githubLogin });
-    const identifier = userName ? { ls_attribution_identifier: userName } : {};
-    identifierByRoot.set(root, identifier);
-    return identifier;
-  }
-  function attributionForRoot(root) {
-    const cached = attributionByRoot.get(root);
-    if (cached)
-      return cached;
-    const attribution = {
-      ...identifierForRoot(root),
-      ...getRepositoryMetadata(root)
-    };
-    attributionByRoot.set(root, attribution);
-    return attribution;
-  }
-  function scopedToPath(base, origin, pinned) {
-    const namedSomewhereNothingSits = origin.namedAPath && !origin.path;
-    if (namedSomewhereNothingSits)
-      return base;
-    const path3 = origin.path ?? origin.cwd;
-    if (!path3 || !isAbsolute3(path3))
-      return base;
-    const root = rootForPath(path3);
-    const gitCouldNotAnswer = root === void 0;
-    if (gitCouldNotAnswer)
-      return base;
-    const pathIsInNoRepository = root === null;
-    if (pathIsInNoRepository)
-      return withoutRepositoryKeys(base, pinned);
-    if (isSessionsOwnRepository(origin.cwd, root)) {
-      return { ...base, ...withoutPinnedKeys(identifierForRoot(root), pinned) };
-    }
-    return {
-      ...withoutRepositoryKeys(base, pinned),
-      ...withoutPinnedKeys(attributionForRoot(root), pinned)
-    };
-  }
-  function withSessionRepository(base, sessionCwd) {
-    const sessionRoot = sessionCwd ? rootForPath(sessionCwd) : void 0;
-    if (typeof sessionRoot !== "string")
-      return base;
-    return { ...attributionForRoot(sessionRoot), ...base };
-  }
-  function toolMetadata(base, origin) {
-    const pinned = new Set(REPOSITORY_METADATA_KEYS.filter((key) => base?.[key] !== void 0));
-    return scopedToPath(withSessionRepository(base, origin.cwd), origin, pinned);
-  }
-  function turnMetadata(base, cwd, toolOrigins) {
-    const sessionCwd = cwd ? { cwd } : {};
-    const sessionRoot = cwd ? rootForPath(cwd) : void 0;
-    if (typeof sessionRoot === "string") {
-      return toolMetadata(base, { ...sessionCwd, namedAPath: false });
-    }
-    for (const { path: path3, namedAPath } of toolOrigins) {
-      if (!path3)
-        continue;
-      const landedInRepository = typeof rootForPath(path3) === "string";
-      if (landedInRepository)
-        return toolMetadata(base, { path: path3, namedAPath, ...sessionCwd });
-    }
-    return base;
-  }
-  return { toolMetadata, turnMetadata };
-}
-function withoutPinnedKeys(attribution, pinned) {
-  if (pinned.size === 0)
-    return { ...attribution };
-  return Object.fromEntries(Object.entries(attribution).filter(([key]) => !pinned.has(key)));
-}
-function withoutRepositoryKeys(base, pinned) {
-  const stripped = { ...base };
-  for (const key of REPOSITORY_METADATA_KEYS) {
-    if (!pinned.has(key))
-      delete stripped[key];
-  }
-  return stripped;
-}
-var init_attribution = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.4_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/attribution.js"() {
-    init_constants7();
-    init_paths3();
-    init_github_login();
-    init_paths4();
-    init_repository();
-  }
-});
-
-// node_modules/.pnpm/@langchain+plugins-base@0.4.4_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/index.js
-var init_git = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.4_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/index.js"() {
-    init_attribution();
-    init_github_login();
-    init_paths4();
-    init_repository();
-    init_paths3();
-  }
-});
-
 // dist/src/constants.js
-var TURN_RUN_NAME, SKILL_RUN_NAME, DEFAULT_TAGS, DEFAULT_PROJECT, DEFAULT_SWEEP_IDLE_MINUTES, DEFAULT_API_URL2, CURSOR_DIRECTORY_NAME, MAX_UPLOAD_ATTEMPTS, BINARY_HOOK_EVENTS, LEADING_BYTE_ORDER_MARKS, LS_INTEGRATION, SKILL_READ_TOOLS, PATH_SEPARATOR, MAX_ATTACHMENT_BYTES, MAX_LOG_BYTES, CONVERSATION_MAX_AGE_MS, WHITESPACE_RUN, MODEL_SUFFIXES, PROVIDER_PREFIX, CLAUDE_VERSIONED_MODEL, OPENAI_MODEL_PREFIX, CURSOR_VENDOR_PREFIX, MCP_TOOL_PREFIX, SUBAGENT_PSEUDO_TOOLS, STATE_FILE_NAME, LEGACY_STATE_FILE_NAME, TRACING_POLICY_FILE_NAME, LEGACY_TRACING_POLICY_FILE_NAME, HOOK_LOG_FILE_NAME, HOOK_CONTINUE_OUTPUT, ENGINE_WORKER_COMMAND, ENGINE_STORAGE_DIR_NAME, JOB_EVENT_PREFIX, JOB_REF_PREFIX, JOB_STORE_DIR_NAME, GH_LOGIN_MARKER_FILE, TOOL_PATH_INPUT_KEYS, RUN_EVENT_PREFIX, PATCH_EVENT_PREFIX, RUN_SNAPSHOT_FIELDS, RUN_PATCH_FIELDS, CAPTURE_PUBLISHED_STATUS, CAPTURE_DUPLICATE_STATUS, CAPTURE_CONFLICT_STATUS, TURN_ON_OTHER_ACCOUNT_MESSAGE, SQLITE_EXPERIMENTAL_WARNING;
-var init_constants18 = __esm({
+var TURN_RUN_NAME, SKILL_RUN_NAME, DEFAULT_TAGS, DEFAULT_PROJECT, DEFAULT_SWEEP_IDLE_MINUTES, DEFAULT_API_URL2, CURSOR_DIRECTORY_NAME, MAX_UPLOAD_ATTEMPTS, BINARY_HOOK_EVENTS, LEADING_BYTE_ORDER_MARKS, LS_INTEGRATION, SKILL_READ_TOOLS, PATH_SEPARATOR, MAX_ATTACHMENT_BYTES, MAX_LOG_BYTES, CONVERSATION_MAX_AGE_MS, WHITESPACE_RUN, MODEL_SUFFIXES, PROVIDER_PREFIX, CLAUDE_VERSIONED_MODEL, OPENAI_MODEL_PREFIX, CURSOR_VENDOR_PREFIX, MCP_TOOL_PREFIX, SUBAGENT_PSEUDO_TOOLS, STATE_FILE_NAME, LEGACY_STATE_FILE_NAME, TRACING_POLICY_FILE_NAME, LEGACY_TRACING_POLICY_FILE_NAME, HOOK_LOG_FILE_NAME, HOOK_CONTINUE_OUTPUT, ENGINE_WORKER_COMMAND, ENGINE_STORAGE_DIR_NAME, JOB_EVENT_PREFIX, JOB_REF_PREFIX, TOOL_JOB_REF_PREFIX, JOB_STORE_DIR_NAME, GH_LOGIN_MARKER_FILE, TOOL_PATH_INPUT_KEYS, RUN_EVENT_PREFIX, PATCH_EVENT_PREFIX, RUN_SNAPSHOT_FIELDS, RUN_PATCH_FIELDS, CAPTURE_PUBLISHED_STATUS, CAPTURE_DUPLICATE_STATUS, TURN_ON_OTHER_ACCOUNT_MESSAGE, SQLITE_EXPERIMENTAL_WARNING;
+var init_constants17 = __esm({
   "dist/src/constants.js"() {
     "use strict";
     TURN_RUN_NAME = "Cursor Turn";
@@ -23732,6 +23295,7 @@ var init_constants18 = __esm({
     ENGINE_STORAGE_DIR_NAME = "langsmith_engine";
     JOB_EVENT_PREFIX = "cursor-job:";
     JOB_REF_PREFIX = "cursor-turn:";
+    TOOL_JOB_REF_PREFIX = "cursor-tool:";
     JOB_STORE_DIR_NAME = "jobs";
     GH_LOGIN_MARKER_FILE = "langsmith_gh_login.json";
     TOOL_PATH_INPUT_KEYS = ["file_path", "path", "target_file", "targetDirectory", "cwd"];
@@ -23753,24 +23317,23 @@ var init_constants18 = __esm({
     RUN_PATCH_FIELDS = ["outputs", "end_time", "error"];
     CAPTURE_PUBLISHED_STATUS = "published";
     CAPTURE_DUPLICATE_STATUS = "duplicate";
-    CAPTURE_CONFLICT_STATUS = "conflict";
     TURN_ON_OTHER_ACCOUNT_MESSAGE = "its first runs were saved under another API key";
     SQLITE_EXPERIMENTAL_WARNING = /^SQLite is an experimental feature/;
   }
 });
 
 // dist/src/logger.js
-import { appendFileSync, mkdirSync as mkdirSync6, statSync as statSync6, renameSync as renameSync6 } from "node:fs";
-import { dirname as dirname13 } from "node:path";
+import { appendFileSync, mkdirSync as mkdirSync5, statSync as statSync4, renameSync as renameSync5 } from "node:fs";
+import { dirname as dirname10 } from "node:path";
 import { homedir } from "node:os";
 function initLogger(debug2) {
   debugEnabled = debug2;
-  mkdirSync6(dirname13(LOG_FILE), { recursive: true });
+  mkdirSync5(dirname10(LOG_FILE), { recursive: true });
 }
 function rotateIfNeeded() {
   try {
-    if (statSync6(LOG_FILE).size >= MAX_LOG_BYTES) {
-      renameSync6(LOG_FILE, `${LOG_FILE}.1`);
+    if (statSync4(LOG_FILE).size >= MAX_LOG_BYTES) {
+      renameSync5(LOG_FILE, `${LOG_FILE}.1`);
     }
   } catch {
   }
@@ -23803,7 +23366,7 @@ var LOG_FILE, debugEnabled;
 var init_logger = __esm({
   "dist/src/logger.js"() {
     "use strict";
-    init_constants18();
+    init_constants17();
     LOG_FILE = process.env.LANGSMITH_CURSOR_LOG_FILE ?? `${homedir()}/.cursor/${HOOK_LOG_FILE_NAME}`;
     debugEnabled = false;
   }
@@ -23845,7 +23408,7 @@ var init_parse3 = __esm({
 
 // dist/src/config.js
 import { homedir as homedir2, userInfo } from "node:os";
-import { join as join18 } from "node:path";
+import { join as join17 } from "node:path";
 function isRedactRule(rule) {
   if (typeof rule !== "object" || rule === null)
     return false;
@@ -23974,23 +23537,10 @@ function loadConfig(options) {
   const sweepIdleMinutes = parsePositiveNumber(getEnv2("SWEEP_IDLE_MINUTES")) ?? fromFiles("sweep_idle_minutes") ?? DEFAULT_SWEEP_IDLE_MINUTES;
   const cursorDbPath = getEnv2("DB_PATH") ?? fromFiles("cursor_db_path");
   const redactExtraRules = parseRedactExtraRules(getEnv2("REDACT_EXTRA")) ?? common.redact_extra_rules;
-  const stateFilePath = process.env.LANGSMITH_CURSOR_STATE_FILE ?? join18(homedir2(), CURSOR_DIRECTORY_NAME, STATE_FILE_NAME);
+  const stateFilePath = process.env.LANGSMITH_CURSOR_STATE_FILE ?? join17(homedir2(), CURSOR_DIRECTORY_NAME, STATE_FILE_NAME);
   const baseMetadata = { cwd };
   if (LS_INTEGRATION_VERSION)
     baseMetadata.ls_integration_version = LS_INTEGRATION_VERSION;
-  const repo = getRepoName(cwd);
-  if (repo) {
-    baseMetadata.repository_name = repo.name;
-    baseMetadata.repository_provider = repo.provider;
-    const url = getRepoUrl(repo.provider, repo.name);
-    if (url)
-      baseMetadata.repository_url = url;
-  }
-  const git = getGitInfo(cwd);
-  if (git.branch)
-    baseMetadata.git_branch = git.branch;
-  if (git.commit)
-    baseMetadata.git_commit_sha = git.commit;
   baseMetadata.local_username = userInfo().username;
   const customMetadata = { ...baseMetadata, ...common.metadata };
   if (enabled && !apiKey && (!replicas || replicas.length === 0)) {
@@ -24020,9 +23570,8 @@ var init_config = __esm({
   "dist/src/config.js"() {
     "use strict";
     init_settings();
-    init_git();
     init_logger();
-    init_constants18();
+    init_constants17();
     init_parse3();
     LS_INTEGRATION_VERSION = true ? "0.5.0" : process.env.LANGSMITH_CURSOR_INTEGRATION_VERSION || void 0;
   }
@@ -24047,17 +23596,17 @@ function readStdin(stream = process.stdin) {
 var init_stdin = __esm({
   "dist/src/utils/stdin.js"() {
     "use strict";
-    init_constants18();
+    init_constants17();
   }
 });
 
 // dist/src/utils/legacy-file.js
 import { constants as constants2, copyFileSync, existsSync as existsSync3 } from "node:fs";
-import { basename as basename4, dirname as dirname14, join as join19 } from "node:path";
+import { basename as basename4, dirname as dirname11, join as join18 } from "node:path";
 function adoptLegacyFile(path3, fileName, legacyFileName) {
   if (basename4(path3) !== fileName || existsSync3(path3))
     return;
-  const legacy = join19(dirname14(path3), legacyFileName);
+  const legacy = join18(dirname11(path3), legacyFileName);
   if (!existsSync3(legacy))
     return;
   try {
@@ -24119,7 +23668,7 @@ var init_state2 = __esm({
   "dist/src/state.js"() {
     "use strict";
     init_storage();
-    init_constants18();
+    init_constants17();
     init_logger();
     init_legacy_file();
   }
@@ -24253,7 +23802,7 @@ function parseSubagentTranscript(rows) {
 var init_normalize = __esm({
   "dist/src/normalize.js"() {
     "use strict";
-    init_constants18();
+    init_constants17();
   }
 });
 
@@ -24661,7 +24210,7 @@ var init_reducer = __esm({
   "dist/src/reducer.js"() {
     "use strict";
     init_state2();
-    init_constants18();
+    init_constants17();
     init_logger();
     init_normalize();
   }
@@ -24669,12 +24218,12 @@ var init_reducer = __esm({
 
 // dist/src/tracing-policy.js
 import { homedir as homedir3 } from "node:os";
-import { join as join20 } from "node:path";
+import { join as join19 } from "node:path";
 function isMode(value) {
   return value === "full" || value === "metadata";
 }
 function tracingPolicyPath() {
-  return process.env.LANGSMITH_CURSOR_PRIVACY_FILE ?? join20(homedir3(), ".cursor", TRACING_POLICY_FILE_NAME);
+  return process.env.LANGSMITH_CURSOR_PRIVACY_FILE ?? join19(homedir3(), ".cursor", TRACING_POLICY_FILE_NAME);
 }
 function getThreadTracingMode(path3, sessionId, defaultMuted = false) {
   try {
@@ -24708,7 +24257,7 @@ var init_tracing_policy = __esm({
   "dist/src/tracing-policy.js"() {
     "use strict";
     init_plugin();
-    init_constants18();
+    init_constants17();
     init_legacy_file();
     init_normalize();
     TRACING_POLICY_FILE = {
@@ -24881,16 +24430,16 @@ function normalizeWs(text) {
 var init_text = __esm({
   "dist/src/utils/text.js"() {
     "use strict";
-    init_constants18();
+    init_constants17();
   }
 });
 
 // dist/src/subagent-transcript.js
-import { readFileSync as readFileSync10, readdirSync as readdirSync2, statSync as statSync7 } from "node:fs";
-import { dirname as dirname15, join as join21, basename as basename5 } from "node:path";
+import { readFileSync as readFileSync8, readdirSync as readdirSync2, statSync as statSync5 } from "node:fs";
+import { dirname as dirname12, join as join20, basename as basename5 } from "node:path";
 function readJsonl(path3) {
   const rows = [];
-  for (const line of readFileSync10(path3, "utf-8").split("\n")) {
+  for (const line of readFileSync8(path3, "utf-8").split("\n")) {
     const trimmed = line.trim();
     if (!trimmed)
       continue;
@@ -24916,13 +24465,13 @@ function resolveSubagentTranscript(parentTranscriptPath, task) {
   if (!parentTranscriptPath)
     return void 0;
   try {
-    const dir = join21(dirname15(parentTranscriptPath), "subagents");
+    const dir = join20(dirname12(parentTranscriptPath), "subagents");
     const files = readdirSync2(dir).filter((f2) => f2.endsWith(".jsonl"));
     if (files.length === 0)
       return void 0;
     const candidates = files.map((f2) => {
-      const full = join21(dir, f2);
-      return { full, child: basename5(f2, ".jsonl"), mtime: statSync7(full).mtimeMs };
+      const full = join20(dir, f2);
+      return { full, child: basename5(f2, ".jsonl"), mtime: statSync5(full).mtimeMs };
     });
     const wanted = task ? normalizeWs(task).slice(0, 120) : "";
     let chosen;
@@ -24978,11 +24527,440 @@ var init_subagent_stop = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.4_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/index.js
-var init_tracing = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.4_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/index.js"() {
-    init_engine2();
-    init_capture_wake();
+// node_modules/.pnpm/@langchain+plugins-base@0.4.4_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/paths.js
+import { statSync as statSync6 } from "node:fs";
+import { dirname as dirname13 } from "node:path";
+function nearestExistingDirectory(path3) {
+  let current = path3;
+  for (; ; ) {
+    const parent = dirname13(current);
+    const reachedFilesystemRoot = parent === current;
+    if (reachedFilesystemRoot)
+      return void 0;
+    try {
+      if (statSync6(current).isDirectory())
+        return current;
+    } catch {
+    }
+    current = parent;
+  }
+}
+var init_paths3 = __esm({
+  "node_modules/.pnpm/@langchain+plugins-base@0.4.4_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/paths.js"() {
+  }
+});
+
+// node_modules/.pnpm/@langchain+plugins-base@0.4.4_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/constants.js
+var GIT_LOCATION_ENV_KEYS, NOT_A_REPOSITORY, REMOTE_PATH_EDGE_SLASHES, REMOTE_PATH_TRAILING_SLASHES, REMOTE_GIT_SUFFIX, REMOTE_LINE_WHITESPACE, SCP_REMOTE_PATTERN, GIT_DIRECTORY_NAME, GIT_FILE_POINTER, GIT_MARKERS, GIT_PROVIDERS, SELF_HOSTED_PROVIDER_HINTS, PROVIDER_HOSTS, GIT_COMMAND_TIMEOUT_MS, GH_LOGIN_COMMAND, GH_LOGIN_ARGUMENTS, GH_LOGIN_TIMEOUT_MS, GH_LOGIN_PATTERN, GH_LOGIN_NULL_OUTPUT, GH_LOGIN_RETRY_AFTER_MS;
+var init_constants18 = __esm({
+  "node_modules/.pnpm/@langchain+plugins-base@0.4.4_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/constants.js"() {
+    GIT_LOCATION_ENV_KEYS = [
+      "GIT_DIR",
+      "GIT_WORK_TREE",
+      "GIT_COMMON_DIR",
+      "GIT_INDEX_FILE",
+      "GIT_CEILING_DIRECTORIES"
+    ];
+    NOT_A_REPOSITORY = /not a git repository \(or any of the parent directories\)/i;
+    REMOTE_PATH_EDGE_SLASHES = /^\/+|\/+$/g;
+    REMOTE_PATH_TRAILING_SLASHES = /\/+$/;
+    REMOTE_GIT_SUFFIX = /\.git$/;
+    REMOTE_LINE_WHITESPACE = /\s+/;
+    SCP_REMOTE_PATTERN = /^(?:[^@]+@)?([^:]+):\/?(.+)$/;
+    GIT_DIRECTORY_NAME = ".git";
+    GIT_FILE_POINTER = /^gitdir:\s*(.+?)\s*$/m;
+    GIT_MARKERS = {
+      REPOSITORY_ROOT: "repository root",
+      ONLY_GIT_CAN_SAY: "only git can say",
+      NOTHING_HERE: "nothing here"
+    };
+    GIT_PROVIDERS = {
+      "github.com": "github",
+      "gitlab.com": "gitlab",
+      "bitbucket.org": "bitbucket",
+      "dev.azure.com": "devAzure"
+    };
+    SELF_HOSTED_PROVIDER_HINTS = ["github", "gitlab", "bitbucket"];
+    PROVIDER_HOSTS = {
+      github: "github.com",
+      gitlab: "gitlab.com",
+      bitbucket: "bitbucket.org",
+      devAzure: "dev.azure.com"
+    };
+    GIT_COMMAND_TIMEOUT_MS = 5e3;
+    GH_LOGIN_COMMAND = "gh";
+    GH_LOGIN_ARGUMENTS = ["api", "user", "--jq", ".login"];
+    GH_LOGIN_TIMEOUT_MS = 5e3;
+    GH_LOGIN_PATTERN = /^[A-Za-z0-9][A-Za-z0-9-]{0,38}$/;
+    GH_LOGIN_NULL_OUTPUT = "null";
+    GH_LOGIN_RETRY_AFTER_MS = 24 * 60 * 60 * 1e3;
+  }
+});
+
+// node_modules/.pnpm/@langchain+plugins-base@0.4.4_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/repository.js
+import { execFileSync } from "node:child_process";
+import { resolve as resolve12 } from "node:path";
+function parseRepoName(remoteUrl) {
+  const value = remoteUrl.trim();
+  try {
+    const url = new URL(value);
+    const name = url.pathname.replace(REMOTE_PATH_EDGE_SLASHES, "").replace(REMOTE_GIT_SUFFIX, "");
+    const repository = repositoryOnHost(url.hostname, name);
+    if (repository)
+      return repository;
+  } catch {
+  }
+  const scpMatch = value.match(SCP_REMOTE_PATTERN);
+  if (scpMatch) {
+    const host = scpMatch[1];
+    const path3 = scpMatch[2];
+    if (host && path3) {
+      const name = path3.replace(REMOTE_PATH_TRAILING_SLASHES, "").replace(REMOTE_GIT_SUFFIX, "");
+      return repositoryOnHost(host, name);
+    }
+  }
+  return void 0;
+}
+function repositoryOnHost(hostname, name) {
+  const host = hostname.toLowerCase();
+  if (!name)
+    return void 0;
+  const provider2 = GIT_PROVIDERS[host];
+  if (provider2)
+    return { provider: provider2, name };
+  if (!host.includes("."))
+    return void 0;
+  const hinted = SELF_HOSTED_PROVIDER_HINTS.find((hint) => host.includes(hint));
+  return { provider: hinted ?? host, name, host };
+}
+function gitOutput(args, cwd) {
+  const env = { ...process.env, LC_ALL: "C", LANG: "C" };
+  for (const key of GIT_LOCATION_ENV_KEYS)
+    delete env[key];
+  return execFileSync("git", args, {
+    cwd,
+    env,
+    encoding: "utf-8",
+    timeout: GIT_COMMAND_TIMEOUT_MS,
+    stdio: ["ignore", "pipe", "pipe"]
+  });
+}
+function getRepoName(cwd) {
+  try {
+    const output = gitOutput(["remote", "-v"], cwd);
+    const lines = output.trim().split("\n").filter(Boolean);
+    const remotes = [];
+    for (const line of lines) {
+      const parts = line.split(REMOTE_LINE_WHITESPACE);
+      const name = parts[0];
+      const url = parts[1];
+      if (name && url && line.includes("(fetch)"))
+        remotes.push({ name, url });
+    }
+    const origin = remotes.find((remote) => remote.name === "origin");
+    if (origin) {
+      const name = parseRepoName(origin.url);
+      if (name)
+        return name;
+    }
+    for (const remote of remotes) {
+      const name = parseRepoName(remote.url);
+      if (name)
+        return name;
+    }
+  } catch {
+  }
+  return void 0;
+}
+function getRepoUrl(provider2, name) {
+  const host = PROVIDER_HOSTS[provider2];
+  return host ? `https://${host}/${name}` : void 0;
+}
+function getRepoRoot(cwd) {
+  try {
+    const root = gitOutput(["rev-parse", "--show-toplevel"], cwd).trim();
+    return root ? resolve12(root) : void 0;
+  } catch (error2) {
+    const stderr = String(error2?.stderr ?? "");
+    return NOT_A_REPOSITORY.test(stderr) ? null : void 0;
+  }
+}
+function getGitUserName(cwd, options) {
+  try {
+    const name = gitOutput(["config", "user.name"], cwd).trim();
+    if (name)
+      return name;
+  } catch {
+  }
+  return options?.githubLogin?.();
+}
+function getGitInfo(cwd) {
+  const result = {};
+  try {
+    const branch = gitOutput(["rev-parse", "--abbrev-ref", "HEAD"], cwd).trim();
+    if (branch && branch !== "HEAD")
+      result.branch = branch;
+  } catch {
+  }
+  try {
+    const commit = gitOutput(["rev-parse", "HEAD"], cwd).trim();
+    if (commit)
+      result.commit = commit;
+  } catch {
+  }
+  return result;
+}
+function getRepositoryMetadata(cwd) {
+  const metadata = {};
+  const repoName = getRepoName(cwd);
+  if (repoName) {
+    metadata[GIT_METADATA_KEYS.repository] = repoName.name;
+    metadata[GIT_METADATA_KEYS.provider] = repoName.provider;
+    const url = repoName.host ? `https://${repoName.host}/${repoName.name}` : getRepoUrl(repoName.provider, repoName.name);
+    if (url)
+      metadata[GIT_METADATA_KEYS.repositoryUrl] = url;
+  }
+  const gitInfo = getGitInfo(cwd);
+  if (gitInfo.branch)
+    metadata[GIT_METADATA_KEYS.branch] = gitInfo.branch;
+  if (gitInfo.commit)
+    metadata[GIT_METADATA_KEYS.commit] = gitInfo.commit;
+  return withBothGitMetadataNames(metadata);
+}
+function githubLoginLookup() {
+  return execFileSync(GH_LOGIN_COMMAND, GH_LOGIN_ARGUMENTS, {
+    encoding: "utf-8",
+    timeout: GH_LOGIN_TIMEOUT_MS,
+    stdio: ["ignore", "pipe", "ignore"]
+  }).trim();
+}
+function isGitHubLogin(printed) {
+  return printed !== GH_LOGIN_NULL_OUTPUT && GH_LOGIN_PATTERN.test(printed);
+}
+var init_repository = __esm({
+  "node_modules/.pnpm/@langchain+plugins-base@0.4.4_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/repository.js"() {
+    init_constants18();
+    init_constants7();
+    init_git_names();
+  }
+});
+
+// node_modules/.pnpm/@langchain+plugins-base@0.4.4_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/github-login.js
+import { mkdirSync as mkdirSync6, readFileSync as readFileSync9, renameSync as renameSync6, writeFileSync as writeFileSync4 } from "node:fs";
+import { dirname as dirname14 } from "node:path";
+function createGitHubLoginFallback(options) {
+  const now = options.now ?? Date.now;
+  const retryAfterMs = options.retryAfterMs ?? GH_LOGIN_RETRY_AFTER_MS;
+  let alreadyTried = false;
+  let login;
+  function failedRecently() {
+    try {
+      const marker = JSON.parse(readFileSync9(options.markerPath, "utf-8"));
+      const failed = new Date(marker.failed).getTime();
+      const since = now() - failed;
+      return since >= 0 && since < retryAfterMs;
+    } catch {
+      return false;
+    }
+  }
+  function recordFailure2() {
+    try {
+      mkdirSync6(dirname14(options.markerPath), { recursive: true });
+      const partial = `${options.markerPath}.${process.pid}`;
+      const marker = { failed: new Date(now()).toISOString() };
+      writeFileSync4(partial, JSON.stringify(marker));
+      renameSync6(partial, options.markerPath);
+    } catch {
+    }
+  }
+  return () => {
+    if (alreadyTried)
+      return login;
+    alreadyTried = true;
+    if (failedRecently())
+      return void 0;
+    try {
+      const printed = githubLoginLookup();
+      if (isGitHubLogin(printed))
+        login = printed;
+    } catch {
+    }
+    if (login === void 0)
+      recordFailure2();
+    return login;
+  };
+}
+var init_github_login = __esm({
+  "node_modules/.pnpm/@langchain+plugins-base@0.4.4_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/github-login.js"() {
+    init_constants18();
+    init_repository();
+  }
+});
+
+// node_modules/.pnpm/@langchain+plugins-base@0.4.4_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/paths.js
+import { readFileSync as readFileSync10, statSync as statSync7 } from "node:fs";
+import { dirname as dirname15, join as join21, resolve as resolve13 } from "node:path";
+function gitMarkerAt(directory) {
+  const marker = join21(directory, GIT_DIRECTORY_NAME);
+  try {
+    if (statSync7(marker).isDirectory())
+      return GIT_MARKERS.REPOSITORY_ROOT;
+  } catch {
+    return GIT_MARKERS.NOTHING_HERE;
+  }
+  return pointsAtGitDirectory(directory, marker) ? GIT_MARKERS.REPOSITORY_ROOT : GIT_MARKERS.ONLY_GIT_CAN_SAY;
+}
+function pointsAtGitDirectory(directory, marker) {
+  try {
+    const pointer = readFileSync10(marker, "utf-8").match(GIT_FILE_POINTER)?.[1];
+    return pointer !== void 0 && statSync7(resolve13(directory, pointer)).isDirectory();
+  } catch {
+    return false;
+  }
+}
+function rootFromGitMarker(directory) {
+  let current = resolve13(directory);
+  for (; ; ) {
+    const marker = gitMarkerAt(current);
+    if (marker === GIT_MARKERS.REPOSITORY_ROOT)
+      return current;
+    if (marker === GIT_MARKERS.ONLY_GIT_CAN_SAY)
+      return void 0;
+    const parent = dirname15(current);
+    const reachedFilesystemRoot = parent === current;
+    if (reachedFilesystemRoot)
+      return null;
+    current = parent;
+  }
+}
+var init_paths4 = __esm({
+  "node_modules/.pnpm/@langchain+plugins-base@0.4.4_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/paths.js"() {
+    init_constants18();
+  }
+});
+
+// node_modules/.pnpm/@langchain+plugins-base@0.4.4_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/attribution.js
+import { isAbsolute as isAbsolute3 } from "node:path";
+function createRepositoryAttributor(options) {
+  const rootByDirectory = /* @__PURE__ */ new Map();
+  const attributionByRoot = /* @__PURE__ */ new Map();
+  const identifierByRoot = /* @__PURE__ */ new Map();
+  const githubLogin = createGitHubLoginFallback({ markerPath: options.githubLoginMarkerPath });
+  function rootForPath(path3) {
+    const directory = nearestExistingDirectory(path3);
+    if (!directory)
+      return void 0;
+    if (rootByDirectory.has(directory))
+      return rootByDirectory.get(directory);
+    const walked = rootFromGitMarker(directory);
+    const onlyGitCanSay = walked === void 0;
+    const root = onlyGitCanSay ? getRepoRoot(directory) : walked;
+    rootByDirectory.set(directory, root);
+    return root;
+  }
+  function isSessionsOwnRepository(sessionCwd, root) {
+    return sessionCwd ? rootForPath(sessionCwd) === root : false;
+  }
+  function identifierForRoot(root) {
+    const cached = identifierByRoot.get(root);
+    if (cached)
+      return cached;
+    const userName = getGitUserName(root, { githubLogin });
+    const identifier = userName ? { ls_attribution_identifier: userName } : {};
+    identifierByRoot.set(root, identifier);
+    return identifier;
+  }
+  function attributionForRoot(root) {
+    const cached = attributionByRoot.get(root);
+    if (cached)
+      return cached;
+    const attribution = {
+      ...identifierForRoot(root),
+      ...getRepositoryMetadata(root)
+    };
+    attributionByRoot.set(root, attribution);
+    return attribution;
+  }
+  function scopedToPath(base, origin, pinned) {
+    const namedSomewhereNothingSits = origin.namedAPath && !origin.path;
+    if (namedSomewhereNothingSits)
+      return base;
+    const path3 = origin.path ?? origin.cwd;
+    if (!path3 || !isAbsolute3(path3))
+      return base;
+    const root = rootForPath(path3);
+    const gitCouldNotAnswer = root === void 0;
+    if (gitCouldNotAnswer)
+      return base;
+    const pathIsInNoRepository = root === null;
+    if (pathIsInNoRepository)
+      return withoutRepositoryKeys(base, pinned);
+    if (isSessionsOwnRepository(origin.cwd, root)) {
+      return { ...base, ...withoutPinnedKeys(identifierForRoot(root), pinned) };
+    }
+    return {
+      ...withoutRepositoryKeys(base, pinned),
+      ...withoutPinnedKeys(attributionForRoot(root), pinned)
+    };
+  }
+  function withSessionRepository(base, sessionCwd) {
+    const sessionRoot = sessionCwd ? rootForPath(sessionCwd) : void 0;
+    if (typeof sessionRoot !== "string")
+      return base;
+    return { ...attributionForRoot(sessionRoot), ...base };
+  }
+  function toolMetadata(base, origin) {
+    const pinned = new Set(REPOSITORY_METADATA_KEYS.filter((key) => base?.[key] !== void 0));
+    return scopedToPath(withSessionRepository(base, origin.cwd), origin, pinned);
+  }
+  function turnMetadata(base, cwd, toolOrigins) {
+    const sessionCwd = cwd ? { cwd } : {};
+    const sessionRoot = cwd ? rootForPath(cwd) : void 0;
+    if (typeof sessionRoot === "string") {
+      return toolMetadata(base, { ...sessionCwd, namedAPath: false });
+    }
+    for (const { path: path3, namedAPath } of toolOrigins) {
+      if (!path3)
+        continue;
+      const landedInRepository = typeof rootForPath(path3) === "string";
+      if (landedInRepository)
+        return toolMetadata(base, { path: path3, namedAPath, ...sessionCwd });
+    }
+    return base;
+  }
+  return { toolMetadata, turnMetadata };
+}
+function withoutPinnedKeys(attribution, pinned) {
+  if (pinned.size === 0)
+    return { ...attribution };
+  return Object.fromEntries(Object.entries(attribution).filter(([key]) => !pinned.has(key)));
+}
+function withoutRepositoryKeys(base, pinned) {
+  const stripped = { ...base };
+  for (const key of REPOSITORY_METADATA_KEYS) {
+    if (!pinned.has(key))
+      delete stripped[key];
+  }
+  return stripped;
+}
+var init_attribution = __esm({
+  "node_modules/.pnpm/@langchain+plugins-base@0.4.4_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/attribution.js"() {
+    init_constants7();
+    init_paths3();
+    init_github_login();
+    init_paths4();
+    init_repository();
+  }
+});
+
+// node_modules/.pnpm/@langchain+plugins-base@0.4.4_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/index.js
+var init_git = __esm({
+  "node_modules/.pnpm/@langchain+plugins-base@0.4.4_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/index.js"() {
+    init_attribution();
+    init_github_login();
+    init_paths4();
+    init_repository();
+    init_paths3();
   }
 });
 
@@ -25018,6 +24996,17 @@ function turnCaptures(runs) {
       turnEvidence: run10.id !== rootRunId ? { childRunIds: [run10.id], closureState: "open" } : run10.end_time != null ? { rootRunId, childRunIds, closureState: "authoritative" } : { rootRunId, childRunIds: [], closureState: "open" }
     };
   });
+}
+function withRootDependency(input, root, sessionId) {
+  if (input === root || input.submission.run.parent_run_id !== root.submission.run.id)
+    return input;
+  const scope = {
+    integration: LS_INTEGRATION,
+    sessionId,
+    turnId: root.turnId,
+    eventId: root.eventId
+  };
+  return { ...input, dependencies: [scope] };
 }
 function rootPatch(post, sessionId) {
   const { submission } = post;
@@ -25076,7 +25065,7 @@ var init_captures = __esm({
   "dist/src/captures.js"() {
     "use strict";
     init_metadata();
-    init_constants18();
+    init_constants17();
     init_json();
   }
 });
@@ -25084,8 +25073,9 @@ var init_captures = __esm({
 // dist/src/job-context.js
 import { createHash as createHash7 } from "node:crypto";
 function jobDigest(sessionId, context) {
-  const { kind, buffer } = context;
-  return createHash7("sha256").update(JSON.stringify([sessionId, kind, buffer.generation_id])).digest("hex");
+  const { kind, buffer, toolIndex } = context;
+  const toolUseId = toolIndex === void 0 ? null : buffer.tools[toolIndex]?.tool_use_id;
+  return createHash7("sha256").update(JSON.stringify([sessionId, kind, buffer.generation_id, toolIndex ?? null, toolUseId])).digest("hex");
 }
 function jobRef(ref) {
   const value = [ref.conversationId, ref.generationId, ref.savedAtMs];
@@ -25132,10 +25122,46 @@ function reduceUploaded(state, refs) {
 function finishedJobRefs(built, pendingEventIds) {
   return [...built].filter(([eventId]) => !pendingEventIds.has(eventId)).flatMap(([, ref]) => parseJobRef(ref) ?? []);
 }
+function toolJobRef(ref) {
+  const { conversationId, generationId, toolIndex, toolUseId, model, withRoot } = ref;
+  const value = [conversationId, generationId, toolIndex, toolUseId, model ?? null, withRoot];
+  return `${TOOL_JOB_REF_PREFIX}${Buffer.from(JSON.stringify(value)).toString("base64url")}`;
+}
+function parseToolJobRef(ref) {
+  if (!ref?.startsWith(TOOL_JOB_REF_PREFIX))
+    return void 0;
+  try {
+    const [conversationId, generationId, toolIndex, toolUseId, model, withRoot] = JSON.parse(Buffer.from(ref.slice(TOOL_JOB_REF_PREFIX.length), "base64url").toString("utf8"));
+    return {
+      conversationId,
+      generationId,
+      toolIndex,
+      toolUseId,
+      model: model ?? void 0,
+      withRoot
+    };
+  } catch {
+    return void 0;
+  }
+}
+function toolJobContext(state, ref, fallbackOrigin) {
+  const conv = ownEntry(state, ref.conversationId);
+  const buffer = getTurnBuffer(state, ref.conversationId, ref.generationId) ?? ownEntry(conv?.pending, ref.generationId)?.buffer ?? ownEntry(conv?.queued, ref.generationId)?.buffer;
+  if (buffer?.tools[ref.toolIndex]?.tool_use_id !== ref.toolUseId)
+    return void 0;
+  return {
+    kind: "tool",
+    conversationId: ref.conversationId,
+    turnNum: buffer.turnNum ?? 0,
+    buffer: { ...buffer, model: ref.model },
+    origin: buffer.origin ?? fallbackOrigin,
+    toolIndex: ref.toolIndex
+  };
+}
 var init_job_context = __esm({
   "dist/src/job-context.js"() {
     "use strict";
-    init_constants18();
+    init_constants17();
     init_state2();
   }
 });
@@ -25166,7 +25192,7 @@ var init_metadata2 = __esm({
     "use strict";
     init_metadata();
     init_config();
-    init_constants18();
+    init_constants17();
   }
 });
 
@@ -25190,7 +25216,7 @@ var requireBuiltin;
 var init_sqlite = __esm({
   "dist/src/utils/sqlite.js"() {
     "use strict";
-    init_constants18();
+    init_constants17();
     requireBuiltin = createRequire(import.meta.url);
   }
 });
@@ -25349,7 +25375,7 @@ var init_attachments = __esm({
   "dist/src/attachments.js"() {
     "use strict";
     init_normalize();
-    init_constants18();
+    init_constants17();
     init_sqlite();
     init_text();
     init_logger();
@@ -25810,6 +25836,14 @@ function stableRunId(ctx, key) {
 }
 function turnRunId(conversationId, generationId) {
   return stableRunId({ agentType: "root", threadId: conversationId, turnId: generationId }, "turn");
+}
+function toolRunId(conversationId, buffer, toolIndex) {
+  const ctx = {
+    agentType: "root",
+    threadId: conversationId,
+    turnId: buffer.generation_id
+  };
+  return stableRunId(ctx, toolKey(toolIndex, buffer.tools[toolIndex]));
 }
 function withSystem(messages, systemPrompt) {
   return systemPrompt ? [{ role: "system", content: systemPrompt }, ...messages] : messages;
@@ -26273,7 +26307,7 @@ var init_langsmith2 = __esm({
     init_privacy2();
     init_langsmith();
     init_normalize();
-    init_constants18();
+    init_constants17();
     init_metadata2();
     init_conversation_steps();
     init_logger();
@@ -26303,7 +26337,7 @@ function toolOrigin(toolInput, cwd) {
 var init_tool_origin = __esm({
   "dist/src/tool-origin.js"() {
     "use strict";
-    init_constants18();
+    init_constants17();
     init_normalize();
   }
 });
@@ -26338,6 +26372,10 @@ function enrichTurn(config, options) {
     dbPath: config.cursorDbPath
   });
   return { ...options, attachments, systemPrompt, steps };
+}
+function toolAttachments(config, options) {
+  const { buffer, conversationId } = options;
+  return config.attachmentsEnabled && buffer.tracingMode === "full" ? resolveTurnAttachments({ conversationId, prompt: buffer.prompt, dbPath: config.cursorDbPath }) : [];
 }
 var init_turn_enrichment = __esm({
   "dist/src/turn-enrichment.js"() {
@@ -26392,23 +26430,11 @@ async function saveTurnForUpload(config, context) {
     return false;
   }
 }
-async function saveToolForUpload(config, options, toolIndex, attachments) {
-  const captures = turnCaptures(buildToolRuns(options, toolIndex));
-  if (captures.length === 0)
-    return;
-  const plugin = openSession(config, options.conversationId, options.project);
+async function saveToolForUpload(config, context) {
   try {
-    const { turnId } = captures[0];
-    if (await plugin.store.readSettledTurn(LS_INTEGRATION, plugin.sessionId, turnId))
-      return;
-    const root = await readSaved(plugin, captures[0]);
-    if (root && root.destinationFingerprint !== plugin.fingerprint)
-      return;
-    const withRoot = root ? captures : turnCaptures(buildToolRuns({ ...options, attachments: attachments() }, toolIndex));
-    for (const input of withRoot)
-      await captureInto(plugin, input);
+    await queueUpload(config, context);
   } catch (err) {
-    warn(`Leaving tool ${toolIndex} for stop to save: ${err}`);
+    warn(`Leaving tool ${context.toolIndex} for stop to save: ${err}`);
   }
 }
 function wakeUploader(config, conversationId) {
@@ -26426,21 +26452,47 @@ async function queueUpload(config, context) {
     turnId,
     eventId: `${RUN_EVENT_PREFIX}${runId}`
   });
+  if (context.kind === "tool") {
+    if (await plugin.store.readSettledTurn(LS_INTEGRATION, sessionId, turnId))
+      return;
+    const { buffer: buffer2, toolIndex: toolIndex2 = 0 } = context;
+    if (await saved(toolRunId(context.conversationId, buffer2, toolIndex2)))
+      return;
+  }
   const root = await saved(turnId);
   if (root && root.destinationFingerprint !== plugin.fingerprint) {
     throw new Error(TURN_ON_OTHER_ACCOUNT_MESSAGE);
   }
   const digest = jobDigest(plugin.sessionId, context);
-  const savedAtMs = Date.now();
-  await atomicUpdateState(config.stateFilePath, (s) => reduceQueued(s, context, savedAtMs));
-  const generationId = context.buffer.generation_id;
-  const ref = jobRef({ conversationId: context.conversationId, generationId, savedAtMs });
+  const { conversationId, buffer, toolIndex = 0 } = context;
+  const generationId = buffer.generation_id;
+  let ref;
+  if (context.kind === "tool") {
+    const toolUseId = buffer.tools[toolIndex].tool_use_id;
+    const { model } = buffer;
+    ref = toolJobRef({
+      conversationId,
+      generationId,
+      toolIndex,
+      toolUseId,
+      model,
+      withRoot: !root
+    });
+  } else {
+    const savedAtMs = Date.now();
+    await atomicUpdateState(config.stateFilePath, (s) => reduceQueued(s, context, savedAtMs));
+    ref = jobRef({ conversationId, generationId, savedAtMs });
+  }
   const input = {
     turnId,
     eventId: `${JOB_EVENT_PREFIX}${digest}`,
     sourceRefs: [ref],
     privacyMode: context.buffer.tracingMode === "full" ? "full" : "metadata",
-    turnEvidence: { childRunIds: [], closureState: "authoritative" }
+    turnEvidence: {
+      childRunIds: [],
+      closureState: context.kind === "tool" ? "open" : "authoritative"
+    },
+    ...context.kind === "tool" ? { sourceAgeStartedAtMs: buffer.startMs } : {}
   };
   try {
     const { status } = await plugin.session.queueReconstruction(input);
@@ -26454,9 +26506,12 @@ async function queueUpload(config, context) {
   }
 }
 async function buildQueuedRuns(job, config, plugin) {
-  const ref = parseJobRef(job.sourceRefs[0]);
-  const context = ref && queuedContext(readState(config.stateFilePath), ref);
-  if (!ref || !context)
+  const [source] = job.sourceRefs;
+  const ref = parseJobRef(source);
+  const toolRef = parseToolJobRef(source);
+  const state = readState(config.stateFilePath);
+  const context = toolRef ? toolJobContext(state, toolRef, originFromConfig(config, {})) : ref && queuedContext(state, ref);
+  if (!context)
     return { status: "ready", outputs: [] };
   const { buffer, conversationId, turnNum, origin } = context;
   const cwd = typeof origin.customMetadata?.cwd === "string" ? origin.customMetadata.cwd : config.cwd;
@@ -26471,8 +26526,8 @@ async function buildQueuedRuns(job, config, plugin) {
     savedAtMs: context.savedAtMs
   };
   const chosen = context.outputEventIds && new Set(context.outputEventIds);
-  const inputs = await turnInputs(plugin, context.kind === "stop" ? enrichTurn(config, options) : options, chosen);
-  if (!chosen) {
+  const inputs = toolRef ? toolInputs(config, plugin, options, toolRef) : await turnInputs(plugin, context.kind === "stop" ? enrichTurn(config, options) : options, chosen);
+  if (ref && !chosen) {
     const outputEventIds = inputs.map(({ eventId }) => eventId);
     await atomicUpdateState(config.stateFilePath, (s) => reduceChosenOutputs(s, ref, outputEventIds));
   }
@@ -26520,6 +26575,15 @@ async function turnInputs(plugin, options, chosen) {
     inputs.push(rootPatch(root, plugin.sessionId));
   return inputs;
 }
+function toolInputs(config, plugin, options, { toolIndex, withRoot }) {
+  const enriched = withRoot ? { ...options, attachments: toolAttachments(config, options) } : options;
+  const captures = turnCaptures(buildToolRuns(enriched, toolIndex));
+  const [root] = captures;
+  if (!root)
+    return [];
+  const outputs = withRoot ? captures : captures.slice(1);
+  return outputs.map((input) => withRootDependency(input, root, plugin.sessionId));
+}
 function readSaved(plugin, input) {
   return plugin.store.read({
     integration: LS_INTEGRATION,
@@ -26550,30 +26614,6 @@ async function recoverConversations(config, conversationId, minimumForeignAgeMs)
   }));
   for (const { sessionId, message } of report2.failed) {
     warn(`Could not restart the uploader for ${sessionId}: ${message}`);
-  }
-}
-async function captureInto(plugin, input) {
-  try {
-    const result = await plugin.session.capture(input);
-    if (result.status === CAPTURE_CONFLICT_STATUS)
-      debug(`Run ${input.eventId} was already saved`);
-    else if (result.status !== CAPTURE_PUBLISHED_STATUS && result.status !== CAPTURE_DUPLICATE_STATUS) {
-      throw new Error(`Could not save ${input.eventId} for upload: ${result.status}`);
-    }
-    return result.status;
-  } catch (err) {
-    const saved = await readSavedCaptureWake(err, {
-      store: plugin.store,
-      integration: LS_INTEGRATION,
-      sessionId: plugin.sessionId,
-      turnId: input.turnId,
-      eventId: input.eventId,
-      destinationFingerprint: plugin.fingerprint
-    });
-    if (!saved)
-      throw err;
-    warn(`Saved ${input.eventId} for upload, but its uploader did not start: ${err}`);
-    return CAPTURE_PUBLISHED_STATUS;
   }
 }
 function reportRecovery(result) {
@@ -26613,16 +26653,16 @@ var init_tracing_engine = __esm({
     init_plugin();
     init_git();
     init_capture();
-    init_tracing();
     init_config();
     init_captures();
-    init_constants18();
+    init_constants17();
     init_job_context();
     init_state2();
     init_langsmith2();
     init_logger();
     init_normalize();
     init_tool_origin();
+    init_turn_origin();
     init_turn_enrichment();
     init_console();
     init_writer_options();
@@ -26699,18 +26739,13 @@ function toolHook({ describe: describe2, reduce }) {
       return;
     const { buffer, turnNum, toolIndex } = live;
     await saveToolForUpload(config, {
-      buffer,
+      kind: "tool",
       conversationId: input.conversation_id,
       turnNum,
-      project: config.project,
-      userEmail: input.user_email,
-      customMetadata: config.customMetadata,
-      runtimeVersion: input.cursor_version
-    }, toolIndex, () => config.attachmentsEnabled && buffer.tracingMode === "full" ? resolveTurnAttachments({
-      conversationId: input.conversation_id,
-      prompt: buffer.prompt,
-      dbPath: config.cursorDbPath
-    }) : []);
+      buffer,
+      origin: originFromConfig(config, input),
+      toolIndex
+    });
   };
 }
 function addedLiveTool(state, input) {
@@ -26727,10 +26762,10 @@ function addedLiveTool(state, input) {
 var init_tool_hook = __esm({
   "dist/src/hooks/tool-hook.js"() {
     "use strict";
-    init_attachments();
     init_logger();
     init_state2();
     init_tracing_engine();
+    init_turn_origin();
     init_hook_init();
     init_stdin();
   }
@@ -26949,7 +26984,7 @@ var binary = defineBinaryTarget({
 
 // dist/src/hooks/registry.js
 init_config();
-init_constants18();
+init_constants17();
 init_logger();
 var EXECUTABLE_NAME = binary.target.executableName;
 var USAGE = `Usage:

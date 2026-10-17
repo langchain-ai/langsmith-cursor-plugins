@@ -40,6 +40,21 @@ export function turnCaptures(runs: readonly CapturedRun[]): LifecycleCaptureInpu
   });
 }
 
+export function withRootDependency(
+  input: LifecycleCaptureInput,
+  root: LifecycleCaptureInput,
+  sessionId: string,
+): LifecycleCaptureInput {
+  if (input === root || input.submission.run.parent_run_id !== root.submission.run.id) return input;
+  const scope = {
+    integration: LS_INTEGRATION,
+    sessionId,
+    turnId: root.turnId,
+    eventId: root.eventId,
+  };
+  return { ...input, dependencies: [scope] };
+}
+
 export function rootPatch(post: LifecycleCaptureInput, sessionId: string): LifecycleCaptureInput {
   const { submission } = post;
   if (submission.operation !== "post") return post;

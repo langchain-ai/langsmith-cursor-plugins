@@ -6,7 +6,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { turnRunId } from "../src/langsmith.js";
 import type { UploadJobContext } from "../src/models/job-context.js";
 import { saveToolForUpload, saveTurnForUpload } from "../src/tracing-engine.js";
-import { loadState, T0, testConfig, tool, turn } from "./utils/state.js";
+import { conversation, loadState, saveState, T0, testConfig, tool, turn } from "./utils/state.js";
 
 const engine = vi.hoisted(() => ({
   queueResults: [] as Array<{ status: string }>,
@@ -17,6 +17,8 @@ const engine = vi.hoisted(() => ({
   captured: [] as unknown[],
   saved: new Map<string, { destinationFingerprint: string; turnEvidence: unknown }>(),
   queuedTurnsAtQueue: [] as string[][],
+  attachments: [] as unknown[],
+  attachmentLoads: 0,
 }));
 
 vi.mock("@langchain/plugins-base/plugin", async (importOriginal) => ({
@@ -55,6 +57,12 @@ vi.mock("../src/logger.js", async (importOriginal) => ({
   ...(await importOriginal<typeof import("../src/logger.js")>()),
   warn: (message: string) => engine.warnings.push(message),
 }));
+vi.mock("../src/attachments.js", () => ({
+  resolveTurnAttachments: () => {
+    engine.attachmentLoads += 1;
+    return engine.attachments;
+  },
+}));
 
 interface Output {
   eventId: string;
@@ -80,7 +88,7 @@ const toolTurn: UploadJobContext = {
   origin: { project: "cursor" },
 };
 
-const toolOptions = { ...toolTurn, project: "cursor" };
+const toolSave: UploadJobContext = { ...toolTurn, kind: "tool", toolIndex: 0 };
 
 async function build(): Promise<Output[]> {
   const input = engine.queued.at(-1)!;
@@ -89,13 +97,17 @@ async function build(): Promise<Output[]> {
   return result.outputs;
 }
 
+async function saveTool(context: UploadJobContext): Promise<void> {
+  saveState(config.stateFilePath, { c1: conversation([context.buffer]) });
+  await saveToolForUpload(config, context);
+}
+
 async function saveToolEarly(fingerprint: string): Promise<string[]> {
-  await saveToolForUpload(config, toolOptions, 0, () => []);
-  const early = (engine.captured as Array<{ eventId: string }>).map(({ eventId }) => eventId);
+  await saveTool(toolSave);
+  const early = (await build()).map(({ eventId }) => eventId);
   for (const eventId of early) {
     engine.saved.set(eventId, { destinationFingerprint: fingerprint, turnEvidence: {} });
   }
-  engine.captured.length = 0;
   return early;
 }
 
@@ -107,6 +119,8 @@ beforeEach(() => {
   engine.saved.clear();
   engine.queueResults.length = 0;
   engine.warnings.length = 0;
+  engine.attachments = [];
+  engine.attachmentLoads = 0;
 });
 
 describe("saving a turn for upload", () => {
@@ -183,6 +197,13 @@ describe("retrying a turn the uploader already started", () => {
       vi.useRealTimers();
     }
   });
+
+  it("rebuilds the same tool runs after the attempt that died saved the root", async () => {
+    await saveTool(toolSave);
+    const first = (await build()).map(({ eventId }) => eventId);
+    engine.saved.set(first[0], { destinationFingerprint: "fingerprint", turnEvidence: {} });
+    expect((await build()).map(({ eventId }) => eventId)).toEqual(first);
+  });
 });
 
 describe("saving a turn whose tool was saved before stop", () => {
@@ -222,17 +243,62 @@ describe("saving a turn whose tool was saved before stop", () => {
   });
 
   it("puts the prompt's attachments on a root saved before stop", async () => {
-    const image = { type: "image", mime_type: "image/png", base64: "QVRUQUNI" } as const;
-    await saveToolForUpload(config, toolOptions, 0, () => [image]);
-    expect(JSON.stringify(engine.captured[0])).toContain("QVRUQUNI");
+    engine.attachments = [{ type: "image", mime_type: "image/png", base64: "QVRUQUNI" }];
+    config = { ...config, attachmentsEnabled: true };
+    await saveTool(toolSave);
+    expect(JSON.stringify((await build())[0].submission)).toContain("QVRUQUNI");
+  });
+
+  it.each([
+    ["full", 1],
+    ["metadata", 0],
+  ] as const)("loads attachments for an early %s root only in full mode", async (mode, loads) => {
+    config = { ...config, attachmentsEnabled: true };
+    await saveTool({
+      ...toolSave,
+      buffer: { ...toolTurn.buffer, tracingMode: mode },
+    });
+    await build();
+    expect(engine.attachmentLoads).toBe(loads);
+  });
+
+  it("finishes a tool to-do with nothing once its turn has left the state file", async () => {
+    await saveTool(toolSave);
+    saveState(config.stateFilePath, {});
+    expect(await build()).toEqual([]);
+  });
+
+  it("builds the turn's root with the model the tool hook saw", async () => {
+    await saveTool({ ...toolSave, buffer: { ...toolTurn.buffer, model: "seen-model" } });
+    saveState(config.stateFilePath, {
+      c1: conversation([{ ...toolTurn.buffer, model: "later-model" }]),
+    });
+    const [root] = await build();
+    expect(JSON.stringify(root.submission.metadata)).toContain("seen-model");
+  });
+
+  it("names the turn's saved root as the parent of an early tool run", async () => {
+    const [rootPost] = await saveToolEarly("fingerprint");
+    const tools = [...toolTurn.buffer.tools, tool("t2", "Read", T0 + 2000)];
+    await saveTool({
+      ...toolSave,
+      buffer: { ...toolTurn.buffer, tools },
+      toolIndex: 1,
+    });
+    const [later] = await build();
+    expect(later.dependencies?.map(({ eventId }) => eventId)).toEqual([rootPost]);
   });
 
   it("leaves a later tool for stop while the turn's root belongs to another account", async () => {
     await saveToolEarly("other-account");
     const tools = [...toolTurn.buffer.tools, tool("t2", "Read", T0 + 2000)];
-    const later = { ...toolOptions, buffer: { ...toolTurn.buffer, tools } };
-    await saveToolForUpload(config, later, 1, () => []);
-    expect(engine.captured).toEqual([]);
+    const queued = engine.queued.length;
+    await saveTool({
+      ...toolSave,
+      buffer: { ...toolTurn.buffer, tools },
+      toolIndex: 1,
+    });
+    expect(engine.queued).toHaveLength(queued);
   });
 });
 
