@@ -19,14 +19,12 @@ const harness = vi.hoisted(() => ({
   input: {} as Record<string, unknown>,
   config: undefined as Config | undefined,
   uploadError: undefined as Error | undefined,
-  uploadAccepted: true,
   recoverConversations: vi.fn(async () => {}),
   saveToolForUpload: vi.fn(async (..._args: unknown[]) => {}),
+  saveTurnForUpload: vi.fn(async () => !harness.uploadError),
+  wakeUploader: vi.fn(async () => 0),
+  runEngineWorker: vi.fn(async () => {}),
   resolveTurnAttachments: vi.fn(() => []),
-  saveTurnForUpload: vi.fn(async () => {
-    if (harness.uploadError) throw harness.uploadError;
-    return harness.uploadAccepted;
-  }),
 }));
 
 vi.mock("../src/utils/stdin.js", () => ({ readStdin: async () => harness.input }));
@@ -39,18 +37,21 @@ vi.mock("../src/tracing-engine.js", () => ({
   recoverConversations: harness.recoverConversations,
   saveTurnForUpload: harness.saveTurnForUpload,
   saveToolForUpload: harness.saveToolForUpload,
+  wakeUploader: harness.wakeUploader,
+  runEngineWorker: harness.runEngineWorker,
 }));
 
 const HOOKS = {
   stop: () => import("../src/hooks/stop.js"),
   "session-start": () => import("../src/hooks/session-start.js"),
   "post-tool-use": () => import("../src/hooks/post-tool-use.js"),
+  "engine-worker": () => import("../src/hooks/engine-worker.js"),
 };
 
-async function runHook(name: keyof typeof HOOKS): Promise<void> {
+async function runHook(name: keyof typeof HOOKS, args: string[] = []): Promise<void> {
   vi.resetModules();
   const hook = await HOOKS[name]();
-  await hook.run();
+  await hook.run(args);
 }
 
 describe("hook wiring against the on-disk state file", () => {
@@ -65,11 +66,11 @@ describe("hook wiring against the on-disk state file", () => {
     process.env.LANGSMITH_CURSOR_PRIVACY_FILE = join(dir, "absent-privacy.json");
     process.env.LANGSMITH_CURSOR_LOG_FILE = join(dir, "hook.log");
     harness.uploadError = undefined;
-    harness.uploadAccepted = true;
+    harness.wakeUploader.mockClear();
+    harness.resolveTurnAttachments.mockClear();
     harness.saveTurnForUpload.mockClear();
     harness.recoverConversations.mockClear();
     harness.saveToolForUpload.mockClear();
-    harness.resolveTurnAttachments.mockClear();
     harness.config = testConfig(stateFilePath);
     harness.input = {
       hook_event_name: "stop",
@@ -105,12 +106,7 @@ describe("hook wiring against the on-disk state file", () => {
   function sweepAsCaller(nowMs: number) {
     return runSweep({
       config: harness.config!,
-      input: {
-        hook_event_name: "postToolUse",
-        conversation_id: "caller",
-        generation_id: "gc",
-        model: "default",
-      },
+      conversationId: "caller",
       nowMs,
     });
   }
@@ -126,7 +122,7 @@ describe("hook wiring against the on-disk state file", () => {
     expect(after.live.pending).toBeUndefined();
   });
 
-  it("holds the turn pending when stop cannot upload it", async () => {
+  it("holds the turn pending, and wakes the uploader, when stop cannot save it", async () => {
     seedLiveTurn();
     harness.uploadError = new Error("upload rejected");
 
@@ -135,20 +131,10 @@ describe("hook wiring against the on-disk state file", () => {
     const after = loadState(stateFilePath);
     expect(after.live.pending!.g1.attempts).toBe(1);
     expect(after.live.pending!.g1.buffer.prompt).toBe("trace me");
+    expect(harness.wakeUploader).toHaveBeenCalledWith(harness.config, "live");
   });
 
-  it("holds the turn pending when the server refuses the upload", async () => {
-    seedLiveTurn();
-    harness.uploadAccepted = false;
-
-    await runHook("stop");
-
-    const after = loadState(stateFilePath);
-    expect(after.live.pending!.g1.attempts).toBe(1);
-    expect(after.live.pending!.g1.buffer.prompt).toBe("trace me");
-  });
-
-  it("recovers another thread's stranded turn from the stop hook", async () => {
+  it("leaves another thread's stranded turn for the uploader to sweep", async () => {
     saveState(stateFilePath, {
       live: conversation([turn("g1", T0 + 3 * HOUR, { tracingMode: "full" })]),
       stranded: conversation([turn("gs", T0, { tracingMode: "full" })]),
@@ -156,13 +142,11 @@ describe("hook wiring against the on-disk state file", () => {
 
     await runHook("stop");
 
-    expect(harness.saveTurnForUpload).toHaveBeenCalledTimes(2);
-    const after = loadState(stateFilePath);
-    expect(after.stranded).toMatchObject({ turns: {}, turn_count: 1 });
-    expect(after.stranded.pending).toBeUndefined();
+    expect(harness.saveTurnForUpload).toHaveBeenCalledTimes(1);
+    expect(Object.keys(loadState(stateFilePath).stranded.turns)).toEqual(["gs"]);
   });
 
-  it("sweeps from the session-start hook", async () => {
+  it("sweeps from the uploader that the session-start hook wakes", async () => {
     seedStrandedTurn();
     harness.input = {
       hook_event_name: "sessionStart",
@@ -172,9 +156,13 @@ describe("hook wiring against the on-disk state file", () => {
     };
 
     await runHook("session-start");
+    expect(harness.saveTurnForUpload).not.toHaveBeenCalled();
+    expect(harness.wakeUploader).toHaveBeenCalledWith(harness.config, "fresh");
 
+    await runHook("engine-worker", [dir, "fresh"]);
     expect(harness.saveTurnForUpload).toHaveBeenCalledTimes(1);
     expect(loadState(stateFilePath).stranded.turn_count).toBe(1);
+    expect(harness.runEngineWorker).toHaveBeenCalledWith(harness.config, "fresh", undefined);
   });
 
   it("buffers the tool call and leaves a stranded turn for a sweeping hook", async () => {

@@ -208,7 +208,7 @@ describe("a tool run saved as soon as its tool finishes", { timeout: 120_000 }, 
     vi.stubEnv("LANGSMITH_CURSOR_API_KEY", "synthetic-key");
     await runSweep({
       config: loadConfig({ cwd: dir }),
-      input: { ...BASE, conversation_id: "later-conv", hook_event_name: "stop" },
+      conversationId: "later-conv",
       nowMs: Date.now() + 7 * HOUR,
     });
     expect(await until(turnClosed)).toBe(true);

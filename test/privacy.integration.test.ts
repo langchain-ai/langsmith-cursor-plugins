@@ -1,6 +1,6 @@
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
+import { mkdtempSync, mkdirSync, readdirSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { EventEmitter } from "node:events";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -450,14 +450,19 @@ describe.each(["project", "home"] as const)("common %s root config", (scope) => 
           Date.now(),
         );
         expect(stopped.buffer?.tracingMode).toBe(muted ? "metadata" : "full");
+        const stateDirBefore = [
+          ...new Set([...readdirSync(dirname(cfg.stateFilePath)), "langsmith_engine"]),
+        ].sort();
         await saveTurnForUpload(cfg, {
+          kind: "stop",
           buffer: { ...stopped.buffer!, finalText: "file-sensitive-789" },
           conversationId: input.conversation_id,
           turnNum: stopped.turnNum,
-          project: cfg.project,
-          customMetadata: cfg.customMetadata,
+          origin: { project: cfg.project, customMetadata: cfg.customMetadata },
         });
         await runEngineWorker(cfg, input.conversation_id);
+        expect(loadState(cfg.stateFilePath)[input.conversation_id]?.queued).toBeUndefined();
+        expect(readdirSync(dirname(cfg.stateFilePath)).sort()).toEqual(stateDirBefore);
         expect(new Set(requests.map((r) => r.url.origin))).toEqual(new Set(allowedOrigins));
         for (const request of requests) {
           const replica = request.url.origin === "http://replica.test";

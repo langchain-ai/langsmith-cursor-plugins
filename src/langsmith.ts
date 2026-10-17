@@ -39,6 +39,10 @@ function stableRunId(ctx: MetaCtx, key: string): string {
   return uuidFromDigest(createHash("sha256").update(seed).digest("hex"));
 }
 
+export function turnRunId(conversationId: string, generationId: string): string {
+  return stableRunId({ agentType: "root", threadId: conversationId, turnId: generationId }, "turn");
+}
+
 /** Prepend a system message to an llm run's input messages, when one was recovered. */
 function withSystem(
   messages: Array<Record<string, unknown>>,
@@ -184,7 +188,12 @@ function createTurnContext(options: BuildTurnOptions): TurnContext {
     thinking: buffer.thoughts.map((t) => ({ type: "thinking", thinking: t.text })),
     finalTextBlocks: buffer.finalText ? [{ type: "text", text: buffer.finalText }] : [],
     calls: orderedTurnCalls(buffer),
-    turnEndMs: Math.max(buffer.startMs, ...toolEnds, ...subagentEnds, Date.now()),
+    turnEndMs: Math.max(
+      buffer.startMs,
+      ...toolEnds,
+      ...subagentEnds,
+      options.savedAtMs ?? Date.now(),
+    ),
   };
 }
 

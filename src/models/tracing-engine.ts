@@ -13,8 +13,6 @@ export interface CapturedRun {
 
 export type RecoveryReport = Parameters<NonNullable<PluginSessionOptions["onRecoveryReport"]>>[0];
 
-export type Reconstruct = PluginSessionOptions["reconstruct"];
-
 export type RunPatchContext = PreparedRunPatchSubmission["run"];
 
 export type RunPatchValues = PreparedRunPatchSubmission["patch"]["values"];
