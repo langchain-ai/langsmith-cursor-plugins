@@ -1,93 +1,25 @@
 /** LangSmith run construction: one trace per turn via RunTree, threaded by conversation_id. */
 
-import { createRunTree, createChildRun, MUTED_TRACE_CONTENT } from "./privacy.js";
-import { Client, RunTree, type RunTreeConfig } from "langsmith";
-import { createSecretAnonymizer } from "langsmith/anonymizer";
-import type { StringNodeRule } from "langsmith/anonymizer";
-import type { TurnBuffer, ToolEvent, SubagentEvent, ContentPart } from "./models/types.js";
+import { MUTED_TRACE_CONTENT } from "@langchain/plugins-base/privacy";
+import { RunTree } from "langsmith";
+import type { ToolEvent, SubagentEvent, ContentPart, TurnBuffer } from "./models/types.js";
 import type {
   BuildTurnOptions,
-  InterleaveOptions,
+  LlmRunSpec,
   MetaCtx,
+  RunSpec,
   SkillRunOptions,
   TurnCall,
+  TurnContext,
 } from "./models/langsmith.js";
 import { buildUsageMetadata, deriveModelInfo } from "./normalize.js";
 import { DEFAULT_TAGS, SKILL_RUN_NAME, TURN_RUN_NAME } from "./constants.js";
-import { codingAgentMetadata, skillNameFromTool } from "./metadata.js";
-import type { LlmMetadata } from "./models/metadata.js";
+import { codingAgentMetadata, skillNameFromTool, withIntegration } from "./metadata.js";
+import type { CursorMetadataOptions } from "./models/metadata.js";
+import type { CapturedRun } from "./models/tracing-engine.js";
 import { groupSteps } from "./conversation-steps.js";
 import * as logger from "./logger.js";
 import { createHash } from "node:crypto";
-
-// ─── Client setup ─────────────────────────────────────────────────────────
-
-let client: Client | undefined = undefined;
-let replicas: RunTreeConfig["replicas"] | undefined = undefined;
-let refusedWrite: string | undefined = undefined;
-
-function isWriteRequest(init?: RequestInit): boolean {
-  const method = init?.method?.toUpperCase() ?? "GET";
-  return method !== "GET" && method !== "HEAD";
-}
-
-const fetchRecordingRefusedWrites: typeof fetch = async (input, init) => {
-  const request = `${init?.method ?? "GET"} ${typeof input === "string" ? input : String(input)}`;
-  try {
-    const response = await fetch(input, init);
-    if (isWriteRequest(init) && !response.ok) {
-      refusedWrite ??= `${request} answered ${response.status}`;
-    }
-    return response;
-  } catch (err) {
-    if (isWriteRequest(init)) refusedWrite ??= `${request} failed: ${err}`;
-    throw err;
-  }
-};
-
-export function initTracing(
-  apiKey?: string,
-  apiUrl?: string,
-  providedReplicas?: RunTreeConfig["replicas"],
-  redact: boolean = true,
-  extraRedactionRules?: StringNodeRule[],
-  clientOverride?: Client,
-): Client | undefined {
-  const anonymizer = redact
-    ? createSecretAnonymizer(extraRedactionRules ? { extraRules: extraRedactionRules } : undefined)
-    : undefined;
-
-  // Always retain the configured endpoint, including keyless, unredacted replica-only tracing.
-  client =
-    clientOverride ??
-    new Client({
-      apiKey: apiKey || undefined,
-      apiUrl,
-      anonymizer,
-      fetchImplementation: fetchRecordingRefusedWrites,
-    });
-  replicas = providedReplicas;
-  return client;
-}
-
-/** Flush all pending batches so traces are sent before the hook process exits. */
-export async function flushPendingTraces(): Promise<void> {
-  logger.debug("Awaiting pending trace batches...");
-  await Promise.all([
-    client?.awaitPendingTraceBatches(),
-    RunTree.getSharedClient().awaitPendingTraceBatches(),
-  ]);
-  logger.debug("Trace batches flushed");
-}
-
-export async function uploadTurn(options: BuildTurnOptions): Promise<boolean> {
-  refusedWrite = undefined;
-  await buildTurnRuns(options);
-  await flushPendingTraces();
-  if (refusedWrite === undefined) return true;
-  logger.warn(`Keeping the turn for a later retry: ${refusedWrite}`);
-  return false;
-}
 
 // ─── Turn → run tree ─────────────────────────────────────────────────────────
 
@@ -182,17 +114,32 @@ function orderedTurnCalls(buffer: TurnBuffer): TurnCall[] {
   return calls.sort((a, b) => a.startMs - b.startMs);
 }
 
-/** Build and submit the full LangSmith trace for one finalized turn. */
-export async function buildTurnRuns(options: BuildTurnOptions): Promise<void> {
-  if (options.buffer.tracingMode === "off") return;
-  const mode = options.buffer.tracingMode === "full" ? "full" : "metadata";
-  const { buffer, conversationId, turnNum, project, userEmail, customMetadata, systemPrompt } =
-    options;
+/** Build the full LangSmith trace for one finalized turn. */
+export function buildTurnRuns(options: BuildTurnOptions): CapturedRun[] {
+  if (options.buffer.tracingMode === "off") return [];
+  const turn = createTurnContext(options);
+  const { buffer, conversationId, turnNum } = options;
 
-  if (!client && !replicas) {
-    throw new Error("LangSmith client not initialized — call initTracing() first");
+  // Root turn run. createChild derives ids, trace_id and dotted_order for children.
+  const turnRun = addRootRun(turn);
+  const interleaved = options.steps?.length ? addInterleavedRounds(turn, turnRun) : false;
+  if (!interleaved) {
+    if (turn.calls.length === 0) addSingleLlmRun(turn, turnRun);
+    else addAgenticRuns(turn, turnRun);
   }
 
+  turnRun.end_time = turn.turnEndMs;
+  turnRun.outputs = { text: buffer.finalText ?? "" };
+  turnRun.error = buffer.status && buffer.status !== "completed" ? buffer.status : undefined;
+
+  logger.log(
+    `Traced ${TURN_RUN_NAME} ${turnNum} (conv=${conversationId}): ${buffer.tools.length} tool(s), ${buffer.subagents.length} subagent(s)`,
+  );
+  return turn.runs;
+}
+
+function createTurnContext(options: BuildTurnOptions): TurnContext {
+  const { buffer, conversationId, turnNum, userEmail, customMetadata } = options;
   // coding-agent-v1 context, stamped on the root and propagated to children
   // via createChild. user_email (per-turn) joins the config base.
   const ctx: MetaCtx = {
@@ -203,158 +150,147 @@ export async function buildTurnRuns(options: BuildTurnOptions): Promise<void> {
     turnNumber: turnNum,
     runtimeVersion: options.runtimeVersion,
   };
-  const promptText = buffer.prompt ?? "";
-  const userContent = userMessageContent(promptText, options.attachments ?? []);
 
+  const { ls_model_name, ls_provider } = deriveModelInfo(buffer.model);
   // Turn end = latest event time we know about, falling back to now.
   const toolEnds = buffer.tools.map((t) => t.endMs);
   const subagentEnds = buffer.subagents.map((s) => s.endMs ?? s.startMs);
-  const turnEndMs = Math.max(buffer.startMs, ...toolEnds, ...subagentEnds, Date.now());
 
-  // 1. Root turn run. createChild derives ids, trace_id and dotted_order for children.
-  const turnName = `${TURN_RUN_NAME} ${turnNum}`;
-  const turnRun = createRunTree(
-    {
-      client,
-      replicas,
-      id: stableRunId(ctx, "turn"),
-      name: turnName,
-      run_type: "chain",
-      inputs: { messages: [{ role: "user", content: userContent }] },
-      project_name: project,
-      start_time: buffer.startMs,
-      tags: DEFAULT_TAGS,
-      extra: {
-        metadata: codingAgentMetadata({
-          ...ctx,
-          runType: "root",
-          runSpecific: { model: buffer.model },
-        }),
-      },
+  return {
+    options,
+    ctx,
+    runs: [],
+    mode: buffer.tracingMode === "full" ? "full" : "metadata",
+    userContent: userMessageContent(buffer.prompt ?? "", options.attachments ?? []),
+    llmName: ls_provider ?? ls_model_name,
+    llmMeta: {
+      runType: "llm",
+      modelName: ls_model_name,
+      runSpecific: { ls_provider, ls_invocation_params: { model: ls_model_name } },
     },
-    mode,
-  );
-  await turnRun.postRun();
-
-  // 2. llm + tool runs, created in invocation order. Turn-level usage goes on one llm run.
-  const { ls_model_name, ls_provider } = deriveModelInfo(buffer.model);
-  const llmName = ls_provider ?? ls_model_name;
-  const llmMeta: LlmMetadata = {
-    runType: "llm",
-    modelName: ls_model_name,
-    runSpecific: { ls_provider, ls_invocation_params: { model: ls_model_name } },
+    usageMetadata: buildUsageMetadata(buffer.usage),
+    thinking: buffer.thoughts.map((t) => ({ type: "thinking", thinking: t.text })),
+    finalTextBlocks: buffer.finalText ? [{ type: "text", text: buffer.finalText }] : [],
+    calls: orderedTurnCalls(buffer),
+    turnEndMs: Math.max(buffer.startMs, ...toolEnds, ...subagentEnds, Date.now()),
   };
-  const usageMetadata = buildUsageMetadata(buffer.usage);
-  const thinking = buffer.thoughts.map((t) => ({ type: "thinking", thinking: t.text }));
-  const finalTextBlocks = buffer.finalText ? [{ type: "text", text: buffer.finalText }] : [];
-  const calls = orderedTurnCalls(buffer);
+}
 
-  // Interleaved per-step fidelity from the DB; false → fall through to decide/answer.
-  const interleaved =
-    options.steps && options.steps.length > 0
-      ? await postInterleavedRounds({
-          turnRun,
-          ctx,
-          steps: options.steps,
-          buffer,
-          userContent,
-          systemPrompt,
-          llmName,
-          llmMeta,
-          usageMetadata,
-          finalTextBlocks,
-          turnEndMs,
-        })
-      : false;
+function addRootRun(turn: TurnContext): RunTree {
+  const { options, ctx } = turn;
+  const run = new RunTree({
+    id: stableRunId(ctx, "turn"),
+    name: `${TURN_RUN_NAME} ${options.turnNum}`,
+    run_type: "chain",
+    inputs: { messages: [{ role: "user", content: turn.userContent }] },
+    project_name: options.project,
+    start_time: options.buffer.startMs,
+    tags: DEFAULT_TAGS,
+    extra: { metadata: codingAgentMetadata(rootMetadata(turn)) },
+  });
+  turn.runs.push({ run, mode: turn.mode, metadata: withIntegration(rootMetadata(turn)) });
+  return run;
+}
 
-  if (interleaved) {
-    // Rendered above as per-round llm + tool runs.
-  } else if (calls.length === 0) {
-    // No tools: a single llm run, user → assistant (thinking + final text).
-    const llmRun = turnRun.createChild({
-      id: stableRunId(ctx, "llm"),
-      name: llmName,
-      run_type: "llm",
-      inputs: { messages: withSystem([{ role: "user", content: userContent }], systemPrompt) },
-      outputs: { messages: [{ role: "assistant", content: [...thinking, ...finalTextBlocks] }] },
-      start_time: buffer.startMs,
-      end_time: turnEndMs,
-      extra: {
-        metadata: codingAgentMetadata({
-          ...ctx,
-          ...llmMeta,
-          usageMetadata,
-        }),
-      },
-    });
-    await llmRun.postRun();
-  } else {
-    // Agentic turn: "decide" llm → tool runs → "answer" llm fed the results.
-    const firstCallStart = Math.min(...calls.map((c) => c.startMs));
-    const lastCallEnd = Math.max(
-      buffer.startMs,
-      ...buffer.tools.map((t) => t.endMs),
-      ...buffer.subagents.map((s) => s.endMs ?? s.startMs),
-    );
-    const assistantDecision = [...thinking, ...calls.map((c) => c.toolCallBlock)];
+function rootMetadata({ ctx, options }: TurnContext): CursorMetadataOptions {
+  return { ...ctx, runType: "root", runSpecific: { model: options.buffer.model } };
+}
 
-    // 2a. "decide" llm — emits the tool calls. Usage goes on the answer run.
-    const decideRun = turnRun.createChild({
-      id: stableRunId(ctx, "decide"),
-      name: llmName,
-      run_type: "llm",
-      inputs: { messages: withSystem([{ role: "user", content: userContent }], systemPrompt) },
-      outputs: { messages: [{ role: "assistant", content: assistantDecision }] },
-      start_time: buffer.startMs,
-      end_time: Math.max(buffer.startMs, firstCallStart),
-      extra: { metadata: codingAgentMetadata({ ...ctx, ...llmMeta }) },
-    });
-    await decideRun.postRun();
+/** Create a run under `parent`, record it for capture, and return it. */
+function addRun(turn: TurnContext, parent: RunTree, spec: RunSpec): RunTree {
+  const run = parent.createChild({
+    id: stableRunId(turn.ctx, spec.key),
+    name: spec.name,
+    run_type: spec.type,
+    inputs: spec.inputs,
+    outputs: spec.outputs,
+    ...(spec.error === undefined ? {} : { error: spec.error }),
+    start_time: spec.startMs,
+    end_time: spec.endMs,
+    extra: { metadata: codingAgentMetadata(spec.metadata) },
+  });
+  const parentMode = turn.runs.find((c) => c.run.id === parent.id)?.mode;
+  turn.runs.push({
+    run,
+    mode: parentMode === "metadata" ? "metadata" : (spec.mode ?? parentMode ?? "full"),
+    metadata: withIntegration(spec.metadata),
+  });
+  return run;
+}
 
-    // 3. Tool runs (and subagent Task runs) between the two llm calls.
-    for (const [i, tool] of buffer.tools.entries())
-      await postToolRun(tool, turnRun, ctx, `tool:${i}:${tool.tool_use_id}`);
-    for (const [i, sub] of buffer.subagents.entries())
-      await postSubagentRun(sub, turnRun, ctx, `subagent:${i}:${sub.subagent_id}`);
+function addLlmRun(turn: TurnContext, parent: RunTree, spec: LlmRunSpec): RunTree {
+  return addRun(turn, parent, {
+    key: spec.key,
+    name: spec.name,
+    type: "llm",
+    inputs: { messages: spec.messages },
+    outputs: { messages: [{ role: "assistant", content: spec.content }] },
+    startMs: spec.startMs,
+    endMs: spec.endMs,
+    metadata: spec.metadata,
+  });
+}
 
-    // 2b. "answer" llm — tool results fed back in, produces the final text.
-    const answerRun = turnRun.createChild({
-      id: stableRunId(ctx, "answer"),
-      name: llmName,
-      run_type: "llm",
-      inputs: {
-        messages: withSystem(
-          [
-            { role: "user", content: userContent },
-            { role: "assistant", content: assistantDecision },
-            ...calls.map((c) => c.resultMessage),
-          ],
-          systemPrompt,
-        ),
-      },
-      outputs: { messages: [{ role: "assistant", content: finalTextBlocks }] },
-      start_time: lastCallEnd,
-      end_time: turnEndMs,
-      extra: {
-        metadata: codingAgentMetadata({
-          ...ctx,
-          ...llmMeta,
-          usageMetadata,
-        }),
-      },
-    });
-    await answerRun.postRun();
-  }
+/** A turn with no tools: a single llm run, user → assistant (thinking + final text). */
+function addSingleLlmRun(turn: TurnContext, turnRun: RunTree): void {
+  const { options, ctx } = turn;
+  addLlmRun(turn, turnRun, {
+    key: "llm",
+    name: turn.llmName,
+    messages: withSystem([{ role: "user", content: turn.userContent }], options.systemPrompt),
+    content: [...turn.thinking, ...turn.finalTextBlocks],
+    startMs: options.buffer.startMs,
+    endMs: turn.turnEndMs,
+    metadata: { ...ctx, ...turn.llmMeta, usageMetadata: turn.usageMetadata },
+  });
+}
 
-  // 5. Finalize the root turn run.
-  turnRun.end_time = turnEndMs;
-  turnRun.outputs = { text: buffer.finalText ?? "" };
-  turnRun.error = buffer.status && buffer.status !== "completed" ? buffer.status : undefined;
-  await turnRun.patchRun({ excludeInputs: true });
-
-  logger.log(
-    `Traced ${turnName} (conv=${conversationId}): ${buffer.tools.length} tool(s), ${buffer.subagents.length} subagent(s)`,
+/** An agentic turn: "decide" llm → tool runs → "answer" llm fed the results. */
+function addAgenticRuns(turn: TurnContext, turnRun: RunTree): void {
+  const { options, ctx, calls } = turn;
+  const { buffer, systemPrompt } = options;
+  const firstCallStart = Math.min(...calls.map((c) => c.startMs));
+  const lastCallEnd = Math.max(
+    buffer.startMs,
+    ...buffer.tools.map((t) => t.endMs),
+    ...buffer.subagents.map((s) => s.endMs ?? s.startMs),
   );
+  const assistantDecision = [...turn.thinking, ...calls.map((c) => c.toolCallBlock)];
+
+  // "decide" llm — emits the tool calls. Usage goes on the answer run.
+  addLlmRun(turn, turnRun, {
+    key: "decide",
+    name: turn.llmName,
+    messages: withSystem([{ role: "user", content: turn.userContent }], systemPrompt),
+    content: assistantDecision,
+    startMs: buffer.startMs,
+    endMs: Math.max(buffer.startMs, firstCallStart),
+    metadata: { ...ctx, ...turn.llmMeta },
+  });
+
+  // Tool runs (and subagent Task runs) between the two llm calls.
+  for (const [i, tool] of buffer.tools.entries())
+    addToolRun(turn, turnRun, ctx, tool, `tool:${i}:${tool.tool_use_id}`);
+  for (const [i, sub] of buffer.subagents.entries())
+    addSubagentRun(turn, turnRun, sub, `subagent:${i}:${sub.subagent_id}`);
+
+  // "answer" llm — tool results fed back in, produces the final text.
+  addLlmRun(turn, turnRun, {
+    key: "answer",
+    name: turn.llmName,
+    messages: withSystem(
+      [
+        { role: "user", content: turn.userContent },
+        { role: "assistant", content: assistantDecision },
+        ...calls.map((c) => c.resultMessage),
+      ],
+      systemPrompt,
+    ),
+    content: turn.finalTextBlocks,
+    startMs: lastCallEnd,
+    endMs: turn.turnEndMs,
+    metadata: { ...ctx, ...turn.llmMeta, usageMetadata: turn.usageMetadata },
+  });
 }
 
 /** Thinking content blocks for the rounds with non-empty text. */
@@ -368,11 +304,13 @@ function thinkingBlocks(
  * Render the turn as interleaved per-round llm + tool runs from the decoded steps.
  * Returns false when the steps don't line up with hook tools, so the caller falls back.
  */
-async function postInterleavedRounds(p: InterleaveOptions): Promise<boolean> {
+function addInterleavedRounds(turn: TurnContext, turnRun: RunTree): boolean {
+  const { options, ctx } = turn;
+  const { buffer, systemPrompt } = options;
   const toolMap = new Map<string, ToolEvent>();
-  for (const t of p.buffer.tools) if (t.tool_use_id) toolMap.set(t.tool_use_id, t);
+  for (const t of buffer.tools) if (t.tool_use_id) toolMap.set(t.tool_use_id, t);
 
-  const rounds = groupSteps(p.steps);
+  const rounds = groupSteps(options.steps ?? []);
   if (rounds.length === 0) return false;
 
   // The trailing text-only round (if any) is the final answer; the rest emit tools.
@@ -386,14 +324,14 @@ async function postInterleavedRounds(p: InterleaveOptions): Promise<boolean> {
   );
   if (!anyMatched) return false;
 
-  const msgs: Array<Record<string, unknown>> = [{ role: "user", content: p.userContent }];
-  let cursorMs = p.buffer.startMs;
+  const msgs: Array<Record<string, unknown>> = [{ role: "user", content: turn.userContent }];
+  let cursorMs = buffer.startMs;
 
   for (const [roundIndex, round] of actionRounds.entries()) {
     const matched = round.toolSteps
       .map((ts) => (ts.toolUseId != null ? toolMap.get(ts.toolUseId) : undefined))
       .filter((t): t is ToolEvent => t != null);
-    const calls = matched.map((t) => toolCall(t, p.buffer.startMs));
+    const calls = matched.map((t) => toolCall(t, buffer.startMs));
 
     const textBlocks = round.assistantText ? [{ type: "text", text: round.assistantText }] : [];
     const assistantContent = [
@@ -402,25 +340,18 @@ async function postInterleavedRounds(p: InterleaveOptions): Promise<boolean> {
       ...calls.map((c) => c.toolCallBlock),
     ];
 
-    const llmStart = cursorMs;
-    const llmEnd = calls.length
-      ? Math.max(cursorMs, Math.min(...calls.map((c) => c.startMs)))
-      : cursorMs;
-
-    const llmRun = p.turnRun.createChild({
-      id: stableRunId(p.ctx, `round:${roundIndex}`),
-      name: p.llmName,
-      run_type: "llm",
-      inputs: { messages: withSystem([...msgs], p.systemPrompt) },
-      outputs: { messages: [{ role: "assistant", content: assistantContent }] },
-      start_time: llmStart,
-      end_time: llmEnd,
-      extra: { metadata: codingAgentMetadata({ ...p.ctx, ...p.llmMeta }) },
+    addLlmRun(turn, turnRun, {
+      key: `round:${roundIndex}`,
+      name: turn.llmName,
+      messages: withSystem([...msgs], systemPrompt),
+      content: assistantContent,
+      startMs: cursorMs,
+      endMs: calls.length ? Math.max(cursorMs, Math.min(...calls.map((c) => c.startMs))) : cursorMs,
+      metadata: { ...ctx, ...turn.llmMeta },
     });
-    await llmRun.postRun();
 
     for (const [i, t] of matched.entries())
-      await postToolRun(t, p.turnRun, p.ctx, `round:${roundIndex}:tool:${i}:${t.tool_use_id}`);
+      addToolRun(turn, turnRun, ctx, t, `round:${roundIndex}:tool:${i}:${t.tool_use_id}`);
 
     // Thread this round's assistant turn + tool results into the running conversation.
     msgs.push({ role: "assistant", content: assistantContent });
@@ -429,75 +360,64 @@ async function postInterleavedRounds(p: InterleaveOptions): Promise<boolean> {
   }
 
   // Subagents render as nested chains, ordered in the UI by their own start_time.
-  for (const [i, sub] of p.buffer.subagents.entries())
-    await postSubagentRun(sub, p.turnRun, p.ctx, `subagent:${i}:${sub.subagent_id}`);
+  for (const [i, sub] of buffer.subagents.entries())
+    addSubagentRun(turn, turnRun, sub, `subagent:${i}:${sub.subagent_id}`);
 
   // Final answer llm — carries turn usage; folds in any trailing text-only round.
-  const answerContent = [...thinkingBlocks(finalRound?.thinking ?? []), ...p.finalTextBlocks];
-  const answerRun = p.turnRun.createChild({
-    id: stableRunId(p.ctx, "answer"),
-    name: p.llmName,
-    run_type: "llm",
-    inputs: { messages: withSystem([...msgs], p.systemPrompt) },
-    outputs: { messages: [{ role: "assistant", content: answerContent }] },
-    start_time: cursorMs,
-    end_time: p.turnEndMs,
-    extra: {
-      metadata: codingAgentMetadata({
-        ...p.ctx,
-        ...p.llmMeta,
-        usageMetadata: p.usageMetadata,
-      }),
-    },
+  addLlmRun(turn, turnRun, {
+    key: "answer",
+    name: turn.llmName,
+    messages: withSystem([...msgs], systemPrompt),
+    content: [...thinkingBlocks(finalRound?.thinking ?? []), ...turn.finalTextBlocks],
+    startMs: cursorMs,
+    endMs: turn.turnEndMs,
+    metadata: { ...ctx, ...turn.llmMeta, usageMetadata: turn.usageMetadata },
   });
-  await answerRun.postRun();
   return true;
 }
 
-/** Post one tool run under `parent`. `clearSubagent` neutralizes inherited subagent keys. */
-async function postToolRun(
-  tool: ToolEvent,
+/** Add one tool run under `parent`. `clearSubagent` neutralizes inherited subagent keys. */
+function addToolRun(
+  turn: TurnContext,
   parent: RunTree,
   ctx: MetaCtx,
+  tool: ToolEvent,
   key: string,
   clearSubagent = false,
-): Promise<void> {
+): void {
   // Clamp start to the parent's — Cursor tool durations can exceed the turn,
   // mis-sorting tools ahead of the llm.
   const floorMs = typeof parent.start_time === "number" ? parent.start_time : 0;
   const startMs = Math.max(floorMs, toolStartMs(tool));
   const isError = tool.error != null;
 
-  const run = parent.createChild({
-    id: stableRunId(ctx, key),
+  addRun(turn, parent, {
+    key,
     name: tool.name,
-    run_type: "tool",
+    type: "tool",
     inputs: { input: tool.input },
     outputs: isError ? { error: tool.error } : { output: tool.output ?? "" },
     error: isError ? tool.error : undefined,
-    start_time: startMs,
-    end_time: tool.endMs,
-    extra: {
-      metadata: codingAgentMetadata({
-        ...ctx,
-        runType: "tool",
-        clearSubagent,
-        // run name == native tool name, so ls_tool_name is omitted; tool_name kept as alias.
-        toolName: tool.name,
-        runName: tool.name,
-        runSpecific: {
-          tool_name: tool.name,
-          tool_use_id: tool.tool_use_id,
-          ...(tool.failure_type ? { failure_type: tool.failure_type } : {}),
-        },
-      }),
+    startMs,
+    endMs: tool.endMs,
+    metadata: {
+      ...ctx,
+      runType: "tool",
+      clearSubagent,
+      // run name == native tool name, so ls_tool_name is omitted; tool_name kept as alias.
+      toolName: tool.name,
+      runName: tool.name,
+      runSpecific: {
+        tool_name: tool.name,
+        tool_use_id: tool.tool_use_id,
+        ...(tool.failure_type ? { failure_type: tool.failure_type } : {}),
+      },
     },
   });
-  await run.postRun();
 
   const skillName = skillNameFromTool(tool.name, tool.input);
   if (skillName) {
-    await postSkillRun(parent, ctx, `${key}:skill`, clearSubagent, {
+    addSkillRun(turn, parent, ctx, `${key}:skill`, clearSubagent, {
       skillName,
       // A failure hook may carry no message, so failure_type is the surer signal.
       success: tool.error == null && tool.failure_type == null,
@@ -507,191 +427,191 @@ async function postToolRun(
   }
 }
 
-/** Posts the one run that carries `ls_skill_name`, so an invocation is counted once. */
-async function postSkillRun(
+/** Adds the one run that carries `ls_skill_name`, so an invocation is counted once. */
+function addSkillRun(
+  turn: TurnContext,
   parent: RunTree,
   ctx: MetaCtx,
   key: string,
   clearSubagent: boolean,
   opts: SkillRunOptions,
-): Promise<void> {
-  const run = parent.createChild({
-    id: stableRunId(ctx, key),
+): void {
+  addRun(turn, parent, {
+    key,
     name: SKILL_RUN_NAME,
-    run_type: "tool",
+    type: "tool",
     // The `input`/`output` wrapper puts these fields where Claude Code's are.
     inputs: { input: { skill: opts.skillName } },
     outputs: { output: { commandName: opts.skillName, success: opts.success } },
-    start_time: opts.startMs,
-    end_time: opts.endMs,
-    extra: {
-      metadata: codingAgentMetadata({
-        ...ctx,
-        runType: "tool",
-        clearSubagent,
-        // Equal names are what suppress `ls_tool_name`.
-        toolName: SKILL_RUN_NAME,
-        runName: SKILL_RUN_NAME,
-        skillName: opts.skillName,
-        // No tool_use_id: Cursor issued no such call.
-        runSpecific: { tool_name: SKILL_RUN_NAME },
-      }),
+    startMs: opts.startMs,
+    endMs: opts.endMs,
+    metadata: {
+      ...ctx,
+      runType: "tool",
+      clearSubagent,
+      // Equal names are what suppress `ls_tool_name`.
+      toolName: SKILL_RUN_NAME,
+      runName: SKILL_RUN_NAME,
+      skillName: opts.skillName,
+      // No tool_use_id: Cursor issued no such call.
+      runSpecific: { tool_name: SKILL_RUN_NAME },
     },
   });
-  await run.postRun();
 }
 
-async function postSubagentRun(
-  sub: SubagentEvent,
+/** A subagent: a nested chain run whose llm and tool runs hang beneath it. */
+function addSubagentRun(turn: TurnContext, parent: RunTree, sub: SubagentEvent, key: string): void {
+  const subagentCtx: MetaCtx = { ...turn.ctx, agentType: "subagent" };
+  const subagentRun = addSubagentChain(turn, parent, sub, key, subagentCtx);
+  const tools = sub.tools ?? [];
+  if (tools.length === 0) addSubagentSingleLlmRun(turn, subagentRun, sub, key, subagentCtx);
+  else addSubagentAgenticRuns(turn, subagentRun, sub, key, subagentCtx);
+}
+
+/** The chain run for the subagent itself (validator runType "subagent"). */
+function addSubagentChain(
+  turn: TurnContext,
   parent: RunTree,
-  ctx: MetaCtx,
+  sub: SubagentEvent,
   key: string,
-): Promise<void> {
+  subagentCtx: MetaCtx,
+): RunTree {
   const isError = sub.status != null && sub.status !== "completed";
+  const subModel = deriveModelInfo(sub.model);
+  return addRun(turn, parent, {
+    key,
+    // Name the node "<type> Subagent" (e.g. "explore Subagent"), mirroring the
+    // Claude Code integration's "general-purpose Subagent".
+    name: sub.subagent_type ? `${sub.subagent_type} Subagent` : "Subagent",
+    type: "chain",
+    inputs: {
+      subagent_type: sub.subagent_type,
+      ...(sub.description ? { description: sub.description } : {}),
+      task: sub.task,
+    },
+    outputs: {
+      status: sub.status ?? "completed",
+      ...(sub.resultText ? { result: sub.resultText } : {}),
+    },
+    error: isError ? sub.status : undefined,
+    startMs: sub.startMs,
+    endMs: sub.endMs ?? sub.startMs,
+    mode: sub.tracingMode === "full" ? "full" : "metadata",
+    metadata: {
+      ...subagentCtx,
+      runType: "subagent",
+      subagentId: sub.subagent_id,
+      subagentType: sub.subagent_type,
+      runSpecific: {
+        ...(sub.description ? { subagent_description: sub.description } : {}),
+        ...(sub.model ? { subagent_model: sub.model } : {}),
+        ...(subModel.ls_provider ? { subagent_provider: subModel.ls_provider } : {}),
+        ...(sub.is_parallel_worker != null
+          ? { subagent_is_parallel_worker: sub.is_parallel_worker }
+          : {}),
+        ...(sub.childConversationId ? { subagent_conversation_id: sub.childConversationId } : {}),
+        // Tools we actually captured (authoritative) vs Cursor-reported counts (often 0).
+        subagent_tool_count: (sub.tools ?? []).length,
+        ...(sub.message_count != null ? { reported_message_count: sub.message_count } : {}),
+        ...(sub.tool_call_count != null ? { reported_tool_call_count: sub.tool_call_count } : {}),
+        ...(sub.loop_count != null ? { reported_loop_count: sub.loop_count } : {}),
+      },
+    },
+  });
+}
+
+/** The llm of a subagent: name and metadata come from the subagent's own model. */
+function subagentLlm(
+  sub: SubagentEvent,
+  subagentCtx: MetaCtx,
+): { name: string; metadata: CursorMetadataOptions } {
+  const subModel = deriveModelInfo(sub.model);
+  return {
+    name: subModel.ls_provider ?? subModel.ls_model_name,
+    metadata: {
+      ...subagentCtx,
+      clearSubagent: true,
+      runType: "llm",
+      modelName: subModel.ls_model_name,
+      runSpecific: {
+        ls_provider: subModel.ls_provider,
+        ls_invocation_params: { model: subModel.ls_model_name },
+      },
+    },
+  };
+}
+
+/** Role "system": the task is the orchestrator's instruction, not a human turn. */
+function subagentMessages(sub: SubagentEvent): Array<Record<string, unknown>> {
+  return withSystem([{ role: "system", content: sub.task }], sub.systemPrompt);
+}
+
+function subagentFinalBlocks(sub: SubagentEvent): Array<Record<string, unknown>> {
+  return sub.resultText ? [{ type: "text", text: sub.resultText }] : [];
+}
+
+/** No tools: a single llm run, system + task → final answer. */
+function addSubagentSingleLlmRun(
+  turn: TurnContext,
+  subagentRun: RunTree,
+  sub: SubagentEvent,
+  key: string,
+  subagentCtx: MetaCtx,
+): void {
+  const llm = subagentLlm(sub, subagentCtx);
+  addLlmRun(turn, subagentRun, {
+    key: `${key}:llm`,
+    name: llm.name,
+    messages: subagentMessages(sub),
+    content: subagentFinalBlocks(sub),
+    startMs: sub.startMs,
+    endMs: sub.endMs ?? sub.startMs,
+    metadata: llm.metadata,
+  });
+}
+
+/** Agentic subagent: decide llm → tool runs → answer llm. */
+function addSubagentAgenticRuns(
+  turn: TurnContext,
+  subagentRun: RunTree,
+  sub: SubagentEvent,
+  key: string,
+  subagentCtx: MetaCtx,
+): void {
   const tools = sub.tools ?? [];
   const startMs = sub.startMs;
   const endMs = sub.endMs ?? sub.startMs;
-
-  // Name the node "<type> Subagent" (e.g. "explore Subagent"), mirroring the
-  // Claude Code integration's "general-purpose Subagent".
-  const runName = sub.subagent_type ? `${sub.subagent_type} Subagent` : "Subagent";
-  const subModel = deriveModelInfo(sub.model);
-  const llmName = subModel.ls_provider ?? subModel.ls_model_name;
-  const llmMeta: LlmMetadata = {
-    runType: "llm",
-    modelName: subModel.ls_model_name,
-    runSpecific: {
-      ls_provider: subModel.ls_provider,
-      ls_invocation_params: { model: subModel.ls_model_name },
-    },
-  };
-  const subagentCtx: MetaCtx = { ...ctx, agentType: "subagent" };
-
-  // Subagent = nested chain run (validator runType "subagent"); children clear
-  // ls_subagent_id/type so they don't leak down.
-  const subagentRun = createChildRun(
-    parent,
-    {
-      id: stableRunId(ctx, key),
-      name: runName,
-      run_type: "chain",
-      inputs: {
-        subagent_type: sub.subagent_type,
-        ...(sub.description ? { description: sub.description } : {}),
-        task: sub.task,
-      },
-      outputs: {
-        status: sub.status ?? "completed",
-        ...(sub.resultText ? { result: sub.resultText } : {}),
-      },
-      error: isError ? sub.status : undefined,
-      start_time: startMs,
-      end_time: endMs,
-      extra: {
-        metadata: codingAgentMetadata({
-          ...subagentCtx,
-          runType: "subagent",
-          subagentId: sub.subagent_id,
-          subagentType: sub.subagent_type,
-          runSpecific: {
-            ...(sub.description ? { subagent_description: sub.description } : {}),
-            ...(sub.model ? { subagent_model: sub.model } : {}),
-            ...(subModel.ls_provider ? { subagent_provider: subModel.ls_provider } : {}),
-            ...(sub.is_parallel_worker != null
-              ? { subagent_is_parallel_worker: sub.is_parallel_worker }
-              : {}),
-            ...(sub.childConversationId
-              ? { subagent_conversation_id: sub.childConversationId }
-              : {}),
-            // Tools we actually captured (authoritative) vs Cursor-reported counts (often 0).
-            subagent_tool_count: tools.length,
-            ...(sub.message_count != null ? { reported_message_count: sub.message_count } : {}),
-            ...(sub.tool_call_count != null
-              ? { reported_tool_call_count: sub.tool_call_count }
-              : {}),
-            ...(sub.loop_count != null ? { reported_loop_count: sub.loop_count } : {}),
-          },
-        }),
-      },
-    },
-    sub.tracingMode === "full" ? "full" : "metadata",
-  );
-  await subagentRun.postRun();
-
-  // Role "system": the task is the orchestrator's instruction, not a human turn.
-  const baseMessages = withSystem([{ role: "system", content: sub.task }], sub.systemPrompt);
-  const finalBlocks = sub.resultText ? [{ type: "text", text: sub.resultText }] : [];
+  const llm = subagentLlm(sub, subagentCtx);
+  const baseMessages = subagentMessages(sub);
   const calls = tools.map((t) => toolCall(t, startMs)).sort((a, b) => a.startMs - b.startMs);
-
-  if (calls.length === 0) {
-    // No tools: a single llm run, system + task → final answer.
-    const llmRun = subagentRun.createChild({
-      id: stableRunId(ctx, `${key}:llm`),
-      name: llmName,
-      run_type: "llm",
-      inputs: { messages: baseMessages },
-      outputs: { messages: [{ role: "assistant", content: finalBlocks }] },
-      start_time: startMs,
-      end_time: endMs,
-      extra: {
-        metadata: codingAgentMetadata({
-          ...subagentCtx,
-          clearSubagent: true,
-          ...llmMeta,
-        }),
-      },
-    });
-    await llmRun.postRun();
-    return;
-  }
-
-  // Agentic subagent: decide llm → tool runs → answer llm.
   const firstCallStart = Math.min(...calls.map((c) => c.startMs));
   const lastCallEnd = Math.max(startMs, ...tools.map((t) => t.endMs));
   const assistantDecision = calls.map((c) => c.toolCallBlock);
 
-  const decideRun = subagentRun.createChild({
-    id: stableRunId(ctx, `${key}:decide`),
-    name: llmName,
-    run_type: "llm",
-    inputs: { messages: baseMessages },
-    outputs: { messages: [{ role: "assistant", content: assistantDecision }] },
-    start_time: startMs,
-    end_time: Math.max(startMs, firstCallStart),
-    extra: {
-      metadata: codingAgentMetadata({
-        ...subagentCtx,
-        clearSubagent: true,
-        ...llmMeta,
-      }),
-    },
+  addLlmRun(turn, subagentRun, {
+    key: `${key}:decide`,
+    name: llm.name,
+    messages: baseMessages,
+    content: assistantDecision,
+    startMs,
+    endMs: Math.max(startMs, firstCallStart),
+    metadata: llm.metadata,
   });
-  await decideRun.postRun();
 
   for (const [i, tool] of tools.entries())
-    await postToolRun(tool, subagentRun, subagentCtx, `${key}:tool:${i}:${tool.tool_use_id}`, true);
+    addToolRun(turn, subagentRun, subagentCtx, tool, `${key}:tool:${i}:${tool.tool_use_id}`, true);
 
-  const answerRun = subagentRun.createChild({
-    id: stableRunId(ctx, `${key}:answer`),
-    name: llmName,
-    run_type: "llm",
-    inputs: {
-      messages: [
-        ...baseMessages,
-        { role: "assistant", content: assistantDecision },
-        ...calls.map((c) => c.resultMessage),
-      ],
-    },
-    outputs: { messages: [{ role: "assistant", content: finalBlocks }] },
-    start_time: lastCallEnd,
-    end_time: endMs,
-    extra: {
-      metadata: codingAgentMetadata({
-        ...subagentCtx,
-        clearSubagent: true,
-        ...llmMeta,
-      }),
-    },
+  addLlmRun(turn, subagentRun, {
+    key: `${key}:answer`,
+    name: llm.name,
+    messages: [
+      ...baseMessages,
+      { role: "assistant", content: assistantDecision },
+      ...calls.map((c) => c.resultMessage),
+    ],
+    content: subagentFinalBlocks(sub),
+    startMs: lastCallEnd,
+    endMs,
+    metadata: llm.metadata,
   });
-  await answerRun.postRun();
 }

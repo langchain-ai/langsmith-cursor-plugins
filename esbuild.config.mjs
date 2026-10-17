@@ -1,24 +1,12 @@
 import { build } from "esbuild";
-import { chmodSync, readFileSync } from "node:fs";
+import { chmodSync, readFileSync, renameSync } from "node:fs";
 
 // Inject the plugin version at BUILD TIME (the bundle has no runtime
 // package.json) via esbuild `define`.
 const pkg = JSON.parse(readFileSync(new URL("./package.json", import.meta.url), "utf-8"));
 
-const entryPoints = [
-  "dist/src/hooks/before-submit-prompt.js",
-  "dist/src/hooks/after-agent-response.js",
-  "dist/src/hooks/post-tool-use.js",
-  "dist/src/hooks/post-tool-use-failure.js",
-  "dist/src/hooks/subagent-start.js",
-  "dist/src/hooks/subagent-stop.js",
-  "dist/src/hooks/stop.js",
-  "dist/src/hooks/session-start.js",
-  "dist/src/hooks/guard.js",
-];
-
 await build({
-  entryPoints,
+  entryPoints: ["dist/src/hooks/dispatch.js", "dist/src/hooks/guard.js"],
   bundle: true,
   platform: "node",
   format: "esm",
@@ -32,11 +20,7 @@ await build({
     __LS_INTEGRATION_VERSION__: JSON.stringify(pkg.version),
   },
 });
+renameSync("bundle/dispatch.js", "bundle/hooks.js");
+chmodSync("bundle/guard.js", 0o755);
 
-// Make hooks executable
-for (const entry of entryPoints) {
-  const filename = entry.split("/").pop();
-  chmodSync(`bundle/${filename}`, 0o755);
-}
-
-console.log(`Bundled ${entryPoints.length} hooks into bundle/`);
+console.log("Bundled the hooks into bundle/");

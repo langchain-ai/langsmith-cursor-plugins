@@ -4,7 +4,7 @@ import type { Run } from "langsmith";
 import { replayHookLog } from "./utils/replay.js";
 import { mockClient } from "./utils/mock_client.js";
 import { getAssumedTreeFromCalls } from "./utils/tree.js";
-import { initTracing, buildTurnRuns, flushPendingTraces } from "../src/langsmith.js";
+import { sendTurn } from "./utils/engine.js";
 import type { TurnBuffer } from "../src/models/types.js";
 import type { Step } from "../src/models/conversation-steps.js";
 
@@ -69,18 +69,16 @@ describe("replay run2 hooks.jsonl through the event-buffer reducers", () => {
 describe("buildTurnRuns produces the expected LangSmith run tree", () => {
   it("builds Turn(chain) → llm with thread_id + usage_metadata", async () => {
     const { client, callSpy } = mockClient();
-    initTracing(undefined, undefined, undefined, true, undefined, client);
 
     const { finalized } = replayHookLog(CAPTURE);
     const turn = finalized[0]; // "hi" turn, has usage
 
-    await buildTurnRuns({
+    await sendTurn(callSpy, {
       buffer: turn.buffer,
       conversationId: turn.conversationId,
       turnNum: turn.turnNum,
       project: "test",
     });
-    await flushPendingTraces();
 
     const tree = await getAssumedTreeFromCalls(callSpy.mock.calls, client);
 
@@ -99,18 +97,16 @@ describe("buildTurnRuns produces the expected LangSmith run tree", () => {
 
   it("renders a subagent as a Task tool child of the turn", async () => {
     const { client, callSpy } = mockClient();
-    initTracing(undefined, undefined, undefined, true, undefined, client);
 
     const { finalized } = replayHookLog(CAPTURE);
     const turn = finalized.find((f) => f.buffer.subagents.length > 0)!;
 
-    await buildTurnRuns({
+    await sendTurn(callSpy, {
       buffer: turn.buffer,
       conversationId: turn.conversationId,
       turnNum: turn.turnNum,
       project: "test",
     });
-    await flushPendingTraces();
 
     const tree = await getAssumedTreeFromCalls(callSpy.mock.calls, client);
     // The root turn is the parentless chain; the subagent is a nested chain.
@@ -146,6 +142,8 @@ describe("buildTurnRuns produces the expected LangSmith run tree", () => {
     // Subagent-only keys must NOT leak onto the subagent's llm/tool children.
     expect(nested.every((r) => meta(r).ls_subagent_id === undefined)).toBe(true);
     expect(nested.every((r) => meta(r).ls_subagent_type === undefined)).toBe(true);
+    expect(nested.every((r) => meta(r).subagent_model === "composer-2.5-fast")).toBe(true);
+    expect(nested.every((r) => meta(r).model === turn.buffer.model)).toBe(true);
     // The subagent task is a system instruction, never a "user" turn.
     const subInputs = nestedLlm.flatMap(
       (r) => (r.inputs as { messages?: Array<{ role?: string }> }).messages ?? [],
@@ -156,20 +154,18 @@ describe("buildTurnRuns produces the expected LangSmith run tree", () => {
 
   it("emits tool_call content blocks in the llm assistant message", async () => {
     const { client, callSpy } = mockClient();
-    initTracing(undefined, undefined, undefined, true, undefined, client);
 
     const { finalized } = replayHookLog(CAPTURE);
     // A turn whose assistant invoked at least one tool directly.
     const turn = finalized.find((f) => f.buffer.tools.length > 0)!;
     expect(turn).toBeDefined();
 
-    await buildTurnRuns({
+    await sendTurn(callSpy, {
       buffer: turn.buffer,
       conversationId: turn.conversationId,
       turnNum: turn.turnNum,
       project: "test",
     });
-    await flushPendingTraces();
 
     const tree = await getAssumedTreeFromCalls(callSpy.mock.calls, client);
     const llm = Object.values(tree.data).find((r) => r.run_type === "llm")!;
@@ -190,18 +186,16 @@ describe("buildTurnRuns produces the expected LangSmith run tree", () => {
 
   it("orders the decide llm first, then tools, then the answer llm", async () => {
     const { client, callSpy } = mockClient();
-    initTracing(undefined, undefined, undefined, true, undefined, client);
 
     const { finalized } = replayHookLog(CAPTURE);
     const turn = finalized.find((f) => f.buffer.tools.length > 0)!;
 
-    await buildTurnRuns({
+    await sendTurn(callSpy, {
       buffer: turn.buffer,
       conversationId: turn.conversationId,
       turnNum: turn.turnNum,
       project: "test",
     });
-    await flushPendingTraces();
 
     const tree = await getAssumedTreeFromCalls(callSpy.mock.calls, client);
     const root = Object.values(tree.data).find((r) => r.run_type === "chain")!;
@@ -219,18 +213,16 @@ describe("buildTurnRuns produces the expected LangSmith run tree", () => {
 
   it("renders a subagent invocation as a Task tool_call block in the llm message", async () => {
     const { client, callSpy } = mockClient();
-    initTracing(undefined, undefined, undefined, true, undefined, client);
 
     const { finalized } = replayHookLog(CAPTURE);
     const turn = finalized.find((f) => f.buffer.subagents.length > 0)!;
 
-    await buildTurnRuns({
+    await sendTurn(callSpy, {
       buffer: turn.buffer,
       conversationId: turn.conversationId,
       turnNum: turn.turnNum,
       project: "test",
     });
-    await flushPendingTraces();
 
     const tree = await getAssumedTreeFromCalls(callSpy.mock.calls, client);
     // The parent's "decide" llm (direct child of the root chain) emits the Subagent call.
@@ -248,20 +240,18 @@ describe("buildTurnRuns produces the expected LangSmith run tree", () => {
 
   it("emits attachment content parts on the llm + root inputs (inline-render shape)", async () => {
     const { client, callSpy } = mockClient();
-    initTracing(undefined, undefined, undefined, true, undefined, client);
 
     const { finalized } = replayHookLog(CAPTURE);
     const turn = finalized[0];
     const imagePart = { type: "image" as const, mime_type: "image/png", base64: "iVBORw0KGgo=" };
 
-    await buildTurnRuns({
+    await sendTurn(callSpy, {
       buffer: turn.buffer,
       conversationId: turn.conversationId,
       turnNum: turn.turnNum,
       project: "test",
       attachments: [imagePart],
     });
-    await flushPendingTraces();
 
     const tree = await getAssumedTreeFromCalls(callSpy.mock.calls, client);
     const llm = Object.values(tree.data).find((r) => r.run_type === "llm")!;
@@ -281,19 +271,17 @@ describe("buildTurnRuns produces the expected LangSmith run tree", () => {
 
   it("canonicalizes the model and emits tokens (cost left to LangSmith)", async () => {
     const { client, callSpy } = mockClient();
-    initTracing(undefined, undefined, undefined, true, undefined, client);
 
     const { finalized } = replayHookLog(CAPTURE);
     const turn = finalized.find((f) => (f.buffer.model ?? "").includes("claude"))!;
     expect(turn).toBeDefined();
 
-    await buildTurnRuns({
+    await sendTurn(callSpy, {
       buffer: turn.buffer,
       conversationId: turn.conversationId,
       turnNum: turn.turnNum,
       project: "test",
     });
-    await flushPendingTraces();
 
     const tree = await getAssumedTreeFromCalls(callSpy.mock.calls, client);
     // Usage sits on the answer llm run (agentic turns have two llm runs).
@@ -360,10 +348,14 @@ describe("buildTurnRuns interleaved step fidelity", () => {
 
   it("renders one llm run per round plus a final answer, interleaved with tools", async () => {
     const { client, callSpy } = mockClient();
-    initTracing(undefined, undefined, undefined, true, undefined, client);
 
-    await buildTurnRuns({ buffer, conversationId: "conv-x", turnNum: 1, project: "test", steps });
-    await flushPendingTraces();
+    await sendTurn(callSpy, {
+      buffer,
+      conversationId: "conv-x",
+      turnNum: 1,
+      project: "test",
+      steps,
+    });
 
     const tree = await getAssumedTreeFromCalls(callSpy.mock.calls, client);
     const llms = Object.values(tree.data).filter((r) => r.run_type === "llm");
@@ -399,7 +391,6 @@ describe("buildTurnRuns interleaved step fidelity", () => {
 
   it("falls back to the decide/answer shape when steps don't match the buffered tools", async () => {
     const { client, callSpy } = mockClient();
-    initTracing(undefined, undefined, undefined, true, undefined, client);
 
     // Steps reference tool ids absent from the buffer → no anchor → fall back.
     const orphanSteps: Step[] = [
@@ -407,14 +398,13 @@ describe("buildTurnRuns interleaved step fidelity", () => {
       { kind: "tool", toolUseId: "tool_zzz", toolField: 8, toolName: "Read" },
       { kind: "assistant", text: "all done" },
     ];
-    await buildTurnRuns({
+    await sendTurn(callSpy, {
       buffer,
       conversationId: "conv-x",
       turnNum: 1,
       project: "test",
       steps: orphanSteps,
     });
-    await flushPendingTraces();
 
     const tree = await getAssumedTreeFromCalls(callSpy.mock.calls, client);
     const llms = Object.values(tree.data).filter((r) => r.run_type === "llm");

@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { replayHookLog } from "./utils/replay.js";
 import { mockClient } from "./utils/mock_client.js";
 import { getAssumedTreeFromCalls } from "./utils/tree.js";
-import { buildTurnRuns, initTracing } from "../src/langsmith.js";
+import { sendTurn } from "./utils/engine.js";
 import {
   reduceStop,
   reduceBeforeSubmitPrompt,
@@ -11,7 +11,7 @@ import {
   reduceSubagentStart,
   reduceSubagentStop,
 } from "../src/reducer.js";
-import { MUTED_TRACE_CONTENT } from "../src/privacy.js";
+import { MUTED_TRACE_CONTENT } from "@langchain/plugins-base/privacy";
 import type { TurnMode } from "../src/models/types.js";
 
 it("replays identical full/muted topology and nested ownership without content backfill", async () => {
@@ -20,8 +20,7 @@ it("replays identical full/muted topology and nested ownership without content b
   const shapes = [];
   for (const mode of ["full", "metadata"] as const) {
     const { client, callSpy } = mockClient();
-    initTracing(undefined, undefined, undefined, false, undefined, client);
-    await buildTurnRuns({
+    await sendTurn(callSpy, {
       ...turn,
       buffer: { ...turn.buffer, tracingMode: mode },
       project: "test",
@@ -57,6 +56,7 @@ it("replays identical full/muted topology and nested ownership without content b
         expect(JSON.stringify(run)).not.toContain("UNSAFE");
         expect(JSON.stringify(run)).not.toContain("999999");
         expect(run.error).toBeUndefined();
+        expect(run.tags).toEqual([]);
       }
       expect(runs.filter((r) => r.run_type === "tool")).toHaveLength(turn.buffer.tools.length + 35);
       expect(runs.filter((r) => r.extra?.metadata?.status === "error").length).toBeGreaterThan(0);
@@ -71,8 +71,7 @@ it.each(["off", undefined] as const)(
     const { finalized } = replayHookLog(join(process.cwd(), "test/fixtures/cursor-hooks.jsonl"));
     const turn = finalized[0];
     const { client, callSpy } = mockClient();
-    initTracing(undefined, undefined, undefined, false, undefined, client);
-    await buildTurnRuns({
+    await sendTurn(callSpy, {
       ...turn,
       buffer: { ...turn.buffer, tracingMode: mode as TurnMode },
       project: "test",
@@ -139,8 +138,7 @@ it("preserves interleaved DB round topology while dropping repeated private cont
   const shapes = [];
   for (const mode of ["full", "metadata"] as const) {
     const { client, callSpy } = mockClient();
-    initTracing(undefined, undefined, undefined, false, undefined, client);
-    await buildTurnRuns({
+    await sendTurn(callSpy, {
       buffer: { ...buffer, tracingMode: mode },
       steps,
       conversationId: "thread",
@@ -225,8 +223,7 @@ it.each(["full", "metadata"] as const)(
     expect(stopped.buffer?.subagents[0].tools).toHaveLength(1);
     expect(stopped.state.parent.turns.next.tracingMode).not.toBe(launch);
     const { client, callSpy } = mockClient();
-    initTracing(undefined, undefined, undefined, false, undefined, client);
-    await buildTurnRuns({
+    await sendTurn(callSpy, {
       buffer: stopped.buffer!,
       conversationId: "parent",
       turnNum: 1,

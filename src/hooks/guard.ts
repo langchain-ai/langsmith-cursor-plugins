@@ -18,8 +18,9 @@
  * Invoked as: node ./bundle/guard.js <hook-name>
  */
 import { execFileSync, spawnSync } from "node:child_process";
-import { appendFileSync } from "node:fs";
-import { userInfo, homedir } from "node:os";
+import { userInfo } from "node:os";
+import { HOOK_CONTINUE_OUTPUT } from "../constants.js";
+import { error } from "../logger.js";
 import { MIN_NODE, nodeTooOld } from "../utils/node-version.js";
 import {
   isNodePathValid,
@@ -95,18 +96,10 @@ if (nodeTooOld(process.versions.node)) {
     `(need >= ${MIN_NODE[0]}.${MIN_NODE[1]} for node:sqlite). This turn was NOT traced. ` +
     `The Node configured by your login shell could not be used; install Node >= ` +
     `${MIN_NODE[0]}.${MIN_NODE[1]} or check your shell startup files. See README troubleshooting.`;
-  const logFile =
-    process.env.LANGSMITH_CURSOR_LOG_FILE ?? `${homedir()}/.cursor/langsmith-hook.log`;
-  try {
-    appendFileSync(logFile, msg + "\n");
-  } catch {
-    // best effort — logging must not itself throw
-  }
+  error(msg);
   console.error(msg);
   // Exit 0: a non-zero exit would make Cursor surface a hook failure every turn.
-  if (hookName === "before-submit-prompt") {
-    console.log(JSON.stringify({ continue: true }));
-  }
+  if (hookName === "before-submit-prompt") process.stdout.write(HOOK_CONTINUE_OUTPUT);
   process.exit(0);
 }
 
@@ -115,12 +108,10 @@ if (!hookName) {
   process.exit(0);
 }
 
-// Defer loading the real (sqlite-importing) hook until the version check passes.
+// Defer loading the real (sqlite-importing) hooks until the version check passes.
 // Resolve relative to this file so it works regardless of cwd.
-await import(new URL(`./${hookName}.js`, import.meta.url).href).catch((err: unknown) => {
+await import(new URL("./hooks.js", import.meta.url).href).catch((err: unknown) => {
   console.error(`[langsmith] hook ${hookName} failed:`, err);
-  if (hookName === "before-submit-prompt") {
-    console.log(JSON.stringify({ continue: true }));
-  }
+  if (hookName === "before-submit-prompt") process.stdout.write(HOOK_CONTINUE_OUTPUT);
   process.exit(0);
 });

@@ -397,7 +397,7 @@ export function reduceStop(state: TracingState, input: StopInput, nowMs: number)
   return { state: nextState, buffer: turn, turnNum };
 }
 
-export function reduceUploadSettled(
+export function reduceSavedForUpload(
   state: TracingState,
   conversationId: string,
   generationId: string,

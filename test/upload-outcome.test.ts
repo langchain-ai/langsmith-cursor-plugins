@@ -1,58 +1,54 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
-import { initTracing, uploadTurn } from "../src/langsmith.js";
-import { T0, turn } from "./utils/state.js";
+import { EventEmitter } from "node:events";
+import { mkdtempSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { describe, expect, it, vi } from "vitest";
+import { saveTurnForUpload } from "../src/tracing-engine.js";
+import { T0, testConfig, turn } from "./utils/state.js";
 
-const API = "https://langsmith.test/api/v1";
+vi.mock("node:child_process", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("node:child_process")>()),
+  spawn: () => {
+    const child = new EventEmitter();
+    setImmediate(() => child.emit("error", new Error("worker launch is mocked")));
+    return child;
+  },
+}));
 
-function answer(status: number): Response {
-  return {
-    ok: status >= 200 && status < 300,
-    status,
-    statusText: String(status),
-    text: () => Promise.resolve(""),
-    json: () => Promise.resolve({}),
-  } as Response;
-}
-
-function serverAnswering(statusForMethod: (method: string) => number) {
-  return vi.fn<typeof fetch>(async (_input, init) => answer(statusForMethod(init?.method ?? "GET")));
-}
-
-function upload(): Promise<boolean> {
-  return uploadTurn({
-    buffer: turn("g1", T0, { tracingMode: "full", prompt: "trace me" }),
+function upload(dir: string, tracingMode: "full" | "metadata" = "full"): Promise<boolean> {
+  return saveTurnForUpload(testConfig(join(dir, "state.json")), {
+    buffer: turn("g1", T0, { tracingMode, prompt: "PRIVATE_PROMPT" }),
     conversationId: "c1",
     turnNum: 1,
     project: "cursor",
   });
 }
 
-describe("an upload is only settled when the server accepted every write", () => {
-  afterEach(() => vi.unstubAllGlobals());
+function savedText(dir: string): string {
+  return readdirSync(dir, { recursive: true, encoding: "utf8" })
+    .map((name) => join(dir, name))
+    .filter((path) => statSync(path).isFile())
+    .map((path) => readFileSync(path, "utf8"))
+    .join("\n");
+}
 
-  it("stays unsettled when a write is refused", async () => {
-    vi.stubGlobal("fetch", serverAnswering((method) => (method === "GET" ? 200 : 403)));
-    initTracing("key", API);
-
-    expect(await upload()).toBe(false);
+describe("a stopped turn is only settled once its traces are saved", { timeout: 60_000 }, () => {
+  it("settles once the traces are saved for the uploader", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "ls-cursor-saved-"));
+    expect(await upload(dir)).toBe(true);
+    expect(savedText(dir)).toContain("PRIVATE_PROMPT");
   });
 
-  it("stays unsettled when the request never completes", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn<typeof fetch>(async () => {
-        throw Object.assign(new Error("The operation timed out."), { name: "TimeoutError" });
-      }),
-    );
-    initTracing("key", API);
-
-    expect(await upload()).toBe(false);
+  it("stays unsettled when the traces cannot be saved", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "ls-cursor-unsaved-"));
+    writeFileSync(join(dir, "langsmith_engine"), "not a directory");
+    expect(await upload(dir)).toBe(false);
   });
 
-  it("settles on accepted writes even when the instance refuses the client's own reads", async () => {
-    vi.stubGlobal("fetch", serverAnswering((method) => (method === "GET" ? 404 : 202)));
-    initTracing("key", API);
-
-    expect(await upload()).toBe(true);
+  it("never writes a muted turn's content to disk", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "ls-cursor-muted-"));
+    expect(await upload(dir, "metadata")).toBe(true);
+    expect(savedText(dir)).toContain("Cursor Turn 1");
+    expect(savedText(dir)).not.toContain("PRIVATE_PROMPT");
   });
 });

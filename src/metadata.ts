@@ -1,14 +1,17 @@
-import { buildCodingAgentMetadata } from "@langchain/plugins-base/metadata";
+import {
+  buildCodingAgentMetadata,
+  type CodingAgentMetadataOptions,
+} from "@langchain/plugins-base/metadata";
 import { LS_INTEGRATION_VERSION } from "./config.js";
 import { LS_INTEGRATION, PATH_SEPARATOR, SKILL_READ_TOOLS } from "./constants.js";
 import type { CursorMetadataOptions } from "./models/metadata.js";
 
+export function withIntegration(opts: CursorMetadataOptions): CodingAgentMetadataOptions {
+  return { ...opts, integration: LS_INTEGRATION, integrationVersion: LS_INTEGRATION_VERSION };
+}
+
 export function codingAgentMetadata(opts: CursorMetadataOptions): Record<string, unknown> {
-  return buildCodingAgentMetadata({
-    ...opts,
-    integration: LS_INTEGRATION,
-    integrationVersion: LS_INTEGRATION_VERSION,
-  });
+  return buildCodingAgentMetadata(withIntegration(opts));
 }
 
 // ─── Skill detection ──────────────────────────────────────────────────────────

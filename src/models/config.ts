@@ -1,4 +1,4 @@
-import type { RunTreeConfig } from "langsmith";
+import type { LangSmithUploadReplicaConfig } from "@langchain/plugins-base/tracing/upload";
 import type { StringNodeRule } from "langsmith/anonymizer";
 
 export interface Config {
@@ -11,7 +11,7 @@ export interface Config {
   project: string;
   debug: boolean;
   stateFilePath: string;
-  replicas?: RunTreeConfig["replicas"];
+  replicas?: LangSmithUploadReplicaConfig[];
   /** Identity / repo / user metadata attached to every run. */
   customMetadata?: Record<string, unknown>;
   /** Enrich turns with image/file attachment bytes from Cursor's DB (default on). */
@@ -25,6 +25,7 @@ export interface Config {
   sweepIdleMinutes: number;
   /** Extra user-supplied redaction rules (environment or common file config). */
   redactExtraRules?: StringNodeRule[];
+  cwd: string;
 }
 
 export interface CursorExtensions {

@@ -1,7 +1,8 @@
-import { DatabaseSync } from "node:sqlite";
+import { loadSqlite } from "./utils/sqlite.js";
 import type { BlobReader } from "./models/cursor-db.js";
 
 export function openDbReader(dbPath: string): BlobReader {
+  const { DatabaseSync } = loadSqlite();
   const db = new DatabaseSync(dbPath, { readOnly: true });
   const stmt = db.prepare("SELECT value FROM cursorDiskKV WHERE key = ?");
   return {
