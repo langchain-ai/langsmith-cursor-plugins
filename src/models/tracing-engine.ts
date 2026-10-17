@@ -17,6 +17,4 @@ export type RunPatchContext = PreparedRunPatchSubmission["run"];
 
 export type RunPatchValues = PreparedRunPatchSubmission["patch"]["values"];
 
-export type CaptureStatus = Awaited<ReturnType<PluginSession["session"]["capture"]>>["status"];
-
 export type SavedCapture = Awaited<ReturnType<PluginSession["store"]["read"]>>;

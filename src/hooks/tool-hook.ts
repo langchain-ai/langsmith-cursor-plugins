@@ -1,9 +1,9 @@
 import type { HookRunner } from "@langchain/plugins-base/plugin";
 import type { LiveTool, StateHookOptions } from "../models/hooks.js";
-import { resolveTurnAttachments } from "../attachments.js";
 import { debug } from "../logger.js";
 import { atomicUpdateState, getTurnBuffer, ownEntry } from "../state.js";
 import { saveToolForUpload } from "../tracing-engine.js";
+import { originFromConfig } from "../turn-origin.js";
 import type { HookInputBase, TracingState } from "../models/types.js";
 import { initHook } from "../utils/hook-init.js";
 import { readStdin } from "../utils/stdin.js";
@@ -27,27 +27,14 @@ export function toolHook<Input extends HookInputBase>({
     if (!live) return;
     const { buffer, turnNum, toolIndex } = live;
 
-    await saveToolForUpload(
-      config,
-      {
-        buffer,
-        conversationId: input.conversation_id,
-        turnNum,
-        project: config.project,
-        userEmail: input.user_email,
-        customMetadata: config.customMetadata,
-        runtimeVersion: input.cursor_version,
-      },
+    await saveToolForUpload(config, {
+      kind: "tool",
+      conversationId: input.conversation_id,
+      turnNum,
+      buffer,
+      origin: originFromConfig(config, input),
       toolIndex,
-      () =>
-        config.attachmentsEnabled && buffer.tracingMode === "full"
-          ? resolveTurnAttachments({
-              conversationId: input.conversation_id,
-              prompt: buffer.prompt,
-              dbPath: config.cursorDbPath,
-            })
-          : [],
-    );
+    });
   };
 }
 

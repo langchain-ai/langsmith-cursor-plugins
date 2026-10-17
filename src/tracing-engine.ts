@@ -4,7 +4,6 @@ import type { PluginSession } from "@langchain/plugins-base/plugin";
 import { createRepositoryAttributor } from "@langchain/plugins-base/git";
 import type { RepositoryAttributor } from "@langchain/plugins-base/git";
 import { createCaptureStore } from "@langchain/plugins-base/storage/capture";
-import { readSavedCaptureWake } from "@langchain/plugins-base/tracing";
 import type { LifecycleCaptureInput } from "@langchain/plugins-base/tracing/lifecycle";
 import type {
   ReconstructionJob,
@@ -13,9 +12,8 @@ import type {
 } from "@langchain/plugins-base/tracing/reconstruction";
 import { loadConfig } from "./config.js";
 import type { Config } from "./models/config.js";
-import { rootPatch, turnCaptures } from "./captures.js";
+import { rootPatch, turnCaptures, withRootDependency } from "./captures.js";
 import {
-  CAPTURE_CONFLICT_STATUS,
   CAPTURE_DUPLICATE_STATUS,
   CAPTURE_PUBLISHED_STATUS,
   ENGINE_STORAGE_DIR_NAME,
@@ -32,21 +30,24 @@ import {
   jobDigest,
   jobRef,
   parseJobRef,
+  parseToolJobRef,
   queuedContext,
   reduceChosenOutputs,
   reduceQueued,
   reduceUploaded,
+  toolJobContext,
+  toolJobRef,
 } from "./job-context.js";
 import { atomicUpdateState, readState } from "./state.js";
-import { buildToolRuns, buildTurnRuns, turnRunId } from "./langsmith.js";
-import type { UploadJobContext } from "./models/job-context.js";
+import { buildToolRuns, buildTurnRuns, toolRunId, turnRunId } from "./langsmith.js";
+import type { ToolJobRef, UploadJobContext } from "./models/job-context.js";
 import type { BuildTurnOptions } from "./models/langsmith.js";
-import type { CaptureStatus, RecoveryReport, SavedCapture } from "./models/tracing-engine.js";
-import type { ContentPart } from "./models/types.js";
+import type { RecoveryReport, SavedCapture } from "./models/tracing-engine.js";
 import { debug, warn } from "./logger.js";
 import { isRecord } from "./normalize.js";
 import { toolOrigin } from "./tool-origin.js";
-import { enrichTurn } from "./turn-enrichment.js";
+import { originFromConfig } from "./turn-origin.js";
+import { enrichTurn, toolAttachments } from "./turn-enrichment.js";
 import { withWarningsTo } from "./utils/console.js";
 import { writerOptions } from "./writer-options.js";
 
@@ -65,26 +66,11 @@ export async function saveTurnForUpload(
   }
 }
 
-export async function saveToolForUpload(
-  config: Config,
-  options: BuildTurnOptions,
-  toolIndex: number,
-  attachments: () => ContentPart[],
-): Promise<void> {
-  const captures = turnCaptures(buildToolRuns(options, toolIndex));
-  if (captures.length === 0) return;
-  const plugin = openSession(config, options.conversationId, options.project);
+export async function saveToolForUpload(config: Config, context: UploadJobContext): Promise<void> {
   try {
-    const { turnId } = captures[0];
-    if (await plugin.store.readSettledTurn(LS_INTEGRATION, plugin.sessionId, turnId)) return;
-    const root = await readSaved(plugin, captures[0]);
-    if (root && root.destinationFingerprint !== plugin.fingerprint) return;
-    const withRoot = root
-      ? captures
-      : turnCaptures(buildToolRuns({ ...options, attachments: attachments() }, toolIndex));
-    for (const input of withRoot) await captureInto(plugin, input);
+    await queueUpload(config, context);
   } catch (err) {
-    warn(`Leaving tool ${toolIndex} for stop to save: ${err}`);
+    warn(`Leaving tool ${context.toolIndex} for stop to save: ${err}`);
   }
 }
 
@@ -105,21 +91,45 @@ async function queueUpload(config: Config, context: UploadJobContext): Promise<v
       turnId,
       eventId: `${RUN_EVENT_PREFIX}${runId}`,
     });
+  if (context.kind === "tool") {
+    if (await plugin.store.readSettledTurn(LS_INTEGRATION, sessionId, turnId)) return;
+    const { buffer, toolIndex = 0 } = context;
+    if (await saved(toolRunId(context.conversationId, buffer, toolIndex))) return;
+  }
   const root = await saved(turnId);
   if (root && root.destinationFingerprint !== plugin.fingerprint) {
     throw new Error(TURN_ON_OTHER_ACCOUNT_MESSAGE);
   }
   const digest = jobDigest(plugin.sessionId, context);
-  const savedAtMs = Date.now();
-  await atomicUpdateState(config.stateFilePath, (s) => reduceQueued(s, context, savedAtMs));
-  const generationId = context.buffer.generation_id;
-  const ref = jobRef({ conversationId: context.conversationId, generationId, savedAtMs });
+  const { conversationId, buffer, toolIndex = 0 } = context;
+  const generationId = buffer.generation_id;
+  let ref: string;
+  if (context.kind === "tool") {
+    const toolUseId = buffer.tools[toolIndex].tool_use_id;
+    const { model } = buffer;
+    ref = toolJobRef({
+      conversationId,
+      generationId,
+      toolIndex,
+      toolUseId,
+      model,
+      withRoot: !root,
+    });
+  } else {
+    const savedAtMs = Date.now();
+    await atomicUpdateState(config.stateFilePath, (s) => reduceQueued(s, context, savedAtMs));
+    ref = jobRef({ conversationId, generationId, savedAtMs });
+  }
   const input: ReconstructionJobInput = {
     turnId,
     eventId: `${JOB_EVENT_PREFIX}${digest}`,
     sourceRefs: [ref],
     privacyMode: context.buffer.tracingMode === "full" ? "full" : "metadata",
-    turnEvidence: { childRunIds: [], closureState: "authoritative" },
+    turnEvidence: {
+      childRunIds: [],
+      closureState: context.kind === "tool" ? "open" : "authoritative",
+    },
+    ...(context.kind === "tool" ? { sourceAgeStartedAtMs: buffer.startMs } : {}),
   };
   try {
     const { status } = await plugin.session.queueReconstruction(input);
@@ -137,9 +147,14 @@ async function buildQueuedRuns(
   config: Config,
   plugin: PluginSession,
 ): Promise<ReconstructionResult> {
-  const ref = parseJobRef(job.sourceRefs[0]);
-  const context = ref && queuedContext(readState(config.stateFilePath), ref);
-  if (!ref || !context) return { status: "ready", outputs: [] };
+  const [source] = job.sourceRefs;
+  const ref = parseJobRef(source);
+  const toolRef = parseToolJobRef(source);
+  const state = readState(config.stateFilePath);
+  const context = toolRef
+    ? toolJobContext(state, toolRef, originFromConfig(config, {}))
+    : ref && queuedContext(state, ref);
+  if (!context) return { status: "ready", outputs: [] };
   const { buffer, conversationId, turnNum, origin } = context;
   const cwd =
     typeof origin.customMetadata?.cwd === "string" ? origin.customMetadata.cwd : config.cwd;
@@ -154,12 +169,14 @@ async function buildQueuedRuns(
     savedAtMs: context.savedAtMs,
   };
   const chosen = context.outputEventIds && new Set(context.outputEventIds);
-  const inputs = await turnInputs(
-    plugin,
-    context.kind === "stop" ? enrichTurn(config, options) : options,
-    chosen,
-  );
-  if (!chosen) {
+  const inputs = toolRef
+    ? toolInputs(config, plugin, options, toolRef)
+    : await turnInputs(
+        plugin,
+        context.kind === "stop" ? enrichTurn(config, options) : options,
+        chosen,
+      );
+  if (ref && !chosen) {
     const outputEventIds = inputs.map(({ eventId }) => eventId);
     await atomicUpdateState(config.stateFilePath, (s) =>
       reduceChosenOutputs(s, ref, outputEventIds),
@@ -217,6 +234,22 @@ async function turnInputs(
   return inputs;
 }
 
+function toolInputs(
+  config: Config,
+  plugin: PluginSession,
+  options: BuildTurnOptions,
+  { toolIndex, withRoot }: ToolJobRef,
+): LifecycleCaptureInput[] {
+  const enriched = withRoot
+    ? { ...options, attachments: toolAttachments(config, options) }
+    : options;
+  const captures = turnCaptures(buildToolRuns(enriched, toolIndex));
+  const [root] = captures;
+  if (!root) return [];
+  const outputs = withRoot ? captures : captures.slice(1);
+  return outputs.map((input) => withRootDependency(input, root, plugin.sessionId));
+}
+
 function readSaved(plugin: PluginSession, input: LifecycleCaptureInput): Promise<SavedCapture> {
   return plugin.store.read({
     integration: LS_INTEGRATION,
@@ -257,35 +290,6 @@ export async function recoverConversations(
   );
   for (const { sessionId, message } of report.failed) {
     warn(`Could not restart the uploader for ${sessionId}: ${message}`);
-  }
-}
-
-async function captureInto(
-  plugin: PluginSession,
-  input: LifecycleCaptureInput,
-): Promise<CaptureStatus> {
-  try {
-    const result = await plugin.session.capture(input);
-    if (result.status === CAPTURE_CONFLICT_STATUS) debug(`Run ${input.eventId} was already saved`);
-    else if (
-      result.status !== CAPTURE_PUBLISHED_STATUS &&
-      result.status !== CAPTURE_DUPLICATE_STATUS
-    ) {
-      throw new Error(`Could not save ${input.eventId} for upload: ${result.status}`);
-    }
-    return result.status;
-  } catch (err) {
-    const saved = await readSavedCaptureWake(err, {
-      store: plugin.store,
-      integration: LS_INTEGRATION,
-      sessionId: plugin.sessionId,
-      turnId: input.turnId,
-      eventId: input.eventId,
-      destinationFingerprint: plugin.fingerprint,
-    });
-    if (!saved) throw err;
-    warn(`Saved ${input.eventId} for upload, but its uploader did not start: ${err}`);
-    return CAPTURE_PUBLISHED_STATUS;
   }
 }
 

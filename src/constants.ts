@@ -86,6 +86,8 @@ export const JOB_EVENT_PREFIX = "cursor-job:";
 
 export const JOB_REF_PREFIX = "cursor-turn:";
 
+export const TOOL_JOB_REF_PREFIX = "cursor-tool:";
+
 export const JOB_STORE_DIR_NAME = "jobs";
 
 export const GH_LOGIN_MARKER_FILE = "langsmith_gh_login.json";
@@ -115,8 +117,6 @@ export const RUN_PATCH_FIELDS = ["outputs", "end_time", "error"] as const;
 export const CAPTURE_PUBLISHED_STATUS = "published";
 
 export const CAPTURE_DUPLICATE_STATUS = "duplicate";
-
-export const CAPTURE_CONFLICT_STATUS = "conflict";
 
 export const TURN_ON_OTHER_ACCOUNT_MESSAGE = "its first runs were saved under another API key";
 

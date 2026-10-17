@@ -10,7 +10,6 @@ import {
   readCommonConfigFiles,
   toSdkReplicas,
 } from "@langchain/plugins-base/settings";
-import { getGitInfo, getRepoName, getRepoUrl } from "@langchain/plugins-base/git";
 import { homedir, userInfo } from "node:os";
 import { join } from "node:path";
 import type { LangSmithUploadReplicaConfig } from "@langchain/plugins-base/tracing/upload";
@@ -206,18 +205,6 @@ export function loadConfig(options?: { cwd?: string }): Config {
   // owned by codingAgentMetadata(), so they're not here.
   const baseMetadata: Record<string, unknown> = { cwd };
   if (LS_INTEGRATION_VERSION) baseMetadata.ls_integration_version = LS_INTEGRATION_VERSION;
-
-  // Repo attribution: name + provider, and the canonical https repository_url.
-  const repo = getRepoName(cwd);
-  if (repo) {
-    baseMetadata.repository_name = repo.name;
-    baseMetadata.repository_provider = repo.provider;
-    const url = getRepoUrl(repo.provider, repo.name);
-    if (url) baseMetadata.repository_url = url;
-  }
-  const git = getGitInfo(cwd);
-  if (git.branch) baseMetadata.git_branch = git.branch;
-  if (git.commit) baseMetadata.git_commit_sha = git.commit;
 
   // user_id is not exposed by Cursor's hooks; user_email is added per-turn in buildTurnRuns.
   baseMetadata.local_username = userInfo().username;
