@@ -24,15 +24,11 @@ const harness = vi.hoisted(() => ({
   saveTurnForUpload: vi.fn(async () => !harness.uploadError),
   wakeUploader: vi.fn(async () => 0),
   runEngineWorker: vi.fn(async () => {}),
-  resolveTurnAttachments: vi.fn(() => []),
 }));
 
 vi.mock("../src/utils/stdin.js", () => ({ readStdin: async () => harness.input }));
 vi.mock("../src/utils/hook-init.js", () => ({ initHook: () => harness.config ?? null }));
 vi.mock("../src/conversation-steps.js", () => ({ resolveTurnSteps: () => undefined }));
-vi.mock("../src/attachments.js", () => ({
-  resolveTurnAttachments: harness.resolveTurnAttachments,
-}));
 vi.mock("../src/tracing-engine.js", () => ({
   recoverConversations: harness.recoverConversations,
   saveTurnForUpload: harness.saveTurnForUpload,
@@ -67,7 +63,6 @@ describe("hook wiring against the on-disk state file", () => {
     process.env.LANGSMITH_CURSOR_LOG_FILE = join(dir, "hook.log");
     harness.uploadError = undefined;
     harness.wakeUploader.mockClear();
-    harness.resolveTurnAttachments.mockClear();
     harness.saveTurnForUpload.mockClear();
     harness.recoverConversations.mockClear();
     harness.saveToolForUpload.mockClear();
@@ -208,31 +203,6 @@ describe("hook wiring against the on-disk state file", () => {
     await runHook("post-tool-use");
 
     expect(harness.saveToolForUpload).toHaveBeenCalledTimes(calls);
-  });
-
-  it.each([
-    ["full", 1],
-    ["metadata", 0],
-  ] as const)("loads attachments for an early %s root only in full mode", async (mode, loads) => {
-    harness.config = { ...harness.config!, attachmentsEnabled: true };
-    saveState(stateFilePath, {
-      live: conversation([turn("g1", T0, { tracingMode: mode, turnNum: 1 })]),
-    });
-    harness.input = {
-      hook_event_name: "postToolUse",
-      conversation_id: "live",
-      generation_id: "g1",
-      model: "default",
-      tool_name: "Read",
-      tool_use_id: "t1",
-      tool_input: {},
-      tool_output: "{}",
-    };
-
-    await runHook("post-tool-use");
-    (harness.saveToolForUpload.mock.calls[0][3] as () => unknown)();
-
-    expect(harness.resolveTurnAttachments).toHaveBeenCalledTimes(loads);
   });
 
   it("keeps a failed sweep upload pending for a later retry", async () => {

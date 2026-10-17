@@ -292,22 +292,16 @@ describe("loadConfig", () => {
       expect(config.customMetadata?.cwd).toBe(cwd);
     });
 
-    it("attaches the workspace repository and commit", () => {
+    it("leaves the workspace repository and commit for the uploader to find", () => {
       const git = (...args: string[]) =>
-        execFileSync("git", ["-c", "user.name=t", "-c", "user.email=t@t", ...args], {
-          cwd,
-          encoding: "utf8",
-        }).trim();
+        execFileSync("git", ["-c", "user.name=t", "-c", "user.email=t@t", ...args], { cwd });
       git("init", "-q", "-b", "trunk");
       git("remote", "add", "origin", "git@github.com:acme/widget.git");
       git("commit", "-q", "--allow-empty", "-m", "c");
-      expect(loadConfig({ cwd }).customMetadata).toMatchObject({
-        repository_name: "acme/widget",
-        repository_provider: "github",
-        repository_url: "https://github.com/acme/widget",
-        git_branch: "trunk",
-        git_commit_sha: git("rev-parse", "HEAD"),
-      });
+      const keys = Object.keys(loadConfig({ cwd }).customMetadata ?? {});
+      expect(keys.filter((key) => key.startsWith("git_") || key.startsWith("repository_"))).toEqual(
+        [],
+      );
     });
 
     it("lets metadata from files and the environment replace the defaults per key", () => {

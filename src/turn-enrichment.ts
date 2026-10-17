@@ -47,3 +47,10 @@ export function enrichTurn(config: Config, options: BuildTurnOptions): BuildTurn
 
   return { ...options, attachments, systemPrompt, steps };
 }
+
+export function toolAttachments(config: Config, options: BuildTurnOptions): ContentPart[] {
+  const { buffer, conversationId } = options;
+  return config.attachmentsEnabled && buffer.tracingMode === "full"
+    ? resolveTurnAttachments({ conversationId, prompt: buffer.prompt, dbPath: config.cursorDbPath })
+    : [];
+}
