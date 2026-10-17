@@ -32,13 +32,7 @@ export const BINARY_HOOK_EVENTS = {
 
 export const LEADING_BYTE_ORDER_MARKS = /^\uFEFF+/;
 
-export const LS_AGENT_PURPOSE = "coding";
-
 export const LS_INTEGRATION = "cursor";
-
-export const LS_AGENT_RUNTIME = "Cursor";
-
-export const LS_TRACE_SCHEMA_VERSION = "coding-agent-v1";
 
 /** Read tools only, so a glob or grep naming SKILL.md is not counted as an invocation. */
 export const SKILL_READ_TOOLS = new Set(["read_file_v2", "ReadFile", "Read"]);

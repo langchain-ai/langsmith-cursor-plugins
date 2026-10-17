@@ -9,9 +9,9 @@ export interface SubagentToolCall {
   input: Record<string, unknown>;
 }
 
-export interface UsageMetadata {
+export type UsageMetadata = {
   input_tokens: number;
   output_tokens: number;
   total_tokens: number;
   input_token_details: { cache_read: number; cache_creation: number };
-}
+};

@@ -199,11 +199,11 @@ var require_p_finally = __commonJS({
       onFinally = onFinally || (() => {
       });
       return promise.then(
-        (val) => new Promise((resolve12) => {
-          resolve12(onFinally());
+        (val) => new Promise((resolve14) => {
+          resolve14(onFinally());
         }).then(() => val),
-        (err) => new Promise((resolve12) => {
-          resolve12(onFinally());
+        (err) => new Promise((resolve14) => {
+          resolve14(onFinally());
         }).then(() => {
           throw err;
         })
@@ -223,18 +223,18 @@ var require_p_timeout = __commonJS({
         this.name = "TimeoutError";
       }
     };
-    var pTimeout = (promise, milliseconds, fallback) => new Promise((resolve12, reject) => {
+    var pTimeout = (promise, milliseconds, fallback) => new Promise((resolve14, reject) => {
       if (typeof milliseconds !== "number" || milliseconds < 0) {
         throw new TypeError("Expected `milliseconds` to be a positive number");
       }
       if (milliseconds === Infinity) {
-        resolve12(promise);
+        resolve14(promise);
         return;
       }
       const timer = setTimeout(() => {
         if (typeof fallback === "function") {
           try {
-            resolve12(fallback());
+            resolve14(fallback());
           } catch (error2) {
             reject(error2);
           }
@@ -249,7 +249,7 @@ var require_p_timeout = __commonJS({
       }, milliseconds);
       pFinally(
         // eslint-disable-next-line promise/prefer-await-to-then
-        promise.then(resolve12, reject),
+        promise.then(resolve14, reject),
         () => {
           clearTimeout(timer);
         }
@@ -467,7 +467,7 @@ var require_dist = __commonJS({
       Adds a sync or async task to the queue. Always returns a promise.
       */
       async add(fn, options = {}) {
-        return new Promise((resolve12, reject) => {
+        return new Promise((resolve14, reject) => {
           const run = async () => {
             this._pendingCount++;
             this._intervalCount++;
@@ -478,7 +478,7 @@ var require_dist = __commonJS({
                 }
                 return void 0;
               });
-              resolve12(await operation);
+              resolve14(await operation);
             } catch (error2) {
               reject(error2);
             }
@@ -529,11 +529,11 @@ var require_dist = __commonJS({
         if (this._queue.size === 0) {
           return;
         }
-        return new Promise((resolve12) => {
+        return new Promise((resolve14) => {
           const existingResolve = this._resolveEmpty;
           this._resolveEmpty = () => {
             existingResolve();
-            resolve12();
+            resolve14();
           };
         });
       }
@@ -546,11 +546,11 @@ var require_dist = __commonJS({
         if (this._pendingCount === 0 && this._queue.size === 0) {
           return;
         }
-        return new Promise((resolve12) => {
+        return new Promise((resolve14) => {
           const existingResolve = this._resolveIdle;
           this._resolveIdle = () => {
             existingResolve();
-            resolve12();
+            resolve14();
           };
         });
       }
@@ -604,10 +604,7 @@ var DEFAULT_API_URL = "https://api.smith.langchain.com";
 var CURSOR_DIRECTORY_NAME = ".cursor";
 var MAX_UPLOAD_ATTEMPTS = 3;
 var LEADING_BYTE_ORDER_MARKS = /^\uFEFF+/;
-var LS_AGENT_PURPOSE = "coding";
 var LS_INTEGRATION = "cursor";
-var LS_AGENT_RUNTIME = "Cursor";
-var LS_TRACE_SCHEMA_VERSION = "coding-agent-v1";
 var SKILL_READ_TOOLS = /* @__PURE__ */ new Set(["read_file_v2", "ReadFile", "Read"]);
 var PATH_SEPARATOR = /[/\\]/;
 var MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024;
@@ -629,13 +626,13 @@ var CURSOR_VENDOR_PREFIX = /^cursor-/i;
 
 // dist/src/utils/stdin.js
 function readStdin(stream = process.stdin) {
-  return new Promise((resolve12, reject) => {
+  return new Promise((resolve14, reject) => {
     let data = "";
     stream.setEncoding("utf-8");
     stream.on("data", (chunk) => data += chunk);
     stream.on("end", () => {
       try {
-        resolve12(JSON.parse(data.replace(LEADING_BYTE_ORDER_MARKS, "")));
+        resolve14(JSON.parse(data.replace(LEADING_BYTE_ORDER_MARKS, "")));
       } catch (err) {
         reject(new Error(`Failed to parse hook input: ${err}`));
       }
@@ -835,25 +832,349 @@ function toSdkReplicas(replicas2) {
   }));
 }
 
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/git/attribution.js
+import { isAbsolute } from "node:path";
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/metadata/constants.js
+var CODING_AGENT_SCHEMA_VERSION = "coding-agent-v1";
+var CODING_AGENT_PURPOSE = "coding";
+var GIT_METADATA_KEYS = {
+  repository: "ls_git_repo",
+  repositoryUrl: "ls_git_repo_url",
+  provider: "ls_repo_provider",
+  branch: "ls_git_branch",
+  commit: "ls_git_commit_hash"
+};
+var LEGACY_GIT_METADATA_KEYS = {
+  repository: "repository_name",
+  repositoryUrl: "repository_url",
+  provider: "repository_provider",
+  branch: "git_branch",
+  commit: "git_commit_sha"
+};
+var ATTRIBUTION_IDENTIFIER_KEY = "ls_attribution_identifier";
+var REPOSITORY_METADATA_KEYS = [
+  GIT_METADATA_KEYS.repository,
+  GIT_METADATA_KEYS.provider,
+  GIT_METADATA_KEYS.repositoryUrl,
+  GIT_METADATA_KEYS.branch,
+  GIT_METADATA_KEYS.commit,
+  LEGACY_GIT_METADATA_KEYS.repository,
+  LEGACY_GIT_METADATA_KEYS.provider,
+  LEGACY_GIT_METADATA_KEYS.repositoryUrl,
+  LEGACY_GIT_METADATA_KEYS.branch,
+  LEGACY_GIT_METADATA_KEYS.commit,
+  ATTRIBUTION_IDENTIFIER_KEY
+];
+var CODING_AGENT_RUN_TYPES = [
+  "root",
+  "llm",
+  "tool",
+  "subagent",
+  "interrupted"
+];
+var CODING_AGENT_RUN_SCOPES = {
+  all: CODING_AGENT_RUN_TYPES,
+  rootInterrupted: ["root", "interrupted"],
+  subagent: ["subagent"],
+  tool: ["tool"],
+  llmTool: ["llm", "tool"],
+  chain: ["root", "subagent", "interrupted"]
+};
+var CODING_AGENT_AGENT_TYPES = ["root", "subagent", "middleware", "compaction"];
+var CODING_AGENT_SCHEMA_INTEGRATIONS = [
+  "claude-code",
+  "openai-codex",
+  "deepagents-code",
+  "cursor",
+  "pi"
+];
+var CODING_AGENT_CORE_INTEGRATIONS = [
+  "claude-code",
+  "cursor",
+  "openai-codex"
+];
+var CODING_AGENT_CODEX_INTEGRATION = ["openai-codex"];
+var CODING_AGENT_RUNTIME_NAMES = {
+  "claude-code": "Claude Code",
+  "openai-codex": "Codex",
+  "deepagents-code": "Deep Agents Code",
+  cursor: "Cursor",
+  pi: "Pi"
+};
+var CODING_AGENT_INTEGRATION_POLICIES = {
+  "claude-code": {
+    fullModePrecedence: "custom-wins",
+    metadataModeUsesDirectMetadata: true,
+    metadataModePreservesToolName: false,
+    legacyAliases: true
+  },
+  cursor: {
+    fullModePrecedence: "custom-wins",
+    metadataModeUsesDirectMetadata: true,
+    metadataModePreservesToolName: true,
+    legacyAliases: false
+  },
+  "openai-codex": {
+    fullModePrecedence: "structural-wins",
+    metadataModeUsesDirectMetadata: false,
+    metadataModePreservesToolName: false,
+    legacyAliases: false
+  }
+};
+var CODING_AGENT_ALWAYS_FIELD_OPTIONS = {
+  requirement: "always"
+};
+var CODING_AGENT_WHERE_KNOWN_FIELD_OPTIONS = {
+  requirement: "where_known",
+  requiredWhereKnown: true
+};
+var CODING_AGENT_FIELD_DEFAULTS = {
+  appliesTo: CODING_AGENT_RUN_TYPES,
+  type: "string",
+  allowedValues: null,
+  requirement: "contextual",
+  requiredWhereKnown: false,
+  metadataModeIntegrations: []
+};
+var CODING_AGENT_STRUCTURAL_FIELD_DEFAULTS = {
+  metadataModeIntegrations: CODING_AGENT_CORE_INTEGRATIONS,
+  metadataSource: "structural"
+};
+var CODING_AGENT_PROVIDER_FIELD_DEFAULTS = {
+  metadataSource: "provider",
+  providerIntegrations: CODING_AGENT_CORE_INTEGRATIONS
+};
+var TRUSTED_METADATA = /* @__PURE__ */ Symbol("coding-agent trusted metadata");
+var CODING_AGENT_RUNTIME_LIBRARY = "langsmith";
+var CODING_AGENT_RUNTIME_SDK = "langsmith-js";
+var CODING_AGENT_RELEASE_ENVIRONMENT_VARIABLES = [
+  "VERCEL_GIT_COMMIT_SHA",
+  "NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA",
+  "COMMIT_REF",
+  "RENDER_GIT_COMMIT",
+  "CI_COMMIT_SHA",
+  "CIRCLE_SHA1",
+  "CF_PAGES_COMMIT_SHA",
+  "REACT_APP_GIT_SHA",
+  "SOURCE_VERSION",
+  "GITHUB_SHA",
+  "TRAVIS_COMMIT",
+  "GIT_COMMIT",
+  "BUILD_VCS_NUMBER",
+  "bamboo_planRepository_revision",
+  "Build.SourceVersion",
+  "BITBUCKET_COMMIT",
+  "DRONE_COMMIT_SHA",
+  "SEMAPHORE_GIT_SHA",
+  "BUILDKITE_COMMIT"
+];
+var CODING_AGENT_ENVIRONMENT_METADATA_PREFIXES = ["LANGCHAIN_", "LANGSMITH_"];
+var CODING_AGENT_ENVIRONMENT_METADATA_EXCLUDED = [
+  "LANGCHAIN_API_KEY",
+  "LANGCHAIN_ENDPOINT",
+  "LANGCHAIN_TRACING_V2",
+  "LANGCHAIN_PROJECT",
+  "LANGCHAIN_SESSION",
+  "LANGSMITH_API_KEY",
+  "LANGSMITH_ENDPOINT",
+  "LANGSMITH_TRACING_V2",
+  "LANGSMITH_CONFIG_FILE",
+  "LANGSMITH_PROJECT",
+  "LANGSMITH_SESSION",
+  "LANGSMITH_AGENT_ID",
+  "LANGSMITH_AGENT_ENVIRONMENT"
+];
+var CODING_AGENT_ENVIRONMENT_METADATA_SENSITIVE_SUBSTRINGS = [
+  "key",
+  "secret",
+  "token",
+  "password",
+  "passwd",
+  "pwd",
+  "credential",
+  "email"
+];
+var CODING_AGENT_ENVIRONMENT_METADATA_ENDPOINT_SUBSTRINGS = [
+  "endpoint",
+  "proxy",
+  "url",
+  "auth",
+  "header"
+];
+var CODING_AGENT_REVISION_ID_VARIABLE = "LANGCHAIN_REVISION_ID";
+var CODING_AGENT_REVISION_ID_KEY = "revision_id";
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/utils/paths.js
+import { statSync } from "node:fs";
+import { dirname } from "node:path";
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/git/github-login.js
+import { mkdirSync, readFileSync as readFileSync2, renameSync, writeFileSync } from "node:fs";
+import { dirname as dirname2 } from "node:path";
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/git/constants.js
+var GIT_LOCATION_ENV_KEYS = [
+  "GIT_DIR",
+  "GIT_WORK_TREE",
+  "GIT_COMMON_DIR",
+  "GIT_INDEX_FILE",
+  "GIT_CEILING_DIRECTORIES"
+];
+var REMOTE_PATH_EDGE_SLASHES = /^\/+|\/+$/g;
+var REMOTE_PATH_TRAILING_SLASHES = /\/+$/;
+var REMOTE_GIT_SUFFIX = /\.git$/;
+var REMOTE_LINE_WHITESPACE = /\s+/;
+var SCP_REMOTE_PATTERN = /^(?:[^@]+@)?([^:]+):\/?(.+)$/;
+var GIT_PROVIDERS = {
+  "github.com": "github",
+  "gitlab.com": "gitlab",
+  "bitbucket.org": "bitbucket",
+  "dev.azure.com": "devAzure"
+};
+var SELF_HOSTED_PROVIDER_HINTS = ["github", "gitlab", "bitbucket"];
+var PROVIDER_HOSTS = {
+  github: "github.com",
+  gitlab: "gitlab.com",
+  bitbucket: "bitbucket.org",
+  devAzure: "dev.azure.com"
+};
+var GIT_COMMAND_TIMEOUT_MS = 5e3;
+var GH_LOGIN_RETRY_AFTER_MS = 24 * 60 * 60 * 1e3;
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/git/repository.js
+import { execFileSync } from "node:child_process";
+import { resolve } from "node:path";
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/metadata/git-names.js
+function withBothGitMetadataNames(metadata) {
+  const both = { ...metadata };
+  for (const role of Object.keys(GIT_METADATA_KEYS)) {
+    const value = both[GIT_METADATA_KEYS[role]] ?? both[LEGACY_GIT_METADATA_KEYS[role]];
+    if (value === void 0)
+      continue;
+    both[GIT_METADATA_KEYS[role]] ??= value;
+    both[LEGACY_GIT_METADATA_KEYS[role]] ??= value;
+  }
+  return both;
+}
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/git/repository.js
+function parseRepoName(remoteUrl) {
+  const value = remoteUrl.trim();
+  try {
+    const url = new URL(value);
+    const name = url.pathname.replace(REMOTE_PATH_EDGE_SLASHES, "").replace(REMOTE_GIT_SUFFIX, "");
+    const repository = repositoryOnHost(url.hostname, name);
+    if (repository)
+      return repository;
+  } catch {
+  }
+  const scpMatch = value.match(SCP_REMOTE_PATTERN);
+  if (scpMatch) {
+    const host = scpMatch[1];
+    const path3 = scpMatch[2];
+    if (host && path3) {
+      const name = path3.replace(REMOTE_PATH_TRAILING_SLASHES, "").replace(REMOTE_GIT_SUFFIX, "");
+      return repositoryOnHost(host, name);
+    }
+  }
+  return void 0;
+}
+function repositoryOnHost(hostname, name) {
+  const host = hostname.toLowerCase();
+  if (!name)
+    return void 0;
+  const provider2 = GIT_PROVIDERS[host];
+  if (provider2)
+    return { provider: provider2, name };
+  if (!host.includes("."))
+    return void 0;
+  const hinted = SELF_HOSTED_PROVIDER_HINTS.find((hint) => host.includes(hint));
+  return { provider: hinted ?? host, name, host };
+}
+function gitOutput(args, cwd) {
+  const env = { ...process.env, LC_ALL: "C", LANG: "C" };
+  for (const key of GIT_LOCATION_ENV_KEYS)
+    delete env[key];
+  return execFileSync("git", args, {
+    cwd,
+    env,
+    encoding: "utf-8",
+    timeout: GIT_COMMAND_TIMEOUT_MS,
+    stdio: ["ignore", "pipe", "pipe"]
+  });
+}
+function getRepoName(cwd) {
+  try {
+    const output = gitOutput(["remote", "-v"], cwd);
+    const lines = output.trim().split("\n").filter(Boolean);
+    const remotes = [];
+    for (const line of lines) {
+      const parts = line.split(REMOTE_LINE_WHITESPACE);
+      const name = parts[0];
+      const url = parts[1];
+      if (name && url && line.includes("(fetch)"))
+        remotes.push({ name, url });
+    }
+    const origin = remotes.find((remote) => remote.name === "origin");
+    if (origin) {
+      const name = parseRepoName(origin.url);
+      if (name)
+        return name;
+    }
+    for (const remote of remotes) {
+      const name = parseRepoName(remote.url);
+      if (name)
+        return name;
+    }
+  } catch {
+  }
+  return void 0;
+}
+function getRepoUrl(provider2, name) {
+  const host = PROVIDER_HOSTS[provider2];
+  return host ? `https://${host}/${name}` : void 0;
+}
+function getGitInfo(cwd) {
+  const result = {};
+  try {
+    const branch = gitOutput(["rev-parse", "--abbrev-ref", "HEAD"], cwd).trim();
+    if (branch && branch !== "HEAD")
+      result.branch = branch;
+  } catch {
+  }
+  try {
+    const commit = gitOutput(["rev-parse", "HEAD"], cwd).trim();
+    if (commit)
+      result.commit = commit;
+  } catch {
+  }
+  return result;
+}
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/git/paths.js
+import { readFileSync as readFileSync3, statSync as statSync2 } from "node:fs";
+import { dirname as dirname3, join as join2, resolve as resolve2 } from "node:path";
+
 // dist/src/config.js
 import { homedir as homedir2, userInfo } from "node:os";
-import { join as join2 } from "node:path";
-import { execSync } from "node:child_process";
+import { join as join3 } from "node:path";
 
 // dist/src/logger.js
-import { appendFileSync, mkdirSync, statSync, renameSync } from "node:fs";
-import { dirname } from "node:path";
+import { appendFileSync, mkdirSync as mkdirSync2, statSync as statSync3, renameSync as renameSync2 } from "node:fs";
+import { dirname as dirname4 } from "node:path";
 import { homedir } from "node:os";
 var LOG_FILE = process.env.LANGSMITH_CURSOR_LOG_FILE ?? `${homedir()}/.cursor/langsmith-hook.log`;
 var debugEnabled = false;
 function initLogger(debug2) {
   debugEnabled = debug2;
-  mkdirSync(dirname(LOG_FILE), { recursive: true });
+  mkdirSync2(dirname4(LOG_FILE), { recursive: true });
 }
 function rotateIfNeeded() {
   try {
-    if (statSync(LOG_FILE).size >= MAX_LOG_BYTES) {
-      renameSync(LOG_FILE, `${LOG_FILE}.1`);
+    if (statSync3(LOG_FILE).size >= MAX_LOG_BYTES) {
+      renameSync2(LOG_FILE, `${LOG_FILE}.1`);
     }
   } catch {
   }
@@ -914,12 +1235,6 @@ function parseJson(value) {
 
 // dist/src/config.js
 var LS_INTEGRATION_VERSION = true ? "0.5.0" : process.env.LANGSMITH_CURSOR_INTEGRATION_VERSION || void 0;
-var PROVIDER_HOSTS = {
-  github: "github.com",
-  gitlab: "gitlab.com",
-  bitbucket: "bitbucket.org",
-  devAzure: "dev.azure.com"
-};
 function isRedactRule(rule) {
   if (typeof rule !== "object" || rule === null)
     return false;
@@ -997,76 +1312,6 @@ function normalizeReplicas(replicas2) {
     ...r.updates ? { updates: r.updates } : {}
   });
 }
-var GIT_PROVIDERS_REGEX = {
-  github: /[@/](?:github\.com)[:/](.+?)(?:\.git)?\s/,
-  gitlab: /[@/](?:gitlab\.com)[:/](.+?)(?:\.git)?\s/,
-  bitbucket: /[@/](?:bitbucket\.org)[:/](.+?)(?:\.git)?\s/,
-  devAzure: /[@/](?:dev\.azure\.com)[:/](.+?)(?:\.git)?\s/
-};
-function parseRepoName(remoteUrl) {
-  for (const [provider2, regex] of Object.entries(GIT_PROVIDERS_REGEX)) {
-    const match = remoteUrl.match(regex);
-    if (match)
-      return { provider: provider2, name: match[1] };
-  }
-  return void 0;
-}
-function getRepoName(cwd) {
-  try {
-    const output = execSync("git remote -v", {
-      cwd,
-      encoding: "utf-8",
-      timeout: 5e3,
-      stdio: ["ignore", "pipe", "ignore"]
-    });
-    const remotes = [];
-    for (const line of output.trim().split("\n").filter(Boolean)) {
-      const parts = line.split(/\s+/);
-      if (parts.length >= 2 && line.includes("(fetch)")) {
-        remotes.push({ name: parts[0], url: parts[1] });
-      }
-    }
-    const origin = remotes.find((r) => r.name === "origin");
-    if (origin) {
-      const name = parseRepoName(origin.url + " ");
-      if (name)
-        return name;
-    }
-    for (const remote of remotes) {
-      const name = parseRepoName(remote.url + " ");
-      if (name)
-        return name;
-    }
-  } catch {
-  }
-  return void 0;
-}
-function getGitInfo(cwd) {
-  const result = {};
-  try {
-    const branch = execSync("git rev-parse --abbrev-ref HEAD", {
-      cwd,
-      encoding: "utf-8",
-      timeout: 5e3,
-      stdio: ["ignore", "pipe", "ignore"]
-    }).trim();
-    if (branch && branch !== "HEAD")
-      result.branch = branch;
-  } catch {
-  }
-  try {
-    const commit = execSync("git rev-parse HEAD", {
-      cwd,
-      encoding: "utf-8",
-      timeout: 5e3,
-      stdio: ["ignore", "pipe", "ignore"]
-    }).trim();
-    if (commit)
-      result.commit = commit;
-  } catch {
-  }
-  return result;
-}
 function loadConfig(options) {
   const cwd = options?.cwd ?? process.env.CURSOR_PROJECT_DIR ?? process.cwd();
   const files = readCommonConfigFiles({
@@ -1118,7 +1363,7 @@ function loadConfig(options) {
   const sweepIdleMinutes = parsePositiveNumber(getEnv("SWEEP_IDLE_MINUTES")) ?? fromFiles("sweep_idle_minutes") ?? DEFAULT_SWEEP_IDLE_MINUTES;
   const cursorDbPath = getEnv("DB_PATH") ?? fromFiles("cursor_db_path");
   const redactExtraRules = parseRedactExtraRules(getEnv("REDACT_EXTRA")) ?? common.redact_extra_rules;
-  const stateFilePath = process.env.LANGSMITH_CURSOR_STATE_FILE ?? join2(homedir2(), CURSOR_DIRECTORY_NAME, "langsmith-state.json");
+  const stateFilePath = process.env.LANGSMITH_CURSOR_STATE_FILE ?? join3(homedir2(), CURSOR_DIRECTORY_NAME, "langsmith-state.json");
   const baseMetadata = { cwd };
   if (LS_INTEGRATION_VERSION)
     baseMetadata.ls_integration_version = LS_INTEGRATION_VERSION;
@@ -1126,9 +1371,9 @@ function loadConfig(options) {
   if (repo) {
     baseMetadata.repository_name = repo.name;
     baseMetadata.repository_provider = repo.provider;
-    const host = PROVIDER_HOSTS[repo.provider];
-    if (host)
-      baseMetadata.repository_url = `https://${host}/${repo.name}`;
+    const url = getRepoUrl(repo.provider, repo.name);
+    if (url)
+      baseMetadata.repository_url = url;
   }
   const git = getGitInfo(cwd);
   if (git.branch)
@@ -1178,7 +1423,7 @@ import { chmod, link, lstat as lstat2, mkdir as mkdir2, readFile as readFile2, r
 import { performance as performance4 } from "node:perf_hooks";
 import { setTimeout as delay } from "node:timers/promises";
 import { randomUUID as randomUUID2 } from "node:crypto";
-import { dirname as dirname4, join as join4, resolve as resolve2 } from "node:path";
+import { dirname as dirname7, join as join5, resolve as resolve4 } from "node:path";
 
 // node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/utils/constants.js
 var FILE_MISSING_CODE = "ENOENT";
@@ -1266,24 +1511,24 @@ function errorCode(error2) {
 }
 
 // node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/storage/errors.js
-import { resolve } from "node:path";
+import { resolve as resolve3 } from "node:path";
 var FileLockTimeoutError = class extends Error {
   blockedPath;
   constructor(blockedPath) {
-    super(`${FILE_LOCK_TIMEOUT_MESSAGE}: ${resolve(blockedPath)}`);
+    super(`${FILE_LOCK_TIMEOUT_MESSAGE}: ${resolve3(blockedPath)}`);
     this.name = FILE_LOCK_TIMEOUT_ERROR_NAME;
-    this.blockedPath = resolve(blockedPath);
+    this.blockedPath = resolve3(blockedPath);
   }
 };
 var StorageNotWritableError = class extends Error {
   folder;
   code;
   constructor(folder, cause) {
-    super(`${STORAGE_NOT_WRITABLE_MESSAGE} ${resolve(folder)}. ${STORAGE_NOT_WRITABLE_FIX}`, {
+    super(`${STORAGE_NOT_WRITABLE_MESSAGE} ${resolve3(folder)}. ${STORAGE_NOT_WRITABLE_FIX}`, {
       cause
     });
     this.name = STORAGE_NOT_WRITABLE_ERROR_NAME;
-    this.folder = resolve(folder);
+    this.folder = resolve3(folder);
     this.code = errorCode(cause);
   }
 };
@@ -1312,7 +1557,7 @@ function warnUnlessMissing(error2) {
 import { lstat, mkdir, readFile, rename, rmdir as rmdir2, writeFile } from "node:fs/promises";
 import { performance as performance3 } from "node:perf_hooks";
 import { randomUUID } from "node:crypto";
-import { dirname as dirname3, join as join3 } from "node:path";
+import { dirname as dirname6, join as join4 } from "node:path";
 
 // node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/storage/file-lock-support.js
 import { unlink } from "node:fs/promises";
@@ -1355,7 +1600,7 @@ function waitForNextScan(deadline, blockedPath) {
 
 // node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/utils/files/cleanup.js
 import { rmdir, unlink as unlink2 } from "node:fs/promises";
-import { dirname as dirname2 } from "node:path";
+import { dirname as dirname5 } from "node:path";
 async function removeDirectoryBestEffort(path3, warning) {
   try {
     await rmdir(path3);
@@ -1372,7 +1617,7 @@ async function createLegacyGate(gatePath) {
   if (!stat3.isDirectory())
     throw new Error(FILE_LOCK_COMPATIBLE_GATE_CHANGED_MESSAGE);
   await recordLegacyGateOwner(gatePath);
-  startHeartbeat(join3(gatePath, FILE_LOCK_COMPATIBLE_OWNER_FILE), gatePath);
+  startHeartbeat(join4(gatePath, FILE_LOCK_COMPATIBLE_OWNER_FILE), gatePath);
   return { path: gatePath, dev: stat3.dev, ino: stat3.ino, birthtimeMs: stat3.birthtimeMs };
 }
 function resetMissingPermission(attempt) {
@@ -1404,7 +1649,7 @@ async function waitOutContention(attempt, error2) {
       }
       if (permissionDenied) {
         const firstRetry = attempt.missingPermissionError === void 0;
-        attempt.missingPermissionError = new StorageNotWritableError(dirname3(gatePath), error2);
+        attempt.missingPermissionError = new StorageNotWritableError(dirname6(gatePath), error2);
         if (firstRetry)
           return;
         if (process.platform !== WINDOWS_PLATFORM || code !== PERMISSION_DENIED_CODE || attempt.windowsDeniedRetries >= FILE_LOCK_WINDOWS_DENIED_RETRIES)
@@ -1424,7 +1669,7 @@ async function waitOutContention(attempt, error2) {
 }
 async function acquireLegacyDirectoryGate(filePath, deadline, tryAcquire) {
   const gatePath = `${filePath}${FILE_LOCK_LEGACY_DIRECTORY_SUFFIX}`;
-  await mkdir(dirname3(filePath), { recursive: true, mode: FILE_LOCK_DIRECTORY_MODE });
+  await mkdir(dirname6(filePath), { recursive: true, mode: FILE_LOCK_DIRECTORY_MODE });
   const attempt = {
     gatePath,
     filePath,
@@ -1456,12 +1701,12 @@ async function releaseLegacyDirectoryGate(gate) {
   if (!stat3.isDirectory() || stat3.dev !== gate.dev || stat3.ino !== gate.ino || stat3.birthtimeMs !== gate.birthtimeMs) {
     throw new Error(FILE_LOCK_COMPATIBLE_GATE_CHANGED_MESSAGE);
   }
-  await removeFile(join3(gate.path, FILE_LOCK_COMPATIBLE_OWNER_FILE));
+  await removeFile(join4(gate.path, FILE_LOCK_COMPATIBLE_OWNER_FILE));
   await rmdir2(gate.path);
 }
 async function recordLegacyGateOwner(gatePath) {
   try {
-    await writeFile(join3(gatePath, FILE_LOCK_COMPATIBLE_OWNER_FILE), String(process.pid), {
+    await writeFile(join4(gatePath, FILE_LOCK_COMPATIBLE_OWNER_FILE), String(process.pid), {
       flag: FILE_LOCK_EXCLUSIVE_FLAG,
       mode: FILE_LOCK_FILE_MODE
     });
@@ -1473,7 +1718,7 @@ async function recordLegacyGateOwner(gatePath) {
 async function legacyGateIsAbandoned(gatePath, isDirectory, modifiedAtMs) {
   let contents;
   try {
-    contents = await readFile(isDirectory ? join3(gatePath, FILE_LOCK_COMPATIBLE_OWNER_FILE) : gatePath, FILE_LOCK_ENCODING);
+    contents = await readFile(isDirectory ? join4(gatePath, FILE_LOCK_COMPATIBLE_OWNER_FILE) : gatePath, FILE_LOCK_ENCODING);
   } catch (error2) {
     if (errorCode(error2) !== FILE_MISSING_CODE)
       return false;
@@ -1486,7 +1731,7 @@ async function legacyGateIsAbandoned(gatePath, isDirectory, modifiedAtMs) {
 }
 async function ownerHeartbeatStopped(gatePath) {
   try {
-    const owner = await lstat(join3(gatePath, FILE_LOCK_COMPATIBLE_OWNER_FILE));
+    const owner = await lstat(join4(gatePath, FILE_LOCK_COMPATIBLE_OWNER_FILE));
     return Date.now() - owner.mtimeMs >= FILE_LOCK_STALE_CLAIM_MS;
   } catch {
     return false;
@@ -1520,7 +1765,7 @@ async function reclaimLegacyGate(gatePath, filePath, tryAcquire) {
       await removeFile(stalePath);
       return true;
     }
-    await removeFile(join3(stalePath, FILE_LOCK_COMPATIBLE_OWNER_FILE));
+    await removeFile(join4(stalePath, FILE_LOCK_COMPATIBLE_OWNER_FILE));
     await removeDirectoryBestEffort(stalePath, FILE_LOCK_STALE_GATE_CLEANUP_WARNING);
     return true;
   } finally {
@@ -1538,7 +1783,7 @@ function parseClaim(value, id) {
   return value;
 }
 async function publishClaim(filePath, claim, create, deadline) {
-  const temporaryPath = join4(dirname4(filePath), `${FILE_LOCK_TEMP_PREFIX}${claim.id}.${randomUUID2()}${FILE_LOCK_TEMP_SUFFIX}`);
+  const temporaryPath = join5(dirname7(filePath), `${FILE_LOCK_TEMP_PREFIX}${claim.id}.${randomUUID2()}${FILE_LOCK_TEMP_SUFFIX}`);
   try {
     await writeFile2(temporaryPath, JSON.stringify(claim), {
       flag: FILE_LOCK_EXCLUSIVE_FLAG,
@@ -1555,7 +1800,7 @@ async function publishClaim(filePath, claim, create, deadline) {
         } catch (error2) {
           if (errorCode(error2) !== PERMISSION_DENIED_CODE)
             throw error2;
-          await waitForNextScan(replacementDeadline, dirname4(filePath));
+          await waitForNextScan(replacementDeadline, dirname7(filePath));
         }
       }
     }
@@ -1574,7 +1819,7 @@ async function createClaim(claimDirectory) {
       ticket: FILE_LOCK_UNSELECTED_TICKET
     };
     try {
-      const path3 = join4(claimDirectory, `${id}${FILE_LOCK_CLAIM_EXTENSION}`);
+      const path3 = join5(claimDirectory, `${id}${FILE_LOCK_CLAIM_EXTENSION}`);
       await publishClaim(path3, claim, true);
       startHeartbeat(path3, id);
       return claim;
@@ -1600,7 +1845,7 @@ async function scanClaims(claimDirectory, ownPath) {
     if (!entry.name.endsWith(FILE_LOCK_CLAIM_EXTENSION))
       continue;
     const id = entry.name.slice(0, -FILE_LOCK_CLAIM_EXTENSION.length);
-    const path3 = join4(claimDirectory, entry.name);
+    const path3 = join5(claimDirectory, entry.name);
     if (!entry.isFile())
       return { claims, blocked: true };
     let value;
@@ -1647,7 +1892,7 @@ async function modifiedAt(path3) {
   }
 }
 function claimPath(claimDirectory, id) {
-  return join4(claimDirectory, `${id}${FILE_LOCK_CLAIM_EXTENSION}`);
+  return join5(claimDirectory, `${id}${FILE_LOCK_CLAIM_EXTENSION}`);
 }
 function hasClaimState(claims, id, choosing, ticket) {
   const claim = claims.find((peer) => peer.id === id);
@@ -1671,7 +1916,7 @@ function makeHandle(claimDirectory, claim) {
   };
 }
 async function beginClaim(filePath) {
-  const claimDirectory = `${resolve2(filePath)}${FILE_LOCK_DIRECTORY_SUFFIX}`;
+  const claimDirectory = `${resolve4(filePath)}${FILE_LOCK_DIRECTORY_SUFFIX}`;
   for (; ; ) {
     try {
       await assertSafeClaimDirectory(claimDirectory);
@@ -1791,7 +2036,7 @@ async function tryAcquireFileLock(filePath) {
   return makeHandle(acquired.claimDirectory, acquired.claim);
 }
 async function acquireCompatibleDirectoryFileLock(filePath, options) {
-  const resolvedPath = resolve2(filePath);
+  const resolvedPath = resolve4(filePath);
   const deadline = performance4.now() + timeoutMs(options);
   const gate = await acquireLegacyDirectoryGate(resolvedPath, deadline, tryAcquireFileLock);
   let acquired;
@@ -1840,10 +2085,10 @@ function precedes(left, right) {
 }
 
 // node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/storage/state-store.js
-import { readFileSync as readFileSync3, renameSync as renameSync3 } from "node:fs";
+import { readFileSync as readFileSync5, renameSync as renameSync4 } from "node:fs";
 
 // node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/utils/files/publish.js
-import { closeSync as closeSync2, openSync as openSync2, renameSync as renameSync2, writeSync } from "node:fs";
+import { closeSync as closeSync2, openSync as openSync2, renameSync as renameSync3, writeSync } from "node:fs";
 import { randomUUID as randomUUID3 } from "node:crypto";
 function publishByRename(path3, contents, tempSuffix, mode) {
   const temp = `${path3}.${randomUUID3()}${tempSuffix}`;
@@ -1853,7 +2098,7 @@ function publishByRename(path3, contents, tempSuffix, mode) {
   } finally {
     closeSync2(fd);
   }
-  renameSync2(temp, path3);
+  renameSync3(temp, path3);
 }
 
 // node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/storage/state-constants.js
@@ -1877,8 +2122,8 @@ var STATE_PRIVATE_DIR_MODE = 448;
 var STATE_PRIVATE_FILE_MODE = 384;
 
 // node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/storage/state-pending.js
-import { mkdirSync as mkdirSync2, readdirSync, readFileSync as readFileSync2, rmdirSync, rmSync, statSync as statSync2 } from "node:fs";
-import { join as join5 } from "node:path";
+import { mkdirSync as mkdirSync3, readdirSync, readFileSync as readFileSync4, rmdirSync, rmSync, statSync as statSync4 } from "node:fs";
+import { join as join6 } from "node:path";
 var sequence = 0;
 var same = (left, right) => JSON.stringify(left) === JSON.stringify(right);
 function diffValue(path3, before, after, operations) {
@@ -1978,10 +2223,10 @@ function writePending(stateFilePath, patch) {
   const directory = pendingDirectory(stateFilePath);
   const time = String(Date.now()).padStart(PENDING_STATE_TIME_WIDTH, "0");
   const order = String(sequence++).padStart(PENDING_STATE_SEQUENCE_WIDTH, "0");
-  const file = join5(directory, `${time}-${order}-${process.pid}${PENDING_STATE_FILE_SUFFIX}`);
+  const file = join6(directory, `${time}-${order}-${process.pid}${PENDING_STATE_FILE_SUFFIX}`);
   for (let attempt = 1; ; attempt++) {
     try {
-      mkdirSync2(directory, { recursive: true, mode: STATE_PRIVATE_DIR_MODE });
+      mkdirSync3(directory, { recursive: true, mode: STATE_PRIVATE_DIR_MODE });
       publishByRename(file, JSON.stringify(patch), PENDING_STATE_TEMP_SUFFIX, STATE_PRIVATE_FILE_MODE);
       return;
     } catch (error2) {
@@ -1995,10 +2240,10 @@ function readPending(stateFilePath) {
   const files = [];
   const patches = [];
   for (const name of names(directory).filter((n2) => n2.endsWith(PENDING_STATE_FILE_SUFFIX)).toSorted()) {
-    const file = join5(directory, name);
+    const file = join6(directory, name);
     files.push(file);
     try {
-      patches.push(JSON.parse(readFileSync2(file, "utf-8")));
+      patches.push(JSON.parse(readFileSync4(file, "utf-8")));
     } catch {
       continue;
     }
@@ -2009,7 +2254,7 @@ function hasRecentPending(stateFilePath) {
   const directory = pendingDirectory(stateFilePath);
   return names(directory).some((name) => {
     try {
-      return name.endsWith(PENDING_STATE_FILE_SUFFIX) && Date.now() - statSync2(join5(directory, name)).mtimeMs < STATE_LOCK_BUSY_MEMORY_MS;
+      return name.endsWith(PENDING_STATE_FILE_SUFFIX) && Date.now() - statSync4(join6(directory, name)).mtimeMs < STATE_LOCK_BUSY_MEMORY_MS;
     } catch {
       return false;
     }
@@ -2022,9 +2267,9 @@ function removePending(stateFilePath, files) {
   for (const name of names(directory)) {
     if (name.endsWith(PENDING_STATE_FILE_SUFFIX))
       continue;
-    const file = join5(directory, name);
+    const file = join6(directory, name);
     try {
-      if (Date.now() - statSync2(file).mtimeMs > PENDING_STATE_ABANDONED_MS)
+      if (Date.now() - statSync4(file).mtimeMs > PENDING_STATE_ABANDONED_MS)
         rmSync(file, { force: true });
     } catch {
       continue;
@@ -2081,7 +2326,7 @@ function pruneStateEntries(state, maxAgeMs, now = Date.now()) {
 function readStateFile(path3, onUnparseable) {
   let raw;
   try {
-    raw = readFileSync3(path3, STATE_FILE_ENCODING);
+    raw = readFileSync5(path3, STATE_FILE_ENCODING);
   } catch {
     return {};
   }
@@ -2095,7 +2340,7 @@ function readStateFile(path3, onUnparseable) {
 }
 function setAsideCorruptState(path3, warn2) {
   try {
-    renameSync3(path3, `${path3}${STATE_CORRUPT_SUFFIX}`);
+    renameSync4(path3, `${path3}${STATE_CORRUPT_SUFFIX}`);
   } catch {
   }
   warn2(STATE_CORRUPT_WARNING);
@@ -2384,15 +2629,15 @@ var POLICY_PARSE_RESULT_MESSAGE = "A policy parser must return a policy";
 
 // node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/plugin/policy-file.js
 import { randomUUID as randomUUID4 } from "node:crypto";
-import { lstatSync as lstatSync2, readFileSync as readFileSync4 } from "node:fs";
+import { lstatSync as lstatSync2, readFileSync as readFileSync6 } from "node:fs";
 import { open, rename as rename3, unlink as unlink3 } from "node:fs/promises";
-import { dirname as dirname5 } from "node:path";
+import { dirname as dirname8 } from "node:path";
 function readPolicyFile(path3, options) {
   let raw;
   try {
     if (options.requireRegularFile && !lstatSync2(path3).isFile())
       throw new Error(POLICY_NOT_REGULAR_MESSAGE);
-    raw = readFileSync4(path3, POLICY_FILE_ENCODING);
+    raw = readFileSync6(path3, POLICY_FILE_ENCODING);
   } catch (error2) {
     if (errorCode(error2) === FILE_MISSING_CODE) {
       try {
@@ -2413,49 +2658,49 @@ function readPolicyFile(path3, options) {
 
 // node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/storage/capture/capture-store.js
 import { lstat as lstat6 } from "node:fs/promises";
-import { basename as basename2, dirname as dirname8, join as join10, resolve as resolve5 } from "node:path";
+import { basename as basename2, dirname as dirname11, join as join11, resolve as resolve7 } from "node:path";
 
 // node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/storage/capture/paths.js
 import { createHash } from "node:crypto";
-import { resolve as resolve3, join as join6 } from "node:path";
+import { resolve as resolve5, join as join7 } from "node:path";
 
 // node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/storage/capture/utils/atomic-file.js
 import { constants as fsConstants } from "node:fs";
 import { chmod as chmod2, link as link2, lstat as lstat3, mkdir as mkdir3, open as open2, rename as rename4, unlink as unlink4 } from "node:fs/promises";
-import { dirname as dirname6, isAbsolute, join as join7, relative, sep } from "node:path";
+import { dirname as dirname9, isAbsolute as isAbsolute2, join as join8, relative, sep } from "node:path";
 import { randomUUID as randomUUID5 } from "node:crypto";
 
 // node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/utils/files/private-directory.js
 import { lstat as lstat4, readdir as readdir2 } from "node:fs/promises";
-import { isAbsolute as isAbsolute2, join as join8, relative as relative2, resolve as resolve4, sep as sep2 } from "node:path";
+import { isAbsolute as isAbsolute3, join as join9, relative as relative2, resolve as resolve6, sep as sep2 } from "node:path";
 
 // node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/storage/capture/utils/digest.js
 import { createHash as createHash2 } from "node:crypto";
 
 // node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/storage/capture/markers.js
 import { lstat as lstat5 } from "node:fs/promises";
-import { basename, dirname as dirname7, join as join9 } from "node:path";
+import { basename, dirname as dirname10, join as join10 } from "node:path";
 
 // node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/tracing/background-worker/worker.js
 import { randomUUID as randomUUID6 } from "node:crypto";
-import { resolve as resolve7 } from "node:path";
+import { resolve as resolve9 } from "node:path";
 import { setTimeout as delay2 } from "node:timers/promises";
 
 // node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/tracing/background-worker/paths.js
-import { join as join11, resolve as resolve6 } from "node:path";
+import { join as join12, resolve as resolve8 } from "node:path";
 
 // node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/tracing/background-worker/state.js
-import { join as join12 } from "node:path";
+import { join as join13 } from "node:path";
 
 // node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/bridge.js
-import { join as join15, resolve as resolve9 } from "node:path";
+import { join as join16, resolve as resolve11 } from "node:path";
 
 // node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/storage/stale-files.js
 import { lstat as lstat7, readFile as readFile3, readdir as readdir3, rmdir as rmdir3 } from "node:fs/promises";
-import { basename as basename3, dirname as dirname9, join as join13 } from "node:path";
+import { basename as basename3, dirname as dirname12, join as join14 } from "node:path";
 
 // node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/tracing/delivery/coordinator.js
-import { join as join14, resolve as resolve8 } from "node:path";
+import { join as join15, resolve as resolve10 } from "node:path";
 
 // node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/tracing/delivery/constants.js
 var DELIVERY_RETRY_MAX_MS = 30 * 60 * 1e3;
@@ -2466,175 +2711,6 @@ var PROCESS_STARTED_AT_MS = Date.now();
 
 // node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/tracing/delivery/deliver.js
 import { setTimeout as delay3 } from "node:timers/promises";
-
-// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/metadata/constants.js
-var CODING_AGENT_SCHEMA_VERSION = "coding-agent-v1";
-var CODING_AGENT_PURPOSE = "coding";
-var GIT_METADATA_KEYS = {
-  repository: "ls_git_repo",
-  repositoryUrl: "ls_git_repo_url",
-  provider: "ls_repo_provider",
-  branch: "ls_git_branch",
-  commit: "ls_git_commit_hash"
-};
-var LEGACY_GIT_METADATA_KEYS = {
-  repository: "repository_name",
-  repositoryUrl: "repository_url",
-  provider: "repository_provider",
-  branch: "git_branch",
-  commit: "git_commit_sha"
-};
-var ATTRIBUTION_IDENTIFIER_KEY = "ls_attribution_identifier";
-var REPOSITORY_METADATA_KEYS = [
-  GIT_METADATA_KEYS.repository,
-  GIT_METADATA_KEYS.provider,
-  GIT_METADATA_KEYS.repositoryUrl,
-  GIT_METADATA_KEYS.branch,
-  GIT_METADATA_KEYS.commit,
-  LEGACY_GIT_METADATA_KEYS.repository,
-  LEGACY_GIT_METADATA_KEYS.provider,
-  LEGACY_GIT_METADATA_KEYS.repositoryUrl,
-  LEGACY_GIT_METADATA_KEYS.branch,
-  LEGACY_GIT_METADATA_KEYS.commit,
-  ATTRIBUTION_IDENTIFIER_KEY
-];
-var CODING_AGENT_RUN_TYPES = [
-  "root",
-  "llm",
-  "tool",
-  "subagent",
-  "interrupted"
-];
-var CODING_AGENT_RUN_SCOPES = {
-  all: CODING_AGENT_RUN_TYPES,
-  rootInterrupted: ["root", "interrupted"],
-  subagent: ["subagent"],
-  tool: ["tool"],
-  llmTool: ["llm", "tool"],
-  chain: ["root", "subagent", "interrupted"]
-};
-var CODING_AGENT_AGENT_TYPES = ["root", "subagent", "middleware", "compaction"];
-var CODING_AGENT_SCHEMA_INTEGRATIONS = [
-  "claude-code",
-  "openai-codex",
-  "deepagents-code",
-  "cursor",
-  "pi"
-];
-var CODING_AGENT_CORE_INTEGRATIONS = [
-  "claude-code",
-  "cursor",
-  "openai-codex"
-];
-var CODING_AGENT_CODEX_INTEGRATION = ["openai-codex"];
-var CODING_AGENT_RUNTIME_NAMES = {
-  "claude-code": "Claude Code",
-  "openai-codex": "Codex",
-  "deepagents-code": "Deep Agents Code",
-  cursor: "Cursor",
-  pi: "Pi"
-};
-var CODING_AGENT_INTEGRATION_POLICIES = {
-  "claude-code": {
-    fullModePrecedence: "custom-wins",
-    metadataModeUsesDirectMetadata: true,
-    metadataModePreservesToolName: false,
-    legacyAliases: true
-  },
-  cursor: {
-    fullModePrecedence: "custom-wins",
-    metadataModeUsesDirectMetadata: true,
-    metadataModePreservesToolName: true,
-    legacyAliases: false
-  },
-  "openai-codex": {
-    fullModePrecedence: "structural-wins",
-    metadataModeUsesDirectMetadata: false,
-    metadataModePreservesToolName: false,
-    legacyAliases: false
-  }
-};
-var CODING_AGENT_ALWAYS_FIELD_OPTIONS = {
-  requirement: "always"
-};
-var CODING_AGENT_WHERE_KNOWN_FIELD_OPTIONS = {
-  requirement: "where_known",
-  requiredWhereKnown: true
-};
-var CODING_AGENT_FIELD_DEFAULTS = {
-  appliesTo: CODING_AGENT_RUN_TYPES,
-  type: "string",
-  allowedValues: null,
-  requirement: "contextual",
-  requiredWhereKnown: false,
-  metadataModeIntegrations: []
-};
-var CODING_AGENT_STRUCTURAL_FIELD_DEFAULTS = {
-  metadataModeIntegrations: CODING_AGENT_CORE_INTEGRATIONS,
-  metadataSource: "structural"
-};
-var CODING_AGENT_PROVIDER_FIELD_DEFAULTS = {
-  metadataSource: "provider",
-  providerIntegrations: CODING_AGENT_CORE_INTEGRATIONS
-};
-var CODING_AGENT_RUNTIME_LIBRARY = "langsmith";
-var CODING_AGENT_RUNTIME_SDK = "langsmith-js";
-var CODING_AGENT_RELEASE_ENVIRONMENT_VARIABLES = [
-  "VERCEL_GIT_COMMIT_SHA",
-  "NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA",
-  "COMMIT_REF",
-  "RENDER_GIT_COMMIT",
-  "CI_COMMIT_SHA",
-  "CIRCLE_SHA1",
-  "CF_PAGES_COMMIT_SHA",
-  "REACT_APP_GIT_SHA",
-  "SOURCE_VERSION",
-  "GITHUB_SHA",
-  "TRAVIS_COMMIT",
-  "GIT_COMMIT",
-  "BUILD_VCS_NUMBER",
-  "bamboo_planRepository_revision",
-  "Build.SourceVersion",
-  "BITBUCKET_COMMIT",
-  "DRONE_COMMIT_SHA",
-  "SEMAPHORE_GIT_SHA",
-  "BUILDKITE_COMMIT"
-];
-var CODING_AGENT_ENVIRONMENT_METADATA_PREFIXES = ["LANGCHAIN_", "LANGSMITH_"];
-var CODING_AGENT_ENVIRONMENT_METADATA_EXCLUDED = [
-  "LANGCHAIN_API_KEY",
-  "LANGCHAIN_ENDPOINT",
-  "LANGCHAIN_TRACING_V2",
-  "LANGCHAIN_PROJECT",
-  "LANGCHAIN_SESSION",
-  "LANGSMITH_API_KEY",
-  "LANGSMITH_ENDPOINT",
-  "LANGSMITH_TRACING_V2",
-  "LANGSMITH_CONFIG_FILE",
-  "LANGSMITH_PROJECT",
-  "LANGSMITH_SESSION",
-  "LANGSMITH_AGENT_ID",
-  "LANGSMITH_AGENT_ENVIRONMENT"
-];
-var CODING_AGENT_ENVIRONMENT_METADATA_SENSITIVE_SUBSTRINGS = [
-  "key",
-  "secret",
-  "token",
-  "password",
-  "passwd",
-  "pwd",
-  "credential",
-  "email"
-];
-var CODING_AGENT_ENVIRONMENT_METADATA_ENDPOINT_SUBSTRINGS = [
-  "endpoint",
-  "proxy",
-  "url",
-  "auth",
-  "header"
-];
-var CODING_AGENT_REVISION_ID_VARIABLE = "LANGCHAIN_REVISION_ID";
-var CODING_AGENT_REVISION_ID_KEY = "revision_id";
 
 // node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/metadata/contract.js
 function field(key, options = {}) {
@@ -2759,6 +2835,120 @@ var CODING_AGENT_V1_CONTRACT = {
   },
   integrationPolicies: CODING_AGENT_INTEGRATION_POLICIES
 };
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/metadata/validation.js
+function metadataFieldTypeIssue(field2, value) {
+  const matchesType = field2.type === "string" ? typeof value === "string" && value.length > 0 : field2.type === "integer" ? typeof value === "number" && Number.isSafeInteger(value) && value >= 1 : isPlainRecord(value);
+  if (!matchesType)
+    return "type";
+  return void 0;
+}
+function metadataFieldValueIssue(field2, value) {
+  const typeIssue = metadataFieldTypeIssue(field2, value);
+  if (typeIssue)
+    return typeIssue;
+  if (field2.allowedValues && !field2.allowedValues.includes(value))
+    return "value";
+  return void 0;
+}
+function validateProviderMetadata(value, integration, runType) {
+  if (!isPlainRecord(value))
+    return [{ key: "", reason: "type" }];
+  const issues = [];
+  for (const [key, entry] of Object.entries(value)) {
+    const field2 = CODING_AGENT_V1_CONTRACT.keys.find((candidate) => candidate.key === key);
+    if (field2?.metadataSource !== "provider") {
+      issues.push({ key, reason: "scope" });
+      continue;
+    }
+    if (!field2.providerIntegrations?.includes(integration)) {
+      issues.push({ key, reason: "integration" });
+      continue;
+    }
+    if (!field2.appliesTo.includes(runType)) {
+      issues.push({ key, reason: "scope" });
+      continue;
+    }
+    const reason = metadataFieldValueIssue(field2, entry);
+    if (reason)
+      issues.push({ key, reason });
+  }
+  return issues;
+}
+function normalizeProviderMetadata(value, integration, runType) {
+  if (!isPlainRecord(value))
+    return {};
+  const issues = new Map(validateProviderMetadata(value, integration, runType).map((issue) => [issue.key, issue]));
+  return Object.fromEntries(Object.entries(value).filter(([key, entry]) => entry !== void 0 && !issues.has(key)));
+}
+
+// node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/metadata/builder.js
+function buildCodingAgentMetadata(options) {
+  const policy = CODING_AGENT_INTEGRATION_POLICIES[options.integration];
+  const identity = {
+    ls_agent_purpose: CODING_AGENT_PURPOSE,
+    ls_integration: options.integration,
+    ls_agent_runtime: CODING_AGENT_V1_CONTRACT.runtimeNames[options.integration],
+    ls_trace_schema_version: CODING_AGENT_SCHEMA_VERSION,
+    ls_agent_type: options.agentType,
+    thread_id: options.threadId
+  };
+  if (options.integrationVersion)
+    identity.ls_integration_version = options.integrationVersion;
+  if (options.runtimeVersion)
+    identity.ls_agent_runtime_version = options.runtimeVersion;
+  if (options.turnId)
+    identity.turn_id = options.turnId;
+  if (typeof options.turnNumber === "number")
+    identity.turn_number = options.turnNumber;
+  if (options.approvalPolicy)
+    identity.approval_policy = options.approvalPolicy;
+  if (options.clearSubagent) {
+    identity.ls_subagent_id = void 0;
+    identity.ls_subagent_type = void 0;
+  } else {
+    if (options.subagentId)
+      identity.ls_subagent_id = options.subagentId;
+    if (options.subagentType)
+      identity.ls_subagent_type = options.subagentType;
+  }
+  if (options.toolName) {
+    if (policy.legacyAliases)
+      identity.tool_name = options.toolName;
+    if (options.runName && options.toolName !== options.runName) {
+      identity.ls_tool_name = options.toolName;
+    }
+  }
+  if (options.skillName)
+    identity.ls_skill_name = options.skillName;
+  if (policy.legacyAliases && options.subagentId)
+    identity.agent_id = options.subagentId;
+  if (policy.legacyAliases && options.subagentType)
+    identity.agent_type = options.subagentType;
+  const explicit = {};
+  if (options.modelName !== void 0)
+    explicit.ls_model_name = options.modelName;
+  if (options.usageMetadata !== void 0)
+    explicit.usage_metadata = options.usageMetadata;
+  const provider2 = normalizeProviderMetadata(options.providerMetadata, options.integration, options.runType);
+  const trusted = { ...identity, ...explicit, ...provider2 };
+  if (policy.metadataModePreservesToolName && options.toolName) {
+    trusted.ls_tool_name = options.toolName;
+  }
+  const pieces = [identity, explicit, provider2, options.runSpecific, options.base];
+  const full = policy.fullModePrecedence === "custom-wins" ? pieces : pieces.toReversed();
+  const merged = {};
+  for (const piece of full) {
+    if (piece)
+      Object.assign(merged, piece);
+  }
+  const result = withBothGitMetadataNames(merged);
+  Object.defineProperty(result, TRUSTED_METADATA, { value: trusted });
+  return result;
+}
+function trustedCodingAgentMetadata(metadata) {
+  return metadata?.[TRUSTED_METADATA];
+}
 
 // node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/uuid/src/regex.js
 var regex_default = /^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$/i;
@@ -3838,7 +4028,7 @@ async function onAttemptFailure({ error: error2, attemptNumber, retriesConsumed,
   const delayTime = calculateDelay(retriesConsumed, options);
   const finalDelay = Math.min(delayTime, remainingTime);
   if (finalDelay > 0) {
-    await new Promise((resolve12, reject) => {
+    await new Promise((resolve14, reject) => {
       const onAbort = () => {
         clearTimeout(timeoutToken);
         options.signal?.removeEventListener("abort", onAbort);
@@ -3846,7 +4036,7 @@ async function onAttemptFailure({ error: error2, attemptNumber, retriesConsumed,
       };
       const timeoutToken = setTimeout(() => {
         options.signal?.removeEventListener("abort", onAbort);
-        resolve12();
+        resolve14();
       }, finalDelay);
       if (options.unref) {
         timeoutToken.unref?.();
@@ -4256,7 +4446,7 @@ var safeJSON = (text) => {
 };
 
 // node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/internal/utils/sleep.js
-var sleep = (ms) => new Promise((resolve12) => setTimeout(resolve12, ms));
+var sleep = (ms) => new Promise((resolve14) => setTimeout(resolve14, ms));
 
 // node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/version.js
 var VERSION = "0.0.1";
@@ -4935,8 +5125,8 @@ var __classPrivateFieldGet = function(receiver, state, kind, f2) {
 var _APIPromise_client;
 var APIPromise = class _APIPromise extends Promise {
   constructor(client2, responsePromise, parseResponse = defaultParseResponse) {
-    super((resolve12) => {
-      resolve12(null);
+    super((resolve14) => {
+      resolve14(null);
     });
     Object.defineProperty(this, "responsePromise", {
       enumerable: true,
@@ -7656,19 +7846,19 @@ async function stat2(filePath) {
 function existsSync2(p) {
   return nodeFs.existsSync(p);
 }
-function mkdirSync4(dir) {
+function mkdirSync5(dir) {
   nodeFs.mkdirSync(dir, { recursive: true });
 }
-function writeFileSync2(filePath, content) {
+function writeFileSync3(filePath, content) {
   nodeFs.writeFileSync(filePath, content);
 }
-function renameSync5(oldPath, newPath) {
+function renameSync6(oldPath, newPath) {
   nodeFs.renameSync(oldPath, newPath);
 }
 function unlinkSync2(filePath) {
   nodeFs.unlinkSync(filePath);
 }
-function readFileSync6(filePath) {
+function readFileSync8(filePath) {
   return nodeFs.readFileSync(filePath, "utf-8");
 }
 async function mkdirExclusive(dir) {
@@ -7850,12 +8040,12 @@ var PromptCache = class {
     }
     const dir = path2.dirname(filePath);
     if (!existsSync2(dir)) {
-      mkdirSync4(dir);
+      mkdirSync5(dir);
     }
     const tempPath = `${filePath}.tmp`;
     try {
-      writeFileSync2(tempPath, JSON.stringify({ entries }, null, 2));
-      renameSync5(tempPath, filePath);
+      writeFileSync3(tempPath, JSON.stringify({ entries }, null, 2));
+      renameSync6(tempPath, filePath);
     } catch (e) {
       if (existsSync2(tempPath)) {
         unlinkSync2(tempPath);
@@ -7876,7 +8066,7 @@ var PromptCache = class {
     }
     let entries;
     try {
-      const content = readFileSync6(filePath);
+      const content = readFileSync8(filePath);
       const data = JSON.parse(content);
       entries = data.entries ?? null;
     } catch {
@@ -7989,14 +8179,14 @@ var LOCK_POLL_INTERVAL_MS = 10;
 var LOCK_STALE_AFTER_MS = 1e4;
 var LOCK_METADATA_FILE = "created_at";
 function sleep2(ms) {
-  return new Promise((resolve12) => setTimeout(resolve12, ms));
+  return new Promise((resolve14) => setTimeout(resolve14, ms));
 }
 function isEEXIST(err) {
   return typeof err === "object" && err !== null && err.code === "EEXIST";
 }
 function lockMetadataLines(lockDir) {
   try {
-    return readFileSync6(path2.join(lockDir, LOCK_METADATA_FILE)).split("\n");
+    return readFileSync8(path2.join(lockDir, LOCK_METADATA_FILE)).split("\n");
   } catch {
     return void 0;
   }
@@ -8111,7 +8301,7 @@ function loadProfileState() {
     return void 0;
   }
   try {
-    const config = JSON.parse(readFileSync6(configPath));
+    const config = JSON.parse(readFileSync8(configPath));
     const profileName = resolveProfileName(config);
     const profile = profileName ? config.profiles?.[profileName] : void 0;
     if (!profileName || !profile) {
@@ -8341,7 +8531,7 @@ var ProfileAuth = class {
   }
   reloadProfile() {
     try {
-      const config = JSON.parse(readFileSync6(this.state.configPath));
+      const config = JSON.parse(readFileSync8(this.state.configPath));
       const profile = config.profiles?.[this.state.profileName];
       if (!profile) {
         return void 0;
@@ -8925,8 +9115,8 @@ var SerializeWorker = class {
     if (!ok)
       return null;
     const id = this.nextId++;
-    return new Promise((resolve12, reject) => {
-      this.pending.set(id, { resolve: resolve12, reject });
+    return new Promise((resolve14, reject) => {
+      this.pending.set(id, { resolve: resolve14, reject });
       try {
         this.worker.postMessage({ id, op: "serialize", payload });
       } catch (e) {
@@ -9097,7 +9287,7 @@ var handle429 = async (response) => {
   if (response?.status === 429) {
     const retryAfter = parseInt(response.headers.get("retry-after") ?? "10", 10) * 1e3;
     if (retryAfter > 0) {
-      await new Promise((resolve12) => setTimeout(resolve12, retryAfter));
+      await new Promise((resolve14) => setTimeout(resolve14, retryAfter));
       return true;
     }
   }
@@ -9196,8 +9386,8 @@ var AutoBatchQueue = class {
   }
   push(item) {
     let itemPromiseResolve;
-    const itemPromise = new Promise((resolve12) => {
-      itemPromiseResolve = resolve12;
+    const itemPromise = new Promise((resolve14) => {
+      itemPromiseResolve = resolve14;
     });
     const size = estimateSerializedSize(item.item).size;
     if (this.sizeBytes + size > this.maxSizeBytes && this.items.length > 0) {
@@ -14211,7 +14401,7 @@ Message: ${Array.isArray(result.detail) ? result.detail.join("\n") : "Unspecifie
       console.warn("[WARNING]: When tracing in manual flush mode, you must call `await client.flush()` manually to submit trace batches.");
       return Promise.resolve();
     }
-    await new Promise((resolve12) => setTimeout(resolve12, 1));
+    await new Promise((resolve14) => setTimeout(resolve14, 1));
     while (this._pendingDrains.size > 0) {
       await Promise.all([...this._pendingDrains]);
     }
@@ -15595,10 +15785,10 @@ var SETTLEMENT_QUIET_TURN_MS = 2 * 60 * 60 * 1e3;
 import { createHash as createHash6 } from "node:crypto";
 
 // node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/worker.js
-import { join as join16, resolve as resolve10 } from "node:path";
+import { join as join17, resolve as resolve12 } from "node:path";
 
 // node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/tracing/engine/options.js
-import { resolve as resolve11 } from "node:path";
+import { resolve as resolve13 } from "node:path";
 
 // node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/tracing/engine/constants.js
 var TRACING_ENGINE_FOREIGN_SESSION_MIN_AGE_MS = 2 * 60 * 60 * 1e3;
@@ -15609,16 +15799,16 @@ import { setTimeout as delay4 } from "node:timers/promises";
 
 // node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/plugin/worker-launch.js
 import { spawn } from "node:child_process";
-import { closeSync as closeSync3, mkdirSync as mkdirSync5, openSync as openSync3, statSync as statSync4, writeSync as writeSync2 } from "node:fs";
-import { dirname as dirname10, join as join17 } from "node:path";
+import { closeSync as closeSync3, mkdirSync as mkdirSync6, openSync as openSync3, statSync as statSync6, writeSync as writeSync2 } from "node:fs";
+import { dirname as dirname13, join as join18 } from "node:path";
 
 // node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f8fc53f66e47cd2e621b16652112af9c/node_modules/@langchain/plugins-base/dist/utils/tls/system-certificates.js
-import { readFileSync as readFileSync7, writeFileSync as writeFileSync3 } from "node:fs";
+import { readFileSync as readFileSync9, writeFileSync as writeFileSync4 } from "node:fs";
 import * as tls from "node:tls";
 
 // dist/src/tracing-policy.js
 import { homedir as homedir3 } from "node:os";
-import { join as join18 } from "node:path";
+import { join as join19 } from "node:path";
 function isMode(value) {
   return value === "full" || value === "metadata";
 }
@@ -15633,7 +15823,7 @@ var TRACING_POLICY_FILE = {
   }
 };
 function tracingPolicyPath() {
-  return process.env.LANGSMITH_CURSOR_PRIVACY_FILE ?? join18(homedir3(), ".cursor", "langsmith-state.privacy.json");
+  return process.env.LANGSMITH_CURSOR_PRIVACY_FILE ?? join19(homedir3(), ".cursor", "langsmith-state.privacy.json");
 }
 function getThreadTracingMode(path3, sessionId, defaultMuted = false) {
   try {
@@ -15644,68 +15834,6 @@ function getThreadTracingMode(path3, sessionId, defaultMuted = false) {
   } catch {
     return "metadata";
   }
-}
-
-// dist/src/metadata.js
-var TRUSTED_METADATA2 = /* @__PURE__ */ Symbol("cursor.trustedMetadata");
-function trustedCodingAgentMetadata2(metadata) {
-  return metadata ? metadata[TRUSTED_METADATA2] : void 0;
-}
-function codingAgentMetadata(opts) {
-  const { agentType, threadId, base, turnId, turnNumber, runtimeVersion, approvalPolicy, subagentId, subagentType, clearSubagent, toolName, runName, skillName, runSpecific } = opts;
-  const meta = {
-    // Identity & grouping — always present.
-    ls_agent_purpose: LS_AGENT_PURPOSE,
-    ls_agent_type: agentType,
-    ls_integration: LS_INTEGRATION,
-    ls_agent_runtime: LS_AGENT_RUNTIME,
-    ls_trace_schema_version: LS_TRACE_SCHEMA_VERSION,
-    thread_id: threadId
-  };
-  if (turnId)
-    meta.turn_id = turnId;
-  if (typeof turnNumber === "number")
-    meta.turn_number = turnNumber;
-  if (runtimeVersion)
-    meta.ls_agent_runtime_version = runtimeVersion;
-  if (approvalPolicy)
-    meta.approval_policy = approvalPolicy;
-  if (subagentId)
-    meta.ls_subagent_id = subagentId;
-  if (subagentType)
-    meta.ls_subagent_type = subagentType;
-  if (clearSubagent) {
-    meta.ls_subagent_id = void 0;
-    meta.ls_subagent_type = void 0;
-  }
-  if (toolName && runName && toolName !== runName)
-    meta.ls_tool_name = toolName;
-  if (skillName)
-    meta.ls_skill_name = skillName;
-  const result = { ...meta, ...runSpecific, ...base };
-  Object.defineProperty(result, TRUSTED_METADATA2, {
-    value: {
-      ...meta,
-      ...runSpecific,
-      ...toolName ? { ls_tool_name: toolName } : {},
-      ...LS_INTEGRATION_VERSION ? { ls_integration_version: LS_INTEGRATION_VERSION } : {}
-    }
-  });
-  return result;
-}
-function skillNameFromTool(toolName, toolInput) {
-  if (!SKILL_READ_TOOLS.has(toolName))
-    return void 0;
-  const input = toolInput;
-  const filePath = input?.path ?? input?.file_path;
-  if (typeof filePath !== "string")
-    return void 0;
-  const segments = filePath.split(PATH_SEPARATOR);
-  const file = segments.pop();
-  const name = segments.pop();
-  if (file !== "SKILL.md" || !name || name.startsWith("."))
-    return void 0;
-  return segments.includes("skills") ? name : void 0;
 }
 
 // dist/src/privacy.js
@@ -15758,7 +15886,7 @@ function projectMetadata(metadata, status) {
 function metadataForMode2(metadata, mode = "full", status) {
   if (mode === "full")
     return metadata;
-  return projectMetadata(trustedCodingAgentMetadata2(metadata) ?? metadata, status);
+  return projectMetadata(trustedCodingAgentMetadata(metadata) ?? metadata, status);
 }
 function sanitizeReplica(replica, mode) {
   if (mode === "full" || !replica || typeof replica !== "object")
@@ -15866,14 +15994,37 @@ function protectRun(run, mode, metadata) {
   return run;
 }
 
+// dist/src/metadata.js
+function codingAgentMetadata(opts) {
+  return buildCodingAgentMetadata({
+    ...opts,
+    integration: LS_INTEGRATION,
+    integrationVersion: LS_INTEGRATION_VERSION
+  });
+}
+function skillNameFromTool(toolName, toolInput) {
+  if (!SKILL_READ_TOOLS.has(toolName))
+    return void 0;
+  const input = toolInput;
+  const filePath = input?.path ?? input?.file_path;
+  if (typeof filePath !== "string")
+    return void 0;
+  const segments = filePath.split(PATH_SEPARATOR);
+  const file = segments.pop();
+  const name = segments.pop();
+  if (file !== "SKILL.md" || !name || name.startsWith("."))
+    return void 0;
+  return segments.includes("skills") ? name : void 0;
+}
+
 // dist/src/conversation-steps.js
 import { existsSync as existsSync5 } from "node:fs";
 
 // dist/src/attachments.js
 import { DatabaseSync } from "node:sqlite";
-import { existsSync as existsSync3, readFileSync as readFileSync8, statSync as statSync5 } from "node:fs";
+import { existsSync as existsSync3, readFileSync as readFileSync10, statSync as statSync7 } from "node:fs";
 import { homedir as homedir4, platform } from "node:os";
-import { basename as basename4, join as join19 } from "node:path";
+import { basename as basename4, join as join20 } from "node:path";
 
 // dist/src/system-prompt.js
 import { existsSync as existsSync4 } from "node:fs";
@@ -16068,15 +16219,21 @@ async function buildTurnRuns(options) {
     project_name: project,
     start_time: buffer.startMs,
     tags: DEFAULT_TAGS,
-    extra: { metadata: codingAgentMetadata({ ...ctx, runSpecific: { model: buffer.model } }) }
+    extra: {
+      metadata: codingAgentMetadata({
+        ...ctx,
+        runType: "root",
+        runSpecific: { model: buffer.model }
+      })
+    }
   }, mode);
   await turnRun.postRun();
   const { ls_model_name, ls_provider } = deriveModelInfo(buffer.model);
   const llmName = ls_provider ?? ls_model_name;
   const llmMeta = {
-    ls_provider,
-    ls_model_name,
-    ls_invocation_params: { model: ls_model_name }
+    runType: "llm",
+    modelName: ls_model_name,
+    runSpecific: { ls_provider, ls_invocation_params: { model: ls_model_name } }
   };
   const usageMetadata = buildUsageMetadata(buffer.usage);
   const thinking = buffer.thoughts.map((t) => ({ type: "thinking", thinking: t.text }));
@@ -16108,7 +16265,8 @@ async function buildTurnRuns(options) {
       extra: {
         metadata: codingAgentMetadata({
           ...ctx,
-          runSpecific: { ...llmMeta, usage_metadata: usageMetadata }
+          ...llmMeta,
+          usageMetadata
         })
       }
     });
@@ -16125,7 +16283,7 @@ async function buildTurnRuns(options) {
       outputs: { messages: [{ role: "assistant", content: assistantDecision }] },
       start_time: buffer.startMs,
       end_time: Math.max(buffer.startMs, firstCallStart),
-      extra: { metadata: codingAgentMetadata({ ...ctx, runSpecific: { ...llmMeta } }) }
+      extra: { metadata: codingAgentMetadata({ ...ctx, ...llmMeta }) }
     });
     await decideRun.postRun();
     for (const [i, tool] of buffer.tools.entries())
@@ -16149,7 +16307,8 @@ async function buildTurnRuns(options) {
       extra: {
         metadata: codingAgentMetadata({
           ...ctx,
-          runSpecific: { ...llmMeta, usage_metadata: usageMetadata }
+          ...llmMeta,
+          usageMetadata
         })
       }
     });
@@ -16199,7 +16358,7 @@ async function postInterleavedRounds(p) {
       outputs: { messages: [{ role: "assistant", content: assistantContent }] },
       start_time: llmStart,
       end_time: llmEnd,
-      extra: { metadata: codingAgentMetadata({ ...p.ctx, runSpecific: { ...p.llmMeta } }) }
+      extra: { metadata: codingAgentMetadata({ ...p.ctx, ...p.llmMeta }) }
     });
     await llmRun.postRun();
     for (const [i, t] of matched.entries())
@@ -16224,7 +16383,8 @@ async function postInterleavedRounds(p) {
     extra: {
       metadata: codingAgentMetadata({
         ...p.ctx,
-        runSpecific: { ...p.llmMeta, usage_metadata: p.usageMetadata }
+        ...p.llmMeta,
+        usageMetadata: p.usageMetadata
       })
     }
   });
@@ -16247,6 +16407,7 @@ async function postToolRun(tool, parent, ctx, key, clearSubagent = false) {
     extra: {
       metadata: codingAgentMetadata({
         ...ctx,
+        runType: "tool",
         clearSubagent,
         // run name == native tool name, so ls_tool_name is omitted; tool_name kept as alias.
         toolName: tool.name,
@@ -16284,6 +16445,7 @@ async function postSkillRun(parent, ctx, key, clearSubagent, opts) {
     extra: {
       metadata: codingAgentMetadata({
         ...ctx,
+        runType: "tool",
         clearSubagent,
         // Equal names are what suppress `ls_tool_name`.
         toolName: SKILL_RUN_NAME,
@@ -16305,9 +16467,12 @@ async function postSubagentRun(sub, parent, ctx, key) {
   const subModel = deriveModelInfo(sub.model);
   const llmName = subModel.ls_provider ?? subModel.ls_model_name;
   const llmMeta = {
-    ls_provider: subModel.ls_provider,
-    ls_model_name: subModel.ls_model_name,
-    ls_invocation_params: { model: subModel.ls_model_name }
+    runType: "llm",
+    modelName: subModel.ls_model_name,
+    runSpecific: {
+      ls_provider: subModel.ls_provider,
+      ls_invocation_params: { model: subModel.ls_model_name }
+    }
   };
   const subagentCtx = { ...ctx, agentType: "subagent" };
   const subagentRun = createChildRun(parent, {
@@ -16329,6 +16494,7 @@ async function postSubagentRun(sub, parent, ctx, key) {
     extra: {
       metadata: codingAgentMetadata({
         ...subagentCtx,
+        runType: "subagent",
         subagentId: sub.subagent_id,
         subagentType: sub.subagent_type,
         runSpecific: {
@@ -16363,7 +16529,7 @@ async function postSubagentRun(sub, parent, ctx, key) {
         metadata: codingAgentMetadata({
           ...subagentCtx,
           clearSubagent: true,
-          runSpecific: { ...llmMeta }
+          ...llmMeta
         })
       }
     });
@@ -16385,7 +16551,7 @@ async function postSubagentRun(sub, parent, ctx, key) {
       metadata: codingAgentMetadata({
         ...subagentCtx,
         clearSubagent: true,
-        runSpecific: { ...llmMeta }
+        ...llmMeta
       })
     }
   });
@@ -16410,7 +16576,7 @@ async function postSubagentRun(sub, parent, ctx, key) {
       metadata: codingAgentMetadata({
         ...subagentCtx,
         clearSubagent: true,
-        runSpecific: { ...llmMeta }
+        ...llmMeta
       })
     }
   });
