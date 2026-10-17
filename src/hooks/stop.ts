@@ -9,13 +9,10 @@ import { initHook } from "../utils/hook-init.js";
 import { loadConfig } from "../config.js";
 import { atomicUpdateState, getTurnBuffer } from "../state.js";
 import { reduceStop, reduceSavedForUpload } from "../reducer.js";
-import { runSweep } from "../sweep.js";
-import { saveTurnForUpload } from "../tracing-engine.js";
-import { resolveTurnAttachments } from "../attachments.js";
-import { resolveSystemPrompts } from "../system-prompt.js";
-import { resolveTurnSteps } from "../conversation-steps.js";
-import { error, debug } from "../logger.js";
-import type { ContentPart, StopInput, TracingState, TurnBuffer } from "../models/types.js";
+import { saveTurnForUpload, wakeUploader } from "../tracing-engine.js";
+import { originFromConfig } from "../turn-origin.js";
+import { debug } from "../logger.js";
+import type { StopInput, TurnBuffer } from "../models/types.js";
 
 export async function run(): Promise<void> {
   const input = await readStdin<StopInput>();
@@ -44,75 +41,23 @@ export async function run(): Promise<void> {
     return r.state;
   });
 
-  const clearThisTurnsPendingUpload = (s: TracingState) =>
-    reduceSavedForUpload(s, input.conversation_id, input.generation_id, finalizedAt);
-  const sweep = (apply?: (s: TracingState) => TracingState) => runSweep({ config, input, apply });
-
-  if (!toTrace) {
-    debug("No buffered turn for this generation — nothing to trace");
-    await sweep();
-    return;
-  }
-
-  if (toTrace.tracingMode === "off") {
-    await sweep();
-    return;
-  }
-
-  // Best-effort attachment enrichment (read-only DB + disk); never throws, and an
-  // empty result leaves the turn unchanged.
-  let attachments: ContentPart[] = [];
-  if (config.attachmentsEnabled && toTrace.tracingMode === "full") {
-    attachments = resolveTurnAttachments({
-      conversationId: input.conversation_id,
-      prompt: toTrace.prompt,
-      dbPath: config.cursorDbPath,
-    });
-  }
-
-  // Best-effort system-prompt enrichment (read-only DB + protobuf field decode);
-  // never throws, and undefined leaves the llm runs unchanged.
-  let systemPrompt: string | undefined;
-  if (config.systemPromptEnabled && toTrace.tracingMode === "full") {
-    // Resolve the main turn + every subagent's child conversation over ONE DB
-    // connection (avoids an open-per-subagent explosion with many subagents).
-    const childIds = toTrace.subagents
-      .map((s) => s.childConversationId)
-      .filter((id): id is string => !!id);
-    const prompts = resolveSystemPrompts({
-      conversationIds: [input.conversation_id, ...childIds],
-      dbPath: config.cursorDbPath,
-    });
-    systemPrompt = prompts.get(input.conversation_id);
-    for (const sub of toTrace.subagents) {
-      if (sub.childConversationId) sub.systemPrompt = prompts.get(sub.childConversationId);
-    }
-  }
-
-  // Best-effort interleaved step fidelity; undefined falls back to the hook-built shape.
-  const steps = resolveTurnSteps({
-    conversationId: input.conversation_id,
-    toolUseIds: toTrace.tools.map((t) => t.tool_use_id),
-    dbPath: config.cursorDbPath,
-  });
-
-  let saved = false;
-  try {
-    saved = await saveTurnForUpload(config, {
-      buffer: toTrace,
+  if (!toTrace) debug("No buffered turn for this generation — nothing to trace");
+  const saved =
+    toTrace !== undefined &&
+    toTrace.tracingMode !== "off" &&
+    (await saveTurnForUpload(config, {
+      kind: "stop",
       conversationId: input.conversation_id,
       turnNum,
-      project: config.project,
-      userEmail: input.user_email,
-      customMetadata: config.customMetadata,
-      runtimeVersion: input.cursor_version,
-      attachments,
-      systemPrompt,
-      steps,
-    });
-  } catch (err) {
-    error(`Failed to build turn runs: ${err}`);
-  }
+      buffer: toTrace,
+      origin: originFromConfig(config, input),
+    }));
 
-  await sweep(saved ? clearThisTurnsPendingUpload : undefined);
+  if (!saved) {
+    await wakeUploader(config, input.conversation_id);
+    return;
+  }
+  await atomicUpdateState(config.stateFilePath, (s) =>
+    reduceSavedForUpload(s, input.conversation_id, input.generation_id, finalizedAt),
+  );
 }

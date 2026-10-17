@@ -5,8 +5,7 @@
 
 import { readStdin } from "../utils/stdin.js";
 import { initHook } from "../utils/hook-init.js";
-import { pruneOldConversations } from "../state.js";
-import { runSweep } from "../sweep.js";
+import { wakeUploader } from "../tracing-engine.js";
 import { debug } from "../logger.js";
 import type { SessionStartInput } from "../models/types.js";
 
@@ -16,5 +15,5 @@ export async function run(): Promise<void> {
   if (!config) return;
 
   debug(`sessionStart conv=${input.conversation_id}`);
-  await runSweep({ config, input, apply: (state) => pruneOldConversations(state) });
+  await wakeUploader(config, input.conversation_id);
 }

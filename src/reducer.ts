@@ -334,7 +334,7 @@ export function reduceSubagentStop(
   if (childConv && child) {
     target.childConversationId = childConv;
     target.tools = collectTools(child);
-    if (Object.keys(child.pending ?? {}).length > 0) {
+    if (Object.keys({ ...child.pending, ...child.queued }).length > 0) {
       next = { ...next, [childConv]: { ...child, turns: {} } };
     } else {
       const { [childConv]: _consumed, ...rest } = next;

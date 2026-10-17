@@ -5,34 +5,26 @@ import { debug, warn } from "./logger.js";
 import { recoverConversations, saveTurnForUpload } from "./tracing-engine.js";
 import { originFromConfig } from "./turn-origin.js";
 import type { SweepClaim, TracingMode, TurnMode } from "./models/types.js";
+import type { Config } from "./models/config.js";
 import type { SweepOptions } from "./models/sweep.js";
 
 function sweepTracingMode(buffered: TurnMode | undefined, policy: TracingMode): TracingMode {
   return buffered === "metadata" ? "metadata" : policy;
 }
 
-async function saveClaimForUpload(claim: SweepClaim, options: SweepOptions): Promise<boolean> {
-  const { config, input } = options;
+async function saveClaimForUpload(claim: SweepClaim, config: Config): Promise<boolean> {
   const policy = getThreadTracingMode(
     tracingPolicyPath(),
     claim.conversationId,
     config.defaultMuted,
   );
-  const origin = claim.buffer.origin ?? originFromConfig(config, input);
-  try {
-    return await saveTurnForUpload(config, {
-      buffer: { ...claim.buffer, tracingMode: sweepTracingMode(claim.buffer.tracingMode, policy) },
-      conversationId: claim.conversationId,
-      turnNum: claim.turnNum,
-      project: origin.project,
-      userEmail: origin.userEmail,
-      customMetadata: origin.customMetadata,
-      runtimeVersion: origin.runtimeVersion,
-    });
-  } catch (err) {
-    warn(`Sweep could not upload turn ${claim.turnNum} of ${claim.conversationId}: ${err}`);
-    return false;
-  }
+  return saveTurnForUpload(config, {
+    kind: "sweep",
+    conversationId: claim.conversationId,
+    turnNum: claim.turnNum,
+    buffer: { ...claim.buffer, tracingMode: sweepTracingMode(claim.buffer.tracingMode, policy) },
+    origin: claim.buffer.origin ?? originFromConfig(config, {}),
+  });
 }
 
 export async function runSweep(options: SweepOptions): Promise<SweepClaim[]> {
@@ -44,7 +36,7 @@ export async function runSweep(options: SweepOptions): Promise<SweepClaim[]> {
   await atomicUpdateState(config.stateFilePath, (state) => {
     const result = reduceSweep(
       apply ? apply(state) : state,
-      options.input.conversation_id,
+      options.conversationId,
       nowMs,
       thresholdMs,
     );
@@ -52,7 +44,7 @@ export async function runSweep(options: SweepOptions): Promise<SweepClaim[]> {
     return result.state;
   });
   try {
-    await recoverConversations(config, options.input.conversation_id, thresholdMs);
+    await recoverConversations(config, options.conversationId, thresholdMs);
   } catch (err) {
     warn(`Could not check older conversations for saved traces: ${err}`);
   }
@@ -61,7 +53,7 @@ export async function runSweep(options: SweepOptions): Promise<SweepClaim[]> {
   debug(`sweep claimed ${claims.length} abandoned turn(s)`);
   const saved: SweepClaim[] = [];
   for (const claim of claims) {
-    if (!(await saveClaimForUpload(claim, options))) continue;
+    if (!(await saveClaimForUpload(claim, config))) continue;
     await atomicUpdateState(config.stateFilePath, (state) =>
       reduceSavedForUpload(state, claim.conversationId, claim.generationId, claim.claimedAt),
     );

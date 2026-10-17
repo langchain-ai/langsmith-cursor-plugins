@@ -3,6 +3,8 @@
  * Field names mirror the real captured payloads.
  */
 
+import type { UploadJobContext } from "./job-context.js";
+
 // ─── Multimodal content ──────────────────────────────────────────────────────
 
 /**
@@ -219,6 +221,7 @@ export interface ConversationState {
   stopFinalizedGenerations?: string[];
   sweepFinalizedGenerations?: string[];
   pending?: Record<string, PendingUpload>;
+  queued?: Record<string, UploadJobContext>;
   /** In-progress turn buffers keyed by generation_id. */
   turns: Record<string, TurnBuffer>;
   turns_started?: number;
