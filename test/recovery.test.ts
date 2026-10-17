@@ -1,18 +1,7 @@
-import {
-  chmodSync,
-  existsSync,
-  mkdtempSync,
-  readdirSync,
-  rmSync,
-  statSync,
-  utimesSync,
-  writeFileSync,
-} from "node:fs";
-import { spawnSync } from "node:child_process";
+import { existsSync, mkdtempSync, readdirSync, rmSync, statSync, utimesSync } from "node:fs";
 import { createServer, type Server } from "node:http";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { fileURLToPath } from "node:url";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const worker = vi.hoisted(() => ({ script: "", start: true, launches: [] as string[][] }));
@@ -31,8 +20,8 @@ vi.mock("@langchain/plugins-base/plugin", async (importOriginal) => {
 
 import { recoverConversations, saveTurnForUpload } from "../src/tracing-engine.js";
 import { HOUR, T0, testConfig, turn } from "./utils/state.js";
+import { until, waitForWorkers, writeWorkerScript } from "./utils/engine.js";
 
-const DISPATCH = fileURLToPath(new URL("../src/hooks/dispatch.ts", import.meta.url));
 const THREE_HOURS_AGO = new Date(Date.now() - 3 * HOUR);
 
 let dir: string;
@@ -43,12 +32,7 @@ beforeEach(async () => {
   dir = mkdtempSync(join(tmpdir(), "ls-cursor-recovery-"));
   worker.start = true;
   worker.launches.length = 0;
-  worker.script = join(dir, "worker.sh");
-  writeFileSync(
-    worker.script,
-    `#!/bin/sh\nwhile [ "$1" != "engine-worker" ]; do shift; done\nexport NODE_OPTIONS="--import tsx"\nexec "${process.execPath}" "${DISPATCH}" "$@"\n`,
-  );
-  chmodSync(worker.script, 0o755);
+  worker.script = writeWorkerScript(dir);
   uploaded = [];
   server = createServer((request, response) => {
     const body: Buffer[] = [];
@@ -70,13 +54,8 @@ beforeEach(async () => {
   vi.stubEnv("LANGSMITH_CURSOR_SYSTEM_PROMPT", "false");
 });
 
-async function waitForWorkers(): Promise<void> {
-  const running = () => spawnSync("pgrep", ["-f", dir]).status === 0;
-  if (!(await until(() => !running(), 20_000))) spawnSync("pkill", ["-f", dir]);
-}
-
 afterEach(async () => {
-  await waitForWorkers();
+  await waitForWorkers(dir);
   server.closeAllConnections();
   await new Promise<void>((resolve) => server.close(() => resolve()));
   vi.unstubAllEnvs();
@@ -106,12 +85,6 @@ function ageEverythingUnder(path: string): void {
     if (entry.isDirectory()) ageEverythingUnder(child);
     else if (statSync(child).isFile()) utimesSync(child, THREE_HOURS_AGO, THREE_HOURS_AGO);
   }
-}
-
-async function until(done: () => boolean, ms = 30_000): Promise<boolean> {
-  const deadline = Date.now() + ms;
-  while (!done() && Date.now() < deadline) await new Promise((resolve) => setTimeout(resolve, 50));
-  return done();
 }
 
 const sawPrompt = (prompt: string) => () => uploaded.some((body) => body.includes(prompt));

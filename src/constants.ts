@@ -84,6 +84,8 @@ export const ENGINE_STORAGE_DIR_NAME = "langsmith_engine";
 
 export const RUN_EVENT_PREFIX = "post:";
 
+export const PATCH_EVENT_PREFIX = "patch:";
+
 export const RUN_SNAPSHOT_FIELDS = [
   "id",
   "name",
@@ -97,5 +99,15 @@ export const RUN_SNAPSHOT_FIELDS = [
   "tags",
   "error",
 ] as const;
+
+export const RUN_PATCH_FIELDS = ["outputs", "end_time", "error"] as const;
+
+export const CAPTURE_PUBLISHED_STATUS = "published";
+
+export const CAPTURE_DUPLICATE_STATUS = "duplicate";
+
+export const CAPTURE_CONFLICT_STATUS = "conflict";
+
+export const TURN_ON_OTHER_ACCOUNT_MESSAGE = "its first runs were saved under another API key";
 
 export const SQLITE_EXPERIMENTAL_WARNING = /^SQLite is an experimental feature/;

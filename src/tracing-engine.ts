@@ -5,12 +5,22 @@ import { readSavedCaptureWake } from "@langchain/plugins-base/tracing";
 import type { LifecycleCaptureInput } from "@langchain/plugins-base/tracing/lifecycle";
 import { loadConfig } from "./config.js";
 import type { Config } from "./models/config.js";
-import { turnCaptures } from "./captures.js";
-import { ENGINE_STORAGE_DIR_NAME, ENGINE_WORKER_COMMAND, LS_INTEGRATION } from "./constants.js";
-import { buildTurnRuns } from "./langsmith.js";
+import { rootPatch, turnCaptures } from "./captures.js";
+import {
+  CAPTURE_CONFLICT_STATUS,
+  CAPTURE_DUPLICATE_STATUS,
+  CAPTURE_PUBLISHED_STATUS,
+  ENGINE_STORAGE_DIR_NAME,
+  ENGINE_WORKER_COMMAND,
+  LS_INTEGRATION,
+  TURN_ON_OTHER_ACCOUNT_MESSAGE,
+} from "./constants.js";
+import { buildToolRuns, buildTurnRuns } from "./langsmith.js";
 import type { BuildTurnOptions } from "./models/langsmith.js";
-import type { RecoveryReport } from "./models/tracing-engine.js";
+import type { CaptureStatus, RecoveryReport, SavedCapture } from "./models/tracing-engine.js";
+import type { ContentPart } from "./models/types.js";
 import { debug, warn } from "./logger.js";
+import { isRecord } from "./normalize.js";
 import { withWarningsTo } from "./utils/console.js";
 import { noReconstruction } from "./reconstruction.js";
 import { writerOptions } from "./writer-options.js";
@@ -23,12 +33,66 @@ export async function saveTurnForUpload(
   if (captures.length === 0) return true;
   const plugin = openSession(config, options.conversationId, options.project);
   try {
-    for (const input of captures) await captureInto(plugin, input);
+    const [root, ...children] = captures;
+    const saved = await readSaved(plugin, root);
+    if (saved && saved.destinationFingerprint !== plugin.fingerprint) {
+      throw new Error(TURN_ON_OTHER_ACCOUNT_MESSAGE);
+    }
+    const closeLater = await saveRootUnlessOpen(plugin, root);
+    for (const input of children) {
+      if (!(await readSaved(plugin, input))) await captureInto(plugin, input);
+    }
+    if (closeLater) await captureInto(plugin, rootPatch(root, plugin.sessionId));
     return true;
   } catch (err) {
     warn(`Keeping the turn for a later retry: ${err}`);
     return false;
   }
+}
+
+export async function saveToolForUpload(
+  config: Config,
+  options: BuildTurnOptions,
+  toolIndex: number,
+  attachments: () => ContentPart[],
+): Promise<void> {
+  const captures = turnCaptures(buildToolRuns(options, toolIndex));
+  if (captures.length === 0) return;
+  const plugin = openSession(config, options.conversationId, options.project);
+  try {
+    const { turnId } = captures[0];
+    if (await plugin.store.readSettledTurn(LS_INTEGRATION, plugin.sessionId, turnId)) return;
+    const root = await readSaved(plugin, captures[0]);
+    if (root && root.destinationFingerprint !== plugin.fingerprint) return;
+    const withRoot = root
+      ? captures
+      : turnCaptures(buildToolRuns({ ...options, attachments: attachments() }, toolIndex));
+    for (const input of withRoot) await captureInto(plugin, input);
+  } catch (err) {
+    warn(`Leaving tool ${toolIndex} for stop to save: ${err}`);
+  }
+}
+
+async function saveRootUnlessOpen(
+  plugin: PluginSession,
+  input: LifecycleCaptureInput,
+): Promise<boolean> {
+  if (
+    !(await readSaved(plugin, input)) &&
+    (await captureInto(plugin, input)) !== CAPTURE_CONFLICT_STATUS
+  )
+    return false;
+  const saved = await readSaved(plugin, input);
+  return !(isRecord(saved?.turnEvidence) && saved.turnEvidence.closureState === "authoritative");
+}
+
+function readSaved(plugin: PluginSession, input: LifecycleCaptureInput): Promise<SavedCapture> {
+  return plugin.store.read({
+    integration: LS_INTEGRATION,
+    sessionId: plugin.sessionId,
+    turnId: input.turnId,
+    eventId: input.eventId,
+  });
 }
 
 export async function runEngineWorker(config: Config, sessionId: string): Promise<void> {
@@ -57,13 +121,20 @@ export async function recoverConversations(
   }
 }
 
-async function captureInto(plugin: PluginSession, input: LifecycleCaptureInput): Promise<void> {
+async function captureInto(
+  plugin: PluginSession,
+  input: LifecycleCaptureInput,
+): Promise<CaptureStatus> {
   try {
     const result = await plugin.session.capture(input);
-    if (result.status === "conflict") debug(`Run ${input.eventId} was already saved`);
-    else if (result.status !== "published" && result.status !== "duplicate") {
+    if (result.status === CAPTURE_CONFLICT_STATUS) debug(`Run ${input.eventId} was already saved`);
+    else if (
+      result.status !== CAPTURE_PUBLISHED_STATUS &&
+      result.status !== CAPTURE_DUPLICATE_STATUS
+    ) {
       throw new Error(`Could not save ${input.eventId} for upload: ${result.status}`);
     }
+    return result.status;
   } catch (err) {
     const saved = await readSavedCaptureWake(err, {
       store: plugin.store,
@@ -75,6 +146,7 @@ async function captureInto(plugin: PluginSession, input: LifecycleCaptureInput):
     });
     if (!saved) throw err;
     warn(`Saved ${input.eventId} for upload, but its uploader did not start: ${err}`);
+    return CAPTURE_PUBLISHED_STATUS;
   }
 }
 
