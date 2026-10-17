@@ -5,11 +5,17 @@ const launches = vi.hoisted(() => [] as string[][]);
 
 vi.mock("node:child_process", async (importOriginal) => ({
   ...(await importOriginal<typeof import("node:child_process")>()),
-  spawn: (_command: string, args: string[]) => {
-    launches.push(args);
+  spawn: () => {
     const child = new EventEmitter();
     setImmediate(() => child.emit("error", new Error("worker launch is mocked")));
     return child;
+  },
+}));
+vi.mock("@langchain/plugins-base/plugin", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@langchain/plugins-base/plugin")>()),
+  launchDetachedWorker: async (args: string[]) => {
+    launches.push(args);
+    throw new Error("worker launch is mocked");
   },
 }));
 import { join } from "node:path";
@@ -426,8 +432,10 @@ async function sweepAndDeliver(options: SweepOptions) {
   const uploaded = await runSweep(options);
   vi.stubGlobal("fetch", callSpy);
   try {
-    for (const { conversationId } of uploaded)
-      await runEngineWorker(options.config, conversationId);
+    for (const args of launches.splice(0)) {
+      const [sessionId, project] = args.slice(args.indexOf("engine-worker") + 2);
+      await runEngineWorker(options.config, sessionId, project);
+    }
   } finally {
     vi.unstubAllGlobals();
   }
@@ -467,7 +475,7 @@ describe("runSweep against the on-disk state file", { timeout: 60_000 }, () => {
   it("uploads a claimed turn once, under the same lock as the calling hook", async () => {
     const { client, callSpy, uploaded } = await sweepAndDeliver({
       config,
-      input: CALLER_INPUT,
+      conversationId: CALLER_INPUT.conversation_id,
       nowMs: T0 + 2 * HOUR,
       apply: (state) => ({ ...state, c2: conversation([turn("g2", T0 + 2 * HOUR)]) }),
     });
@@ -485,7 +493,7 @@ describe("runSweep against the on-disk state file", { timeout: 60_000 }, () => {
 
     const second = await runSweep({
       config,
-      input: CALLER_INPUT,
+      conversationId: CALLER_INPUT.conversation_id,
       nowMs: T0 + 2 * HOUR + MINUTE,
     });
     expect(second).toEqual([]);
@@ -506,7 +514,7 @@ describe("runSweep against the on-disk state file", { timeout: 60_000 }, () => {
         project: "the-sweepers-project",
         customMetadata: { cwd: "/repo/sweep" },
       },
-      input: CALLER_INPUT,
+      conversationId: CALLER_INPUT.conversation_id,
       nowMs: T0 + 2 * HOUR,
     });
 
@@ -526,7 +534,7 @@ describe("runSweep against the on-disk state file", { timeout: 60_000 }, () => {
   async function sweptTurnInputs(): Promise<string> {
     const { client, callSpy } = await sweepAndDeliver({
       config,
-      input: CALLER_INPUT,
+      conversationId: CALLER_INPUT.conversation_id,
       nowMs: T0 + 2 * HOUR,
     });
     const tree = await getAssumedTreeFromCalls(callSpy.mock.calls, client);

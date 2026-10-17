@@ -72,10 +72,11 @@ function config() {
 
 function save(conversationId: string, prompt: string) {
   return saveTurnForUpload(config(), {
+    kind: "stop",
     buffer: turn("g1", T0, { tracingMode: "full", prompt }),
     conversationId,
     turnNum: 1,
-    project: "cursor",
+    origin: { project: "cursor" },
   });
 }
 
@@ -102,7 +103,7 @@ describe("work stranded by a session that never woke its worker", { timeout: 120
   it("is restarted, for its own session, when a later hook finds it older than the sweep threshold", async () => {
     await strand();
     await recoverConversations(config(), "later-session", HOUR);
-    expect(worker.launches).toEqual([["engine-worker", dir, "stranded-session"]]);
+    expect(worker.launches).toEqual([["engine-worker", dir, "stranded-session", "cursor"]]);
     expect(await until(sawPrompt("STRANDED_PROMPT"))).toBe(true);
     expect(existsSync(join(dir, "langsmith_engine", "worker.log"))).toBe(true);
   });

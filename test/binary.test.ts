@@ -242,11 +242,12 @@ describe.runIf(built)("the standalone binary", () => {
     expect(result.stdout.trim()).toBe(plugin.version);
   });
 
-  it("reads Cursor's sqlite database to enrich a traced turn", async () => {
+  it("reads Cursor's sqlite database to enrich a traced turn in the uploader", async () => {
     const result = await stopATracedTurn(true);
     expect(result.status, result.stderr).toBe(0);
+    expect(await delivered()).toBe(true);
     expect(hookLog()).toContain("attachments: enriched turn with 1 attachment(s)");
-  });
+  }, 30_000);
 
   it("delivers the stopped turn from its own background uploader", async () => {
     const result = await stopATracedTurn(false);
@@ -257,6 +258,7 @@ describe.runIf(built)("the standalone binary", () => {
   it("enriches nothing when the same database holds no attachment", async () => {
     const result = await stopATracedTurn(false);
     expect(result.status, result.stderr).toBe(0);
+    expect(await delivered()).toBe(true);
     expect(hookLog()).not.toContain("enriched turn with");
-  });
+  }, 30_000);
 });

@@ -82,6 +82,16 @@ export const ENGINE_WORKER_COMMAND = "engine-worker";
 
 export const ENGINE_STORAGE_DIR_NAME = "langsmith_engine";
 
+export const JOB_EVENT_PREFIX = "cursor-job:";
+
+export const JOB_REF_PREFIX = "cursor-turn:";
+
+export const JOB_STORE_DIR_NAME = "jobs";
+
+export const GH_LOGIN_MARKER_FILE = "langsmith_gh_login.json";
+
+export const TOOL_PATH_INPUT_KEYS = ["file_path", "path", "target_file", "targetDirectory", "cwd"];
+
 export const RUN_EVENT_PREFIX = "post:";
 
 export const PATCH_EVENT_PREFIX = "patch:";
