@@ -23573,7 +23573,7 @@ var init_config = __esm({
     init_logger();
     init_constants17();
     init_parse3();
-    LS_INTEGRATION_VERSION = true ? "0.5.0" : process.env.LANGSMITH_CURSOR_INTEGRATION_VERSION || void 0;
+    LS_INTEGRATION_VERSION = true ? "0.6.0" : process.env.LANGSMITH_CURSOR_INTEGRATION_VERSION || void 0;
   }
 });
 
