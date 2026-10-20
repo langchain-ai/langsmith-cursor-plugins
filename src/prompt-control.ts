@@ -1,4 +1,8 @@
-import { sdkSetting } from "@langchain/plugins-base/auth";
+import {
+  LOGIN_NOTICE_KIND,
+  readLoginNotice,
+  refusedLoginReplicas,
+} from "@langchain/plugins-base/auth";
 import { loadConfig } from "./config.js";
 import { MUTE_LOCKED_MESSAGE, NOTICE_KINDS } from "./constants.js";
 import { error as logError, initLogger } from "./logger.js";
@@ -13,6 +17,7 @@ import {
   tracingPolicyPath,
 } from "./tracing-policy.js";
 import { originFromConfig } from "./turn-origin.js";
+import { storageRootFor, uploadCredential, uploadProblem } from "./writer-options.js";
 import type { BeforeSubmitPromptInput } from "./models/types.js";
 
 /** Synchronous command hook contract, not an LLM skill or slash-command expansion. */
@@ -53,7 +58,9 @@ export async function handlePromptSubmit(
       };
     }
     // Even master-off launches need evidence if tracing is enabled before stop.
-    const enabled = config.enabled && !!(sdkSetting(config.apiKey) || config.replicas?.length);
+    const credential = uploadCredential(config);
+    const problem = uploadProblem(config, credential);
+    const enabled = config.enabled && problem === undefined;
     await atomicUpdateState(config.stateFilePath, (s) =>
       reduceBeforeSubmitPrompt(
         s,
@@ -70,8 +77,19 @@ export async function handlePromptSubmit(
         originFromConfig(config, input),
       ),
     );
+    const loginNotice =
+      credential.kind === "none" ? undefined : readLoginNotice(storageRootFor(config));
+    const replicaReason =
+      credential.kind === "login"
+        ? refusedLoginReplicas(config.replicas, credential.apiUrl)
+        : undefined;
     if (config.managedConfigProblem !== undefined)
       await showNotice(config, NOTICE_KINDS.managed, config.managedConfigProblem);
+    else if (loginNotice !== undefined) await showNotice(config, LOGIN_NOTICE_KIND, loginNotice);
+    else if (replicaReason !== undefined)
+      await showNotice(config, NOTICE_KINDS.replica, replicaReason);
+    else if (config.enabled && problem !== undefined)
+      await showNotice(config, NOTICE_KINDS.credential, problem);
     return { continue: true };
   } catch (error) {
     const detail = error instanceof Error ? error.message : String(error);

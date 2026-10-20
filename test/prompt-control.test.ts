@@ -16,6 +16,7 @@ import { getThreadTracingMode } from "../src/tracing-policy.js";
 import { loadState } from "./utils/state.js";
 import { MIN_NODE } from "../src/utils/node-version.js";
 
+vi.mock("@langchain/plugins-base/auth", { spy: true });
 vi.mock("@langchain/plugins-base/plugin", { spy: true });
 vi.mock("@langchain/plugins-base/settings", { spy: true });
 
@@ -248,12 +249,18 @@ it.each(["master-off", "no-credentials"] as const)(
     writeFileSync(
       tripwire,
       `
+      import childProcess from "node:child_process";
       import { appendFileSync } from "node:fs";
       import { syncBuiltinESMExports } from "node:module";
       import sqlite from "node:sqlite";
       const fail = () => { appendFileSync(${JSON.stringify(join(dir, "unexpected-io"))}, "IO"); throw new Error("Unexpected upload/enrichment"); };
       globalThis.fetch = fail;
       sqlite.DatabaseSync = class { constructor() { fail(); } };
+      const spawn = childProcess.spawn;
+      childProcess.spawn = (command, ...rest) => {
+        if (!/(osascript|powershell\\.exe|notify-send)$/.test(command)) return spawn(command, ...rest);
+        throw new Error("No desktop notifications in tests");
+      };
       syncBuiltinESMExports();
     `,
     );
@@ -534,6 +541,97 @@ it.skipIf(process.platform === "win32")(
   },
 );
 
+async function withLogin(extraEnv: Record<string, string>, loginNotice?: string) {
+  for (const key of Object.keys(process.env)) {
+    if (/^(LANGSMITH_|LANGCHAIN_)/.test(key)) vi.stubEnv(key, undefined);
+  }
+  for (const [key, value] of Object.entries({ ...env, ...extraEnv })) vi.stubEnv(key, value);
+  vi.stubEnv("TRACE_TO_LANGSMITH", "true");
+  vi.stubEnv("LANGSMITH_CONFIG_FILE", join(dir, "login.json"));
+  writeFileSync(
+    join(dir, "login.json"),
+    JSON.stringify({ profiles: { default: { oauth: { refresh_token: "t" } } } }),
+  );
+  vi.resetModules();
+  const auth = await import("@langchain/plugins-base/auth");
+  const { showDesktopNotification } = await import("@langchain/plugins-base/plugin");
+  const { handlePromptSubmit } = await import("../src/prompt-control.js");
+  const { initHook } = await import("../src/utils/hook-init.js");
+  vi.mocked(auth.readLoginNotice).mockReturnValue(loginNotice);
+  const shown = vi.mocked(showDesktopNotification).mockReturnValue(true);
+  const prompt = (conversation_id: string, generation_id: string) =>
+    handlePromptSubmit({
+      conversation_id,
+      generation_id,
+      prompt: "work",
+      model: "default",
+      hook_event_name: "beforeSubmitPrompt",
+      workspace_roots: [dir],
+    });
+  return { initHook, prompt, shown };
+}
+
+afterEach(() => {
+  vi.unstubAllEnvs();
+});
+
+it("still hands turns to the uploader with an expired CLI login and shows the paused notice", async () => {
+  const { initHook, prompt, shown } = await withLogin({}, "login paused");
+  await prompt("thread", "first");
+  expect(initHook(dir)).not.toBeNull();
+  expect(loadState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns.first.tracingMode).toBe("full");
+  expect(shown.mock.calls).toEqual([[expect.any(String), "login paused"]]);
+});
+
+it("shows the rejected-key notice to someone uploading with an API key", async () => {
+  const { prompt, shown } = await withLogin({ LANGSMITH_CURSOR_API_KEY: "key" }, "key rejected");
+  await prompt("thread", "first");
+  expect(shown.mock.calls).toEqual([[expect.any(String), "key rejected"]]);
+});
+
+it.skipIf(process.platform === "win32")(
+  "names a broken managed file before an expired login",
+  async () => {
+    const { prompt, shown } = await withLogin({}, "login paused");
+    const managed = join(env.LS_TEST_ACCOUNT_HOME!, ".langsmith-plugins");
+    mkdirSync(managed, { recursive: true });
+    writeFileSync(join(managed, "managed.json"), "{}");
+    try {
+      await prompt("thread", "first");
+      expect(shown.mock.calls).toEqual([
+        [expect.any(String), expect.stringContaining("owned by root")],
+      ]);
+    } finally {
+      rmSync(join(managed, "managed.json"));
+    }
+  },
+);
+
+it("names a refused login and keeps no turn when only replicas without their own key are left", async () => {
+  const { initHook, prompt, shown } = await withLogin({
+    LANGCHAIN_API_KEY: "other-key",
+    LANGSMITH_CURSOR_RUNS_ENDPOINTS: JSON.stringify([{ api_url: "https://replica.test" }]),
+  });
+  await prompt("thread", "first");
+  expect(initHook(dir)).toBeNull();
+  expect(loadState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns.first.tracingMode).toBe("off");
+  expect(shown.mock.calls).toEqual([
+    [expect.any(String), expect.stringContaining("LANGCHAIN_API_KEY is overriding")],
+  ]);
+});
+
+it("stops tracing and names keyless replicas the login can't reach", async () => {
+  const { initHook, prompt, shown } = await withLogin({
+    LANGSMITH_CURSOR_RUNS_ENDPOINTS: JSON.stringify([{ api_url: "https://replica.test" }]),
+  });
+  await prompt("thread", "first");
+  expect(initHook(dir)).toBeNull();
+  expect(loadState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns.first.tracingMode).toBe("off");
+  expect(shown.mock.calls).toEqual([
+    [expect.any(String), expect.stringContaining("https://replica.test")],
+  ]);
+});
+
 it("keeps a conversation muted when the managed file locks muting on", async () => {
   for (const [key, value] of Object.entries(env)) vi.stubEnv(key, value);
   vi.stubEnv("TRACE_TO_LANGSMITH", "true");
@@ -597,3 +695,13 @@ it.each(['""', "   ", '" "'])(
     }
   },
 );
+
+it("keeps tracing while a replica with its own key can still upload", async () => {
+  const { initHook } = await withLogin({
+    LANGSMITH_CURSOR_RUNS_ENDPOINTS: JSON.stringify([
+      { api_url: "https://replica.test" },
+      { api_url: "https://keyed.test", api_key: "key" },
+    ]),
+  });
+  expect(initHook(dir)).not.toBeNull();
+});

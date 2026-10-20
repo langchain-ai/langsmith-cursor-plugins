@@ -16,7 +16,7 @@ import {
 import { homedir, userInfo } from "node:os";
 import { join } from "node:path";
 import type { LangSmithUploadReplicaConfig } from "@langchain/plugins-base/tracing/upload";
-import { debug as logDebug, error as logError } from "./logger.js";
+import { error as logError } from "./logger.js";
 import {
   CURSOR_DIRECTORY_NAME,
   DEFAULT_API_URL,
@@ -187,6 +187,7 @@ export function loadConfig(options?: { cwd?: string }): Config {
         redact: parseBoolean(getEnv("REDACT")),
         redact_extra_rules: parseRedactExtraRules(getEnv("REDACT_EXTRA")),
         notice_cooldown: parseNoticeCooldown(getEnv("NOTICE_COOLDOWN")),
+        login_browser: parseBoolean(getEnv("LOGIN_BROWSER")),
       },
       defaults: { api_key: "", api_url: DEFAULT_API_URL, project: DEFAULT_PROJECT },
     },
@@ -234,10 +235,6 @@ export function loadConfig(options?: { cwd?: string }): Config {
   // All file/environment metadata stays user-supplied, never builder-trusted provenance.
   const customMetadata = { ...baseMetadata, ...common.metadata };
 
-  if (enabled && !apiKey && (!replicas || replicas.length === 0)) {
-    logDebug("Config enabled but no API key / replicas resolved");
-  }
-
   return {
     enabled,
     defaultMuted,
@@ -257,6 +254,8 @@ export function loadConfig(options?: { cwd?: string }): Config {
     cwd,
     locked: common.locked,
     noticeCooldown: common.notice_cooldown,
+    apiUrlIsDefault: common.defaulted.includes("api_url"),
+    loginBrowser: common.login_browser,
     ...(common.managedConfigProblem === undefined
       ? {}
       : { managedConfigProblem: common.managedConfigProblem }),

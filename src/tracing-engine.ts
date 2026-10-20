@@ -15,7 +15,6 @@ import { rootPatch, turnCaptures, withRootDependency } from "./captures.js";
 import {
   CAPTURE_DUPLICATE_STATUS,
   CAPTURE_PUBLISHED_STATUS,
-  ENGINE_STORAGE_DIR_NAME,
   ENGINE_WORKER_COMMAND,
   GH_LOGIN_MARKER_FILE,
   JOB_EVENT_PREFIX,
@@ -49,7 +48,7 @@ import { withLockedMute } from "./tracing-policy.js";
 import { originFromConfig } from "./turn-origin.js";
 import { enrichTurn, toolAttachments } from "./turn-enrichment.js";
 import { withWarningsTo } from "./utils/console.js";
-import { currentWriterOptions, writerOptions } from "./writer-options.js";
+import { currentWriterOptions, storageRootFor, writerOptions } from "./writer-options.js";
 
 let attributor: RepositoryAttributor | undefined;
 
@@ -304,10 +303,6 @@ async function pendingJobs(config: Config): Promise<Set<string>> {
   const jobs = createCaptureStore(storageRootFor(config), JOB_STORE_DIR_NAME);
   const sessions = await jobs.enumerateSessions(LS_INTEGRATION);
   return new Set(sessions.flatMap(({ captures }) => captures.map(({ record }) => record.eventId)));
-}
-
-export function storageRootFor(config: Config): string {
-  return join(dirname(config.stateFilePath), ENGINE_STORAGE_DIR_NAME);
 }
 
 function openSession(

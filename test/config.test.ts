@@ -6,13 +6,19 @@ import { join } from "node:path";
 import { readCommonConfigFiles, type CommonConfig } from "@langchain/plugins-base/settings";
 import { loadConfig } from "../src/config.js";
 import * as logger from "../src/logger.js";
-import { writerOptions } from "../src/writer-options.js";
+import { uploadCredential, writerOptions } from "../src/writer-options.js";
 
 vi.mock("@langchain/plugins-base/settings", { spy: true });
 
 const { readCommonConfigFiles: readFiles } = await vi.importActual<
   typeof import("@langchain/plugins-base/settings")
 >("@langchain/plugins-base/settings");
+
+const lock = (common: CommonConfig, raw: Record<string, unknown> = { ...common }) =>
+  vi.mocked(readCommonConfigFiles).mockImplementationOnce((options) => ({
+    ...readFiles(options),
+    managed: { status: "valid", common, raw, diagnostics: [] },
+  }));
 
 afterEach(() => {
   vi.unstubAllEnvs();
@@ -294,12 +300,6 @@ describe("loadConfig", () => {
   });
 
   describe("a managed file locking where traces go", () => {
-    const lock = (common: CommonConfig, raw: Record<string, unknown> = { ...common }) =>
-      vi.mocked(readCommonConfigFiles).mockImplementationOnce((options) => ({
-        ...readFiles(options),
-        managed: { status: "valid", common, raw, diagnostics: [] },
-      }));
-
     it("keeps environment replicas and the turn's project from bypassing the lock", () => {
       lock({ api_url: "https://locked.test", project: "locked" });
       vi.stubEnv(
@@ -331,6 +331,50 @@ describe("loadConfig", () => {
       lock({ redact_extra_rules: [{ pattern: "x" }] });
       vi.stubEnv("LANGSMITH_CURSOR_REDACT_EXTRA", "[]");
       expect(loadConfig({ cwd }).redactExtraRules).toEqual([{ pattern: "x" }]);
+    });
+  });
+
+  describe("uploading with the LangSmith CLI login", () => {
+    function writeLogin(apiUrl: string) {
+      mkdirSync(join(home, ".langsmith"));
+      writeFileSync(
+        join(home, ".langsmith", "config.json"),
+        JSON.stringify({
+          profiles: { default: { api_url: apiUrl, oauth: { refresh_token: "t" } } },
+        }),
+      );
+    }
+
+    it("uses the login and its server when no API key is set", () => {
+      writeLogin("https://login.test");
+      expect(writerOptions(loadConfig({ cwd }), "p").destinations[0]).toEqual({
+        login: expect.objectContaining({ profile: "default" }),
+        apiUrl: "https://login.test",
+        projectName: "p",
+      });
+    });
+
+    it.each(['""', "   ", '" "'])(
+      "treats the key %s as missing so the login never goes to a server the repo chose",
+      (key) => {
+        writeLogin("https://login.test");
+        vi.stubEnv("LANGSMITH_CURSOR_API_KEY", key);
+        vi.stubEnv("LANGSMITH_CURSOR_ENDPOINT", "https://repo.test");
+        expect(uploadCredential(loadConfig({ cwd })).kind).toBe("none");
+      },
+    );
+
+    it("never sends the login to a server the lock names instead", () => {
+      writeLogin("https://login.test");
+      lock({ api_url: "https://locked.test" });
+      expect(writerOptions(loadConfig({ cwd }), "p").destinations[0]).not.toHaveProperty("login");
+    });
+
+    it("reads the browser sign-in switch from the environment unless the lock sets it", () => {
+      vi.stubEnv("LANGSMITH_CURSOR_LOGIN_BROWSER", "false");
+      expect(writerOptions(loadConfig({ cwd }), "p").loginBrowser).toBe(false);
+      lock({ login_browser: true });
+      expect(writerOptions(loadConfig({ cwd }), "p").loginBrowser).toBe(true);
     });
   });
 

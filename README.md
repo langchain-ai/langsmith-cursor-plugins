@@ -34,7 +34,7 @@ On a Mac the plugin runs a compiled build that it carries itself, picking the Ap
 
 ## Configure
 
-Tracing stays off until you turn it on and give it a LangSmith API key. Put both in `~/.cursor/langsmith.json`:
+Tracing stays off until you turn it on and give it a LangSmith API key or sign in with `langsmith auth login`. Put the switch and a key in `~/.cursor/langsmith.json`:
 
 ```json
 {
@@ -61,13 +61,15 @@ Three other files work the same way, and when more than one of them sets a field
 | `attachments`   | `LANGSMITH_CURSOR_ATTACHMENTS`   | Includes attached images and files    | `true`                            |
 | `system_prompt` | `LANGSMITH_CURSOR_SYSTEM_PROMPT` | Includes the system prompt            | `true`                            |
 
-Nothing is uploaded until tracing is on and a key is set. Redaction removes the secrets it recognizes, which is not a promise that everything else it uploads is safe to share.
+Nothing is uploaded until tracing is on and there's a key or a login. Redaction removes the secrets it recognizes, which is not a promise that everything else it uploads is safe to share.
 
 Rarer settings cover extra metadata on every run (`metadata`), sending to more than one LangSmith (`replicas`), redaction patterns of your own (`redact_extra_rules`), a different Cursor database path (`cursor_db_path`) and how long an unfinished turn waits before it is swept up (`sweep_idle_minutes`). Their environment variables are `LANGSMITH_CURSOR_METADATA`, `LANGSMITH_CURSOR_RUNS_ENDPOINTS`, `LANGSMITH_CURSOR_REDACT_EXTRA`, `LANGSMITH_CURSOR_DB_PATH` and `LANGSMITH_CURSOR_SWEEP_IDLE_MINUTES`, and `LANGSMITH_CURSOR_DEBUG=1` turns on verbose logging. The credential and enrichment variables also answer to the shorter `LANGSMITH_` name, and the `LANGSMITH_CURSOR_` one wins when you set both.
 
+If you've signed in with `langsmith auth login`, tracing uses that login when no API key is set, and an expired login pauses tracing until you sign in again. It opens a browser to sign in unless you set `login_browser` to `false` (`LANGSMITH_CURSOR_LOGIN_BROWSER`). An exported `LANGCHAIN_API_KEY`, or an endpoint set to a different server than your login's, stops the login from being used, and a desktop notification says why. With tracing on and neither an API key nor a login, a notification says so.
+
 ### Lock settings with a managed file
 
-An admin can lock `enabled`, `defaultMuted`, `api_key`, `api_url`, `project`, `replicas`, `metadata`, `redact`, `redact_extra_rules`, `notice_cooldown`, `attachments` and `system_prompt` for each user through a managed file at `~/.langsmith-plugins/managed.json` in each user's home, which overrides every other file and environment variable. `sweep_idle_minutes` and `cursor_db_path` can't be locked, so setting them there only logs a warning. If that file is broken or not owned by root, tracing stops and a desktop notification says why. A notification repeats at most every `notice_cooldown` minutes, 2 by default, and `off` silences them (`LANGSMITH_CURSOR_NOTICE_COOLDOWN`). Windows doesn't read the managed file. See [the settings guide](https://github.com/langchain-ai/langsmith-plugin-binary/blob/main/docs/settings.md) to set it up.
+An admin can lock `enabled`, `defaultMuted`, `api_key`, `api_url`, `project`, `replicas`, `metadata`, `redact`, `redact_extra_rules`, `login_browser`, `notice_cooldown`, `attachments` and `system_prompt` for each user through a managed file at `~/.langsmith-plugins/managed.json` in each user's home, which overrides every other file and environment variable. `sweep_idle_minutes` and `cursor_db_path` can't be locked, so setting them there only logs a warning. If that file is broken or not owned by root, tracing stops and a desktop notification says why. A notification repeats at most every `notice_cooldown` minutes, 2 by default, and `off` silences them (`LANGSMITH_CURSOR_NOTICE_COOLDOWN`). Windows doesn't read the managed file. See [the settings guide](https://github.com/langchain-ai/langsmith-plugin-binary/blob/main/docs/settings.md) to set it up.
 
 ### Muting a conversation
 

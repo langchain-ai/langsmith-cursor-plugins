@@ -29,6 +29,8 @@ export interface Config {
   cwd: string;
   locked: LockableField[];
   noticeCooldown?: number | "off";
+  apiUrlIsDefault: boolean;
+  loginBrowser?: boolean;
   managedConfigProblem?: string;
 }
 

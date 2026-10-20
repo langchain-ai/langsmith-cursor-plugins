@@ -2,12 +2,12 @@
  * Shared hook startup utilities.
  */
 
-import { sdkSetting } from "@langchain/plugins-base/auth";
 import { loadConfig } from "../config.js";
 import type { Config } from "../models/config.js";
 import { initLogger, error } from "../logger.js";
+import { uploadCredential, uploadProblem } from "../writer-options.js";
 
-/** Standard hook startup: load config, init logger, check enable + API key. */
+/** Standard hook startup: load config, init logger, check enable + credential. */
 export function initHook(cwd?: string): Config | null {
   const config = loadConfig({ cwd });
   initLogger(config.debug);
@@ -16,10 +16,9 @@ export function initHook(cwd?: string): Config | null {
     return null;
   }
 
-  if (!sdkSetting(config.apiKey) && (!config.replicas || config.replicas.length === 0)) {
-    error(
-      "Tracing enabled but no API key set (langsmith-plugins.json or .cursor/langsmith.json api_key, LANGSMITH_CURSOR_API_KEY, or LANGSMITH_API_KEY) and no replicas configured",
-    );
+  const problem = uploadProblem(config, uploadCredential(config));
+  if (problem !== undefined) {
+    error(problem);
     return null;
   }
 

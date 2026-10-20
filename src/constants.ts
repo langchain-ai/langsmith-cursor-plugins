@@ -18,7 +18,11 @@ export const NOTICE_PLUGIN = "cursor";
 
 export const NOTICE_COOLDOWN_OFF = "off";
 
-export const NOTICE_KINDS = { managed: "managed" };
+export const NOTICE_KINDS = {
+  managed: "managed",
+  replica: "replica",
+  credential: "credential",
+};
 
 export const MUTE_LOCKED_MESSAGE = "Thread tracing stays muted because an admin locked muting on.";
 
