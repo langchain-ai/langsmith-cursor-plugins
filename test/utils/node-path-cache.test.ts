@@ -16,7 +16,7 @@ function cacheFile(): string {
   return join(
     mkdtempSync(join(tmpdir(), "langsmith-node-cache-")),
     ".cursor",
-    "langsmith-node.json",
+    "langsmith_node.json",
   );
 }
 
@@ -32,7 +32,7 @@ describe("node path cache", () => {
       expire_at: new Date(NOW + NODE_PATH_CACHE_TTL_MS).toISOString(),
     });
     expect(readCachedNodePath(file, NOW)).toBe("/opt/node/bin/node");
-    expect(readdirSync(dirname(file))).toEqual(["langsmith-node.json"]);
+    expect(readdirSync(dirname(file))).toEqual(["langsmith_node.json"]);
   });
 
   it("caches discovery failures", () => {

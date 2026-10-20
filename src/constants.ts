@@ -81,3 +81,15 @@ export const MCP_TOOL_PREFIX = "MCP:";
  * no I/O worth tracing.
  */
 export const SUBAGENT_PSEUDO_TOOLS = new Set(["UpdateCurrentStep"]);
+
+export const STATE_FILE_NAME = "langsmith_state.json";
+
+export const LEGACY_STATE_FILE_NAME = "langsmith-state.json";
+
+export const TRACING_POLICY_FILE_NAME = "langsmith_state_privacy.json";
+
+export const LEGACY_TRACING_POLICY_FILE_NAME = "langsmith-state.privacy.json";
+
+export const HOOK_LOG_FILE_NAME = "langsmith_hook.log";
+
+export const NODE_PATH_CACHE_FILE_NAME = "langsmith_node.json";

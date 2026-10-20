@@ -78,7 +78,7 @@ This controls only what this integration uploads, not what Cursor or the model p
 Watch the log while you send a prompt:
 
 ```bash
-tail -f ~/.cursor/langsmith-hook.log
+tail -f ~/.cursor/langsmith_hook.log
 ```
 
 **Nothing shows up in LangSmith.** Cursor starts its hooks from the desktop app rather than from your terminal, so the `node` it finds is often an old system one instead of the version you manage with nvm, mise or asdf. The hooks work out which Node your login shell would use and re-run themselves under it, and when even that one is too old they say so in the log:

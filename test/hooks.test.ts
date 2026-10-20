@@ -2,10 +2,18 @@ import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { join } from "node:path";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { loadState, saveState } from "../src/state.js";
 import { runSweep } from "../src/sweep.js";
 import type { Config } from "../src/models/config.js";
-import { HOUR, MINUTE, T0, conversation, testConfig, turn } from "./utils/state.js";
+import {
+  HOUR,
+  MINUTE,
+  T0,
+  conversation,
+  loadState,
+  saveState,
+  testConfig,
+  turn,
+} from "./utils/state.js";
 
 const harness = vi.hoisted(() => ({
   input: {} as Record<string, unknown>,
@@ -47,7 +55,7 @@ describe("hook wiring against the on-disk state file", () => {
 
   beforeEach(() => {
     dir = mkdtempSync(join(tmpdir(), "hook-wiring-"));
-    stateFilePath = join(dir, "langsmith-state.json");
+    stateFilePath = join(dir, "langsmith_state.json");
     process.env.LANGSMITH_CURSOR_PRIVACY_FILE = join(dir, "absent-privacy.json");
     process.env.LANGSMITH_CURSOR_LOG_FILE = join(dir, "hook.log");
     harness.uploadError = undefined;

@@ -1,17 +1,25 @@
-import { describe, it, expect } from "vitest";
-import { mkdtempSync, writeFileSync } from "node:fs";
+import { describe, it, expect, vi } from "vitest";
+import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+
+const warnings = vi.hoisted(() => [] as string[]);
+
+vi.mock("../src/logger.js", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../src/logger.js")>()),
+  warn: (message: string) => warnings.push(message),
+}));
+
 import {
-  loadState,
-  saveState,
   atomicUpdateState,
   getConversationState,
   newTurnBuffer,
   nextTurnNum,
   pruneOldConversations,
+  readState,
 } from "../src/state.js";
 import type { TracingState } from "../src/models/types.js";
+import { loadState } from "./utils/state.js";
 
 function tmpStateFile(): string {
   return join(mkdtempSync(join(tmpdir(), "ls-cursor-")), "state.json");
@@ -38,22 +46,6 @@ describe("getConversationState / newTurnBuffer", () => {
   });
 });
 
-describe("loadState / saveState", () => {
-  it("round-trips state and returns {} for a missing file", () => {
-    const file = tmpStateFile();
-    expect(loadState(file)).toEqual({});
-    const state: TracingState = { c1: { turns: {}, turn_count: 2, updated: "t" } };
-    saveState(file, state);
-    expect(loadState(file)).toEqual(state);
-  });
-
-  it("returns {} for malformed JSON", () => {
-    const file = tmpStateFile();
-    writeFileSync(file, "{not json");
-    expect(loadState(file)).toEqual({});
-  });
-});
-
 describe("atomicUpdateState", () => {
   it("serializes concurrent updates without losing writes", async () => {
     const file = tmpStateFile();
@@ -65,8 +57,33 @@ describe("atomicUpdateState", () => {
         })),
       ),
     );
-    const state = loadState(file);
-    expect(Object.keys(state).length).toBe(10);
+    expect(Object.keys(readState(file)).length).toBe(10);
+  });
+
+  it("treats a state file that holds something other than an object as empty", async () => {
+    const file = tmpStateFile();
+    writeFileSync(file, "[]");
+    await atomicUpdateState(file, (s) => {
+      expect(s).toEqual({});
+      return { ...s, a: { turns: {}, turn_count: 1, updated: "t" } };
+    });
+    expect(Object.keys(loadState(file))).toEqual(["a"]);
+  });
+});
+
+describe("the state file kept by 0.5.0", () => {
+  it("is read on first use under the new name and left in place for a rollback", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "ls-cursor-"));
+    const legacy = join(dir, "langsmith-state.json");
+    const old = { kept: { turns: {}, turn_count: 3, updated: "t" } };
+    writeFileSync(legacy, JSON.stringify(old));
+    const file = join(dir, "langsmith_state.json");
+    await atomicUpdateState(file, (s) => ({
+      ...s,
+      added: { turns: {}, turn_count: 1, updated: "t" },
+    }));
+    expect(Object.keys(readState(file)).sort()).toEqual(["added", "kept"]);
+    expect(JSON.parse(readFileSync(legacy, "utf8"))).toEqual(old);
   });
 });
 

@@ -20,6 +20,7 @@
 import { execFileSync, spawnSync } from "node:child_process";
 import { appendFileSync } from "node:fs";
 import { userInfo, homedir } from "node:os";
+import { HOOK_LOG_FILE_NAME } from "../constants.js";
 import { MIN_NODE, nodeTooOld } from "../utils/node-version.js";
 import {
   isNodePathValid,
@@ -96,7 +97,7 @@ if (nodeTooOld(process.versions.node)) {
     `The Node configured by your login shell could not be used; install Node >= ` +
     `${MIN_NODE[0]}.${MIN_NODE[1]} or check your shell startup files. See README troubleshooting.`;
   const logFile =
-    process.env.LANGSMITH_CURSOR_LOG_FILE ?? `${homedir()}/.cursor/langsmith-hook.log`;
+    process.env.LANGSMITH_CURSOR_LOG_FILE ?? `${homedir()}/.cursor/${HOOK_LOG_FILE_NAME}`;
   try {
     appendFileSync(logFile, msg + "\n");
   } catch {

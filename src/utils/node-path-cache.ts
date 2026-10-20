@@ -2,6 +2,7 @@ import { spawnSync, type SpawnSyncReturns } from "node:child_process";
 import { mkdirSync, readFileSync, renameSync, unlinkSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { dirname, join } from "node:path";
+import { NODE_PATH_CACHE_FILE_NAME } from "../constants.js";
 import type { NodePathCache } from "../models/node-path-cache.js";
 
 // Cache at most 24 hours
@@ -9,7 +10,7 @@ export const NODE_PATH_CACHE_TTL_MS = 24 * 60 * 60 * 1_000;
 export const NODE_PATH_VALIDATION_TIMEOUT_MS = 10_000;
 
 function nodePathCacheFile(): string {
-  return join(homedir(), ".cursor", "langsmith-node.json");
+  return join(homedir(), ".cursor", NODE_PATH_CACHE_FILE_NAME);
 }
 
 export function readCachedNodePath(

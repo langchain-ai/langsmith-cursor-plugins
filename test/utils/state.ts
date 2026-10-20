@@ -1,5 +1,12 @@
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname } from "node:path";
 import type { Config } from "../../src/models/config.js";
-import type { ConversationState, ToolEvent, TurnBuffer } from "../../src/models/types.js";
+import type {
+  ConversationState,
+  ToolEvent,
+  TracingState,
+  TurnBuffer,
+} from "../../src/models/types.js";
 
 export const MINUTE = 60_000;
 export const HOUR = 60 * MINUTE;
@@ -39,7 +46,7 @@ export function testConfig(stateFilePath: string): Config {
     enabled: true,
     defaultMuted: false,
     apiKey: "MOCK",
-    apiUrl: "https://api.smith.langchain.com",
+    apiUrl: "http://127.0.0.1",
     project: "cursor",
     debug: false,
     stateFilePath,
@@ -48,4 +55,17 @@ export function testConfig(stateFilePath: string): Config {
     redact: true,
     sweepIdleMinutes: 60,
   };
+}
+
+export function loadState(stateFilePath: string): TracingState {
+  try {
+    return JSON.parse(readFileSync(stateFilePath, "utf8")) as TracingState;
+  } catch {
+    return {};
+  }
+}
+
+export function saveState(stateFilePath: string, state: TracingState): void {
+  mkdirSync(dirname(stateFilePath), { recursive: true });
+  writeFileSync(stateFilePath, JSON.stringify(state));
 }
