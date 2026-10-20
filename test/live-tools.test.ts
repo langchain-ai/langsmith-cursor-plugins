@@ -177,8 +177,15 @@ describe("a tool run saved as soon as its tool finishes", { timeout: 120_000 }, 
     expect(posted("Cursor Turn 1")).toHaveLength(1);
     const config = loadConfig({ cwd: dir });
     const buffer = loadState(join(dir, "state.json"))["live-conv"].turns["live-gen"];
-    const options = { buffer, conversationId: "live-conv", turnNum: 1, project: config.project };
-    await saveToolForUpload(config, options, 0, () => []);
+    const origin = { project: config.project };
+    await saveToolForUpload(config, {
+      kind: "tool",
+      buffer,
+      conversationId: "live-conv",
+      turnNum: 1,
+      origin,
+      toolIndex: 0,
+    });
 
     hook.steps = [
       { kind: "tool", toolUseId: "t-shell" },
@@ -227,13 +234,14 @@ describe("a tool run saved as soon as its tool finishes", { timeout: 120_000 }, 
     expect(await until(turnClosed)).toBe(true);
     const sent = ops.length;
     const config = loadConfig({ cwd: dir });
-    const options = {
+    await saveToolForUpload(config, {
+      kind: "tool",
       buffer: buffer!,
       conversationId: "live-conv",
       turnNum: 1,
-      project: config.project,
-    };
-    await saveToolForUpload(config, options, 0, () => []);
+      origin: { project: config.project },
+      toolIndex: 0,
+    });
     await new Promise((resolve) => setTimeout(resolve, 3000));
     expect(ops.length).toBe(sent);
   });

@@ -43,6 +43,15 @@ export function turnRunId(conversationId: string, generationId: string): string 
   return stableRunId({ agentType: "root", threadId: conversationId, turnId: generationId }, "turn");
 }
 
+export function toolRunId(conversationId: string, buffer: TurnBuffer, toolIndex: number): string {
+  const ctx: MetaCtx = {
+    agentType: "root",
+    threadId: conversationId,
+    turnId: buffer.generation_id,
+  };
+  return stableRunId(ctx, toolKey(toolIndex, buffer.tools[toolIndex]));
+}
+
 /** Prepend a system message to an llm run's input messages, when one was recovered. */
 function withSystem(
   messages: Array<Record<string, unknown>>,
