@@ -1,4 +1,17 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import { EventEmitter } from "node:events";
+
+const launches = vi.hoisted(() => [] as string[][]);
+
+vi.mock("node:child_process", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("node:child_process")>()),
+  spawn: (_command: string, args: string[]) => {
+    launches.push(args);
+    const child = new EventEmitter();
+    setImmediate(() => child.emit("error", new Error("worker launch is mocked")));
+    return child;
+  },
+}));
 import { join } from "node:path";
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -8,14 +21,15 @@ import {
   reduceStop,
   reduceSubagentStop,
   reduceSweep,
-  reduceUploadSettled,
+  reduceSavedForUpload,
 } from "../src/reducer.js";
 import { DEFAULT_SWEEP_IDLE_MINUTES, MAX_UPLOAD_ATTEMPTS } from "../src/constants.js";
 import * as logger from "../src/logger.js";
-import { runSweep } from "../src/sweep.js";
+import { runSweep, type SweepOptions } from "../src/sweep.js";
+import { runEngineWorker } from "../src/tracing-engine.js";
 import type { Config } from "../src/models/config.js";
-import { MUTED_TRACE_CONTENT } from "../src/privacy.js";
-import { initTracing, buildTurnRuns } from "../src/langsmith.js";
+import { MUTED_TRACE_CONTENT } from "@langchain/plugins-base/privacy";
+import { sendTurn } from "./utils/engine.js";
 import { replayHookLog } from "./utils/replay.js";
 import { mockClient } from "./utils/mock_client.js";
 import { getAssumedTreeFromCalls } from "./utils/tree.js";
@@ -228,10 +242,10 @@ describe("reduceSweep claims are exactly once", () => {
     const first = reduceSweep(stranded(), CALLER, T0 + 2 * HOUR, THRESHOLD);
     const reclaimed = reduceSweep(first.state, CALLER, T0 + 4 * HOUR, THRESHOLD);
 
-    const stale = reduceUploadSettled(reclaimed.state, "c1", "g1", T0 + 2 * HOUR);
+    const stale = reduceSavedForUpload(reclaimed.state, "c1", "g1", T0 + 2 * HOUR);
     expect(stale.c1.pending!.g1).toMatchObject({ attempts: 2, claimedAt: T0 + 4 * HOUR });
 
-    const settled = reduceUploadSettled(stale, "c1", "g1", T0 + 4 * HOUR);
+    const settled = reduceSavedForUpload(stale, "c1", "g1", T0 + 4 * HOUR);
     expect(settled.c1.pending).toBeUndefined();
   });
 
@@ -349,20 +363,20 @@ describe("a generation is buffered or pending, never both", () => {
     const swept = reduceSweep(buffered, CALLER, T0 + 2 * HOUR, THRESHOLD).state;
     expect(whereIsIt(swept, "g1")).toEqual(["pending"]);
 
-    const settled = reduceUploadSettled(swept, "c1", "g1", T0 + 2 * HOUR);
+    const settled = reduceSavedForUpload(swept, "c1", "g1", T0 + 2 * HOUR);
     expect(whereIsIt(settled, "g1")).toEqual(["turns"]);
 
     const stopped = reduceStop(settled, stopInput("c1", "g1"), T0 + 3 * HOUR).state;
     expect(whereIsIt(stopped, "g1")).toEqual(["pending"]);
 
-    const done = reduceUploadSettled(stopped, "c1", "g1", T0 + 3 * HOUR);
+    const done = reduceSavedForUpload(stopped, "c1", "g1", T0 + 3 * HOUR);
     expect(whereIsIt(done, "g1")).toEqual([]);
     expect(done.c1.turn_count).toBe(1);
   });
 
   it("counts a turn once even when a late event sends it back through the sweep", () => {
     const swept = reduceSweep(stranded(), CALLER, T0 + 2 * HOUR, THRESHOLD).state;
-    const settled = reduceUploadSettled(swept, "c1", "g1", T0 + 2 * HOUR);
+    const settled = reduceSavedForUpload(swept, "c1", "g1", T0 + 2 * HOUR);
     expect(settled.c1.turn_count).toBe(1);
 
     const late = reducePostToolUse(settled, toolInput("g1", "late"), T0 + 3 * HOUR);
@@ -391,8 +405,7 @@ describe("headless cursor-agent run recovered by the sweep", () => {
 
   it("builds a complete run tree from the recovered turn", async () => {
     const { client, callSpy } = mockClient();
-    initTracing(undefined, undefined, undefined, true, undefined, client);
-    await buildTurnRuns({
+    await sendTurn(callSpy, {
       buffer: recoveredBuffer(),
       conversationId: HEADLESS_CONV,
       turnNum: 1,
@@ -408,7 +421,20 @@ describe("headless cursor-agent run recovered by the sweep", () => {
   });
 });
 
-describe("runSweep against the on-disk state file", () => {
+async function sweepAndDeliver(options: SweepOptions) {
+  const { client, callSpy } = mockClient();
+  const uploaded = await runSweep(options);
+  vi.stubGlobal("fetch", callSpy);
+  try {
+    for (const { conversationId } of uploaded)
+      await runEngineWorker(options.config, conversationId);
+  } finally {
+    vi.unstubAllGlobals();
+  }
+  return { client, callSpy, uploaded };
+}
+
+describe("runSweep against the on-disk state file", { timeout: 60_000 }, () => {
   let dir: string;
   let stateFilePath: string;
   let config: Config;
@@ -418,6 +444,8 @@ describe("runSweep against the on-disk state file", () => {
     dir = mkdtempSync(join(tmpdir(), "sweep-state-"));
     stateFilePath = join(dir, "langsmith_state.json");
     process.env.LANGSMITH_CURSOR_PRIVACY_FILE = join(dir, "absent-privacy.json");
+    vi.stubEnv("LANGSMITH_CURSOR_API_KEY", "MOCK");
+    vi.stubEnv("LANGSMITH_CURSOR_ENDPOINT", "http://127.0.0.1");
     config = testConfig(stateFilePath);
     saveState(stateFilePath, {
       c1: conversation([
@@ -433,15 +461,14 @@ describe("runSweep against the on-disk state file", () => {
     if (savedPolicy === undefined) delete process.env.LANGSMITH_CURSOR_PRIVACY_FILE;
     else process.env.LANGSMITH_CURSOR_PRIVACY_FILE = savedPolicy;
     rmSync(dir, { recursive: true, force: true });
+    vi.unstubAllEnvs();
   });
 
   it("uploads a claimed turn once, under the same lock as the calling hook", async () => {
-    const { client, callSpy } = mockClient();
-    const uploaded = await runSweep({
+    const { client, callSpy, uploaded } = await sweepAndDeliver({
       config,
       input: CALLER_INPUT,
       nowMs: T0 + 2 * HOUR,
-      client,
       apply: (state) => ({ ...state, c2: conversation([turn("g2", T0 + 2 * HOUR)]) }),
     });
 
@@ -460,7 +487,6 @@ describe("runSweep against the on-disk state file", () => {
       config,
       input: CALLER_INPUT,
       nowMs: T0 + 2 * HOUR + MINUTE,
-      client,
     });
     expect(second).toEqual([]);
   });
@@ -474,9 +500,7 @@ describe("runSweep against the on-disk state file", () => {
         }),
       ]),
     });
-    const { client, callSpy } = mockClient();
-
-    await runSweep({
+    const { callSpy } = await sweepAndDeliver({
       config: {
         ...config,
         project: "the-sweepers-project",
@@ -484,12 +508,15 @@ describe("runSweep against the on-disk state file", () => {
       },
       input: CALLER_INPUT,
       nowMs: T0 + 2 * HOUR,
-      client,
     });
 
     const posted = callSpy.mock.calls
       .map(([, init]) => new TextDecoder().decode((init as RequestInit).body as Uint8Array))
-      .map((body) => JSON.parse(body))
+      .filter((body) => body.startsWith("{"))
+      .flatMap((body) => {
+        const parsed = JSON.parse(body);
+        return parsed.post ? [...parsed.post, ...(parsed.patch ?? [])] : [parsed];
+      })
       .filter((run) => run.session_name);
     expect(posted.length).toBeGreaterThan(0);
     expect([...new Set(posted.map((run) => run.session_name))]).toEqual(["the-turns-project"]);
@@ -497,8 +524,11 @@ describe("runSweep against the on-disk state file", () => {
   });
 
   async function sweptTurnInputs(): Promise<string> {
-    const { client, callSpy } = mockClient();
-    await runSweep({ config, input: CALLER_INPUT, nowMs: T0 + 2 * HOUR, client });
+    const { client, callSpy } = await sweepAndDeliver({
+      config,
+      input: CALLER_INPUT,
+      nowMs: T0 + 2 * HOUR,
+    });
     const tree = await getAssumedTreeFromCalls(callSpy.mock.calls, client);
     const root = Object.entries(tree.data).find(([id]) => id.startsWith("Cursor Turn 1:"))![1];
     return JSON.stringify(root.inputs);
@@ -534,8 +564,7 @@ function recoveredBuffer(): TurnBuffer {
 describe("run ids that survive a re-upload", () => {
   async function postedRunIds(buffer: TurnBuffer, turnNum: number): Promise<string[]> {
     const { client, callSpy } = mockClient();
-    initTracing(undefined, undefined, undefined, true, undefined, client);
-    await buildTurnRuns({ buffer, conversationId: HEADLESS_CONV, turnNum, project: "cursor" });
+    await sendTurn(callSpy, { buffer, conversationId: HEADLESS_CONV, turnNum, project: "cursor" });
     const tree = await getAssumedTreeFromCalls(callSpy.mock.calls, client);
     return Object.values(tree.data)
       .map((run) => run.id)

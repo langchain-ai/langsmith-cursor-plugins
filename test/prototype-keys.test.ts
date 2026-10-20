@@ -8,7 +8,7 @@ import {
   reduceSubagentStart,
   reduceSubagentStop,
   reduceSweep,
-  reduceUploadSettled,
+  reduceSavedForUpload,
 } from "../src/reducer.js";
 import { getConversationState, getTurnBuffer, pruneOldConversations } from "../src/state.js";
 import type { TracingState } from "../src/models/types.js";
@@ -91,7 +91,7 @@ describe("a generation id that names a prototype key", () => {
     expect(swept.claims.map((c) => c.generationId)).toEqual([id]);
     expect(Object.hasOwn(swept.state[id].pending!, id)).toBe(true);
 
-    state = reduceUploadSettled(swept.state, id, id, T0 + 10 * HOUR);
+    state = reduceSavedForUpload(swept.state, id, id, T0 + 10 * HOUR);
     expect(state[id].pending).toBeUndefined();
     expect(Object.hasOwn(state[id].turns, id)).toBe(true);
 

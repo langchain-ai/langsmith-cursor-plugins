@@ -265,7 +265,7 @@ describe("loadConfig", () => {
       expect(loadConfig({ cwd }).replicas).toEqual([]);
     });
 
-    it("lets the environment replace file replicas, keeping SDK tuples and both name styles", () => {
+    it("lets the environment replace file replicas, turning SDK tuples into replica settings and accepting both name styles", () => {
       write(2, { replicas: [{ project: "file" }] });
       vi.stubEnv(
         "LANGSMITH_RUNS_ENDPOINTS",
@@ -276,7 +276,7 @@ describe("loadConfig", () => {
         ]),
       );
       expect(loadConfig({ cwd }).replicas).toEqual([
-        ["legacy-project", { tags: ["legacy"] }],
+        { projectName: "legacy-project", updates: { tags: ["legacy"] } },
         { apiUrl: "https://sdk.test", projectName: "sdk" },
         { apiUrl: "https://snake.test", projectName: "snake" },
       ]);

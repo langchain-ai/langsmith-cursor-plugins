@@ -1,7 +1,7 @@
-import type { RunTree } from "langsmith";
 import type { CodingAgentAgentType } from "@langchain/plugins-base/metadata";
-import type { LlmMetadata } from "./metadata.js";
-import type { ContentPart, TurnBuffer } from "./types.js";
+import type { CursorMetadataOptions, LlmMetadata } from "./metadata.js";
+import type { CapturedRun } from "./tracing-engine.js";
+import type { ContentPart, TracingMode, TurnBuffer } from "./types.js";
 import type { Step } from "./conversation-steps.js";
 import type { UsageMetadata } from "./normalize.js";
 
@@ -42,19 +42,45 @@ export interface TurnCall {
   resultMessage: Record<string, unknown>;
 }
 
-/** Inputs for the interleaved per-step renderer. */
-export interface InterleaveOptions {
-  turnRun: RunTree;
+/** Everything the run builders share for one turn, so none of it lives in module state. */
+export interface TurnContext {
+  options: BuildTurnOptions;
   ctx: MetaCtx;
-  steps: Step[];
-  buffer: TurnBuffer;
+  runs: CapturedRun[];
+  mode: TracingMode;
   userContent: ContentPart[];
-  systemPrompt?: string;
   llmName: string;
   llmMeta: LlmMetadata;
   usageMetadata: UsageMetadata | undefined;
+  thinking: Array<Record<string, unknown>>;
   finalTextBlocks: Array<Record<string, unknown>>;
+  calls: TurnCall[];
   turnEndMs: number;
+}
+
+/** One run to create under a parent, and the metadata its capture is built from. */
+export interface RunSpec {
+  key: string;
+  name: string;
+  type: "chain" | "llm" | "tool";
+  inputs: Record<string, unknown>;
+  outputs?: Record<string, unknown>;
+  error?: string;
+  startMs: number;
+  endMs: number;
+  metadata: CursorMetadataOptions;
+  mode?: TracingMode;
+}
+
+/** The llm run of a root turn or of a subagent, which differ only in id, text and metadata. */
+export interface LlmRunSpec {
+  key: string;
+  name: string;
+  messages: Array<Record<string, unknown>>;
+  content: Array<Record<string, unknown>>;
+  startMs: number;
+  endMs: number;
+  metadata: CursorMetadataOptions;
 }
 
 export interface SkillRunOptions {

@@ -5,7 +5,8 @@ import { codingAgentMetadata, skillNameFromTool } from "../src/metadata.js";
 import { replayHookLog, type FinalizedTurn } from "./utils/replay.js";
 import { mockClient } from "./utils/mock_client.js";
 import { getAssumedTreeFromCalls } from "./utils/tree.js";
-import { initTracing, buildTurnRuns, flushPendingTraces } from "../src/langsmith.js";
+import { buildTurnRuns } from "../src/langsmith.js";
+import { sendTurn } from "./utils/engine.js";
 
 const fixture = (name: string) => join(process.cwd(), "test/fixtures", name);
 
@@ -28,15 +29,13 @@ async function tracedRuns(
   extra: Partial<Parameters<typeof buildTurnRuns>[0]> = {},
 ): Promise<Run[]> {
   const { client, callSpy } = mockClient();
-  initTracing(undefined, undefined, undefined, true, undefined, client);
-  await buildTurnRuns({
+  await sendTurn(callSpy, {
     buffer: turn.buffer,
     conversationId: turn.conversationId,
     turnNum: turn.turnNum,
     project: "test",
     ...extra,
   });
-  await flushPendingTraces();
   const tree = await getAssumedTreeFromCalls(callSpy.mock.calls, client);
   return Object.values(tree.data);
 }

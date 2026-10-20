@@ -10,14 +10,7 @@
     ],
     "minify": false,
     "stampedVersionFiles": [
-      "bundle/after-agent-response.js",
-      "bundle/before-submit-prompt.js",
-      "bundle/post-tool-use-failure.js",
-      "bundle/post-tool-use.js",
-      "bundle/session-start.js",
-      "bundle/stop.js",
-      "bundle/subagent-start.js",
-      "bundle/subagent-stop.js"
+      "bundle/hooks.js"
     ]
   },
   "sign": {

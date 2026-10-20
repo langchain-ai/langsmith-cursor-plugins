@@ -3,7 +3,6 @@
  * Match bubble `path` (not `selectedImages[].uuid`).
  */
 
-import { DatabaseSync } from "node:sqlite";
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { homedir, platform } from "node:os";
 import { basename, join } from "node:path";
@@ -11,6 +10,7 @@ import type { ContentPart } from "./models/types.js";
 import type { ResolveAttachmentsOptions } from "./models/attachments.js";
 import { isRecord } from "./normalize.js";
 import { MAX_ATTACHMENT_BYTES } from "./constants.js";
+import { loadSqlite } from "./utils/sqlite.js";
 import { normalizeWs } from "./utils/text.js";
 import * as logger from "./logger.js";
 
@@ -31,6 +31,7 @@ export function defaultCursorDbPath(): string {
 /** Query a conversation's bubbles via built-in `node:sqlite`, read-only (no native dep). */
 function queryBubbles(dbPath: string, conversationId: string): unknown[] {
   const like = `bubbleId:${conversationId}:%`;
+  const { DatabaseSync } = loadSqlite();
   const db = new DatabaseSync(dbPath, { readOnly: true });
   try {
     const rows = db.prepare("SELECT value FROM cursorDiskKV WHERE key LIKE ?").all(like) as Array<{

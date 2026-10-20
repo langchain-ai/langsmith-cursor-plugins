@@ -1,7 +1,6 @@
-#!/usr/bin/env node
 /**
- * stop hook — finalizes the turn: posts the LangSmith trace, flushes, clears the
- * buffer. Idempotent. A turn stays pending until its upload succeeds, and every
+ * stop hook — finalizes the turn: saves the LangSmith trace for upload, clears the
+ * buffer. Idempotent. A turn stays pending until its trace is saved, and every
  * run also sweeps up turns other threads left buffered with no stop.
  */
 
@@ -9,16 +8,16 @@ import { readStdin } from "../utils/stdin.js";
 import { initHook } from "../utils/hook-init.js";
 import { loadConfig } from "../config.js";
 import { atomicUpdateState, getTurnBuffer } from "../state.js";
-import { reduceStop, reduceUploadSettled } from "../reducer.js";
+import { reduceStop, reduceSavedForUpload } from "../reducer.js";
 import { runSweep } from "../sweep.js";
-import { initTracing, uploadTurn } from "../langsmith.js";
+import { saveTurnForUpload } from "../tracing-engine.js";
 import { resolveTurnAttachments } from "../attachments.js";
 import { resolveSystemPrompts } from "../system-prompt.js";
 import { resolveTurnSteps } from "../conversation-steps.js";
-import { error, debug, warn } from "../logger.js";
+import { error, debug } from "../logger.js";
 import type { ContentPart, StopInput, TracingState, TurnBuffer } from "../models/types.js";
 
-async function main(): Promise<void> {
+export async function run(): Promise<void> {
   const input = await readStdin<StopInput>();
   const config = initHook(input.workspace_roots?.[0]);
   if (!config) {
@@ -46,7 +45,7 @@ async function main(): Promise<void> {
   });
 
   const clearThisTurnsPendingUpload = (s: TracingState) =>
-    reduceUploadSettled(s, input.conversation_id, input.generation_id, finalizedAt);
+    reduceSavedForUpload(s, input.conversation_id, input.generation_id, finalizedAt);
   const sweep = (apply?: (s: TracingState) => TracingState) => runSweep({ config, input, apply });
 
   if (!toTrace) {
@@ -59,14 +58,6 @@ async function main(): Promise<void> {
     await sweep();
     return;
   }
-
-  initTracing(
-    config.apiKey,
-    config.apiUrl,
-    config.replicas,
-    config.redact,
-    config.redactExtraRules,
-  );
 
   // Best-effort attachment enrichment (read-only DB + disk); never throws, and an
   // empty result leaves the turn unchanged.
@@ -105,9 +96,9 @@ async function main(): Promise<void> {
     dbPath: config.cursorDbPath,
   });
 
-  let uploaded = false;
+  let saved = false;
   try {
-    uploaded = await uploadTurn({
+    saved = await saveTurnForUpload(config, {
       buffer: toTrace,
       conversationId: input.conversation_id,
       turnNum,
@@ -123,14 +114,5 @@ async function main(): Promise<void> {
     error(`Failed to build turn runs: ${err}`);
   }
 
-  await sweep(uploaded ? clearThisTurnsPendingUpload : undefined);
+  await sweep(saved ? clearThisTurnsPendingUpload : undefined);
 }
-
-export const finished = main().catch((err) => {
-  try {
-    warn(`stop hook error: ${err}`);
-  } catch {
-    /* last resort */
-  }
-  process.exit(0);
-});
