@@ -1,6 +1,6 @@
 import { RunTree, type RunTreeConfig } from "langsmith";
 import type { TracingMode } from "./models/types.js";
-import { trustedCodingAgentMetadata } from "./metadata.js";
+import { trustedCodingAgentMetadata } from "@langchain/plugins-base/metadata";
 
 export const MUTED_TRACE_CONTENT =
   "[LangSmith system notice: content omitted because tracing is muted.]";

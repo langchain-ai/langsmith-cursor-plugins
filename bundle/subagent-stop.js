@@ -17,13 +17,13 @@ var HOOK_LOG_FILE_NAME = "langsmith_hook.log";
 
 // dist/src/utils/stdin.js
 function readStdin(stream = process.stdin) {
-  return new Promise((resolve3, reject) => {
+  return new Promise((resolve5, reject) => {
     let data = "";
     stream.setEncoding("utf-8");
     stream.on("data", (chunk) => data += chunk);
     stream.on("end", () => {
       try {
-        resolve3(JSON.parse(data.replace(LEADING_BYTE_ORDER_MARKS, "")));
+        resolve5(JSON.parse(data.replace(LEADING_BYTE_ORDER_MARKS, "")));
       } catch (err) {
         reject(new Error(`Failed to parse hook input: ${err}`));
       }
@@ -223,25 +223,194 @@ function toSdkReplicas(replicas) {
   }));
 }
 
+// node_modules/.pnpm/@langchain+plugins-base@0.4.4_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/attribution.js
+import { isAbsolute } from "node:path";
+
+// node_modules/.pnpm/@langchain+plugins-base@0.4.4_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/metadata/constants.js
+var GIT_METADATA_KEYS = {
+  repository: "ls_git_repo",
+  repositoryUrl: "ls_git_repo_url",
+  provider: "ls_repo_provider",
+  branch: "ls_git_branch",
+  commit: "ls_git_commit_hash"
+};
+var LEGACY_GIT_METADATA_KEYS = {
+  repository: "repository_name",
+  repositoryUrl: "repository_url",
+  provider: "repository_provider",
+  branch: "git_branch",
+  commit: "git_commit_sha"
+};
+var ATTRIBUTION_IDENTIFIER_KEY = "ls_attribution_identifier";
+var REPOSITORY_METADATA_KEYS = [
+  GIT_METADATA_KEYS.repository,
+  GIT_METADATA_KEYS.provider,
+  GIT_METADATA_KEYS.repositoryUrl,
+  GIT_METADATA_KEYS.branch,
+  GIT_METADATA_KEYS.commit,
+  LEGACY_GIT_METADATA_KEYS.repository,
+  LEGACY_GIT_METADATA_KEYS.provider,
+  LEGACY_GIT_METADATA_KEYS.repositoryUrl,
+  LEGACY_GIT_METADATA_KEYS.branch,
+  LEGACY_GIT_METADATA_KEYS.commit,
+  ATTRIBUTION_IDENTIFIER_KEY
+];
+
+// node_modules/.pnpm/@langchain+plugins-base@0.4.4_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/paths.js
+import { statSync } from "node:fs";
+import { dirname } from "node:path";
+
+// node_modules/.pnpm/@langchain+plugins-base@0.4.4_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/github-login.js
+import { mkdirSync, readFileSync as readFileSync2, renameSync, writeFileSync } from "node:fs";
+import { dirname as dirname2 } from "node:path";
+
+// node_modules/.pnpm/@langchain+plugins-base@0.4.4_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/constants.js
+var GIT_LOCATION_ENV_KEYS = [
+  "GIT_DIR",
+  "GIT_WORK_TREE",
+  "GIT_COMMON_DIR",
+  "GIT_INDEX_FILE",
+  "GIT_CEILING_DIRECTORIES"
+];
+var REMOTE_PATH_EDGE_SLASHES = /^\/+|\/+$/g;
+var REMOTE_PATH_TRAILING_SLASHES = /\/+$/;
+var REMOTE_GIT_SUFFIX = /\.git$/;
+var REMOTE_LINE_WHITESPACE = /\s+/;
+var SCP_REMOTE_PATTERN = /^(?:[^@]+@)?([^:]+):\/?(.+)$/;
+var GIT_PROVIDERS = {
+  "github.com": "github",
+  "gitlab.com": "gitlab",
+  "bitbucket.org": "bitbucket",
+  "dev.azure.com": "devAzure"
+};
+var SELF_HOSTED_PROVIDER_HINTS = ["github", "gitlab", "bitbucket"];
+var PROVIDER_HOSTS = {
+  github: "github.com",
+  gitlab: "gitlab.com",
+  bitbucket: "bitbucket.org",
+  devAzure: "dev.azure.com"
+};
+var GIT_COMMAND_TIMEOUT_MS = 5e3;
+var GH_LOGIN_RETRY_AFTER_MS = 24 * 60 * 60 * 1e3;
+
+// node_modules/.pnpm/@langchain+plugins-base@0.4.4_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/repository.js
+import { execFileSync } from "node:child_process";
+import { resolve } from "node:path";
+function parseRepoName(remoteUrl) {
+  const value = remoteUrl.trim();
+  try {
+    const url = new URL(value);
+    const name = url.pathname.replace(REMOTE_PATH_EDGE_SLASHES, "").replace(REMOTE_GIT_SUFFIX, "");
+    const repository = repositoryOnHost(url.hostname, name);
+    if (repository)
+      return repository;
+  } catch {
+  }
+  const scpMatch = value.match(SCP_REMOTE_PATTERN);
+  if (scpMatch) {
+    const host = scpMatch[1];
+    const path = scpMatch[2];
+    if (host && path) {
+      const name = path.replace(REMOTE_PATH_TRAILING_SLASHES, "").replace(REMOTE_GIT_SUFFIX, "");
+      return repositoryOnHost(host, name);
+    }
+  }
+  return void 0;
+}
+function repositoryOnHost(hostname, name) {
+  const host = hostname.toLowerCase();
+  if (!name)
+    return void 0;
+  const provider = GIT_PROVIDERS[host];
+  if (provider)
+    return { provider, name };
+  if (!host.includes("."))
+    return void 0;
+  const hinted = SELF_HOSTED_PROVIDER_HINTS.find((hint) => host.includes(hint));
+  return { provider: hinted ?? host, name, host };
+}
+function gitOutput(args, cwd) {
+  const env = { ...process.env, LC_ALL: "C", LANG: "C" };
+  for (const key of GIT_LOCATION_ENV_KEYS)
+    delete env[key];
+  return execFileSync("git", args, {
+    cwd,
+    env,
+    encoding: "utf-8",
+    timeout: GIT_COMMAND_TIMEOUT_MS,
+    stdio: ["ignore", "pipe", "pipe"]
+  });
+}
+function getRepoName(cwd) {
+  try {
+    const output = gitOutput(["remote", "-v"], cwd);
+    const lines = output.trim().split("\n").filter(Boolean);
+    const remotes = [];
+    for (const line of lines) {
+      const parts = line.split(REMOTE_LINE_WHITESPACE);
+      const name = parts[0];
+      const url = parts[1];
+      if (name && url && line.includes("(fetch)"))
+        remotes.push({ name, url });
+    }
+    const origin = remotes.find((remote) => remote.name === "origin");
+    if (origin) {
+      const name = parseRepoName(origin.url);
+      if (name)
+        return name;
+    }
+    for (const remote of remotes) {
+      const name = parseRepoName(remote.url);
+      if (name)
+        return name;
+    }
+  } catch {
+  }
+  return void 0;
+}
+function getRepoUrl(provider, name) {
+  const host = PROVIDER_HOSTS[provider];
+  return host ? `https://${host}/${name}` : void 0;
+}
+function getGitInfo(cwd) {
+  const result = {};
+  try {
+    const branch = gitOutput(["rev-parse", "--abbrev-ref", "HEAD"], cwd).trim();
+    if (branch && branch !== "HEAD")
+      result.branch = branch;
+  } catch {
+  }
+  try {
+    const commit = gitOutput(["rev-parse", "HEAD"], cwd).trim();
+    if (commit)
+      result.commit = commit;
+  } catch {
+  }
+  return result;
+}
+
+// node_modules/.pnpm/@langchain+plugins-base@0.4.4_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/paths.js
+import { readFileSync as readFileSync3, statSync as statSync2 } from "node:fs";
+import { dirname as dirname3, join as join2, resolve as resolve2 } from "node:path";
+
 // dist/src/config.js
 import { homedir as homedir2, userInfo } from "node:os";
-import { join as join2 } from "node:path";
-import { execSync } from "node:child_process";
+import { join as join3 } from "node:path";
 
 // dist/src/logger.js
-import { appendFileSync, mkdirSync, statSync, renameSync } from "node:fs";
-import { dirname } from "node:path";
+import { appendFileSync, mkdirSync as mkdirSync2, statSync as statSync3, renameSync as renameSync2 } from "node:fs";
+import { dirname as dirname4 } from "node:path";
 import { homedir } from "node:os";
 var LOG_FILE = process.env.LANGSMITH_CURSOR_LOG_FILE ?? `${homedir()}/.cursor/${HOOK_LOG_FILE_NAME}`;
 var debugEnabled = false;
 function initLogger(debug2) {
   debugEnabled = debug2;
-  mkdirSync(dirname(LOG_FILE), { recursive: true });
+  mkdirSync2(dirname4(LOG_FILE), { recursive: true });
 }
 function rotateIfNeeded() {
   try {
-    if (statSync(LOG_FILE).size >= MAX_LOG_BYTES) {
-      renameSync(LOG_FILE, `${LOG_FILE}.1`);
+    if (statSync3(LOG_FILE).size >= MAX_LOG_BYTES) {
+      renameSync2(LOG_FILE, `${LOG_FILE}.1`);
     }
   } catch {
   }
@@ -299,12 +468,6 @@ function parseJson(value) {
 
 // dist/src/config.js
 var LS_INTEGRATION_VERSION = true ? "0.5.0" : process.env.LANGSMITH_CURSOR_INTEGRATION_VERSION || void 0;
-var PROVIDER_HOSTS = {
-  github: "github.com",
-  gitlab: "gitlab.com",
-  bitbucket: "bitbucket.org",
-  devAzure: "dev.azure.com"
-};
 function isRedactRule(rule) {
   if (typeof rule !== "object" || rule === null)
     return false;
@@ -382,76 +545,6 @@ function normalizeReplicas(replicas) {
     ...r.updates ? { updates: r.updates } : {}
   });
 }
-var GIT_PROVIDERS_REGEX = {
-  github: /[@/](?:github\.com)[:/](.+?)(?:\.git)?\s/,
-  gitlab: /[@/](?:gitlab\.com)[:/](.+?)(?:\.git)?\s/,
-  bitbucket: /[@/](?:bitbucket\.org)[:/](.+?)(?:\.git)?\s/,
-  devAzure: /[@/](?:dev\.azure\.com)[:/](.+?)(?:\.git)?\s/
-};
-function parseRepoName(remoteUrl) {
-  for (const [provider, regex] of Object.entries(GIT_PROVIDERS_REGEX)) {
-    const match = remoteUrl.match(regex);
-    if (match)
-      return { provider, name: match[1] };
-  }
-  return void 0;
-}
-function getRepoName(cwd) {
-  try {
-    const output = execSync("git remote -v", {
-      cwd,
-      encoding: "utf-8",
-      timeout: 5e3,
-      stdio: ["ignore", "pipe", "ignore"]
-    });
-    const remotes = [];
-    for (const line of output.trim().split("\n").filter(Boolean)) {
-      const parts = line.split(/\s+/);
-      if (parts.length >= 2 && line.includes("(fetch)")) {
-        remotes.push({ name: parts[0], url: parts[1] });
-      }
-    }
-    const origin = remotes.find((r) => r.name === "origin");
-    if (origin) {
-      const name = parseRepoName(origin.url + " ");
-      if (name)
-        return name;
-    }
-    for (const remote of remotes) {
-      const name = parseRepoName(remote.url + " ");
-      if (name)
-        return name;
-    }
-  } catch {
-  }
-  return void 0;
-}
-function getGitInfo(cwd) {
-  const result = {};
-  try {
-    const branch = execSync("git rev-parse --abbrev-ref HEAD", {
-      cwd,
-      encoding: "utf-8",
-      timeout: 5e3,
-      stdio: ["ignore", "pipe", "ignore"]
-    }).trim();
-    if (branch && branch !== "HEAD")
-      result.branch = branch;
-  } catch {
-  }
-  try {
-    const commit = execSync("git rev-parse HEAD", {
-      cwd,
-      encoding: "utf-8",
-      timeout: 5e3,
-      stdio: ["ignore", "pipe", "ignore"]
-    }).trim();
-    if (commit)
-      result.commit = commit;
-  } catch {
-  }
-  return result;
-}
 function loadConfig(options) {
   const cwd = options?.cwd ?? process.env.CURSOR_PROJECT_DIR ?? process.cwd();
   const files = readCommonConfigFiles({
@@ -503,7 +596,7 @@ function loadConfig(options) {
   const sweepIdleMinutes = parsePositiveNumber(getEnv("SWEEP_IDLE_MINUTES")) ?? fromFiles("sweep_idle_minutes") ?? DEFAULT_SWEEP_IDLE_MINUTES;
   const cursorDbPath = getEnv("DB_PATH") ?? fromFiles("cursor_db_path");
   const redactExtraRules = parseRedactExtraRules(getEnv("REDACT_EXTRA")) ?? common.redact_extra_rules;
-  const stateFilePath = process.env.LANGSMITH_CURSOR_STATE_FILE ?? join2(homedir2(), CURSOR_DIRECTORY_NAME, STATE_FILE_NAME);
+  const stateFilePath = process.env.LANGSMITH_CURSOR_STATE_FILE ?? join3(homedir2(), CURSOR_DIRECTORY_NAME, STATE_FILE_NAME);
   const baseMetadata = { cwd };
   if (LS_INTEGRATION_VERSION)
     baseMetadata.ls_integration_version = LS_INTEGRATION_VERSION;
@@ -511,9 +604,9 @@ function loadConfig(options) {
   if (repo) {
     baseMetadata.repository_name = repo.name;
     baseMetadata.repository_provider = repo.provider;
-    const host = PROVIDER_HOSTS[repo.provider];
-    if (host)
-      baseMetadata.repository_url = `https://${host}/${repo.name}`;
+    const url = getRepoUrl(repo.provider, repo.name);
+    if (url)
+      baseMetadata.repository_url = url;
   }
   const git = getGitInfo(cwd);
   if (git.branch)
@@ -563,7 +656,7 @@ import { chmod, link, lstat as lstat2, mkdir as mkdir2, readFile as readFile2, r
 import { performance as performance3 } from "node:perf_hooks";
 import { setTimeout as delay } from "node:timers/promises";
 import { randomUUID as randomUUID2 } from "node:crypto";
-import { dirname as dirname4, join as join4, resolve as resolve2 } from "node:path";
+import { dirname as dirname7, join as join5, resolve as resolve4 } from "node:path";
 
 // node_modules/.pnpm/@langchain+plugins-base@0.4.4_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/constants.js
 var FILE_MISSING_CODE = "ENOENT";
@@ -651,24 +744,24 @@ function errorCode(error2) {
 }
 
 // node_modules/.pnpm/@langchain+plugins-base@0.4.4_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/errors.js
-import { resolve } from "node:path";
+import { resolve as resolve3 } from "node:path";
 var FileLockTimeoutError = class extends Error {
   blockedPath;
   constructor(blockedPath) {
-    super(`${FILE_LOCK_TIMEOUT_MESSAGE}: ${resolve(blockedPath)}`);
+    super(`${FILE_LOCK_TIMEOUT_MESSAGE}: ${resolve3(blockedPath)}`);
     this.name = FILE_LOCK_TIMEOUT_ERROR_NAME;
-    this.blockedPath = resolve(blockedPath);
+    this.blockedPath = resolve3(blockedPath);
   }
 };
 var StorageNotWritableError = class extends Error {
   folder;
   code;
   constructor(folder, cause) {
-    super(`${STORAGE_NOT_WRITABLE_MESSAGE} ${resolve(folder)}. ${STORAGE_NOT_WRITABLE_FIX}`, {
+    super(`${STORAGE_NOT_WRITABLE_MESSAGE} ${resolve3(folder)}. ${STORAGE_NOT_WRITABLE_FIX}`, {
       cause
     });
     this.name = STORAGE_NOT_WRITABLE_ERROR_NAME;
-    this.folder = resolve(folder);
+    this.folder = resolve3(folder);
     this.code = errorCode(cause);
   }
 };
@@ -697,7 +790,7 @@ function warnUnlessMissing(error2) {
 import { lstat, mkdir, readFile, rename, rmdir as rmdir2, writeFile } from "node:fs/promises";
 import { performance as performance2 } from "node:perf_hooks";
 import { randomUUID } from "node:crypto";
-import { dirname as dirname3, join as join3 } from "node:path";
+import { dirname as dirname6, join as join4 } from "node:path";
 
 // node_modules/.pnpm/@langchain+plugins-base@0.4.4_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/file-lock-support.js
 import { unlink } from "node:fs/promises";
@@ -740,7 +833,7 @@ function waitForNextScan(deadline, blockedPath) {
 
 // node_modules/.pnpm/@langchain+plugins-base@0.4.4_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/files/cleanup.js
 import { rmdir, unlink as unlink2 } from "node:fs/promises";
-import { dirname as dirname2 } from "node:path";
+import { dirname as dirname5 } from "node:path";
 async function removeDirectoryBestEffort(path, warning) {
   try {
     await rmdir(path);
@@ -757,7 +850,7 @@ async function createLegacyGate(gatePath) {
   if (!stat.isDirectory())
     throw new Error(FILE_LOCK_COMPATIBLE_GATE_CHANGED_MESSAGE);
   await recordLegacyGateOwner(gatePath);
-  startHeartbeat(join3(gatePath, FILE_LOCK_COMPATIBLE_OWNER_FILE), gatePath);
+  startHeartbeat(join4(gatePath, FILE_LOCK_COMPATIBLE_OWNER_FILE), gatePath);
   return { path: gatePath, dev: stat.dev, ino: stat.ino, birthtimeMs: stat.birthtimeMs };
 }
 function resetMissingPermission(attempt) {
@@ -789,7 +882,7 @@ async function waitOutContention(attempt, error2) {
       }
       if (permissionDenied) {
         const firstRetry = attempt.missingPermissionError === void 0;
-        attempt.missingPermissionError = new StorageNotWritableError(dirname3(gatePath), error2);
+        attempt.missingPermissionError = new StorageNotWritableError(dirname6(gatePath), error2);
         if (firstRetry)
           return;
         if (process.platform !== WINDOWS_PLATFORM || code !== PERMISSION_DENIED_CODE || attempt.windowsDeniedRetries >= FILE_LOCK_WINDOWS_DENIED_RETRIES)
@@ -809,7 +902,7 @@ async function waitOutContention(attempt, error2) {
 }
 async function acquireLegacyDirectoryGate(filePath, deadline, tryAcquire) {
   const gatePath = `${filePath}${FILE_LOCK_LEGACY_DIRECTORY_SUFFIX}`;
-  await mkdir(dirname3(filePath), { recursive: true, mode: FILE_LOCK_DIRECTORY_MODE });
+  await mkdir(dirname6(filePath), { recursive: true, mode: FILE_LOCK_DIRECTORY_MODE });
   const attempt = {
     gatePath,
     filePath,
@@ -841,12 +934,12 @@ async function releaseLegacyDirectoryGate(gate) {
   if (!stat.isDirectory() || stat.dev !== gate.dev || stat.ino !== gate.ino || stat.birthtimeMs !== gate.birthtimeMs) {
     throw new Error(FILE_LOCK_COMPATIBLE_GATE_CHANGED_MESSAGE);
   }
-  await removeFile(join3(gate.path, FILE_LOCK_COMPATIBLE_OWNER_FILE));
+  await removeFile(join4(gate.path, FILE_LOCK_COMPATIBLE_OWNER_FILE));
   await rmdir2(gate.path);
 }
 async function recordLegacyGateOwner(gatePath) {
   try {
-    await writeFile(join3(gatePath, FILE_LOCK_COMPATIBLE_OWNER_FILE), String(process.pid), {
+    await writeFile(join4(gatePath, FILE_LOCK_COMPATIBLE_OWNER_FILE), String(process.pid), {
       flag: FILE_LOCK_EXCLUSIVE_FLAG,
       mode: FILE_LOCK_FILE_MODE
     });
@@ -858,7 +951,7 @@ async function recordLegacyGateOwner(gatePath) {
 async function legacyGateIsAbandoned(gatePath, isDirectory, modifiedAtMs) {
   let contents;
   try {
-    contents = await readFile(isDirectory ? join3(gatePath, FILE_LOCK_COMPATIBLE_OWNER_FILE) : gatePath, FILE_LOCK_ENCODING);
+    contents = await readFile(isDirectory ? join4(gatePath, FILE_LOCK_COMPATIBLE_OWNER_FILE) : gatePath, FILE_LOCK_ENCODING);
   } catch (error2) {
     if (errorCode(error2) !== FILE_MISSING_CODE)
       return false;
@@ -871,7 +964,7 @@ async function legacyGateIsAbandoned(gatePath, isDirectory, modifiedAtMs) {
 }
 async function ownerHeartbeatStopped(gatePath) {
   try {
-    const owner = await lstat(join3(gatePath, FILE_LOCK_COMPATIBLE_OWNER_FILE));
+    const owner = await lstat(join4(gatePath, FILE_LOCK_COMPATIBLE_OWNER_FILE));
     return Date.now() - owner.mtimeMs >= FILE_LOCK_STALE_CLAIM_MS;
   } catch {
     return false;
@@ -905,7 +998,7 @@ async function reclaimLegacyGate(gatePath, filePath, tryAcquire) {
       await removeFile(stalePath);
       return true;
     }
-    await removeFile(join3(stalePath, FILE_LOCK_COMPATIBLE_OWNER_FILE));
+    await removeFile(join4(stalePath, FILE_LOCK_COMPATIBLE_OWNER_FILE));
     await removeDirectoryBestEffort(stalePath, FILE_LOCK_STALE_GATE_CLEANUP_WARNING);
     return true;
   } finally {
@@ -923,7 +1016,7 @@ function parseClaim(value, id) {
   return value;
 }
 async function publishClaim(filePath, claim, create, deadline) {
-  const temporaryPath = join4(dirname4(filePath), `${FILE_LOCK_TEMP_PREFIX}${claim.id}.${randomUUID2()}${FILE_LOCK_TEMP_SUFFIX}`);
+  const temporaryPath = join5(dirname7(filePath), `${FILE_LOCK_TEMP_PREFIX}${claim.id}.${randomUUID2()}${FILE_LOCK_TEMP_SUFFIX}`);
   try {
     await writeFile2(temporaryPath, JSON.stringify(claim), {
       flag: FILE_LOCK_EXCLUSIVE_FLAG,
@@ -940,7 +1033,7 @@ async function publishClaim(filePath, claim, create, deadline) {
         } catch (error2) {
           if (errorCode(error2) !== PERMISSION_DENIED_CODE)
             throw error2;
-          await waitForNextScan(replacementDeadline, dirname4(filePath));
+          await waitForNextScan(replacementDeadline, dirname7(filePath));
         }
       }
     }
@@ -959,7 +1052,7 @@ async function createClaim(claimDirectory) {
       ticket: FILE_LOCK_UNSELECTED_TICKET
     };
     try {
-      const path = join4(claimDirectory, `${id}${FILE_LOCK_CLAIM_EXTENSION}`);
+      const path = join5(claimDirectory, `${id}${FILE_LOCK_CLAIM_EXTENSION}`);
       await publishClaim(path, claim, true);
       startHeartbeat(path, id);
       return claim;
@@ -985,7 +1078,7 @@ async function scanClaims(claimDirectory, ownPath) {
     if (!entry.name.endsWith(FILE_LOCK_CLAIM_EXTENSION))
       continue;
     const id = entry.name.slice(0, -FILE_LOCK_CLAIM_EXTENSION.length);
-    const path = join4(claimDirectory, entry.name);
+    const path = join5(claimDirectory, entry.name);
     if (!entry.isFile())
       return { claims, blocked: true };
     let value;
@@ -1032,7 +1125,7 @@ async function modifiedAt(path) {
   }
 }
 function claimPath(claimDirectory, id) {
-  return join4(claimDirectory, `${id}${FILE_LOCK_CLAIM_EXTENSION}`);
+  return join5(claimDirectory, `${id}${FILE_LOCK_CLAIM_EXTENSION}`);
 }
 function hasClaimState(claims, id, choosing, ticket) {
   const claim = claims.find((peer) => peer.id === id);
@@ -1056,7 +1149,7 @@ function makeHandle(claimDirectory, claim) {
   };
 }
 async function beginClaim(filePath) {
-  const claimDirectory = `${resolve2(filePath)}${FILE_LOCK_DIRECTORY_SUFFIX}`;
+  const claimDirectory = `${resolve4(filePath)}${FILE_LOCK_DIRECTORY_SUFFIX}`;
   for (; ; ) {
     try {
       await assertSafeClaimDirectory(claimDirectory);
@@ -1176,7 +1269,7 @@ async function tryAcquireFileLock(filePath) {
   return makeHandle(acquired.claimDirectory, acquired.claim);
 }
 async function acquireCompatibleDirectoryFileLock(filePath, options) {
-  const resolvedPath = resolve2(filePath);
+  const resolvedPath = resolve4(filePath);
   const deadline = performance3.now() + timeoutMs(options);
   const gate = await acquireLegacyDirectoryGate(resolvedPath, deadline, tryAcquireFileLock);
   let acquired;
@@ -1225,10 +1318,10 @@ function precedes(left, right) {
 }
 
 // node_modules/.pnpm/@langchain+plugins-base@0.4.4_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/state-store.js
-import { readFileSync as readFileSync3, renameSync as renameSync3 } from "node:fs";
+import { readFileSync as readFileSync5, renameSync as renameSync4 } from "node:fs";
 
 // node_modules/.pnpm/@langchain+plugins-base@0.4.4_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/files/publish.js
-import { closeSync as closeSync2, openSync as openSync2, renameSync as renameSync2, writeSync } from "node:fs";
+import { closeSync as closeSync2, openSync as openSync2, renameSync as renameSync3, writeSync } from "node:fs";
 import { randomUUID as randomUUID3 } from "node:crypto";
 function publishByRename(path, contents, tempSuffix, mode) {
   const temp = `${path}.${randomUUID3()}${tempSuffix}`;
@@ -1238,7 +1331,7 @@ function publishByRename(path, contents, tempSuffix, mode) {
   } finally {
     closeSync2(fd);
   }
-  renameSync2(temp, path);
+  renameSync3(temp, path);
 }
 
 // node_modules/.pnpm/@langchain+plugins-base@0.4.4_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/state-constants.js
@@ -1262,8 +1355,8 @@ var STATE_PRIVATE_DIR_MODE = 448;
 var STATE_PRIVATE_FILE_MODE = 384;
 
 // node_modules/.pnpm/@langchain+plugins-base@0.4.4_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/state-pending.js
-import { mkdirSync as mkdirSync2, readdirSync, readFileSync as readFileSync2, rmdirSync, rmSync, statSync as statSync2 } from "node:fs";
-import { join as join5 } from "node:path";
+import { mkdirSync as mkdirSync3, readdirSync, readFileSync as readFileSync4, rmdirSync, rmSync, statSync as statSync4 } from "node:fs";
+import { join as join6 } from "node:path";
 var sequence = 0;
 var same = (left, right) => JSON.stringify(left) === JSON.stringify(right);
 function diffValue(path, before, after, operations) {
@@ -1363,10 +1456,10 @@ function writePending(stateFilePath, patch) {
   const directory = pendingDirectory(stateFilePath);
   const time = String(Date.now()).padStart(PENDING_STATE_TIME_WIDTH, "0");
   const order = String(sequence++).padStart(PENDING_STATE_SEQUENCE_WIDTH, "0");
-  const file = join5(directory, `${time}-${order}-${process.pid}${PENDING_STATE_FILE_SUFFIX}`);
+  const file = join6(directory, `${time}-${order}-${process.pid}${PENDING_STATE_FILE_SUFFIX}`);
   for (let attempt = 1; ; attempt++) {
     try {
-      mkdirSync2(directory, { recursive: true, mode: STATE_PRIVATE_DIR_MODE });
+      mkdirSync3(directory, { recursive: true, mode: STATE_PRIVATE_DIR_MODE });
       publishByRename(file, JSON.stringify(patch), PENDING_STATE_TEMP_SUFFIX, STATE_PRIVATE_FILE_MODE);
       return;
     } catch (error2) {
@@ -1380,10 +1473,10 @@ function readPending(stateFilePath) {
   const files = [];
   const patches = [];
   for (const name of names(directory).filter((n) => n.endsWith(PENDING_STATE_FILE_SUFFIX)).toSorted()) {
-    const file = join5(directory, name);
+    const file = join6(directory, name);
     files.push(file);
     try {
-      patches.push(JSON.parse(readFileSync2(file, "utf-8")));
+      patches.push(JSON.parse(readFileSync4(file, "utf-8")));
     } catch {
       continue;
     }
@@ -1394,7 +1487,7 @@ function hasRecentPending(stateFilePath) {
   const directory = pendingDirectory(stateFilePath);
   return names(directory).some((name) => {
     try {
-      return name.endsWith(PENDING_STATE_FILE_SUFFIX) && Date.now() - statSync2(join5(directory, name)).mtimeMs < STATE_LOCK_BUSY_MEMORY_MS;
+      return name.endsWith(PENDING_STATE_FILE_SUFFIX) && Date.now() - statSync4(join6(directory, name)).mtimeMs < STATE_LOCK_BUSY_MEMORY_MS;
     } catch {
       return false;
     }
@@ -1407,9 +1500,9 @@ function removePending(stateFilePath, files) {
   for (const name of names(directory)) {
     if (name.endsWith(PENDING_STATE_FILE_SUFFIX))
       continue;
-    const file = join5(directory, name);
+    const file = join6(directory, name);
     try {
-      if (Date.now() - statSync2(file).mtimeMs > PENDING_STATE_ABANDONED_MS)
+      if (Date.now() - statSync4(file).mtimeMs > PENDING_STATE_ABANDONED_MS)
         rmSync(file, { force: true });
     } catch {
       continue;
@@ -1450,7 +1543,7 @@ function createStateStore(options) {
 function readStateFile(path, onUnparseable) {
   let raw;
   try {
-    raw = readFileSync3(path, STATE_FILE_ENCODING);
+    raw = readFileSync5(path, STATE_FILE_ENCODING);
   } catch {
     return {};
   }
@@ -1464,7 +1557,7 @@ function readStateFile(path, onUnparseable) {
 }
 function setAsideCorruptState(path, warn2) {
   try {
-    renameSync3(path, `${path}${STATE_CORRUPT_SUFFIX}`);
+    renameSync4(path, `${path}${STATE_CORRUPT_SUFFIX}`);
   } catch {
   }
   warn2(STATE_CORRUPT_WARNING);
@@ -1496,11 +1589,11 @@ async function withStateFileLock(path, warn2, callback, waitMs) {
 
 // dist/src/utils/legacy-file.js
 import { constants as constants2, copyFileSync, existsSync } from "node:fs";
-import { basename, dirname as dirname5, join as join6 } from "node:path";
+import { basename, dirname as dirname8, join as join7 } from "node:path";
 function adoptLegacyFile(path, fileName, legacyFileName) {
   if (basename(path) !== fileName || existsSync(path))
     return;
-  const legacy = join6(dirname5(path), legacyFileName);
+  const legacy = join7(dirname8(path), legacyFileName);
   if (!existsSync(legacy))
     return;
   try {
@@ -1638,8 +1731,8 @@ function reduceSubagentStop(state, input, nowMs, resolved) {
 }
 
 // dist/src/subagent-transcript.js
-import { readFileSync as readFileSync4, readdirSync as readdirSync2, statSync as statSync3 } from "node:fs";
-import { dirname as dirname6, join as join7, basename as basename2 } from "node:path";
+import { readFileSync as readFileSync6, readdirSync as readdirSync2, statSync as statSync5 } from "node:fs";
+import { dirname as dirname9, join as join8, basename as basename2 } from "node:path";
 
 // dist/src/utils/text.js
 function normalizeWs(text) {
@@ -1649,7 +1742,7 @@ function normalizeWs(text) {
 // dist/src/subagent-transcript.js
 function readJsonl(path) {
   const rows = [];
-  for (const line of readFileSync4(path, "utf-8").split("\n")) {
+  for (const line of readFileSync6(path, "utf-8").split("\n")) {
     const trimmed = line.trim();
     if (!trimmed)
       continue;
@@ -1675,13 +1768,13 @@ function resolveSubagentTranscript(parentTranscriptPath, task) {
   if (!parentTranscriptPath)
     return void 0;
   try {
-    const dir = join7(dirname6(parentTranscriptPath), "subagents");
+    const dir = join8(dirname9(parentTranscriptPath), "subagents");
     const files = readdirSync2(dir).filter((f) => f.endsWith(".jsonl"));
     if (files.length === 0)
       return void 0;
     const candidates = files.map((f) => {
-      const full = join7(dir, f);
-      return { full, child: basename2(f, ".jsonl"), mtime: statSync3(full).mtimeMs };
+      const full = join8(dir, f);
+      return { full, child: basename2(f, ".jsonl"), mtime: statSync5(full).mtimeMs };
     });
     const wanted = task ? normalizeWs(task).slice(0, 120) : "";
     let chosen;
