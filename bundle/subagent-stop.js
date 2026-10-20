@@ -3,6 +3,8 @@
 // dist/src/constants.js
 var DEFAULT_PROJECT = "cursor";
 var DEFAULT_SWEEP_IDLE_MINUTES = 360;
+var DEFAULT_API_URL = "https://api.smith.langchain.com";
+var CURSOR_DIRECTORY_NAME = ".cursor";
 var LEADING_BYTE_ORDER_MARKS = /^\uFEFF+/;
 var MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024;
 var MAX_LOG_BYTES = 5 * 1024 * 1024;
@@ -27,12 +29,20 @@ function readStdin(stream = process.stdin) {
   });
 }
 
-// dist/src/shared-config.js
-import { lstatSync, readFileSync, statSync } from "node:fs";
+// node_modules/.pnpm/@langchain+plugins-base@0.4.4_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/settings/constants.js
+import { constants } from "node:fs";
 var COMMON_BOOLEAN_SETTINGS = {
   enabled: { default: false, restrictive: false },
   defaultMuted: { default: false, restrictive: true }
 };
+var COMMON_CONFIG_FILE_NAME = "langsmith.json";
+var COMMON_CONFIG_OPEN_FLAGS = constants.O_RDONLY | (constants.O_NONBLOCK ?? 0);
+var COMMON_CONFIG_ROOT_FILE_NAME = "langsmith-plugins.json";
+var COMMON_CONFIG_USER_ROOT_FILE_NAME = ".langsmith-plugins.json";
+
+// node_modules/.pnpm/@langchain+plugins-base@0.4.4_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/settings/common-config.js
+import { closeSync, fstatSync, lstatSync, openSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 function object(value) {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
@@ -138,26 +148,45 @@ function parseCommonConfig(value) {
   return { status: "valid", common, raw: value, diagnostics };
 }
 function readCommonConfigFile(path) {
+  let fd;
   try {
-    if (!statSync(path).isFile())
-      return invalid();
+    fd = openSync(path, COMMON_CONFIG_OPEN_FLAGS);
   } catch (error2) {
     if (error2.code === "ENOENT") {
       try {
         lstatSync(path);
       } catch (lstatError) {
         if (lstatError.code === "ENOENT") {
-          return { status: "absent", common: {}, diagnostics: [] };
+          return absent();
         }
       }
     }
     return invalid();
   }
   try {
-    return parseCommonConfig(JSON.parse(readFileSync(path, "utf8")));
+    if (!fstatSync(fd).isFile())
+      return invalid();
+    return parseCommonConfig(JSON.parse(readFileSync(fd, "utf8")));
   } catch {
     return invalid();
+  } finally {
+    try {
+      closeSync(fd);
+    } catch {
+    }
   }
+}
+function absent() {
+  return { status: "absent", common: {}, diagnostics: [] };
+}
+function readCommonConfigFiles(options) {
+  const { cwd, home, harnessDirectory } = options;
+  return {
+    harness: readCommonConfigFile(join(cwd, harnessDirectory, COMMON_CONFIG_FILE_NAME)),
+    root: readCommonConfigFile(join(cwd, COMMON_CONFIG_ROOT_FILE_NAME)),
+    user: home ? readCommonConfigFile(join(home, harnessDirectory, COMMON_CONFIG_FILE_NAME)) : absent(),
+    userRoot: home ? readCommonConfigFile(join(home, COMMON_CONFIG_USER_ROOT_FILE_NAME)) : absent()
+  };
 }
 function resolveField(sources, field) {
   return sources.find((source) => source[field] !== void 0)?.[field];
@@ -192,12 +221,12 @@ function toSdkReplicas(replicas) {
 }
 
 // dist/src/config.js
-import { userInfo } from "node:os";
-import { join } from "node:path";
+import { homedir as homedir2, userInfo } from "node:os";
+import { join as join2 } from "node:path";
 import { execSync } from "node:child_process";
 
 // dist/src/logger.js
-import { appendFileSync, mkdirSync, statSync as statSync2, renameSync } from "node:fs";
+import { appendFileSync, mkdirSync, statSync, renameSync } from "node:fs";
 import { dirname } from "node:path";
 import { homedir } from "node:os";
 var LOG_FILE = process.env.LANGSMITH_CURSOR_LOG_FILE ?? `${homedir()}/.cursor/langsmith-hook.log`;
@@ -208,7 +237,7 @@ function initLogger(debug2) {
 }
 function rotateIfNeeded() {
   try {
-    if (statSync2(LOG_FILE).size >= MAX_LOG_BYTES) {
+    if (statSync(LOG_FILE).size >= MAX_LOG_BYTES) {
       renameSync(LOG_FILE, `${LOG_FILE}.1`);
     }
   } catch {
@@ -236,16 +265,7 @@ function debug(message) {
   }
 }
 
-// dist/src/config.js
-import { homedir as homedir2 } from "node:os";
-var LS_INTEGRATION_VERSION = true ? "0.5.0" : process.env.LANGSMITH_CURSOR_INTEGRATION_VERSION || void 0;
-var PROVIDER_HOSTS = {
-  github: "github.com",
-  gitlab: "gitlab.com",
-  bitbucket: "bitbucket.org",
-  devAzure: "dev.azure.com"
-};
-var DEFAULT_API_URL = "https://api.smith.langchain.com";
+// dist/src/utils/parse.js
 function parseBoolean(value) {
   if (typeof value === "boolean")
     return value;
@@ -273,6 +293,15 @@ function parseJson(value) {
     return void 0;
   }
 }
+
+// dist/src/config.js
+var LS_INTEGRATION_VERSION = true ? "0.5.0" : process.env.LANGSMITH_CURSOR_INTEGRATION_VERSION || void 0;
+var PROVIDER_HOSTS = {
+  github: "github.com",
+  gitlab: "gitlab.com",
+  bitbucket: "bitbucket.org",
+  devAzure: "dev.azure.com"
+};
 function isRedactRule(rule) {
   if (typeof rule !== "object" || rule === null)
     return false;
@@ -297,36 +326,32 @@ function parseRedactExtraRules(value) {
   }
   return parsed.length === 0 || valid.length > 0 ? valid : void 0;
 }
-function readConfigFile(file) {
-  const result = readCommonConfigFile(file);
-  for (const diagnostic of result.diagnostics)
-    error(diagnostic);
+function cursorExtensions(raw) {
   const extensions = {};
-  const raw = result.raw;
-  if (raw) {
-    for (const field of ["attachments", "system_prompt"]) {
-      if (!Object.hasOwn(raw, field))
-        continue;
-      if (typeof raw[field] === "boolean")
-        extensions[field] = raw[field];
-      else
-        error(`Invalid Cursor config extension ${field}; ignoring field.`);
-    }
-    if (Object.hasOwn(raw, "sweep_idle_minutes")) {
-      const minutes = raw.sweep_idle_minutes;
-      if (typeof minutes === "number" && Number.isFinite(minutes) && minutes > 0)
-        extensions.sweep_idle_minutes = minutes;
-      else
-        error("Invalid Cursor config extension sweep_idle_minutes; ignoring field.");
-    }
-    if (Object.hasOwn(raw, "cursor_db_path")) {
-      if (typeof raw.cursor_db_path === "string")
-        extensions.cursor_db_path = raw.cursor_db_path;
-      else
-        error("Invalid Cursor config extension cursor_db_path; ignoring field.");
-    }
+  if (!raw)
+    return extensions;
+  for (const field of ["attachments", "system_prompt"]) {
+    if (!Object.hasOwn(raw, field))
+      continue;
+    if (typeof raw[field] === "boolean")
+      extensions[field] = raw[field];
+    else
+      error(`Invalid Cursor config extension ${field}; ignoring field.`);
   }
-  return { common: result.common, extensions };
+  if (Object.hasOwn(raw, "sweep_idle_minutes")) {
+    const minutes = raw.sweep_idle_minutes;
+    if (typeof minutes === "number" && Number.isFinite(minutes) && minutes > 0)
+      extensions.sweep_idle_minutes = minutes;
+    else
+      error("Invalid Cursor config extension sweep_idle_minutes; ignoring field.");
+  }
+  if (Object.hasOwn(raw, "cursor_db_path")) {
+    if (typeof raw.cursor_db_path === "string")
+      extensions.cursor_db_path = raw.cursor_db_path;
+    else
+      error("Invalid Cursor config extension cursor_db_path; ignoring field.");
+  }
+  return extensions;
 }
 function parseStrictBoolean(value) {
   if (value.toLowerCase() === "true")
@@ -335,24 +360,11 @@ function parseStrictBoolean(value) {
     return false;
   return void 0;
 }
-var BOOLEAN_SETTINGS = {
-  enabled: {
-    env: "TRACE_TO_LANGSMITH",
-    parse: parseBoolean,
-    ...COMMON_BOOLEAN_SETTINGS.enabled
-  },
-  defaultMuted: {
-    env: "LANGSMITH_CURSOR_DEFAULT_MUTED",
-    parse: parseStrictBoolean,
-    ...COMMON_BOOLEAN_SETTINGS.defaultMuted
-  }
-};
-function envBoolean(field) {
-  const setting = BOOLEAN_SETTINGS[field];
-  const env = process.env[setting.env];
-  if (env === void 0)
+function envBoolean({ name, parse, restrictive }) {
+  const value = process.env[name];
+  if (value === void 0)
     return void 0;
-  return setting.parse(env) ?? setting.restrictive;
+  return parse(value) ?? restrictive;
 }
 function getEnv(suffix) {
   return process.env[`LANGSMITH_CURSOR_${suffix}`] ?? process.env[`LANGSMITH_${suffix}`];
@@ -439,21 +451,36 @@ function getGitInfo(cwd) {
 }
 function loadConfig(options) {
   const cwd = options?.cwd ?? process.env.CURSOR_PROJECT_DIR ?? process.cwd();
-  const userRootFile = readConfigFile(join(homedir2(), ".langsmith-plugins.json"));
-  const globalFile = readConfigFile(join(homedir2(), ".cursor", "langsmith.json"));
-  const rootFile = readConfigFile(join(cwd, "langsmith-plugins.json"));
-  const localFile = readConfigFile(join(cwd, ".cursor", "langsmith.json"));
+  const files = readCommonConfigFiles({
+    cwd,
+    home: homedir2(),
+    harnessDirectory: CURSOR_DIRECTORY_NAME
+  });
+  for (const { diagnostics } of Object.values(files)) {
+    for (const diagnostic of diagnostics)
+      error(diagnostic);
+  }
+  const extensions = [files.harness, files.root, files.user, files.userRoot].map(({ raw }) => cursorExtensions(raw));
+  const fromFiles = (field) => extensions.find((source) => source[field] !== void 0)?.[field];
   const envMetadata = parseJson(getEnv("METADATA"));
   const envReplicas = parseJson(getEnv("RUNS_ENDPOINTS"));
   const envDebug = parseBoolean(getEnv("DEBUG"));
   const common = mergeCommonConfig({
-    harness: localFile.common,
-    root: rootFile.common,
-    user: globalFile.common,
-    userRoot: userRootFile.common,
+    harness: files.harness.common,
+    root: files.root.common,
+    user: files.user.common,
+    userRoot: files.userRoot.common,
     env: {
-      enabled: envBoolean("enabled"),
-      defaultMuted: envBoolean("defaultMuted"),
+      enabled: envBoolean({
+        name: "TRACE_TO_LANGSMITH",
+        parse: parseBoolean,
+        restrictive: COMMON_BOOLEAN_SETTINGS.enabled.restrictive
+      }),
+      defaultMuted: envBoolean({
+        name: "LANGSMITH_CURSOR_DEFAULT_MUTED",
+        parse: parseStrictBoolean,
+        restrictive: COMMON_BOOLEAN_SETTINGS.defaultMuted.restrictive
+      }),
       api_key: getEnv("API_KEY"),
       api_url: getEnv("ENDPOINT"),
       project: getEnv("PROJECT"),
@@ -468,12 +495,12 @@ function loadConfig(options) {
   const project = common.project;
   const debug2 = envDebug ?? false;
   const replicas = normalizeReplicas(envReplicas) ?? toSdkReplicas(common.replicas);
-  const attachmentsEnabled = parseBoolean(getEnv("ATTACHMENTS")) ?? localFile.extensions.attachments ?? rootFile.extensions.attachments ?? globalFile.extensions.attachments ?? userRootFile.extensions.attachments ?? true;
-  const systemPromptEnabled = parseBoolean(getEnv("SYSTEM_PROMPT")) ?? localFile.extensions.system_prompt ?? rootFile.extensions.system_prompt ?? globalFile.extensions.system_prompt ?? userRootFile.extensions.system_prompt ?? true;
-  const sweepIdleMinutes = parsePositiveNumber(getEnv("SWEEP_IDLE_MINUTES")) ?? localFile.extensions.sweep_idle_minutes ?? rootFile.extensions.sweep_idle_minutes ?? globalFile.extensions.sweep_idle_minutes ?? userRootFile.extensions.sweep_idle_minutes ?? DEFAULT_SWEEP_IDLE_MINUTES;
-  const cursorDbPath = getEnv("DB_PATH") ?? localFile.extensions.cursor_db_path ?? rootFile.extensions.cursor_db_path ?? globalFile.extensions.cursor_db_path ?? userRootFile.extensions.cursor_db_path;
+  const attachmentsEnabled = parseBoolean(getEnv("ATTACHMENTS")) ?? fromFiles("attachments") ?? true;
+  const systemPromptEnabled = parseBoolean(getEnv("SYSTEM_PROMPT")) ?? fromFiles("system_prompt") ?? true;
+  const sweepIdleMinutes = parsePositiveNumber(getEnv("SWEEP_IDLE_MINUTES")) ?? fromFiles("sweep_idle_minutes") ?? DEFAULT_SWEEP_IDLE_MINUTES;
+  const cursorDbPath = getEnv("DB_PATH") ?? fromFiles("cursor_db_path");
   const redactExtraRules = parseRedactExtraRules(getEnv("REDACT_EXTRA")) ?? common.redact_extra_rules;
-  const stateFilePath = process.env.LANGSMITH_CURSOR_STATE_FILE ?? join(homedir2(), ".cursor", "langsmith-state.json");
+  const stateFilePath = process.env.LANGSMITH_CURSOR_STATE_FILE ?? join2(homedir2(), CURSOR_DIRECTORY_NAME, "langsmith-state.json");
   const baseMetadata = { cwd };
   if (LS_INTEGRATION_VERSION)
     baseMetadata.ls_integration_version = LS_INTEGRATION_VERSION;
@@ -529,7 +556,7 @@ function initHook(cwd) {
 }
 
 // dist/src/state.js
-import { readFileSync as readFileSync2, writeFileSync, mkdirSync as mkdirSync2, openSync, closeSync, unlinkSync, rmdirSync, renameSync as renameSync2, fsyncSync } from "node:fs";
+import { readFileSync as readFileSync2, writeFileSync, mkdirSync as mkdirSync2, openSync as openSync2, closeSync as closeSync2, unlinkSync, rmdirSync, renameSync as renameSync2, fsyncSync } from "node:fs";
 import { randomUUID } from "node:crypto";
 import { performance } from "node:perf_hooks";
 import { dirname as dirname2 } from "node:path";
@@ -585,21 +612,21 @@ function saveState(stateFilePath, state) {
   const temp = `${stateFilePath}.${process.pid}.${randomUUID()}.tmp`;
   let committed = false;
   try {
-    const fd = openSync(temp, "wx", 384);
+    const fd = openSync2(temp, "wx", 384);
     try {
       writeFileSync(fd, JSON.stringify(state, null, 2));
       fsyncSync(fd);
     } finally {
-      closeSync(fd);
+      closeSync2(fd);
     }
     renameSync2(temp, stateFilePath);
     committed = true;
     try {
-      const fd2 = openSync(dirname2(stateFilePath), "r");
+      const fd2 = openSync2(dirname2(stateFilePath), "r");
       try {
         fsyncSync(fd2);
       } finally {
-        closeSync(fd2);
+        closeSync2(fd2);
       }
     } catch {
       warn("Turn snapshot saved, but crash durability could not be confirmed");
@@ -733,8 +760,8 @@ function reduceSubagentStop(state, input, nowMs, resolved) {
 }
 
 // dist/src/subagent-transcript.js
-import { readFileSync as readFileSync3, readdirSync, statSync as statSync3 } from "node:fs";
-import { dirname as dirname3, join as join2, basename } from "node:path";
+import { readFileSync as readFileSync3, readdirSync, statSync as statSync2 } from "node:fs";
+import { dirname as dirname3, join as join3, basename } from "node:path";
 
 // dist/src/utils/text.js
 function normalizeWs(text) {
@@ -770,13 +797,13 @@ function resolveSubagentTranscript(parentTranscriptPath, task) {
   if (!parentTranscriptPath)
     return void 0;
   try {
-    const dir = join2(dirname3(parentTranscriptPath), "subagents");
+    const dir = join3(dirname3(parentTranscriptPath), "subagents");
     const files = readdirSync(dir).filter((f) => f.endsWith(".jsonl"));
     if (files.length === 0)
       return void 0;
     const candidates = files.map((f) => {
-      const full = join2(dir, f);
-      return { full, child: basename(f, ".jsonl"), mtime: statSync3(full).mtimeMs };
+      const full = join3(dir, f);
+      return { full, child: basename(f, ".jsonl"), mtime: statSync2(full).mtimeMs };
     });
     const wanted = task ? normalizeWs(task).slice(0, 120) : "";
     let chosen;

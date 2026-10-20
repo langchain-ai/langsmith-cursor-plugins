@@ -1,3 +1,4 @@
+import { dispatchHookCommand } from "@langchain/plugins-base/plugin";
 import { binary } from "../binary-target.js";
 import { LS_INTEGRATION_VERSION } from "../config.js";
 import { BINARY_HOOK_EVENTS } from "../constants.js";
@@ -22,29 +23,16 @@ const USAGE = `Usage:
 
 Hook names: ${Object.values(BINARY_HOOK_EVENTS).join(", ")}`;
 
-function isHookName(argument: string | undefined): argument is BinaryHookName {
-  return argument !== undefined && Object.hasOwn(HOOK_MODULES, argument);
-}
-
-async function runHook(name: BinaryHookName): Promise<void> {
-  try {
-    const loaded = await HOOK_MODULES[name]();
-    await loaded.finished;
-  } catch (err) {
-    console.error(`[langsmith] hook ${name} failed: ${String(err)}`);
-  }
-}
-
-const argument = process.argv[2];
-
-if (argument === "--help" || argument === "-h") {
-  console.log(USAGE);
-} else if (argument === "--version" || argument === "-v") {
-  console.log(LS_INTEGRATION_VERSION ?? "development");
-} else if (isHookName(argument)) {
-  void runHook(argument);
-} else {
-  console.error(argument ? `unknown argument: ${argument}` : "missing hook name");
-  console.error(USAGE);
-  process.exitCode = 1;
-}
+await dispatchHookCommand(process.argv.slice(2), {
+  usage: USAGE,
+  version: LS_INTEGRATION_VERSION ?? "development",
+  hooks: Object.fromEntries(
+    Object.entries(HOOK_MODULES).map(([name, load]) => [name, async () => (await load()).finished]),
+  ),
+  onHookError: (name, err) => console.error(`[langsmith] hook ${name} failed: ${String(err)}`),
+  onUnknown: (argument) => {
+    console.error(argument ? `unknown argument: ${argument}` : "missing hook name");
+    console.error(USAGE);
+    process.exitCode = 1;
+  },
+});
