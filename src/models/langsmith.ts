@@ -22,6 +22,7 @@ export interface BuildTurnOptions {
   systemPrompt?: string;
   /** True interleaved step sequence from Cursor's DB; enables per-round llm/tool fidelity. */
   steps?: Step[];
+  savedAtMs?: number;
 }
 
 /** Per-turn context shared by every run's coding-agent-v1 metadata. */
