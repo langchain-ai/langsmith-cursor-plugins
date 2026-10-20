@@ -19,7 +19,7 @@ import type {
   StopInput,
   SweepClaim,
   TurnOrigin,
-} from "./types.js";
+} from "./models/types.js";
 import {
   deleteOwnEntry,
   getConversationState,
@@ -31,12 +31,14 @@ import {
 } from "./state.js";
 import { MAX_UPLOAD_ATTEMPTS } from "./constants.js";
 import { warn } from "./logger.js";
-import {
-  extractMcpError,
-  parseToolOutput,
-  preferModel,
-  type SubagentToolCall,
-} from "./normalize.js";
+import { extractMcpError, parseToolOutput, preferModel } from "./normalize.js";
+import type { SubagentToolCall } from "./models/normalize.js";
+import type {
+  ConversationSweep,
+  ResolvedSubagent,
+  StopResult,
+  SweepResult,
+} from "./models/reducer.js";
 
 function touch(conv: { updated: string }, nowMs: number = Date.now()): void {
   conv.updated = new Date(nowMs).toISOString();
@@ -237,15 +239,6 @@ export function reduceSubagentStart(
   return { ...state, [parentConv]: conv };
 }
 
-/** Data recovered from the on-disk subagent transcript (resolved in the hook). */
-export interface ResolvedSubagent {
-  /** The subagent's own conversation_id (= transcript filename). */
-  childConversationId?: string;
-  /** Tool calls from the transcript (inputs only) — fallback when no child buffer. */
-  toolCalls?: SubagentToolCall[];
-  resultText?: string;
-}
-
 /** Flatten and time-order every buffered tool event across a conversation. */
 function collectTools(conv: ConversationState): ToolEvent[] {
   const tools: ToolEvent[] = [];
@@ -360,13 +353,6 @@ export function reduceSubagentStop(
   return next;
 }
 
-export interface StopResult {
-  state: TracingState;
-  /** The finalized turn to trace, or undefined if there was no buffered turn. */
-  buffer?: TurnBuffer;
-  turnNum: number;
-}
-
 export function reduceStop(state: TracingState, input: StopInput, nowMs: number): StopResult {
   const conv = getConversationState(state, input.conversation_id);
   if (!ownEntry(conv.turns, input.generation_id)) reopenSweptTurn(conv, input.generation_id);
@@ -428,11 +414,6 @@ export function reduceUploadSettled(
   return { ...state, [conversationId]: conv };
 }
 
-export interface SweepResult {
-  state: TracingState;
-  claims: SweepClaim[];
-}
-
 function lastActivityMs(turn: TurnBuffer): number {
   return Math.max(
     turn.startMs,
@@ -464,11 +445,6 @@ function threadsRunningASubagent(state: TracingState, nowMs: number): Set<string
     }
   }
   return threads;
-}
-
-interface ConversationSweep {
-  claims: SweepClaim[];
-  changed: boolean;
 }
 
 function retryPendingUploads(

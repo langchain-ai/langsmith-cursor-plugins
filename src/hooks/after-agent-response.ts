@@ -8,7 +8,7 @@ import { initHook } from "../utils/hook-init.js";
 import { atomicUpdateState } from "../state.js";
 import { reduceAfterAgentResponse } from "../reducer.js";
 import { error, debug } from "../logger.js";
-import type { AfterAgentResponseInput } from "../types.js";
+import type { AfterAgentResponseInput } from "../models/types.js";
 
 async function main(): Promise<void> {
   const input = await readStdin<AfterAgentResponseInput>();

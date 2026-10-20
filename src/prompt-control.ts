@@ -9,7 +9,7 @@ import {
   tracingPolicyPath,
 } from "./tracing-policy.js";
 import { originFromConfig } from "./turn-origin.js";
-import type { BeforeSubmitPromptInput } from "./types.js";
+import type { BeforeSubmitPromptInput } from "./models/types.js";
 
 /** Synchronous command hook contract, not an LLM skill or slash-command expansion. */
 export async function handlePromptSubmit(

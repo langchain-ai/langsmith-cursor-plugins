@@ -11,7 +11,7 @@ import {
   nextTurnNum,
   pruneOldConversations,
 } from "../src/state.js";
-import type { TracingState } from "../src/types.js";
+import type { TracingState } from "../src/models/types.js";
 
 function tmpStateFile(): string {
   return join(mkdtempSync(join(tmpdir(), "ls-cursor-")), "state.json");

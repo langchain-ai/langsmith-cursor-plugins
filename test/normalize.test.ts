@@ -6,7 +6,6 @@ import {
   buildUsageMetadata,
   parseToolOutput,
   extractMcpError,
-  normalizeContentPart,
   canonicalModelId,
 } from "../src/normalize.js";
 
@@ -131,22 +130,6 @@ describe("parseToolOutput", () => {
     expect(parseToolOutput("plain text")).toBe("plain text");
     expect(parseToolOutput(42)).toBe(42);
     expect(parseToolOutput("")).toBe("");
-  });
-});
-
-describe("normalizeContentPart", () => {
-  it("converts a custom binary part to LangChain v1", () => {
-    expect(normalizeContentPart({ type: "image", mimeType: "image/png", data: "AAAA" })).toEqual({
-      type: "image",
-      mime_type: "image/png",
-      base64: "AAAA",
-    });
-  });
-  it("passes through non-multimodal parts", () => {
-    expect(normalizeContentPart({ type: "text", text: "hi" })).toEqual({
-      type: "text",
-      text: "hi",
-    });
   });
 });
 

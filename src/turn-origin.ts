@@ -1,5 +1,5 @@
 import type { Config } from "./config.js";
-import type { HookInputBase, TurnOrigin } from "./types.js";
+import type { HookInputBase, TurnOrigin } from "./models/types.js";
 
 export function originFromConfig(config: Config, input: HookInputBase): TurnOrigin {
   return {

@@ -1,5 +1,5 @@
 import { readFileSync } from "node:fs";
-import type { TracingState, TurnBuffer, StopInput } from "../../src/types.js";
+import type { TracingState, TurnBuffer, StopInput } from "../../src/models/types.js";
 import {
   reduceBeforeSubmitPrompt,
   reducePostToolUse,

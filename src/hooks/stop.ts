@@ -16,7 +16,7 @@ import { resolveTurnAttachments } from "../attachments.js";
 import { resolveSystemPrompts } from "../system-prompt.js";
 import { resolveTurnSteps } from "../conversation-steps.js";
 import { error, debug, warn } from "../logger.js";
-import type { ContentPart, StopInput, TracingState, TurnBuffer } from "../types.js";
+import type { ContentPart, StopInput, TracingState, TurnBuffer } from "../models/types.js";
 
 async function main(): Promise<void> {
   const input = await readStdin<StopInput>();

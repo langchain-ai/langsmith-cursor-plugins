@@ -1,12 +1,8 @@
 import { describe, it, expect } from "vitest";
 import { join } from "node:path";
 import type { Run } from "langsmith";
-import {
-  codingAgentMetadata,
-  type CodingAgentMetadataOptions,
-  type LSAgentType,
-  skillNameFromTool,
-} from "../src/metadata.js";
+import { codingAgentMetadata, skillNameFromTool } from "../src/metadata.js";
+import type { CodingAgentMetadataOptions, LSAgentType } from "../src/models/metadata.js";
 import { replayHookLog, type FinalizedTurn } from "./utils/replay.js";
 import { mockClient } from "./utils/mock_client.js";
 import { getAssumedTreeFromCalls } from "./utils/tree.js";
