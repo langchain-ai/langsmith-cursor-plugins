@@ -6,6 +6,7 @@ import { LEGACY_TRACING_POLICY_FILE_NAME, TRACING_POLICY_FILE_NAME } from "./con
 import type { TracingPolicy } from "./models/tracing-policy.js";
 import { adoptLegacyFile } from "./utils/legacy-file.js";
 import { isRecord } from "./normalize.js";
+import type { Config } from "./models/config.js";
 import type { TracingMode } from "./models/types.js";
 
 function isMode(value: unknown): value is TracingMode {
@@ -35,11 +36,17 @@ export function tracingPolicyPath(): string {
   );
 }
 
+export function mutingLocked(config: Pick<Config, "defaultMuted" | "locked">): boolean {
+  return config.defaultMuted && config.locked.includes("defaultMuted");
+}
+
 export function getThreadTracingMode(
   path: string,
   sessionId: string,
   defaultMuted = false,
+  mutedLocked = false,
 ): TracingMode {
+  if (mutedLocked) return "metadata";
   try {
     adoptLegacyFile(path, TRACING_POLICY_FILE_NAME, LEGACY_TRACING_POLICY_FILE_NAME);
     const policy = readPolicyFile(path, TRACING_POLICY_FILE);

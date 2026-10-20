@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { mkdtempSync } from "node:fs";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -19,6 +19,7 @@ const engine = vi.hoisted(() => ({
   queuedTurnsAtQueue: [] as string[][],
   attachments: [] as unknown[],
   attachmentLoads: 0,
+  currentWriter: undefined as undefined | (() => unknown),
 }));
 
 vi.mock("@langchain/plugins-base/plugin", async (importOriginal) => ({
@@ -26,7 +27,9 @@ vi.mock("@langchain/plugins-base/plugin", async (importOriginal) => ({
   openPluginSession: (options: {
     onRecoveryReport: (result: unknown) => void;
     reconstruct: (job: unknown) => Promise<unknown>;
+    currentWriter: () => unknown;
   }) => {
+    engine.currentWriter = options.currentWriter;
     engine.recoveryReport = options.onRecoveryReport;
     engine.reconstruct = options.reconstruct;
     return {
@@ -168,6 +171,21 @@ describe("saving a turn for upload", () => {
     expect(base("Read")).toMatchObject({ repository_name: "acme/gadget" });
   });
 });
+
+it.skipIf(process.platform === "win32")(
+  "gives the uploader's saved work no destination while the managed file is broken",
+  async () => {
+    await saveTurnForUpload(config, toolTurn);
+    const managed = join(process.env.LS_TEST_ACCOUNT_HOME!, ".langsmith-plugins");
+    mkdirSync(managed, { recursive: true });
+    writeFileSync(join(managed, "managed.json"), "{}");
+    try {
+      expect(engine.currentWriter!()).toBeUndefined();
+    } finally {
+      rmSync(join(managed, "managed.json"));
+    }
+  },
+);
 
 describe("retrying a turn the uploader already started", () => {
   it("rebuilds the same runs even though some were saved by the attempt that died", async () => {

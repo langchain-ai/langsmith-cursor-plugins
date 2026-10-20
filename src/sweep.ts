@@ -1,6 +1,6 @@
 import { atomicUpdateState } from "./state.js";
 import { reduceSweep, reduceSavedForUpload } from "./reducer.js";
-import { getThreadTracingMode, tracingPolicyPath } from "./tracing-policy.js";
+import { getThreadTracingMode, mutingLocked, tracingPolicyPath } from "./tracing-policy.js";
 import { debug, warn } from "./logger.js";
 import { recoverConversations, saveTurnForUpload } from "./tracing-engine.js";
 import { originFromConfig } from "./turn-origin.js";
@@ -17,6 +17,7 @@ async function saveClaimForUpload(claim: SweepClaim, config: Config): Promise<bo
     tracingPolicyPath(),
     claim.conversationId,
     config.defaultMuted,
+    mutingLocked(config),
   );
   return saveTurnForUpload(config, {
     kind: "sweep",

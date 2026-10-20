@@ -8,6 +8,7 @@ it("sends to the configured endpoint under the project the turn asked for", () =
     destinations: [{ apiKey: "key", apiUrl: "https://ls.test", projectName: "turn-project" }],
     redact: true,
   });
+  expect(writerOptions(config, "turn-project")).not.toHaveProperty("projectLocked");
 });
 
 it("passes replicas and extra redaction rules through, and only when there are some", () => {

@@ -10,7 +10,6 @@ import type {
   ReconstructionJobInput,
   ReconstructionResult,
 } from "@langchain/plugins-base/tracing/reconstruction";
-import { loadConfig } from "./config.js";
 import type { Config } from "./models/config.js";
 import { rootPatch, turnCaptures, withRootDependency } from "./captures.js";
 import {
@@ -49,7 +48,7 @@ import { toolOrigin } from "./tool-origin.js";
 import { originFromConfig } from "./turn-origin.js";
 import { enrichTurn, toolAttachments } from "./turn-enrichment.js";
 import { withWarningsTo } from "./utils/console.js";
-import { writerOptions } from "./writer-options.js";
+import { currentWriterOptions, writerOptions } from "./writer-options.js";
 
 let attributor: RepositoryAttributor | undefined;
 
@@ -305,7 +304,7 @@ async function pendingJobs(config: Config): Promise<Set<string>> {
   return new Set(sessions.flatMap(({ captures }) => captures.map(({ record }) => record.eventId)));
 }
 
-function storageRootFor(config: Config): string {
+export function storageRootFor(config: Config): string {
   return join(dirname(config.stateFilePath), ENGINE_STORAGE_DIR_NAME);
 }
 
@@ -321,7 +320,7 @@ function openSession(
     integration: LS_INTEGRATION,
     sessionId,
     writer: writerOptions(config, project),
-    currentWriter: () => writerOptions(loadConfig({ cwd: config.cwd }), project),
+    currentWriter: () => currentWriterOptions(config.cwd, project),
     scheduleWake: (id) =>
       launchDetachedWorker([ENGINE_WORKER_COMMAND, config.cwd, id, project], { storageRoot }),
     reconstruct: (job) => {

@@ -1,9 +1,13 @@
+import { sdkSetting } from "@langchain/plugins-base/auth";
 import { loadConfig } from "./config.js";
+import { MUTE_LOCKED_MESSAGE, NOTICE_KINDS } from "./constants.js";
 import { error as logError, initLogger } from "./logger.js";
+import { showNotice } from "./notice.js";
 import { atomicUpdateState } from "./state.js";
 import { reduceBeforeSubmitPrompt } from "./reducer.js";
 import {
   getThreadTracingMode,
+  mutingLocked,
   parseTracingCommand,
   setThreadTracingMode,
   tracingPolicyPath,
@@ -27,6 +31,9 @@ export async function handlePromptSubmit(
     }
     const config = loadConfig({ cwd: input.workspace_roots?.[0] });
     initLogger(config.debug);
+    if (command === "unmute" && mutingLocked(config)) {
+      return { continue: false, user_message: MUTE_LOCKED_MESSAGE };
+    }
     if (command) {
       const result = await setThreadTracingMode(
         tracingPolicyPath(),
@@ -37,23 +44,34 @@ export async function handlePromptSubmit(
         continue: false,
         user_message:
           `Thread tracing ${command === "mute" ? "muted (metadata-only)" : "unmuted (full content)"}. Preference saved for the next turn; the current turn is unchanged.` +
-          (!config.enabled ? " Master tracing is disabled; this does not enable it." : "") +
+          (config.managedConfigProblem !== undefined
+            ? ` ${config.managedConfigProblem}`
+            : !config.enabled
+              ? " Master tracing is disabled; this does not enable it."
+              : "") +
           (result.warning ? ` Warning: ${result.warning}` : ""),
       };
     }
     // Even master-off launches need evidence if tracing is enabled before stop.
-    const enabled = config.enabled && !!(config.apiKey || config.replicas?.length);
+    const enabled = config.enabled && !!(sdkSetting(config.apiKey) || config.replicas?.length);
     await atomicUpdateState(config.stateFilePath, (s) =>
       reduceBeforeSubmitPrompt(
         s,
         input,
         Date.now(),
         enabled
-          ? getThreadTracingMode(tracingPolicyPath(), input.conversation_id, config.defaultMuted)
+          ? getThreadTracingMode(
+              tracingPolicyPath(),
+              input.conversation_id,
+              config.defaultMuted,
+              mutingLocked(config),
+            )
           : "off",
         originFromConfig(config, input),
       ),
     );
+    if (config.managedConfigProblem !== undefined)
+      await showNotice(config, NOTICE_KINDS.managed, config.managedConfigProblem);
     return { continue: true };
   } catch (error) {
     const detail = error instanceof Error ? error.message : String(error);

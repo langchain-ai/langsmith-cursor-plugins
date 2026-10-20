@@ -87,6 +87,8 @@ function run(
       HOME: home,
       LANGSMITH_CURSOR_LOG_FILE: join(home, "hook.log"),
       LANGSMITH_CURSOR_STATE_FILE: join(home, "state.json"),
+      NODE_OPTIONS: process.env.NODE_OPTIONS ?? "",
+      LS_TEST_ACCOUNT_HOME: process.env.LS_TEST_ACCOUNT_HOME ?? "",
       ...extraEnv,
     },
   });
