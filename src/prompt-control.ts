@@ -2,7 +2,7 @@ import { sdkSetting } from "@langchain/plugins-base/auth";
 import { loadConfig } from "./config.js";
 import { MUTE_LOCKED_MESSAGE, NOTICE_KINDS } from "./constants.js";
 import { error as logError, initLogger } from "./logger.js";
-import { showNotice } from "./notice.js";
+import { noticeBlock } from "./notice.js";
 import { atomicUpdateState } from "./state.js";
 import { reduceBeforeSubmitPrompt } from "./reducer.js";
 import {
@@ -13,12 +13,10 @@ import {
   tracingPolicyPath,
 } from "./tracing-policy.js";
 import { originFromConfig } from "./turn-origin.js";
-import type { BeforeSubmitPromptInput } from "./models/types.js";
+import type { BeforeSubmitPromptInput, PromptReply } from "./models/types.js";
 
 /** Synchronous command hook contract, not an LLM skill or slash-command expansion. */
-export async function handlePromptSubmit(
-  input: BeforeSubmitPromptInput,
-): Promise<{ continue: boolean; user_message?: string }> {
+export async function handlePromptSubmit(input: BeforeSubmitPromptInput): Promise<PromptReply> {
   const command = parseTracingCommand(input.prompt);
   try {
     if (
@@ -52,6 +50,10 @@ export async function handlePromptSubmit(
           (result.warning ? ` Warning: ${result.warning}` : ""),
       };
     }
+    if (config.managedConfigProblem !== undefined) {
+      const block = await noticeBlock(config, NOTICE_KINDS.managed, config.managedConfigProblem);
+      if (block) return block;
+    }
     // Even master-off launches need evidence if tracing is enabled before stop.
     const enabled = config.enabled && !!(sdkSetting(config.apiKey) || config.replicas?.length);
     await atomicUpdateState(config.stateFilePath, (s) =>
@@ -70,8 +72,6 @@ export async function handlePromptSubmit(
         originFromConfig(config, input),
       ),
     );
-    if (config.managedConfigProblem !== undefined)
-      await showNotice(config, NOTICE_KINDS.managed, config.managedConfigProblem);
     return { continue: true };
   } catch (error) {
     const detail = error instanceof Error ? error.message : String(error);

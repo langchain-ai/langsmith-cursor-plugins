@@ -12,8 +12,6 @@ export const DEFAULT_PROJECT = "cursor";
 
 export const DEFAULT_SWEEP_IDLE_MINUTES = 360;
 
-export const NOTICE_TITLE = "LangSmith tracing";
-
 export const NOTICE_PLUGIN = "cursor";
 
 export const NOTICE_COOLDOWN_OFF = "off";

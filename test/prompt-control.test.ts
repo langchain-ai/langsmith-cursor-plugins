@@ -16,7 +16,6 @@ import { getThreadTracingMode } from "../src/tracing-policy.js";
 import { loadState } from "./utils/state.js";
 import { MIN_NODE } from "../src/utils/node-version.js";
 
-vi.mock("@langchain/plugins-base/plugin", { spy: true });
 vi.mock("@langchain/plugins-base/settings", { spy: true });
 
 let dir: string;
@@ -495,13 +494,11 @@ it.each([JSON.stringify({ enabled: true, defaultMuted: true }), "{malformed"])(
 );
 
 it.skipIf(process.platform === "win32")(
-  "names a broken managed file once per cooldown and in a mute reply without blocking a prompt",
+  "holds back one prompt per cooldown to name a broken managed file, and names it in a mute reply",
   async () => {
     for (const [key, value] of Object.entries(env)) vi.stubEnv(key, value);
     vi.resetModules();
-    const { showDesktopNotification } = await import("@langchain/plugins-base/plugin");
     const { handlePromptSubmit } = await import("../src/prompt-control.js");
-    const shown = vi.mocked(showDesktopNotification).mockReturnValue(true);
     const prompt = (conversation_id: string, generation_id: string, text = "work") =>
       handlePromptSubmit({
         conversation_id,
@@ -517,16 +514,16 @@ it.skipIf(process.platform === "win32")(
     try {
       vi.stubEnv("LANGSMITH_CURSOR_NOTICE_COOLDOWN", "off");
       expect(await prompt("thread", "first")).toEqual({ continue: true });
-      expect(shown).not.toHaveBeenCalled();
       vi.stubEnv("LANGSMITH_CURSOR_NOTICE_COOLDOWN", undefined);
-      expect(await prompt("thread", "second")).toEqual({ continue: true });
+      expect(await prompt("thread", "second")).toEqual({
+        continue: false,
+        user_message: expect.stringContaining("owned by root"),
+      });
+      expect(await prompt("thread", "third")).toEqual({ continue: true });
       expect(await prompt("other", "first")).toEqual({ continue: true });
       const reply = await prompt("thread", "control", "langsmith-tracing:mute");
       expect(reply.user_message).toContain("owned by root");
       expect(reply.user_message).not.toContain("Master tracing is disabled");
-      expect(shown.mock.calls).toEqual([
-        [expect.any(String), expect.stringContaining("owned by root")],
-      ]);
     } finally {
       rmSync(join(managed, "managed.json"));
       vi.unstubAllEnvs();
