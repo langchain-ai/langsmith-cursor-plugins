@@ -180,7 +180,7 @@ export function loadConfig(options?: { cwd?: string }): Config {
           parse: parseStrictBoolean,
           restrictive: COMMON_BOOLEAN_SETTINGS.defaultMuted.restrictive,
         }),
-        api_key: getEnv("API_KEY"),
+        api_key: process.env.LANGSMITH_CURSOR_API_KEY,
         api_url: getEnv("ENDPOINT"),
         project: getEnv("PROJECT"),
         metadata: envMetadata,

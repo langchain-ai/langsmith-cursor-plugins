@@ -622,19 +622,6 @@ it.skipIf(process.platform === "win32")(
   },
 );
 
-it("names a refused login and keeps no turn when only replicas without their own key are left", async () => {
-  const { initHook, prompt, shown } = await withLogin({
-    LANGCHAIN_API_KEY: "other-key",
-    LANGSMITH_CURSOR_RUNS_ENDPOINTS: JSON.stringify([{ api_url: "https://replica.test" }]),
-  });
-  await prompt("thread", "first");
-  expect(initHook(dir)).toBeNull();
-  expect(loadState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns.first.tracingMode).toBe("off");
-  expect(shown.mock.calls).toEqual([
-    [expect.any(String), expect.stringContaining("LANGCHAIN_API_KEY is overriding")],
-  ]);
-});
-
 it("stops tracing and names keyless replicas the login can't reach", async () => {
   const { initHook, prompt, shown } = await withLogin({
     LANGSMITH_CURSOR_RUNS_ENDPOINTS: JSON.stringify([{ api_url: "https://replica.test" }]),

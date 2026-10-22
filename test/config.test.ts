@@ -122,9 +122,8 @@ describe("loadConfig", () => {
 
   it("prefers the LANGSMITH_CURSOR_ variable over the shorter LANGSMITH_ one", () => {
     vi.stubEnv("LANGSMITH_PROJECT", "short");
-    vi.stubEnv("LANGSMITH_API_KEY", "short-key");
     vi.stubEnv("LANGSMITH_CURSOR_PROJECT", "cursor-only");
-    expect(loadConfig({ cwd })).toMatchObject({ project: "cursor-only", apiKey: "short-key" });
+    expect(loadConfig({ cwd }).project).toBe("cursor-only");
   });
 
   it.each([
@@ -352,6 +351,17 @@ describe("loadConfig", () => {
         apiUrl: "https://login.test",
         projectName: "p",
       });
+    });
+
+    it("lets the login beat a generic LANGSMITH_API_KEY", () => {
+      writeLogin("https://login.test");
+      vi.stubEnv("LANGSMITH_API_KEY", "generic-key");
+      expect(uploadCredential(loadConfig({ cwd })).kind).toBe("login");
+    });
+
+    it("still uploads with a generic LANGSMITH_API_KEY when there's no login", () => {
+      vi.stubEnv("LANGSMITH_API_KEY", "generic-key");
+      expect(uploadCredential(loadConfig({ cwd }))).toMatchObject({ apiKey: "generic-key" });
     });
 
     it.each(['""', "   ", '" "'])(
