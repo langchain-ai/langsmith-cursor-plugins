@@ -545,8 +545,8 @@ async function withLogin(extraEnv: Record<string, string>, loginNotice?: string)
   for (const key of Object.keys(process.env)) {
     if (/^(LANGSMITH_|LANGCHAIN_)/.test(key)) vi.stubEnv(key, undefined);
   }
-  for (const [key, value] of Object.entries({ ...env, ...extraEnv })) vi.stubEnv(key, value);
-  vi.stubEnv("TRACE_TO_LANGSMITH", "true");
+  for (const [key, value] of Object.entries({ ...env, TRACE_TO_LANGSMITH: "true", ...extraEnv }))
+    vi.stubEnv(key, value);
   vi.stubEnv("LANGSMITH_CONFIG_FILE", join(dir, "login.json"));
   writeFileSync(
     join(dir, "login.json"),
@@ -583,10 +583,25 @@ it("still hands turns to the uploader with an expired CLI login and shows the pa
   expect(shown.mock.calls).toEqual([[expect.any(String), "login paused"]]);
 });
 
-it("shows the rejected-key notice to someone uploading with an API key", async () => {
+it("stays quiet about the login while tracing is off", async () => {
+  const { prompt, shown } = await withLogin({ TRACE_TO_LANGSMITH: "false" }, "login paused");
+  await prompt("thread", "first");
+  expect(shown).not.toHaveBeenCalled();
+});
+
+it("checks the rejected-key notice only for the API key in use", async () => {
   const { prompt, shown } = await withLogin({ LANGSMITH_CURSOR_API_KEY: "key" }, "key rejected");
+  const { readLoginNotice } = await import("@langchain/plugins-base/auth");
   await prompt("thread", "first");
   expect(shown.mock.calls).toEqual([[expect.any(String), "key rejected"]]);
+  expect(vi.mocked(readLoginNotice).mock.calls.at(-1)?.[2]).toBe("key");
+});
+
+it("never asks about a rejected key for someone signed in with the CLI", async () => {
+  const { prompt } = await withLogin({}, "login paused");
+  const { readLoginNotice } = await import("@langchain/plugins-base/auth");
+  await prompt("thread", "first");
+  expect(vi.mocked(readLoginNotice).mock.calls.at(-1)?.[2]).toBeUndefined();
 });
 
 it.skipIf(process.platform === "win32")(

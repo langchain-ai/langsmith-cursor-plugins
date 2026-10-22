@@ -25492,16 +25492,18 @@ async function handlePromptSubmit(input) {
     const problem = uploadProblem(config, credential);
     const enabled = config.enabled && problem === void 0;
     await atomicUpdateState(config.stateFilePath, (s) => reduceBeforeSubmitPrompt(s, input, Date.now(), enabled ? getThreadTracingMode(tracingPolicyPath(), input.conversation_id, config.defaultMuted, mutingLocked(config)) : "off", originFromConfig(config, input)));
-    const loginNotice = credential.kind === "none" ? void 0 : readLoginNotice(storageRootFor(config));
-    const replicaReason = credential.kind === "login" ? refusedLoginReplicas(config.replicas, credential.apiUrl) : void 0;
     if (config.managedConfigProblem !== void 0)
       await showNotice(config, NOTICE_KINDS.managed, config.managedConfigProblem);
-    else if (loginNotice !== void 0)
-      await showNotice(config, LOGIN_NOTICE_KIND, loginNotice);
-    else if (replicaReason !== void 0)
-      await showNotice(config, NOTICE_KINDS.replica, replicaReason);
-    else if (config.enabled && problem !== void 0)
-      await showNotice(config, NOTICE_KINDS.credential, problem);
+    else if (config.enabled) {
+      const loginNotice = credential.kind === "none" ? void 0 : readLoginNotice(storageRootFor(config), process.env, credential.kind === "api-key" ? credential.apiKey : void 0);
+      const replicaReason = credential.kind === "login" ? refusedLoginReplicas(config.replicas, credential.apiUrl) : void 0;
+      if (loginNotice !== void 0)
+        await showNotice(config, LOGIN_NOTICE_KIND, loginNotice);
+      else if (replicaReason !== void 0)
+        await showNotice(config, NOTICE_KINDS.replica, replicaReason);
+      else if (problem !== void 0)
+        await showNotice(config, NOTICE_KINDS.credential, problem);
+    }
     return { continue: true };
   } catch (error2) {
     const detail = error2 instanceof Error ? error2.message : String(error2);

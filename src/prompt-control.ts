@@ -77,19 +77,26 @@ export async function handlePromptSubmit(
         originFromConfig(config, input),
       ),
     );
-    const loginNotice =
-      credential.kind === "none" ? undefined : readLoginNotice(storageRootFor(config));
-    const replicaReason =
-      credential.kind === "login"
-        ? refusedLoginReplicas(config.replicas, credential.apiUrl)
-        : undefined;
     if (config.managedConfigProblem !== undefined)
       await showNotice(config, NOTICE_KINDS.managed, config.managedConfigProblem);
-    else if (loginNotice !== undefined) await showNotice(config, LOGIN_NOTICE_KIND, loginNotice);
-    else if (replicaReason !== undefined)
-      await showNotice(config, NOTICE_KINDS.replica, replicaReason);
-    else if (config.enabled && problem !== undefined)
-      await showNotice(config, NOTICE_KINDS.credential, problem);
+    else if (config.enabled) {
+      const loginNotice =
+        credential.kind === "none"
+          ? undefined
+          : readLoginNotice(
+              storageRootFor(config),
+              process.env,
+              credential.kind === "api-key" ? credential.apiKey : undefined,
+            );
+      const replicaReason =
+        credential.kind === "login"
+          ? refusedLoginReplicas(config.replicas, credential.apiUrl)
+          : undefined;
+      if (loginNotice !== undefined) await showNotice(config, LOGIN_NOTICE_KIND, loginNotice);
+      else if (replicaReason !== undefined)
+        await showNotice(config, NOTICE_KINDS.replica, replicaReason);
+      else if (problem !== undefined) await showNotice(config, NOTICE_KINDS.credential, problem);
+    }
     return { continue: true };
   } catch (error) {
     const detail = error instanceof Error ? error.message : String(error);
