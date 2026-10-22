@@ -4,26 +4,34 @@
  * including the master switch and default mute, use environment-first precedence.
  */
 
+import { sdkSetting } from "@langchain/plugins-base/auth";
 import {
   COMMON_BOOLEAN_SETTINGS,
+  lockPluginFields,
   mergeCommonConfig,
   readCommonConfigFiles,
   toSdkReplicas,
+  type CommonRedactRule,
 } from "@langchain/plugins-base/settings";
 import { homedir, userInfo } from "node:os";
 import { join } from "node:path";
 import type { LangSmithUploadReplicaConfig } from "@langchain/plugins-base/tracing/upload";
-import type { StringNodeRule } from "langsmith/anonymizer";
 import { debug as logDebug, error as logError } from "./logger.js";
 import {
   CURSOR_DIRECTORY_NAME,
   DEFAULT_API_URL,
   DEFAULT_PROJECT,
   DEFAULT_SWEEP_IDLE_MINUTES,
+  MANAGED_PLUGIN_FIELDS,
   STATE_FILE_NAME,
 } from "./constants.js";
 import type { Config, CursorExtensions, EnvBooleanOptions } from "./models/config.js";
-import { parseBoolean, parseJson, parsePositiveNumber } from "./utils/parse.js";
+import {
+  parseBoolean,
+  parseJson,
+  parseNoticeCooldown,
+  parsePositiveNumber,
+} from "./utils/parse.js";
 
 /**
  * Plugin version, injected at build time by esbuild `define` (no runtime
@@ -36,7 +44,7 @@ export const LS_INTEGRATION_VERSION: string | undefined =
     : process.env.LANGSMITH_CURSOR_INTEGRATION_VERSION || undefined;
 
 /** Type guard for a user redaction rule: { pattern: string, replace?: string }. */
-function isRedactRule(rule: unknown): rule is StringNodeRule {
+function isRedactRule(rule: unknown): rule is CommonRedactRule {
   if (typeof rule !== "object" || rule === null) return false;
   const r = rule as Record<string, unknown>;
   return (
@@ -45,14 +53,14 @@ function isRedactRule(rule: unknown): rule is StringNodeRule {
 }
 
 /** Parse a JSON array of { pattern, replace }; invalid rules are logged and skipped. */
-function parseRedactExtraRules(value: unknown): StringNodeRule[] | undefined {
+function parseRedactExtraRules(value: unknown): CommonRedactRule[] | undefined {
   const parsed = parseJson<unknown>(value);
   if (parsed === undefined) return undefined;
   if (!Array.isArray(parsed)) {
     logError("LANGSMITH_CURSOR_REDACT_EXTRA must be a JSON array of { pattern, replace }.");
     return undefined;
   }
-  const valid: StringNodeRule[] = [];
+  const valid: CommonRedactRule[] = [];
   for (const rule of parsed) {
     if (!isRedactRule(rule)) {
       logError("Skipping invalid LANGSMITH_CURSOR_REDACT_EXTRA rule.");
@@ -117,7 +125,9 @@ function normalizeReplicas(
       ? { projectName: r[0] as string, updates: r[1] as Record<string, unknown> }
       : {
           ...(r.api_url || r.apiUrl ? { apiUrl: (r.api_url ?? r.apiUrl) as string } : {}),
-          ...(r.api_key || r.apiKey ? { apiKey: (r.api_key ?? r.apiKey) as string } : {}),
+          ...(sdkSetting(r.api_key ?? r.apiKey)
+            ? { apiKey: (r.api_key ?? r.apiKey) as string }
+            : {}),
           ...(r.project || r.projectName
             ? { projectName: (r.project ?? r.projectName) as string }
             : {}),
@@ -144,6 +154,9 @@ export function loadConfig(options?: { cwd?: string }): Config {
   );
   const fromFiles = <K extends keyof CursorExtensions>(field: K) =>
     extensions.find((source) => source[field] !== undefined)?.[field];
+  const managedExtensions = cursorExtensions(
+    lockPluginFields(files.managed, MANAGED_PLUGIN_FIELDS),
+  );
 
   const envMetadata = parseJson(getEnv("METADATA"));
   const envReplicas = parseJson<Array<Record<string, unknown>>>(getEnv("RUNS_ENDPOINTS"));
@@ -151,6 +164,7 @@ export function loadConfig(options?: { cwd?: string }): Config {
 
   const common = mergeCommonConfig(
     {
+      managed: files.managed,
       harness: files.harness.common,
       root: files.root.common,
       user: files.user.common,
@@ -171,6 +185,8 @@ export function loadConfig(options?: { cwd?: string }): Config {
         project: getEnv("PROJECT"),
         metadata: envMetadata,
         redact: parseBoolean(getEnv("REDACT")),
+        redact_extra_rules: parseRedactExtraRules(getEnv("REDACT_EXTRA")),
+        notice_cooldown: parseNoticeCooldown(getEnv("NOTICE_COOLDOWN")),
       },
       defaults: { api_key: "", api_url: DEFAULT_API_URL, project: DEFAULT_PROJECT },
     },
@@ -182,21 +198,26 @@ export function loadConfig(options?: { cwd?: string }): Config {
   const project = common.project!;
   const debug = envDebug ?? false;
   // File replicas are canonical and strict. Do not reparse legacy environment values as files.
-  const replicas = normalizeReplicas(envReplicas) ?? toSdkReplicas(common.replicas);
+  const replicas = common.locked.includes("replicas")
+    ? toSdkReplicas(common.replicas)
+    : (normalizeReplicas(envReplicas) ?? toSdkReplicas(common.replicas));
 
   // Attachment and system-prompt enrichment default ON; opt out via config or the environment.
   const attachmentsEnabled =
-    parseBoolean(getEnv("ATTACHMENTS")) ?? fromFiles("attachments") ?? true;
+    managedExtensions.attachments ??
+    parseBoolean(getEnv("ATTACHMENTS")) ??
+    fromFiles("attachments") ??
+    true;
   const systemPromptEnabled =
-    parseBoolean(getEnv("SYSTEM_PROMPT")) ?? fromFiles("system_prompt") ?? true;
+    managedExtensions.system_prompt ??
+    parseBoolean(getEnv("SYSTEM_PROMPT")) ??
+    fromFiles("system_prompt") ??
+    true;
   const sweepIdleMinutes =
     parsePositiveNumber(getEnv("SWEEP_IDLE_MINUTES")) ??
     fromFiles("sweep_idle_minutes") ??
     DEFAULT_SWEEP_IDLE_MINUTES;
   const cursorDbPath = getEnv("DB_PATH") ?? fromFiles("cursor_db_path");
-
-  const redactExtraRules =
-    parseRedactExtraRules(getEnv("REDACT_EXTRA")) ?? common.redact_extra_rules;
 
   const stateFilePath =
     process.env.LANGSMITH_CURSOR_STATE_FILE ??
@@ -231,8 +252,13 @@ export function loadConfig(options?: { cwd?: string }): Config {
     systemPromptEnabled,
     cursorDbPath,
     redact,
-    redactExtraRules,
+    redactExtraRules: common.redact_extra_rules,
     sweepIdleMinutes,
     cwd,
+    locked: common.locked,
+    noticeCooldown: common.notice_cooldown,
+    ...(common.managedConfigProblem === undefined
+      ? {}
+      : { managedConfigProblem: common.managedConfigProblem }),
   };
 }

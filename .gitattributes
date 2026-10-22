@@ -1,3 +1,4 @@
 bundle/** linguist-generated=true
 binary/langsmith-cursor-tracing-darwin-* binary linguist-generated=true
 binary/langsmith-tracing.cmd text eol=lf
+pnpm-lock.yaml linguist-generated=true

@@ -2,6 +2,7 @@
  * Shared hook startup utilities.
  */
 
+import { sdkSetting } from "@langchain/plugins-base/auth";
 import { loadConfig } from "../config.js";
 import type { Config } from "../models/config.js";
 import { initLogger, error } from "../logger.js";
@@ -15,7 +16,7 @@ export function initHook(cwd?: string): Config | null {
     return null;
   }
 
-  if (!config.apiKey && (!config.replicas || config.replicas.length === 0)) {
+  if (!sdkSetting(config.apiKey) && (!config.replicas || config.replicas.length === 0)) {
     error(
       "Tracing enabled but no API key set (langsmith-plugins.json or .cursor/langsmith.json api_key, LANGSMITH_CURSOR_API_KEY, or LANGSMITH_API_KEY) and no replicas configured",
     );
