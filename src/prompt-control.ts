@@ -1,6 +1,6 @@
 import { LOGIN_NOTICE_KIND } from "@langchain/plugins-base/auth";
 import { loadConfig } from "./config.js";
-import { MUTE_LOCKED_MESSAGE } from "./constants.js";
+import { MUTE_LOCKED_MESSAGE, NOTICE_KINDS } from "./constants.js";
 import { error as logError, initLogger } from "./logger.js";
 import { noticeBlock, promptNotice } from "./notice.js";
 import { atomicUpdateState } from "./state.js";
@@ -62,7 +62,10 @@ export async function handlePromptSubmit(input: BeforeSubmitPromptInput): Promis
       mutingLocked(config),
     );
     const notice = promptNotice(config, credential, problem);
-    if (notice?.kind === LOGIN_NOTICE_KIND && config.strictAuth && mode === "full")
+    const untraced =
+      notice?.kind === LOGIN_NOTICE_KIND ||
+      (notice?.kind !== NOTICE_KINDS.managed && problem !== undefined);
+    if (notice && untraced && config.strictAuth && mode === "full")
       return { continue: false, user_message: notice.text };
     const block = notice && (await noticeBlock(config, notice.kind, notice.text));
     if (block) return block;

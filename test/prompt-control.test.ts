@@ -597,6 +597,16 @@ it("holds back every prompt in strict mode until the user signs in again", async
   expect(await prompt("thread", "third")).toEqual({ continue: true });
 });
 
+it("holds back every prompt in strict mode when nothing can upload", async () => {
+  const { prompt } = await withLogin({
+    LANGSMITH_CURSOR_STRICT_AUTH: "true",
+    LANGSMITH_CURSOR_RUNS_ENDPOINTS: JSON.stringify([{ api_url: "https://replica.test" }]),
+  });
+  const refused = held(expect.stringContaining("https://replica.test"));
+  expect(await prompt("thread", "first")).toEqual(refused);
+  expect(await prompt("thread", "second")).toEqual(refused);
+});
+
 it("lets a muted conversation through in strict mode", async () => {
   const { prompt } = await withLogin({ LANGSMITH_CURSOR_STRICT_AUTH: "true" }, "login paused");
   await prompt("thread", "mute", "langsmith-tracing:mute");
