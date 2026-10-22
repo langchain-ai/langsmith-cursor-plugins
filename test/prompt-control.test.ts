@@ -14,6 +14,7 @@ import { pathToFileURL } from "node:url";
 import { spawnSync } from "node:child_process";
 import { getThreadTracingMode } from "../src/tracing-policy.js";
 import { loadState } from "./utils/state.js";
+import { PLUGIN_DIRECTORY_NAME } from "./utils/plugin-layout.js";
 import { MIN_NODE } from "../src/utils/node-version.js";
 
 let dir: string;
@@ -37,14 +38,16 @@ beforeEach(() => {
 afterEach(() => rmSync(dir, { recursive: true, force: true }));
 
 function submit(prompt: string, generation_id = "generation", cwd = dir) {
-  const hooks = JSON.parse(readFileSync(new URL("../hooks/hooks.json", import.meta.url), "utf8"));
+  const hooks = JSON.parse(
+    readFileSync(new URL(`../${PLUGIN_DIRECTORY_NAME}/hooks/hooks.json`, import.meta.url), "utf8"),
+  );
   const registration = hooks.hooks.beforeSubmitPrompt[0];
   expect(registration).toMatchObject({ timeout: 15 });
   const match = /langsmith-tracing\.cmd" (before-submit-prompt)$/.exec(registration.command);
   expect(match).not.toBeNull();
   const result = spawnSync(
     process.execPath,
-    [new URL("../bundle/guard.js", import.meta.url).pathname, match![1]],
+    [new URL(`../${PLUGIN_DIRECTORY_NAME}/bundle/guard.js`, import.meta.url).pathname, match![1]],
     {
       cwd,
       env,
@@ -65,7 +68,9 @@ function submit(prompt: string, generation_id = "generation", cwd = dir) {
 }
 
 it("registers the blocking contract on the one entry the plugin owns", () => {
-  const plugin = JSON.parse(readFileSync(new URL("../hooks/hooks.json", import.meta.url), "utf8"));
+  const plugin = JSON.parse(
+    readFileSync(new URL(`../${PLUGIN_DIRECTORY_NAME}/hooks/hooks.json`, import.meta.url), "utf8"),
+  );
   expect(plugin.hooks.beforeSubmitPrompt).toHaveLength(1);
   expect(plugin.hooks.beforeSubmitPrompt[0]).toMatchObject({ timeout: 15 });
   expect(plugin.hooks.beforeSubmitPrompt[0].command).toContain(
@@ -76,7 +81,10 @@ it("registers the blocking contract on the one entry the plugin owns", () => {
 function raw(input: string) {
   return spawnSync(
     process.execPath,
-    [new URL("../bundle/guard.js", import.meta.url).pathname, "before-submit-prompt"],
+    [
+      new URL(`../${PLUGIN_DIRECTORY_NAME}/bundle/guard.js`, import.meta.url).pathname,
+      "before-submit-prompt",
+    ],
     { cwd: dir, env, encoding: "utf8", timeout: 10000, input },
   );
 }
@@ -96,7 +104,7 @@ it("lets the prompt through when Node is too old to trace", () => {
     [
       "--import",
       pathToFileURL(shim).href,
-      new URL("../bundle/guard.js", import.meta.url).pathname,
+      new URL(`../${PLUGIN_DIRECTORY_NAME}/bundle/guard.js`, import.meta.url).pathname,
       "before-submit-prompt",
     ],
     { cwd: dir, env, encoding: "utf8", timeout: 10000, input: "{}" },
@@ -108,7 +116,10 @@ it("lets the prompt through when Node is too old to trace", () => {
 
 it("lets the prompt through when the hook itself cannot be loaded", () => {
   const alone = mkdtempSync(join(tmpdir(), "cursor alone "));
-  cpSync(new URL("../bundle/guard.js", import.meta.url).pathname, join(alone, "guard.js"));
+  cpSync(
+    new URL(`../${PLUGIN_DIRECTORY_NAME}/bundle/guard.js`, import.meta.url).pathname,
+    join(alone, "guard.js"),
+  );
   const result = spawnSync(process.execPath, [join(alone, "guard.js"), "before-submit-prompt"], {
     cwd: dir,
     env,
@@ -122,7 +133,12 @@ it("lets the prompt through when the hook itself cannot be loaded", () => {
 
 it("never asks Cursor to refuse a prompt because tracing could not start", () => {
   const manifests = [
-    JSON.parse(readFileSync(new URL("../hooks/hooks.json", import.meta.url), "utf8")),
+    JSON.parse(
+      readFileSync(
+        new URL(`../${PLUGIN_DIRECTORY_NAME}/hooks/hooks.json`, import.meta.url),
+        "utf8",
+      ),
+    ),
   ];
   for (const manifest of manifests) {
     for (const entries of Object.values(manifest.hooks) as { failClosed?: boolean }[][]) {
@@ -212,12 +228,14 @@ it("lets the prompt through when the transient state cannot be written", () => {
 
 /** Execute the actual registered Stop/event through the checked-in guard bundle. */
 function event(name: string, generation_id = "generation", extra: Record<string, unknown> = {}) {
-  const hooks = JSON.parse(readFileSync(new URL("../hooks/hooks.json", import.meta.url), "utf8"));
+  const hooks = JSON.parse(
+    readFileSync(new URL(`../${PLUGIN_DIRECTORY_NAME}/hooks/hooks.json`, import.meta.url), "utf8"),
+  );
   const match = /langsmith-tracing\.cmd" ([a-z-]+)$/.exec(hooks.hooks[name][0].command);
   expect(match).not.toBeNull();
   const result = spawnSync(
     process.execPath,
-    [new URL("../bundle/guard.js", import.meta.url).pathname, match![1]],
+    [new URL(`../${PLUGIN_DIRECTORY_NAME}/bundle/guard.js`, import.meta.url).pathname, match![1]],
     {
       cwd: dir,
       env,

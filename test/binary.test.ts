@@ -7,6 +7,7 @@ import { DatabaseSync } from "node:sqlite";
 import { fileURLToPath } from "node:url";
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { waitForWorkers } from "./utils/engine.js";
+import { PLUGIN_DIRECTORY_NAME } from "./utils/plugin-layout.js";
 
 const root = new URL("../", import.meta.url);
 const settings = JSON.parse(readFileSync(new URL("binary.config.json", root), "utf8"));
@@ -184,7 +185,9 @@ describe("the macOS entitlements", () => {
 describe("a cached plugin install without node_modules", () => {
   it("runs every hook and delivers the turn", async () => {
     const pluginBundle = join(home, "plugin", "bundle");
-    cpSync(fileURLToPath(new URL("bundle", root)), pluginBundle, { recursive: true });
+    cpSync(fileURLToPath(new URL(`${PLUGIN_DIRECTORY_NAME}/bundle`, root)), pluginBundle, {
+      recursive: true,
+    });
     const command = [process.execPath, join(pluginBundle, "guard.js")];
     const env = {
       TRACE_TO_LANGSMITH: "1",

@@ -27245,13 +27245,13 @@ var binary_config_default = {
   build: {
     entryPoint: "src/hooks/dispatch.ts",
     outputDirectory: "bin",
-    versionFile: ".cursor-plugin/plugin.json",
+    versionFile: "langsmith-tracing/.cursor-plugin/plugin.json",
     matchingVersionFiles: [
       "package.json"
     ],
     minify: false,
     stampedVersionFiles: [
-      "bundle/hooks.js"
+      "langsmith-tracing/bundle/hooks.js"
     ]
   },
   sign: {
