@@ -24,7 +24,9 @@ export function promptNotice(
       : readLoginNotice(
           storageRootFor(config),
           process.env,
-          credential.kind === "api-key" ? credential.apiKey : undefined,
+          credential.kind === "api-key"
+            ? { apiKey: credential.apiKey, apiUrl: credential.apiUrl }
+            : undefined,
         );
   if (loginNotice !== undefined) return { kind: LOGIN_NOTICE_KIND, text: loginNotice };
   const replicaReason =

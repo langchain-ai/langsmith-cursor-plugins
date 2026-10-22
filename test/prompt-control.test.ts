@@ -608,7 +608,10 @@ it("checks the rejected-key notice only for the API key in use", async () => {
   const { prompt } = await withLogin({ LANGSMITH_CURSOR_API_KEY: "key" }, "key rejected");
   const { readLoginNotice } = await import("@langchain/plugins-base/auth");
   expect(await prompt("thread", "first")).toEqual(held("key rejected"));
-  expect(vi.mocked(readLoginNotice).mock.calls.at(-1)?.[2]).toBe("key");
+  expect(vi.mocked(readLoginNotice).mock.calls.at(-1)?.[2]).toEqual({
+    apiKey: "key",
+    apiUrl: "https://api.smith.langchain.com",
+  });
 });
 
 it("never asks about a rejected key for someone signed in with the CLI", async () => {
