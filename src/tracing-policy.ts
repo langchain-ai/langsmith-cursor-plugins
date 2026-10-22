@@ -7,7 +7,7 @@ import type { TracingPolicy } from "./models/tracing-policy.js";
 import { adoptLegacyFile } from "./utils/legacy-file.js";
 import { isRecord } from "./normalize.js";
 import type { Config } from "./models/config.js";
-import type { TracingMode } from "./models/types.js";
+import type { TracingMode, TurnBuffer } from "./models/types.js";
 
 function isMode(value: unknown): value is TracingMode {
   return value === "full" || value === "metadata";
@@ -38,6 +38,15 @@ export function tracingPolicyPath(): string {
 
 export function mutingLocked(config: Pick<Config, "defaultMuted" | "locked">): boolean {
   return config.defaultMuted && config.locked.includes("defaultMuted");
+}
+
+export function withLockedMute(
+  buffer: TurnBuffer,
+  config: Pick<Config, "defaultMuted" | "locked">,
+): TurnBuffer {
+  return mutingLocked(config) && buffer.tracingMode === "full"
+    ? { ...buffer, tracingMode: "metadata" }
+    : buffer;
 }
 
 export function getThreadTracingMode(

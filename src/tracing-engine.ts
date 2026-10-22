@@ -45,6 +45,7 @@ import type { RecoveryReport, SavedCapture } from "./models/tracing-engine.js";
 import { debug, warn } from "./logger.js";
 import { isRecord } from "./normalize.js";
 import { toolOrigin } from "./tool-origin.js";
+import { withLockedMute } from "./tracing-policy.js";
 import { originFromConfig } from "./turn-origin.js";
 import { enrichTurn, toolAttachments } from "./turn-enrichment.js";
 import { withWarningsTo } from "./utils/console.js";
@@ -154,7 +155,8 @@ async function buildQueuedRuns(
     ? toolJobContext(state, toolRef, originFromConfig(config, {}))
     : ref && queuedContext(state, ref);
   if (!context) return { status: "ready", outputs: [] };
-  const { buffer, conversationId, turnNum, origin } = context;
+  const { conversationId, turnNum, origin } = context;
+  const buffer = withLockedMute(context.buffer, config);
   const cwd =
     typeof origin.customMetadata?.cwd === "string" ? origin.customMetadata.cwd : config.cwd;
   const options: BuildTurnOptions = {

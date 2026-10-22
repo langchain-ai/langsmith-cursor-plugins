@@ -71,6 +71,7 @@ interface Output {
   eventId: string;
   submission: {
     operation: string;
+    privacyMode?: string;
     run: { name?: string; end_time?: unknown };
     metadata: { base?: Record<string, unknown> };
   };
@@ -133,6 +134,13 @@ describe("saving a turn for upload", () => {
     expect(engine.queued).toHaveLength(1);
     expect(engine.queued[0].turnId).toBe(turnRunId("c1", "g1"));
     expect(engine.queuedTurnsAtQueue).toEqual([["g1"]]);
+  });
+
+  it("uploads a full turn muted once the managed file locks muting on", async () => {
+    await saveTurnForUpload({ ...config, defaultMuted: true, locked: ["defaultMuted"] }, toolTurn);
+    const modes = (await build()).map(({ submission }) => submission.privacyMode);
+    expect(modes.length).toBeGreaterThan(0);
+    expect(new Set(modes)).toEqual(new Set(["metadata"]));
   });
 
   it("keeps the turn for a later retry when the store does not take its to-do", async () => {

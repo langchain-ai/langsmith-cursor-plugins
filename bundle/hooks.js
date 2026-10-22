@@ -26645,6 +26645,71 @@ var init_tool_origin = __esm({
   }
 });
 
+// dist/src/tracing-policy.js
+import { homedir as homedir5 } from "node:os";
+import { join as join26 } from "node:path";
+function isMode(value) {
+  return value === "full" || value === "metadata";
+}
+function tracingPolicyPath() {
+  return process.env.LANGSMITH_CURSOR_PRIVACY_FILE ?? join26(homedir5(), ".cursor", TRACING_POLICY_FILE_NAME);
+}
+function mutingLocked(config) {
+  return config.defaultMuted && config.locked.includes("defaultMuted");
+}
+function withLockedMute(buffer, config) {
+  return mutingLocked(config) && buffer.tracingMode === "full" ? { ...buffer, tracingMode: "metadata" } : buffer;
+}
+function getThreadTracingMode(path3, sessionId, defaultMuted = false, mutedLocked = false) {
+  if (mutedLocked)
+    return "metadata";
+  try {
+    adoptLegacyFile(path3, TRACING_POLICY_FILE_NAME, LEGACY_TRACING_POLICY_FILE_NAME);
+    const policy = readPolicyFile(path3, TRACING_POLICY_FILE);
+    if (Object.hasOwn(policy.threads, sessionId))
+      return policy.threads[sessionId];
+    return defaultMuted ? "metadata" : "full";
+  } catch {
+    return "metadata";
+  }
+}
+function parseTracingCommand(prompt) {
+  if (prompt === "langsmith-tracing:mute")
+    return "mute";
+  if (prompt === "langsmith-tracing:unmute")
+    return "unmute";
+  return void 0;
+}
+async function setThreadTracingMode(path3, sessionId, mode) {
+  if (typeof sessionId !== "string" || !sessionId || !isMode(mode)) {
+    throw new Error("A nonempty session ID and a full/metadata tracing mode are required");
+  }
+  adoptLegacyFile(path3, TRACING_POLICY_FILE_NAME, LEGACY_TRACING_POLICY_FILE_NAME);
+  return updatePolicyFile(path3, TRACING_POLICY_FILE, (policy) => ({
+    threads: { ...policy.threads, [sessionId]: mode }
+  }));
+}
+var TRACING_POLICY_FILE;
+var init_tracing_policy = __esm({
+  "dist/src/tracing-policy.js"() {
+    "use strict";
+    init_plugin();
+    init_constants19();
+    init_legacy_file();
+    init_normalize2();
+    TRACING_POLICY_FILE = {
+      empty: () => ({ threads: {} }),
+      requireRegularFile: true,
+      parse(value) {
+        if (!isRecord(value) || !isRecord(value.threads) || Object.values(value.threads).some((mode) => !isMode(mode)) || Object.keys(value).some((key) => key !== "threads")) {
+          throw new Error("Invalid tracing preference format");
+        }
+        return value;
+      }
+    };
+  }
+});
+
 // dist/src/turn-origin.js
 function originFromConfig(config, input) {
   return {
@@ -26750,7 +26815,7 @@ var init_writer_options = __esm({
 });
 
 // dist/src/tracing-engine.js
-import { dirname as dirname17, join as join26 } from "node:path";
+import { dirname as dirname17, join as join27 } from "node:path";
 async function saveTurnForUpload(config, context) {
   try {
     await queueUpload(config, context);
@@ -26843,7 +26908,8 @@ async function buildQueuedRuns(job, config, plugin) {
   const context = toolRef ? toolJobContext(state, toolRef, originFromConfig(config, {})) : ref && queuedContext(state, ref);
   if (!context)
     return { status: "ready", outputs: [] };
-  const { buffer, conversationId, turnNum, origin } = context;
+  const { conversationId, turnNum, origin } = context;
+  const buffer = withLockedMute(context.buffer, config);
   const cwd = typeof origin.customMetadata?.cwd === "string" ? origin.customMetadata.cwd : config.cwd;
   const options = {
     buffer,
@@ -26879,7 +26945,7 @@ async function buildQueuedRuns(job, config, plugin) {
 }
 function attributorFor(config) {
   attributor ??= createRepositoryAttributor({
-    githubLoginMarkerPath: join26(dirname17(config.stateFilePath), GH_LOGIN_MARKER_FILE)
+    githubLoginMarkerPath: join27(dirname17(config.stateFilePath), GH_LOGIN_MARKER_FILE)
   });
   return attributor;
 }
@@ -26957,7 +27023,7 @@ async function pendingJobs(config) {
   return new Set(sessions.flatMap(({ captures }) => captures.map(({ record }) => record.eventId)));
 }
 function storageRootFor(config) {
-  return join26(dirname17(config.stateFilePath), ENGINE_STORAGE_DIR_NAME);
+  return join27(dirname17(config.stateFilePath), ENGINE_STORAGE_DIR_NAME);
 }
 function openSession(config, sessionId, project, built) {
   const storageRoot = storageRootFor(config);
@@ -26991,6 +27057,7 @@ var init_tracing_engine = __esm({
     init_logger();
     init_normalize2();
     init_tool_origin();
+    init_tracing_policy();
     init_turn_origin();
     init_turn_enrichment();
     init_console();
@@ -27425,68 +27492,6 @@ var init_reducer = __esm({
     init_constants19();
     init_logger();
     init_normalize2();
-  }
-});
-
-// dist/src/tracing-policy.js
-import { homedir as homedir5 } from "node:os";
-import { join as join27 } from "node:path";
-function isMode(value) {
-  return value === "full" || value === "metadata";
-}
-function tracingPolicyPath() {
-  return process.env.LANGSMITH_CURSOR_PRIVACY_FILE ?? join27(homedir5(), ".cursor", TRACING_POLICY_FILE_NAME);
-}
-function mutingLocked(config) {
-  return config.defaultMuted && config.locked.includes("defaultMuted");
-}
-function getThreadTracingMode(path3, sessionId, defaultMuted = false, mutedLocked = false) {
-  if (mutedLocked)
-    return "metadata";
-  try {
-    adoptLegacyFile(path3, TRACING_POLICY_FILE_NAME, LEGACY_TRACING_POLICY_FILE_NAME);
-    const policy = readPolicyFile(path3, TRACING_POLICY_FILE);
-    if (Object.hasOwn(policy.threads, sessionId))
-      return policy.threads[sessionId];
-    return defaultMuted ? "metadata" : "full";
-  } catch {
-    return "metadata";
-  }
-}
-function parseTracingCommand(prompt) {
-  if (prompt === "langsmith-tracing:mute")
-    return "mute";
-  if (prompt === "langsmith-tracing:unmute")
-    return "unmute";
-  return void 0;
-}
-async function setThreadTracingMode(path3, sessionId, mode) {
-  if (typeof sessionId !== "string" || !sessionId || !isMode(mode)) {
-    throw new Error("A nonempty session ID and a full/metadata tracing mode are required");
-  }
-  adoptLegacyFile(path3, TRACING_POLICY_FILE_NAME, LEGACY_TRACING_POLICY_FILE_NAME);
-  return updatePolicyFile(path3, TRACING_POLICY_FILE, (policy) => ({
-    threads: { ...policy.threads, [sessionId]: mode }
-  }));
-}
-var TRACING_POLICY_FILE;
-var init_tracing_policy = __esm({
-  "dist/src/tracing-policy.js"() {
-    "use strict";
-    init_plugin();
-    init_constants19();
-    init_legacy_file();
-    init_normalize2();
-    TRACING_POLICY_FILE = {
-      empty: () => ({ threads: {} }),
-      requireRegularFile: true,
-      parse(value) {
-        if (!isRecord(value) || !isRecord(value.threads) || Object.values(value.threads).some((mode) => !isMode(mode)) || Object.keys(value).some((key) => key !== "threads")) {
-          throw new Error("Invalid tracing preference format");
-        }
-        return value;
-      }
-    };
   }
 });
 
