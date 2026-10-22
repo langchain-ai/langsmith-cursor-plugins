@@ -57,6 +57,7 @@ export function testConfig(stateFilePath: string): Config {
     cwd: dirname(stateFilePath),
     locked: [],
     apiUrlIsDefault: false,
+    strictAuth: false,
   };
 }
 

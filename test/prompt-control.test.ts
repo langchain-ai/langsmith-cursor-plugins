@@ -17,7 +17,6 @@ import { loadState } from "./utils/state.js";
 import { MIN_NODE } from "../src/utils/node-version.js";
 
 vi.mock("@langchain/plugins-base/auth", { spy: true });
-vi.mock("@langchain/plugins-base/plugin", { spy: true });
 vi.mock("@langchain/plugins-base/settings", { spy: true });
 
 let dir: string;
@@ -268,7 +267,8 @@ it.each(["master-off", "no-credentials"] as const)(
     env.LANGSMITH_CURSOR_DB_PATH = join(dir, "cursor.db");
     writeFileSync(env.LANGSMITH_CURSOR_DB_PATH, "tripwire DB");
     if (disabled === "master-off") env.LANGSMITH_API_KEY = "test";
-    else env.TRACE_TO_LANGSMITH = "true";
+    else
+      Object.assign(env, { TRACE_TO_LANGSMITH: "true", LANGSMITH_CURSOR_NOTICE_COOLDOWN: "off" });
     // Ordinary disabled Stop without a launch is also a no-upload no-op.
     event("stop", "missing");
     expect(loadState(env.LANGSMITH_CURSOR_STATE_FILE!)).toEqual({});
@@ -502,13 +502,11 @@ it.each([JSON.stringify({ enabled: true, defaultMuted: true }), "{malformed"])(
 );
 
 it.skipIf(process.platform === "win32")(
-  "names a broken managed file once per cooldown and in a mute reply without blocking a prompt",
+  "holds back one prompt per cooldown to name a broken managed file, and names it in a mute reply",
   async () => {
     for (const [key, value] of Object.entries(env)) vi.stubEnv(key, value);
     vi.resetModules();
-    const { showDesktopNotification } = await import("@langchain/plugins-base/plugin");
     const { handlePromptSubmit } = await import("../src/prompt-control.js");
-    const shown = vi.mocked(showDesktopNotification).mockReturnValue(true);
     const prompt = (conversation_id: string, generation_id: string, text = "work") =>
       handlePromptSubmit({
         conversation_id,
@@ -524,16 +522,16 @@ it.skipIf(process.platform === "win32")(
     try {
       vi.stubEnv("LANGSMITH_CURSOR_NOTICE_COOLDOWN", "off");
       expect(await prompt("thread", "first")).toEqual({ continue: true });
-      expect(shown).not.toHaveBeenCalled();
       vi.stubEnv("LANGSMITH_CURSOR_NOTICE_COOLDOWN", undefined);
-      expect(await prompt("thread", "second")).toEqual({ continue: true });
+      expect(await prompt("thread", "second")).toEqual({
+        continue: false,
+        user_message: expect.stringContaining("owned by root"),
+      });
+      expect(await prompt("thread", "third")).toEqual({ continue: true });
       expect(await prompt("other", "first")).toEqual({ continue: true });
       const reply = await prompt("thread", "control", "langsmith-tracing:mute");
       expect(reply.user_message).toContain("owned by root");
       expect(reply.user_message).not.toContain("Master tracing is disabled");
-      expect(shown.mock.calls).toEqual([
-        [expect.any(String), expect.stringContaining("owned by root")],
-      ]);
     } finally {
       rmSync(join(managed, "managed.json"));
       vi.unstubAllEnvs();
@@ -554,46 +552,62 @@ async function withLogin(extraEnv: Record<string, string>, loginNotice?: string)
   );
   vi.resetModules();
   const auth = await import("@langchain/plugins-base/auth");
-  const { showDesktopNotification } = await import("@langchain/plugins-base/plugin");
   const { handlePromptSubmit } = await import("../src/prompt-control.js");
   const { initHook } = await import("../src/utils/hook-init.js");
   vi.mocked(auth.readLoginNotice).mockReturnValue(loginNotice);
-  const shown = vi.mocked(showDesktopNotification).mockReturnValue(true);
-  const prompt = (conversation_id: string, generation_id: string) =>
+  const prompt = (conversation_id: string, generation_id: string, text = "work") =>
     handlePromptSubmit({
       conversation_id,
       generation_id,
-      prompt: "work",
+      prompt: text,
       model: "default",
       hook_event_name: "beforeSubmitPrompt",
       workspace_roots: [dir],
     });
-  return { initHook, prompt, shown };
+  return { initHook, prompt };
 }
+
+const held = (message: unknown) => ({ continue: false, user_message: message });
 
 afterEach(() => {
   vi.unstubAllEnvs();
 });
 
-it("still hands turns to the uploader with an expired CLI login and shows the paused notice", async () => {
-  const { initHook, prompt, shown } = await withLogin({}, "login paused");
-  await prompt("thread", "first");
+it("holds back one prompt per cooldown for an expired CLI login and still traces the next", async () => {
+  const { initHook, prompt } = await withLogin({}, "login paused");
+  expect(await prompt("thread", "first")).toEqual(held("login paused"));
+  expect(await prompt("thread", "second")).toEqual({ continue: true });
   expect(initHook(dir)).not.toBeNull();
-  expect(loadState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns.first.tracingMode).toBe("full");
-  expect(shown.mock.calls).toEqual([[expect.any(String), "login paused"]]);
+  const turns = loadState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns;
+  expect(Object.keys(turns)).toEqual(["second"]);
+  expect(turns.second.tracingMode).toBe("full");
+});
+
+it("holds back every prompt in strict mode until the user signs in again", async () => {
+  const { prompt } = await withLogin({ LANGSMITH_CURSOR_STRICT_AUTH: "true" }, "login paused");
+  expect(await prompt("thread", "first")).toEqual(held("login paused"));
+  expect(await prompt("thread", "second")).toEqual(held("login paused"));
+  const { readLoginNotice } = await import("@langchain/plugins-base/auth");
+  vi.mocked(readLoginNotice).mockReturnValue(undefined);
+  expect(await prompt("thread", "third")).toEqual({ continue: true });
+});
+
+it("lets a muted conversation through in strict mode", async () => {
+  const { prompt } = await withLogin({ LANGSMITH_CURSOR_STRICT_AUTH: "true" }, "login paused");
+  await prompt("thread", "mute", "langsmith-tracing:mute");
+  expect(await prompt("thread", "first")).toEqual(held("login paused"));
+  expect(await prompt("thread", "second")).toEqual({ continue: true });
 });
 
 it("stays quiet about the login while tracing is off", async () => {
-  const { prompt, shown } = await withLogin({ TRACE_TO_LANGSMITH: "false" }, "login paused");
-  await prompt("thread", "first");
-  expect(shown).not.toHaveBeenCalled();
+  const { prompt } = await withLogin({ TRACE_TO_LANGSMITH: "false" }, "login paused");
+  expect(await prompt("thread", "first")).toEqual({ continue: true });
 });
 
 it("checks the rejected-key notice only for the API key in use", async () => {
-  const { prompt, shown } = await withLogin({ LANGSMITH_CURSOR_API_KEY: "key" }, "key rejected");
+  const { prompt } = await withLogin({ LANGSMITH_CURSOR_API_KEY: "key" }, "key rejected");
   const { readLoginNotice } = await import("@langchain/plugins-base/auth");
-  await prompt("thread", "first");
-  expect(shown.mock.calls).toEqual([[expect.any(String), "key rejected"]]);
+  expect(await prompt("thread", "first")).toEqual(held("key rejected"));
   expect(vi.mocked(readLoginNotice).mock.calls.at(-1)?.[2]).toBe("key");
 });
 
@@ -607,15 +621,14 @@ it("never asks about a rejected key for someone signed in with the CLI", async (
 it.skipIf(process.platform === "win32")(
   "names a broken managed file before an expired login",
   async () => {
-    const { prompt, shown } = await withLogin({}, "login paused");
+    const { prompt } = await withLogin({}, "login paused");
     const managed = join(env.LS_TEST_ACCOUNT_HOME!, ".langsmith-plugins");
     mkdirSync(managed, { recursive: true });
     writeFileSync(join(managed, "managed.json"), "{}");
     try {
-      await prompt("thread", "first");
-      expect(shown.mock.calls).toEqual([
-        [expect.any(String), expect.stringContaining("owned by root")],
-      ]);
+      expect(await prompt("thread", "first")).toEqual(
+        held(expect.stringContaining("owned by root")),
+      );
     } finally {
       rmSync(join(managed, "managed.json"));
     }
@@ -623,15 +636,15 @@ it.skipIf(process.platform === "win32")(
 );
 
 it("stops tracing and names keyless replicas the login can't reach", async () => {
-  const { initHook, prompt, shown } = await withLogin({
+  const { initHook, prompt } = await withLogin({
     LANGSMITH_CURSOR_RUNS_ENDPOINTS: JSON.stringify([{ api_url: "https://replica.test" }]),
   });
-  await prompt("thread", "first");
+  expect(await prompt("thread", "first")).toEqual(
+    held(expect.stringContaining("https://replica.test")),
+  );
+  expect(await prompt("thread", "second")).toEqual({ continue: true });
   expect(initHook(dir)).toBeNull();
-  expect(loadState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns.first.tracingMode).toBe("off");
-  expect(shown.mock.calls).toEqual([
-    [expect.any(String), expect.stringContaining("https://replica.test")],
-  ]);
+  expect(loadState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns.second.tracingMode).toBe("off");
 });
 
 it("keeps a conversation muted when the managed file locks muting on", async () => {
@@ -681,17 +694,20 @@ it.each(['""', "   ", '" "'])(
     vi.resetModules();
     const { handlePromptSubmit } = await import("../src/prompt-control.js");
     const { initHook } = await import("../src/utils/hook-init.js");
-    try {
-      await handlePromptSubmit({
+    const submit = (generation_id: string) =>
+      handlePromptSubmit({
         conversation_id: "thread",
-        generation_id: "one",
+        generation_id,
         prompt: "work",
         model: "default",
         hook_event_name: "beforeSubmitPrompt",
         workspace_roots: [dir],
       });
+    try {
+      expect(await submit("one")).toEqual(held(expect.stringContaining("isn't signed in")));
+      expect(await submit("two")).toEqual({ continue: true });
       expect(initHook(dir)).toBeNull();
-      expect(loadState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns.one.tracingMode).toBe("off");
+      expect(loadState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns.two.tracingMode).toBe("off");
     } finally {
       vi.unstubAllEnvs();
     }

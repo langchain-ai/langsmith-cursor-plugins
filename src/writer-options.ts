@@ -7,7 +7,7 @@ import {
 } from "@langchain/plugins-base/auth";
 import { dirname, join } from "node:path";
 import { loadConfig } from "./config.js";
-import { ENGINE_STORAGE_DIR_NAME, NOTICE_PLUGIN } from "./constants.js";
+import { ENGINE_STORAGE_DIR_NAME } from "./constants.js";
 import type { Config } from "./models/config.js";
 import type { DestinationCredential } from "./models/writer-options.js";
 
@@ -51,8 +51,6 @@ export function writerOptions(config: Config, project: string): LangSmithUploadW
     ...(config.replicas?.length ? { replicas: config.replicas } : {}),
     ...(config.locked.includes("project") ? { projectLocked: true } : {}),
     redact: config.redact,
-    loginBrowser: config.loginBrowser,
-    loginNotify: { plugin: NOTICE_PLUGIN, cooldown: config.noticeCooldown },
     storageRoot: storageRootFor(config),
     ...(config.redactExtraRules
       ? {

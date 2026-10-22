@@ -30,7 +30,7 @@ export interface Config {
   locked: LockableField[];
   noticeCooldown?: number | "off";
   apiUrlIsDefault: boolean;
-  loginBrowser?: boolean;
+  strictAuth: boolean;
   managedConfigProblem?: string;
 }
 

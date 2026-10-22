@@ -380,11 +380,11 @@ describe("loadConfig", () => {
       expect(writerOptions(loadConfig({ cwd }), "p").destinations[0]).not.toHaveProperty("login");
     });
 
-    it("reads the browser sign-in switch from the environment unless the lock sets it", () => {
-      vi.stubEnv("LANGSMITH_CURSOR_LOGIN_BROWSER", "false");
-      expect(writerOptions(loadConfig({ cwd }), "p").loginBrowser).toBe(false);
-      lock({ login_browser: true });
-      expect(writerOptions(loadConfig({ cwd }), "p").loginBrowser).toBe(true);
+    it("reads strict auth from the environment unless the lock sets it", () => {
+      vi.stubEnv("LANGSMITH_CURSOR_STRICT_AUTH", "true");
+      expect(loadConfig({ cwd }).strictAuth).toBe(true);
+      lock({ strict_auth: false });
+      expect(loadConfig({ cwd }).strictAuth).toBe(false);
     });
   });
 

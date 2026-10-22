@@ -1,12 +1,8 @@
-import {
-  LOGIN_NOTICE_KIND,
-  readLoginNotice,
-  refusedLoginReplicas,
-} from "@langchain/plugins-base/auth";
+import { LOGIN_NOTICE_KIND } from "@langchain/plugins-base/auth";
 import { loadConfig } from "./config.js";
-import { MUTE_LOCKED_MESSAGE, NOTICE_KINDS } from "./constants.js";
+import { MUTE_LOCKED_MESSAGE } from "./constants.js";
 import { error as logError, initLogger } from "./logger.js";
-import { showNotice } from "./notice.js";
+import { noticeBlock, promptNotice } from "./notice.js";
 import { atomicUpdateState } from "./state.js";
 import { reduceBeforeSubmitPrompt } from "./reducer.js";
 import {
@@ -17,13 +13,11 @@ import {
   tracingPolicyPath,
 } from "./tracing-policy.js";
 import { originFromConfig } from "./turn-origin.js";
-import { storageRootFor, uploadCredential, uploadProblem } from "./writer-options.js";
-import type { BeforeSubmitPromptInput } from "./models/types.js";
+import { uploadCredential, uploadProblem } from "./writer-options.js";
+import type { BeforeSubmitPromptInput, PromptReply } from "./models/types.js";
 
 /** Synchronous command hook contract, not an LLM skill or slash-command expansion. */
-export async function handlePromptSubmit(
-  input: BeforeSubmitPromptInput,
-): Promise<{ continue: boolean; user_message?: string }> {
+export async function handlePromptSubmit(input: BeforeSubmitPromptInput): Promise<PromptReply> {
   const command = parseTracingCommand(input.prompt);
   try {
     if (
@@ -61,42 +55,26 @@ export async function handlePromptSubmit(
     const credential = uploadCredential(config);
     const problem = uploadProblem(config, credential);
     const enabled = config.enabled && problem === undefined;
+    const mode = getThreadTracingMode(
+      tracingPolicyPath(),
+      input.conversation_id,
+      config.defaultMuted,
+      mutingLocked(config),
+    );
+    const notice = promptNotice(config, credential, problem);
+    if (notice?.kind === LOGIN_NOTICE_KIND && config.strictAuth && mode === "full")
+      return { continue: false, user_message: notice.text };
+    const block = notice && (await noticeBlock(config, notice.kind, notice.text));
+    if (block) return block;
     await atomicUpdateState(config.stateFilePath, (s) =>
       reduceBeforeSubmitPrompt(
         s,
         input,
         Date.now(),
-        enabled
-          ? getThreadTracingMode(
-              tracingPolicyPath(),
-              input.conversation_id,
-              config.defaultMuted,
-              mutingLocked(config),
-            )
-          : "off",
+        enabled ? mode : "off",
         originFromConfig(config, input),
       ),
     );
-    if (config.managedConfigProblem !== undefined)
-      await showNotice(config, NOTICE_KINDS.managed, config.managedConfigProblem);
-    else if (config.enabled) {
-      const loginNotice =
-        credential.kind === "none"
-          ? undefined
-          : readLoginNotice(
-              storageRootFor(config),
-              process.env,
-              credential.kind === "api-key" ? credential.apiKey : undefined,
-            );
-      const replicaReason =
-        credential.kind === "login"
-          ? refusedLoginReplicas(config.replicas, credential.apiUrl)
-          : undefined;
-      if (loginNotice !== undefined) await showNotice(config, LOGIN_NOTICE_KIND, loginNotice);
-      else if (replicaReason !== undefined)
-        await showNotice(config, NOTICE_KINDS.replica, replicaReason);
-      else if (problem !== undefined) await showNotice(config, NOTICE_KINDS.credential, problem);
-    }
     return { continue: true };
   } catch (error) {
     const detail = error instanceof Error ? error.message : String(error);

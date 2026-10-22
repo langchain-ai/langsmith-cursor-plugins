@@ -7,7 +7,6 @@ it("sends to the configured endpoint under the project the turn asked for", () =
   expect(writerOptions(config, "turn-project")).toMatchObject({
     destinations: [{ apiKey: "key", apiUrl: "https://ls.test", projectName: "turn-project" }],
     redact: true,
-    loginNotify: { plugin: "cursor" },
     storageRoot: "/langsmith_engine",
   });
   expect(writerOptions(config, "turn-project")).not.toHaveProperty("projectLocked");

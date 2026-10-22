@@ -187,7 +187,7 @@ export function loadConfig(options?: { cwd?: string }): Config {
         redact: parseBoolean(getEnv("REDACT")),
         redact_extra_rules: parseRedactExtraRules(getEnv("REDACT_EXTRA")),
         notice_cooldown: parseNoticeCooldown(getEnv("NOTICE_COOLDOWN")),
-        login_browser: parseBoolean(getEnv("LOGIN_BROWSER")),
+        strict_auth: parseBoolean(getEnv("STRICT_AUTH")),
       },
       defaults: { api_key: "", api_url: DEFAULT_API_URL, project: DEFAULT_PROJECT },
     },
@@ -255,7 +255,7 @@ export function loadConfig(options?: { cwd?: string }): Config {
     locked: common.locked,
     noticeCooldown: common.notice_cooldown,
     apiUrlIsDefault: common.defaulted.includes("api_url"),
-    loginBrowser: common.login_browser,
+    strictAuth: common.strict_auth === true,
     ...(common.managedConfigProblem === undefined
       ? {}
       : { managedConfigProblem: common.managedConfigProblem }),
