@@ -14,6 +14,7 @@ export async function noticeBlock(
     kind,
     cooldown: config.noticeCooldown,
     storageRoot: storageRootFor(config),
+    persistentOnly: true,
   });
   return show ? { continue: false, user_message: message } : undefined;
 }
