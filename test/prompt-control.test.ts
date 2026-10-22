@@ -9,7 +9,7 @@ import {
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { spawnSync } from "node:child_process";
 import { getThreadTracingMode } from "../src/tracing-policy.js";
@@ -529,6 +529,11 @@ it.skipIf(process.platform === "win32")(
       });
       expect(await prompt("thread", "third")).toEqual({ continue: true });
       expect(await prompt("other", "first")).toEqual({ continue: true });
+      const engine = join(dirname(env.LANGSMITH_CURSOR_STATE_FILE!), "langsmith_engine");
+      rmSync(engine, { recursive: true, force: true });
+      writeFileSync(engine, "");
+      expect(await prompt("thread", "unsaved")).toEqual({ continue: true });
+      rmSync(engine);
       const reply = await prompt("thread", "control", "langsmith-tracing:mute");
       expect(reply.user_message).toContain("owned by root");
       expect(reply.user_message).not.toContain("Master tracing is disabled");
@@ -605,12 +610,15 @@ it("stays quiet about the login while tracing is off", async () => {
 });
 
 it("checks the rejected-key notice only for the API key in use", async () => {
-  const { prompt } = await withLogin({ LANGSMITH_CURSOR_API_KEY: "key" }, "key rejected");
+  const { prompt } = await withLogin(
+    { LANGSMITH_CURSOR_API_KEY: "key", LANGSMITH_CURSOR_ENDPOINT: "https://ls.test" },
+    "key rejected",
+  );
   const { readLoginNotice } = await import("@langchain/plugins-base/auth");
   expect(await prompt("thread", "first")).toEqual(held("key rejected"));
   expect(vi.mocked(readLoginNotice).mock.calls.at(-1)?.[2]).toEqual({
     apiKey: "key",
-    apiUrl: "https://api.smith.langchain.com",
+    apiUrl: "https://ls.test",
   });
 });
 
