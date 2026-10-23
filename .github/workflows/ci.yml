@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - run: shellcheck --shell=sh binary/langsmith-tracing.cmd
+      - run: shellcheck --shell=sh langsmith-tracing/binary/langsmith-tracing.cmd
 
   hooks:
     name: Hook Command on ${{ matrix.os }}
@@ -52,7 +52,7 @@ jobs:
       - run: pnpm build
       - name: Check bundle is up to date
         run: |
-          git diff --exit-code bundle/ || {
-            echo "::error::bundle/ is out of date. Run 'pnpm build' and commit the result."
+          git diff --exit-code langsmith-tracing/bundle/ || {
+            echo "::error::langsmith-tracing/bundle/ is out of date. Run 'pnpm build' and commit the result."
             exit 1
           }

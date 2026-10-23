@@ -10,7 +10,7 @@ await build({
   bundle: true,
   platform: "node",
   format: "esm",
-  outdir: "bundle",
+  outdir: "langsmith-tracing/bundle",
   // tsc output already has shebangs; esbuild strips them during bundling
   // Mark node builtins as external (they're available at runtime)
   external: ["node:*"],
@@ -20,7 +20,7 @@ await build({
     __LS_INTEGRATION_VERSION__: JSON.stringify(pkg.version),
   },
 });
-renameSync("bundle/dispatch.js", "bundle/hooks.js");
-chmodSync("bundle/guard.js", 0o755);
+renameSync("langsmith-tracing/bundle/dispatch.js", "langsmith-tracing/bundle/hooks.js");
+chmodSync("langsmith-tracing/bundle/guard.js", 0o755);
 
-console.log("Bundled the hooks into bundle/");
+console.log("Bundled the hooks into langsmith-tracing/bundle/");

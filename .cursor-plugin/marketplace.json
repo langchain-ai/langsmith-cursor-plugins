@@ -1,0 +1,13 @@
+{
+  "name": "langsmith-cursor-plugins",
+  "owner": {
+    "name": "LangChain"
+  },
+  "plugins": [
+    {
+      "name": "langsmith-tracing",
+      "source": "langsmith-tracing",
+      "description": "Traces Cursor conversations to LangSmith, including subagent and tool executions"
+    }
+  ]
+}
