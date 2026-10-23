@@ -67,7 +67,7 @@ Rarer settings cover extra metadata on every run (`metadata`), sending to more t
 
 ### Lock settings with a managed file
 
-An admin can lock `enabled`, `defaultMuted`, `api_key`, `api_url`, `project`, `replicas`, `metadata`, `redact`, `redact_extra_rules`, `notice_cooldown`, `attachments` and `system_prompt` for each user through a managed file at `~/.langsmith-plugins/managed.json` in each user's home, which overrides every other file and environment variable. `sweep_idle_minutes` and `cursor_db_path` can't be locked, so setting them there only logs a warning. If that file is broken or not owned by root, tracing stops and Cursor holds back one prompt to say why. That repeats at most every `notice_cooldown` minutes, 2 by default, and `off` silences it (`LANGSMITH_CURSOR_NOTICE_COOLDOWN`). Windows doesn't read the managed file. See [the settings guide](https://github.com/langchain-ai/langsmith-plugin-binary/blob/main/docs/settings.md) to set it up.
+An admin can lock `enabled`, `defaultMuted`, `api_key`, `api_url`, `project`, `replicas`, `metadata`, `redact`, `redact_extra_rules`, `attachments` and `system_prompt` for each user through a managed file at `~/.langsmith-plugins/managed.json` in each user's home, which overrides every other file and environment variable. `sweep_idle_minutes` and `cursor_db_path` can't be locked, so setting them there only logs a warning. If that file is broken or not owned by root, tracing stops and the plugin's log says why, as does the mute and unmute reply. Windows doesn't read the managed file. See [the settings guide](https://github.com/langchain-ai/langsmith-plugin-binary/blob/main/docs/settings.md) to set it up.
 
 ### Muting a conversation
 

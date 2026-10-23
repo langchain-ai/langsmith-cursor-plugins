@@ -1,8 +1,7 @@
 import { sdkSetting } from "@langchain/plugins-base/auth";
 import { loadConfig } from "./config.js";
-import { MUTE_LOCKED_MESSAGE, NOTICE_KINDS } from "./constants.js";
-import { error as logError, initLogger } from "./logger.js";
-import { noticeBlock } from "./notice.js";
+import { MUTE_LOCKED_MESSAGE } from "./constants.js";
+import { error as logError, initLogger, warn as logWarn } from "./logger.js";
 import { atomicUpdateState } from "./state.js";
 import { reduceBeforeSubmitPrompt } from "./reducer.js";
 import {
@@ -50,10 +49,7 @@ export async function handlePromptSubmit(input: BeforeSubmitPromptInput): Promis
           (result.warning ? ` Warning: ${result.warning}` : ""),
       };
     }
-    if (config.managedConfigProblem !== undefined) {
-      const block = await noticeBlock(config, NOTICE_KINDS.managed, config.managedConfigProblem);
-      if (block) return block;
-    }
+    if (config.managedConfigProblem !== undefined) logWarn(config.managedConfigProblem);
     // Even master-off launches need evidence if tracing is enabled before stop.
     const enabled = config.enabled && !!(sdkSetting(config.apiKey) || config.replicas?.length);
     await atomicUpdateState(config.stateFilePath, (s) =>

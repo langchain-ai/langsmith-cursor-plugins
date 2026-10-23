@@ -28,7 +28,6 @@ export interface Config {
   redactExtraRules?: StringNodeRule[];
   cwd: string;
   locked: LockableField[];
-  noticeCooldown?: number | "off";
   managedConfigProblem?: string;
 }
 

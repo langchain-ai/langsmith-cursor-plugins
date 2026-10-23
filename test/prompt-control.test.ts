@@ -9,7 +9,7 @@ import {
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, join } from "node:path";
+import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { spawnSync } from "node:child_process";
 import { getThreadTracingMode } from "../src/tracing-policy.js";
@@ -494,7 +494,7 @@ it.each([JSON.stringify({ enabled: true, defaultMuted: true }), "{malformed"])(
 );
 
 it.skipIf(process.platform === "win32")(
-  "holds back one prompt per cooldown to name a broken managed file, and names it in a mute reply",
+  "never holds back a prompt for a broken managed file, and names it in a mute reply",
   async () => {
     for (const [key, value] of Object.entries(env)) vi.stubEnv(key, value);
     vi.resetModules();
@@ -512,20 +512,8 @@ it.skipIf(process.platform === "win32")(
     mkdirSync(managed, { recursive: true });
     writeFileSync(join(managed, "managed.json"), "{}");
     try {
-      vi.stubEnv("LANGSMITH_CURSOR_NOTICE_COOLDOWN", "off");
       expect(await prompt("thread", "first")).toEqual({ continue: true });
-      vi.stubEnv("LANGSMITH_CURSOR_NOTICE_COOLDOWN", undefined);
-      expect(await prompt("thread", "second")).toEqual({
-        continue: false,
-        user_message: expect.stringContaining("owned by root"),
-      });
-      expect(await prompt("thread", "third")).toEqual({ continue: true });
-      expect(await prompt("other", "first")).toEqual({ continue: true });
-      const engine = join(dirname(env.LANGSMITH_CURSOR_STATE_FILE!), "langsmith_engine");
-      rmSync(engine, { recursive: true, force: true });
-      writeFileSync(engine, "");
-      expect(await prompt("thread", "unsaved")).toEqual({ continue: true });
-      rmSync(engine);
+      expect(await prompt("thread", "second")).toEqual({ continue: true });
       const reply = await prompt("thread", "control", "langsmith-tracing:mute");
       expect(reply.user_message).toContain("owned by root");
       expect(reply.user_message).not.toContain("Master tracing is disabled");

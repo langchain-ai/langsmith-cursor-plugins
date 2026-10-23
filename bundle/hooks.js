@@ -59,7 +59,7 @@ var init_errors = __esm({
 });
 
 // node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f09d8e708adf5ffd3c68b4b2bbeda39e/node_modules/@langchain/plugins-base/dist/plugin/constants.js
-var POLICY_LOCK_TIMEOUT_MS, POLICY_LOCK_TIMEOUT_ERROR, POLICY_LOCK_TIMEOUT_MESSAGE, POLICY_UNREADABLE_MESSAGE, POLICY_NOT_REGULAR_MESSAGE, POLICY_ASYNC_UPDATE_MESSAGE, POLICY_FILE_MODE, POLICY_FILE_ENCODING, POLICY_TEMP_CREATE_FLAG, POLICY_DIRECTORY_OPEN_FLAG, POLICY_WARNING_SEPARATOR, POLICY_TEMP_CLOSE_WARNING, POLICY_TEMP_CLEANUP_WARNING, POLICY_DIRECTORY_CLOSE_WARNING, POLICY_LOCK_CLEANUP_FAILED_PREFIX, POLICY_CANNOT_READ_PREFIX, POLICY_DURABILITY_WARNING, POLICY_LOCK_RELEASE_WARNING, COMPILED_BINARY_ENTRY_PREFIXES, WORKER_LOG_FILE_NAME, WORKER_LOG_MODE, WORKER_LOG_MAX_BYTES, WORKER_LOG_APPEND_FLAG, WORKER_LOG_TRUNCATE_FLAG, SYSTEM_CERTIFICATES_FILE_NAME, WORKER_NO_PID_MESSAGE, UNAVAILABLE_ACCOUNT_FINGERPRINT, HOOK_HELP_FLAGS, HOOK_VERSION_FLAGS, POLICY_PARSE_RESULT_MESSAGE, HOOK_OPTIONS_INVALID_MESSAGE, HOOK_ERROR_HANDLER_WARNING, NOTICE_DEFAULT_COOLDOWN_MINUTES, NOTICE_MINUTE_MS, NOTICE_OFF, NOTICE_STATE_FILE, NOTICE_KEY_SEPARATOR;
+var POLICY_LOCK_TIMEOUT_MS, POLICY_LOCK_TIMEOUT_ERROR, POLICY_LOCK_TIMEOUT_MESSAGE, POLICY_UNREADABLE_MESSAGE, POLICY_NOT_REGULAR_MESSAGE, POLICY_ASYNC_UPDATE_MESSAGE, POLICY_FILE_MODE, POLICY_FILE_ENCODING, POLICY_TEMP_CREATE_FLAG, POLICY_DIRECTORY_OPEN_FLAG, POLICY_WARNING_SEPARATOR, POLICY_TEMP_CLOSE_WARNING, POLICY_TEMP_CLEANUP_WARNING, POLICY_DIRECTORY_CLOSE_WARNING, POLICY_LOCK_CLEANUP_FAILED_PREFIX, POLICY_CANNOT_READ_PREFIX, POLICY_DURABILITY_WARNING, POLICY_LOCK_RELEASE_WARNING, COMPILED_BINARY_ENTRY_PREFIXES, WORKER_LOG_FILE_NAME, WORKER_LOG_MODE, WORKER_LOG_MAX_BYTES, WORKER_LOG_APPEND_FLAG, WORKER_LOG_TRUNCATE_FLAG, SYSTEM_CERTIFICATES_FILE_NAME, WORKER_NO_PID_MESSAGE, UNAVAILABLE_ACCOUNT_FINGERPRINT, HOOK_HELP_FLAGS, HOOK_VERSION_FLAGS, POLICY_PARSE_RESULT_MESSAGE, HOOK_OPTIONS_INVALID_MESSAGE, HOOK_ERROR_HANDLER_WARNING;
 var init_constants = __esm({
   "node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f09d8e708adf5ffd3c68b4b2bbeda39e/node_modules/@langchain/plugins-base/dist/plugin/constants.js"() {
     POLICY_LOCK_TIMEOUT_MS = 2e3;
@@ -98,11 +98,6 @@ var init_constants = __esm({
     POLICY_PARSE_RESULT_MESSAGE = "A policy parser must return a policy";
     HOOK_OPTIONS_INVALID_MESSAGE = "Hook options need a hooks table and onHookError and onUnknown callbacks";
     HOOK_ERROR_HANDLER_WARNING = "The hook error handler failed:";
-    NOTICE_DEFAULT_COOLDOWN_MINUTES = 2;
-    NOTICE_MINUTE_MS = 6e4;
-    NOTICE_OFF = "off";
-    NOTICE_STATE_FILE = "notices.json";
-    NOTICE_KEY_SEPARATOR = "\n";
   }
 });
 
@@ -23425,26 +23420,10 @@ var init_worker_launch = __esm({
 
 // node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f09d8e708adf5ffd3c68b4b2bbeda39e/node_modules/@langchain/plugins-base/dist/plugin/notice-cooldown.js
 import { join as join18 } from "node:path";
-async function shouldShowNotice(options) {
-  if (options.cooldown === NOTICE_OFF)
-    return false;
-  const windowMs = (options.cooldown ?? NOTICE_DEFAULT_COOLDOWN_MINUTES) * NOTICE_MINUTE_MS;
-  const key = `${options.plugin}${NOTICE_KEY_SEPARATOR}${options.kind}`;
-  try {
-    return await claimStateEntry(join18(options.storageRoot, NOTICE_STATE_FILE), key, windowMs);
-  } catch {
-    if (options.persistentOnly || shownInProcess.has(key))
-      return false;
-    shownInProcess.add(key);
-    return true;
-  }
-}
-var shownInProcess;
 var init_notice_cooldown = __esm({
   "node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f09d8e708adf5ffd3c68b4b2bbeda39e/node_modules/@langchain/plugins-base/dist/plugin/notice-cooldown.js"() {
     init_state_claim();
     init_constants();
-    shownInProcess = /* @__PURE__ */ new Set();
   }
 });
 
@@ -23990,7 +23969,7 @@ var init_settings = __esm({
 });
 
 // dist/src/constants.js
-var TURN_RUN_NAME, SKILL_RUN_NAME, DEFAULT_TAGS, DEFAULT_PROJECT, DEFAULT_SWEEP_IDLE_MINUTES, NOTICE_PLUGIN, NOTICE_COOLDOWN_OFF, NOTICE_KINDS, MUTE_LOCKED_MESSAGE, DEFAULT_API_URL2, CURSOR_DIRECTORY_NAME, MANAGED_PLUGIN_FIELDS, MAX_UPLOAD_ATTEMPTS, BINARY_HOOK_EVENTS, LEADING_BYTE_ORDER_MARKS, LS_INTEGRATION, SKILL_READ_TOOLS, PATH_SEPARATOR, MAX_ATTACHMENT_BYTES, MAX_LOG_BYTES, CONVERSATION_MAX_AGE_MS, WHITESPACE_RUN, MODEL_SUFFIXES, PROVIDER_PREFIX, CLAUDE_VERSIONED_MODEL, OPENAI_MODEL_PREFIX, CURSOR_VENDOR_PREFIX, MCP_TOOL_PREFIX, SUBAGENT_PSEUDO_TOOLS, STATE_FILE_NAME, LEGACY_STATE_FILE_NAME, TRACING_POLICY_FILE_NAME, LEGACY_TRACING_POLICY_FILE_NAME, HOOK_LOG_FILE_NAME, HOOK_CONTINUE_OUTPUT, ENGINE_WORKER_COMMAND, ENGINE_STORAGE_DIR_NAME, JOB_EVENT_PREFIX, JOB_REF_PREFIX, TOOL_JOB_REF_PREFIX, JOB_STORE_DIR_NAME, GH_LOGIN_MARKER_FILE, TOOL_PATH_INPUT_KEYS, RUN_EVENT_PREFIX, PATCH_EVENT_PREFIX, RUN_SNAPSHOT_FIELDS, RUN_PATCH_FIELDS, CAPTURE_PUBLISHED_STATUS, CAPTURE_DUPLICATE_STATUS, TURN_ON_OTHER_ACCOUNT_MESSAGE, SQLITE_EXPERIMENTAL_WARNING;
+var TURN_RUN_NAME, SKILL_RUN_NAME, DEFAULT_TAGS, DEFAULT_PROJECT, DEFAULT_SWEEP_IDLE_MINUTES, MUTE_LOCKED_MESSAGE, DEFAULT_API_URL2, CURSOR_DIRECTORY_NAME, MANAGED_PLUGIN_FIELDS, MAX_UPLOAD_ATTEMPTS, BINARY_HOOK_EVENTS, LEADING_BYTE_ORDER_MARKS, LS_INTEGRATION, SKILL_READ_TOOLS, PATH_SEPARATOR, MAX_ATTACHMENT_BYTES, MAX_LOG_BYTES, CONVERSATION_MAX_AGE_MS, WHITESPACE_RUN, MODEL_SUFFIXES, PROVIDER_PREFIX, CLAUDE_VERSIONED_MODEL, OPENAI_MODEL_PREFIX, CURSOR_VENDOR_PREFIX, MCP_TOOL_PREFIX, SUBAGENT_PSEUDO_TOOLS, STATE_FILE_NAME, LEGACY_STATE_FILE_NAME, TRACING_POLICY_FILE_NAME, LEGACY_TRACING_POLICY_FILE_NAME, HOOK_LOG_FILE_NAME, HOOK_CONTINUE_OUTPUT, ENGINE_WORKER_COMMAND, ENGINE_STORAGE_DIR_NAME, JOB_EVENT_PREFIX, JOB_REF_PREFIX, TOOL_JOB_REF_PREFIX, JOB_STORE_DIR_NAME, GH_LOGIN_MARKER_FILE, TOOL_PATH_INPUT_KEYS, RUN_EVENT_PREFIX, PATCH_EVENT_PREFIX, RUN_SNAPSHOT_FIELDS, RUN_PATCH_FIELDS, CAPTURE_PUBLISHED_STATUS, CAPTURE_DUPLICATE_STATUS, TURN_ON_OTHER_ACCOUNT_MESSAGE, SQLITE_EXPERIMENTAL_WARNING;
 var init_constants18 = __esm({
   "dist/src/constants.js"() {
     "use strict";
@@ -23999,9 +23978,6 @@ var init_constants18 = __esm({
     DEFAULT_TAGS = ["cursor", "coding-agent"];
     DEFAULT_PROJECT = "cursor";
     DEFAULT_SWEEP_IDLE_MINUTES = 360;
-    NOTICE_PLUGIN = "cursor";
-    NOTICE_COOLDOWN_OFF = "off";
-    NOTICE_KINDS = { managed: "managed" };
     MUTE_LOCKED_MESSAGE = "Thread tracing stays muted because an admin locked muting on.";
     DEFAULT_API_URL2 = "https://api.smith.langchain.com";
     CURSOR_DIRECTORY_NAME = ".cursor";
@@ -24150,14 +24126,6 @@ function parsePositiveNumber(value) {
   const parsed = Number(value);
   return Number.isFinite(parsed) && parsed > 0 ? parsed : void 0;
 }
-function parseNoticeCooldown(value) {
-  if (typeof value !== "string" || value.trim().length === 0)
-    return void 0;
-  if (value.trim() === NOTICE_COOLDOWN_OFF)
-    return NOTICE_COOLDOWN_OFF;
-  const parsed = Number(value);
-  return Number.isFinite(parsed) && parsed >= 0 ? parsed : void 0;
-}
 function parseJson(value) {
   if (typeof value !== "string" || value.trim().length === 0)
     return void 0;
@@ -24170,7 +24138,6 @@ function parseJson(value) {
 var init_parse4 = __esm({
   "dist/src/utils/parse.js"() {
     "use strict";
-    init_constants18();
   }
 });
 
@@ -24293,8 +24260,7 @@ function loadConfig(options) {
       project: getEnv2("PROJECT"),
       metadata: envMetadata,
       redact: parseBoolean(getEnv2("REDACT")),
-      redact_extra_rules: parseRedactExtraRules(getEnv2("REDACT_EXTRA")),
-      notice_cooldown: parseNoticeCooldown(getEnv2("NOTICE_COOLDOWN"))
+      redact_extra_rules: parseRedactExtraRules(getEnv2("REDACT_EXTRA"))
     },
     defaults: { api_key: "", api_url: DEFAULT_API_URL2, project: DEFAULT_PROJECT }
   }, { envFirst: true });
@@ -24335,7 +24301,6 @@ function loadConfig(options) {
     sweepIdleMinutes,
     cwd,
     locked: common.locked,
-    noticeCooldown: common.notice_cooldown,
     ...common.managedConfigProblem === void 0 ? {} : { managedConfigProblem: common.managedConfigProblem }
   };
 }
@@ -24375,18 +24340,961 @@ var init_stdin = __esm({
   }
 });
 
+// dist/src/utils/legacy-file.js
+import { constants as constants2, copyFileSync, existsSync as existsSync3 } from "node:fs";
+import { basename as basename4, dirname as dirname13, join as join22 } from "node:path";
+function adoptLegacyFile(path3, fileName, legacyFileName) {
+  if (basename4(path3) !== fileName || existsSync3(path3))
+    return;
+  const legacy = join22(dirname13(path3), legacyFileName);
+  if (!existsSync3(legacy))
+    return;
+  try {
+    copyFileSync(legacy, path3, constants2.COPYFILE_EXCL);
+  } catch {
+    return;
+  }
+}
+var init_legacy_file = __esm({
+  "dist/src/utils/legacy-file.js"() {
+    "use strict";
+  }
+});
+
+// dist/src/state.js
+async function atomicUpdateState(stateFilePath, fn) {
+  await stateStore(stateFilePath).update(fn);
+}
+function readState(stateFilePath) {
+  return stateStore(stateFilePath).read();
+}
+function stateStore(stateFilePath) {
+  adoptLegacyFile(stateFilePath, STATE_FILE_NAME, LEGACY_STATE_FILE_NAME);
+  return createStateStore({ path: stateFilePath, warn });
+}
+function ownEntry(map, id) {
+  return map !== void 0 && Object.hasOwn(map, id) ? map[id] : void 0;
+}
+function setOwnEntry(map, id, value) {
+  Object.defineProperty(map, id, { value, writable: true, enumerable: true, configurable: true });
+}
+function deleteOwnEntry(map, id) {
+  delete map[id];
+}
+function getConversationState(state, conversationId) {
+  return ownEntry(state, conversationId) ?? { turns: {}, turn_count: 0, updated: "" };
+}
+function nextTurnNum(conv) {
+  conv.turns_started = (conv.turns_started ?? conv.turn_count) + 1;
+  return conv.turns_started;
+}
+function newTurnBuffer(generationId, startMs, turnNum) {
+  return {
+    generation_id: generationId,
+    turnNum,
+    startMs,
+    tools: [],
+    thoughts: [],
+    subagents: []
+  };
+}
+function getTurnBuffer(state, conversationId, generationId) {
+  return ownEntry(ownEntry(state, conversationId)?.turns, generationId);
+}
+function pruneOldConversations(state, now = Date.now()) {
+  return pruneStateEntries(state, CONVERSATION_MAX_AGE_MS, now);
+}
+var init_state2 = __esm({
+  "dist/src/state.js"() {
+    "use strict";
+    init_storage();
+    init_constants18();
+    init_logger();
+    init_legacy_file();
+  }
+});
+
+// dist/src/normalize.js
+function isRecord(value) {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+function normKey(model) {
+  return model.trim().toLowerCase().replace(PROVIDER_PREFIX, "");
+}
+function canonicalModelId(model) {
+  const key = normKey(model);
+  const m = key.match(CLAUDE_VERSIONED_MODEL);
+  if (m) {
+    const [, major, minor, tier] = m;
+    return Number(major) >= 4 ? `claude-${tier}-${major}-${minor}` : `claude-${major}-${minor}-${tier}`;
+  }
+  return model;
+}
+function providerFor(model) {
+  const m = model.toLowerCase();
+  if (m === "default" || m === "auto" || m.startsWith("composer") || m.startsWith("cursor")) {
+    return "cursor";
+  }
+  if (m.startsWith("claude"))
+    return "anthropic";
+  if (OPENAI_MODEL_PREFIX.test(m))
+    return "openai";
+  if (m.startsWith("gemini"))
+    return "google";
+  if (m.startsWith("grok"))
+    return "xai";
+  return void 0;
+}
+function stripModelSuffixes(model) {
+  const parts = model.split("-");
+  while (parts.length > 1) {
+    const last = parts[parts.length - 1].toLowerCase();
+    if (!MODEL_SUFFIXES.has(last))
+      break;
+    if (last === "max" && !providerFor(parts.slice(0, -1).join("-")))
+      break;
+    parts.pop();
+  }
+  return parts.join("-");
+}
+function preferModel(current, incoming) {
+  if (incoming && incoming.toLowerCase() !== "default")
+    return incoming;
+  return current ?? incoming;
+}
+function deriveModelInfo(model) {
+  const raw = (model ?? "").trim() || "default";
+  const stripped = stripModelSuffixes(raw);
+  const deprefixed = stripped.replace(CURSOR_VENDOR_PREFIX, "");
+  const upstream = providerFor(deprefixed);
+  const label = upstream && upstream !== "cursor" ? deprefixed : stripped;
+  return {
+    ls_model_name: canonicalModelId(label),
+    ls_provider: providerFor(label) ?? providerFor(raw)
+  };
+}
+function buildUsageMetadata(usage) {
+  if (!usage)
+    return void 0;
+  const cacheRead = usage.cache_read_tokens ?? 0;
+  const cacheWrite = usage.cache_write_tokens ?? 0;
+  const input_tokens = (usage.input_tokens ?? 0) + cacheRead + cacheWrite;
+  const output_tokens = usage.output_tokens ?? 0;
+  const total_tokens = input_tokens + output_tokens;
+  if (total_tokens === 0)
+    return void 0;
+  return {
+    input_tokens,
+    output_tokens,
+    total_tokens,
+    input_token_details: { cache_read: cacheRead, cache_creation: cacheWrite }
+  };
+}
+function parseToolOutput(raw) {
+  if (typeof raw !== "string")
+    return raw;
+  const trimmed = raw.trim();
+  if (trimmed === "")
+    return raw;
+  try {
+    return JSON.parse(trimmed);
+  } catch {
+    return raw;
+  }
+}
+function mcpContentToText(content) {
+  if (!Array.isArray(content))
+    return void 0;
+  const texts = content.filter(isRecord).map((part) => typeof part.text === "string" ? part.text : void 0).filter((text) => text != null && text !== "");
+  return texts.length > 0 ? texts.join("\n") : void 0;
+}
+function extractMcpError(toolName, output) {
+  if (!toolName.startsWith(MCP_TOOL_PREFIX))
+    return void 0;
+  if (!isRecord(output) || output.isError !== true)
+    return void 0;
+  return mcpContentToText(output.content) ?? "MCP tool returned isError: true";
+}
+function parseSubagentTranscript(rows) {
+  const toolCalls = [];
+  let resultText;
+  for (const row of rows) {
+    if (!isRecord(row) || row.role !== "assistant")
+      continue;
+    const message = isRecord(row.message) ? row.message : void 0;
+    const content = message?.content;
+    if (!Array.isArray(content))
+      continue;
+    for (const part of content) {
+      if (!isRecord(part))
+        continue;
+      if (part.type === "tool_use" && typeof part.name === "string") {
+        if (SUBAGENT_PSEUDO_TOOLS.has(part.name))
+          continue;
+        toolCalls.push({ name: part.name, input: isRecord(part.input) ? part.input : {} });
+      } else if (part.type === "text" && typeof part.text === "string" && part.text.trim()) {
+        resultText = part.text;
+      }
+    }
+  }
+  return { toolCalls, resultText };
+}
+var init_normalize2 = __esm({
+  "dist/src/normalize.js"() {
+    "use strict";
+    init_constants18();
+  }
+});
+
+// dist/src/reducer.js
+function touch(conv, nowMs = Date.now()) {
+  conv.updated = new Date(nowMs).toISOString();
+}
+function forgetSweptTurn(conv, generationId) {
+  if (!conv.sweepFinalizedGenerations)
+    return;
+  const stillSwept = conv.sweepFinalizedGenerations.filter((id) => id !== generationId);
+  if (stillSwept.length)
+    conv.sweepFinalizedGenerations = stillSwept;
+  else
+    delete conv.sweepFinalizedGenerations;
+}
+function dropPendingUpload(conv, generationId) {
+  if (!conv.pending)
+    return;
+  deleteOwnEntry(conv.pending, generationId);
+  if (Object.keys(conv.pending).length === 0)
+    delete conv.pending;
+}
+function reopenSweptTurn(conv, generationId) {
+  const entry = ownEntry(conv.pending, generationId);
+  if (!entry || !conv.sweepFinalizedGenerations?.includes(generationId))
+    return false;
+  setOwnEntry(conv.turns, generationId, entry.buffer);
+  dropPendingUpload(conv, generationId);
+  return true;
+}
+function acceptLateEvent(conv, conversationId, input) {
+  const gen = input.generation_id;
+  if (conv.completedOffGenerations?.includes(gen))
+    return false;
+  if (conv.stopFinalizedGenerations?.includes(gen))
+    return false;
+  if (!conv.sweepFinalizedGenerations?.includes(gen))
+    return true;
+  if (ownEntry(conv.turns, gen))
+    return true;
+  if (!reopenSweptTurn(conv, gen))
+    return false;
+  warn(`Sweep recovered conversation ${conversationId} generation ${gen} too early; reopening it for a late ${input.hook_event_name}`);
+  return true;
+}
+function openTurn(conv, generationId, nowMs) {
+  return ownEntry(conv.turns, generationId) ?? newTurnBuffer(generationId, nowMs, nextTurnNum(conv));
+}
+function latestTurn(turns) {
+  let best;
+  for (const candidate of Object.values(turns)) {
+    if (!best || candidate.startMs > best.startMs)
+      best = candidate;
+  }
+  return best;
+}
+function reduceBeforeSubmitPrompt(state, input, nowMs, mode = "full", origin) {
+  const conv = getConversationState(state, input.conversation_id);
+  if (!acceptLateEvent(conv, input.conversation_id, input))
+    return state;
+  if (ownEntry(conv.turns, input.generation_id))
+    return state;
+  const turn = newTurnBuffer(input.generation_id, nowMs, nextTurnNum(conv));
+  turn.tracingMode = mode;
+  turn.origin = origin;
+  turn.prompt = mode === "off" ? void 0 : input.prompt;
+  turn.model = input.model;
+  setOwnEntry(conv.turns, input.generation_id, turn);
+  touch(conv);
+  return pruneOldConversations({ ...state, [input.conversation_id]: conv });
+}
+function reducePostToolUse(state, input, nowMs) {
+  const conv = getConversationState(state, input.conversation_id);
+  if (!acceptLateEvent(conv, input.conversation_id, input))
+    return state;
+  const turn = openTurn(conv, input.generation_id, nowMs);
+  turn.model = preferModel(turn.model, input.model);
+  const output = parseToolOutput(input.tool_output);
+  turn.tools.push({
+    tool_use_id: input.tool_use_id,
+    name: input.tool_name,
+    input: input.tool_input ?? {},
+    output,
+    // Cursor never fires postToolUseFailure for MCP tools; a failed MCP call
+    // arrives here with isError in the output. Flag it so the run is an error.
+    error: extractMcpError(input.tool_name, output),
+    duration: input.duration,
+    endMs: nowMs
+  });
+  setOwnEntry(conv.turns, input.generation_id, turn);
+  touch(conv);
+  return { ...state, [input.conversation_id]: conv };
+}
+function reducePostToolUseFailure(state, input, nowMs) {
+  const conv = getConversationState(state, input.conversation_id);
+  if (!acceptLateEvent(conv, input.conversation_id, input))
+    return state;
+  const turn = openTurn(conv, input.generation_id, nowMs);
+  turn.model = preferModel(turn.model, input.model);
+  turn.tools.push({
+    tool_use_id: input.tool_use_id,
+    name: input.tool_name,
+    input: input.tool_input ?? {},
+    error: input.error_message,
+    failure_type: input.failure_type,
+    duration: input.duration,
+    endMs: nowMs
+  });
+  setOwnEntry(conv.turns, input.generation_id, turn);
+  touch(conv);
+  return { ...state, [input.conversation_id]: conv };
+}
+function reduceAfterAgentResponse(state, input, nowMs) {
+  const conv = getConversationState(state, input.conversation_id);
+  if (!acceptLateEvent(conv, input.conversation_id, input))
+    return state;
+  const turn = openTurn(conv, input.generation_id, nowMs);
+  turn.finalText = input.text;
+  turn.finalTextArrivedMs = nowMs;
+  turn.model = preferModel(turn.model, input.model);
+  turn.usage = {
+    input_tokens: input.input_tokens,
+    output_tokens: input.output_tokens,
+    cache_read_tokens: input.cache_read_tokens,
+    cache_write_tokens: input.cache_write_tokens
+  };
+  setOwnEntry(conv.turns, input.generation_id, turn);
+  touch(conv);
+  return { ...state, [input.conversation_id]: conv };
+}
+function subagentLaunchMode(conv, input) {
+  const candidates = Object.values(conv.turns);
+  const generation = ![
+    input.conversation_id,
+    input.parent_conversation_id,
+    input.session_id
+  ].includes(input.generation_id) ? ownEntry(conv.turns, input.generation_id) : void 0;
+  const linked = input.tool_call_id ? candidates.filter((t) => t.tools.some((tool) => tool.tool_use_id === input.tool_call_id)) : [];
+  const proven = generation ? [generation, ...linked] : linked;
+  const possible = proven.length ? proven : candidates;
+  return possible.length > 0 && possible.every((t) => t.tracingMode === "full") ? "full" : "metadata";
+}
+function reduceSubagentStart(state, input, nowMs) {
+  const parentConv = input.parent_conversation_id ?? input.conversation_id;
+  const conv = getConversationState(state, parentConv);
+  if (!acceptLateEvent(conv, parentConv, input))
+    return state;
+  const tracingMode = subagentLaunchMode(conv, input);
+  const turn = latestTurn(conv.turns) ?? newTurnBuffer(input.generation_id, nowMs, nextTurnNum(conv));
+  turn.subagents.push({
+    tracingMode,
+    subagent_id: input.subagent_id,
+    subagent_type: input.subagent_type,
+    task: input.task,
+    model: input.subagent_model ?? input.model,
+    is_parallel_worker: input.is_parallel_worker,
+    startMs: nowMs
+  });
+  setOwnEntry(conv.turns, turn.generation_id, turn);
+  touch(conv);
+  return { ...state, [parentConv]: conv };
+}
+function collectTools(conv) {
+  const tools = [];
+  for (const turn of Object.values(conv.turns))
+    tools.push(...turn.tools);
+  return tools.sort((a, b) => a.endMs - b.endMs);
+}
+function findChildConversation(state, parentConv, startMs, nowMs) {
+  const slack = 2e3;
+  let best;
+  let bestScore = 0;
+  for (const [convId, conv] of Object.entries(state)) {
+    if (convId === parentConv || conv.turn_count !== 0)
+      continue;
+    const inWindow = collectTools(conv).filter((t) => t.endMs >= startMs - slack && t.endMs <= nowMs + slack).length;
+    if (inWindow > bestScore) {
+      bestScore = inWindow;
+      best = convId;
+    }
+  }
+  return best;
+}
+function transcriptToolEvent(call, index, count, startMs, endMs) {
+  const span = Math.max(0, endMs - startMs);
+  const slice = count > 0 ? span / count : 0;
+  const end = Math.round(startMs + slice * (index + 1));
+  return {
+    tool_use_id: `subagent-tool-${index}`,
+    name: call.name,
+    input: call.input,
+    duration: slice / 1e3,
+    endMs: end
+  };
+}
+function reduceSubagentStop(state, input, nowMs, resolved) {
+  const parentConv = input.parent_conversation_id ?? input.conversation_id;
+  const conv = getConversationState(state, parentConv);
+  let target;
+  for (const turn of Object.values(conv.turns)) {
+    const sub = turn.subagents.find((s) => s.subagent_id === input.subagent_id && s.endMs == null);
+    if (sub) {
+      target = sub;
+      break;
+    }
+  }
+  if (!target) {
+    touch(conv);
+    return { ...state, [parentConv]: conv };
+  }
+  target.status = input.status;
+  target.duration_ms = input.duration_ms;
+  target.description = input.description;
+  target.message_count = input.message_count;
+  target.tool_call_count = input.tool_call_count;
+  target.loop_count = input.loop_count;
+  target.endMs = nowMs;
+  if (resolved?.resultText)
+    target.resultText = resolved.resultText;
+  let next = { ...state, [parentConv]: conv };
+  const resolvedChild = resolved?.childConversationId ?? findChildConversation(next, parentConv, target.startMs, nowMs);
+  const childConv = resolvedChild === parentConv ? void 0 : resolvedChild;
+  const child = childConv ? ownEntry(next, childConv) : void 0;
+  if (childConv && child) {
+    target.childConversationId = childConv;
+    target.tools = collectTools(child);
+    if (Object.keys({ ...child.pending, ...child.queued }).length > 0) {
+      next = { ...next, [childConv]: { ...child, turns: {} } };
+    } else {
+      const { [childConv]: _consumed, ...rest } = next;
+      next = rest;
+    }
+  } else if (resolved?.toolCalls?.length) {
+    const calls = resolved.toolCalls;
+    target.childConversationId = resolved.childConversationId;
+    target.tools = calls.map((c, i) => transcriptToolEvent(c, i, calls.length, target.startMs, nowMs));
+  }
+  touch(conv);
+  return next;
+}
+function reduceStop(state, input, nowMs) {
+  const conv = getConversationState(state, input.conversation_id);
+  if (!ownEntry(conv.turns, input.generation_id))
+    reopenSweptTurn(conv, input.generation_id);
+  const turn = ownEntry(conv.turns, input.generation_id);
+  if (!turn) {
+    return { state, turnNum: 0 };
+  }
+  const alreadyCountedBySweep = conv.sweepFinalizedGenerations?.includes(input.generation_id) ?? false;
+  turn.usage = {
+    input_tokens: input.input_tokens,
+    output_tokens: input.output_tokens,
+    cache_read_tokens: input.cache_read_tokens,
+    cache_write_tokens: input.cache_write_tokens
+  };
+  turn.status = input.status;
+  turn.model = preferModel(turn.model, input.model);
+  turn.turnNum ??= nextTurnNum(conv);
+  const turnNum = turn.turnNum;
+  if (turn.tracingMode === "off") {
+    (conv.completedOffGenerations ??= []).push(input.generation_id);
+  } else {
+    (conv.stopFinalizedGenerations ??= []).push(input.generation_id);
+    const pending = conv.pending ??= {};
+    setOwnEntry(pending, input.generation_id, {
+      buffer: turn,
+      turnNum,
+      claimedAt: nowMs,
+      attempts: 1
+    });
+  }
+  forgetSweptTurn(conv, input.generation_id);
+  delete turn.sweptAtMs;
+  deleteOwnEntry(conv.turns, input.generation_id);
+  if (!alreadyCountedBySweep)
+    conv.turn_count += 1;
+  touch(conv, nowMs);
+  const nextState = pruneOldConversations({ ...state, [input.conversation_id]: conv }, nowMs);
+  return { state: nextState, buffer: turn, turnNum };
+}
+function reduceSavedForUpload(state, conversationId, generationId, claimedAt) {
+  const conv = ownEntry(state, conversationId);
+  const entry = ownEntry(conv?.pending, generationId);
+  if (!conv || !entry || entry.claimedAt !== claimedAt)
+    return state;
+  dropPendingUpload(conv, generationId);
+  if (conv.sweepFinalizedGenerations?.includes(generationId)) {
+    entry.buffer.sweptAtMs = entry.claimedAt;
+    setOwnEntry(conv.turns, generationId, entry.buffer);
+  }
+  return { ...state, [conversationId]: conv };
+}
+function lastActivityMs(turn) {
+  return Math.max(turn.startMs, turn.finalTextArrivedMs ?? turn.startMs, ...turn.tools.map((t) => t.endMs), ...turn.subagents.map((s) => s.endMs ?? s.startMs));
+}
+function hasOpenSubagent(turn) {
+  return turn.subagents.some((s) => s.endMs == null);
+}
+function allBuffers(conv) {
+  const pending = Object.values(conv.pending ?? {}).map((entry) => entry.buffer);
+  return [...Object.values(conv.turns), ...pending];
+}
+function threadsRunningASubagent(state, nowMs) {
+  const threads = /* @__PURE__ */ new Set();
+  for (const [parentConv, conv] of Object.entries(state)) {
+    const openStarts = allBuffers(conv).flatMap((turn) => turn.subagents).filter((s) => s.endMs == null).map((s) => s.startMs);
+    for (const startMs of openStarts) {
+      const child = findChildConversation(state, parentConv, startMs, nowMs);
+      if (child)
+        threads.add(child);
+    }
+  }
+  return threads;
+}
+function retryPendingUploads(conv, conversationId, cutoff, nowMs) {
+  const claims = [];
+  let changed = false;
+  for (const [generationId, entry] of Object.entries(conv.pending ?? {})) {
+    if (entry.claimedAt > cutoff)
+      continue;
+    changed = true;
+    if (entry.attempts >= MAX_UPLOAD_ATTEMPTS) {
+      dropPendingUpload(conv, generationId);
+      warn(`Dropping turn ${entry.turnNum} of conversation ${conversationId} after ${entry.attempts} failed upload attempts`);
+      continue;
+    }
+    entry.attempts += 1;
+    entry.claimedAt = nowMs;
+    claims.push({
+      conversationId,
+      generationId,
+      buffer: entry.buffer,
+      turnNum: entry.turnNum,
+      claimedAt: nowMs
+    });
+  }
+  return { claims, changed };
+}
+function claimIdleTurns(conv, conversationId, cutoff, nowMs) {
+  const claims = [];
+  let changed = false;
+  for (const [generationId, turn] of Object.entries(conv.turns)) {
+    if (hasOpenSubagent(turn))
+      continue;
+    const lastMs = lastActivityMs(turn);
+    const recoveredAt = turn.sweptAtMs;
+    if (recoveredAt != null && lastMs <= recoveredAt) {
+      if (recoveredAt > cutoff)
+        continue;
+      deleteOwnEntry(conv.turns, generationId);
+      changed = true;
+      continue;
+    }
+    if (lastMs > cutoff)
+      continue;
+    changed = true;
+    deleteOwnEntry(conv.turns, generationId);
+    if (turn.tracingMode === "off") {
+      (conv.completedOffGenerations ??= []).push(generationId);
+      continue;
+    }
+    turn.turnNum ??= nextTurnNum(conv);
+    const swept = conv.sweepFinalizedGenerations ??= [];
+    if (!swept.includes(generationId)) {
+      swept.push(generationId);
+      conv.turn_count += 1;
+    }
+    turn.status ??= "incomplete";
+    const pending = conv.pending ??= {};
+    setOwnEntry(pending, generationId, {
+      buffer: turn,
+      turnNum: turn.turnNum,
+      claimedAt: nowMs,
+      attempts: 1
+    });
+    claims.push({
+      conversationId,
+      generationId,
+      buffer: turn,
+      turnNum: turn.turnNum,
+      claimedAt: nowMs
+    });
+  }
+  return { claims, changed };
+}
+function reduceSweep(state, callerConversationId, nowMs, thresholdMs) {
+  const claims = [];
+  const cutoff = nowMs - thresholdMs;
+  const subagentThreads = threadsRunningASubagent(state, nowMs);
+  for (const [conversationId, conv] of Object.entries(state)) {
+    if (conversationId === callerConversationId)
+      continue;
+    if (subagentThreads.has(conversationId))
+      continue;
+    const retried = retryPendingUploads(conv, conversationId, cutoff, nowMs);
+    const claimed = claimIdleTurns(conv, conversationId, cutoff, nowMs);
+    claims.push(...retried.claims, ...claimed.claims);
+    if (retried.changed || claimed.changed)
+      touch(conv, nowMs);
+  }
+  return { state: { ...state }, claims };
+}
+var init_reducer = __esm({
+  "dist/src/reducer.js"() {
+    "use strict";
+    init_state2();
+    init_constants18();
+    init_logger();
+    init_normalize2();
+  }
+});
+
+// dist/src/tracing-policy.js
+import { homedir as homedir4 } from "node:os";
+import { join as join23 } from "node:path";
+function isMode(value) {
+  return value === "full" || value === "metadata";
+}
+function tracingPolicyPath() {
+  return process.env.LANGSMITH_CURSOR_PRIVACY_FILE ?? join23(homedir4(), ".cursor", TRACING_POLICY_FILE_NAME);
+}
+function mutingLocked(config) {
+  return config.defaultMuted && config.locked.includes("defaultMuted");
+}
+function withLockedMute(buffer, config) {
+  return mutingLocked(config) && buffer.tracingMode === "full" ? { ...buffer, tracingMode: "metadata" } : buffer;
+}
+function getThreadTracingMode(path3, sessionId, defaultMuted = false, mutedLocked = false) {
+  if (mutedLocked)
+    return "metadata";
+  try {
+    adoptLegacyFile(path3, TRACING_POLICY_FILE_NAME, LEGACY_TRACING_POLICY_FILE_NAME);
+    const policy = readPolicyFile(path3, TRACING_POLICY_FILE);
+    if (Object.hasOwn(policy.threads, sessionId))
+      return policy.threads[sessionId];
+    return defaultMuted ? "metadata" : "full";
+  } catch {
+    return "metadata";
+  }
+}
+function parseTracingCommand(prompt) {
+  if (prompt === "langsmith-tracing:mute")
+    return "mute";
+  if (prompt === "langsmith-tracing:unmute")
+    return "unmute";
+  return void 0;
+}
+async function setThreadTracingMode(path3, sessionId, mode) {
+  if (typeof sessionId !== "string" || !sessionId || !isMode(mode)) {
+    throw new Error("A nonempty session ID and a full/metadata tracing mode are required");
+  }
+  adoptLegacyFile(path3, TRACING_POLICY_FILE_NAME, LEGACY_TRACING_POLICY_FILE_NAME);
+  return updatePolicyFile(path3, TRACING_POLICY_FILE, (policy) => ({
+    threads: { ...policy.threads, [sessionId]: mode }
+  }));
+}
+var TRACING_POLICY_FILE;
+var init_tracing_policy = __esm({
+  "dist/src/tracing-policy.js"() {
+    "use strict";
+    init_plugin();
+    init_constants18();
+    init_legacy_file();
+    init_normalize2();
+    TRACING_POLICY_FILE = {
+      empty: () => ({ threads: {} }),
+      requireRegularFile: true,
+      parse(value) {
+        if (!isRecord(value) || !isRecord(value.threads) || Object.values(value.threads).some((mode) => !isMode(mode)) || Object.keys(value).some((key) => key !== "threads")) {
+          throw new Error("Invalid tracing preference format");
+        }
+        return value;
+      }
+    };
+  }
+});
+
+// dist/src/turn-origin.js
+function originFromConfig(config, input) {
+  return {
+    project: config.project,
+    userEmail: input.user_email,
+    runtimeVersion: input.cursor_version,
+    customMetadata: config.customMetadata
+  };
+}
+var init_turn_origin = __esm({
+  "dist/src/turn-origin.js"() {
+    "use strict";
+  }
+});
+
+// dist/src/prompt-control.js
+async function handlePromptSubmit(input) {
+  const command = parseTracingCommand(input.prompt);
+  try {
+    if (!input.conversation_id || typeof input.conversation_id !== "string" || !input.generation_id || typeof input.generation_id !== "string") {
+      throw new Error("Nonempty native conversation_id and generation_id required; update Cursor");
+    }
+    const config = loadConfig({ cwd: input.workspace_roots?.[0] });
+    initLogger(config.debug);
+    if (command === "unmute" && mutingLocked(config)) {
+      return { continue: false, user_message: MUTE_LOCKED_MESSAGE };
+    }
+    if (command) {
+      const result = await setThreadTracingMode(tracingPolicyPath(), input.conversation_id, command === "mute" ? "metadata" : "full");
+      return {
+        continue: false,
+        user_message: `Thread tracing ${command === "mute" ? "muted (metadata-only)" : "unmuted (full content)"}. Preference saved for the next turn; the current turn is unchanged.` + (config.managedConfigProblem !== void 0 ? ` ${config.managedConfigProblem}` : !config.enabled ? " Master tracing is disabled; this does not enable it." : "") + (result.warning ? ` Warning: ${result.warning}` : "")
+      };
+    }
+    if (config.managedConfigProblem !== void 0)
+      warn(config.managedConfigProblem);
+    const enabled = config.enabled && !!(sdkSetting(config.apiKey) || config.replicas?.length);
+    await atomicUpdateState(config.stateFilePath, (s) => reduceBeforeSubmitPrompt(s, input, Date.now(), enabled ? getThreadTracingMode(tracingPolicyPath(), input.conversation_id, config.defaultMuted, mutingLocked(config)) : "off", originFromConfig(config, input)));
+    return { continue: true };
+  } catch (error2) {
+    const detail = error2 instanceof Error ? error2.message : String(error2);
+    error(`Could not save tracing preference/turn snapshot: ${detail}. Turn not traced.`);
+    if (command) {
+      return { continue: false, user_message: `Could not save tracing preference: ${detail}` };
+    }
+    return { continue: true };
+  }
+}
+var init_prompt_control = __esm({
+  "dist/src/prompt-control.js"() {
+    "use strict";
+    init_auth();
+    init_config();
+    init_constants18();
+    init_logger();
+    init_state2();
+    init_reducer();
+    init_tracing_policy();
+    init_turn_origin();
+  }
+});
+
+// dist/src/hooks/before-submit-prompt.js
+var before_submit_prompt_exports = {};
+__export(before_submit_prompt_exports, {
+  run: () => run
+});
+async function run() {
+  const input = await readStdin();
+  process.stdout.write(JSON.stringify(await handlePromptSubmit(input)) + "\n");
+}
+var init_before_submit_prompt = __esm({
+  "dist/src/hooks/before-submit-prompt.js"() {
+    "use strict";
+    init_stdin();
+    init_prompt_control();
+  }
+});
+
+// dist/src/utils/hook-init.js
+function initHook(cwd) {
+  const config = loadConfig({ cwd });
+  initLogger(config.debug);
+  if (!config.enabled) {
+    return null;
+  }
+  if (!sdkSetting(config.apiKey) && (!config.replicas || config.replicas.length === 0)) {
+    error("Tracing enabled but no API key set (langsmith-plugins.json or .cursor/langsmith.json api_key, LANGSMITH_CURSOR_API_KEY, or LANGSMITH_API_KEY) and no replicas configured");
+    return null;
+  }
+  return config;
+}
+var init_hook_init = __esm({
+  "dist/src/utils/hook-init.js"() {
+    "use strict";
+    init_auth();
+    init_config();
+    init_logger();
+  }
+});
+
+// dist/src/hooks/state-hook.js
+function stateHook({ describe: describe2, reduce }) {
+  return async () => {
+    const input = await readStdin();
+    const config = initHook(input.workspace_roots?.[0]);
+    if (!config)
+      return;
+    debug(describe2(input));
+    await atomicUpdateState(config.stateFilePath, (s) => reduce(s, input, Date.now()));
+  };
+}
+var init_state_hook = __esm({
+  "dist/src/hooks/state-hook.js"() {
+    "use strict";
+    init_logger();
+    init_state2();
+    init_hook_init();
+    init_stdin();
+  }
+});
+
+// dist/src/hooks/after-agent-response.js
+var after_agent_response_exports = {};
+__export(after_agent_response_exports, {
+  run: () => run2
+});
+var run2;
+var init_after_agent_response = __esm({
+  "dist/src/hooks/after-agent-response.js"() {
+    "use strict";
+    init_reducer();
+    init_state_hook();
+    run2 = stateHook({
+      describe: (input) => `afterAgentResponse conv=${input.conversation_id} gen=${input.generation_id}`,
+      reduce: reduceAfterAgentResponse
+    });
+  }
+});
+
+// dist/src/hooks/subagent-start.js
+var subagent_start_exports = {};
+__export(subagent_start_exports, {
+  run: () => run3
+});
+var run3;
+var init_subagent_start = __esm({
+  "dist/src/hooks/subagent-start.js"() {
+    "use strict";
+    init_reducer();
+    init_state_hook();
+    run3 = stateHook({
+      describe: (input) => `subagentStart ${input.subagent_type} (${input.subagent_id})`,
+      reduce: reduceSubagentStart
+    });
+  }
+});
+
+// dist/src/utils/text.js
+function normalizeWs(text) {
+  return text.replace(WHITESPACE_RUN, " ").trim();
+}
+var init_text = __esm({
+  "dist/src/utils/text.js"() {
+    "use strict";
+    init_constants18();
+  }
+});
+
+// dist/src/subagent-transcript.js
+import { readFileSync as readFileSync11, readdirSync as readdirSync2, statSync as statSync5 } from "node:fs";
+import { dirname as dirname14, join as join24, basename as basename5 } from "node:path";
+function readJsonl(path3) {
+  const rows = [];
+  for (const line of readFileSync11(path3, "utf-8").split("\n")) {
+    const trimmed = line.trim();
+    if (!trimmed)
+      continue;
+    try {
+      rows.push(JSON.parse(trimmed));
+    } catch {
+    }
+  }
+  return rows;
+}
+function firstUserText(rows) {
+  for (const row of rows) {
+    if (!isRecord(row) || row.role !== "user")
+      continue;
+    const content = isRecord(row.message) ? row.message.content : void 0;
+    if (!Array.isArray(content))
+      continue;
+    return content.filter((p) => isRecord(p) && p.type === "text").map((p) => typeof p.text === "string" ? p.text : "").join("");
+  }
+  return "";
+}
+function resolveSubagentTranscript(parentTranscriptPath, task) {
+  if (!parentTranscriptPath)
+    return void 0;
+  try {
+    const dir = join24(dirname14(parentTranscriptPath), "subagents");
+    const files = readdirSync2(dir).filter((f2) => f2.endsWith(".jsonl"));
+    if (files.length === 0)
+      return void 0;
+    const candidates = files.map((f2) => {
+      const full = join24(dir, f2);
+      return { full, child: basename5(f2, ".jsonl"), mtime: statSync5(full).mtimeMs };
+    });
+    const wanted = task ? normalizeWs(task).slice(0, 120) : "";
+    let chosen;
+    if (candidates.length === 1) {
+      chosen = candidates[0];
+    } else {
+      const matches = candidates.map((c) => ({ ...c, rows: readJsonl(c.full) })).filter((c) => wanted !== "" && normalizeWs(firstUserText(c.rows)).includes(wanted));
+      const pool = matches.length > 0 ? matches : candidates;
+      chosen = pool.slice().sort((a, b) => b.mtime - a.mtime)[0];
+    }
+    const rows = chosen.rows ?? readJsonl(chosen.full);
+    const { toolCalls, resultText } = parseSubagentTranscript(rows);
+    return { childConversationId: chosen.child, toolCalls, resultText };
+  } catch {
+    return void 0;
+  }
+}
+var init_subagent_transcript = __esm({
+  "dist/src/subagent-transcript.js"() {
+    "use strict";
+    init_normalize2();
+    init_normalize2();
+    init_text();
+  }
+});
+
+// dist/src/hooks/subagent-stop.js
+var subagent_stop_exports = {};
+__export(subagent_stop_exports, {
+  run: () => run4
+});
+async function run4() {
+  const input = await readStdin();
+  const config = initHook(input.workspace_roots?.[0]);
+  if (!config)
+    return;
+  debug(`subagentStop ${input.subagent_type} (${input.subagent_id})`);
+  const resolved = resolveSubagentTranscript(input.transcript_path, input.task);
+  if (resolved) {
+    debug(`resolved subagent transcript: child=${resolved.childConversationId}, ${resolved.toolCalls.length} tool call(s)`);
+  }
+  await atomicUpdateState(config.stateFilePath, (s) => reduceSubagentStop(s, input, Date.now(), resolved));
+}
+var init_subagent_stop = __esm({
+  "dist/src/hooks/subagent-stop.js"() {
+    "use strict";
+    init_stdin();
+    init_hook_init();
+    init_state2();
+    init_reducer();
+    init_subagent_transcript();
+    init_logger();
+  }
+});
+
 // node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f09d8e708adf5ffd3c68b4b2bbeda39e/node_modules/@langchain/plugins-base/dist/utils/paths.js
-import { statSync as statSync5 } from "node:fs";
-import { dirname as dirname13 } from "node:path";
+import { statSync as statSync6 } from "node:fs";
+import { dirname as dirname15 } from "node:path";
 function nearestExistingDirectory(path3) {
   let current = path3;
   for (; ; ) {
-    const parent = dirname13(current);
+    const parent = dirname15(current);
     const reachedFilesystemRoot = parent === current;
     if (reachedFilesystemRoot)
       return void 0;
     try {
-      if (statSync5(current).isDirectory())
+      if (statSync6(current).isDirectory())
         return current;
     } catch {
     }
@@ -24460,8 +25368,8 @@ var init_desktop_constants = __esm({
 });
 
 // node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f09d8e708adf5ffd3c68b4b2bbeda39e/node_modules/@langchain/plugins-base/dist/utils/desktop/launch.js
-import { accessSync, constants as constants2, statSync as statSync6 } from "node:fs";
-import { join as join22, posix, win32 } from "node:path";
+import { accessSync, constants as constants3, statSync as statSync7 } from "node:fs";
+import { join as join25, posix, win32 } from "node:path";
 function findExecutable(name, env, platform2) {
   const windows = platform2 === WINDOWS_PLATFORM;
   const extensions = windows ? (env[DESKTOP_EXTENSIONS_VARIABLE] ?? DESKTOP_WINDOWS_EXTENSIONS).split(DESKTOP_WINDOWS_SEPARATOR) : [""];
@@ -24470,10 +25378,10 @@ function findExecutable(name, env, platform2) {
   const absolute = windows ? win32.isAbsolute : posix.isAbsolute;
   for (const folder of folders.filter((entry) => entry !== "" && absolute(entry))) {
     for (const extension of extensions) {
-      const candidate = join22(folder, `${name}${extension}`);
+      const candidate = join25(folder, `${name}${extension}`);
       try {
-        accessSync(candidate, constants2.X_OK);
-        if (statSync6(candidate).isFile())
+        accessSync(candidate, constants3.X_OK);
+        if (statSync7(candidate).isFile())
           return candidate;
       } catch {
       }
@@ -24644,8 +25552,8 @@ var init_repository = __esm({
 });
 
 // node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f09d8e708adf5ffd3c68b4b2bbeda39e/node_modules/@langchain/plugins-base/dist/git/github-login.js
-import { mkdirSync as mkdirSync7, readFileSync as readFileSync11, renameSync as renameSync6, writeFileSync as writeFileSync4 } from "node:fs";
-import { dirname as dirname14 } from "node:path";
+import { mkdirSync as mkdirSync7, readFileSync as readFileSync12, renameSync as renameSync6, writeFileSync as writeFileSync4 } from "node:fs";
+import { dirname as dirname16 } from "node:path";
 function createGitHubLoginFallback(options) {
   const now = options.now ?? Date.now;
   const retryAfterMs = options.retryAfterMs ?? GH_LOGIN_RETRY_AFTER_MS;
@@ -24653,7 +25561,7 @@ function createGitHubLoginFallback(options) {
   let login;
   function failedRecently() {
     try {
-      const marker = JSON.parse(readFileSync11(options.markerPath, "utf-8"));
+      const marker = JSON.parse(readFileSync12(options.markerPath, "utf-8"));
       const failed = new Date(marker.failed).getTime();
       const since = now() - failed;
       return since >= 0 && since < retryAfterMs;
@@ -24663,7 +25571,7 @@ function createGitHubLoginFallback(options) {
   }
   function recordFailure2() {
     try {
-      mkdirSync7(dirname14(options.markerPath), { recursive: true });
+      mkdirSync7(dirname16(options.markerPath), { recursive: true });
       const partial = `${options.markerPath}.${process.pid}`;
       const marker = { failed: new Date(now()).toISOString() };
       writeFileSync4(partial, JSON.stringify(marker));
@@ -24696,12 +25604,12 @@ var init_github_login = __esm({
 });
 
 // node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_f09d8e708adf5ffd3c68b4b2bbeda39e/node_modules/@langchain/plugins-base/dist/git/paths.js
-import { readFileSync as readFileSync12, statSync as statSync7 } from "node:fs";
-import { dirname as dirname15, join as join23, resolve as resolve13 } from "node:path";
+import { readFileSync as readFileSync13, statSync as statSync8 } from "node:fs";
+import { dirname as dirname17, join as join26, resolve as resolve13 } from "node:path";
 function gitMarkerAt(directory) {
-  const marker = join23(directory, GIT_DIRECTORY_NAME);
+  const marker = join26(directory, GIT_DIRECTORY_NAME);
   try {
-    if (statSync7(marker).isDirectory())
+    if (statSync8(marker).isDirectory())
       return GIT_MARKERS.REPOSITORY_ROOT;
   } catch {
     return GIT_MARKERS.NOTHING_HERE;
@@ -24710,8 +25618,8 @@ function gitMarkerAt(directory) {
 }
 function pointsAtGitDirectory(directory, marker) {
   try {
-    const pointer = readFileSync12(marker, "utf-8").match(GIT_FILE_POINTER)?.[1];
-    return pointer !== void 0 && statSync7(resolve13(directory, pointer)).isDirectory();
+    const pointer = readFileSync13(marker, "utf-8").match(GIT_FILE_POINTER)?.[1];
+    return pointer !== void 0 && statSync8(resolve13(directory, pointer)).isDirectory();
   } catch {
     return false;
   }
@@ -24724,7 +25632,7 @@ function rootFromGitMarker(directory) {
       return current;
     if (marker === GIT_MARKERS.ONLY_GIT_CAN_SAY)
       return void 0;
-    const parent = dirname15(current);
+    const parent = dirname17(current);
     const reachedFilesystemRoot = parent === current;
     if (reachedFilesystemRoot)
       return null;
@@ -24968,80 +25876,6 @@ var init_captures = __esm({
   }
 });
 
-// dist/src/utils/legacy-file.js
-import { constants as constants3, copyFileSync, existsSync as existsSync3 } from "node:fs";
-import { basename as basename4, dirname as dirname16, join as join24 } from "node:path";
-function adoptLegacyFile(path3, fileName, legacyFileName) {
-  if (basename4(path3) !== fileName || existsSync3(path3))
-    return;
-  const legacy = join24(dirname16(path3), legacyFileName);
-  if (!existsSync3(legacy))
-    return;
-  try {
-    copyFileSync(legacy, path3, constants3.COPYFILE_EXCL);
-  } catch {
-    return;
-  }
-}
-var init_legacy_file = __esm({
-  "dist/src/utils/legacy-file.js"() {
-    "use strict";
-  }
-});
-
-// dist/src/state.js
-async function atomicUpdateState(stateFilePath, fn) {
-  await stateStore(stateFilePath).update(fn);
-}
-function readState(stateFilePath) {
-  return stateStore(stateFilePath).read();
-}
-function stateStore(stateFilePath) {
-  adoptLegacyFile(stateFilePath, STATE_FILE_NAME, LEGACY_STATE_FILE_NAME);
-  return createStateStore({ path: stateFilePath, warn });
-}
-function ownEntry(map, id) {
-  return map !== void 0 && Object.hasOwn(map, id) ? map[id] : void 0;
-}
-function setOwnEntry(map, id, value) {
-  Object.defineProperty(map, id, { value, writable: true, enumerable: true, configurable: true });
-}
-function deleteOwnEntry(map, id) {
-  delete map[id];
-}
-function getConversationState(state, conversationId) {
-  return ownEntry(state, conversationId) ?? { turns: {}, turn_count: 0, updated: "" };
-}
-function nextTurnNum(conv) {
-  conv.turns_started = (conv.turns_started ?? conv.turn_count) + 1;
-  return conv.turns_started;
-}
-function newTurnBuffer(generationId, startMs, turnNum) {
-  return {
-    generation_id: generationId,
-    turnNum,
-    startMs,
-    tools: [],
-    thoughts: [],
-    subagents: []
-  };
-}
-function getTurnBuffer(state, conversationId, generationId) {
-  return ownEntry(ownEntry(state, conversationId)?.turns, generationId);
-}
-function pruneOldConversations(state, now = Date.now()) {
-  return pruneStateEntries(state, CONVERSATION_MAX_AGE_MS, now);
-}
-var init_state2 = __esm({
-  "dist/src/state.js"() {
-    "use strict";
-    init_storage();
-    init_constants18();
-    init_logger();
-    init_legacy_file();
-  }
-});
-
 // dist/src/job-context.js
 import { createHash as createHash8 } from "node:crypto";
 function jobDigest(sessionId, context) {
@@ -25138,138 +25972,6 @@ var init_job_context = __esm({
   }
 });
 
-// dist/src/normalize.js
-function isRecord(value) {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-function normKey(model) {
-  return model.trim().toLowerCase().replace(PROVIDER_PREFIX, "");
-}
-function canonicalModelId(model) {
-  const key = normKey(model);
-  const m = key.match(CLAUDE_VERSIONED_MODEL);
-  if (m) {
-    const [, major, minor, tier] = m;
-    return Number(major) >= 4 ? `claude-${tier}-${major}-${minor}` : `claude-${major}-${minor}-${tier}`;
-  }
-  return model;
-}
-function providerFor(model) {
-  const m = model.toLowerCase();
-  if (m === "default" || m === "auto" || m.startsWith("composer") || m.startsWith("cursor")) {
-    return "cursor";
-  }
-  if (m.startsWith("claude"))
-    return "anthropic";
-  if (OPENAI_MODEL_PREFIX.test(m))
-    return "openai";
-  if (m.startsWith("gemini"))
-    return "google";
-  if (m.startsWith("grok"))
-    return "xai";
-  return void 0;
-}
-function stripModelSuffixes(model) {
-  const parts = model.split("-");
-  while (parts.length > 1) {
-    const last = parts[parts.length - 1].toLowerCase();
-    if (!MODEL_SUFFIXES.has(last))
-      break;
-    if (last === "max" && !providerFor(parts.slice(0, -1).join("-")))
-      break;
-    parts.pop();
-  }
-  return parts.join("-");
-}
-function preferModel(current, incoming) {
-  if (incoming && incoming.toLowerCase() !== "default")
-    return incoming;
-  return current ?? incoming;
-}
-function deriveModelInfo(model) {
-  const raw = (model ?? "").trim() || "default";
-  const stripped = stripModelSuffixes(raw);
-  const deprefixed = stripped.replace(CURSOR_VENDOR_PREFIX, "");
-  const upstream = providerFor(deprefixed);
-  const label = upstream && upstream !== "cursor" ? deprefixed : stripped;
-  return {
-    ls_model_name: canonicalModelId(label),
-    ls_provider: providerFor(label) ?? providerFor(raw)
-  };
-}
-function buildUsageMetadata(usage) {
-  if (!usage)
-    return void 0;
-  const cacheRead = usage.cache_read_tokens ?? 0;
-  const cacheWrite = usage.cache_write_tokens ?? 0;
-  const input_tokens = (usage.input_tokens ?? 0) + cacheRead + cacheWrite;
-  const output_tokens = usage.output_tokens ?? 0;
-  const total_tokens = input_tokens + output_tokens;
-  if (total_tokens === 0)
-    return void 0;
-  return {
-    input_tokens,
-    output_tokens,
-    total_tokens,
-    input_token_details: { cache_read: cacheRead, cache_creation: cacheWrite }
-  };
-}
-function parseToolOutput(raw) {
-  if (typeof raw !== "string")
-    return raw;
-  const trimmed = raw.trim();
-  if (trimmed === "")
-    return raw;
-  try {
-    return JSON.parse(trimmed);
-  } catch {
-    return raw;
-  }
-}
-function mcpContentToText(content) {
-  if (!Array.isArray(content))
-    return void 0;
-  const texts = content.filter(isRecord).map((part) => typeof part.text === "string" ? part.text : void 0).filter((text) => text != null && text !== "");
-  return texts.length > 0 ? texts.join("\n") : void 0;
-}
-function extractMcpError(toolName, output) {
-  if (!toolName.startsWith(MCP_TOOL_PREFIX))
-    return void 0;
-  if (!isRecord(output) || output.isError !== true)
-    return void 0;
-  return mcpContentToText(output.content) ?? "MCP tool returned isError: true";
-}
-function parseSubagentTranscript(rows) {
-  const toolCalls = [];
-  let resultText;
-  for (const row of rows) {
-    if (!isRecord(row) || row.role !== "assistant")
-      continue;
-    const message = isRecord(row.message) ? row.message : void 0;
-    const content = message?.content;
-    if (!Array.isArray(content))
-      continue;
-    for (const part of content) {
-      if (!isRecord(part))
-        continue;
-      if (part.type === "tool_use" && typeof part.name === "string") {
-        if (SUBAGENT_PSEUDO_TOOLS.has(part.name))
-          continue;
-        toolCalls.push({ name: part.name, input: isRecord(part.input) ? part.input : {} });
-      } else if (part.type === "text" && typeof part.text === "string" && part.text.trim()) {
-        resultText = part.text;
-      }
-    }
-  }
-  return { toolCalls, resultText };
-}
-var init_normalize2 = __esm({
-  "dist/src/normalize.js"() {
-    "use strict";
-    init_constants18();
-  }
-});
-
 // dist/src/metadata.js
 function withIntegration(opts) {
   return { ...opts, integration: LS_INTEGRATION, integrationVersion: LS_INTEGRATION_VERSION };
@@ -25325,31 +26027,20 @@ var init_sqlite = __esm({
   }
 });
 
-// dist/src/utils/text.js
-function normalizeWs(text) {
-  return text.replace(WHITESPACE_RUN, " ").trim();
-}
-var init_text = __esm({
-  "dist/src/utils/text.js"() {
-    "use strict";
-    init_constants18();
-  }
-});
-
 // dist/src/attachments.js
-import { existsSync as existsSync4, readFileSync as readFileSync13, statSync as statSync8 } from "node:fs";
-import { homedir as homedir4, platform } from "node:os";
-import { basename as basename5, join as join25 } from "node:path";
+import { existsSync as existsSync4, readFileSync as readFileSync14, statSync as statSync9 } from "node:fs";
+import { homedir as homedir5, platform } from "node:os";
+import { basename as basename6, join as join27 } from "node:path";
 function defaultCursorDbPath() {
-  const home = homedir4();
+  const home = homedir5();
   const tail = ["Cursor", "User", "globalStorage", "state.vscdb"];
   switch (platform()) {
     case "darwin":
-      return join25(home, "Library", "Application Support", ...tail);
+      return join27(home, "Library", "Application Support", ...tail);
     case "win32":
-      return join25(process.env.APPDATA ?? join25(home, "AppData", "Roaming"), ...tail);
+      return join27(process.env.APPDATA ?? join27(home, "AppData", "Roaming"), ...tail);
     default:
-      return join25(process.env.XDG_CONFIG_HOME ?? join25(home, ".config"), ...tail);
+      return join27(process.env.XDG_CONFIG_HOME ?? join27(home, ".config"), ...tail);
   }
 }
 function queryBubbles(dbPath, conversationId) {
@@ -25442,9 +26133,9 @@ function placeholder(text) {
   return { type: "text", text };
 }
 function fileToContentPart(path3) {
-  const name = basename5(path3);
+  const name = basename6(path3);
   try {
-    const st = statSync8(path3);
+    const st = statSync9(path3);
     if (!st.isFile()) {
       warn(`attachments: not a file, skipping: ${path3}`);
       return placeholder(`[attachment skipped: ${name} \u2014 not a file]`);
@@ -25453,7 +26144,7 @@ function fileToContentPart(path3) {
       warn(`attachments: too large (${st.size} bytes), skipping: ${path3}`);
       return placeholder(`[attachment too large: ${name} (${st.size} bytes)]`);
     }
-    const buf = readFileSync13(path3);
+    const buf = readFileSync14(path3);
     const mime = sniffMime(buf, path3);
     const base64 = buf.toString("base64");
     if (mime.startsWith("image/"))
@@ -26457,86 +27148,6 @@ var init_tool_origin = __esm({
   }
 });
 
-// dist/src/tracing-policy.js
-import { homedir as homedir5 } from "node:os";
-import { join as join26 } from "node:path";
-function isMode(value) {
-  return value === "full" || value === "metadata";
-}
-function tracingPolicyPath() {
-  return process.env.LANGSMITH_CURSOR_PRIVACY_FILE ?? join26(homedir5(), ".cursor", TRACING_POLICY_FILE_NAME);
-}
-function mutingLocked(config) {
-  return config.defaultMuted && config.locked.includes("defaultMuted");
-}
-function withLockedMute(buffer, config) {
-  return mutingLocked(config) && buffer.tracingMode === "full" ? { ...buffer, tracingMode: "metadata" } : buffer;
-}
-function getThreadTracingMode(path3, sessionId, defaultMuted = false, mutedLocked = false) {
-  if (mutedLocked)
-    return "metadata";
-  try {
-    adoptLegacyFile(path3, TRACING_POLICY_FILE_NAME, LEGACY_TRACING_POLICY_FILE_NAME);
-    const policy = readPolicyFile(path3, TRACING_POLICY_FILE);
-    if (Object.hasOwn(policy.threads, sessionId))
-      return policy.threads[sessionId];
-    return defaultMuted ? "metadata" : "full";
-  } catch {
-    return "metadata";
-  }
-}
-function parseTracingCommand(prompt) {
-  if (prompt === "langsmith-tracing:mute")
-    return "mute";
-  if (prompt === "langsmith-tracing:unmute")
-    return "unmute";
-  return void 0;
-}
-async function setThreadTracingMode(path3, sessionId, mode) {
-  if (typeof sessionId !== "string" || !sessionId || !isMode(mode)) {
-    throw new Error("A nonempty session ID and a full/metadata tracing mode are required");
-  }
-  adoptLegacyFile(path3, TRACING_POLICY_FILE_NAME, LEGACY_TRACING_POLICY_FILE_NAME);
-  return updatePolicyFile(path3, TRACING_POLICY_FILE, (policy) => ({
-    threads: { ...policy.threads, [sessionId]: mode }
-  }));
-}
-var TRACING_POLICY_FILE;
-var init_tracing_policy = __esm({
-  "dist/src/tracing-policy.js"() {
-    "use strict";
-    init_plugin();
-    init_constants18();
-    init_legacy_file();
-    init_normalize2();
-    TRACING_POLICY_FILE = {
-      empty: () => ({ threads: {} }),
-      requireRegularFile: true,
-      parse(value) {
-        if (!isRecord(value) || !isRecord(value.threads) || Object.values(value.threads).some((mode) => !isMode(mode)) || Object.keys(value).some((key) => key !== "threads")) {
-          throw new Error("Invalid tracing preference format");
-        }
-        return value;
-      }
-    };
-  }
-});
-
-// dist/src/turn-origin.js
-function originFromConfig(config, input) {
-  return {
-    project: config.project,
-    userEmail: input.user_email,
-    runtimeVersion: input.cursor_version,
-    customMetadata: config.customMetadata
-  };
-}
-var init_turn_origin = __esm({
-  "dist/src/turn-origin.js"() {
-    "use strict";
-  }
-});
-
 // dist/src/turn-enrichment.js
 function enrichTurn(config, options) {
   const { buffer: toTrace, conversationId } = options;
@@ -26627,7 +27238,7 @@ var init_writer_options = __esm({
 });
 
 // dist/src/tracing-engine.js
-import { dirname as dirname17, join as join27 } from "node:path";
+import { dirname as dirname18, join as join28 } from "node:path";
 async function saveTurnForUpload(config, context) {
   try {
     await queueUpload(config, context);
@@ -26757,7 +27368,7 @@ async function buildQueuedRuns(job, config, plugin) {
 }
 function attributorFor(config) {
   attributor ??= createRepositoryAttributor({
-    githubLoginMarkerPath: join27(dirname17(config.stateFilePath), GH_LOGIN_MARKER_FILE)
+    githubLoginMarkerPath: join28(dirname18(config.stateFilePath), GH_LOGIN_MARKER_FILE)
   });
   return attributor;
 }
@@ -26835,7 +27446,7 @@ async function pendingJobs(config) {
   return new Set(sessions.flatMap(({ captures }) => captures.map(({ record }) => record.eventId)));
 }
 function storageRootFor(config) {
-  return join27(dirname17(config.stateFilePath), ENGINE_STORAGE_DIR_NAME);
+  return join28(dirname18(config.stateFilePath), ENGINE_STORAGE_DIR_NAME);
 }
 function openSession(config, sessionId, project, built) {
   const storageRoot = storageRootFor(config);
@@ -26874,676 +27485,6 @@ var init_tracing_engine = __esm({
     init_turn_enrichment();
     init_console();
     init_writer_options();
-  }
-});
-
-// dist/src/notice.js
-async function noticeBlock(config, kind, message) {
-  const show = await shouldShowNotice({
-    plugin: NOTICE_PLUGIN,
-    kind,
-    cooldown: config.noticeCooldown,
-    storageRoot: storageRootFor(config),
-    persistentOnly: true
-  });
-  return show ? { continue: false, user_message: message } : void 0;
-}
-var init_notice = __esm({
-  "dist/src/notice.js"() {
-    "use strict";
-    init_plugin();
-    init_constants18();
-    init_tracing_engine();
-  }
-});
-
-// dist/src/reducer.js
-function touch(conv, nowMs = Date.now()) {
-  conv.updated = new Date(nowMs).toISOString();
-}
-function forgetSweptTurn(conv, generationId) {
-  if (!conv.sweepFinalizedGenerations)
-    return;
-  const stillSwept = conv.sweepFinalizedGenerations.filter((id) => id !== generationId);
-  if (stillSwept.length)
-    conv.sweepFinalizedGenerations = stillSwept;
-  else
-    delete conv.sweepFinalizedGenerations;
-}
-function dropPendingUpload(conv, generationId) {
-  if (!conv.pending)
-    return;
-  deleteOwnEntry(conv.pending, generationId);
-  if (Object.keys(conv.pending).length === 0)
-    delete conv.pending;
-}
-function reopenSweptTurn(conv, generationId) {
-  const entry = ownEntry(conv.pending, generationId);
-  if (!entry || !conv.sweepFinalizedGenerations?.includes(generationId))
-    return false;
-  setOwnEntry(conv.turns, generationId, entry.buffer);
-  dropPendingUpload(conv, generationId);
-  return true;
-}
-function acceptLateEvent(conv, conversationId, input) {
-  const gen = input.generation_id;
-  if (conv.completedOffGenerations?.includes(gen))
-    return false;
-  if (conv.stopFinalizedGenerations?.includes(gen))
-    return false;
-  if (!conv.sweepFinalizedGenerations?.includes(gen))
-    return true;
-  if (ownEntry(conv.turns, gen))
-    return true;
-  if (!reopenSweptTurn(conv, gen))
-    return false;
-  warn(`Sweep recovered conversation ${conversationId} generation ${gen} too early; reopening it for a late ${input.hook_event_name}`);
-  return true;
-}
-function openTurn(conv, generationId, nowMs) {
-  return ownEntry(conv.turns, generationId) ?? newTurnBuffer(generationId, nowMs, nextTurnNum(conv));
-}
-function latestTurn(turns) {
-  let best;
-  for (const candidate of Object.values(turns)) {
-    if (!best || candidate.startMs > best.startMs)
-      best = candidate;
-  }
-  return best;
-}
-function reduceBeforeSubmitPrompt(state, input, nowMs, mode = "full", origin) {
-  const conv = getConversationState(state, input.conversation_id);
-  if (!acceptLateEvent(conv, input.conversation_id, input))
-    return state;
-  if (ownEntry(conv.turns, input.generation_id))
-    return state;
-  const turn = newTurnBuffer(input.generation_id, nowMs, nextTurnNum(conv));
-  turn.tracingMode = mode;
-  turn.origin = origin;
-  turn.prompt = mode === "off" ? void 0 : input.prompt;
-  turn.model = input.model;
-  setOwnEntry(conv.turns, input.generation_id, turn);
-  touch(conv);
-  return pruneOldConversations({ ...state, [input.conversation_id]: conv });
-}
-function reducePostToolUse(state, input, nowMs) {
-  const conv = getConversationState(state, input.conversation_id);
-  if (!acceptLateEvent(conv, input.conversation_id, input))
-    return state;
-  const turn = openTurn(conv, input.generation_id, nowMs);
-  turn.model = preferModel(turn.model, input.model);
-  const output = parseToolOutput(input.tool_output);
-  turn.tools.push({
-    tool_use_id: input.tool_use_id,
-    name: input.tool_name,
-    input: input.tool_input ?? {},
-    output,
-    // Cursor never fires postToolUseFailure for MCP tools; a failed MCP call
-    // arrives here with isError in the output. Flag it so the run is an error.
-    error: extractMcpError(input.tool_name, output),
-    duration: input.duration,
-    endMs: nowMs
-  });
-  setOwnEntry(conv.turns, input.generation_id, turn);
-  touch(conv);
-  return { ...state, [input.conversation_id]: conv };
-}
-function reducePostToolUseFailure(state, input, nowMs) {
-  const conv = getConversationState(state, input.conversation_id);
-  if (!acceptLateEvent(conv, input.conversation_id, input))
-    return state;
-  const turn = openTurn(conv, input.generation_id, nowMs);
-  turn.model = preferModel(turn.model, input.model);
-  turn.tools.push({
-    tool_use_id: input.tool_use_id,
-    name: input.tool_name,
-    input: input.tool_input ?? {},
-    error: input.error_message,
-    failure_type: input.failure_type,
-    duration: input.duration,
-    endMs: nowMs
-  });
-  setOwnEntry(conv.turns, input.generation_id, turn);
-  touch(conv);
-  return { ...state, [input.conversation_id]: conv };
-}
-function reduceAfterAgentResponse(state, input, nowMs) {
-  const conv = getConversationState(state, input.conversation_id);
-  if (!acceptLateEvent(conv, input.conversation_id, input))
-    return state;
-  const turn = openTurn(conv, input.generation_id, nowMs);
-  turn.finalText = input.text;
-  turn.finalTextArrivedMs = nowMs;
-  turn.model = preferModel(turn.model, input.model);
-  turn.usage = {
-    input_tokens: input.input_tokens,
-    output_tokens: input.output_tokens,
-    cache_read_tokens: input.cache_read_tokens,
-    cache_write_tokens: input.cache_write_tokens
-  };
-  setOwnEntry(conv.turns, input.generation_id, turn);
-  touch(conv);
-  return { ...state, [input.conversation_id]: conv };
-}
-function subagentLaunchMode(conv, input) {
-  const candidates = Object.values(conv.turns);
-  const generation = ![
-    input.conversation_id,
-    input.parent_conversation_id,
-    input.session_id
-  ].includes(input.generation_id) ? ownEntry(conv.turns, input.generation_id) : void 0;
-  const linked = input.tool_call_id ? candidates.filter((t) => t.tools.some((tool) => tool.tool_use_id === input.tool_call_id)) : [];
-  const proven = generation ? [generation, ...linked] : linked;
-  const possible = proven.length ? proven : candidates;
-  return possible.length > 0 && possible.every((t) => t.tracingMode === "full") ? "full" : "metadata";
-}
-function reduceSubagentStart(state, input, nowMs) {
-  const parentConv = input.parent_conversation_id ?? input.conversation_id;
-  const conv = getConversationState(state, parentConv);
-  if (!acceptLateEvent(conv, parentConv, input))
-    return state;
-  const tracingMode = subagentLaunchMode(conv, input);
-  const turn = latestTurn(conv.turns) ?? newTurnBuffer(input.generation_id, nowMs, nextTurnNum(conv));
-  turn.subagents.push({
-    tracingMode,
-    subagent_id: input.subagent_id,
-    subagent_type: input.subagent_type,
-    task: input.task,
-    model: input.subagent_model ?? input.model,
-    is_parallel_worker: input.is_parallel_worker,
-    startMs: nowMs
-  });
-  setOwnEntry(conv.turns, turn.generation_id, turn);
-  touch(conv);
-  return { ...state, [parentConv]: conv };
-}
-function collectTools(conv) {
-  const tools = [];
-  for (const turn of Object.values(conv.turns))
-    tools.push(...turn.tools);
-  return tools.sort((a, b) => a.endMs - b.endMs);
-}
-function findChildConversation(state, parentConv, startMs, nowMs) {
-  const slack = 2e3;
-  let best;
-  let bestScore = 0;
-  for (const [convId, conv] of Object.entries(state)) {
-    if (convId === parentConv || conv.turn_count !== 0)
-      continue;
-    const inWindow = collectTools(conv).filter((t) => t.endMs >= startMs - slack && t.endMs <= nowMs + slack).length;
-    if (inWindow > bestScore) {
-      bestScore = inWindow;
-      best = convId;
-    }
-  }
-  return best;
-}
-function transcriptToolEvent(call, index, count, startMs, endMs) {
-  const span = Math.max(0, endMs - startMs);
-  const slice = count > 0 ? span / count : 0;
-  const end = Math.round(startMs + slice * (index + 1));
-  return {
-    tool_use_id: `subagent-tool-${index}`,
-    name: call.name,
-    input: call.input,
-    duration: slice / 1e3,
-    endMs: end
-  };
-}
-function reduceSubagentStop(state, input, nowMs, resolved) {
-  const parentConv = input.parent_conversation_id ?? input.conversation_id;
-  const conv = getConversationState(state, parentConv);
-  let target;
-  for (const turn of Object.values(conv.turns)) {
-    const sub = turn.subagents.find((s) => s.subagent_id === input.subagent_id && s.endMs == null);
-    if (sub) {
-      target = sub;
-      break;
-    }
-  }
-  if (!target) {
-    touch(conv);
-    return { ...state, [parentConv]: conv };
-  }
-  target.status = input.status;
-  target.duration_ms = input.duration_ms;
-  target.description = input.description;
-  target.message_count = input.message_count;
-  target.tool_call_count = input.tool_call_count;
-  target.loop_count = input.loop_count;
-  target.endMs = nowMs;
-  if (resolved?.resultText)
-    target.resultText = resolved.resultText;
-  let next = { ...state, [parentConv]: conv };
-  const resolvedChild = resolved?.childConversationId ?? findChildConversation(next, parentConv, target.startMs, nowMs);
-  const childConv = resolvedChild === parentConv ? void 0 : resolvedChild;
-  const child = childConv ? ownEntry(next, childConv) : void 0;
-  if (childConv && child) {
-    target.childConversationId = childConv;
-    target.tools = collectTools(child);
-    if (Object.keys({ ...child.pending, ...child.queued }).length > 0) {
-      next = { ...next, [childConv]: { ...child, turns: {} } };
-    } else {
-      const { [childConv]: _consumed, ...rest } = next;
-      next = rest;
-    }
-  } else if (resolved?.toolCalls?.length) {
-    const calls = resolved.toolCalls;
-    target.childConversationId = resolved.childConversationId;
-    target.tools = calls.map((c, i) => transcriptToolEvent(c, i, calls.length, target.startMs, nowMs));
-  }
-  touch(conv);
-  return next;
-}
-function reduceStop(state, input, nowMs) {
-  const conv = getConversationState(state, input.conversation_id);
-  if (!ownEntry(conv.turns, input.generation_id))
-    reopenSweptTurn(conv, input.generation_id);
-  const turn = ownEntry(conv.turns, input.generation_id);
-  if (!turn) {
-    return { state, turnNum: 0 };
-  }
-  const alreadyCountedBySweep = conv.sweepFinalizedGenerations?.includes(input.generation_id) ?? false;
-  turn.usage = {
-    input_tokens: input.input_tokens,
-    output_tokens: input.output_tokens,
-    cache_read_tokens: input.cache_read_tokens,
-    cache_write_tokens: input.cache_write_tokens
-  };
-  turn.status = input.status;
-  turn.model = preferModel(turn.model, input.model);
-  turn.turnNum ??= nextTurnNum(conv);
-  const turnNum = turn.turnNum;
-  if (turn.tracingMode === "off") {
-    (conv.completedOffGenerations ??= []).push(input.generation_id);
-  } else {
-    (conv.stopFinalizedGenerations ??= []).push(input.generation_id);
-    const pending = conv.pending ??= {};
-    setOwnEntry(pending, input.generation_id, {
-      buffer: turn,
-      turnNum,
-      claimedAt: nowMs,
-      attempts: 1
-    });
-  }
-  forgetSweptTurn(conv, input.generation_id);
-  delete turn.sweptAtMs;
-  deleteOwnEntry(conv.turns, input.generation_id);
-  if (!alreadyCountedBySweep)
-    conv.turn_count += 1;
-  touch(conv, nowMs);
-  const nextState = pruneOldConversations({ ...state, [input.conversation_id]: conv }, nowMs);
-  return { state: nextState, buffer: turn, turnNum };
-}
-function reduceSavedForUpload(state, conversationId, generationId, claimedAt) {
-  const conv = ownEntry(state, conversationId);
-  const entry = ownEntry(conv?.pending, generationId);
-  if (!conv || !entry || entry.claimedAt !== claimedAt)
-    return state;
-  dropPendingUpload(conv, generationId);
-  if (conv.sweepFinalizedGenerations?.includes(generationId)) {
-    entry.buffer.sweptAtMs = entry.claimedAt;
-    setOwnEntry(conv.turns, generationId, entry.buffer);
-  }
-  return { ...state, [conversationId]: conv };
-}
-function lastActivityMs(turn) {
-  return Math.max(turn.startMs, turn.finalTextArrivedMs ?? turn.startMs, ...turn.tools.map((t) => t.endMs), ...turn.subagents.map((s) => s.endMs ?? s.startMs));
-}
-function hasOpenSubagent(turn) {
-  return turn.subagents.some((s) => s.endMs == null);
-}
-function allBuffers(conv) {
-  const pending = Object.values(conv.pending ?? {}).map((entry) => entry.buffer);
-  return [...Object.values(conv.turns), ...pending];
-}
-function threadsRunningASubagent(state, nowMs) {
-  const threads = /* @__PURE__ */ new Set();
-  for (const [parentConv, conv] of Object.entries(state)) {
-    const openStarts = allBuffers(conv).flatMap((turn) => turn.subagents).filter((s) => s.endMs == null).map((s) => s.startMs);
-    for (const startMs of openStarts) {
-      const child = findChildConversation(state, parentConv, startMs, nowMs);
-      if (child)
-        threads.add(child);
-    }
-  }
-  return threads;
-}
-function retryPendingUploads(conv, conversationId, cutoff, nowMs) {
-  const claims = [];
-  let changed = false;
-  for (const [generationId, entry] of Object.entries(conv.pending ?? {})) {
-    if (entry.claimedAt > cutoff)
-      continue;
-    changed = true;
-    if (entry.attempts >= MAX_UPLOAD_ATTEMPTS) {
-      dropPendingUpload(conv, generationId);
-      warn(`Dropping turn ${entry.turnNum} of conversation ${conversationId} after ${entry.attempts} failed upload attempts`);
-      continue;
-    }
-    entry.attempts += 1;
-    entry.claimedAt = nowMs;
-    claims.push({
-      conversationId,
-      generationId,
-      buffer: entry.buffer,
-      turnNum: entry.turnNum,
-      claimedAt: nowMs
-    });
-  }
-  return { claims, changed };
-}
-function claimIdleTurns(conv, conversationId, cutoff, nowMs) {
-  const claims = [];
-  let changed = false;
-  for (const [generationId, turn] of Object.entries(conv.turns)) {
-    if (hasOpenSubagent(turn))
-      continue;
-    const lastMs = lastActivityMs(turn);
-    const recoveredAt = turn.sweptAtMs;
-    if (recoveredAt != null && lastMs <= recoveredAt) {
-      if (recoveredAt > cutoff)
-        continue;
-      deleteOwnEntry(conv.turns, generationId);
-      changed = true;
-      continue;
-    }
-    if (lastMs > cutoff)
-      continue;
-    changed = true;
-    deleteOwnEntry(conv.turns, generationId);
-    if (turn.tracingMode === "off") {
-      (conv.completedOffGenerations ??= []).push(generationId);
-      continue;
-    }
-    turn.turnNum ??= nextTurnNum(conv);
-    const swept = conv.sweepFinalizedGenerations ??= [];
-    if (!swept.includes(generationId)) {
-      swept.push(generationId);
-      conv.turn_count += 1;
-    }
-    turn.status ??= "incomplete";
-    const pending = conv.pending ??= {};
-    setOwnEntry(pending, generationId, {
-      buffer: turn,
-      turnNum: turn.turnNum,
-      claimedAt: nowMs,
-      attempts: 1
-    });
-    claims.push({
-      conversationId,
-      generationId,
-      buffer: turn,
-      turnNum: turn.turnNum,
-      claimedAt: nowMs
-    });
-  }
-  return { claims, changed };
-}
-function reduceSweep(state, callerConversationId, nowMs, thresholdMs) {
-  const claims = [];
-  const cutoff = nowMs - thresholdMs;
-  const subagentThreads = threadsRunningASubagent(state, nowMs);
-  for (const [conversationId, conv] of Object.entries(state)) {
-    if (conversationId === callerConversationId)
-      continue;
-    if (subagentThreads.has(conversationId))
-      continue;
-    const retried = retryPendingUploads(conv, conversationId, cutoff, nowMs);
-    const claimed = claimIdleTurns(conv, conversationId, cutoff, nowMs);
-    claims.push(...retried.claims, ...claimed.claims);
-    if (retried.changed || claimed.changed)
-      touch(conv, nowMs);
-  }
-  return { state: { ...state }, claims };
-}
-var init_reducer = __esm({
-  "dist/src/reducer.js"() {
-    "use strict";
-    init_state2();
-    init_constants18();
-    init_logger();
-    init_normalize2();
-  }
-});
-
-// dist/src/prompt-control.js
-async function handlePromptSubmit(input) {
-  const command = parseTracingCommand(input.prompt);
-  try {
-    if (!input.conversation_id || typeof input.conversation_id !== "string" || !input.generation_id || typeof input.generation_id !== "string") {
-      throw new Error("Nonempty native conversation_id and generation_id required; update Cursor");
-    }
-    const config = loadConfig({ cwd: input.workspace_roots?.[0] });
-    initLogger(config.debug);
-    if (command === "unmute" && mutingLocked(config)) {
-      return { continue: false, user_message: MUTE_LOCKED_MESSAGE };
-    }
-    if (command) {
-      const result = await setThreadTracingMode(tracingPolicyPath(), input.conversation_id, command === "mute" ? "metadata" : "full");
-      return {
-        continue: false,
-        user_message: `Thread tracing ${command === "mute" ? "muted (metadata-only)" : "unmuted (full content)"}. Preference saved for the next turn; the current turn is unchanged.` + (config.managedConfigProblem !== void 0 ? ` ${config.managedConfigProblem}` : !config.enabled ? " Master tracing is disabled; this does not enable it." : "") + (result.warning ? ` Warning: ${result.warning}` : "")
-      };
-    }
-    if (config.managedConfigProblem !== void 0) {
-      const block = await noticeBlock(config, NOTICE_KINDS.managed, config.managedConfigProblem);
-      if (block)
-        return block;
-    }
-    const enabled = config.enabled && !!(sdkSetting(config.apiKey) || config.replicas?.length);
-    await atomicUpdateState(config.stateFilePath, (s) => reduceBeforeSubmitPrompt(s, input, Date.now(), enabled ? getThreadTracingMode(tracingPolicyPath(), input.conversation_id, config.defaultMuted, mutingLocked(config)) : "off", originFromConfig(config, input)));
-    return { continue: true };
-  } catch (error2) {
-    const detail = error2 instanceof Error ? error2.message : String(error2);
-    error(`Could not save tracing preference/turn snapshot: ${detail}. Turn not traced.`);
-    if (command) {
-      return { continue: false, user_message: `Could not save tracing preference: ${detail}` };
-    }
-    return { continue: true };
-  }
-}
-var init_prompt_control = __esm({
-  "dist/src/prompt-control.js"() {
-    "use strict";
-    init_auth();
-    init_config();
-    init_constants18();
-    init_logger();
-    init_notice();
-    init_state2();
-    init_reducer();
-    init_tracing_policy();
-    init_turn_origin();
-  }
-});
-
-// dist/src/hooks/before-submit-prompt.js
-var before_submit_prompt_exports = {};
-__export(before_submit_prompt_exports, {
-  run: () => run
-});
-async function run() {
-  const input = await readStdin();
-  process.stdout.write(JSON.stringify(await handlePromptSubmit(input)) + "\n");
-}
-var init_before_submit_prompt = __esm({
-  "dist/src/hooks/before-submit-prompt.js"() {
-    "use strict";
-    init_stdin();
-    init_prompt_control();
-  }
-});
-
-// dist/src/utils/hook-init.js
-function initHook(cwd) {
-  const config = loadConfig({ cwd });
-  initLogger(config.debug);
-  if (!config.enabled) {
-    return null;
-  }
-  if (!sdkSetting(config.apiKey) && (!config.replicas || config.replicas.length === 0)) {
-    error("Tracing enabled but no API key set (langsmith-plugins.json or .cursor/langsmith.json api_key, LANGSMITH_CURSOR_API_KEY, or LANGSMITH_API_KEY) and no replicas configured");
-    return null;
-  }
-  return config;
-}
-var init_hook_init = __esm({
-  "dist/src/utils/hook-init.js"() {
-    "use strict";
-    init_auth();
-    init_config();
-    init_logger();
-  }
-});
-
-// dist/src/hooks/state-hook.js
-function stateHook({ describe: describe2, reduce }) {
-  return async () => {
-    const input = await readStdin();
-    const config = initHook(input.workspace_roots?.[0]);
-    if (!config)
-      return;
-    debug(describe2(input));
-    await atomicUpdateState(config.stateFilePath, (s) => reduce(s, input, Date.now()));
-  };
-}
-var init_state_hook = __esm({
-  "dist/src/hooks/state-hook.js"() {
-    "use strict";
-    init_logger();
-    init_state2();
-    init_hook_init();
-    init_stdin();
-  }
-});
-
-// dist/src/hooks/after-agent-response.js
-var after_agent_response_exports = {};
-__export(after_agent_response_exports, {
-  run: () => run2
-});
-var run2;
-var init_after_agent_response = __esm({
-  "dist/src/hooks/after-agent-response.js"() {
-    "use strict";
-    init_reducer();
-    init_state_hook();
-    run2 = stateHook({
-      describe: (input) => `afterAgentResponse conv=${input.conversation_id} gen=${input.generation_id}`,
-      reduce: reduceAfterAgentResponse
-    });
-  }
-});
-
-// dist/src/hooks/subagent-start.js
-var subagent_start_exports = {};
-__export(subagent_start_exports, {
-  run: () => run3
-});
-var run3;
-var init_subagent_start = __esm({
-  "dist/src/hooks/subagent-start.js"() {
-    "use strict";
-    init_reducer();
-    init_state_hook();
-    run3 = stateHook({
-      describe: (input) => `subagentStart ${input.subagent_type} (${input.subagent_id})`,
-      reduce: reduceSubagentStart
-    });
-  }
-});
-
-// dist/src/subagent-transcript.js
-import { readFileSync as readFileSync14, readdirSync as readdirSync2, statSync as statSync9 } from "node:fs";
-import { dirname as dirname18, join as join28, basename as basename6 } from "node:path";
-function readJsonl(path3) {
-  const rows = [];
-  for (const line of readFileSync14(path3, "utf-8").split("\n")) {
-    const trimmed = line.trim();
-    if (!trimmed)
-      continue;
-    try {
-      rows.push(JSON.parse(trimmed));
-    } catch {
-    }
-  }
-  return rows;
-}
-function firstUserText(rows) {
-  for (const row of rows) {
-    if (!isRecord(row) || row.role !== "user")
-      continue;
-    const content = isRecord(row.message) ? row.message.content : void 0;
-    if (!Array.isArray(content))
-      continue;
-    return content.filter((p) => isRecord(p) && p.type === "text").map((p) => typeof p.text === "string" ? p.text : "").join("");
-  }
-  return "";
-}
-function resolveSubagentTranscript(parentTranscriptPath, task) {
-  if (!parentTranscriptPath)
-    return void 0;
-  try {
-    const dir = join28(dirname18(parentTranscriptPath), "subagents");
-    const files = readdirSync2(dir).filter((f2) => f2.endsWith(".jsonl"));
-    if (files.length === 0)
-      return void 0;
-    const candidates = files.map((f2) => {
-      const full = join28(dir, f2);
-      return { full, child: basename6(f2, ".jsonl"), mtime: statSync9(full).mtimeMs };
-    });
-    const wanted = task ? normalizeWs(task).slice(0, 120) : "";
-    let chosen;
-    if (candidates.length === 1) {
-      chosen = candidates[0];
-    } else {
-      const matches = candidates.map((c) => ({ ...c, rows: readJsonl(c.full) })).filter((c) => wanted !== "" && normalizeWs(firstUserText(c.rows)).includes(wanted));
-      const pool = matches.length > 0 ? matches : candidates;
-      chosen = pool.slice().sort((a, b) => b.mtime - a.mtime)[0];
-    }
-    const rows = chosen.rows ?? readJsonl(chosen.full);
-    const { toolCalls, resultText } = parseSubagentTranscript(rows);
-    return { childConversationId: chosen.child, toolCalls, resultText };
-  } catch {
-    return void 0;
-  }
-}
-var init_subagent_transcript = __esm({
-  "dist/src/subagent-transcript.js"() {
-    "use strict";
-    init_normalize2();
-    init_normalize2();
-    init_text();
-  }
-});
-
-// dist/src/hooks/subagent-stop.js
-var subagent_stop_exports = {};
-__export(subagent_stop_exports, {
-  run: () => run4
-});
-async function run4() {
-  const input = await readStdin();
-  const config = initHook(input.workspace_roots?.[0]);
-  if (!config)
-    return;
-  debug(`subagentStop ${input.subagent_type} (${input.subagent_id})`);
-  const resolved = resolveSubagentTranscript(input.transcript_path, input.task);
-  if (resolved) {
-    debug(`resolved subagent transcript: child=${resolved.childConversationId}, ${resolved.toolCalls.length} tool call(s)`);
-  }
-  await atomicUpdateState(config.stateFilePath, (s) => reduceSubagentStop(s, input, Date.now(), resolved));
-}
-var init_subagent_stop = __esm({
-  "dist/src/hooks/subagent-stop.js"() {
-    "use strict";
-    init_stdin();
-    init_hook_init();
-    init_state2();
-    init_reducer();
-    init_subagent_transcript();
-    init_logger();
   }
 });
 
