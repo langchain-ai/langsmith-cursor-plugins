@@ -1,5 +1,3 @@
-import { NOTICE_COOLDOWN_OFF } from "../constants.js";
-
 export function parseBoolean(value: unknown): boolean | undefined {
   if (typeof value === "boolean") return value;
   if (typeof value !== "string") return undefined;
@@ -13,13 +11,6 @@ export function parsePositiveNumber(value: unknown): number | undefined {
   if (typeof value !== "string" || value.trim().length === 0) return undefined;
   const parsed = Number(value);
   return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined;
-}
-
-export function parseNoticeCooldown(value: unknown): number | "off" | undefined {
-  if (typeof value !== "string" || value.trim().length === 0) return undefined;
-  if (value.trim() === NOTICE_COOLDOWN_OFF) return NOTICE_COOLDOWN_OFF;
-  const parsed = Number(value);
-  return Number.isFinite(parsed) && parsed >= 0 ? parsed : undefined;
 }
 
 export function parseJson<T = Record<string, unknown>>(value: unknown): T | undefined {
