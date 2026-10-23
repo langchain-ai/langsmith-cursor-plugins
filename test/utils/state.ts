@@ -56,6 +56,8 @@ export function testConfig(stateFilePath: string): Config {
     sweepIdleMinutes: 60,
     cwd: dirname(stateFilePath),
     locked: [],
+    apiUrlIsDefault: false,
+    strictAuth: false,
   };
 }
 

@@ -1,3 +1,4 @@
+import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import "./no-managed-config.mjs";
 
@@ -6,3 +7,4 @@ const preload = process.platform === "win32" ? preloadUrl.href : fileURLToPath(p
 process.env.NODE_OPTIONS = [process.env.NODE_OPTIONS, `--import=${JSON.stringify(preload)}`]
   .filter(Boolean)
   .join(" ");
+process.env.LANGSMITH_CONFIG_FILE ??= join(process.env.LS_TEST_ACCOUNT_HOME!, "no-login.json");

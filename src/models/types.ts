@@ -47,6 +47,11 @@ export interface PromptReply {
   user_message?: string;
 }
 
+export interface PromptNotice {
+  kind: string;
+  text: string;
+}
+
 /** Token usage carried by both afterAgentResponse and stop. */
 export interface UsageFields {
   input_tokens?: number;
