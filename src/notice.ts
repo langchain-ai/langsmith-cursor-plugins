@@ -2,6 +2,7 @@ import {
   LOGIN_NOTICE_KIND,
   readLoginNotice,
   refusedLoginReplicas,
+  sdkSetting,
   type UploadCredential,
 } from "@langchain/plugins-base/auth";
 import { NOTICE_KINDS } from "./constants.js";
@@ -17,8 +18,10 @@ export function promptNotice(
   if (config.managedConfigProblem !== undefined)
     return { kind: NOTICE_KINDS.managed, text: config.managedConfigProblem };
   if (!config.enabled) return undefined;
+  const keyedReplicasOnly =
+    !!config.replicas?.length && config.replicas.every((replica) => sdkSetting(replica.apiKey));
   const loginNotice =
-    credential.kind === "none"
+    credential.kind === "none" || keyedReplicasOnly
       ? undefined
       : readLoginNotice(
           storageRootFor(config),

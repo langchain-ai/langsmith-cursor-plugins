@@ -609,6 +609,19 @@ it("stays quiet about the login while tracing is off", async () => {
   expect(await prompt("thread", "first")).toEqual({ continue: true });
 });
 
+it("ignores an expired login when every upload goes to a replica with its own key", async () => {
+  const { prompt } = await withLogin(
+    {
+      LANGSMITH_CURSOR_STRICT_AUTH: "true",
+      LANGSMITH_CURSOR_RUNS_ENDPOINTS: JSON.stringify([
+        { api_url: "https://replica.test", api_key: "replica-key" },
+      ]),
+    },
+    "login paused",
+  );
+  expect(await prompt("thread", "first")).toEqual({ continue: true });
+});
+
 it("checks the rejected-key notice only for the API key in use", async () => {
   const { prompt } = await withLogin(
     { LANGSMITH_CURSOR_API_KEY: "key", LANGSMITH_CURSOR_ENDPOINT: "https://ls.test" },

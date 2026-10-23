@@ -24491,7 +24491,8 @@ function promptNotice(config, credential, problem) {
     return { kind: NOTICE_KINDS.managed, text: config.managedConfigProblem };
   if (!config.enabled)
     return void 0;
-  const loginNotice = credential.kind === "none" ? void 0 : readLoginNotice(storageRootFor(config), process.env, credential.kind === "api-key" ? { apiKey: credential.apiKey, apiUrl: credential.apiUrl } : void 0);
+  const keyedReplicasOnly = !!config.replicas?.length && config.replicas.every((replica) => sdkSetting(replica.apiKey));
+  const loginNotice = credential.kind === "none" || keyedReplicasOnly ? void 0 : readLoginNotice(storageRootFor(config), process.env, credential.kind === "api-key" ? { apiKey: credential.apiKey, apiUrl: credential.apiUrl } : void 0);
   if (loginNotice !== void 0)
     return { kind: LOGIN_NOTICE_KIND, text: loginNotice };
   const replicaReason = credential.kind === "login" ? refusedLoginReplicas(config.replicas, credential.apiUrl) : void 0;
