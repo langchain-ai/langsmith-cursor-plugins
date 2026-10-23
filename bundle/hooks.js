@@ -59,7 +59,7 @@ var init_errors = __esm({
 });
 
 // node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_e900102805071989dd5777a6902a8388/node_modules/@langchain/plugins-base/dist/plugin/constants.js
-var POLICY_LOCK_TIMEOUT_MS, POLICY_LOCK_TIMEOUT_ERROR, POLICY_LOCK_TIMEOUT_MESSAGE, POLICY_UNREADABLE_MESSAGE, POLICY_NOT_REGULAR_MESSAGE, POLICY_ASYNC_UPDATE_MESSAGE, POLICY_FILE_MODE, POLICY_FILE_ENCODING, POLICY_TEMP_CREATE_FLAG, POLICY_DIRECTORY_OPEN_FLAG, POLICY_WARNING_SEPARATOR, POLICY_TEMP_CLOSE_WARNING, POLICY_TEMP_CLEANUP_WARNING, POLICY_DIRECTORY_CLOSE_WARNING, POLICY_LOCK_CLEANUP_FAILED_PREFIX, POLICY_CANNOT_READ_PREFIX, POLICY_DURABILITY_WARNING, POLICY_LOCK_RELEASE_WARNING, COMPILED_BINARY_ENTRY_PREFIXES, WORKER_LOG_FILE_NAME, WORKER_LOG_MODE, WORKER_LOG_MAX_BYTES, WORKER_LOG_APPEND_FLAG, WORKER_LOG_TRUNCATE_FLAG, SYSTEM_CERTIFICATES_FILE_NAME, WORKER_NO_PID_MESSAGE, UNAVAILABLE_ACCOUNT_FINGERPRINT, HOOK_HELP_FLAGS, HOOK_VERSION_FLAGS, POLICY_PARSE_RESULT_MESSAGE, HOOK_OPTIONS_INVALID_MESSAGE, HOOK_ERROR_HANDLER_WARNING, NOTICE_DEFAULT_COOLDOWN_MINUTES, NOTICE_MINUTE_MS, NOTICE_OFF, NOTICE_STATE_FILE, NOTICE_KEY_SEPARATOR;
+var POLICY_LOCK_TIMEOUT_MS, POLICY_LOCK_TIMEOUT_ERROR, POLICY_LOCK_TIMEOUT_MESSAGE, POLICY_UNREADABLE_MESSAGE, POLICY_NOT_REGULAR_MESSAGE, POLICY_ASYNC_UPDATE_MESSAGE, POLICY_FILE_MODE, POLICY_FILE_ENCODING, POLICY_TEMP_CREATE_FLAG, POLICY_DIRECTORY_OPEN_FLAG, POLICY_WARNING_SEPARATOR, POLICY_TEMP_CLOSE_WARNING, POLICY_TEMP_CLEANUP_WARNING, POLICY_DIRECTORY_CLOSE_WARNING, POLICY_LOCK_CLEANUP_FAILED_PREFIX, POLICY_CANNOT_READ_PREFIX, POLICY_DURABILITY_WARNING, POLICY_LOCK_RELEASE_WARNING, COMPILED_BINARY_ENTRY_PREFIXES, WORKER_LOG_FILE_NAME, WORKER_LOG_MODE, WORKER_LOG_MAX_BYTES, WORKER_LOG_APPEND_FLAG, WORKER_LOG_TRUNCATE_FLAG, SYSTEM_CERTIFICATES_FILE_NAME, WORKER_NO_PID_MESSAGE, UNAVAILABLE_ACCOUNT_FINGERPRINT, HOOK_HELP_FLAGS, HOOK_VERSION_FLAGS, POLICY_PARSE_RESULT_MESSAGE, HOOK_OPTIONS_INVALID_MESSAGE, HOOK_ERROR_HANDLER_WARNING;
 var init_constants = __esm({
   "node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_e900102805071989dd5777a6902a8388/node_modules/@langchain/plugins-base/dist/plugin/constants.js"() {
     POLICY_LOCK_TIMEOUT_MS = 2e3;
@@ -98,11 +98,6 @@ var init_constants = __esm({
     POLICY_PARSE_RESULT_MESSAGE = "A policy parser must return a policy";
     HOOK_OPTIONS_INVALID_MESSAGE = "Hook options need a hooks table and onHookError and onUnknown callbacks";
     HOOK_ERROR_HANDLER_WARNING = "The hook error handler failed:";
-    NOTICE_DEFAULT_COOLDOWN_MINUTES = 2;
-    NOTICE_MINUTE_MS = 6e4;
-    NOTICE_OFF = "off";
-    NOTICE_STATE_FILE = "notices.json";
-    NOTICE_KEY_SEPARATOR = "\n";
   }
 });
 
@@ -23509,26 +23504,10 @@ var init_worker_launch = __esm({
 
 // node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_e900102805071989dd5777a6902a8388/node_modules/@langchain/plugins-base/dist/plugin/notice-cooldown.js
 import { join as join18 } from "node:path";
-async function shouldShowNotice(options) {
-  if (options.cooldown === NOTICE_OFF)
-    return false;
-  const windowMs = (options.cooldown ?? NOTICE_DEFAULT_COOLDOWN_MINUTES) * NOTICE_MINUTE_MS;
-  const key = `${options.plugin}${NOTICE_KEY_SEPARATOR}${options.kind}`;
-  try {
-    return await claimStateEntry(join18(options.storageRoot, NOTICE_STATE_FILE), key, windowMs);
-  } catch {
-    if (options.persistentOnly || shownInProcess.has(key))
-      return false;
-    shownInProcess.add(key);
-    return true;
-  }
-}
-var shownInProcess;
 var init_notice_cooldown = __esm({
   "node_modules/.pnpm/@langchain+plugins-base@https+++codeload.github.com+langchain-ai+langsmith-plugin-binar_e900102805071989dd5777a6902a8388/node_modules/@langchain/plugins-base/dist/plugin/notice-cooldown.js"() {
     init_state_claim();
     init_constants();
-    shownInProcess = /* @__PURE__ */ new Set();
   }
 });
 
@@ -24074,7 +24053,7 @@ var init_settings = __esm({
 });
 
 // dist/src/constants.js
-var TURN_RUN_NAME, SKILL_RUN_NAME, DEFAULT_TAGS, DEFAULT_PROJECT, DEFAULT_SWEEP_IDLE_MINUTES, NOTICE_PLUGIN, NOTICE_COOLDOWN_OFF, NOTICE_KINDS, MUTE_LOCKED_MESSAGE, DEFAULT_API_URL2, CURSOR_DIRECTORY_NAME, MANAGED_PLUGIN_FIELDS, MAX_UPLOAD_ATTEMPTS, BINARY_HOOK_EVENTS, LEADING_BYTE_ORDER_MARKS, LS_INTEGRATION, SKILL_READ_TOOLS, PATH_SEPARATOR, MAX_ATTACHMENT_BYTES, MAX_LOG_BYTES, CONVERSATION_MAX_AGE_MS, WHITESPACE_RUN, MODEL_SUFFIXES, PROVIDER_PREFIX, CLAUDE_VERSIONED_MODEL, OPENAI_MODEL_PREFIX, CURSOR_VENDOR_PREFIX, MCP_TOOL_PREFIX, SUBAGENT_PSEUDO_TOOLS, STATE_FILE_NAME, LEGACY_STATE_FILE_NAME, TRACING_POLICY_FILE_NAME, LEGACY_TRACING_POLICY_FILE_NAME, HOOK_LOG_FILE_NAME, HOOK_CONTINUE_OUTPUT, ENGINE_WORKER_COMMAND, ENGINE_STORAGE_DIR_NAME, JOB_EVENT_PREFIX, JOB_REF_PREFIX, TOOL_JOB_REF_PREFIX, JOB_STORE_DIR_NAME, GH_LOGIN_MARKER_FILE, TOOL_PATH_INPUT_KEYS, RUN_EVENT_PREFIX, PATCH_EVENT_PREFIX, RUN_SNAPSHOT_FIELDS, RUN_PATCH_FIELDS, CAPTURE_PUBLISHED_STATUS, CAPTURE_DUPLICATE_STATUS, TURN_ON_OTHER_ACCOUNT_MESSAGE, SQLITE_EXPERIMENTAL_WARNING;
+var TURN_RUN_NAME, SKILL_RUN_NAME, DEFAULT_TAGS, DEFAULT_PROJECT, DEFAULT_SWEEP_IDLE_MINUTES, NOTICE_KINDS, MUTE_LOCKED_MESSAGE, DEFAULT_API_URL2, CURSOR_DIRECTORY_NAME, MANAGED_PLUGIN_FIELDS, MAX_UPLOAD_ATTEMPTS, BINARY_HOOK_EVENTS, LEADING_BYTE_ORDER_MARKS, LS_INTEGRATION, SKILL_READ_TOOLS, PATH_SEPARATOR, MAX_ATTACHMENT_BYTES, MAX_LOG_BYTES, CONVERSATION_MAX_AGE_MS, WHITESPACE_RUN, MODEL_SUFFIXES, PROVIDER_PREFIX, CLAUDE_VERSIONED_MODEL, OPENAI_MODEL_PREFIX, CURSOR_VENDOR_PREFIX, MCP_TOOL_PREFIX, SUBAGENT_PSEUDO_TOOLS, STATE_FILE_NAME, LEGACY_STATE_FILE_NAME, TRACING_POLICY_FILE_NAME, LEGACY_TRACING_POLICY_FILE_NAME, HOOK_LOG_FILE_NAME, HOOK_CONTINUE_OUTPUT, ENGINE_WORKER_COMMAND, ENGINE_STORAGE_DIR_NAME, JOB_EVENT_PREFIX, JOB_REF_PREFIX, TOOL_JOB_REF_PREFIX, JOB_STORE_DIR_NAME, GH_LOGIN_MARKER_FILE, TOOL_PATH_INPUT_KEYS, RUN_EVENT_PREFIX, PATCH_EVENT_PREFIX, RUN_SNAPSHOT_FIELDS, RUN_PATCH_FIELDS, CAPTURE_PUBLISHED_STATUS, CAPTURE_DUPLICATE_STATUS, TURN_ON_OTHER_ACCOUNT_MESSAGE, SQLITE_EXPERIMENTAL_WARNING;
 var init_constants18 = __esm({
   "dist/src/constants.js"() {
     "use strict";
@@ -24083,8 +24062,6 @@ var init_constants18 = __esm({
     DEFAULT_TAGS = ["cursor", "coding-agent"];
     DEFAULT_PROJECT = "cursor";
     DEFAULT_SWEEP_IDLE_MINUTES = 360;
-    NOTICE_PLUGIN = "cursor";
-    NOTICE_COOLDOWN_OFF = "off";
     NOTICE_KINDS = {
       managed: "managed",
       replica: "replica",
@@ -24238,14 +24215,6 @@ function parsePositiveNumber(value) {
   const parsed = Number(value);
   return Number.isFinite(parsed) && parsed > 0 ? parsed : void 0;
 }
-function parseNoticeCooldown(value) {
-  if (typeof value !== "string" || value.trim().length === 0)
-    return void 0;
-  if (value.trim() === NOTICE_COOLDOWN_OFF)
-    return NOTICE_COOLDOWN_OFF;
-  const parsed = Number(value);
-  return Number.isFinite(parsed) && parsed >= 0 ? parsed : void 0;
-}
 function parseJson(value) {
   if (typeof value !== "string" || value.trim().length === 0)
     return void 0;
@@ -24258,7 +24227,6 @@ function parseJson(value) {
 var init_parse4 = __esm({
   "dist/src/utils/parse.js"() {
     "use strict";
-    init_constants18();
   }
 });
 
@@ -24382,7 +24350,6 @@ function loadConfig(options) {
       metadata: envMetadata,
       redact: parseBoolean(getEnv2("REDACT")),
       redact_extra_rules: parseRedactExtraRules(getEnv2("REDACT_EXTRA")),
-      notice_cooldown: parseNoticeCooldown(getEnv2("NOTICE_COOLDOWN")),
       strict_auth: parseBoolean(getEnv2("STRICT_AUTH"))
     },
     defaults: { api_key: "", api_url: DEFAULT_API_URL2, project: DEFAULT_PROJECT }
@@ -24421,7 +24388,6 @@ function loadConfig(options) {
     sweepIdleMinutes,
     cwd,
     locked: common.locked,
-    noticeCooldown: common.notice_cooldown,
     apiUrlIsDefault: common.defaulted.includes("api_url"),
     strictAuth: common.strict_auth === true,
     ...common.managedConfigProblem === void 0 ? {} : { managedConfigProblem: common.managedConfigProblem }
@@ -24533,21 +24499,10 @@ function promptNotice(config, credential, problem) {
     return { kind: NOTICE_KINDS.replica, text: replicaReason };
   return problem === void 0 ? void 0 : { kind: NOTICE_KINDS.credential, text: problem };
 }
-async function noticeBlock(config, kind, message) {
-  const show = await shouldShowNotice({
-    plugin: NOTICE_PLUGIN,
-    kind,
-    cooldown: config.noticeCooldown,
-    storageRoot: storageRootFor(config),
-    persistentOnly: true
-  });
-  return show ? { continue: false, user_message: message } : void 0;
-}
 var init_notice = __esm({
   "dist/src/notice.js"() {
     "use strict";
     init_auth();
-    init_plugin();
     init_constants18();
     init_writer_options();
   }
@@ -25276,9 +25231,8 @@ async function handlePromptSubmit(input) {
     const untraced = notice?.kind === LOGIN_NOTICE_KIND || notice?.kind !== NOTICE_KINDS.managed && problem !== void 0;
     if (notice && untraced && config.strictAuth)
       return { continue: false, user_message: notice.text };
-    const block = notice && await noticeBlock(config, notice.kind, notice.text);
-    if (block)
-      return block;
+    if (notice)
+      warn(notice.text);
     await atomicUpdateState(config.stateFilePath, (s) => reduceBeforeSubmitPrompt(s, input, Date.now(), enabled ? mode : "off", originFromConfig(config, input)));
     return { continue: true };
   } catch (error2) {

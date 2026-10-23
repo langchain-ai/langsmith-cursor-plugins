@@ -561,19 +561,21 @@ async function withLogin(extraEnv: Record<string, string>, loginNotice?: string)
 }
 
 const held = (message: unknown) => ({ continue: false, user_message: message });
+const logged = () => readFileSync(join(dir, "hook.log"), "utf8");
 
 afterEach(() => {
   vi.unstubAllEnvs();
 });
 
-it("holds back one prompt per cooldown for an expired CLI login and still traces the next", async () => {
+it("lets every prompt through for an expired CLI login and only logs why", async () => {
   const { initHook, prompt } = await withLogin({}, "login paused");
-  expect(await prompt("thread", "first")).toEqual(held("login paused"));
+  expect(await prompt("thread", "first")).toEqual({ continue: true });
   expect(await prompt("thread", "second")).toEqual({ continue: true });
   expect(initHook(dir)).not.toBeNull();
   const turns = loadState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns;
-  expect(Object.keys(turns)).toEqual(["second"]);
+  expect(Object.keys(turns)).toEqual(["first", "second"]);
   expect(turns.second.tracingMode).toBe("full");
+  expect(logged()).toContain("login paused");
 });
 
 it("holds back every prompt in strict mode until the user signs in again", async () => {
@@ -613,7 +615,8 @@ it("checks the rejected-key notice only for the API key in use", async () => {
     "key rejected",
   );
   const { readLoginNotice } = await import("@langchain/plugins-base/auth");
-  expect(await prompt("thread", "first")).toEqual(held("key rejected"));
+  expect(await prompt("thread", "first")).toEqual({ continue: true });
+  expect(logged()).toContain("key rejected");
   expect(vi.mocked(readLoginNotice).mock.calls.at(-1)?.[2]).toEqual({
     apiKey: "key",
     apiUrl: "https://ls.test",
@@ -635,9 +638,9 @@ it.skipIf(process.platform === "win32")(
     mkdirSync(managed, { recursive: true });
     writeFileSync(join(managed, "managed.json"), "{}");
     try {
-      expect(await prompt("thread", "first")).toEqual(
-        held(expect.stringContaining("owned by root")),
-      );
+      expect(await prompt("thread", "first")).toEqual({ continue: true });
+      expect(logged()).toContain("owned by root");
+      expect(logged()).not.toContain("login paused");
     } finally {
       rmSync(join(managed, "managed.json"));
     }
@@ -648,9 +651,8 @@ it("stops tracing and names keyless replicas the login can't reach", async () =>
   const { initHook, prompt } = await withLogin({
     LANGSMITH_CURSOR_RUNS_ENDPOINTS: JSON.stringify([{ api_url: "https://replica.test" }]),
   });
-  expect(await prompt("thread", "first")).toEqual(
-    held(expect.stringContaining("https://replica.test")),
-  );
+  expect(await prompt("thread", "first")).toEqual({ continue: true });
+  expect(logged()).toContain("https://replica.test");
   expect(await prompt("thread", "second")).toEqual({ continue: true });
   expect(initHook(dir)).toBeNull();
   expect(loadState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns.second.tracingMode).toBe("off");
@@ -713,9 +715,8 @@ it.each(['""', "   ", '" "'])(
         workspace_roots: [dir],
       });
     try {
-      expect(await submit("one")).toEqual(
-        held(expect.stringContaining("not signed in to LangSmith")),
-      );
+      expect(await submit("one")).toEqual({ continue: true });
+      expect(logged()).toContain("not signed in to LangSmith");
       expect(await submit("two")).toEqual({ continue: true });
       expect(initHook(dir)).toBeNull();
       expect(loadState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns.two.tracingMode).toBe("off");

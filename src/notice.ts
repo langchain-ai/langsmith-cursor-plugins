@@ -4,10 +4,9 @@ import {
   refusedLoginReplicas,
   type UploadCredential,
 } from "@langchain/plugins-base/auth";
-import { shouldShowNotice } from "@langchain/plugins-base/plugin";
-import { NOTICE_KINDS, NOTICE_PLUGIN } from "./constants.js";
+import { NOTICE_KINDS } from "./constants.js";
 import type { Config } from "./models/config.js";
-import type { PromptNotice, PromptReply } from "./models/types.js";
+import type { PromptNotice } from "./models/types.js";
 import { storageRootFor } from "./writer-options.js";
 
 export function promptNotice(
@@ -35,19 +34,4 @@ export function promptNotice(
       : undefined;
   if (replicaReason !== undefined) return { kind: NOTICE_KINDS.replica, text: replicaReason };
   return problem === undefined ? undefined : { kind: NOTICE_KINDS.credential, text: problem };
-}
-
-export async function noticeBlock(
-  config: Config,
-  kind: string,
-  message: string,
-): Promise<PromptReply | undefined> {
-  const show = await shouldShowNotice({
-    plugin: NOTICE_PLUGIN,
-    kind,
-    cooldown: config.noticeCooldown,
-    storageRoot: storageRootFor(config),
-    persistentOnly: true,
-  });
-  return show ? { continue: false, user_message: message } : undefined;
 }

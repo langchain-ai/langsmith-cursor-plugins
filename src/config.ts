@@ -26,12 +26,7 @@ import {
   STATE_FILE_NAME,
 } from "./constants.js";
 import type { Config, CursorExtensions, EnvBooleanOptions } from "./models/config.js";
-import {
-  parseBoolean,
-  parseJson,
-  parseNoticeCooldown,
-  parsePositiveNumber,
-} from "./utils/parse.js";
+import { parseBoolean, parseJson, parsePositiveNumber } from "./utils/parse.js";
 
 /**
  * Plugin version, injected at build time by esbuild `define` (no runtime
@@ -186,7 +181,6 @@ export function loadConfig(options?: { cwd?: string }): Config {
         metadata: envMetadata,
         redact: parseBoolean(getEnv("REDACT")),
         redact_extra_rules: parseRedactExtraRules(getEnv("REDACT_EXTRA")),
-        notice_cooldown: parseNoticeCooldown(getEnv("NOTICE_COOLDOWN")),
         strict_auth: parseBoolean(getEnv("STRICT_AUTH")),
       },
       defaults: { api_key: "", api_url: DEFAULT_API_URL, project: DEFAULT_PROJECT },
@@ -253,7 +247,6 @@ export function loadConfig(options?: { cwd?: string }): Config {
     sweepIdleMinutes,
     cwd,
     locked: common.locked,
-    noticeCooldown: common.notice_cooldown,
     apiUrlIsDefault: common.defaulted.includes("api_url"),
     strictAuth: common.strict_auth === true,
     ...(common.managedConfigProblem === undefined

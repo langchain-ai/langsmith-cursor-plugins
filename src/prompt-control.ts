@@ -1,8 +1,8 @@
 import { LOGIN_NOTICE_KIND } from "@langchain/plugins-base/auth";
 import { loadConfig } from "./config.js";
 import { MUTE_LOCKED_MESSAGE, NOTICE_KINDS } from "./constants.js";
-import { error as logError, initLogger } from "./logger.js";
-import { noticeBlock, promptNotice } from "./notice.js";
+import { error as logError, initLogger, warn as logWarn } from "./logger.js";
+import { promptNotice } from "./notice.js";
 import { atomicUpdateState } from "./state.js";
 import { reduceBeforeSubmitPrompt } from "./reducer.js";
 import {
@@ -67,8 +67,7 @@ export async function handlePromptSubmit(input: BeforeSubmitPromptInput): Promis
       (notice?.kind !== NOTICE_KINDS.managed && problem !== undefined);
     if (notice && untraced && config.strictAuth)
       return { continue: false, user_message: notice.text };
-    const block = notice && (await noticeBlock(config, notice.kind, notice.text));
-    if (block) return block;
+    if (notice) logWarn(notice.text);
     await atomicUpdateState(config.stateFilePath, (s) =>
       reduceBeforeSubmitPrompt(
         s,
