@@ -65,7 +65,7 @@ export async function handlePromptSubmit(input: BeforeSubmitPromptInput): Promis
     const untraced =
       notice?.kind === LOGIN_NOTICE_KIND ||
       (notice?.kind !== NOTICE_KINDS.managed && problem !== undefined);
-    if (notice && untraced && config.strictAuth && mode === "full")
+    if (notice && untraced && config.strictAuth)
       return { continue: false, user_message: notice.text };
     const block = notice && (await noticeBlock(config, notice.kind, notice.text));
     if (block) return block;

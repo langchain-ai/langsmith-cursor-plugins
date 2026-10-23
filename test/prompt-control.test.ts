@@ -607,11 +607,11 @@ it("holds back every prompt in strict mode when nothing can upload", async () =>
   expect(await prompt("thread", "second")).toEqual(refused);
 });
 
-it("lets a muted conversation through in strict mode", async () => {
+it("holds back every prompt in a muted conversation in strict mode", async () => {
   const { prompt } = await withLogin({ LANGSMITH_CURSOR_STRICT_AUTH: "true" }, "login paused");
   await prompt("thread", "mute", "langsmith-tracing:mute");
   expect(await prompt("thread", "first")).toEqual(held("login paused"));
-  expect(await prompt("thread", "second")).toEqual({ continue: true });
+  expect(await prompt("thread", "second")).toEqual(held("login paused"));
 });
 
 it("stays quiet about the login while tracing is off", async () => {
@@ -725,7 +725,9 @@ it.each(['""', "   ", '" "'])(
         workspace_roots: [dir],
       });
     try {
-      expect(await submit("one")).toEqual(held(expect.stringContaining("not signed in to LangSmith")));
+      expect(await submit("one")).toEqual(
+        held(expect.stringContaining("not signed in to LangSmith")),
+      );
       expect(await submit("two")).toEqual({ continue: true });
       expect(initHook(dir)).toBeNull();
       expect(loadState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns.two.tracingMode).toBe("off");
