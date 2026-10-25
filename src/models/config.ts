@@ -28,6 +28,8 @@ export interface Config {
   redactExtraRules?: StringNodeRule[];
   cwd: string;
   locked: LockableField[];
+  apiUrlIsDefault: boolean;
+  strictAuth: boolean;
   managedConfigProblem?: string;
 }
 

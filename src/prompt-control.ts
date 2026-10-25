@@ -1,7 +1,8 @@
-import { sdkSetting } from "@langchain/plugins-base/auth";
+import { LOGIN_NOTICE_KIND } from "@langchain/plugins-base/auth";
 import { loadConfig } from "./config.js";
-import { MUTE_LOCKED_MESSAGE } from "./constants.js";
+import { MUTE_LOCKED_MESSAGE, NOTICE_KINDS } from "./constants.js";
 import { error as logError, initLogger, warn as logWarn } from "./logger.js";
+import { promptNotice } from "./notice.js";
 import { atomicUpdateState } from "./state.js";
 import { reduceBeforeSubmitPrompt } from "./reducer.js";
 import {
@@ -12,6 +13,7 @@ import {
   tracingPolicyPath,
 } from "./tracing-policy.js";
 import { originFromConfig } from "./turn-origin.js";
+import { uploadCredential, uploadProblem } from "./writer-options.js";
 import type { BeforeSubmitPromptInput, PromptReply } from "./models/types.js";
 
 /** Synchronous command hook contract, not an LLM skill or slash-command expansion. */
@@ -49,22 +51,29 @@ export async function handlePromptSubmit(input: BeforeSubmitPromptInput): Promis
           (result.warning ? ` Warning: ${result.warning}` : ""),
       };
     }
-    if (config.managedConfigProblem !== undefined) logWarn(config.managedConfigProblem);
     // Even master-off launches need evidence if tracing is enabled before stop.
-    const enabled = config.enabled && !!(sdkSetting(config.apiKey) || config.replicas?.length);
+    const credential = uploadCredential(config);
+    const problem = uploadProblem(config, credential);
+    const enabled = config.enabled && problem === undefined;
+    const mode = getThreadTracingMode(
+      tracingPolicyPath(),
+      input.conversation_id,
+      config.defaultMuted,
+      mutingLocked(config),
+    );
+    const notice = promptNotice(config, credential, problem);
+    const untraced =
+      notice?.kind === LOGIN_NOTICE_KIND ||
+      (notice?.kind !== NOTICE_KINDS.managed && problem !== undefined);
+    if (notice && untraced && config.strictAuth)
+      return { continue: false, user_message: notice.text };
+    if (notice) logWarn(notice.text);
     await atomicUpdateState(config.stateFilePath, (s) =>
       reduceBeforeSubmitPrompt(
         s,
         input,
         Date.now(),
-        enabled
-          ? getThreadTracingMode(
-              tracingPolicyPath(),
-              input.conversation_id,
-              config.defaultMuted,
-              mutingLocked(config),
-            )
-          : "off",
+        enabled ? mode : "off",
         originFromConfig(config, input),
       ),
     );
