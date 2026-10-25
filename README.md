@@ -65,6 +65,10 @@ Nothing is uploaded until tracing is on and a key is set. Redaction removes the 
 
 Rarer settings cover extra metadata on every run (`metadata`), sending to more than one LangSmith (`replicas`), redaction patterns of your own (`redact_extra_rules`), a different Cursor database path (`cursor_db_path`) and how long an unfinished turn waits before it is swept up (`sweep_idle_minutes`). Their environment variables are `LANGSMITH_CURSOR_METADATA`, `LANGSMITH_CURSOR_RUNS_ENDPOINTS`, `LANGSMITH_CURSOR_REDACT_EXTRA`, `LANGSMITH_CURSOR_DB_PATH` and `LANGSMITH_CURSOR_SWEEP_IDLE_MINUTES`, and `LANGSMITH_CURSOR_DEBUG=1` turns on verbose logging. The credential and enrichment variables also answer to the shorter `LANGSMITH_` name, and the `LANGSMITH_CURSOR_` one wins when you set both.
 
+### Lock settings with a managed file
+
+An admin can lock `enabled`, `defaultMuted`, `api_key`, `api_url`, `project`, `replicas`, `metadata`, `redact`, `redact_extra_rules`, `attachments` and `system_prompt` for each user through a managed file at `~/.langsmith-plugins/managed.json` in each user's home, which overrides every other file and environment variable. `sweep_idle_minutes` and `cursor_db_path` can't be locked, so setting them there only logs a warning. If that file is broken or not owned by root, tracing stops and the plugin's log says why, as does the mute and unmute reply. Windows doesn't read the managed file. See [the settings guide](https://github.com/langchain-ai/langsmith-plugin-binary/blob/main/docs/settings.md) to set it up.
+
 ### Muting a conversation
 
 Send `langsmith-tracing:mute` on its own as a whole message in Cursor's agent chat and that conversation stops uploading content, and `langsmith-tracing:unmute` turns it back on. The message has to be exactly that with no slash, no arguments and nothing else around it, since anything else counts as an ordinary prompt and gets traced. Wait for the acknowledgment before you send private work, because a reply reporting failure means the change did not take.

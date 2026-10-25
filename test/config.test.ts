@@ -3,8 +3,16 @@ import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { readCommonConfigFiles, type CommonConfig } from "@langchain/plugins-base/settings";
 import { loadConfig } from "../src/config.js";
 import * as logger from "../src/logger.js";
+import { writerOptions } from "../src/writer-options.js";
+
+vi.mock("@langchain/plugins-base/settings", { spy: true });
+
+const { readCommonConfigFiles: readFiles } = await vi.importActual<
+  typeof import("@langchain/plugins-base/settings")
+>("@langchain/plugins-base/settings");
 
 afterEach(() => {
   vi.unstubAllEnvs();
@@ -282,6 +290,47 @@ describe("loadConfig", () => {
       ]);
       vi.stubEnv("LANGSMITH_CURSOR_RUNS_ENDPOINTS", "[]");
       expect(loadConfig({ cwd }).replicas).toEqual([]);
+    });
+  });
+
+  describe("a managed file locking where traces go", () => {
+    const lock = (common: CommonConfig, raw: Record<string, unknown> = { ...common }) =>
+      vi.mocked(readCommonConfigFiles).mockImplementationOnce((options) => ({
+        ...readFiles(options),
+        managed: { status: "valid", common, raw, diagnostics: [] },
+      }));
+
+    it("keeps environment replicas and the turn's project from bypassing the lock", () => {
+      lock({ api_url: "https://locked.test", project: "locked" });
+      vi.stubEnv(
+        "LANGSMITH_CURSOR_RUNS_ENDPOINTS",
+        JSON.stringify([{ api_url: "https://x.test" }]),
+      );
+      const writer = writerOptions(loadConfig({ cwd }), "turn-project");
+      expect(writer.destinations).toEqual([
+        expect.objectContaining({ apiUrl: "https://locked.test", projectName: "locked" }),
+      ]);
+      expect(writer.replicas ?? []).toEqual([]);
+      expect(writer.projectLocked).toBe(true);
+    });
+
+    it("locks the privacy switches and warns about the operational settings it can't lock", () => {
+      const warned = vi.spyOn(console, "warn").mockImplementation(() => {});
+      lock({}, { attachments: false, system_prompt: false, sweep_idle_minutes: 5 });
+      vi.stubEnv("LANGSMITH_CURSOR_ATTACHMENTS", "true");
+      vi.stubEnv("LANGSMITH_CURSOR_SYSTEM_PROMPT", "true");
+      expect(loadConfig({ cwd })).toMatchObject({
+        attachmentsEnabled: false,
+        systemPromptEnabled: false,
+        sweepIdleMinutes: 360,
+      });
+      expect(warned).toHaveBeenCalledWith(expect.stringContaining("sweep_idle_minutes"));
+    });
+
+    it("keeps environment redaction rules from bypassing the lock", () => {
+      lock({ redact_extra_rules: [{ pattern: "x" }] });
+      vi.stubEnv("LANGSMITH_CURSOR_REDACT_EXTRA", "[]");
+      expect(loadConfig({ cwd }).redactExtraRules).toEqual([{ pattern: "x" }]);
     });
   });
 
