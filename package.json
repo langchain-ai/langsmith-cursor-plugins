@@ -18,7 +18,7 @@
     "lint": "pnpm lint:code",
     "lint:code": "oxlint",
     "lint:fix": "oxlint --fix",
-    "clean": "rm -rf bin dist bundle"
+    "clean": "rm -rf bin dist langsmith-tracing/bundle"
   },
   "dependencies": {
     "langsmith": "^0.10.8"

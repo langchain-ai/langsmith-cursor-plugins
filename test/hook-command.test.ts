@@ -17,6 +17,7 @@ import { BINARY_HOOK_EVENTS, LEADING_BYTE_ORDER_MARKS } from "../src/constants.j
 import type { CursorHooksFile } from "../src/models/cursor-hooks.js";
 import {
   PLUGIN_BINARY_DIRECTORY_NAME,
+  PLUGIN_DIRECTORY_NAME,
   PLUGIN_LAUNCHER_NAME,
   PLUGIN_ROOT_PLACEHOLDER,
 } from "./utils/plugin-layout.js";
@@ -24,7 +25,8 @@ import {
 const root = new URL("../", import.meta.url);
 const read = (path: string) => readFileSync(new URL(path, root), "utf8");
 const settings = JSON.parse(read("binary.config.json"));
-const hooks = (JSON.parse(read("hooks/hooks.json")) as CursorHooksFile).hooks ?? {};
+const hooks =
+  (JSON.parse(read(`${PLUGIN_DIRECTORY_NAME}/hooks/hooks.json`)) as CursorHooksFile).hooks ?? {};
 const picker = `${PLUGIN_BINARY_DIRECTORY_NAME}/${PLUGIN_LAUNCHER_NAME}`;
 const onWindows = process.platform === "win32";
 const SHELL_TIMEOUT_MS = 60_000;
@@ -37,7 +39,7 @@ function sandbox(builds: string[], startable = true): string {
   const dir = mkdtempSync(join(tmpdir(), "cursor hooks "));
   for (const folder of [PLUGIN_BINARY_DIRECTORY_NAME, "bundle", "machine"])
     mkdirSync(join(dir, folder));
-  cpSync(fileURLToPath(new URL(picker, root)), join(dir, picker));
+  cpSync(fileURLToPath(new URL(`${PLUGIN_DIRECTORY_NAME}/${picker}`, root)), join(dir, picker));
   chmodSync(join(dir, picker), 0o755);
   writeFileSync(
     join(dir, "bundle/guard.js"),
@@ -114,7 +116,7 @@ it.each(Object.values(BINARY_HOOK_EVENTS))(
   (hook) => {
     const result = spawnSync(
       process.execPath,
-      [fileURLToPath(new URL("bundle/guard.js", root)), hook],
+      [fileURLToPath(new URL(`${PLUGIN_DIRECTORY_NAME}/bundle/guard.js`, root)), hook],
       {
         encoding: "utf8",
         input: "this is not an event",
