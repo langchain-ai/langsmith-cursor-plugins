@@ -3895,10 +3895,15 @@ var init_normalize = __esm({
 });
 
 // node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/auth/constants.js
-var LOGIN_API_KEY_VARIABLES, LOGIN_DEFAULT_PROFILE, LOGIN_CONFIG_KEYS, LOGIN_DEFAULT_API_URL, LOGIN_URL_TRAILING_PATTERN, LOGIN_TOKEN_HASH, LOGIN_TOKEN_HASH_LENGTH, LOGIN_EXPIRED_MARKER_PREFIX, LOGIN_CONFIG_FILE_ENCODING, LOGIN_NOTICE_HEADING, LOGIN_NONE_REASON, LOGIN_ENDPOINT_MISMATCH_REASON, LOGIN_REPLICA_REFUSED_REASON;
+var LOGIN_CONFIG_FILE_VARIABLE, LOGIN_PROFILE_VARIABLE, LOGIN_HOME_VARIABLES, LOGIN_API_KEY_VARIABLES, LOGIN_CONFIG_DIRECTORY, LOGIN_CONFIG_FILE_NAME, LOGIN_DEFAULT_PROFILE, LOGIN_CONFIG_KEYS, LOGIN_DEFAULT_API_URL, LOGIN_URL_TRAILING_PATTERN, LOGIN_TOKEN_HASH, LOGIN_TOKEN_HASH_LENGTH, LOGIN_EXPIRED_MARKER_PREFIX, LOGIN_CONFIG_FILE_ENCODING, LOGIN_NOTICE_HEADING, LOGIN_NONE_REASON, LOGIN_ENDPOINT_MISMATCH_REASON, LOGIN_REPLICA_REFUSED_REASON;
 var init_constants7 = __esm({
   "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/auth/constants.js"() {
+    LOGIN_CONFIG_FILE_VARIABLE = "LANGSMITH_CONFIG_FILE";
+    LOGIN_PROFILE_VARIABLE = "LANGSMITH_PROFILE";
+    LOGIN_HOME_VARIABLES = ["HOME", "USERPROFILE"];
     LOGIN_API_KEY_VARIABLES = ["LANGSMITH_API_KEY", "LANGCHAIN_API_KEY"];
+    LOGIN_CONFIG_DIRECTORY = ".langsmith";
+    LOGIN_CONFIG_FILE_NAME = "config.json";
     LOGIN_DEFAULT_PROFILE = "default";
     LOGIN_CONFIG_KEYS = {
       profiles: "profiles",
@@ -3935,6 +3940,10 @@ var init_constants7 = __esm({
 import { createHash as createHash3 } from "node:crypto";
 import { readFileSync as readFileSync4 } from "node:fs";
 import { join as join13 } from "node:path";
+function readLoginProfile(env) {
+  const configPath = loginConfigPath(env);
+  return configPath === void 0 ? void 0 : readProfileAt(configPath, env[LOGIN_PROFILE_VARIABLE] || void 0);
+}
 function readProfileAt(configPath, name) {
   let config;
   try {
@@ -3983,6 +3992,13 @@ function serverKey(value) {
     return value;
   }
 }
+function loginConfigPath(env) {
+  const explicit = env[LOGIN_CONFIG_FILE_VARIABLE];
+  if (explicit)
+    return explicit;
+  const home = LOGIN_HOME_VARIABLES.map((name) => env[name]).find((value) => value !== void 0);
+  return home ? join13(home, LOGIN_CONFIG_DIRECTORY, LOGIN_CONFIG_FILE_NAME) : void 0;
+}
 function credentialHash(value) {
   return createHash3(LOGIN_TOKEN_HASH).update(value).digest("hex").slice(0, LOGIN_TOKEN_HASH_LENGTH);
 }
@@ -3995,7 +4011,7 @@ var init_profile = __esm({
 });
 
 // node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/auth/expiry-constants.js
-var LOGIN_EXPIRED_STATUS, LOGIN_PAUSED_NOTICE, LOGIN_KEY_REJECTED_NOTICE, LOGIN_NO_ACCESS_STATUS, LOGIN_NO_ACCESS_SUFFIX, LOGIN_NO_ACCESS_NOTICE, LOGIN_MARKER_WARNING, LOGIN_CLEANUP_WARNING, LOGIN_STATE_FILE, LOGIN_KEY_REJECTED_ENTRY;
+var LOGIN_EXPIRED_STATUS, LOGIN_PAUSED_NOTICE, LOGIN_KEY_REJECTED_NOTICE, LOGIN_NO_ACCESS_STATUS, LOGIN_NO_ACCESS_SUFFIX, LOGIN_NO_ACCESS_NOTICE, LOGIN_MARKER_WARNING, LOGIN_CLEANUP_WARNING, LOGIN_STATE_FILE, LOGIN_NOTICE_KIND, LOGIN_KEY_REJECTED_ENTRY;
 var init_expiry_constants = __esm({
   "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/auth/expiry-constants.js"() {
     init_constants7();
@@ -4020,6 +4036,7 @@ var init_expiry_constants = __esm({
     LOGIN_MARKER_WARNING = "Could not record the expired LangSmith login:";
     LOGIN_CLEANUP_WARNING = "Could not clear the LangSmith sign-in marker:";
     LOGIN_STATE_FILE = "sign-in.json";
+    LOGIN_NOTICE_KIND = "login-expired";
     LOGIN_KEY_REJECTED_ENTRY = "api-key-rejected.";
   }
 });
@@ -4062,6 +4079,16 @@ async function clearRejectedKey(storageRoot, key) {
   if (storageRoot !== void 0)
     await clearMarkers(storageRoot, entry);
 }
+function readLoginNotice(storageRoot, env = process.env, rejected) {
+  const saved = loginStore(storageRoot).read();
+  const recorded = (key2) => unrecorded.has(key2) || saved[key2] !== void 0;
+  const key = rejected === void 0 ? loginExpiryKey(readLoginProfile(env)) : rejectedKeyEntry(rejected);
+  if (key === void 0)
+    return void 0;
+  if (recorded(key))
+    return rejected === void 0 ? LOGIN_PAUSED_NOTICE : LOGIN_KEY_REJECTED_NOTICE;
+  return recorded(`${key}${LOGIN_NO_ACCESS_SUFFIX}`) ? LOGIN_NO_ACCESS_NOTICE : void 0;
+}
 async function clearLoginExpiry(login, storageRoot) {
   const prefix = expiredMarkerPrefix(login);
   for (const key of unrecorded)
@@ -4089,6 +4116,9 @@ async function claimLogin(profile, key, storageRoot) {
   }
   await forgetLogins(storageRoot, expiredMarkerPrefix(profile), key);
   return "claimed";
+}
+function loginExpiryKey(profile) {
+  return profile && `${expiredMarkerPrefix(profile)}${profile.tokenHash}`;
 }
 function rejectedKeyEntry({ apiKey, apiUrl }) {
   const credential = `${sdkSetting(apiKey) ?? apiKey}
@@ -18953,9 +18983,53 @@ var init_client3 = __esm({
 });
 
 // node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/auth/credential.js
+function resolveUploadCredential(options = {}) {
+  const env = options.env ?? process.env;
+  const workspaceId = sdkSetting(options.workspaceId);
+  const workspace = workspaceId ? { workspaceId } : {};
+  const configuredUrl = sdkSetting(options.apiUrl);
+  const apiUrl = options.apiUrlIsDefault ? void 0 : configuredUrl;
+  const apiKey = sdkSetting(options.apiKey);
+  if (apiKey !== void 0)
+    return keyCredential(apiKey, configuredUrl, workspace);
+  const login = loginCredential(env, apiUrl, workspace);
+  if (login.kind === "login")
+    return login;
+  const envKey = LOGIN_API_KEY_VARIABLES.map((name) => sdkSetting(env[name])).find(Boolean);
+  return envKey === void 0 ? login : keyCredential(envKey, configuredUrl, workspace);
+}
+function keyCredential(apiKey, apiUrl, workspace) {
+  return { kind: "api-key", apiKey, apiUrl: apiUrl ?? LOGIN_DEFAULT_API_URL, ...workspace };
+}
+function loginCredential(env, apiUrl, workspace) {
+  const profile = readLoginProfile(env);
+  if (profile === void 0)
+    return { kind: "none", reason: LOGIN_NONE_REASON };
+  if (apiUrl !== void 0 && !sameServer(apiUrl, profile.apiUrl))
+    return {
+      kind: "none",
+      reason: fillTemplate(LOGIN_ENDPOINT_MISMATCH_REASON, { loginUrl: profile.apiUrl, apiUrl })
+    };
+  const { configPath, profile: name, workspaceId: loginWorkspace } = profile;
+  return {
+    kind: "login",
+    login: {
+      configPath,
+      profile: name,
+      ...loginWorkspace === void 0 ? {} : { workspaceId: loginWorkspace }
+    },
+    apiUrl: apiUrl ?? profile.apiUrl,
+    ...workspace
+  };
+}
 function refusedLoginReplicas(replicas, apiUrl) {
   const refused = (replicas ?? []).filter((replica) => sdkSetting(replica.apiKey) === void 0 && replica.apiUrl !== void 0).map(({ apiUrl: url }) => url).filter((url) => !sameServer(url, apiUrl));
   return refused.length === 0 ? void 0 : fillTemplate(LOGIN_REPLICA_REFUSED_REASON, { urls: refused.join(", "), apiUrl });
+}
+function loginReplicaRefusal(replicas, apiUrl) {
+  const configured = replicas ?? [];
+  const usable = configured.some((replica) => sdkSetting(replica.apiKey) !== void 0 || replica.apiUrl === void 0 || sameServer(replica.apiUrl, apiUrl));
+  return usable ? void 0 : refusedLoginReplicas(configured, apiUrl);
 }
 var init_credential = __esm({
   "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/auth/credential.js"() {
@@ -23979,7 +24053,7 @@ var init_settings = __esm({
 });
 
 // dist/src/constants.js
-var TURN_RUN_NAME, SKILL_RUN_NAME, DEFAULT_TAGS, DEFAULT_PROJECT, DEFAULT_SWEEP_IDLE_MINUTES, MUTE_LOCKED_MESSAGE, DEFAULT_API_URL2, CURSOR_DIRECTORY_NAME, MANAGED_PLUGIN_FIELDS, MAX_UPLOAD_ATTEMPTS, BINARY_HOOK_EVENTS, LEADING_BYTE_ORDER_MARKS, LS_INTEGRATION, SKILL_READ_TOOLS, PATH_SEPARATOR, MAX_ATTACHMENT_BYTES, MAX_LOG_BYTES, CONVERSATION_MAX_AGE_MS, WHITESPACE_RUN, MODEL_SUFFIXES, PROVIDER_PREFIX, CLAUDE_VERSIONED_MODEL, OPENAI_MODEL_PREFIX, CURSOR_VENDOR_PREFIX, MCP_TOOL_PREFIX, SUBAGENT_PSEUDO_TOOLS, STATE_FILE_NAME, LEGACY_STATE_FILE_NAME, TRACING_POLICY_FILE_NAME, LEGACY_TRACING_POLICY_FILE_NAME, HOOK_LOG_FILE_NAME, HOOK_CONTINUE_OUTPUT, ENGINE_WORKER_COMMAND, ENGINE_STORAGE_DIR_NAME, JOB_EVENT_PREFIX, JOB_REF_PREFIX, TOOL_JOB_REF_PREFIX, JOB_STORE_DIR_NAME, GH_LOGIN_MARKER_FILE, TOOL_PATH_INPUT_KEYS, RUN_EVENT_PREFIX, PATCH_EVENT_PREFIX, RUN_SNAPSHOT_FIELDS, RUN_PATCH_FIELDS, CAPTURE_PUBLISHED_STATUS, CAPTURE_DUPLICATE_STATUS, TURN_ON_OTHER_ACCOUNT_MESSAGE, SQLITE_EXPERIMENTAL_WARNING;
+var TURN_RUN_NAME, SKILL_RUN_NAME, DEFAULT_TAGS, DEFAULT_PROJECT, DEFAULT_SWEEP_IDLE_MINUTES, NOTICE_KINDS, MUTE_LOCKED_MESSAGE, DEFAULT_API_URL2, CURSOR_DIRECTORY_NAME, MANAGED_PLUGIN_FIELDS, MAX_UPLOAD_ATTEMPTS, BINARY_HOOK_EVENTS, LEADING_BYTE_ORDER_MARKS, LS_INTEGRATION, SKILL_READ_TOOLS, PATH_SEPARATOR, MAX_ATTACHMENT_BYTES, MAX_LOG_BYTES, CONVERSATION_MAX_AGE_MS, WHITESPACE_RUN, MODEL_SUFFIXES, PROVIDER_PREFIX, CLAUDE_VERSIONED_MODEL, OPENAI_MODEL_PREFIX, CURSOR_VENDOR_PREFIX, MCP_TOOL_PREFIX, SUBAGENT_PSEUDO_TOOLS, STATE_FILE_NAME, LEGACY_STATE_FILE_NAME, TRACING_POLICY_FILE_NAME, LEGACY_TRACING_POLICY_FILE_NAME, HOOK_LOG_FILE_NAME, HOOK_CONTINUE_OUTPUT, ENGINE_WORKER_COMMAND, ENGINE_STORAGE_DIR_NAME, JOB_EVENT_PREFIX, JOB_REF_PREFIX, TOOL_JOB_REF_PREFIX, JOB_STORE_DIR_NAME, GH_LOGIN_MARKER_FILE, TOOL_PATH_INPUT_KEYS, RUN_EVENT_PREFIX, PATCH_EVENT_PREFIX, RUN_SNAPSHOT_FIELDS, RUN_PATCH_FIELDS, CAPTURE_PUBLISHED_STATUS, CAPTURE_DUPLICATE_STATUS, TURN_ON_OTHER_ACCOUNT_MESSAGE, SQLITE_EXPERIMENTAL_WARNING;
 var init_constants18 = __esm({
   "dist/src/constants.js"() {
     "use strict";
@@ -23988,6 +24062,11 @@ var init_constants18 = __esm({
     DEFAULT_TAGS = ["cursor", "coding-agent"];
     DEFAULT_PROJECT = "cursor";
     DEFAULT_SWEEP_IDLE_MINUTES = 360;
+    NOTICE_KINDS = {
+      managed: "managed",
+      replica: "replica",
+      credential: "credential"
+    };
     MUTE_LOCKED_MESSAGE = "Thread tracing stays muted because an admin locked muting on.";
     DEFAULT_API_URL2 = "https://api.smith.langchain.com";
     CURSOR_DIRECTORY_NAME = ".cursor";
@@ -24265,12 +24344,13 @@ function loadConfig(options) {
         parse: parseStrictBoolean,
         restrictive: COMMON_BOOLEAN_SETTINGS.defaultMuted.restrictive
       }),
-      api_key: getEnv2("API_KEY"),
+      api_key: process.env.LANGSMITH_CURSOR_API_KEY,
       api_url: getEnv2("ENDPOINT"),
       project: getEnv2("PROJECT"),
       metadata: envMetadata,
       redact: parseBoolean(getEnv2("REDACT")),
-      redact_extra_rules: parseRedactExtraRules(getEnv2("REDACT_EXTRA"))
+      redact_extra_rules: parseRedactExtraRules(getEnv2("REDACT_EXTRA")),
+      strict_auth: parseBoolean(getEnv2("STRICT_AUTH"))
     },
     defaults: { api_key: "", api_url: DEFAULT_API_URL2, project: DEFAULT_PROJECT }
   }, { envFirst: true });
@@ -24290,9 +24370,6 @@ function loadConfig(options) {
     baseMetadata.ls_integration_version = LS_INTEGRATION_VERSION;
   baseMetadata.local_username = userInfo2().username;
   const customMetadata = { ...baseMetadata, ...common.metadata };
-  if (enabled && !apiKey && (!replicas || replicas.length === 0)) {
-    debug("Config enabled but no API key / replicas resolved");
-  }
   return {
     enabled,
     defaultMuted,
@@ -24311,6 +24388,8 @@ function loadConfig(options) {
     sweepIdleMinutes,
     cwd,
     locked: common.locked,
+    apiUrlIsDefault: common.defaulted.includes("api_url"),
+    strictAuth: common.strict_auth === true,
     ...common.managedConfigProblem === void 0 ? {} : { managedConfigProblem: common.managedConfigProblem }
   };
 }
@@ -24350,13 +24429,93 @@ var init_stdin = __esm({
   }
 });
 
+// dist/src/writer-options.js
+import { dirname as dirname13, join as join22 } from "node:path";
+function storageRootFor(config) {
+  return join22(dirname13(config.stateFilePath), ENGINE_STORAGE_DIR_NAME);
+}
+function uploadCredential(config) {
+  return resolveUploadCredential({
+    apiKey: sdkSetting(config.apiKey),
+    apiUrl: config.apiUrl,
+    apiUrlIsDefault: config.apiUrlIsDefault
+  });
+}
+function uploadProblem(config, credential) {
+  if (credential.kind === "login")
+    return config.replicas?.length ? loginReplicaRefusal(config.replicas, credential.apiUrl) : void 0;
+  if (credential.kind !== "none" || config.replicas?.some((replica) => sdkSetting(replica.apiKey)))
+    return void 0;
+  return credential.reason;
+}
+function destinationCredential(config) {
+  const credential = uploadCredential(config);
+  if (credential.kind === "none")
+    return { apiKey: config.apiKey, apiUrl: config.apiUrl };
+  const { kind: _kind, ...destination } = credential;
+  return destination;
+}
+function writerOptions(config, project) {
+  return {
+    destinations: [
+      {
+        ...destinationCredential(config),
+        projectName: config.locked.includes("project") ? config.project : project
+      }
+    ],
+    ...config.replicas?.length ? { replicas: config.replicas } : {},
+    ...config.locked.includes("project") ? { projectLocked: true } : {},
+    redact: config.redact,
+    storageRoot: storageRootFor(config),
+    ...config.redactExtraRules ? {
+      redactExtraRules: config.redactExtraRules
+    } : {}
+  };
+}
+function currentWriterOptions(cwd, project) {
+  const config = loadConfig({ cwd });
+  return config.managedConfigProblem === void 0 ? writerOptions(config, project) : void 0;
+}
+var init_writer_options = __esm({
+  "dist/src/writer-options.js"() {
+    "use strict";
+    init_auth();
+    init_config();
+    init_constants18();
+  }
+});
+
+// dist/src/notice.js
+function promptNotice(config, credential, problem) {
+  if (config.managedConfigProblem !== void 0)
+    return { kind: NOTICE_KINDS.managed, text: config.managedConfigProblem };
+  if (!config.enabled)
+    return void 0;
+  const keyedReplicasOnly = !!config.replicas?.length && config.replicas.every((replica) => sdkSetting(replica.apiKey));
+  const loginNotice = credential.kind === "none" || keyedReplicasOnly ? void 0 : readLoginNotice(storageRootFor(config), process.env, credential.kind === "api-key" ? { apiKey: credential.apiKey, apiUrl: credential.apiUrl } : void 0);
+  if (loginNotice !== void 0)
+    return { kind: LOGIN_NOTICE_KIND, text: loginNotice };
+  const replicaReason = credential.kind === "login" ? refusedLoginReplicas(config.replicas, credential.apiUrl) : void 0;
+  if (replicaReason !== void 0)
+    return { kind: NOTICE_KINDS.replica, text: replicaReason };
+  return problem === void 0 ? void 0 : { kind: NOTICE_KINDS.credential, text: problem };
+}
+var init_notice = __esm({
+  "dist/src/notice.js"() {
+    "use strict";
+    init_auth();
+    init_constants18();
+    init_writer_options();
+  }
+});
+
 // dist/src/utils/legacy-file.js
 import { constants as constants2, copyFileSync, existsSync as existsSync3 } from "node:fs";
-import { basename as basename4, dirname as dirname13, join as join22 } from "node:path";
+import { basename as basename4, dirname as dirname14, join as join23 } from "node:path";
 function adoptLegacyFile(path3, fileName, legacyFileName) {
   if (basename4(path3) !== fileName || existsSync3(path3))
     return;
-  const legacy = join22(dirname13(path3), legacyFileName);
+  const legacy = join23(dirname14(path3), legacyFileName);
   if (!existsSync3(legacy))
     return;
   try {
@@ -24968,12 +25127,12 @@ var init_reducer = __esm({
 
 // dist/src/tracing-policy.js
 import { homedir as homedir4 } from "node:os";
-import { join as join23 } from "node:path";
+import { join as join24 } from "node:path";
 function isMode(value) {
   return value === "full" || value === "metadata";
 }
 function tracingPolicyPath() {
-  return process.env.LANGSMITH_CURSOR_PRIVACY_FILE ?? join23(homedir4(), ".cursor", TRACING_POLICY_FILE_NAME);
+  return process.env.LANGSMITH_CURSOR_PRIVACY_FILE ?? join24(homedir4(), ".cursor", TRACING_POLICY_FILE_NAME);
 }
 function mutingLocked(config) {
   return config.defaultMuted && config.locked.includes("defaultMuted");
@@ -25065,10 +25224,17 @@ async function handlePromptSubmit(input) {
         user_message: `Thread tracing ${command === "mute" ? "muted (metadata-only)" : "unmuted (full content)"}. Preference saved for the next turn; the current turn is unchanged.` + (config.managedConfigProblem !== void 0 ? ` ${config.managedConfigProblem}` : !config.enabled ? " Master tracing is disabled; this does not enable it." : "") + (result.warning ? ` Warning: ${result.warning}` : "")
       };
     }
-    if (config.managedConfigProblem !== void 0)
-      warn(config.managedConfigProblem);
-    const enabled = config.enabled && !!(sdkSetting(config.apiKey) || config.replicas?.length);
-    await atomicUpdateState(config.stateFilePath, (s) => reduceBeforeSubmitPrompt(s, input, Date.now(), enabled ? getThreadTracingMode(tracingPolicyPath(), input.conversation_id, config.defaultMuted, mutingLocked(config)) : "off", originFromConfig(config, input)));
+    const credential = uploadCredential(config);
+    const problem = uploadProblem(config, credential);
+    const enabled = config.enabled && problem === void 0;
+    const mode = getThreadTracingMode(tracingPolicyPath(), input.conversation_id, config.defaultMuted, mutingLocked(config));
+    const notice = promptNotice(config, credential, problem);
+    const untraced = notice?.kind === LOGIN_NOTICE_KIND || notice?.kind !== NOTICE_KINDS.managed && problem !== void 0;
+    if (notice && untraced && config.strictAuth)
+      return { continue: false, user_message: notice.text };
+    if (notice)
+      warn(notice.text);
+    await atomicUpdateState(config.stateFilePath, (s) => reduceBeforeSubmitPrompt(s, input, Date.now(), enabled ? mode : "off", originFromConfig(config, input)));
     return { continue: true };
   } catch (error2) {
     const detail = error2 instanceof Error ? error2.message : String(error2);
@@ -25086,10 +25252,12 @@ var init_prompt_control = __esm({
     init_config();
     init_constants18();
     init_logger();
+    init_notice();
     init_state2();
     init_reducer();
     init_tracing_policy();
     init_turn_origin();
+    init_writer_options();
   }
 });
 
@@ -25117,8 +25285,9 @@ function initHook(cwd) {
   if (!config.enabled) {
     return null;
   }
-  if (!sdkSetting(config.apiKey) && (!config.replicas || config.replicas.length === 0)) {
-    error("Tracing enabled but no API key set (langsmith-plugins.json or .cursor/langsmith.json api_key, LANGSMITH_CURSOR_API_KEY, or LANGSMITH_API_KEY) and no replicas configured");
+  const problem = uploadProblem(config, uploadCredential(config));
+  if (problem !== void 0) {
+    error(problem);
     return null;
   }
   return config;
@@ -25126,9 +25295,9 @@ function initHook(cwd) {
 var init_hook_init = __esm({
   "dist/src/utils/hook-init.js"() {
     "use strict";
-    init_auth();
     init_config();
     init_logger();
+    init_writer_options();
   }
 });
 
@@ -25202,7 +25371,7 @@ var init_text = __esm({
 
 // dist/src/subagent-transcript.js
 import { readFileSync as readFileSync11, readdirSync as readdirSync2, statSync as statSync5 } from "node:fs";
-import { dirname as dirname14, join as join24, basename as basename5 } from "node:path";
+import { dirname as dirname15, join as join25, basename as basename5 } from "node:path";
 function readJsonl(path3) {
   const rows = [];
   for (const line of readFileSync11(path3, "utf-8").split("\n")) {
@@ -25231,12 +25400,12 @@ function resolveSubagentTranscript(parentTranscriptPath, task) {
   if (!parentTranscriptPath)
     return void 0;
   try {
-    const dir = join24(dirname14(parentTranscriptPath), "subagents");
+    const dir = join25(dirname15(parentTranscriptPath), "subagents");
     const files = readdirSync2(dir).filter((f2) => f2.endsWith(".jsonl"));
     if (files.length === 0)
       return void 0;
     const candidates = files.map((f2) => {
-      const full = join24(dir, f2);
+      const full = join25(dir, f2);
       return { full, child: basename5(f2, ".jsonl"), mtime: statSync5(full).mtimeMs };
     });
     const wanted = task ? normalizeWs(task).slice(0, 120) : "";
@@ -25295,11 +25464,11 @@ var init_subagent_stop = __esm({
 
 // node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/paths.js
 import { statSync as statSync6 } from "node:fs";
-import { dirname as dirname15 } from "node:path";
+import { dirname as dirname16 } from "node:path";
 function nearestExistingDirectory(path3) {
   let current = path3;
   for (; ; ) {
-    const parent = dirname15(current);
+    const parent = dirname16(current);
     const reachedFilesystemRoot = parent === current;
     if (reachedFilesystemRoot)
       return void 0;
@@ -25379,7 +25548,7 @@ var init_desktop_constants = __esm({
 
 // node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/desktop/launch.js
 import { accessSync, constants as constants3, statSync as statSync7 } from "node:fs";
-import { join as join25, posix, win32 } from "node:path";
+import { join as join26, posix, win32 } from "node:path";
 function findExecutable(name, env, platform2) {
   const windows = platform2 === WINDOWS_PLATFORM;
   const extensions = windows ? (env[DESKTOP_EXTENSIONS_VARIABLE] ?? DESKTOP_WINDOWS_EXTENSIONS).split(DESKTOP_WINDOWS_SEPARATOR) : [""];
@@ -25388,7 +25557,7 @@ function findExecutable(name, env, platform2) {
   const absolute = windows ? win32.isAbsolute : posix.isAbsolute;
   for (const folder of folders.filter((entry) => entry !== "" && absolute(entry))) {
     for (const extension of extensions) {
-      const candidate = join25(folder, `${name}${extension}`);
+      const candidate = join26(folder, `${name}${extension}`);
       try {
         accessSync(candidate, constants3.X_OK);
         if (statSync7(candidate).isFile())
@@ -25563,7 +25732,7 @@ var init_repository = __esm({
 
 // node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/github-login.js
 import { mkdirSync as mkdirSync7, readFileSync as readFileSync12, renameSync as renameSync6, writeFileSync as writeFileSync4 } from "node:fs";
-import { dirname as dirname16 } from "node:path";
+import { dirname as dirname17 } from "node:path";
 function createGitHubLoginFallback(options) {
   const now = options.now ?? Date.now;
   const retryAfterMs = options.retryAfterMs ?? GH_LOGIN_RETRY_AFTER_MS;
@@ -25581,7 +25750,7 @@ function createGitHubLoginFallback(options) {
   }
   function recordFailure2() {
     try {
-      mkdirSync7(dirname16(options.markerPath), { recursive: true });
+      mkdirSync7(dirname17(options.markerPath), { recursive: true });
       const partial = `${options.markerPath}.${process.pid}`;
       const marker = { failed: new Date(now()).toISOString() };
       writeFileSync4(partial, JSON.stringify(marker));
@@ -25615,9 +25784,9 @@ var init_github_login = __esm({
 
 // node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/paths.js
 import { readFileSync as readFileSync13, statSync as statSync8 } from "node:fs";
-import { dirname as dirname17, join as join26, resolve as resolve13 } from "node:path";
+import { dirname as dirname18, join as join27, resolve as resolve13 } from "node:path";
 function gitMarkerAt(directory) {
-  const marker = join26(directory, GIT_DIRECTORY_NAME);
+  const marker = join27(directory, GIT_DIRECTORY_NAME);
   try {
     if (statSync8(marker).isDirectory())
       return GIT_MARKERS.REPOSITORY_ROOT;
@@ -25642,7 +25811,7 @@ function rootFromGitMarker(directory) {
       return current;
     if (marker === GIT_MARKERS.ONLY_GIT_CAN_SAY)
       return void 0;
-    const parent = dirname17(current);
+    const parent = dirname18(current);
     const reachedFilesystemRoot = parent === current;
     if (reachedFilesystemRoot)
       return null;
@@ -26040,17 +26209,17 @@ var init_sqlite = __esm({
 // dist/src/attachments.js
 import { existsSync as existsSync4, readFileSync as readFileSync14, statSync as statSync9 } from "node:fs";
 import { homedir as homedir5, platform } from "node:os";
-import { basename as basename6, join as join27 } from "node:path";
+import { basename as basename6, join as join28 } from "node:path";
 function defaultCursorDbPath() {
   const home = homedir5();
   const tail = ["Cursor", "User", "globalStorage", "state.vscdb"];
   switch (platform()) {
     case "darwin":
-      return join27(home, "Library", "Application Support", ...tail);
+      return join28(home, "Library", "Application Support", ...tail);
     case "win32":
-      return join27(process.env.APPDATA ?? join27(home, "AppData", "Roaming"), ...tail);
+      return join28(process.env.APPDATA ?? join28(home, "AppData", "Roaming"), ...tail);
     default:
-      return join27(process.env.XDG_CONFIG_HOME ?? join27(home, ".config"), ...tail);
+      return join28(process.env.XDG_CONFIG_HOME ?? join28(home, ".config"), ...tail);
   }
 }
 function queryBubbles(dbPath, conversationId) {
@@ -27218,37 +27387,8 @@ var init_console = __esm({
   }
 });
 
-// dist/src/writer-options.js
-function writerOptions(config, project) {
-  return {
-    destinations: [
-      {
-        apiKey: config.apiKey,
-        apiUrl: config.apiUrl,
-        projectName: config.locked.includes("project") ? config.project : project
-      }
-    ],
-    ...config.replicas?.length ? { replicas: config.replicas } : {},
-    ...config.locked.includes("project") ? { projectLocked: true } : {},
-    redact: config.redact,
-    ...config.redactExtraRules ? {
-      redactExtraRules: config.redactExtraRules
-    } : {}
-  };
-}
-function currentWriterOptions(cwd, project) {
-  const config = loadConfig({ cwd });
-  return config.managedConfigProblem === void 0 ? writerOptions(config, project) : void 0;
-}
-var init_writer_options = __esm({
-  "dist/src/writer-options.js"() {
-    "use strict";
-    init_config();
-  }
-});
-
 // dist/src/tracing-engine.js
-import { dirname as dirname18, join as join28 } from "node:path";
+import { dirname as dirname19, join as join29 } from "node:path";
 async function saveTurnForUpload(config, context) {
   try {
     await queueUpload(config, context);
@@ -27378,7 +27518,7 @@ async function buildQueuedRuns(job, config, plugin) {
 }
 function attributorFor(config) {
   attributor ??= createRepositoryAttributor({
-    githubLoginMarkerPath: join28(dirname18(config.stateFilePath), GH_LOGIN_MARKER_FILE)
+    githubLoginMarkerPath: join29(dirname19(config.stateFilePath), GH_LOGIN_MARKER_FILE)
   });
   return attributor;
 }
@@ -27454,9 +27594,6 @@ async function pendingJobs(config) {
   const jobs = createCaptureStore(storageRootFor(config), JOB_STORE_DIR_NAME);
   const sessions = await jobs.enumerateSessions(LS_INTEGRATION);
   return new Set(sessions.flatMap(({ captures }) => captures.map(({ record }) => record.eventId)));
-}
-function storageRootFor(config) {
-  return join28(dirname18(config.stateFilePath), ENGINE_STORAGE_DIR_NAME);
 }
 function openSession(config, sessionId, project, built) {
   const storageRoot = storageRootFor(config);

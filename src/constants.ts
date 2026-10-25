@@ -12,6 +12,12 @@ export const DEFAULT_PROJECT = "cursor";
 
 export const DEFAULT_SWEEP_IDLE_MINUTES = 360;
 
+export const NOTICE_KINDS = {
+  managed: "managed",
+  replica: "replica",
+  credential: "credential",
+};
+
 export const MUTE_LOCKED_MESSAGE = "Thread tracing stays muted because an admin locked muting on.";
 
 export const DEFAULT_API_URL = "https://api.smith.langchain.com";

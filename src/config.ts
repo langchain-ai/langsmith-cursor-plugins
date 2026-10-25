@@ -16,7 +16,7 @@ import {
 import { homedir, userInfo } from "node:os";
 import { join } from "node:path";
 import type { LangSmithUploadReplicaConfig } from "@langchain/plugins-base/tracing/upload";
-import { debug as logDebug, error as logError } from "./logger.js";
+import { error as logError } from "./logger.js";
 import {
   CURSOR_DIRECTORY_NAME,
   DEFAULT_API_URL,
@@ -175,12 +175,13 @@ export function loadConfig(options?: { cwd?: string }): Config {
           parse: parseStrictBoolean,
           restrictive: COMMON_BOOLEAN_SETTINGS.defaultMuted.restrictive,
         }),
-        api_key: getEnv("API_KEY"),
+        api_key: process.env.LANGSMITH_CURSOR_API_KEY,
         api_url: getEnv("ENDPOINT"),
         project: getEnv("PROJECT"),
         metadata: envMetadata,
         redact: parseBoolean(getEnv("REDACT")),
         redact_extra_rules: parseRedactExtraRules(getEnv("REDACT_EXTRA")),
+        strict_auth: parseBoolean(getEnv("STRICT_AUTH")),
       },
       defaults: { api_key: "", api_url: DEFAULT_API_URL, project: DEFAULT_PROJECT },
     },
@@ -228,10 +229,6 @@ export function loadConfig(options?: { cwd?: string }): Config {
   // All file/environment metadata stays user-supplied, never builder-trusted provenance.
   const customMetadata = { ...baseMetadata, ...common.metadata };
 
-  if (enabled && !apiKey && (!replicas || replicas.length === 0)) {
-    logDebug("Config enabled but no API key / replicas resolved");
-  }
-
   return {
     enabled,
     defaultMuted,
@@ -250,6 +247,8 @@ export function loadConfig(options?: { cwd?: string }): Config {
     sweepIdleMinutes,
     cwd,
     locked: common.locked,
+    apiUrlIsDefault: common.defaulted.includes("api_url"),
+    strictAuth: common.strict_auth === true,
     ...(common.managedConfigProblem === undefined
       ? {}
       : { managedConfigProblem: common.managedConfigProblem }),
