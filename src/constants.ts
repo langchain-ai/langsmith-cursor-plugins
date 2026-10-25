@@ -12,9 +12,16 @@ export const DEFAULT_PROJECT = "cursor";
 
 export const DEFAULT_SWEEP_IDLE_MINUTES = 360;
 
+export const MUTE_LOCKED_MESSAGE = "Thread tracing stays muted because an admin locked muting on.";
+
 export const DEFAULT_API_URL = "https://api.smith.langchain.com";
 
 export const CURSOR_DIRECTORY_NAME = ".cursor";
+
+export const MANAGED_PLUGIN_FIELDS = {
+  lockable: ["attachments", "system_prompt"],
+  unlockable: ["sweep_idle_minutes", "cursor_db_path"],
+};
 
 export const MAX_UPLOAD_ATTEMPTS = 3;
 

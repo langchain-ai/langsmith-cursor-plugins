@@ -40,7 +40,7 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   mod
 ));
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/errors.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/errors.js
 function describe(error2) {
   return error2 instanceof Error ? error2.message : String(error2);
 }
@@ -54,14 +54,14 @@ function failureStatus(error2) {
   return typeof status === "number" ? status : void 0;
 }
 var init_errors = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/errors.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/errors.js"() {
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/plugin/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/plugin/constants.js
 var POLICY_LOCK_TIMEOUT_MS, POLICY_LOCK_TIMEOUT_ERROR, POLICY_LOCK_TIMEOUT_MESSAGE, POLICY_UNREADABLE_MESSAGE, POLICY_NOT_REGULAR_MESSAGE, POLICY_ASYNC_UPDATE_MESSAGE, POLICY_FILE_MODE, POLICY_FILE_ENCODING, POLICY_TEMP_CREATE_FLAG, POLICY_DIRECTORY_OPEN_FLAG, POLICY_WARNING_SEPARATOR, POLICY_TEMP_CLOSE_WARNING, POLICY_TEMP_CLEANUP_WARNING, POLICY_DIRECTORY_CLOSE_WARNING, POLICY_LOCK_CLEANUP_FAILED_PREFIX, POLICY_CANNOT_READ_PREFIX, POLICY_DURABILITY_WARNING, POLICY_LOCK_RELEASE_WARNING, COMPILED_BINARY_ENTRY_PREFIXES, WORKER_LOG_FILE_NAME, WORKER_LOG_MODE, WORKER_LOG_MAX_BYTES, WORKER_LOG_APPEND_FLAG, WORKER_LOG_TRUNCATE_FLAG, SYSTEM_CERTIFICATES_FILE_NAME, WORKER_NO_PID_MESSAGE, UNAVAILABLE_ACCOUNT_FINGERPRINT, HOOK_HELP_FLAGS, HOOK_VERSION_FLAGS, POLICY_PARSE_RESULT_MESSAGE, HOOK_OPTIONS_INVALID_MESSAGE, HOOK_ERROR_HANDLER_WARNING;
 var init_constants = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/plugin/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/plugin/constants.js"() {
     POLICY_LOCK_TIMEOUT_MS = 2e3;
     POLICY_LOCK_TIMEOUT_ERROR = "Timed out waiting for tracing preference lock";
     POLICY_LOCK_TIMEOUT_MESSAGE = "Retry; if it persists, remove the lock only after confirming no preference writer is running.";
@@ -101,7 +101,7 @@ var init_constants = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/plugin/hook-command.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/plugin/hook-command.js
 async function dispatchHookCommand(argv, options) {
   assertHookOptions(options);
   const [argument, ...rest] = argv;
@@ -136,16 +136,16 @@ function reportHookError(name, error2, options) {
   }
 }
 var init_hook_command = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/plugin/hook-command.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/plugin/hook-command.js"() {
     init_errors();
     init_constants();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/constants.js
 var FILE_MISSING_CODE, PROCESS_MISSING_CODE, PROCESS_CHECK_SIGNAL, WINDOWS_PLATFORM, FILE_EXISTS_CODE, PERMISSION_DENIED_CODE, FILE_ACCESS_DENIED_CODE, FILE_BUSY_CODE, DIRECTORY_NOT_EMPTY_CODE, INVALID_ARGUMENT_CODE, TEMPLATE_PLACEHOLDER;
 var init_constants2 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/constants.js"() {
     FILE_MISSING_CODE = "ENOENT";
     PROCESS_MISSING_CODE = "ESRCH";
     PROCESS_CHECK_SIGNAL = 0;
@@ -160,10 +160,10 @@ var init_constants2 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/files/cleanup-constants.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/files/cleanup-constants.js
 var CLEANUP_IGNORED_DIRECTORY_CODES;
 var init_cleanup_constants = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/files/cleanup-constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/files/cleanup-constants.js"() {
     init_constants2();
     CLEANUP_IGNORED_DIRECTORY_CODES = [
       FILE_MISSING_CODE,
@@ -176,7 +176,7 @@ var init_cleanup_constants = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/files/cleanup.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/files/cleanup.js
 import { rmdir, unlink } from "node:fs/promises";
 import { dirname } from "node:path";
 async function removeFileIfPresent(path3) {
@@ -211,17 +211,17 @@ async function removeEmptyAncestors(directory, root) {
   }
 }
 var init_cleanup = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/files/cleanup.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/files/cleanup.js"() {
     init_errors();
     init_constants2();
     init_cleanup_constants();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/constants.js
 var FILE_LOCK_CLAIM_VERSION, FILE_LOCK_CLAIM_EXTENSION, FILE_LOCK_DIRECTORY_SUFFIX, FILE_LOCK_LEGACY_DIRECTORY_SUFFIX, FILE_LOCK_TIMEOUT_ERROR_NAME, FILE_LOCK_TEMP_PREFIX, FILE_LOCK_TEMP_SUFFIX, FILE_LOCK_EXCLUSIVE_FLAG, FILE_LOCK_ENCODING, FILE_LOCK_DEFAULT_TIMEOUT_MS, FILE_LOCK_POLL_INTERVAL_MS, FILE_LOCK_DIRECTORY_MODE, FILE_LOCK_FILE_MODE, FILE_LOCK_UNSELECTED_TICKET, FILE_LOCK_NEGATIVE_TICKET_LIMIT, FILE_LOCK_TIMEOUT_MESSAGE, FILE_LOCK_TICKET_LIMIT_MESSAGE, FILE_LOCK_RELEASE_MESSAGE, FILE_LOCK_INVALID_TIMEOUT_MESSAGE, FILE_LOCK_ACQUIRE_MESSAGE, FILE_LOCK_UNSAFE_DIRECTORY_MESSAGE, FILE_LOCK_RENAME_RETRY_TIMEOUT_MS, FILE_LOCK_HEARTBEAT_MS, FILE_LOCK_STALE_CLAIM_MS, FILE_LOCK_TRY_CHOOSING_WAIT_MS, FILE_LOCK_DIRECTORY_CONTENTION_CODES, FILE_LOCK_BUSY_FILE_CODES, FILE_LOCK_HEARTBEAT_WARNING, FILE_LOCK_COMPATIBLE_ACQUIRE_CLEANUP_MESSAGE, FILE_LOCK_COMPATIBLE_RELEASE_MESSAGE, FILE_LOCK_COMPATIBLE_GATE_CHANGED_MESSAGE, FILE_LOCK_COMPATIBLE_OWNER_FILE, FILE_LOCK_COMPATIBLE_OWNER_MESSAGE, FILE_LOCK_COMPATIBLE_OWNER_PID_PATTERN, FILE_LOCK_COMPATIBLE_ABANDONED_GATE_MS, FILE_LOCK_COMPATIBLE_STALE_SUFFIX, FILE_LOCK_GATE_CLEANUP_WARNING, FILE_LOCK_STALE_GATE_CLEANUP_WARNING, FILE_LOCK_WINDOWS_DENIED_RETRIES, STORAGE_NOT_WRITABLE_ERROR_NAME, STORAGE_NOT_WRITABLE_MESSAGE, STORAGE_NOT_WRITABLE_FIX, STORAGE_STALE_FILE_MAX_AGE_MS, STORAGE_STALE_DIRECTORY_WARNING, STORAGE_STALE_REMOVAL_WARNING, FILE_LOCK_LOST_MESSAGE, STORAGE_UUID, STORAGE_ENGINE_FILE_PATTERNS, STORAGE_CLAIM_FILE;
 var init_constants3 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/constants.js"() {
     init_constants2();
     FILE_LOCK_CLAIM_VERSION = 1;
     FILE_LOCK_CLAIM_EXTENSION = ".json";
@@ -285,21 +285,21 @@ var init_constants3 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/lock-folders.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/lock-folders.js
 async function removeEmptyLockFolders(lockPath, root) {
   await removeEmptyAncestors(`${lockPath}${FILE_LOCK_DIRECTORY_SUFFIX}`, root);
 }
 var init_lock_folders = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/lock-folders.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/lock-folders.js"() {
     init_cleanup();
     init_constants3();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/constants.js
 var CAPTURE_JOBS_DIRECTORY, CAPTURE_SESSIONS_DIRECTORY, CAPTURE_TURNS_DIRECTORY, CAPTURE_RECORD_VERSION, CAPTURE_DIRECTORY_MODE, CAPTURE_DIRECTORY_SETUP_ATTEMPTS, CAPTURE_REMOVED_DIRECTORY_CODES, CAPTURE_FILE_MODE, CAPTURE_INTEGRATION, CAPTURE_MAX_IDENTIFIER_BYTES, CAPTURE_HASH, CAPTURE_EVENT_FILE, JSON_ARRAY_INDEX_KEY, CAPTURE_EXPIRED_WARNING, CAPTURE_HELD_EXPIRED_WARNING, CAPTURE_SKIPPED_WARNING, CAPTURE_UNREADABLE_WARNING, CAPTURE_NAMESPACE_MISMATCH_MESSAGE, CAPTURE_RETRY_LOST_MESSAGE, CAPTURE_OUTCOME_INVALID_MESSAGE, CAPTURE_RECORD_UNSUPPORTED_MESSAGE, CAPTURE_OUTCOME_UNSUPPORTED_MESSAGE, CAPTURE_DEPENDENCIES_INVALID_MESSAGE, CAPTURE_DEPENDENCY_INVALID_MESSAGE, CAPTURE_DEPENDENCY_INTEGRATION_MESSAGE, CAPTURE_DEPENDENCY_SELF_MESSAGE, CAPTURE_DEPENDENCY_UNIQUE_MESSAGE, CAPTURE_VERSION_UNSUPPORTED_MESSAGE, CAPTURE_FIELD_UNSUPPORTED_MESSAGE, CAPTURE_TURN_CEILING_MS, CAPTURE_MARKER_SUFFIX, CAPTURE_MARKER_FILE, CAPTURE_TURN_MARKER_FILE, CAPTURE_MARKER_VERSION, CAPTURE_MARKER_REMOVED_REASON, CAPTURE_MARKER_INVALID_MESSAGE, CAPTURE_MARKER_INVALID_WARNING, CAPTURE_ROUTES_INVALID_MESSAGE, CAPTURE_ROUTE_INVALID_MESSAGE, CAPTURE_ROUTE_PROJECT_INVALID_MESSAGE, CAPTURE_FILE_EXTENSION, CAPTURE_LOCK_EXTENSION, CAPTURE_STORAGE_DIRECTORY_MESSAGE;
 var init_constants4 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/constants.js"() {
     init_constants2();
     CAPTURE_JOBS_DIRECTORY = "jobs";
     CAPTURE_SESSIONS_DIRECTORY = "sessions";
@@ -347,7 +347,7 @@ var init_constants4 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/utils/serialization.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/utils/serialization.js
 function canonicalJson(value) {
   const result = JSON.stringify(canonicalValue(value, /* @__PURE__ */ new Set()));
   if (result === void 0)
@@ -399,12 +399,12 @@ function canonicalValue(value, seen) {
   return result;
 }
 var init_serialization = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/utils/serialization.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/utils/serialization.js"() {
     init_constants4();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/validation/objects.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/validation/objects.js
 function isPlainRecord(value) {
   return value !== null && typeof value === "object" && (Object.getPrototypeOf(value) === Object.prototype || Object.getPrototypeOf(value) === null);
 }
@@ -484,16 +484,16 @@ function parseJsonObject(contents, message) {
   return value;
 }
 var init_objects = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/validation/objects.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/validation/objects.js"() {
     init_serialization();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/errors.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/errors.js
 import { resolve } from "node:path";
 var FileLockTimeoutError, StorageNotWritableError;
 var init_errors2 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/errors.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/errors.js"() {
     init_constants3();
     init_errors();
     FileLockTimeoutError = class extends Error {
@@ -519,7 +519,7 @@ var init_errors2 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/file-lock-heartbeat.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/file-lock-heartbeat.js
 import { utimes } from "node:fs/promises";
 function startHeartbeat(path3, id) {
   const timer = setInterval(() => {
@@ -539,7 +539,7 @@ function warnUnlessMissing(error2) {
 }
 var heartbeats;
 var init_file_lock_heartbeat = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/file-lock-heartbeat.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/file-lock-heartbeat.js"() {
     init_constants3();
     init_errors();
     init_constants2();
@@ -547,7 +547,7 @@ var init_file_lock_heartbeat = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/file-lock-support.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/file-lock-support.js
 import { unlink as unlink2 } from "node:fs/promises";
 import { performance as performance2 } from "node:perf_hooks";
 function processIsAlive(pid) {
@@ -586,7 +586,7 @@ function waitForNextScan(deadline, blockedPath) {
   return new Promise((resolvePromise) => setTimeout(resolvePromise, Math.min(FILE_LOCK_POLL_INTERVAL_MS, remaining)));
 }
 var init_file_lock_support = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/file-lock-support.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/file-lock-support.js"() {
     init_constants3();
     init_errors();
     init_constants2();
@@ -594,7 +594,7 @@ var init_file_lock_support = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/legacy-gate.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/legacy-gate.js
 import { lstat, mkdir, readFile, rename, rmdir as rmdir2, writeFile } from "node:fs/promises";
 import { performance as performance3 } from "node:perf_hooks";
 import { randomUUID } from "node:crypto";
@@ -761,7 +761,7 @@ async function reclaimLegacyGate(gatePath, filePath, tryAcquire) {
   }
 }
 var init_legacy_gate = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/legacy-gate.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/legacy-gate.js"() {
     init_constants3();
     init_file_lock_heartbeat();
     init_file_lock_support();
@@ -772,7 +772,7 @@ var init_legacy_gate = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/file-lock.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/file-lock.js
 import { chmod, link, lstat as lstat2, mkdir as mkdir2, readFile as readFile2, readdir, rename as rename2, writeFile as writeFile2 } from "node:fs/promises";
 import { performance as performance4 } from "node:perf_hooks";
 import { setTimeout as delay } from "node:timers/promises";
@@ -1101,7 +1101,7 @@ async function withFileLock(filePath, callback, options) {
   }
 }
 var init_file_lock = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/file-lock.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/file-lock.js"() {
     init_objects();
     init_constants3();
     init_errors();
@@ -1113,7 +1113,7 @@ var init_file_lock = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/plugin/policy-file.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/plugin/policy-file.js
 import { randomUUID as randomUUID3 } from "node:crypto";
 import { lstatSync, readFileSync } from "node:fs";
 import { open, rename as rename3, unlink as unlink3 } from "node:fs/promises";
@@ -1231,7 +1231,7 @@ function findLockTimeout(error2) {
   return error2.errors.map(findLockTimeout).find((found) => found !== void 0);
 }
 var init_policy_file = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/plugin/policy-file.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/plugin/policy-file.js"() {
     init_lock_folders();
     init_file_lock();
     init_constants3();
@@ -1242,10 +1242,10 @@ var init_policy_file = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/errors.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/errors.js
 var CaptureRecordInvalidError, CaptureRecordVersionError;
 var init_errors3 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/errors.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/errors.js"() {
     CaptureRecordInvalidError = class extends Error {
     };
     CaptureRecordVersionError = class extends Error {
@@ -1253,7 +1253,7 @@ var init_errors3 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/files/publish.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/files/publish.js
 import { closeSync, openSync, renameSync, writeSync } from "node:fs";
 import { randomUUID as randomUUID4 } from "node:crypto";
 function publishByRename(path3, contents, tempSuffix, mode) {
@@ -1267,14 +1267,14 @@ function publishByRename(path3, contents, tempSuffix, mode) {
   renameSync(temp, path3);
 }
 var init_publish = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/files/publish.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/files/publish.js"() {
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/state-constants.js
-var STATE_TEMP_SUFFIX, STATE_CORRUPT_SUFFIX, STATE_FILE_ENCODING, STATE_LOCK_RELEASE_WARNING, STATE_LOCK_BUSY_WARNING, STATE_CORRUPT_WARNING, STATE_LOCK_WAIT_MS, STATE_LOCK_PROBE_MS, STATE_LOCK_BUSY_MEMORY_MS, PENDING_STATE_DIR_SUFFIX, PENDING_STATE_FILE_SUFFIX, PENDING_STATE_TEMP_SUFFIX, PENDING_STATE_ABANDONED_MS, PENDING_STATE_TIME_WIDTH, PENDING_STATE_SEQUENCE_WIDTH, PENDING_STATE_WRITE_ATTEMPTS, STATE_PRIVATE_DIR_MODE, STATE_PRIVATE_FILE_MODE;
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/state-constants.js
+var STATE_TEMP_SUFFIX, STATE_CORRUPT_SUFFIX, STATE_FILE_ENCODING, STATE_LOCK_RELEASE_WARNING, STATE_LOCK_BUSY_WARNING, STATE_CORRUPT_WARNING, STATE_LOCK_WAIT_MS, STATE_LOCK_PROBE_MS, STATE_LOCK_BUSY_MEMORY_MS, PENDING_STATE_DIR_SUFFIX, PENDING_STATE_FILE_SUFFIX, PENDING_STATE_TEMP_SUFFIX, PENDING_STATE_ABANDONED_MS, PENDING_STATE_TIME_WIDTH, PENDING_STATE_SEQUENCE_WIDTH, PENDING_STATE_WRITE_ATTEMPTS, STATE_PRIVATE_DIR_MODE, STATE_PRIVATE_FILE_MODE, STATE_CLAIM_SUFFIX, STATE_CLAIM_SKEW_MS;
 var init_state_constants = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/state-constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/state-constants.js"() {
     STATE_TEMP_SUFFIX = ".state.tmp";
     STATE_CORRUPT_SUFFIX = ".corrupt";
     STATE_FILE_ENCODING = "utf-8";
@@ -1293,10 +1293,12 @@ var init_state_constants = __esm({
     PENDING_STATE_WRITE_ATTEMPTS = 3;
     STATE_PRIVATE_DIR_MODE = 448;
     STATE_PRIVATE_FILE_MODE = 384;
+    STATE_CLAIM_SUFFIX = ".claim";
+    STATE_CLAIM_SKEW_MS = 6e4;
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/state-pending.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/state-pending.js
 import { mkdirSync, readdirSync, readFileSync as readFileSync2, rmdirSync, rmSync, statSync } from "node:fs";
 import { join as join3 } from "node:path";
 function diffValue(path3, before, after, operations) {
@@ -1457,7 +1459,7 @@ function removePending(stateFilePath, files) {
 }
 var sequence, same, pendingDirectory;
 var init_state_pending = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/state-pending.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/state-pending.js"() {
     init_publish();
     init_objects();
     init_state_constants();
@@ -1467,7 +1469,7 @@ var init_state_pending = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/state-store.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/state-store.js
 import { readFileSync as readFileSync3, renameSync as renameSync2 } from "node:fs";
 function createStateStore(options) {
   const { path: path3 } = options;
@@ -1554,7 +1556,7 @@ async function withStateFileLock(path3, warn2, callback, waitMs) {
   return true;
 }
 var init_state_store = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/state-store.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/state-store.js"() {
     init_publish();
     init_objects();
     init_errors2();
@@ -1564,17 +1566,46 @@ var init_state_store = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/index.js
-var init_storage = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/index.js"() {
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/state-claim.js
+import { mkdirSync as mkdirSync2 } from "node:fs";
+import { dirname as dirname5 } from "node:path";
+async function claimStateEntry(path3, key, windowMs) {
+  mkdirSync2(dirname5(path3), { recursive: true, mode: STATE_PRIVATE_DIR_MODE });
+  const lock = await tryAcquireFileLock(`${path3}${STATE_CLAIM_SUFFIX}`);
+  if (lock === void 0)
+    return false;
+  try {
+    const store = createStateStore({ path: path3, warn: () => void 0 });
+    const now = Date.now();
+    const age = now - (store.read()[key]?.at ?? -Infinity);
+    if (age > -STATE_CLAIM_SKEW_MS && age < windowMs)
+      return false;
+    await store.update((state) => ({ ...state, [key]: { at: now } }));
+    return true;
+  } finally {
+    await lock.release();
+  }
+}
+var init_state_claim = __esm({
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/state-claim.js"() {
     init_file_lock();
-    init_file_lock_support();
-    init_errors2();
+    init_state_constants();
     init_state_store();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/paths.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/index.js
+var init_storage = __esm({
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/index.js"() {
+    init_file_lock();
+    init_file_lock_support();
+    init_errors2();
+    init_state_store();
+    init_state_claim();
+  }
+});
+
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/paths.js
 import { createHash } from "node:crypto";
 import { resolve as resolve3, join as join4 } from "node:path";
 function validateIntegration(value) {
@@ -1632,15 +1663,15 @@ function recordLockPath(root, scope) {
   return `${path3.slice(0, -CAPTURE_FILE_EXTENSION.length)}${CAPTURE_LOCK_EXTENSION}`;
 }
 var init_paths = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/paths.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/paths.js"() {
     init_constants4();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/utils/atomic-file.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/utils/atomic-file.js
 import { constants as fsConstants } from "node:fs";
 import { chmod as chmod2, link as link2, lstat as lstat3, mkdir as mkdir3, open as open2, rename as rename4, unlink as unlink4 } from "node:fs/promises";
-import { dirname as dirname5, isAbsolute, join as join5, relative, sep } from "node:path";
+import { dirname as dirname6, isAbsolute, join as join5, relative, sep } from "node:path";
 import { randomUUID as randomUUID5 } from "node:crypto";
 async function ensurePrivateDirectory(root, segments) {
   return retryRemovedDirectory(() => createPrivateDirectory(root, segments));
@@ -1681,7 +1712,7 @@ async function createPrivateDirectory(root, segments) {
   return current;
 }
 async function publishExclusive(path3, contents, beforeCommit) {
-  const directory = dirname5(path3);
+  const directory = dirname6(path3);
   const stagingPath = join5(directory, `.${randomUUID5()}.tmp`);
   const handle = await open2(stagingPath, "wx", CAPTURE_FILE_MODE);
   try {
@@ -1714,7 +1745,7 @@ async function replacePrivateFile(root, path3, contents, beforeCommit) {
   if (!original.isFile() || original.isSymbolicLink() || !hasPrivateFileMode(original.mode)) {
     throw new Error("Capture record must be a private regular file");
   }
-  const directory = dirname5(path3);
+  const directory = dirname6(path3);
   const stagingPath = join5(directory, `.${randomUUID5()}.tmp`);
   let handle;
   let stagingCreated = false;
@@ -1790,7 +1821,7 @@ async function readPrivateFile(root, path3) {
   }
 }
 async function hasRealParentDirectories(root, path3) {
-  const relativeDirectory = relative(root, dirname5(path3));
+  const relativeDirectory = relative(root, dirname6(path3));
   if (relativeDirectory === ".." || relativeDirectory.startsWith(`..${sep}`) || isAbsolute(relativeDirectory)) {
     throw new Error("Capture path is outside storage root");
   }
@@ -1825,14 +1856,14 @@ async function syncDirectory(path3) {
   }
 }
 var init_atomic_file = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/utils/atomic-file.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/utils/atomic-file.js"() {
     init_errors();
     init_constants4();
     init_constants2();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/files/private-directory.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/files/private-directory.js
 import { lstat as lstat4, readdir as readdir2 } from "node:fs/promises";
 import { isAbsolute as isAbsolute2, join as join6, relative as relative2, resolve as resolve4, sep as sep2 } from "node:path";
 async function listPrivateDirectory(root, directory) {
@@ -1868,13 +1899,13 @@ async function lstatDirectory(path3) {
   }
 }
 var init_private_directory = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/files/private-directory.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/files/private-directory.js"() {
     init_errors();
     init_constants2();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/scope.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/scope.js
 function scopeOf(value) {
   return {
     integration: value.integration,
@@ -1887,34 +1918,34 @@ function scopeKey(scope) {
   return JSON.stringify([scope.integration, scope.sessionId, scope.turnId, scope.eventId]);
 }
 var init_scope = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/scope.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/scope.js"() {
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/compare.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/compare.js
 function compareText(left, right) {
   if (left === right)
     return 0;
   return left < right ? -1 : 1;
 }
 var init_compare = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/compare.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/compare.js"() {
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/order.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/order.js
 function compareCaptureOrder(left, right) {
   if (left.capturedAtMs !== right.capturedAtMs)
     return left.capturedAtMs < right.capturedAtMs ? -1 : 1;
   return compareText(left.eventId, right.eventId);
 }
 var init_order = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/order.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/order.js"() {
     init_compare();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/utils/digest.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/utils/digest.js
 import { createHash as createHash2 } from "node:crypto";
 function captureContentDigest(record) {
   const content = { ...record };
@@ -1925,20 +1956,20 @@ function captureContentDigest(record) {
   return createHash2("sha256").update(canonicalJson(content)).digest("hex");
 }
 var init_digest = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/utils/digest.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/utils/digest.js"() {
     init_serialization();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/markers.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/markers.js
 import { lstat as lstat5 } from "node:fs/promises";
-import { basename, dirname as dirname6, join as join7 } from "node:path";
+import { basename, dirname as dirname7, join as join7 } from "node:path";
 function markerPath(root, scope) {
   const path3 = eventPath(root, scope);
-  return join7(dirname6(path3), `${basename(eventPath(root, scope), CAPTURE_FILE_EXTENSION)}${CAPTURE_MARKER_SUFFIX}`);
+  return join7(dirname7(path3), `${basename(eventPath(root, scope), CAPTURE_FILE_EXTENSION)}${CAPTURE_MARKER_SUFFIX}`);
 }
 function turnMarkerPath(root, scope) {
-  return join7(dirname6(eventPath(root, scope)), CAPTURE_TURN_MARKER_FILE);
+  return join7(dirname7(eventPath(root, scope)), CAPTURE_TURN_MARKER_FILE);
 }
 function needsMarker(record) {
   const outcomes = Object.values(record.delivery?.outcomes ?? {});
@@ -2037,7 +2068,7 @@ async function readDroppedRunIds(root, scope) {
   return runIds;
 }
 async function forgetTurnMarkers(root, scope) {
-  const paths = captureDirectory(root) === CAPTURE_JOBS_DIRECTORY ? [markerPath(root, scope)] : await markersIn(root, dirname6(eventPath(root, scope)));
+  const paths = captureDirectory(root) === CAPTURE_JOBS_DIRECTORY ? [markerPath(root, scope)] : await markersIn(root, dirname7(eventPath(root, scope)));
   for (const path3 of paths)
     await removeFileIfPresent(path3);
 }
@@ -2075,7 +2106,7 @@ async function removeOldMarkers(root, directory, modifiedBeforeMs) {
   return removed;
 }
 var init_markers = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/markers.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/markers.js"() {
     init_errors();
     init_constants2();
     init_objects();
@@ -2087,9 +2118,9 @@ var init_markers = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/capture-store.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/capture-store.js
 import { lstat as lstat6 } from "node:fs/promises";
-import { basename as basename2, dirname as dirname7, join as join8, resolve as resolve5 } from "node:path";
+import { basename as basename2, dirname as dirname8, join as join8, resolve as resolve5 } from "node:path";
 function createCaptureStore(root, directory = CAPTURE_TURNS_DIRECTORY) {
   const storageRoot = { root: resolve5(root), directory };
   captureDirectory(storageRoot);
@@ -2284,7 +2315,7 @@ async function removeCapture(root, scope, options = {}, leaveMarker = true) {
   if (options.forgetTurn)
     await forgetTurnMarkers(root, scope);
   await removeEmptyLockFolders(recordLockPath(root, scope), captureRoot(root));
-  await removeEmptyAncestors(dirname7(eventPath(root, scope)), captureRoot(root));
+  await removeEmptyAncestors(dirname8(eventPath(root, scope)), captureRoot(root));
 }
 async function saveDelivery(root, path3, record, delivery, lock) {
   await replacePrivateFile(captureRoot(root), path3, canonicalJson({ ...record, delivery }), () => lock.assertHeld());
@@ -2519,7 +2550,7 @@ function failure(code, error2) {
   };
 }
 var init_capture_store = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/capture-store.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/capture-store.js"() {
     init_errors3();
     init_errors();
     init_storage();
@@ -2538,26 +2569,26 @@ var init_capture_store = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/format.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/format.js
 function fillTemplate(template, values) {
   return template.replace(TEMPLATE_PLACEHOLDER, (_match, key) => String(values[key]));
 }
 var init_format = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/format.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/format.js"() {
     init_constants2();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/account.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/account.js
 function isWaitingForOtherSetting(record, accountFingerprint) {
   return record.destinationFingerprint !== accountFingerprint && Object.keys(record.delivery?.outcomes ?? {}).length === 0;
 }
 var init_account = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/account.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/account.js"() {
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/expiry.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/expiry.js
 function liveTurnSpans(captures) {
   const spans = /* @__PURE__ */ new Map();
   for (const { record, capturedAtMs } of captures) {
@@ -2611,25 +2642,25 @@ async function removeExpiredCaptures(options) {
   return dropped;
 }
 var init_expiry = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/expiry.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/expiry.js"() {
     init_format();
     init_constants4();
     init_account();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/index.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/index.js
 var init_capture = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/index.js"() {
     init_capture_store();
     init_expiry();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/background-worker/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/background-worker/constants.js
 var BACKGROUND_WORKER_LOCK_FILE, BACKGROUND_WORKER_PENDING_FILE, BACKGROUND_WORKER_ACTIVE_PREFIX, BACKGROUND_WORKER_LAUNCHING_FILE, BACKGROUND_WORKER_STAGING_FILE, BACKGROUND_WORKER_MARKER_ID_PATTERN, BACKGROUND_WORKER_ACTIVE_MARKER_NAME, BACKGROUND_WORKER_ATTEMPT_NAME, BACKGROUND_WORKER_MARKER_VERSION, BACKGROUND_WORKER_ATTEMPT_VERSION, BACKGROUND_WORKER_LAUNCH_VERSION, BACKGROUND_WORKER_DEFAULT_MAX_ATTEMPTS, BACKGROUND_WORKER_DEFAULT_RETRY_DELAY_MS, BACKGROUND_WORKER_OWNER_WAIT_MS, BACKGROUND_WORKER_LAUNCH_LEASE_MS, BACKGROUND_WORKER_STATE_ERROR, BACKGROUND_WORKER_LAUNCHER_MUST_RETURN_CHILD_PROCESS_ID_MESSAGE, BACKGROUND_WORKER_LAUNCH_IS_ALREADY_PENDING_MESSAGE, BACKGROUND_WORKER_MAX_ATTEMPTS_MUST_BE_POSITIVE_INTEGER_MESSAGE, BACKGROUND_WORKER_RETRY_DELAY_MUST_BE_NON_NEGATIVE_MESSAGE, BACKGROUND_WORKER_STARTUP_WAIT_MUST_BE_POSITIVE_INTEGER_MESSAGE, BACKGROUND_WORKER_ACTIVE_MARKER_ALREADY_EXISTS_MESSAGE, BACKGROUND_WORKER_RETRY_ATTEMPT_ALREADY_EXISTS_MESSAGE, BACKGROUND_WORKER_UNSAFE_LOCK_DIRECTORY_MESSAGE, BACKGROUND_WORKER_UNSAFE_PENDING_MARKER_MESSAGE, BACKGROUND_WORKER_UNSAFE_ACTIVE_MARKER_MESSAGE, BACKGROUND_WORKER_INVALID_ACTIVE_PATH_MESSAGE, BACKGROUND_WORKER_MULTIPLE_ACTIVE_MARKERS_MESSAGE, BACKGROUND_WORKER_ACTIVE_MARKER_PATH_MISMATCH_MESSAGE, BACKGROUND_WORKER_UNSAFE_RETRY_ATTEMPT_MESSAGE, BACKGROUND_WORKER_INVALID_ATTEMPT_PATH_MESSAGE, BACKGROUND_WORKER_UNSAFE_STAGING_FILE_MESSAGE, BACKGROUND_WORKER_UNSAFE_LAUNCH_MARKER_MESSAGE, BACKGROUND_WORKER_UNEXPECTED_STATE_PATH_MESSAGE, BACKGROUND_WORKER_RETRY_SEQUENCE_HAS_GAP_MESSAGE, BACKGROUND_WORKER_INVALID_LAUNCH_MARKER_MESSAGE, BACKGROUND_WORKER_STATE_DISAPPEARED_MESSAGE, BACKGROUND_WORKER_INVALID_MARKER_MESSAGE, BACKGROUND_WORKER_INVALID_RETRY_ATTEMPT_MESSAGE, BACKGROUND_WORKER_FILE_PREFIX, BACKGROUND_WORKER_SCOPED_FILE, BACKGROUND_WORKER_SHARED_DIRECTORY;
 var init_constants5 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/background-worker/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/background-worker/constants.js"() {
     BACKGROUND_WORKER_LOCK_FILE = "worker";
     BACKGROUND_WORKER_PENDING_FILE = "wake.pending";
     BACKGROUND_WORKER_ACTIVE_PREFIX = "wake.active.";
@@ -2675,7 +2706,7 @@ var init_constants5 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/background-worker/paths.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/background-worker/paths.js
 import { join as join9, resolve as resolve6 } from "node:path";
 function validateWorkerScope(scope) {
   validateIntegration(scope.integration);
@@ -2709,23 +2740,23 @@ function scopedWorkerFileName(scope, name) {
   return name.startsWith(prefix) ? `${BACKGROUND_WORKER_FILE_PREFIX}.${name.slice(prefix.length)}` : void 0;
 }
 var init_paths2 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/background-worker/paths.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/background-worker/paths.js"() {
     init_paths();
     init_constants5();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/background-worker/utils/scope.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/background-worker/utils/scope.js
 async function matchesScope(resolveScope, expected) {
   const actual = await resolveScope();
   return actual.integration === expected.integration && actual.sessionId === expected.sessionId && actual.accountFingerprint === expected.accountFingerprint;
 }
 var init_scope2 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/background-worker/utils/scope.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/background-worker/utils/scope.js"() {
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/background-worker/state.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/background-worker/state.js
 import { join as join10 } from "node:path";
 function assertPlainFile(entry, message) {
   if (!entry.isFile() || entry.isSymbolicLink())
@@ -2830,7 +2861,7 @@ function parseAttempt(contents, markerId, attempt) {
   return value;
 }
 var init_state = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/background-worker/state.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/background-worker/state.js"() {
     init_paths2();
     init_objects();
     init_atomic_file();
@@ -2839,7 +2870,7 @@ var init_state = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/background-worker/worker.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/background-worker/worker.js
 import { randomUUID as randomUUID6 } from "node:crypto";
 import { resolve as resolve7 } from "node:path";
 import { setTimeout as delay2 } from "node:timers/promises";
@@ -3109,7 +3140,7 @@ async function readLaunch(storageRoot, scope) {
   return value;
 }
 var init_worker = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/background-worker/worker.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/background-worker/worker.js"() {
     init_storage();
     init_lock_folders();
     init_cleanup();
@@ -3124,14 +3155,14 @@ var init_worker = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/background-worker/index.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/background-worker/index.js
 var init_background_worker = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/background-worker/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/background-worker/index.js"() {
     init_worker();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/files/missing.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/files/missing.js
 function ifMissing(fallback) {
   return (error2) => {
     if (errorCode(error2) === FILE_MISSING_CODE)
@@ -3140,15 +3171,15 @@ function ifMissing(fallback) {
   };
 }
 var init_missing = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/files/missing.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/files/missing.js"() {
     init_constants2();
     init_errors();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/stale-files.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/stale-files.js
 import { lstat as lstat7, readFile as readFile3, readdir as readdir3, rmdir as rmdir3 } from "node:fs/promises";
-import { basename as basename3, dirname as dirname8, join as join11 } from "node:path";
+import { basename as basename3, dirname as dirname9, join as join11 } from "node:path";
 async function removeStaleStorageFiles(root, folders, modifiedBeforeMs) {
   let removed = 0;
   for (const folder of folders)
@@ -3177,7 +3208,7 @@ async function removeStaleChildren(directory, modifiedBeforeMs) {
 }
 function isEngineFile(path3) {
   const name = basename3(path3);
-  return STORAGE_ENGINE_FILE_PATTERNS.some((pattern) => pattern.test(name)) || STORAGE_CLAIM_FILE.test(name) && basename3(dirname8(path3)).endsWith(FILE_LOCK_DIRECTORY_SUFFIX);
+  return STORAGE_ENGINE_FILE_PATTERNS.some((pattern) => pattern.test(name)) || STORAGE_CLAIM_FILE.test(name) && basename3(dirname9(path3)).endsWith(FILE_LOCK_DIRECTORY_SUFFIX);
 }
 async function heldByLiveProcess(path3) {
   if (!STORAGE_CLAIM_FILE.test(basename3(path3)))
@@ -3195,7 +3226,7 @@ function warnUnlessExpected(error2) {
     console.warn(STORAGE_STALE_DIRECTORY_WARNING, describe(error2));
 }
 var init_stale_files = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/stale-files.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/stale-files.js"() {
     init_constants2();
     init_errors();
     init_cleanup();
@@ -3205,10 +3236,10 @@ var init_stale_files = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/delivery/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/delivery/constants.js
 var DELIVERY_RETRY_BASE_MS, DELIVERY_RETRY_BACKOFF_FACTOR, DELIVERY_RETRY_MAX_MS, DELIVERY_QUICK_RETRY_MS, DELIVERY_DEFAULT_MAX_AGE_MS, DELIVERY_DEFAULT_MAX_ENTRIES, DELIVERY_DROPPED_WARNING, DELIVERY_CAPACITY_REASON, DELIVERY_REJECTED_REASON, DELIVERY_DEPENDENCY_DROPPED_REASON, DELIVERY_AUTH_STATUSES, DELIVERY_AUTH_HINT, DELIVERY_WRITER_REQUIRED_MESSAGE, DELIVERY_DESTINATION_REQUIRED_MESSAGE, DELIVERY_DESTINATION_INVALID_MESSAGE, DELIVERY_DESTINATION_DUPLICATE_MESSAGE, DELIVERY_TRANSPORT_REQUIRED_MESSAGE, DELIVERY_BATCH_LIMITS_INVALID_MESSAGE, DELIVERY_POLICY_INVALID_MESSAGE, DELIVERY_PREREQUISITE_READ_MESSAGE, DELIVERY_RECEIPT_READ_MESSAGE, DELIVERY_RECEIPT_PERSIST_MESSAGE, DELIVERY_ACCOUNT_MISMATCH_WARNING, DELIVERY_DRAIN_LOCK, DELIVERY_DROPPED_DETAIL, DELIVERY_DEPENDENTS_DROPPED_WARNING;
 var init_constants6 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/delivery/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/delivery/constants.js"() {
     DELIVERY_RETRY_BASE_MS = 5e3;
     DELIVERY_RETRY_BACKOFF_FACTOR = 2;
     DELIVERY_RETRY_MAX_MS = 30 * 60 * 1e3;
@@ -3220,7 +3251,7 @@ var init_constants6 = __esm({
     DELIVERY_REJECTED_REASON = "rejected";
     DELIVERY_DEPENDENCY_DROPPED_REASON = "dependency-dropped";
     DELIVERY_AUTH_STATUSES = [401, 403];
-    DELIVERY_AUTH_HINT = "Check the LangSmith API key.";
+    DELIVERY_AUTH_HINT = "Check the LangSmith API key or CLI login and its access.";
     DELIVERY_WRITER_REQUIRED_MESSAGE = "A delivery writer is required";
     DELIVERY_DESTINATION_REQUIRED_MESSAGE = "At least one delivery destination is required";
     DELIVERY_DESTINATION_INVALID_MESSAGE = "Invalid delivery destination";
@@ -3238,18 +3269,18 @@ var init_constants6 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/retry-state.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/retry-state.js
 function isWaitingForRetry(retry, now = Date.now()) {
   return retry !== void 0 && retry.notBeforeMs > now && !(retry.recordedAtMs !== void 0 && retry.recordedAtMs < PROCESS_STARTED_AT_MS);
 }
 var PROCESS_STARTED_AT_MS;
 var init_retry_state = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/retry-state.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/retry-state.js"() {
     PROCESS_STARTED_AT_MS = Date.now();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/delivery/batch.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/delivery/batch.js
 function createBatch() {
   return { candidates: [], scopes: /* @__PURE__ */ new Set(), runIds: /* @__PURE__ */ new Set(), bytes: 0 };
 }
@@ -3269,12 +3300,12 @@ function joinBatch(batch, candidate) {
   batch.bytes += payloadBytes(candidate.entry.record);
 }
 var init_batch = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/delivery/batch.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/delivery/batch.js"() {
     init_scope();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/delivery/retry.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/delivery/retry.js
 function isRetryable(error2) {
   return error2?.retryable !== false;
 }
@@ -3294,13 +3325,13 @@ function nextRetry(previous, baseMs) {
   };
 }
 var init_retry = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/delivery/retry.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/delivery/retry.js"() {
     init_constants6();
     init_errors();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/delivery/outcomes.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/delivery/outcomes.js
 function emptyDestinationResult() {
   return { delivered: 0, dropped: 0, failed: 0, progressed: false };
 }
@@ -3380,7 +3411,7 @@ async function settleDroppedDependency(drainCache, candidate, destination, resul
   result.progressed = true;
 }
 var init_outcomes = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/delivery/outcomes.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/delivery/outcomes.js"() {
     init_scope();
     init_format();
     init_constants6();
@@ -3388,7 +3419,7 @@ var init_outcomes = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/delivery/deliver.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/delivery/deliver.js
 import { setTimeout as delay3 } from "node:timers/promises";
 async function trySend(context, destination, candidates) {
   const { policy, request } = context;
@@ -3460,13 +3491,13 @@ async function deliverBatch(context, destination, candidates) {
   return settleFailed(context, destination, candidates, error2);
 }
 var init_deliver = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/delivery/deliver.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/delivery/deliver.js"() {
     init_outcomes();
     init_retry();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/delivery/drain-cache.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/delivery/drain-cache.js
 function deliveryKey(scope, destination) {
   return JSON.stringify([scopeKey(scope), destination]);
 }
@@ -3531,13 +3562,13 @@ async function countPending(drainCache, entries, destinations) {
   return nextRetryAtMs === void 0 ? { count } : { count, nextRetryAtMs };
 }
 var init_drain_cache = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/delivery/drain-cache.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/delivery/drain-cache.js"() {
     init_scope();
     init_constants6();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/delivery/drain.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/delivery/drain.js
 async function drainLocked(captureStore, integration, sessionId, policy, request, drainCache) {
   const captures = await captureStore.enumerate(integration, sessionId);
   const eligible = captures.filter(({ record }) => record.destinationFingerprint === request.writer.accountFingerprint);
@@ -3670,7 +3701,7 @@ async function dropPending(drainCache, candidate, reason) {
   return dropped;
 }
 var init_drain = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/delivery/drain.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/delivery/drain.js"() {
     init_retry_state();
     init_scope();
     init_format();
@@ -3682,7 +3713,7 @@ var init_drain = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/delivery/options.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/delivery/options.js
 function validateDrainRequest(request) {
   if (request.writer === null || typeof request.writer !== "object")
     throw new TypeError(DELIVERY_WRITER_REQUIRED_MESSAGE);
@@ -3740,13 +3771,13 @@ function resolvePolicy(policy) {
   return resolved;
 }
 var init_options = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/delivery/options.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/delivery/options.js"() {
     init_paths();
     init_constants6();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/delivery/coordinator.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/delivery/coordinator.js
 import { join as join12, resolve as resolve8 } from "node:path";
 async function drainUnderLock(context, request, drainCache) {
   const { captureStore, integration, sessionId, storageRoot, policy } = context;
@@ -3813,7 +3844,7 @@ function createDeliveryCoordinator(options) {
   };
 }
 var init_coordinator = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/delivery/coordinator.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/delivery/coordinator.js"() {
     init_storage();
     init_lock_folders();
     init_capture();
@@ -3828,17 +3859,271 @@ var init_coordinator = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/delivery/index.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/delivery/index.js
 var init_delivery = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/delivery/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/delivery/index.js"() {
     init_coordinator();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/metadata/constants.js
-var CODING_AGENT_SCHEMA_VERSION, CODING_AGENT_PURPOSE, GIT_METADATA_KEYS, LEGACY_GIT_METADATA_KEYS, ATTRIBUTION_IDENTIFIER_KEY, REPOSITORY_METADATA_KEYS, CODING_AGENT_RUN_TYPES, CODING_AGENT_RUN_SCOPES, CODING_AGENT_AGENT_TYPES, CODING_AGENT_SCHEMA_INTEGRATIONS, CODING_AGENT_CORE_INTEGRATIONS, CODING_AGENT_CODEX_INTEGRATION, CODING_AGENT_RUNTIME_NAMES, CODING_AGENT_INTEGRATION_POLICIES, CODING_AGENT_ALWAYS_FIELD_OPTIONS, CODING_AGENT_WHERE_KNOWN_FIELD_OPTIONS, CODING_AGENT_FIELD_DEFAULTS, CODING_AGENT_STRUCTURAL_FIELD_DEFAULTS, CODING_AGENT_PROVIDER_FIELD_DEFAULTS, CODING_AGENT_METADATA_PROVENANCE_FIELDS, CODING_AGENT_METADATA_PROJECTION_FIELDS, TRUSTED_METADATA, METADATA_MODE_NAME, METADATA_MODE_STATUS_VALUES, CODING_AGENT_RUNTIME_LIBRARY, CODING_AGENT_RUNTIME_SDK, CODING_AGENT_RELEASE_ENVIRONMENT_VARIABLES, CODING_AGENT_ENVIRONMENT_METADATA_PREFIXES, CODING_AGENT_ENVIRONMENT_METADATA_EXCLUDED, CODING_AGENT_ENVIRONMENT_METADATA_SENSITIVE_SUBSTRINGS, CODING_AGENT_ENVIRONMENT_METADATA_ENDPOINT_SUBSTRINGS, CODING_AGENT_REVISION_ID_VARIABLE, CODING_AGENT_REVISION_ID_KEY;
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/sdk/sdk-constants.js
+var SDK_DOUBLE_QUOTED, SDK_SINGLE_QUOTED, SDK_PROFILE_QUOTES;
+var init_sdk_constants = __esm({
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/sdk/sdk-constants.js"() {
+    SDK_DOUBLE_QUOTED = /^"(.*)"$/;
+    SDK_SINGLE_QUOTED = /^'(.*)'$/;
+    SDK_PROFILE_QUOTES = /^["']|["']$/g;
+  }
+});
+
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/sdk/normalize.js
+function sdkSetting(value) {
+  if (typeof value !== "string")
+    return void 0;
+  const trimmed = value.trim().replace(SDK_DOUBLE_QUOTED, "$1").replace(SDK_SINGLE_QUOTED, "$1");
+  return trimmed.trim() === "" ? void 0 : trimmed;
+}
+function sdkProfileValue(value) {
+  if (typeof value !== "string")
+    return void 0;
+  return value.trim().replace(SDK_PROFILE_QUOTES, "") || void 0;
+}
+var init_normalize = __esm({
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/sdk/normalize.js"() {
+    init_sdk_constants();
+  }
+});
+
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/auth/constants.js
+var LOGIN_API_KEY_VARIABLES, LOGIN_DEFAULT_PROFILE, LOGIN_CONFIG_KEYS, LOGIN_DEFAULT_API_URL, LOGIN_URL_TRAILING_PATTERN, LOGIN_TOKEN_HASH, LOGIN_TOKEN_HASH_LENGTH, LOGIN_EXPIRED_MARKER_PREFIX, LOGIN_CONFIG_FILE_ENCODING, LOGIN_NOTICE_HEADING, LOGIN_NONE_REASON, LOGIN_ENDPOINT_MISMATCH_REASON, LOGIN_REPLICA_REFUSED_REASON;
 var init_constants7 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/metadata/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/auth/constants.js"() {
+    LOGIN_API_KEY_VARIABLES = ["LANGSMITH_API_KEY", "LANGCHAIN_API_KEY"];
+    LOGIN_DEFAULT_PROFILE = "default";
+    LOGIN_CONFIG_KEYS = {
+      profiles: "profiles",
+      currentProfile: "current_profile",
+      oauth: "oauth",
+      refreshToken: "refresh_token",
+      accessToken: "access_token",
+      apiKey: "api_key",
+      workspaceId: "workspace_id",
+      apiUrl: "api_url"
+    };
+    LOGIN_DEFAULT_API_URL = "https://api.smith.langchain.com";
+    LOGIN_URL_TRAILING_PATTERN = /(\/api\/v1)?\/*$/u;
+    LOGIN_TOKEN_HASH = "sha256";
+    LOGIN_TOKEN_HASH_LENGTH = 16;
+    LOGIN_EXPIRED_MARKER_PREFIX = "login-expired-";
+    LOGIN_CONFIG_FILE_ENCODING = "utf8";
+    LOGIN_NOTICE_HEADING = "\u26A0\uFE0F LANGSMITH TRACING IS PAUSED \u26A0\uFE0F";
+    LOGIN_NONE_REASON = [
+      LOGIN_NOTICE_HEADING,
+      "You're not signed in to LangSmith so this session isn't being traced.",
+      "\u25B6 Run the following command: langsmith auth login"
+    ].join("\n");
+    LOGIN_ENDPOINT_MISMATCH_REASON = [
+      LOGIN_NOTICE_HEADING,
+      "Your LangSmith login is for {loginUrl} but tracing sends to {apiUrl} so this session isn't being traced.",
+      "\u25B6 Point tracing at {loginUrl}, or set an API key for {apiUrl}"
+    ].join("\n");
+    LOGIN_REPLICA_REFUSED_REASON = "LangSmith replicas on {urls} need their own API key, so they're skipped.";
+  }
+});
+
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/auth/profile.js
+import { createHash as createHash3 } from "node:crypto";
+import { readFileSync as readFileSync4 } from "node:fs";
+import { join as join13 } from "node:path";
+function readProfileAt(configPath, name) {
+  let config;
+  try {
+    config = JSON.parse(readFileSync4(configPath, LOGIN_CONFIG_FILE_ENCODING));
+  } catch {
+    return void 0;
+  }
+  if (!isPlainRecord(config))
+    return void 0;
+  const profiles = config[LOGIN_CONFIG_KEYS.profiles];
+  const current = config[LOGIN_CONFIG_KEYS.currentProfile];
+  if (!isPlainRecord(profiles))
+    return void 0;
+  const profile = name ?? (typeof current === "string" ? current || void 0 : void 0) ?? (Object.hasOwn(profiles, LOGIN_DEFAULT_PROFILE) ? LOGIN_DEFAULT_PROFILE : void 0);
+  const entry = profile !== void 0 && Object.hasOwn(profiles, profile) ? profiles[profile] : void 0;
+  if (profile === void 0 || !isPlainRecord(entry))
+    return void 0;
+  const credentials = entry[LOGIN_CONFIG_KEYS.oauth];
+  const oauth = isPlainRecord(credentials) ? credentials : {};
+  const secret = sdkProfileValue(oauth[LOGIN_CONFIG_KEYS.refreshToken]) ?? sdkProfileValue(oauth[LOGIN_CONFIG_KEYS.accessToken]) ?? sdkProfileValue(entry[LOGIN_CONFIG_KEYS.apiKey]);
+  if (secret === void 0)
+    return void 0;
+  const accessToken = sdkProfileValue(oauth[LOGIN_CONFIG_KEYS.accessToken]);
+  const workspaceId = sdkSetting(entry[LOGIN_CONFIG_KEYS.workspaceId]);
+  return {
+    configPath,
+    profile,
+    ...workspaceId === void 0 ? {} : { workspaceId },
+    apiUrl: sdkSetting(entry[LOGIN_CONFIG_KEYS.apiUrl]) ?? LOGIN_DEFAULT_API_URL,
+    tokenHash: credentialHash(secret),
+    ...accessToken === void 0 ? {} : { accessTokenHash: credentialHash(accessToken) }
+  };
+}
+function expiredMarkerPrefix(login) {
+  return `${LOGIN_EXPIRED_MARKER_PREFIX}${credentialHash(`${login.configPath}
+${login.profile}`)}.`;
+}
+function sameServer(left, right) {
+  return serverKey(left) === serverKey(right);
+}
+function serverKey(value) {
+  try {
+    const url = new URL(sdkSetting(value) ?? "");
+    return `${url.origin}${url.pathname.replace(LOGIN_URL_TRAILING_PATTERN, "")}`;
+  } catch {
+    return value;
+  }
+}
+function credentialHash(value) {
+  return createHash3(LOGIN_TOKEN_HASH).update(value).digest("hex").slice(0, LOGIN_TOKEN_HASH_LENGTH);
+}
+var init_profile = __esm({
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/auth/profile.js"() {
+    init_normalize();
+    init_objects();
+    init_constants7();
+  }
+});
+
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/auth/expiry-constants.js
+var LOGIN_EXPIRED_STATUS, LOGIN_PAUSED_NOTICE, LOGIN_KEY_REJECTED_NOTICE, LOGIN_NO_ACCESS_STATUS, LOGIN_NO_ACCESS_SUFFIX, LOGIN_NO_ACCESS_NOTICE, LOGIN_MARKER_WARNING, LOGIN_CLEANUP_WARNING, LOGIN_STATE_FILE, LOGIN_KEY_REJECTED_ENTRY;
+var init_expiry_constants = __esm({
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/auth/expiry-constants.js"() {
+    init_constants7();
+    LOGIN_EXPIRED_STATUS = 401;
+    LOGIN_PAUSED_NOTICE = [
+      LOGIN_NOTICE_HEADING,
+      "Your LangSmith login expired so this session isn't being traced.",
+      "\u25B6 Run the following command: langsmith auth login"
+    ].join("\n");
+    LOGIN_KEY_REJECTED_NOTICE = [
+      LOGIN_NOTICE_HEADING,
+      "Your LangSmith API key was rejected so this session isn't being traced.",
+      "\u25B6 Replace the key, or remove it and run: langsmith auth login"
+    ].join("\n");
+    LOGIN_NO_ACCESS_STATUS = 403;
+    LOGIN_NO_ACCESS_SUFFIX = ".no-access";
+    LOGIN_NO_ACCESS_NOTICE = [
+      LOGIN_NOTICE_HEADING,
+      "LangSmith denied access to this workspace so this session isn't being traced.",
+      "\u25B6 Check your workspace, or use a key or login that has access"
+    ].join("\n");
+    LOGIN_MARKER_WARNING = "Could not record the expired LangSmith login:";
+    LOGIN_CLEANUP_WARNING = "Could not clear the LangSmith sign-in marker:";
+    LOGIN_STATE_FILE = "sign-in.json";
+    LOGIN_KEY_REJECTED_ENTRY = "api-key-rejected.";
+  }
+});
+
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/auth/expiry.js
+import { join as join14 } from "node:path";
+async function recordExpiredLogin(login, sentTokenHash, storageRoot, denied = false) {
+  try {
+    const profile = readProfileAt(login.configPath, login.profile);
+    if (profile === void 0 || profile.accessTokenHash !== sentTokenHash)
+      return "superseded";
+    const key = `${expiredMarkerPrefix(profile)}${profile.tokenHash}${denied ? LOGIN_NO_ACCESS_SUFFIX : ""}`;
+    const claim = await claimLogin(profile, key, storageRoot);
+    if (claim === "existing" || claim === "unrecorded" && unrecorded.has(key))
+      return "already-handled";
+    if (claim === "unrecorded")
+      unrecorded.add(key);
+  } catch (error2) {
+    console.warn(LOGIN_MARKER_WARNING, describe(error2));
+  }
+  console.warn(denied ? LOGIN_NO_ACCESS_NOTICE : LOGIN_PAUSED_NOTICE);
+  return "notice";
+}
+async function recordRejectedKey(key, storageRoot, denied = false) {
+  if (storageRoot === void 0)
+    return;
+  const path3 = join14(storageRoot, LOGIN_STATE_FILE);
+  const entry = `${rejectedKeyEntry(key)}${denied ? LOGIN_NO_ACCESS_SUFFIX : ""}`;
+  try {
+    if (!await claimStateEntry(path3, entry, Infinity))
+      return;
+    await forgetLogins(storageRoot, rejectedKeyEntry(key), entry);
+  } catch {
+    return;
+  }
+  console.warn(denied ? LOGIN_NO_ACCESS_NOTICE : LOGIN_KEY_REJECTED_NOTICE);
+}
+async function clearRejectedKey(storageRoot, key) {
+  const entry = key === void 0 ? LOGIN_KEY_REJECTED_ENTRY : rejectedKeyEntry(key);
+  if (storageRoot !== void 0)
+    await clearMarkers(storageRoot, entry);
+}
+async function clearLoginExpiry(login, storageRoot) {
+  const prefix = expiredMarkerPrefix(login);
+  for (const key of unrecorded)
+    if (key.startsWith(prefix))
+      unrecorded.delete(key);
+  if (storageRoot !== void 0)
+    await clearMarkers(storageRoot, prefix);
+}
+async function clearMarkers(storageRoot, prefix) {
+  try {
+    await forgetLogins(storageRoot, prefix, void 0);
+  } catch (error2) {
+    console.warn(LOGIN_CLEANUP_WARNING, describe(error2));
+  }
+}
+async function claimLogin(profile, key, storageRoot) {
+  if (storageRoot === void 0)
+    return "unrecorded";
+  try {
+    if (!await claimStateEntry(join14(storageRoot, LOGIN_STATE_FILE), key, Infinity))
+      return "existing";
+  } catch (error2) {
+    console.warn(LOGIN_MARKER_WARNING, describe(error2));
+    return "unrecorded";
+  }
+  await forgetLogins(storageRoot, expiredMarkerPrefix(profile), key);
+  return "claimed";
+}
+function rejectedKeyEntry({ apiKey, apiUrl }) {
+  const credential = `${sdkSetting(apiKey) ?? apiKey}
+${serverKey(apiUrl)}`;
+  return `${LOGIN_KEY_REJECTED_ENTRY}${credentialHash(credential)}`;
+}
+async function forgetLogins(storageRoot, prefix, keep) {
+  const forget = (key) => key.startsWith(prefix) && key !== keep;
+  const store = loginStore(storageRoot);
+  if (Object.keys(store.read()).some(forget))
+    await store.update((state) => Object.fromEntries(Object.entries(state).filter(([key]) => !forget(key))));
+}
+function loginStore(storageRoot) {
+  return createStateStore({
+    path: join14(storageRoot, LOGIN_STATE_FILE),
+    warn: () => void 0
+  });
+}
+var unrecorded;
+var init_expiry2 = __esm({
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/auth/expiry.js"() {
+    init_state_claim();
+    init_state_store();
+    init_errors();
+    init_normalize();
+    init_profile();
+    init_expiry_constants();
+    unrecorded = /* @__PURE__ */ new Set();
+  }
+});
+
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/metadata/constants.js
+var CODING_AGENT_SCHEMA_VERSION, CODING_AGENT_PURPOSE, GIT_METADATA_KEYS, LEGACY_GIT_METADATA_KEYS, ATTRIBUTION_IDENTIFIER_KEY, REPOSITORY_METADATA_KEYS, CODING_AGENT_RUN_TYPES, CODING_AGENT_RUN_SCOPES, CODING_AGENT_AGENT_TYPES, CODING_AGENT_SCHEMA_INTEGRATIONS, CODING_AGENT_CORE_INTEGRATIONS, CODING_AGENT_CODEX_INTEGRATION, CODING_AGENT_RUNTIME_NAMES, CODING_AGENT_INTEGRATION_POLICIES, CODING_AGENT_ALWAYS_FIELD_OPTIONS, CODING_AGENT_WHERE_KNOWN_FIELD_OPTIONS, CODING_AGENT_FIELD_DEFAULTS, CODING_AGENT_STRUCTURAL_FIELD_DEFAULTS, CODING_AGENT_PROVIDER_FIELD_DEFAULTS, CODING_AGENT_METADATA_PROVENANCE_FIELDS, CODING_AGENT_METADATA_PROJECTION_FIELDS, TRUSTED_METADATA, METADATA_MODE_NAME, METADATA_MODE_STATUS_VALUES, CODING_AGENT_RUNTIME_LIBRARY, CODING_AGENT_RUNTIME_SDK, CODING_AGENT_RELEASE_ENVIRONMENT_VARIABLES, CODING_AGENT_ENVIRONMENT_METADATA_PREFIXES, CODING_AGENT_ENVIRONMENT_METADATA_EXCLUDED, CODING_AGENT_ENVIRONMENT_METADATA_SENSITIVE_SUBSTRINGS, CODING_AGENT_ENVIRONMENT_METADATA_ENDPOINT_SUBSTRINGS, CODING_AGENT_REVISION_ID_VARIABLE, CODING_AGENT_REVISION_ID_KEY;
+var init_constants8 = __esm({
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/metadata/constants.js"() {
     CODING_AGENT_SCHEMA_VERSION = "coding-agent-v1";
     CODING_AGENT_PURPOSE = "coding";
     GIT_METADATA_KEYS = {
@@ -4045,14 +4330,14 @@ var init_constants7 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/metadata/contract.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/metadata/contract.js
 function field(key, options = {}) {
   return { key, ...CODING_AGENT_FIELD_DEFAULTS, ...options };
 }
 var structural, provider, CODING_AGENT_V1_CONTRACT;
 var init_contract = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/metadata/contract.js"() {
-    init_constants7();
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/metadata/contract.js"() {
+    init_constants8();
     structural = (key, options = {}) => field(key, { ...CODING_AGENT_STRUCTURAL_FIELD_DEFAULTS, ...options });
     provider = (key, options = {}) => field(key, { ...CODING_AGENT_PROVIDER_FIELD_DEFAULTS, ...options });
     CODING_AGENT_V1_CONTRACT = {
@@ -4175,7 +4460,7 @@ var init_contract = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/metadata/git-names.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/metadata/git-names.js
 function withBothGitMetadataNames(metadata) {
   const both = { ...metadata };
   for (const role of Object.keys(GIT_METADATA_KEYS)) {
@@ -4188,12 +4473,12 @@ function withBothGitMetadataNames(metadata) {
   return both;
 }
 var init_git_names = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/metadata/git-names.js"() {
-    init_constants7();
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/metadata/git-names.js"() {
+    init_constants8();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/metadata/validation.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/metadata/validation.js
 function metadataFieldTypeIssue(field4, value) {
   const matchesType = field4.type === "string" ? typeof value === "string" && value.length > 0 : field4.type === "integer" ? typeof value === "number" && Number.isSafeInteger(value) && value >= 1 : isPlainRecord(value);
   if (!matchesType)
@@ -4239,13 +4524,13 @@ function normalizeProviderMetadata(value, integration, runType) {
   return Object.fromEntries(Object.entries(value).filter(([key, entry]) => entry !== void 0 && !issues.has(key)));
 }
 var init_validation = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/metadata/validation.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/metadata/validation.js"() {
     init_objects();
     init_contract();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/metadata/builder.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/metadata/builder.js
 function buildCodingAgentMetadata(options) {
   const policy = CODING_AGENT_INTEGRATION_POLICIES[options.integration];
   const identity = {
@@ -4313,15 +4598,15 @@ function trustedCodingAgentMetadata(metadata) {
   return metadata?.[TRUSTED_METADATA];
 }
 var init_builder = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/metadata/builder.js"() {
-    init_constants7();
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/metadata/builder.js"() {
+    init_constants8();
     init_contract();
     init_git_names();
     init_validation();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/metadata/runtime.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/metadata/runtime.js
 function forwardsEnvironmentVariable(name, value, environmentMetadata) {
   return typeof value === "string" && environmentMetadata.prefixes.some((prefix) => name.startsWith(prefix)) && !environmentMetadata.excluded.includes(name) && ![...environmentMetadata.sensitiveSubstrings, ...environmentMetadata.endpointSubstrings].some((part) => name.toLowerCase().includes(part));
 }
@@ -4347,12 +4632,12 @@ function buildCodingAgentRuntimeMetadata(options) {
   return { runtime, metadata };
 }
 var init_runtime = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/metadata/runtime.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/metadata/runtime.js"() {
     init_contract();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/metadata/privacy.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/metadata/privacy.js
 function projectCodingAgentMetadata(metadata, integration, status) {
   const safe = {};
   for (const [key, value] of Object.entries(metadata ?? {})) {
@@ -4374,15 +4659,15 @@ function metadataForMode(metadata, integration, mode = "full", status) {
   return projectCodingAgentMetadata(source, integration, status);
 }
 var init_privacy = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/metadata/privacy.js"() {
-    init_constants7();
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/metadata/privacy.js"() {
+    init_constants8();
     init_contract();
     init_builder();
     init_validation();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/metadata/provenance.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/metadata/provenance.js
 function prepareCodingAgentMetadataProvenance(value, integration, mode, status = "running") {
   const source = requirePlainRecord(value, "Run metadata");
   const declaredIntegration = ownDataField(source, "integration");
@@ -4457,21 +4742,21 @@ function projectedString(source, key) {
   return value;
 }
 var init_provenance = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/metadata/provenance.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/metadata/provenance.js"() {
     init_objects();
-    init_constants7();
-    init_constants7();
+    init_constants8();
+    init_constants8();
     init_builder();
     init_privacy();
     init_validation();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/metadata/index.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/metadata/index.js
 var init_metadata = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/metadata/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/metadata/index.js"() {
     init_builder();
-    init_constants7();
+    init_constants8();
     init_git_names();
     init_runtime();
     init_provenance();
@@ -4840,7 +5125,7 @@ var init_src = __esm({
 
 // node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/experimental/otel/constants.js
 var GEN_AI_OPERATION_NAME, GEN_AI_SYSTEM, GEN_AI_REQUEST_MODEL, GEN_AI_RESPONSE_MODEL, GEN_AI_USAGE_INPUT_TOKENS, GEN_AI_USAGE_OUTPUT_TOKENS, GEN_AI_USAGE_TOTAL_TOKENS, GEN_AI_REQUEST_MAX_TOKENS, GEN_AI_REQUEST_TEMPERATURE, GEN_AI_REQUEST_TOP_P, GEN_AI_REQUEST_FREQUENCY_PENALTY, GEN_AI_REQUEST_PRESENCE_PENALTY, GEN_AI_RESPONSE_FINISH_REASONS, GENAI_PROMPT, GENAI_COMPLETION, GEN_AI_REQUEST_EXTRA_QUERY, GEN_AI_REQUEST_EXTRA_BODY, GEN_AI_SERIALIZED_NAME, GEN_AI_SERIALIZED_SIGNATURE, GEN_AI_SERIALIZED_DOC, GEN_AI_RESPONSE_ID, GEN_AI_TOOL_NAME, GEN_AI_TOOL_CALL_ID, GEN_AI_TOOL_DEFINITIONS, GEN_AI_RESPONSE_SERVICE_TIER, GEN_AI_RESPONSE_SYSTEM_FINGERPRINT, GEN_AI_USAGE_INPUT_TOKEN_DETAILS, GEN_AI_USAGE_OUTPUT_TOKEN_DETAILS, LANGSMITH_SESSION_ID, LANGSMITH_SESSION_NAME, LANGSMITH_RUN_TYPE, LANGSMITH_NAME, LANGSMITH_METADATA, LANGSMITH_TAGS, LANGSMITH_REQUEST_STREAMING, LANGSMITH_REQUEST_HEADERS, LANGSMITH_USAGE_METADATA;
-var init_constants8 = __esm({
+var init_constants9 = __esm({
   "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/experimental/otel/constants.js"() {
     GEN_AI_OPERATION_NAME = "gen_ai.operation.name";
     GEN_AI_SYSTEM = "gen_ai.system";
@@ -5185,7 +5470,7 @@ function isPrimitive(value) {
 var WELL_KNOWN_OPERATION_NAMES, LangSmithToOTELTranslator;
 var init_translator = __esm({
   "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/experimental/otel/translator.js"() {
-    init_constants8();
+    init_constants9();
     init_otel();
     WELL_KNOWN_OPERATION_NAMES = {
       llm: "chat",
@@ -10485,7 +10770,7 @@ async function stat2(filePath) {
 function existsSync2(p) {
   return nodeFs.existsSync(p);
 }
-function mkdirSync3(dir) {
+function mkdirSync4(dir) {
   nodeFs.mkdirSync(dir, { recursive: true });
 }
 function writeFileSync2(filePath, content) {
@@ -10497,7 +10782,7 @@ function renameSync4(oldPath, newPath) {
 function unlinkSync2(filePath) {
   nodeFs.unlinkSync(filePath);
 }
-function readFileSync5(filePath) {
+function readFileSync6(filePath) {
   return nodeFs.readFileSync(filePath, "utf-8");
 }
 async function mkdirExclusive(dir) {
@@ -10689,7 +10974,7 @@ var init_prompt_cache = __esm({
         }
         const dir = path2.dirname(filePath);
         if (!existsSync2(dir)) {
-          mkdirSync3(dir);
+          mkdirSync4(dir);
         }
         const tempPath = `${filePath}.tmp`;
         try {
@@ -10715,7 +11000,7 @@ var init_prompt_cache = __esm({
         }
         let entries;
         try {
-          const content = readFileSync5(filePath);
+          const content = readFileSync6(filePath);
           const data = JSON.parse(content);
           entries = data.entries ?? null;
         } catch {
@@ -10840,7 +11125,7 @@ function isEEXIST(err) {
 }
 function lockMetadataLines(lockDir) {
   try {
-    return readFileSync5(path2.join(lockDir, LOCK_METADATA_FILE)).split("\n");
+    return readFileSync6(path2.join(lockDir, LOCK_METADATA_FILE)).split("\n");
   } catch {
     return void 0;
   }
@@ -10958,7 +11243,7 @@ function loadProfileState() {
     return void 0;
   }
   try {
-    const config = JSON.parse(readFileSync5(configPath));
+    const config = JSON.parse(readFileSync6(configPath));
     const profileName = resolveProfileName(config);
     const profile = profileName ? config.profiles?.[profileName] : void 0;
     if (!profileName || !profile) {
@@ -11221,7 +11506,7 @@ var init_profiles = __esm({
       }
       reloadProfile() {
         try {
-          const config = JSON.parse(readFileSync5(this.state.configPath));
+          const config = JSON.parse(readFileSync6(this.state.configPath));
           const profile = config.profiles?.[this.state.profileName];
           if (!profile) {
             return void 0;
@@ -17181,7 +17466,7 @@ var init_env3 = __esm({
 
 // node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/singletons/constants.js
 var _LC_CONTEXT_VARIABLES_KEY, _REPLICA_TRACE_ROOTS_KEY;
-var init_constants9 = __esm({
+var init_constants10 = __esm({
   "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/singletons/constants.js"() {
     _LC_CONTEXT_VARIABLES_KEY = /* @__PURE__ */ Symbol.for("lc:context_variables");
     _REPLICA_TRACE_ROOTS_KEY = /* @__PURE__ */ Symbol.for("langsmith:replica_trace_roots");
@@ -17206,7 +17491,7 @@ function setContextVar(runTree, key, value) {
 }
 var init_context_vars = __esm({
   "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/context_vars.js"() {
-    init_constants9();
+    init_constants10();
   }
 });
 
@@ -17368,7 +17653,7 @@ var init_run_trees = __esm({
     init_client2();
     init_env3();
     init_error2();
-    init_constants9();
+    init_constants10();
     init_context_vars();
     init_env();
     init_env();
@@ -18357,10 +18642,10 @@ var init_langsmith = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/privacy/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/privacy/constants.js
 var MUTED_TRACE_CONTENT, METADATA_MODE_RUN_CONFIG_FIELDS;
-var init_constants10 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/privacy/constants.js"() {
+var init_constants11 = __esm({
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/privacy/constants.js"() {
     MUTED_TRACE_CONTENT = "[LangSmith system notice: content omitted because tracing is muted.]";
     METADATA_MODE_RUN_CONFIG_FIELDS = [
       "client",
@@ -18379,7 +18664,7 @@ var init_constants10 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/privacy/run-tree.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/privacy/run-tree.js
 function mutedContent(role) {
   return { messages: [{ role, content: MUTED_TRACE_CONTENT }] };
 }
@@ -18500,25 +18785,45 @@ function survivingCodingAgentPatchFields(projectedRun, fields) {
   });
 }
 var init_run_tree = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/privacy/run-tree.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/privacy/run-tree.js"() {
     init_langsmith();
     init_metadata();
-    init_constants10();
+    init_constants11();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/privacy/index.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/privacy/index.js
 var init_privacy2 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/privacy/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/privacy/index.js"() {
     init_run_tree();
-    init_constants10();
+    init_constants11();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/constants.js
-var UPLOAD_ACCOUNT_FINGERPRINT_PREFIX, UPLOAD_DESTINATION_ID_PREFIX, UPLOAD_FINGERPRINT_LENGTH, UPLOAD_ALREADY_RECEIVED_STATUS, UPLOAD_CONTROL_CHARACTER_PATTERN, UPLOAD_API_URL_TRAILING_SLASH_PATTERN, UPLOAD_UUID_PATTERN, UPLOAD_REPLICA_UUID_V7_PATTERN, UPLOAD_REPLICA_UUID_V5_NAMESPACE, UPLOAD_REPLICA_UUID_V5_NAMESPACE_BYTES, UPLOAD_REPLICA_UUID_V5_DOMAIN, UPLOAD_REPLICA_DOTTED_ORDER_ID_LENGTH, UPLOAD_REPLICA_IDENTITY_UPDATE_FIELDS, UPLOAD_REPLICA_PATCH_UPDATE_FIELDS, UPLOAD_PATCH_FIELDS, UPLOAD_REDACTED_FIELDS, UPLOAD_FAILED_MESSAGE, UPLOAD_RETRYABLE_STATUSES, UPLOAD_SDK_MAX_RETRIES, UPLOAD_BUN_RUNTIME, UPLOAD_NODE_RUNTIME, UPLOAD_DOTTED_ORDER_SEGMENT, UPLOAD_REQUEST_TIMEOUT_MS, UPLOAD_SEND_DEADLINE_MS, UPLOAD_BATCH_LIMITS, UPLOAD_ALREADY_RECEIVED_MESSAGE, UPLOAD_DEADLINE_MESSAGE, UPLOAD_RECEIPT_MISSING_MESSAGE, UPLOAD_ERROR_NAME, UPLOAD_SERVER_ERROR_MIN_STATUS, UPLOAD_UNKNOWN_DESTINATION_MESSAGE, UPLOAD_SAMPLING_RATE_VARIABLES, UPLOAD_SAMPLING_HASH, UPLOAD_SAMPLING_BUCKET_BYTES, UPLOAD_DOTTED_ORDER_ROOT_ID;
-var init_constants11 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/constants.js"() {
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/env.js
+function withoutEnvVariables(names2, run10) {
+  const hidden = names2.flatMap((name) => {
+    const value = process.env[name];
+    return value === void 0 ? [] : [[name, value]];
+  });
+  for (const [name] of hidden)
+    delete process.env[name];
+  try {
+    return run10();
+  } finally {
+    for (const [name, value] of hidden)
+      process.env[name] = value;
+  }
+}
+var init_env4 = __esm({
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/env.js"() {
+  }
+});
+
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/constants.js
+var UPLOAD_ACCOUNT_FINGERPRINT_PREFIX, UPLOAD_DESTINATION_ID_PREFIX, UPLOAD_FINGERPRINT_LENGTH, UPLOAD_ALREADY_RECEIVED_STATUS, UPLOAD_CONTROL_CHARACTER_PATTERN, UPLOAD_API_URL_TRAILING_SLASH_PATTERN, UPLOAD_UUID_PATTERN, UPLOAD_REPLICA_UUID_V7_PATTERN, UPLOAD_REPLICA_UUID_V5_NAMESPACE, UPLOAD_REPLICA_UUID_V5_NAMESPACE_BYTES, UPLOAD_REPLICA_UUID_V5_DOMAIN, UPLOAD_REPLICA_DOTTED_ORDER_ID_LENGTH, UPLOAD_REPLICA_IDENTITY_UPDATE_FIELDS, UPLOAD_REPLICA_PATCH_UPDATE_FIELDS, UPLOAD_PATCH_FIELDS, UPLOAD_REDACTED_FIELDS, UPLOAD_FAILED_MESSAGE, UPLOAD_RETRYABLE_STATUSES, UPLOAD_SDK_MAX_RETRIES, UPLOAD_BUN_RUNTIME, UPLOAD_NODE_RUNTIME, UPLOAD_DOTTED_ORDER_SEGMENT, UPLOAD_REQUEST_TIMEOUT_MS, UPLOAD_SEND_DEADLINE_MS, UPLOAD_BATCH_LIMITS, UPLOAD_ALREADY_RECEIVED_MESSAGE, UPLOAD_DEADLINE_MESSAGE, UPLOAD_RECEIPT_MISSING_MESSAGE, UPLOAD_ERROR_NAME, UPLOAD_SERVER_ERROR_MIN_STATUS, UPLOAD_UNKNOWN_DESTINATION_MESSAGE, UPLOAD_SAMPLING_RATE_VARIABLES, UPLOAD_SAMPLING_HASH, UPLOAD_SAMPLING_BUCKET_BYTES, UPLOAD_DOTTED_ORDER_ROOT_ID, UPLOAD_SDK_API_KEY_FIELD, UPLOAD_SDK_API_URL_FIELD, UPLOAD_AUTHORIZATION_HEADER, UPLOAD_BEARER_PATTERN, UPLOAD_LOGIN_UNUSABLE_MESSAGE, UPLOAD_KEY_UNUSABLE_MESSAGE, UPLOAD_CREDENTIAL_REQUIRED_MESSAGE, UPLOAD_LOGIN_INVALID_MESSAGE, UPLOAD_LOGIN_FIELD_NAMES;
+var init_constants12 = __esm({
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/constants.js"() {
     UPLOAD_ACCOUNT_FINGERPRINT_PREFIX = "account_";
     UPLOAD_DESTINATION_ID_PREFIX = "destination_";
     UPLOAD_FINGERPRINT_LENGTH = 32;
@@ -18586,16 +18891,29 @@ var init_constants11 = __esm({
     UPLOAD_SAMPLING_HASH = "sha256";
     UPLOAD_SAMPLING_BUCKET_BYTES = 6;
     UPLOAD_DOTTED_ORDER_ROOT_ID = /^\d{8}T\d+Z([0-9a-f-]{36})/i;
+    UPLOAD_SDK_API_KEY_FIELD = "apiKey";
+    UPLOAD_SDK_API_URL_FIELD = "apiUrl";
+    UPLOAD_AUTHORIZATION_HEADER = "Authorization";
+    UPLOAD_BEARER_PATTERN = /^Bearer /u;
+    UPLOAD_LOGIN_UNUSABLE_MESSAGE = "The LangSmith SDK would not send this destination's uploads with the CLI login on its own server, so nothing is uploaded to it";
+    UPLOAD_KEY_UNUSABLE_MESSAGE = "The LangSmith SDK read this destination's API key as empty, so nothing is uploaded to it";
+    UPLOAD_CREDENTIAL_REQUIRED_MESSAGE = "An API key or a LangSmith CLI login is required for each upload destination";
+    UPLOAD_LOGIN_INVALID_MESSAGE = "Invalid upload login";
+    UPLOAD_LOGIN_FIELD_NAMES = {
+      configPath: "login config path",
+      profile: "login profile",
+      workspaceId: "login workspace ID"
+    };
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/client.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/client.js
 function createUploadClient(options) {
-  const { apiKey, apiUrl, workspaceId, anonymizer, redactedFields } = options;
-  return new Client({
-    apiKey,
+  const { apiKey, apiUrl, workspaceId, login, anonymizer, redactedFields } = options;
+  const auth = login === void 0 ? { apiKey: apiKey ?? "", workspaceId: workspaceId ?? "" } : {};
+  const config = {
+    ...auth,
     apiUrl,
-    workspaceId: workspaceId ?? "",
     autoBatchTracing: false,
     manualFlushMode: true,
     timeout_ms: UPLOAD_REQUEST_TIMEOUT_MS,
@@ -18606,18 +18924,50 @@ function createUploadClient(options) {
     tracingMode: "langsmith",
     ...anonymizer === void 0 ? {} : { anonymizer, hideMetadata: anonymizer },
     ...redactedFields?.includes("inputs") ? { hideInputs: false } : {},
-    ...redactedFields?.includes("outputs") ? { hideOutputs: false } : {}
-  });
+    ...redactedFields?.includes("outputs") ? { hideOutputs: false } : {},
+    fetchImplementation: async (input, init) => {
+      const response = await fetch(input, init);
+      if (response.status === LOGIN_EXPIRED_STATUS || response.status === LOGIN_NO_ACCESS_STATUS)
+        rejectedAuthorizations.set(client, new Headers(init?.headers).get(UPLOAD_AUTHORIZATION_HEADER) ?? "");
+      return response;
+    }
+  };
+  const client = withoutEnvVariables(LOGIN_API_KEY_VARIABLES, () => new Client(config));
+  return client;
 }
+function takeRejectedAccessToken(client) {
+  const authorization = rejectedAuthorizations.get(client);
+  rejectedAuthorizations.delete(client);
+  return authorization?.replace(UPLOAD_BEARER_PATTERN, "") || void 0;
+}
+var rejectedAuthorizations;
 var init_client3 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/client.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/client.js"() {
     init_langsmith();
-    init_constants11();
+    init_constants7();
+    init_expiry_constants();
+    init_env4();
+    init_constants12();
+    rejectedAuthorizations = /* @__PURE__ */ new WeakMap();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/destination-identity.js
-import { createHash as createHash3 } from "node:crypto";
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/auth/credential.js
+function refusedLoginReplicas(replicas, apiUrl) {
+  const refused = (replicas ?? []).filter((replica) => sdkSetting(replica.apiKey) === void 0 && replica.apiUrl !== void 0).map(({ apiUrl: url }) => url).filter((url) => !sameServer(url, apiUrl));
+  return refused.length === 0 ? void 0 : fillTemplate(LOGIN_REPLICA_REFUSED_REASON, { urls: refused.join(", "), apiUrl });
+}
+var init_credential = __esm({
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/auth/credential.js"() {
+    init_format();
+    init_constants7();
+    init_normalize();
+    init_profile();
+  }
+});
+
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/destination-identity.js
+import { createHash as createHash4 } from "node:crypto";
 function resolveUploadDestinationIdentities(options) {
   if (!Array.isArray(options.destinations) || options.destinations.length === 0) {
     throw new TypeError("At least one upload destination is required");
@@ -18632,7 +18982,9 @@ function resolveUploadDestinationIdentities(options) {
     throw new TypeError("A replica upload requires exactly one primary destination");
   }
   const primary = options.destinations[0];
-  const routedReplicas = primary && typeof primary === "object" && !hasApiKey(primary.apiKey) ? replicas.filter((replica) => !replica || typeof replica !== "object" || hasApiKey(replica.apiKey)) : replicas;
+  const routedReplicas = primary && typeof primary === "object" && !hasApiKey(primary.apiKey) ? replicas.filter((replica) => !replica || typeof replica !== "object" || hasApiKey(replica.apiKey) || primary.login !== void 0 && (replica.apiUrl === void 0 || sameServer(replica.apiUrl, primary.apiUrl))) : replicas;
+  if (replicas.length > 0 && routedReplicas.length === 0 && primary?.login !== void 0)
+    throw new TypeError(refusedLoginReplicas(replicas, primary.apiUrl));
   const primaryProjectName = routedReplicas.length === 0 || primary === void 0 ? void 0 : normalizeRequiredText(primary.projectName, "project name");
   const destinations = routedReplicas.length === 0 ? options.destinations.map((destination) => resolveDestination(destination)) : routedReplicas.map((replica) => resolveReplicaDestination(replica, primary, primaryProjectName));
   const ids = /* @__PURE__ */ new Set();
@@ -18652,14 +19004,15 @@ function resolveUploadDestinationIdentities(options) {
 function resolveDestination(config, sourceProjectName, updates, replicaProjectName) {
   if (!config || typeof config !== "object")
     throw new TypeError("Invalid upload destination");
-  if (!hasApiKey(config.apiKey)) {
-    throw new TypeError("An API key is required for each upload destination");
+  const login = hasApiKey(config.apiKey) ? void 0 : normalizeLogin(config.login);
+  if (login === void 0 && !hasApiKey(config.apiKey)) {
+    throw new TypeError(UPLOAD_CREDENTIAL_REQUIRED_MESSAGE);
   }
   const apiUrl = normalizeApiUrl(config.apiUrl);
   const projectName = normalizeRequiredText(config.projectName, "project name");
-  const workspaceId = config.workspaceId === void 0 ? void 0 : normalizeRequiredText(config.workspaceId, "workspace ID");
+  const workspaceId = config.workspaceId === void 0 ? void 0 : sdkSetting(normalizeRequiredText(config.workspaceId, "workspace ID"));
   const identity = JSON.stringify({
-    apiKey: config.apiKey,
+    ...login === void 0 ? { apiKey: config.apiKey } : { login },
     apiUrl,
     workspaceId: workspaceId ?? null,
     ...sourceProjectName === void 0 ? {} : { projectName: replicaProjectName ?? null, updates: updates ?? null }
@@ -18667,7 +19020,7 @@ function resolveDestination(config, sourceProjectName, updates, replicaProjectNa
   const id = `${UPLOAD_DESTINATION_ID_PREFIX}${fingerprint(identity)}`;
   return {
     id,
-    apiKey: config.apiKey,
+    ...login === void 0 ? { apiKey: config.apiKey } : { login },
     apiUrl,
     projectName,
     ...workspaceId === void 0 ? {} : { workspaceId },
@@ -18680,8 +19033,11 @@ function resolveReplicaDestination(replica, primary, primaryProjectName) {
     throw new TypeError("Invalid upload replica");
   const updates = snapshotReplicaUpdates(replica.updates);
   const workspaceId = replica.workspaceId ?? primary.workspaceId;
+  const ownKey = hasApiKey(replica.apiKey);
+  const apiKey = ownKey ? replica.apiKey : primary.apiKey;
   return resolveDestination({
-    apiKey: replica.apiKey ?? primary.apiKey,
+    ...apiKey === void 0 ? {} : { apiKey },
+    ...!ownKey && primary.login ? { login: primary.login } : {},
     apiUrl: replica.apiUrl ?? primary.apiUrl,
     projectName: replica.projectName ?? primary.projectName,
     ...workspaceId === void 0 ? {} : { workspaceId }
@@ -18737,16 +19093,31 @@ function normalizeRequiredText(value, name) {
   }
   return value.trim();
 }
+function normalizeLogin(login) {
+  if (login === void 0)
+    return void 0;
+  if (!login || typeof login !== "object")
+    throw new TypeError(UPLOAD_LOGIN_INVALID_MESSAGE);
+  const workspaceId = login.workspaceId === void 0 ? void 0 : sdkSetting(normalizeRequiredText(login.workspaceId, UPLOAD_LOGIN_FIELD_NAMES.workspaceId));
+  return {
+    configPath: normalizeRequiredText(login.configPath, UPLOAD_LOGIN_FIELD_NAMES.configPath),
+    profile: normalizeRequiredText(login.profile, UPLOAD_LOGIN_FIELD_NAMES.profile),
+    ...workspaceId === void 0 ? {} : { workspaceId }
+  };
+}
 function hasApiKey(value) {
-  return typeof value === "string" && value.trim().length > 0;
+  return sdkSetting(value) !== void 0;
 }
 function fingerprint(value) {
-  return createHash3("sha256").update(value).digest("hex").slice(0, UPLOAD_FINGERPRINT_LENGTH);
+  return createHash4("sha256").update(value).digest("hex").slice(0, UPLOAD_FINGERPRINT_LENGTH);
 }
 var init_destination_identity = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/destination-identity.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/destination-identity.js"() {
+    init_credential();
+    init_profile();
+    init_normalize();
     init_objects();
-    init_constants11();
+    init_constants12();
   }
 });
 
@@ -18972,7 +19343,7 @@ var init_anonymizer2 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/redaction.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/redaction.js
 function createUploadAnonymizer(enabled, extraRules) {
   if (!enabled)
     return void 0;
@@ -19002,23 +19373,25 @@ function normalizedRedactedFields(value) {
   return UPLOAD_REDACTED_FIELDS.filter((field4) => value.includes(field4));
 }
 var init_redaction = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/redaction.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/redaction.js"() {
     init_anonymizer2();
-    init_constants11();
+    init_constants12();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/destinations.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/destinations.js
 function resolveUploadDestinations(options) {
   const resolved = resolveUploadDestinationIdentities(options);
   const destinations = resolved.destinations.map((destination) => {
     const anonymizer = createUploadAnonymizer(options.redact, options.redactExtraRules);
     const client = createUploadClient({
-      apiKey: destination.apiKey,
-      apiUrl: destination.apiUrl,
-      ...destination.workspaceId === void 0 ? {} : { workspaceId: destination.workspaceId },
+      ...destination,
       ...anonymizer === void 0 ? {} : { anonymizer }
     });
+    if (destination.login === void 0 && Reflect.get(client, UPLOAD_SDK_API_KEY_FIELD) === void 0)
+      throw new TypeError(UPLOAD_KEY_UNUSABLE_MESSAGE);
+    if (destination.login !== void 0 && !usesLogin(destination.login, client))
+      throw new TypeError(UPLOAD_LOGIN_UNUSABLE_MESSAGE);
     return {
       ...destination,
       ...anonymizer === void 0 ? {} : { anonymizer },
@@ -19027,15 +19400,24 @@ function resolveUploadDestinations(options) {
   });
   return { accountFingerprint: resolved.accountFingerprint, destinations };
 }
+function usesLogin(login, client) {
+  if (Reflect.get(client, UPLOAD_SDK_API_KEY_FIELD) !== void 0)
+    return false;
+  const loginUrl = readProfileAt(login.configPath, login.profile)?.apiUrl;
+  const clientUrl = Reflect.get(client, UPLOAD_SDK_API_URL_FIELD);
+  return loginUrl === void 0 || typeof clientUrl === "string" && sameServer(clientUrl, loginUrl);
+}
 var init_destinations = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/destinations.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/destinations.js"() {
     init_client3();
+    init_profile();
+    init_constants12();
     init_destination_identity();
     init_redaction();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/client-cache.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/client-cache.js
 function createUploadClientCache() {
   const clientsByMode = /* @__PURE__ */ new Map();
   return {
@@ -19054,36 +19436,39 @@ function createUploadClientCache() {
   };
 }
 var init_client_cache = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/client-cache.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/client-cache.js"() {
     init_client3();
     init_redaction();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/errors.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/errors.js
 function isAlreadyReceived(cause) {
   return failureStatus(cause) === UPLOAD_ALREADY_RECEIVED_STATUS && describe(cause).includes(UPLOAD_ALREADY_RECEIVED_MESSAGE);
 }
 var UploadError;
 var init_errors5 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/errors.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/errors.js"() {
     init_errors();
-    init_constants11();
+    init_expiry_constants();
+    init_constants12();
     UploadError = class extends Error {
       retryable;
       status;
-      constructor(cause) {
+      loginRejected;
+      constructor(cause, login = false) {
         super(UPLOAD_FAILED_MESSAGE, { cause });
         this.name = UPLOAD_ERROR_NAME;
         const status = failureStatus(cause);
         this.status = status;
+        this.loginRejected = login && status === LOGIN_EXPIRED_STATUS;
         this.retryable = status === void 0 || status >= UPLOAD_SERVER_ERROR_MIN_STATUS || UPLOAD_RETRYABLE_STATUSES.includes(status);
       }
     };
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/runtime-metadata.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/runtime-metadata.js
 function applyRuntimeMetadata(payload, privacyMode) {
   if (privacyMode !== "full")
     return;
@@ -19101,15 +19486,15 @@ function applyRuntimeMetadata(payload, privacyMode) {
   };
 }
 var init_runtime_metadata = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/runtime-metadata.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/runtime-metadata.js"() {
     init_langsmith();
     init_metadata();
-    init_constants11();
+    init_constants12();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/replica-identifiers.js
-import { createHash as createHash4 } from "node:crypto";
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/replica-identifiers.js
+import { createHash as createHash5 } from "node:crypto";
 function contextForDestination(context, destination) {
   if (destination.sourceProjectName === void 0)
     return context;
@@ -19139,7 +19524,7 @@ function remapReplicaRunId(runId, projectName) {
     return computeRunIdForSecondaryReplica(runId, projectName);
   }
   const name = JSON.stringify([UPLOAD_REPLICA_UUID_V5_DOMAIN, projectName, runId.toLowerCase()]);
-  const hash = createHash4("sha1").update(UPLOAD_REPLICA_UUID_V5_NAMESPACE_BYTES).update(name).digest();
+  const hash = createHash5("sha1").update(UPLOAD_REPLICA_UUID_V5_NAMESPACE_BYTES).update(name).digest();
   hash[6] = hash[6] & 15 | 80;
   hash[8] = hash[8] & 63 | 128;
   const value = hash.subarray(0, 16).toString("hex");
@@ -19152,13 +19537,13 @@ function remapReplicaDottedOrder(dottedOrder, projectName) {
   }).join(".");
 }
 var init_replica_identifiers = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/replica-identifiers.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/replica-identifiers.js"() {
     init_langsmith();
-    init_constants11();
+    init_constants12();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/replica-updates.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/replica-updates.js
 function applyReplicaPatchUpdates(payload, destination, privacyMode) {
   if (privacyMode !== "full" || destination.updates === void 0)
     return;
@@ -19185,12 +19570,12 @@ function mergeReplicaExtra(baseValue, updateValue) {
   };
 }
 var init_replica_updates = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/replica-updates.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/replica-updates.js"() {
     init_objects();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/deadline.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/deadline.js
 async function withDeadline(work) {
   let timer;
   const expired = new Promise((_resolve, reject) => {
@@ -19203,13 +19588,13 @@ async function withDeadline(work) {
   }
 }
 var init_deadline = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/deadline.js"() {
-    init_constants11();
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/deadline.js"() {
+    init_constants12();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/sampling.js
-import { createHash as createHash5 } from "node:crypto";
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/sampling.js
+import { createHash as createHash6 } from "node:crypto";
 function samplingRate(environment) {
   for (const name of UPLOAD_SAMPLING_RATE_VARIABLES) {
     const value = environment[name]?.trim();
@@ -19224,19 +19609,19 @@ function isSampled(item, rate) {
   if (rate === void 0 || rate >= 1)
     return true;
   const traceId = traceIdOf(item.submission.run);
-  const digest = createHash5(UPLOAD_SAMPLING_HASH).update(traceId.toLowerCase()).digest();
+  const digest = createHash6(UPLOAD_SAMPLING_HASH).update(traceId.toLowerCase()).digest();
   return digest.readUIntBE(0, UPLOAD_SAMPLING_BUCKET_BYTES) / 2 ** (8 * UPLOAD_SAMPLING_BUCKET_BYTES) < rate;
 }
 function traceIdOf(run10) {
   return run10.trace_id ?? UPLOAD_DOTTED_ORDER_ROOT_ID.exec(run10.dotted_order ?? "")?.[1] ?? run10.id;
 }
 var init_sampling2 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/sampling.js"() {
-    init_constants11();
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/sampling.js"() {
+    init_constants12();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/timestamps.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/timestamps.js
 function startTimeFromDottedOrder(dottedOrder) {
   if (typeof dottedOrder !== "string")
     return void 0;
@@ -19255,12 +19640,12 @@ function startTimeText(supplied, dottedOrder) {
   return startTimeFromDottedOrder(dottedOrder);
 }
 var init_timestamps = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/timestamps.js"() {
-    init_constants11();
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/timestamps.js"() {
+    init_constants12();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/upload.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/upload.js
 function createLangSmithUploadWriter(options) {
   const resolved = resolveUploadDestinations(options);
   const destinations = resolved.destinations.map(({ id }) => Object.freeze({ id }));
@@ -19278,20 +19663,36 @@ function createLangSmithUploadWriter(options) {
     const configured = byId.get(destinationId);
     if (!configured)
       throw new TypeError(UPLOAD_UNKNOWN_DESTINATION_MESSAGE);
-    const prepared = items.map(({ submission, route }) => prepareItem(clients, route === void 0 ? configured : routedDestination(configured, route), submission));
+    const prepared = items.map(({ submission, route }) => prepareItem(clients, route === void 0 || options.projectLocked ? configured : routedDestination(configured, route), submission));
     const clientOptions = {
-      apiKey: configured.apiKey,
       apiUrl: configured.apiUrl,
       ...configured.workspaceId === void 0 ? {} : { workspaceId: configured.workspaceId }
     };
+    let uploaded = false;
     for (const [client, group] of segmentByClient(prepared)) {
       const sampled = group.filter((item) => isSampled(item, rate));
       try {
         await withDeadline(client.batchIngestRuns(ingestFor(sampled), clientOptions)).catch(ignoreAlreadyReceived);
+        uploaded ||= sampled.length > 0;
       } catch (error2) {
-        throw new UploadError(error2);
+        const failure2 = new UploadError(error2, configured.login !== void 0);
+        const sent = takeRejectedAccessToken(client);
+        const denied = failure2.status === LOGIN_NO_ACCESS_STATUS;
+        if ((failure2.loginRejected || denied) && configured.login !== void 0)
+          void recordExpiredLogin(configured.login, sent && credentialHash(sent), options.storageRoot, denied);
+        if (configured.apiKey !== void 0 && (failure2.status === LOGIN_EXPIRED_STATUS || denied))
+          void recordRejectedKey({ apiKey: configured.apiKey, apiUrl: configured.apiUrl }, options.storageRoot, denied);
+        throw failure2;
       }
     }
+    if (uploaded && configured.login !== void 0) {
+      void clearLoginExpiry(configured.login, options.storageRoot);
+      void clearRejectedKey(options.storageRoot);
+    } else if (uploaded && configured.apiKey !== void 0)
+      void clearRejectedKey(options.storageRoot, {
+        apiKey: configured.apiKey,
+        apiUrl: configured.apiUrl
+      });
     return prepared.map(({ submission, operation }) => ({
       destinationId,
       runId: submission.run.id,
@@ -19513,12 +19914,16 @@ function validatePatch(submission) {
   }
 }
 var init_upload = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/upload.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/upload.js"() {
+    init_profile();
+    init_expiry_constants();
+    init_expiry2();
     init_metadata();
     init_privacy2();
     init_destinations();
-    init_constants11();
+    init_constants12();
     init_client_cache();
+    init_client3();
     init_errors5();
     init_redaction();
     init_runtime_metadata();
@@ -19530,23 +19935,23 @@ var init_upload = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/index.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/index.js
 var init_upload2 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/index.js"() {
     init_upload();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/capture-wake-constants.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/capture-wake-constants.js
 var CAPTURE_WAKE_ERROR_NAME, CAPTURE_WAKE_FAILURE_MESSAGE;
 var init_capture_wake_constants = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/capture-wake-constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/capture-wake-constants.js"() {
     CAPTURE_WAKE_ERROR_NAME = "CaptureWakeError";
     CAPTURE_WAKE_FAILURE_MESSAGE = "Trace work was saved but its worker could not start";
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/capture-wake.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/capture-wake.js
 async function wakeCapturedWork(captureResult, wake) {
   try {
     await wake();
@@ -19571,7 +19976,7 @@ async function readSavedCaptureWake(error2, options) {
 }
 var CaptureWakeError;
 var init_capture_wake = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/capture-wake.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/capture-wake.js"() {
     init_capture_wake_constants();
     init_digest();
     CaptureWakeError = class extends Error {
@@ -19585,10 +19990,10 @@ var init_capture_wake = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/constants.js
 var ROOT_RUN_EXECUTION_ORDER, DOTTED_ORDER_TIME_PREFIX_LENGTH, DOTTED_ORDER_SEGMENT_PATTERN, DOTTED_ORDER_STRIP_PATTERN, LIFECYCLE_POST_EVENT_KIND, LIFECYCLE_PATCH_EVENT_KIND, LIFECYCLE_SETTLEMENT_EVENT_KIND, LIFECYCLE_ATTRIBUTION_READY_FIELD, LIFECYCLE_ENGINE_FOLDERS, LIFECYCLE_SETTLEMENT_LOCK_PREFIX, LIFECYCLE_TURN_CLOSURE_STATES, LIFECYCLE_SWEEP_WARNING, LIFECYCLE_CHILD_TURN_GRACE_MS, LIFECYCLE_UPLOAD_ACCOUNT_CHANGED_MESSAGE, LIFECYCLE_STORED_RUN_CONTEXT_IS_REQUIRED_MESSAGE, LIFECYCLE_STORED_INTEGRATION_DOES_NOT_MATCH_LIFECYCLE_BRIDGE_MESSAGE, LIFECYCLE_STORED_RUN_DATA_IS_REQUIRED_MESSAGE, LIFECYCLE_STORED_RUN_ID_DOES_NOT_MATCH_ITS_CAPTURE_MESSAGE, LIFECYCLE_STORED_PRIVACY_MODE_IS_INVALID_MESSAGE, LIFECYCLE_STORED_CAPTURE_IS_MISSING_THREAD_IDENTITY_MESSAGE, LIFECYCLE_RUN_INTEGRATION_MISMATCH_MESSAGE, LIFECYCLE_INVALID_PRIVACY_MODE_MESSAGE, LIFECYCLE_INVALID_RUN_OPERATION_MESSAGE, LIFECYCLE_INVALID_CLOSURE_STATE_MESSAGE, LIFECYCLE_RUN_IDENTITY_CHANGED_MESSAGE, LIFECYCLE_PATCH_START_TIME_MESSAGE, LIFECYCLE_RUN_TRACE_ORDER_MESSAGE, LIFECYCLE_INVALID_PATCH_FIELD_MESSAGE, LIFECYCLE_PATCH_FIELDS_UNIQUE_MESSAGE, LIFECYCLE_PATCH_FIELD_VALUE_MESSAGE, LIFECYCLE_INVALID_PATCH_PRIVACY_STATUS_MESSAGE, LIFECYCLE_IDENTITY_FIELD_LABELS;
-var init_constants12 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/constants.js"() {
+var init_constants13 = __esm({
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/constants.js"() {
     init_constants4();
     ROOT_RUN_EXECUTION_ORDER = 1;
     DOTTED_ORDER_TIME_PREFIX_LENGTH = 18;
@@ -19629,7 +20034,7 @@ var init_constants12 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/settlement/readiness.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/settlement/readiness.js
 async function captureReadiness(scopes, destinations, readOutcome) {
   const pending = /* @__PURE__ */ new Set();
   const dropped = /* @__PURE__ */ new Set();
@@ -19649,11 +20054,11 @@ async function captureReadiness(scopes, destinations, readOutcome) {
   return pending.size > 0 ? { status: "pending", destinations: [...pending].toSorted() } : dropped.size > 0 ? { status: "dropped", destinations: [...dropped].toSorted() } : { status: "delivered", destinations: [] };
 }
 var init_readiness = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/settlement/readiness.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/settlement/readiness.js"() {
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/closure.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/closure.js
 function deriveAttributionReadiness(value, integration) {
   const source = requirePlainRecord(value, "Prepared run submission");
   const metadata = prepareCodingAgentMetadataProvenance(requireOwnDataField(source, "metadata"), integration, "full");
@@ -19794,16 +20199,16 @@ function field2(value, key) {
   return value !== null && typeof value === "object" && !Array.isArray(value) ? value[key] : void 0;
 }
 var init_closure = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/closure.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/closure.js"() {
     init_metadata();
-    init_constants7();
+    init_constants8();
     init_objects();
-    init_constants12();
+    init_constants13();
     init_scope();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/identity.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/identity.js
 function createRunIdentity(input) {
   const id = requireNonBlankString(input.id, "Run ID");
   const start_time = requireTimestamp(input.start_time);
@@ -19863,13 +20268,13 @@ function dottedOrderSegment(startTime, runId) {
   return `${precisionTime.replace(DOTTED_ORDER_STRIP_PATTERN, "")}${runId}`;
 }
 var init_identity = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/identity.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/identity.js"() {
     init_objects();
-    init_constants12();
+    init_constants13();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/projection.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/projection.js
 function projectPostSubmission(source, common, priorIdentity) {
   const { integration, privacyMode, redaction } = common;
   const run10 = canonicalIdentity(normalizedRunSnapshot(requireOwnDataField(source, "run")), priorIdentity);
@@ -20136,18 +20541,18 @@ function requiredText(source, key, name) {
   return requireNonBlankString(requireOwnDataField(source, key), name);
 }
 var init_projection = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/projection.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/projection.js"() {
     init_metadata();
     init_privacy2();
     init_objects();
     init_redaction();
-    init_constants11();
-    init_identity();
     init_constants12();
+    init_identity();
+    init_constants13();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/settlement/projection.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/settlement/projection.js
 function projectCapture(record, integration) {
   const rawPayload = canonicalJsonObject(record.normalizedPayload, "Stored run payload");
   const submission = projectSubmission({ ...rawPayload, metadata: record.metadataProvenance }, integration);
@@ -20235,20 +20640,20 @@ function closureRank(state) {
   return state === "authoritative" ? 2 : state === "provisional" ? 1 : 0;
 }
 var init_projection2 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/settlement/projection.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/settlement/projection.js"() {
     init_metadata();
     init_objects();
-    init_constants12();
+    init_constants13();
     init_closure();
     init_projection();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/settlement/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/settlement/constants.js
 var REPOSITORY_NAME_KEY, SETTLEMENT_EVENT_ID_PREFIX, SETTLEMENT_DROPPED_RUN_WARNING, SETTLEMENT_ATTRIBUTION_LOST_MESSAGE, SETTLEMENT_QUIET_TURN_MS, SETTLEMENT_NEVER_ENDED_WARNING;
-var init_constants13 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/settlement/constants.js"() {
-    init_constants7();
+var init_constants14 = __esm({
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/settlement/constants.js"() {
+    init_constants8();
     REPOSITORY_NAME_KEY = GIT_METADATA_KEYS.repository;
     SETTLEMENT_EVENT_ID_PREFIX = "turn-settlement-";
     SETTLEMENT_DROPPED_RUN_WARNING = "Trace work for run {runId} was dropped, so it is left out; the rest of its turn is still being finished.";
@@ -20258,7 +20663,7 @@ var init_constants13 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/settlement/recorded-run.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/settlement/recorded-run.js
 function recordRun(events) {
   const latest = events.at(-1);
   const run10 = latest.payload.run;
@@ -20301,13 +20706,13 @@ function mergeMetadataObject(previous, current) {
   return { ...previous, ...current };
 }
 var init_recorded_run = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/settlement/recorded-run.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/settlement/recorded-run.js"() {
     init_metadata();
     init_objects();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/settlement/source-order.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/settlement/source-order.js
 function uniqueScopes(scopes) {
   const unique = /* @__PURE__ */ new Map();
   for (const scope of scopes)
@@ -20409,17 +20814,17 @@ function report(turnId, status, reason, runIds = [], destinations = []) {
   };
 }
 var init_source_order = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/settlement/source-order.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/settlement/source-order.js"() {
     init_order();
     init_compare();
     init_scope();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/settlement/revision.js
-import { createHash as createHash6 } from "node:crypto";
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/settlement/revision.js
+import { createHash as createHash7 } from "node:crypto";
 function settlementEventId(turnId, runId, dependencies, rootRunId, childRunIds, attribution) {
-  const revision = createHash6("sha256").update(JSON.stringify({
+  const revision = createHash7("sha256").update(JSON.stringify({
     turnId,
     runId,
     rootRunId,
@@ -20430,13 +20835,13 @@ function settlementEventId(turnId, runId, dependencies, rootRunId, childRunIds, 
   return `${SETTLEMENT_EVENT_ID_PREFIX}${revision}`;
 }
 var init_revision = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/settlement/revision.js"() {
-    init_constants13();
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/settlement/revision.js"() {
+    init_constants14();
     init_source_order();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/settlement/run-state.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/settlement/run-state.js
 function hasCausalRunError(events) {
   let hasError = false;
   for (const { payload } of events) {
@@ -20468,12 +20873,12 @@ function retainedEndTime(events) {
   return endTime;
 }
 var init_run_state = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/settlement/run-state.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/settlement/run-state.js"() {
     init_objects();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/settlement/settlement.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/settlement/settlement.js
 function attributionOf(metadata) {
   const carried = {};
   const named = withBothGitMetadataNames(metadata ?? {});
@@ -20507,14 +20912,14 @@ function metadataAfterFill(run10, filled) {
 }
 var namesARepository;
 var init_settlement = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/settlement/settlement.js"() {
-    init_constants13();
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/settlement/settlement.js"() {
+    init_constants14();
     init_git_names();
     namesARepository = (carried) => carried[REPOSITORY_NAME_KEY] !== void 0;
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/settlement/settle-turn.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/settlement/settle-turn.js
 function unsettled(settlementReport) {
   return { report: settlementReport, patches: [], captured: 0 };
 }
@@ -20754,12 +21159,12 @@ async function settleOneTurn(turnId, events, generated, allByRunId, options) {
 }
 var warnedNeverEndedTurns, warnedDroppedRuns;
 var init_settle_turn = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/settlement/settle-turn.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/settlement/settle-turn.js"() {
     init_metadata();
     init_format();
     init_objects();
-    init_constants12();
     init_constants13();
+    init_constants14();
     init_recorded_run();
     init_revision();
     init_run_state();
@@ -20772,7 +21177,7 @@ var init_settle_turn = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/settlement/pass.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/settlement/pass.js
 async function settleCapturedTurns(options) {
   if (options.destinations.length === 0)
     throw new TypeError("At least one settlement destination is required");
@@ -20834,8 +21239,8 @@ async function refreshSettlementProgress(work, destinations, readOutcome) {
   return { captured: work.progress.captured, turns };
 }
 var init_pass = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/settlement/pass.js"() {
-    init_constants12();
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/settlement/pass.js"() {
+    init_constants13();
     init_readiness();
     init_projection2();
     init_settle_turn();
@@ -20843,7 +21248,7 @@ var init_pass = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/validation/snapshot.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/validation/snapshot.js
 function snapshotData(value) {
   return copySnapshot(value, /* @__PURE__ */ new WeakMap());
 }
@@ -20883,11 +21288,11 @@ function copySnapshot(value, copies) {
   return copy;
 }
 var init_snapshot = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/validation/snapshot.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/validation/snapshot.js"() {
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/turn-removal.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/turn-removal.js
 async function removeSettledTurns(options) {
   const known = new Set(options.knownScopes.map(turnEventKey));
   const removable = /* @__PURE__ */ new Map();
@@ -20954,13 +21359,13 @@ function field3(value, key) {
   return value !== null && typeof value === "object" && !Array.isArray(value) ? value[key] : void 0;
 }
 var init_turn_removal = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/turn-removal.js"() {
-    init_constants12();
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/turn-removal.js"() {
+    init_constants13();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/bridge.js
-import { join as join13, resolve as resolve9 } from "node:path";
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/bridge.js
+import { join as join15, resolve as resolve9 } from "node:path";
 function createLifecycleBridge(options) {
   const context = createBridgeContext(options);
   return Object.freeze({
@@ -20980,7 +21385,10 @@ function createBridgeContext(options) {
     sessionId,
     ...options.policy === void 0 ? {} : { policy: options.policy }
   });
-  const writer = createLangSmithUploadWriter(options.writer);
+  const writer = createLangSmithUploadWriter({
+    ...options.writer,
+    storageRoot: options.storageRoot
+  });
   const policy = resolvePolicy(options.policy);
   return {
     integration,
@@ -21090,7 +21498,7 @@ function busyDrainResult() {
 }
 async function acquireSettlementLock(context) {
   const directory = await ensurePrivateDirectory(context.storageRoot, sessionSegments(identifierHash(context.sessionId)));
-  const path3 = join13(directory, `${LIFECYCLE_SETTLEMENT_LOCK_PREFIX}${identifierHash(context.writer.accountFingerprint)}`);
+  const path3 = join15(directory, `${LIFECYCLE_SETTLEMENT_LOCK_PREFIX}${identifierHash(context.writer.accountFingerprint)}`);
   return { path: path3, lock: await tryAcquireFileLock(path3) };
 }
 async function sweepWithWarning(fallback, sweep) {
@@ -21313,7 +21721,7 @@ function restoreSubmission(record, integration) {
   return { ...projected.value.payload, metadata: projected.value.metadata };
 }
 var init_bridge = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/bridge.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/bridge.js"() {
     init_storage();
     init_lock_folders();
     init_capture();
@@ -21330,7 +21738,7 @@ var init_bridge = __esm({
     init_projection2();
     init_objects();
     init_snapshot();
-    init_constants12();
+    init_constants13();
     init_projection();
     init_turn_removal();
     init_options();
@@ -21338,17 +21746,17 @@ var init_bridge = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/index.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/index.js
 var init_lifecycle = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/index.js"() {
     init_bridge();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/constants.js
 var RECONSTRUCTION_DRAIN_LOCK, RECONSTRUCTION_RUN_ID_PREFIX, RECONSTRUCTION_MAPPING_EVENT_ID_PREFIX, RECONSTRUCTION_JOB_KIND, RECONSTRUCTION_MAPPING_KIND, RECONSTRUCTION_RECORD_VERSION, RECONSTRUCTION_DEFERRED_REASON, RECONSTRUCTION_CLOSURE_STATES, RECONSTRUCTION_JOB_INPUT_KEYS, RECONSTRUCTION_JOB_OPTIONAL_INPUT_KEYS, RECONSTRUCTION_SOURCE_SNAPSHOT_KEYS, RECONSTRUCTION_SOURCE_SNAPSHOT_OPTIONAL_KEYS, RECONSTRUCTION_STORED_JOB_KEYS, RECONSTRUCTION_STORED_JOB_OPTIONAL_KEYS, RECONSTRUCTION_ATTRIBUTION_CONTEXT_KEYS, RECONSTRUCTION_ATTRIBUTION_CONTEXT_OPTIONAL_KEYS, RECONSTRUCTION_TOOL_ORIGIN_KEYS, RECONSTRUCTION_TOOL_ORIGIN_OPTIONAL_KEYS, RECONSTRUCTION_OUTPUT_KEYS, RECONSTRUCTION_OUTPUT_OPTIONAL_KEYS, RECONSTRUCTION_TURN_EVIDENCE_KEYS, RECONSTRUCTION_TURN_EVIDENCE_KEYS_WITH_ROOT, RECONSTRUCTION_DEPENDENCY_KEYS, RECONSTRUCTION_OUTPUTS_MUST_BE_ARRAY_MESSAGE, RECONSTRUCTION_OUTPUT_HAS_UNSUPPORTED_FIELDS_MESSAGE, RECONSTRUCTION_EVENT_IDS_MUST_BE_UNIQUE_MESSAGE, RECONSTRUCTION_INTEGRATION_CHANGED_MESSAGE, RECONSTRUCTION_PRIVACY_MODE_IS_INVALID_MESSAGE, RECONSTRUCTION_METADATA_FULL_MODE_MESSAGE, RECONSTRUCTION_DEPENDENCIES_MUST_BE_ARRAY_MESSAGE, RECONSTRUCTION_EVIDENCE_IDENTITY_MESSAGE, RECONSTRUCTION_SNAPSHOT_OUTPUTS_REQUIRE_SOURCE_REF_MESSAGE, RECONSTRUCTION_OUTPUT_SOURCE_REF_HAS_NO_SNAPSHOT_MESSAGE, RECONSTRUCTION_OUTPUT_REF_UNKNOWN_MESSAGE, RECONSTRUCTION_DEPENDENCY_SCOPE_MESSAGE, RECONSTRUCTION_DEPENDENCY_INTEGRATION_MESSAGE, RECONSTRUCTION_CAPTURES_CANNOT_DEPEND_ON_THEMSELVES_MESSAGE, RECONSTRUCTION_DEPENDENCIES_MUST_BE_UNIQUE_MESSAGE, RECONSTRUCTION_JOB_HAS_UNSUPPORTED_FIELDS_MESSAGE, RECONSTRUCTION_SOURCE_REFS_ARE_REQUIRED_MESSAGE, RECONSTRUCTION_SOURCE_REFS_MUST_BE_UNIQUE_MESSAGE, RECONSTRUCTION_SOURCE_CONFLICT_MESSAGE, RECONSTRUCTION_SNAPSHOTS_EMPTY_MESSAGE, RECONSTRUCTION_SNAPSHOT_FIELDS_MESSAGE, RECONSTRUCTION_SNAPSHOT_REF_MUST_BELONG_TO_JOB_MESSAGE, RECONSTRUCTION_SNAPSHOT_REFS_MUST_BE_UNIQUE_MESSAGE, RECONSTRUCTION_SNAPSHOT_PRIVACY_MESSAGE, RECONSTRUCTION_SNAPSHOT_START_TIME_MESSAGE, RECONSTRUCTION_SNAPSHOT_NOT_READY_MESSAGE, RECONSTRUCTION_SNAPSHOT_COVERAGE_MESSAGE, RECONSTRUCTION_PATHLESS_REF_MESSAGE, RECONSTRUCTION_CONTEXT_FIELDS_MESSAGE, RECONSTRUCTION_TOOL_ORIGIN_HAS_UNSUPPORTED_FIELDS_MESSAGE, RECONSTRUCTION_PINNED_BLANK_MESSAGE, RECONSTRUCTION_PINNED_UNIQUE_MESSAGE, RECONSTRUCTION_EVIDENCE_STRUCTURAL_MESSAGE, RECONSTRUCTION_CLOSURE_STATE_MESSAGE, RECONSTRUCTION_STORED_NAMESPACE_MESSAGE, RECONSTRUCTION_UNSUPPORTED_RECONSTRUCTION_JOB_MESSAGE, RECONSTRUCTION_STORED_FIELDS_MESSAGE, RECONSTRUCTION_STORED_PRIVACY_MESSAGE, RECONSTRUCTION_STORED_REFS_EMPTY_MESSAGE, RECONSTRUCTION_STORED_REFS_UNIQUE_MESSAGE, RECONSTRUCTION_STORED_SOURCE_CONFLICT_MESSAGE, RECONSTRUCTION_PROVENANCE_MESSAGE, RECONSTRUCTION_JOB_DEPENDENCIES_MESSAGE, RECONSTRUCTION_UNSUPPORTED_RECONSTRUCTION_MAPPING_MESSAGE, RECONSTRUCTION_STORED_NO_OUTPUTS_MESSAGE, RECONSTRUCTION_STORED_EVENTS_UNIQUE_MESSAGE, RECONSTRUCTION_STORED_DEPENDENCIES_MESSAGE, RECONSTRUCTION_DEFERRAL_REASON_INVALID_MESSAGE, RECONSTRUCTION_RESULT_STATUS_INVALID_MESSAGE, RECONSTRUCTION_TERMINAL_OUTCOME_MESSAGE, RECONSTRUCTION_CALLBACKS_REQUIRED_MESSAGE, RECONSTRUCTION_DRAIN_TIME_MESSAGE, RECONSTRUCTION_RECORD_UNSUPPORTED_MESSAGE, RECONSTRUCTION_JOB_MISSING_MESSAGE, RECONSTRUCTION_LABEL_OUTPUT, RECONSTRUCTION_LABEL_EVENT_ID, RECONSTRUCTION_LABEL_EVENT_ID_FIELD, RECONSTRUCTION_LABEL_SUBMISSION, RECONSTRUCTION_LABEL_INTEGRATION, RECONSTRUCTION_LABEL_RUN, RECONSTRUCTION_LABEL_RUN_ID, RECONSTRUCTION_LABEL_RUN_ID_FIELD, RECONSTRUCTION_LABEL_SOURCE_REF, RECONSTRUCTION_LABEL_SOURCE_REF_FIELD, RECONSTRUCTION_SUBMISSION_INVALID_MESSAGE;
-var init_constants14 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/constants.js"() {
+var init_constants15 = __esm({
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/constants.js"() {
     RECONSTRUCTION_DRAIN_LOCK = "reconstruction";
     RECONSTRUCTION_RUN_ID_PREFIX = "reconstruction:";
     RECONSTRUCTION_MAPPING_EVENT_ID_PREFIX = "reconstruction-map:";
@@ -21473,18 +21881,18 @@ var init_constants14 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/known-keys.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/known-keys.js
 function assertKnownKeys(record, required, optional, message) {
   const keys = Object.keys(record);
   if (required.some((key) => !keys.includes(key)) || keys.some((key) => !required.includes(key) && !optional.includes(key)))
     throw new TypeError(message);
 }
 var init_known_keys = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/known-keys.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/known-keys.js"() {
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/job-validation.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/job-validation.js
 function readEventId(output, seen) {
   const eventId = requireNonBlankString(requireOwnDataField(output, "eventId"), RECONSTRUCTION_LABEL_EVENT_ID);
   validateIdentifier(eventId, RECONSTRUCTION_LABEL_EVENT_ID_FIELD);
@@ -21755,7 +22163,7 @@ function validateTurnEvidence(value) {
   };
 }
 var init_job_validation = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/job-validation.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/job-validation.js"() {
     init_paths();
     init_serialization();
     init_objects();
@@ -21763,12 +22171,12 @@ var init_job_validation = __esm({
     init_snapshot();
     init_known_keys();
     init_projection();
-    init_constants14();
+    init_constants15();
     init_scope();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/job-records.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/job-records.js
 function snapshotJob(job) {
   return Object.freeze({
     ...job,
@@ -21966,19 +22374,19 @@ function mappingScope(job) {
   return { ...scopeOf(job), eventId };
 }
 var init_job_records = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/job-records.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/job-records.js"() {
     init_known_keys();
     init_paths();
     init_serialization();
     init_objects();
     init_snapshot();
-    init_constants14();
+    init_constants15();
     init_scope();
     init_job_validation();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/job-processing.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/job-processing.js
 async function processJob(candidate, context) {
   const { job, scope } = candidate;
   const retry = candidate.entry.record.delivery?.retries[job.accountFingerprint];
@@ -22096,20 +22504,20 @@ async function recordTerminal(store, scope, accountFingerprint, outcome, reason)
   return result.status === "recorded";
 }
 var init_job_processing = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/job-processing.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/job-processing.js"() {
     init_retry_state();
     init_constants6();
     init_retry();
     init_objects();
-    init_constants14();
+    init_constants15();
     init_scope();
     init_job_records();
     init_job_validation();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/worker.js
-import { join as join14, resolve as resolve10 } from "node:path";
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/worker.js
+import { join as join16, resolve as resolve10 } from "node:path";
 function createReconstructionWorker(options) {
   const integration = options.integration;
   const sessionId = requireNonBlankString(options.sessionId, "Session ID");
@@ -22163,7 +22571,7 @@ async function drainJobs(context, request) {
   if (!Number.isFinite(now))
     throw new RangeError(RECONSTRUCTION_DRAIN_TIME_MESSAGE);
   const lockDirectory = await ensurePrivateDirectory(context.storageRoot, sessionSegments(identifierHash(context.sessionId)));
-  const lockPath = join14(lockDirectory, RECONSTRUCTION_DRAIN_LOCK);
+  const lockPath = join16(lockDirectory, RECONSTRUCTION_DRAIN_LOCK);
   const lock = await tryAcquireFileLock(lockPath);
   if (!lock)
     return { status: "busy" };
@@ -22264,7 +22672,7 @@ async function summarizePending(context) {
   };
 }
 var init_worker2 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/worker.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/worker.js"() {
     init_constants4();
     init_storage();
     init_lock_folders();
@@ -22276,7 +22684,7 @@ var init_worker2 = __esm({
     init_constants6();
     init_options();
     init_objects();
-    init_constants14();
+    init_constants15();
     init_scope();
     init_job_processing();
     init_job_records();
@@ -22284,14 +22692,14 @@ var init_worker2 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/index.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/index.js
 var init_reconstruction = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/index.js"() {
     init_worker2();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/engine/pass-results.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/engine/pass-results.js
 function reconstructionPassResult(result) {
   if (result.status === "busy")
     return "retryable-failure";
@@ -22310,14 +22718,14 @@ function waitingOnBackoff(result) {
   return result.pending > 0 && result.nextRetryAtMs !== void 0;
 }
 var init_pass_results = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/engine/pass-results.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/engine/pass-results.js"() {
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/engine/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/engine/constants.js
 var TRACING_ENGINE_FOREIGN_SESSION_MIN_AGE_MS, TRACING_ENGINE_BACKGROUND_RECOVERY_REPORT_ERROR, TRACING_ENGINE_BACKGROUND_RECOVERY_SESSION_CALLBACK_ERROR, TRACING_ENGINE_BACKGROUND_RECOVERY_REPORT_CALLBACK_ERROR, TRACING_ENGINE_BACKGROUND_RECOVERY_MINIMUM_AGE_ERROR, TRACING_ENGINE_MAX_RETRY_WAIT_MS, TRACING_ENGINE_MAX_RETRY_PASSES, TRACING_ENGINE_RECOVERY_TIME_MUST_BE_VALID_TIMESTAMP_MESSAGE, TRACING_ENGINE_SESSION_RECOVERY_OPTIONS_CALLBACK_IS_REQUIRED_MESSAGE, TRACING_ENGINE_RECOVERY_ACCOUNT_FINGERPRINT_DOES_NOT_MATCH_ACTIVE_SESSION_MESSAGE, TRACING_ENGINE_SESSION_RECOVERY_OPTIONS_MUST_BE_OBJECT_MESSAGE, TRACING_ENGINE_RECOVERY_MAX_FOREIGN_SESSIONS, TRACING_ENGINE_STORAGE_ROOT_REQUIRED_MESSAGE, TRACING_ENGINE_RECOVERY_SETTLEMENT_CONFLICT_MESSAGE, TRACING_ENGINE_MISSING_SETTLEMENT_CAPTURE_MESSAGE;
-var init_constants15 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/engine/constants.js"() {
+var init_constants16 = __esm({
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/engine/constants.js"() {
     TRACING_ENGINE_FOREIGN_SESSION_MIN_AGE_MS = 2 * 60 * 60 * 1e3;
     TRACING_ENGINE_BACKGROUND_RECOVERY_REPORT_ERROR = "Background recovery report callback failed";
     TRACING_ENGINE_BACKGROUND_RECOVERY_SESSION_CALLBACK_ERROR = "Background recovery session callback is required";
@@ -22336,7 +22744,7 @@ var init_constants15 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/engine/options.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/engine/options.js
 import { resolve as resolve11 } from "node:path";
 function snapshotEngineOptions(options) {
   if (typeof options.storageRoot !== "string" || options.storageRoot.trim() === "")
@@ -22378,16 +22786,16 @@ function snapshotWriterOptions(options) {
   });
 }
 var init_options2 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/engine/options.js"() {
-    init_constants15();
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/engine/options.js"() {
+    init_constants16();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/engine/errors.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/engine/errors.js
 var MissingSettlementCaptureError;
 var init_errors6 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/engine/errors.js"() {
-    init_constants15();
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/engine/errors.js"() {
+    init_constants16();
     MissingSettlementCaptureError = class extends Error {
       constructor() {
         super(TRACING_ENGINE_MISSING_SETTLEMENT_CAPTURE_MESSAGE);
@@ -22397,7 +22805,7 @@ var init_errors6 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery-settlement.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery-settlement.js
 async function hasUnsettledRecoverySettlement(options) {
   try {
     const work = await settleCapturedTurns({
@@ -22440,15 +22848,15 @@ async function hasUnsettledRecoverySettlement(options) {
   }
 }
 var init_recovery_settlement = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery-settlement.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery-settlement.js"() {
     init_serialization();
     init_pass();
-    init_constants15();
+    init_constants16();
     init_errors6();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery.js
 function validateRecoveryRequest(request) {
   const now = request.now ?? Date.now();
   if (!Number.isSafeInteger(now) || !Number.isFinite(new Date(now).getTime()))
@@ -22596,24 +23004,24 @@ async function recoverTracingSessions(runtime, request, scopeGuard) {
   return { scheduled, failed };
 }
 var init_recovery = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery.js"() {
     init_constants4();
     init_retry_state();
     init_capture();
-    init_constants14();
-    init_constants12();
+    init_constants15();
+    init_constants13();
     init_account();
     init_compare();
     init_format();
     init_constants6();
     init_upload2();
-    init_constants15();
+    init_constants16();
     init_recovery_settlement();
     init_scope();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/engine/background-recovery.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/engine/background-recovery.js
 function retryableFailure(error2) {
   return { status: "failed", message: describe(error2), retryable: true };
 }
@@ -22661,14 +23069,14 @@ async function runBackgroundRecovery(runtime, options, scopeGuard) {
   }
 }
 var init_background_recovery = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/engine/background-recovery.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/engine/background-recovery.js"() {
     init_errors();
-    init_constants15();
+    init_constants16();
     init_recovery();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/engine/retry-wait.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/engine/retry-wait.js
 import { setTimeout as delay4 } from "node:timers/promises";
 async function drainThroughBackoff(drain) {
   let waitedMs = 0;
@@ -22689,12 +23097,12 @@ async function drainThroughBackoff(drain) {
   return result;
 }
 var init_retry_wait = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/engine/retry-wait.js"() {
-    init_constants15();
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/engine/retry-wait.js"() {
+    init_constants16();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/engine/engine.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/engine/engine.js
 function createTracingEngine(options) {
   const config = snapshotEngineOptions(options);
   const forSession = (sessionOptions) => createSession(config, snapshotSessionOptions(sessionOptions));
@@ -22813,7 +23221,7 @@ async function drainSession(context) {
   return result;
 }
 var init_engine = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/engine/engine.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/engine/engine.js"() {
     init_background_worker();
     init_scope2();
     init_lifecycle();
@@ -22824,29 +23232,29 @@ var init_engine = __esm({
     init_options2();
     init_recovery();
     init_background_recovery();
-    init_constants15();
+    init_constants16();
     init_retry_wait();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/engine/index.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/engine/index.js
 var init_engine2 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/engine/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/engine/index.js"() {
     init_engine();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/identity.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/identity.js
 function resolveUploadDestinationFingerprint(options) {
   return resolveUploadDestinationIdentities(options).accountFingerprint;
 }
 var init_identity2 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/identity.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/identity.js"() {
     init_destination_identity();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/plugin/session.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/plugin/session.js
 function openPluginSession(options) {
   const { storageRoot, integration, sessionId, writer } = options;
   const callbacks = (id) => ({
@@ -22886,7 +23294,7 @@ function fingerprintOf(writer) {
   }
 }
 var init_session = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/plugin/session.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/plugin/session.js"() {
     init_capture();
     init_engine2();
     init_identity2();
@@ -22894,19 +23302,19 @@ var init_session = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/binary-runtime.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/binary-runtime.js
 function builtAsBinary() {
   return typeof LS_COMPILED_BINARY !== "undefined";
 }
 var init_binary_runtime = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/binary-runtime.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/binary-runtime.js"() {
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/tls/tls-constants.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/tls/tls-constants.js
 var EXTRA_CERTIFICATES_VARIABLE, SYSTEM_CERTIFICATE_STORE, CERTIFICATE_FILE_ENCODING, SYSTEM_CERTIFICATES_WARNING, CERTIFICATE_PATTERN;
 var init_tls_constants = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/tls/tls-constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/tls/tls-constants.js"() {
     EXTRA_CERTIFICATES_VARIABLE = "NODE_EXTRA_CA_CERTS";
     SYSTEM_CERTIFICATE_STORE = "system";
     CERTIFICATE_FILE_ENCODING = "utf8";
@@ -22915,8 +23323,8 @@ var init_tls_constants = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/tls/system-certificates.js
-import { readFileSync as readFileSync6, writeFileSync as writeFileSync3 } from "node:fs";
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/tls/system-certificates.js
+import { readFileSync as readFileSync7, writeFileSync as writeFileSync3 } from "node:fs";
 import * as tls from "node:tls";
 function trustSystemCertificates(file, environment, readSystem = readSystemStore) {
   const existing = environment[EXTRA_CERTIFICATES_VARIABLE] || void 0;
@@ -22926,7 +23334,7 @@ function trustSystemCertificates(file, environment, readSystem = readSystemStore
     const system = readSystem();
     if (system.length === 0)
       return { environment };
-    const extra = existing === void 0 ? [] : [readFileSync6(existing, CERTIFICATE_FILE_ENCODING)];
+    const extra = existing === void 0 ? [] : [readFileSync7(existing, CERTIFICATE_FILE_ENCODING)];
     writeIfChanged(file, bundle([...extra, ...system]));
     return { environment: { ...environment, [EXTRA_CERTIFICATES_VARIABLE]: file } };
   } catch (error2) {
@@ -22947,26 +23355,26 @@ function writeIfChanged(file, contents) {
 }
 function readIfPresent(file) {
   try {
-    return readFileSync6(file, CERTIFICATE_FILE_ENCODING);
+    return readFileSync7(file, CERTIFICATE_FILE_ENCODING);
   } catch {
     return void 0;
   }
 }
 var init_system_certificates = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/tls/system-certificates.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/tls/system-certificates.js"() {
     init_errors();
     init_tls_constants();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/plugin/worker-launch.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/plugin/worker-launch.js
 import { spawn } from "node:child_process";
-import { closeSync as closeSync2, mkdirSync as mkdirSync4, openSync as openSync2, statSync as statSync3, writeSync as writeSync2 } from "node:fs";
-import { dirname as dirname9, join as join15 } from "node:path";
+import { closeSync as closeSync2, mkdirSync as mkdirSync5, openSync as openSync2, statSync as statSync3, writeSync as writeSync2 } from "node:fs";
+import { dirname as dirname10, join as join17 } from "node:path";
 function launchDetachedWorker(args, options = {}) {
   const root = options.storageRoot;
-  const log2 = root === void 0 ? void 0 : openLog(join15(root, WORKER_LOG_FILE_NAME));
-  const certificates = root === void 0 ? void 0 : trustSystemCertificates(join15(root, SYSTEM_CERTIFICATES_FILE_NAME), process.env);
+  const log2 = root === void 0 ? void 0 : openLog(join17(root, WORKER_LOG_FILE_NAME));
+  const certificates = root === void 0 ? void 0 : trustSystemCertificates(join17(root, SYSTEM_CERTIFICATES_FILE_NAME), process.env);
   if (log2 !== void 0 && certificates?.warning !== void 0)
     logWarning(log2, certificates.warning);
   const child = spawn(options.executable ?? process.execPath, [...scriptArguments(), ...args], {
@@ -22996,7 +23404,7 @@ function scriptArguments() {
 }
 function openLog(path3) {
   try {
-    mkdirSync4(dirname9(path3), { recursive: true });
+    mkdirSync5(dirname10(path3), { recursive: true });
     const size = statSync3(path3, { throwIfNoEntry: false })?.size ?? 0;
     const flag = size > WORKER_LOG_MAX_BYTES ? WORKER_LOG_TRUNCATE_FLAG : WORKER_LOG_APPEND_FLAG;
     return openSync2(path3, flag, WORKER_LOG_MODE);
@@ -23013,32 +23421,55 @@ function logWarning(log2, warning) {
   }
 }
 var init_worker_launch = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/plugin/worker-launch.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/plugin/worker-launch.js"() {
     init_constants();
     init_binary_runtime();
     init_system_certificates();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/plugin/index.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/plugin/notice-cooldown.js
+import { join as join18 } from "node:path";
+var init_notice_cooldown = __esm({
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/plugin/notice-cooldown.js"() {
+    init_state_claim();
+    init_constants();
+  }
+});
+
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/plugin/index.js
 var init_plugin = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/plugin/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/plugin/index.js"() {
     init_hook_command();
     init_policy_file();
     init_session();
     init_worker_launch();
+    init_notice_cooldown();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/settings/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/auth/index.js
+var init_auth = __esm({
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/auth/index.js"() {
+    init_credential();
+    init_expiry2();
+    init_normalize();
+    init_expiry_constants();
+  }
+});
+
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/settings/constants.js
 import { constants } from "node:fs";
-var COMMON_BOOLEAN_SETTINGS, COMMON_CONFIG_FILE_NAME, COMMON_CONFIG_OPEN_FLAGS, COMMON_CONFIG_ROOT_FILE_NAME, COMMON_CONFIG_USER_ROOT_FILE_NAME, MANAGED_CONFIG_DIRECTORY, MANAGED_CONFIG_FILE_NAME, MANAGED_CONFIG_OPEN_FLAGS, MANAGED_CONFIG_OWNER_UID, GROUP_OR_OTHERS_WRITE_BITS, MANAGED_CONFIG_OVERRIDE_SOURCES, MANAGED_CONFIG_UNSAFE_OWNERSHIP, MANAGED_CONFIG_INVALID, MANAGED_CONFIG_OVERRIDE_WARNING, MANAGED_CONFIG_OVERRIDE_FIELD_SEPARATOR, MANAGED_CONFIG_OVERRIDE_SOURCE_SEPARATOR, ACCOUNT_LOOKUP_TIMEOUT_MS, MACOS_ACCOUNT_LOOKUP, MACOS_ACCOUNT_LOOKUP_ARGUMENTS, MACOS_ACCOUNT_HOME_FIELD, LINUX_ACCOUNT_LIST_FILE, LINUX_ACCOUNT_LOOKUPS, LINUX_ACCOUNT_HOME_FIELD, ACCOUNT_ID_FIELD, ACCOUNT_FIELD_SEPARATOR, UTF8_BOM;
-var init_constants16 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/settings/constants.js"() {
+var COMMON_BOOLEAN_SETTINGS, COMMON_NOTICE_COOLDOWN_OFF, COMMON_STRICT_BOOLEAN_FIELDS, COMMON_DEFAULT_API_URL, COMMON_CONFIG_FILE_NAME, COMMON_CONFIG_OPEN_FLAGS, COMMON_CONFIG_ROOT_FILE_NAME, COMMON_CONFIG_USER_ROOT_FILE_NAME, MANAGED_CONFIG_DIRECTORY, MANAGED_CONFIG_FILE_NAME, MANAGED_CONFIG_OPEN_FLAGS, MANAGED_CONFIG_OWNER_UID, GROUP_OR_OTHERS_WRITE_BITS, MANAGED_CONFIG_OVERRIDE_SOURCES, MANAGED_CONFIG_UNSAFE_OWNERSHIP, MANAGED_CONFIG_INVALID, MANAGED_CONFIG_UNLOCKABLE_WARNING, MANAGED_CONFIG_OVERRIDE_WARNING, MANAGED_CONFIG_OVERRIDE_FIELD_SEPARATOR, MANAGED_CONFIG_OVERRIDE_SOURCE_SEPARATOR, ACCOUNT_LOOKUP_TIMEOUT_MS, MACOS_ACCOUNT_LOOKUP, MACOS_ACCOUNT_LOOKUP_ARGUMENTS, MACOS_ACCOUNT_HOME_FIELD, LINUX_ACCOUNT_LIST_FILE, LINUX_ACCOUNT_LOOKUPS, LINUX_ACCOUNT_HOME_FIELD, ACCOUNT_ID_FIELD, ACCOUNT_FIELD_SEPARATOR, UTF8_BOM;
+var init_constants17 = __esm({
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/settings/constants.js"() {
     COMMON_BOOLEAN_SETTINGS = {
       enabled: { default: false, restrictive: false },
       defaultMuted: { default: false, restrictive: true }
     };
+    COMMON_NOTICE_COOLDOWN_OFF = "off";
+    COMMON_STRICT_BOOLEAN_FIELDS = ["redact", "strict_auth"];
+    COMMON_DEFAULT_API_URL = "https://api.smith.langchain.com";
     COMMON_CONFIG_FILE_NAME = "langsmith.json";
     COMMON_CONFIG_OPEN_FLAGS = constants.O_RDONLY | (constants.O_NONBLOCK ?? 0);
     COMMON_CONFIG_ROOT_FILE_NAME = "langsmith-plugins.json";
@@ -23055,8 +23486,9 @@ var init_constants16 = __esm({
       "user",
       "userRoot"
     ];
-    MANAGED_CONFIG_UNSAFE_OWNERSHIP = "Managed config for LangSmith is not owned by root, is writable by other users, or is a symlink. This session's trace will not be captured. Please contact an admin to troubleshoot.";
-    MANAGED_CONFIG_INVALID = "Managed config for LangSmith tracing is unreadable or invalid so this session's trace will not be captured. Contact an admin to troubleshoot.";
+    MANAGED_CONFIG_UNSAFE_OWNERSHIP = "LangSmith managed settings aren't owned by root, so tracing is off. Contact your admin.";
+    MANAGED_CONFIG_INVALID = "LangSmith managed settings are invalid, so tracing is off. Contact your admin.";
+    MANAGED_CONFIG_UNLOCKABLE_WARNING = "The managed config sets {fields}, which this plugin can't lock, so it is ignored.";
     MANAGED_CONFIG_OVERRIDE_WARNING = "Ignored settings the managed config locks: {overrides}.";
     MANAGED_CONFIG_OVERRIDE_FIELD_SEPARATOR = "; ";
     MANAGED_CONFIG_OVERRIDE_SOURCE_SEPARATOR = ", ";
@@ -23073,16 +23505,16 @@ var init_constants16 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/settings/utils/records.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/settings/utils/records.js
 function object(value) {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 var init_records = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/settings/utils/records.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/settings/utils/records.js"() {
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/settings/parse.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/settings/parse.js
 function invalid(raw) {
   return {
     status: "invalid",
@@ -23140,10 +23572,19 @@ function parseCommonConfig(value) {
       return invalid(value);
     common[field4] = value[field4];
   }
-  if (Object.hasOwn(value, "redact")) {
-    if (typeof value.redact !== "boolean")
+  for (const field4 of COMMON_STRICT_BOOLEAN_FIELDS) {
+    if (!Object.hasOwn(value, field4))
+      continue;
+    if (typeof value[field4] !== "boolean")
       return invalid(value);
-    common.redact = value.redact;
+    common[field4] = value[field4];
+  }
+  if (Object.hasOwn(value, "notice_cooldown")) {
+    const cooldown = value.notice_cooldown;
+    const minutes = typeof cooldown === "number" && Number.isFinite(cooldown) && cooldown >= 0;
+    if (!minutes && cooldown !== COMMON_NOTICE_COOLDOWN_OFF)
+      return invalid(value);
+    common.notice_cooldown = cooldown;
   }
   if (Object.hasOwn(value, "metadata")) {
     if (!object(value.metadata))
@@ -23188,15 +23629,15 @@ function parseCommonConfig(value) {
   return { status: "valid", common, raw: value, diagnostics };
 }
 var init_parse3 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/settings/parse.js"() {
-    init_constants16();
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/settings/parse.js"() {
+    init_constants17();
     init_records();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/settings/utils/account-home.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/settings/utils/account-home.js
 import { execFileSync } from "node:child_process";
-import { readFileSync as readFileSync7 } from "node:fs";
+import { readFileSync as readFileSync8 } from "node:fs";
 import { userInfo } from "node:os";
 import { isAbsolute as isAbsolute3 } from "node:path";
 function accountHomeDirectory() {
@@ -23241,7 +23682,7 @@ function linuxAccountHome(uid) {
 function accountListEntry(uid) {
   let contents;
   try {
-    contents = readFileSync7(LINUX_ACCOUNT_LIST_FILE, "utf8");
+    contents = readFileSync8(LINUX_ACCOUNT_LIST_FILE, "utf8");
   } catch {
     return void 0;
   }
@@ -23268,15 +23709,31 @@ function homeField(entry, field4) {
 }
 var cachedBunHome;
 var init_account_home = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/settings/utils/account-home.js"() {
-    init_constants16();
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/settings/utils/account-home.js"() {
+    init_constants17();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/settings/managed-config.js
-import { closeSync as closeSync3, fstatSync, lstatSync as lstatSync2, openSync as openSync3, readFileSync as readFileSync8 } from "node:fs";
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/settings/utils/warnings.js
+function warnOnce2(lines) {
+  for (const line of lines) {
+    if (warned.has(line))
+      continue;
+    warned.add(line);
+    console.warn(line);
+  }
+}
+var warned;
+var init_warnings = __esm({
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/settings/utils/warnings.js"() {
+    warned = /* @__PURE__ */ new Set();
+  }
+});
+
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/settings/managed-config.js
+import { closeSync as closeSync3, fstatSync, lstatSync as lstatSync2, openSync as openSync3, readFileSync as readFileSync9 } from "node:fs";
 import { homedir } from "node:os";
-import { dirname as dirname10, join as join16 } from "node:path";
+import { dirname as dirname11, join as join19 } from "node:path";
 function onlyOwnerCanChange(stats, ownerUid) {
   return !stats.isSymbolicLink() && stats.uid === ownerUid && (stats.mode & GROUP_OR_OTHERS_WRITE_BITS) === 0;
 }
@@ -23284,7 +23741,7 @@ function managedConfigPath() {
   if (process.platform === "win32")
     return void 0;
   const accountHome = accountHomeDirectory() ?? homedir();
-  return join16(accountHome, MANAGED_CONFIG_DIRECTORY, MANAGED_CONFIG_FILE_NAME);
+  return join19(accountHome, MANAGED_CONFIG_DIRECTORY, MANAGED_CONFIG_FILE_NAME);
 }
 function rejectManagedConfig(diagnostic) {
   return { status: "invalid", common: {}, diagnostics: [diagnostic] };
@@ -23308,10 +23765,10 @@ function readManagedConfigFile(options = {}) {
     const file = fstatSync(fd);
     if (!file.isFile())
       return rejectManagedConfig(MANAGED_CONFIG_INVALID);
-    if ((options.checkOwnership ?? true) && !(onlyOwnerCanChange(file, ownerUid) && onlyOwnerCanChange(lstatSync2(dirname10(path3)), ownerUid))) {
+    if ((options.checkOwnership ?? true) && !(onlyOwnerCanChange(file, ownerUid) && onlyOwnerCanChange(lstatSync2(dirname11(path3)), ownerUid))) {
       return rejectManagedConfig(MANAGED_CONFIG_UNSAFE_OWNERSHIP);
     }
-    raw = JSON.parse(readFileSync8(fd, "utf8").replace(UTF8_BOM, ""));
+    raw = JSON.parse(readFileSync9(fd, "utf8").replace(UTF8_BOM, ""));
   } catch {
     return rejectManagedConfig(MANAGED_CONFIG_INVALID);
   } finally {
@@ -23325,22 +23782,33 @@ function readManagedConfigFile(options = {}) {
   const parsed = parseCommonConfig(raw);
   if (parsed.status === "invalid")
     return rejectManagedConfig(MANAGED_CONFIG_INVALID);
-  return { status: "valid", common: parsed.common, diagnostics: parsed.diagnostics };
+  return { status: "valid", common: parsed.common, raw, diagnostics: parsed.diagnostics };
+}
+function lockPluginFields(managed, fields) {
+  const raw = managed.raw ?? {};
+  const present = (names2) => names2.filter((name) => Object.hasOwn(raw, name));
+  const ignored = present(fields.unlockable ?? []);
+  if (ignored.length > 0)
+    warnOnce2([MANAGED_CONFIG_UNLOCKABLE_WARNING.replace("{fields}", ignored.join(", "))]);
+  return Object.fromEntries(present(fields.lockable).map((name) => [name, raw[name]]));
 }
 var init_managed_config = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/settings/managed-config.js"() {
-    init_constants16();
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/settings/managed-config.js"() {
+    init_constants17();
     init_parse3();
     init_account_home();
     init_records();
+    init_warnings();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/settings/managed-lock.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/settings/managed-lock.js
 import { isDeepStrictEqual } from "node:util";
 function lockedValues(common) {
   const lock = { ...common };
-  if (lock.api_url !== void 0)
+  if (lock.api_key !== void 0 || lock.replicas !== void 0)
+    lock.api_url ??= COMMON_DEFAULT_API_URL;
+  if (lock.api_url !== void 0 || lock.project !== void 0)
     lock.replicas ??= [];
   if (lock.redact_extra_rules !== void 0)
     lock.redact ??= true;
@@ -23386,29 +23854,13 @@ function overrideDiagnostics(sources, lock) {
   return [MANAGED_CONFIG_OVERRIDE_WARNING.replace("{overrides}", list)];
 }
 var init_managed_lock = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/settings/managed-lock.js"() {
-    init_constants16();
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/settings/managed-lock.js"() {
+    init_constants17();
     init_records();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/settings/utils/warnings.js
-function warnOnce2(lines) {
-  for (const line of lines) {
-    if (warned.has(line))
-      continue;
-    warned.add(line);
-    console.warn(line);
-  }
-}
-var warned;
-var init_warnings = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/settings/utils/warnings.js"() {
-    warned = /* @__PURE__ */ new Set();
-  }
-});
-
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/settings/common-config.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/settings/common-config.js
 function resolveField(sources, field4) {
   return sources.find((source) => source[field4] !== void 0)?.[field4];
 }
@@ -23423,6 +23875,7 @@ function mergeCommonConfig(sources, options = {}) {
     defaultMuted: false,
     redact: true,
     locked: lockedFields(lock),
+    defaulted: Object.keys(defaults2).filter((field4) => resolveField([lock, env, ...files], field4) === void 0),
     diagnostics: [...managed.diagnostics, ...overrideDiagnostics(sources, lock)]
   };
   for (const field4 of ["enabled", "defaultMuted"]) {
@@ -23440,6 +23893,8 @@ function mergeCommonConfig(sources, options = {}) {
   merged.replicas = resolveField(precedence, "replicas");
   merged.redact = resolveField(precedence, "redact") ?? true;
   merged.redact_extra_rules = resolveField(precedence, "redact_extra_rules");
+  merged.strict_auth = resolveField(precedence, "strict_auth");
+  merged.notice_cooldown = resolveField(precedence, "notice_cooldown");
   if (precedence.some((source) => source.metadata !== void 0)) {
     merged.metadata = [...precedence].reverse().reduce((metadata, source) => ({ ...metadata, ...source.metadata }), {});
   }
@@ -23454,17 +23909,17 @@ function toSdkReplicas(replicas) {
   }));
 }
 var init_common_config = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/settings/common-config.js"() {
-    init_constants16();
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/settings/common-config.js"() {
+    init_constants17();
     init_managed_config();
     init_managed_lock();
     init_warnings();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/settings/config-files.js
-import { closeSync as closeSync4, fstatSync as fstatSync2, lstatSync as lstatSync3, openSync as openSync4, readFileSync as readFileSync9 } from "node:fs";
-import { join as join17 } from "node:path";
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/settings/config-files.js
+import { closeSync as closeSync4, fstatSync as fstatSync2, lstatSync as lstatSync3, openSync as openSync4, readFileSync as readFileSync10 } from "node:fs";
+import { join as join20 } from "node:path";
 function readCommonConfigFile(path3) {
   let fd;
   try {
@@ -23484,7 +23939,7 @@ function readCommonConfigFile(path3) {
   try {
     if (!fstatSync2(fd).isFile())
       return invalid();
-    return parseCommonConfig(JSON.parse(readFileSync9(fd, "utf8")));
+    return parseCommonConfig(JSON.parse(readFileSync10(fd, "utf8")));
   } catch {
     return invalid();
   } finally {
@@ -23497,25 +23952,25 @@ function readCommonConfigFile(path3) {
 function readCommonConfigFiles(options) {
   const { cwd, home, harnessDirectory } = options;
   return {
-    harness: readCommonConfigFile(join17(cwd, harnessDirectory, COMMON_CONFIG_FILE_NAME)),
-    root: readCommonConfigFile(join17(cwd, COMMON_CONFIG_ROOT_FILE_NAME)),
-    user: home ? readCommonConfigFile(join17(home, harnessDirectory, COMMON_CONFIG_FILE_NAME)) : absent(),
-    userRoot: home ? readCommonConfigFile(join17(home, COMMON_CONFIG_USER_ROOT_FILE_NAME)) : absent(),
+    harness: readCommonConfigFile(join20(cwd, harnessDirectory, COMMON_CONFIG_FILE_NAME)),
+    root: readCommonConfigFile(join20(cwd, COMMON_CONFIG_ROOT_FILE_NAME)),
+    user: home ? readCommonConfigFile(join20(home, harnessDirectory, COMMON_CONFIG_FILE_NAME)) : absent(),
+    userRoot: home ? readCommonConfigFile(join20(home, COMMON_CONFIG_USER_ROOT_FILE_NAME)) : absent(),
     managed: readManagedConfigFile(options.managed)
   };
 }
 var init_config_files = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/settings/config-files.js"() {
-    init_constants16();
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/settings/config-files.js"() {
+    init_constants17();
     init_managed_config();
     init_parse3();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/settings/index.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/settings/index.js
 var init_settings = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/settings/index.js"() {
-    init_constants16();
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/settings/index.js"() {
+    init_constants17();
     init_common_config();
     init_config_files();
     init_managed_config();
@@ -23524,8 +23979,8 @@ var init_settings = __esm({
 });
 
 // dist/src/constants.js
-var TURN_RUN_NAME, SKILL_RUN_NAME, DEFAULT_TAGS, DEFAULT_PROJECT, DEFAULT_SWEEP_IDLE_MINUTES, DEFAULT_API_URL2, CURSOR_DIRECTORY_NAME, MAX_UPLOAD_ATTEMPTS, BINARY_HOOK_EVENTS, LEADING_BYTE_ORDER_MARKS, LS_INTEGRATION, SKILL_READ_TOOLS, PATH_SEPARATOR, MAX_ATTACHMENT_BYTES, MAX_LOG_BYTES, CONVERSATION_MAX_AGE_MS, WHITESPACE_RUN, MODEL_SUFFIXES, PROVIDER_PREFIX, CLAUDE_VERSIONED_MODEL, OPENAI_MODEL_PREFIX, CURSOR_VENDOR_PREFIX, MCP_TOOL_PREFIX, SUBAGENT_PSEUDO_TOOLS, STATE_FILE_NAME, LEGACY_STATE_FILE_NAME, TRACING_POLICY_FILE_NAME, LEGACY_TRACING_POLICY_FILE_NAME, HOOK_LOG_FILE_NAME, HOOK_CONTINUE_OUTPUT, ENGINE_WORKER_COMMAND, ENGINE_STORAGE_DIR_NAME, JOB_EVENT_PREFIX, JOB_REF_PREFIX, TOOL_JOB_REF_PREFIX, JOB_STORE_DIR_NAME, GH_LOGIN_MARKER_FILE, TOOL_PATH_INPUT_KEYS, RUN_EVENT_PREFIX, PATCH_EVENT_PREFIX, RUN_SNAPSHOT_FIELDS, RUN_PATCH_FIELDS, CAPTURE_PUBLISHED_STATUS, CAPTURE_DUPLICATE_STATUS, TURN_ON_OTHER_ACCOUNT_MESSAGE, SQLITE_EXPERIMENTAL_WARNING;
-var init_constants17 = __esm({
+var TURN_RUN_NAME, SKILL_RUN_NAME, DEFAULT_TAGS, DEFAULT_PROJECT, DEFAULT_SWEEP_IDLE_MINUTES, MUTE_LOCKED_MESSAGE, DEFAULT_API_URL2, CURSOR_DIRECTORY_NAME, MANAGED_PLUGIN_FIELDS, MAX_UPLOAD_ATTEMPTS, BINARY_HOOK_EVENTS, LEADING_BYTE_ORDER_MARKS, LS_INTEGRATION, SKILL_READ_TOOLS, PATH_SEPARATOR, MAX_ATTACHMENT_BYTES, MAX_LOG_BYTES, CONVERSATION_MAX_AGE_MS, WHITESPACE_RUN, MODEL_SUFFIXES, PROVIDER_PREFIX, CLAUDE_VERSIONED_MODEL, OPENAI_MODEL_PREFIX, CURSOR_VENDOR_PREFIX, MCP_TOOL_PREFIX, SUBAGENT_PSEUDO_TOOLS, STATE_FILE_NAME, LEGACY_STATE_FILE_NAME, TRACING_POLICY_FILE_NAME, LEGACY_TRACING_POLICY_FILE_NAME, HOOK_LOG_FILE_NAME, HOOK_CONTINUE_OUTPUT, ENGINE_WORKER_COMMAND, ENGINE_STORAGE_DIR_NAME, JOB_EVENT_PREFIX, JOB_REF_PREFIX, TOOL_JOB_REF_PREFIX, JOB_STORE_DIR_NAME, GH_LOGIN_MARKER_FILE, TOOL_PATH_INPUT_KEYS, RUN_EVENT_PREFIX, PATCH_EVENT_PREFIX, RUN_SNAPSHOT_FIELDS, RUN_PATCH_FIELDS, CAPTURE_PUBLISHED_STATUS, CAPTURE_DUPLICATE_STATUS, TURN_ON_OTHER_ACCOUNT_MESSAGE, SQLITE_EXPERIMENTAL_WARNING;
+var init_constants18 = __esm({
   "dist/src/constants.js"() {
     "use strict";
     TURN_RUN_NAME = "Cursor Turn";
@@ -23533,8 +23988,13 @@ var init_constants17 = __esm({
     DEFAULT_TAGS = ["cursor", "coding-agent"];
     DEFAULT_PROJECT = "cursor";
     DEFAULT_SWEEP_IDLE_MINUTES = 360;
+    MUTE_LOCKED_MESSAGE = "Thread tracing stays muted because an admin locked muting on.";
     DEFAULT_API_URL2 = "https://api.smith.langchain.com";
     CURSOR_DIRECTORY_NAME = ".cursor";
+    MANAGED_PLUGIN_FIELDS = {
+      lockable: ["attachments", "system_prompt"],
+      unlockable: ["sweep_idle_minutes", "cursor_db_path"]
+    };
     MAX_UPLOAD_ATTEMPTS = 3;
     BINARY_HOOK_EVENTS = {
       beforeSubmitPrompt: "before-submit-prompt",
@@ -23608,12 +24068,12 @@ var init_constants17 = __esm({
 });
 
 // dist/src/logger.js
-import { appendFileSync, mkdirSync as mkdirSync5, statSync as statSync4, renameSync as renameSync5 } from "node:fs";
-import { dirname as dirname11 } from "node:path";
+import { appendFileSync, mkdirSync as mkdirSync6, statSync as statSync4, renameSync as renameSync5 } from "node:fs";
+import { dirname as dirname12 } from "node:path";
 import { homedir as homedir2 } from "node:os";
 function initLogger(debug2) {
   debugEnabled = debug2;
-  mkdirSync5(dirname11(LOG_FILE), { recursive: true });
+  mkdirSync6(dirname12(LOG_FILE), { recursive: true });
 }
 function rotateIfNeeded() {
   try {
@@ -23651,7 +24111,7 @@ var LOG_FILE, debugEnabled;
 var init_logger = __esm({
   "dist/src/logger.js"() {
     "use strict";
-    init_constants17();
+    init_constants18();
     LOG_FILE = process.env.LANGSMITH_CURSOR_LOG_FILE ?? `${homedir2()}/.cursor/${HOOK_LOG_FILE_NAME}`;
     debugEnabled = false;
   }
@@ -23693,7 +24153,7 @@ var init_parse4 = __esm({
 
 // dist/src/config.js
 import { homedir as homedir3, userInfo as userInfo2 } from "node:os";
-import { join as join18 } from "node:path";
+import { join as join21 } from "node:path";
 function isRedactRule(rule) {
   if (typeof rule !== "object" || rule === null)
     return false;
@@ -23766,7 +24226,7 @@ function normalizeReplicas(replicas) {
     return void 0;
   return replicas.map((r) => Array.isArray(r) ? { projectName: r[0], updates: r[1] } : {
     ...r.api_url || r.apiUrl ? { apiUrl: r.api_url ?? r.apiUrl } : {},
-    ...r.api_key || r.apiKey ? { apiKey: r.api_key ?? r.apiKey } : {},
+    ...sdkSetting(r.api_key ?? r.apiKey) ? { apiKey: r.api_key ?? r.apiKey } : {},
     ...r.project || r.projectName ? { projectName: r.project ?? r.projectName } : {},
     ...r.updates ? { updates: r.updates } : {}
   });
@@ -23784,10 +24244,12 @@ function loadConfig(options) {
   }
   const extensions = [files.harness, files.root, files.user, files.userRoot].map(({ raw }) => cursorExtensions(raw));
   const fromFiles = (field4) => extensions.find((source) => source[field4] !== void 0)?.[field4];
+  const managedExtensions = cursorExtensions(lockPluginFields(files.managed, MANAGED_PLUGIN_FIELDS));
   const envMetadata = parseJson(getEnv2("METADATA"));
   const envReplicas = parseJson(getEnv2("RUNS_ENDPOINTS"));
   const envDebug = parseBoolean(getEnv2("DEBUG"));
   const common = mergeCommonConfig({
+    managed: files.managed,
     harness: files.harness.common,
     root: files.root.common,
     user: files.user.common,
@@ -23807,7 +24269,8 @@ function loadConfig(options) {
       api_url: getEnv2("ENDPOINT"),
       project: getEnv2("PROJECT"),
       metadata: envMetadata,
-      redact: parseBoolean(getEnv2("REDACT"))
+      redact: parseBoolean(getEnv2("REDACT")),
+      redact_extra_rules: parseRedactExtraRules(getEnv2("REDACT_EXTRA"))
     },
     defaults: { api_key: "", api_url: DEFAULT_API_URL2, project: DEFAULT_PROJECT }
   }, { envFirst: true });
@@ -23816,13 +24279,12 @@ function loadConfig(options) {
   const apiUrl = common.api_url;
   const project = common.project;
   const debug2 = envDebug ?? false;
-  const replicas = normalizeReplicas(envReplicas) ?? toSdkReplicas(common.replicas);
-  const attachmentsEnabled = parseBoolean(getEnv2("ATTACHMENTS")) ?? fromFiles("attachments") ?? true;
-  const systemPromptEnabled = parseBoolean(getEnv2("SYSTEM_PROMPT")) ?? fromFiles("system_prompt") ?? true;
+  const replicas = common.locked.includes("replicas") ? toSdkReplicas(common.replicas) : normalizeReplicas(envReplicas) ?? toSdkReplicas(common.replicas);
+  const attachmentsEnabled = managedExtensions.attachments ?? parseBoolean(getEnv2("ATTACHMENTS")) ?? fromFiles("attachments") ?? true;
+  const systemPromptEnabled = managedExtensions.system_prompt ?? parseBoolean(getEnv2("SYSTEM_PROMPT")) ?? fromFiles("system_prompt") ?? true;
   const sweepIdleMinutes = parsePositiveNumber(getEnv2("SWEEP_IDLE_MINUTES")) ?? fromFiles("sweep_idle_minutes") ?? DEFAULT_SWEEP_IDLE_MINUTES;
   const cursorDbPath = getEnv2("DB_PATH") ?? fromFiles("cursor_db_path");
-  const redactExtraRules = parseRedactExtraRules(getEnv2("REDACT_EXTRA")) ?? common.redact_extra_rules;
-  const stateFilePath = process.env.LANGSMITH_CURSOR_STATE_FILE ?? join18(homedir3(), CURSOR_DIRECTORY_NAME, STATE_FILE_NAME);
+  const stateFilePath = process.env.LANGSMITH_CURSOR_STATE_FILE ?? join21(homedir3(), CURSOR_DIRECTORY_NAME, STATE_FILE_NAME);
   const baseMetadata = { cwd };
   if (LS_INTEGRATION_VERSION)
     baseMetadata.ls_integration_version = LS_INTEGRATION_VERSION;
@@ -23845,18 +24307,21 @@ function loadConfig(options) {
     systemPromptEnabled,
     cursorDbPath,
     redact,
-    redactExtraRules,
+    redactExtraRules: common.redact_extra_rules,
     sweepIdleMinutes,
-    cwd
+    cwd,
+    locked: common.locked,
+    ...common.managedConfigProblem === void 0 ? {} : { managedConfigProblem: common.managedConfigProblem }
   };
 }
 var LS_INTEGRATION_VERSION;
 var init_config = __esm({
   "dist/src/config.js"() {
     "use strict";
+    init_auth();
     init_settings();
     init_logger();
-    init_constants17();
+    init_constants18();
     init_parse4();
     LS_INTEGRATION_VERSION = true ? "0.6.2" : process.env.LANGSMITH_CURSOR_INTEGRATION_VERSION || void 0;
   }
@@ -23881,17 +24346,17 @@ function readStdin(stream = process.stdin) {
 var init_stdin = __esm({
   "dist/src/utils/stdin.js"() {
     "use strict";
-    init_constants17();
+    init_constants18();
   }
 });
 
 // dist/src/utils/legacy-file.js
 import { constants as constants2, copyFileSync, existsSync as existsSync3 } from "node:fs";
-import { basename as basename4, dirname as dirname12, join as join19 } from "node:path";
+import { basename as basename4, dirname as dirname13, join as join22 } from "node:path";
 function adoptLegacyFile(path3, fileName, legacyFileName) {
   if (basename4(path3) !== fileName || existsSync3(path3))
     return;
-  const legacy = join19(dirname12(path3), legacyFileName);
+  const legacy = join22(dirname13(path3), legacyFileName);
   if (!existsSync3(legacy))
     return;
   try {
@@ -23953,7 +24418,7 @@ var init_state2 = __esm({
   "dist/src/state.js"() {
     "use strict";
     init_storage();
-    init_constants17();
+    init_constants18();
     init_logger();
     init_legacy_file();
   }
@@ -24084,10 +24549,10 @@ function parseSubagentTranscript(rows) {
   }
   return { toolCalls, resultText };
 }
-var init_normalize = __esm({
+var init_normalize2 = __esm({
   "dist/src/normalize.js"() {
     "use strict";
-    init_constants17();
+    init_constants18();
   }
 });
 
@@ -24495,22 +24960,30 @@ var init_reducer = __esm({
   "dist/src/reducer.js"() {
     "use strict";
     init_state2();
-    init_constants17();
+    init_constants18();
     init_logger();
-    init_normalize();
+    init_normalize2();
   }
 });
 
 // dist/src/tracing-policy.js
 import { homedir as homedir4 } from "node:os";
-import { join as join20 } from "node:path";
+import { join as join23 } from "node:path";
 function isMode(value) {
   return value === "full" || value === "metadata";
 }
 function tracingPolicyPath() {
-  return process.env.LANGSMITH_CURSOR_PRIVACY_FILE ?? join20(homedir4(), ".cursor", TRACING_POLICY_FILE_NAME);
+  return process.env.LANGSMITH_CURSOR_PRIVACY_FILE ?? join23(homedir4(), ".cursor", TRACING_POLICY_FILE_NAME);
 }
-function getThreadTracingMode(path3, sessionId, defaultMuted = false) {
+function mutingLocked(config) {
+  return config.defaultMuted && config.locked.includes("defaultMuted");
+}
+function withLockedMute(buffer, config) {
+  return mutingLocked(config) && buffer.tracingMode === "full" ? { ...buffer, tracingMode: "metadata" } : buffer;
+}
+function getThreadTracingMode(path3, sessionId, defaultMuted = false, mutedLocked = false) {
+  if (mutedLocked)
+    return "metadata";
   try {
     adoptLegacyFile(path3, TRACING_POLICY_FILE_NAME, LEGACY_TRACING_POLICY_FILE_NAME);
     const policy = readPolicyFile(path3, TRACING_POLICY_FILE);
@@ -24542,9 +25015,9 @@ var init_tracing_policy = __esm({
   "dist/src/tracing-policy.js"() {
     "use strict";
     init_plugin();
-    init_constants17();
+    init_constants18();
     init_legacy_file();
-    init_normalize();
+    init_normalize2();
     TRACING_POLICY_FILE = {
       empty: () => ({ threads: {} }),
       requireRegularFile: true,
@@ -24582,15 +25055,20 @@ async function handlePromptSubmit(input) {
     }
     const config = loadConfig({ cwd: input.workspace_roots?.[0] });
     initLogger(config.debug);
+    if (command === "unmute" && mutingLocked(config)) {
+      return { continue: false, user_message: MUTE_LOCKED_MESSAGE };
+    }
     if (command) {
       const result = await setThreadTracingMode(tracingPolicyPath(), input.conversation_id, command === "mute" ? "metadata" : "full");
       return {
         continue: false,
-        user_message: `Thread tracing ${command === "mute" ? "muted (metadata-only)" : "unmuted (full content)"}. Preference saved for the next turn; the current turn is unchanged.` + (!config.enabled ? " Master tracing is disabled; this does not enable it." : "") + (result.warning ? ` Warning: ${result.warning}` : "")
+        user_message: `Thread tracing ${command === "mute" ? "muted (metadata-only)" : "unmuted (full content)"}. Preference saved for the next turn; the current turn is unchanged.` + (config.managedConfigProblem !== void 0 ? ` ${config.managedConfigProblem}` : !config.enabled ? " Master tracing is disabled; this does not enable it." : "") + (result.warning ? ` Warning: ${result.warning}` : "")
       };
     }
-    const enabled = config.enabled && !!(config.apiKey || config.replicas?.length);
-    await atomicUpdateState(config.stateFilePath, (s) => reduceBeforeSubmitPrompt(s, input, Date.now(), enabled ? getThreadTracingMode(tracingPolicyPath(), input.conversation_id, config.defaultMuted) : "off", originFromConfig(config, input)));
+    if (config.managedConfigProblem !== void 0)
+      warn(config.managedConfigProblem);
+    const enabled = config.enabled && !!(sdkSetting(config.apiKey) || config.replicas?.length);
+    await atomicUpdateState(config.stateFilePath, (s) => reduceBeforeSubmitPrompt(s, input, Date.now(), enabled ? getThreadTracingMode(tracingPolicyPath(), input.conversation_id, config.defaultMuted, mutingLocked(config)) : "off", originFromConfig(config, input)));
     return { continue: true };
   } catch (error2) {
     const detail = error2 instanceof Error ? error2.message : String(error2);
@@ -24604,7 +25082,9 @@ async function handlePromptSubmit(input) {
 var init_prompt_control = __esm({
   "dist/src/prompt-control.js"() {
     "use strict";
+    init_auth();
     init_config();
+    init_constants18();
     init_logger();
     init_state2();
     init_reducer();
@@ -24637,7 +25117,7 @@ function initHook(cwd) {
   if (!config.enabled) {
     return null;
   }
-  if (!config.apiKey && (!config.replicas || config.replicas.length === 0)) {
+  if (!sdkSetting(config.apiKey) && (!config.replicas || config.replicas.length === 0)) {
     error("Tracing enabled but no API key set (langsmith-plugins.json or .cursor/langsmith.json api_key, LANGSMITH_CURSOR_API_KEY, or LANGSMITH_API_KEY) and no replicas configured");
     return null;
   }
@@ -24646,6 +25126,7 @@ function initHook(cwd) {
 var init_hook_init = __esm({
   "dist/src/utils/hook-init.js"() {
     "use strict";
+    init_auth();
     init_config();
     init_logger();
   }
@@ -24715,16 +25196,16 @@ function normalizeWs(text) {
 var init_text = __esm({
   "dist/src/utils/text.js"() {
     "use strict";
-    init_constants17();
+    init_constants18();
   }
 });
 
 // dist/src/subagent-transcript.js
-import { readFileSync as readFileSync10, readdirSync as readdirSync2, statSync as statSync5 } from "node:fs";
-import { dirname as dirname13, join as join21, basename as basename5 } from "node:path";
+import { readFileSync as readFileSync11, readdirSync as readdirSync2, statSync as statSync5 } from "node:fs";
+import { dirname as dirname14, join as join24, basename as basename5 } from "node:path";
 function readJsonl(path3) {
   const rows = [];
-  for (const line of readFileSync10(path3, "utf-8").split("\n")) {
+  for (const line of readFileSync11(path3, "utf-8").split("\n")) {
     const trimmed = line.trim();
     if (!trimmed)
       continue;
@@ -24750,12 +25231,12 @@ function resolveSubagentTranscript(parentTranscriptPath, task) {
   if (!parentTranscriptPath)
     return void 0;
   try {
-    const dir = join21(dirname13(parentTranscriptPath), "subagents");
+    const dir = join24(dirname14(parentTranscriptPath), "subagents");
     const files = readdirSync2(dir).filter((f2) => f2.endsWith(".jsonl"));
     if (files.length === 0)
       return void 0;
     const candidates = files.map((f2) => {
-      const full = join21(dir, f2);
+      const full = join24(dir, f2);
       return { full, child: basename5(f2, ".jsonl"), mtime: statSync5(full).mtimeMs };
     });
     const wanted = task ? normalizeWs(task).slice(0, 120) : "";
@@ -24777,8 +25258,8 @@ function resolveSubagentTranscript(parentTranscriptPath, task) {
 var init_subagent_transcript = __esm({
   "dist/src/subagent-transcript.js"() {
     "use strict";
-    init_normalize();
-    init_normalize();
+    init_normalize2();
+    init_normalize2();
     init_text();
   }
 });
@@ -24812,13 +25293,13 @@ var init_subagent_stop = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/paths.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/paths.js
 import { statSync as statSync6 } from "node:fs";
-import { dirname as dirname14 } from "node:path";
+import { dirname as dirname15 } from "node:path";
 function nearestExistingDirectory(path3) {
   let current = path3;
   for (; ; ) {
-    const parent = dirname14(current);
+    const parent = dirname15(current);
     const reachedFilesystemRoot = parent === current;
     if (reachedFilesystemRoot)
       return void 0;
@@ -24831,14 +25312,14 @@ function nearestExistingDirectory(path3) {
   }
 }
 var init_paths3 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/paths.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/paths.js"() {
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/constants.js
-var GIT_LOCATION_ENV_KEYS, NOT_A_REPOSITORY, REMOTE_PATH_EDGE_SLASHES, REMOTE_PATH_TRAILING_SLASHES, REMOTE_GIT_SUFFIX, REMOTE_LINE_WHITESPACE, SCP_REMOTE_PATTERN, GIT_DIRECTORY_NAME, GIT_FILE_POINTER, GIT_MARKERS, GIT_PROVIDERS, SELF_HOSTED_PROVIDER_HINTS, PROVIDER_HOSTS, GIT_COMMAND_TIMEOUT_MS, GH_LOGIN_COMMAND, GH_LOGIN_ARGUMENTS, GH_LOGIN_TIMEOUT_MS, GH_LOGIN_PATTERN, GH_LOGIN_NULL_OUTPUT, GH_LOGIN_RETRY_AFTER_MS;
-var init_constants18 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/constants.js"() {
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/constants.js
+var GIT_LOCATION_ENV_KEYS, NOT_A_REPOSITORY, REMOTE_PATH_EDGE_SLASHES, REMOTE_PATH_TRAILING_SLASHES, REMOTE_GIT_SUFFIX, REMOTE_LINE_WHITESPACE, SCP_REMOTE_PATTERN, GIT_DIRECTORY_NAME, GIT_FILE_POINTER, GIT_MARKERS, GIT_PROVIDERS, SELF_HOSTED_PROVIDER_HINTS, PROVIDER_HOSTS, GIT_COMMAND_TIMEOUT_MS, GH_LOGIN_COMMAND, GIT_COMMAND, GIT_COMMAND_MISSING, GH_LOGIN_ARGUMENTS, GH_LOGIN_TIMEOUT_MS, GH_LOGIN_PATTERN, GH_LOGIN_NULL_OUTPUT, GH_LOGIN_RETRY_AFTER_MS;
+var init_constants19 = __esm({
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/constants.js"() {
     GIT_LOCATION_ENV_KEYS = [
       "GIT_DIR",
       "GIT_WORK_TREE",
@@ -24874,6 +25355,8 @@ var init_constants18 = __esm({
     };
     GIT_COMMAND_TIMEOUT_MS = 5e3;
     GH_LOGIN_COMMAND = "gh";
+    GIT_COMMAND = "git";
+    GIT_COMMAND_MISSING = "is not installed in an absolute PATH folder";
     GH_LOGIN_ARGUMENTS = ["api", "user", "--jq", ".login"];
     GH_LOGIN_TIMEOUT_MS = 5e3;
     GH_LOGIN_PATTERN = /^[A-Za-z0-9][A-Za-z0-9-]{0,38}$/;
@@ -24882,7 +25365,48 @@ var init_constants18 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/repository.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/desktop/desktop-constants.js
+var DESKTOP_WINDOWS_EXTENSIONS, DESKTOP_WINDOWS_SEPARATOR, DESKTOP_PATH_SEPARATOR, DESKTOP_PATH_VARIABLES, DESKTOP_EXTENSIONS_VARIABLE;
+var init_desktop_constants = __esm({
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/desktop/desktop-constants.js"() {
+    DESKTOP_WINDOWS_EXTENSIONS = ".EXE;.CMD;.BAT";
+    DESKTOP_WINDOWS_SEPARATOR = ";";
+    DESKTOP_PATH_SEPARATOR = ":";
+    DESKTOP_PATH_VARIABLES = ["PATH", "Path"];
+    DESKTOP_EXTENSIONS_VARIABLE = "PATHEXT";
+  }
+});
+
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/desktop/launch.js
+import { accessSync, constants as constants3, statSync as statSync7 } from "node:fs";
+import { join as join25, posix, win32 } from "node:path";
+function findExecutable(name, env, platform2) {
+  const windows = platform2 === WINDOWS_PLATFORM;
+  const extensions = windows ? (env[DESKTOP_EXTENSIONS_VARIABLE] ?? DESKTOP_WINDOWS_EXTENSIONS).split(DESKTOP_WINDOWS_SEPARATOR) : [""];
+  const path3 = DESKTOP_PATH_VARIABLES.map((variable) => env[variable]).find((value) => value !== void 0);
+  const folders = (path3 ?? "").split(windows ? DESKTOP_WINDOWS_SEPARATOR : DESKTOP_PATH_SEPARATOR);
+  const absolute = windows ? win32.isAbsolute : posix.isAbsolute;
+  for (const folder of folders.filter((entry) => entry !== "" && absolute(entry))) {
+    for (const extension of extensions) {
+      const candidate = join25(folder, `${name}${extension}`);
+      try {
+        accessSync(candidate, constants3.X_OK);
+        if (statSync7(candidate).isFile())
+          return candidate;
+      } catch {
+      }
+    }
+  }
+  return void 0;
+}
+var init_launch = __esm({
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/desktop/launch.js"() {
+    init_constants2();
+    init_desktop_constants();
+  }
+});
+
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/repository.js
 import { execFileSync as execFileSync2 } from "node:child_process";
 import { resolve as resolve12 } from "node:path";
 function parseRepoName(remoteUrl) {
@@ -24922,7 +25446,7 @@ function gitOutput(args, cwd) {
   const env = { ...process.env, LC_ALL: "C", LANG: "C" };
   for (const key of GIT_LOCATION_ENV_KEYS)
     delete env[key];
-  return execFileSync2("git", args, {
+  return execFileSync2(installedCommand(GIT_COMMAND), args, {
     cwd,
     env,
     encoding: "utf-8",
@@ -25013,7 +25537,7 @@ function getRepositoryMetadata(cwd) {
   return withBothGitMetadataNames(metadata);
 }
 function githubLoginLookup() {
-  return execFileSync2(GH_LOGIN_COMMAND, GH_LOGIN_ARGUMENTS, {
+  return execFileSync2(installedCommand(GH_LOGIN_COMMAND), GH_LOGIN_ARGUMENTS, {
     encoding: "utf-8",
     timeout: GH_LOGIN_TIMEOUT_MS,
     stdio: ["ignore", "pipe", "ignore"]
@@ -25022,17 +25546,24 @@ function githubLoginLookup() {
 function isGitHubLogin(printed) {
   return printed !== GH_LOGIN_NULL_OUTPUT && GH_LOGIN_PATTERN.test(printed);
 }
+function installedCommand(name) {
+  const found = findExecutable(name, process.env, process.platform);
+  if (found === void 0)
+    throw new Error(`${name} ${GIT_COMMAND_MISSING}`);
+  return found;
+}
 var init_repository = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/repository.js"() {
-    init_constants18();
-    init_constants7();
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/repository.js"() {
+    init_launch();
+    init_constants19();
+    init_constants8();
     init_git_names();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/github-login.js
-import { mkdirSync as mkdirSync6, readFileSync as readFileSync11, renameSync as renameSync6, writeFileSync as writeFileSync4 } from "node:fs";
-import { dirname as dirname15 } from "node:path";
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/github-login.js
+import { mkdirSync as mkdirSync7, readFileSync as readFileSync12, renameSync as renameSync6, writeFileSync as writeFileSync4 } from "node:fs";
+import { dirname as dirname16 } from "node:path";
 function createGitHubLoginFallback(options) {
   const now = options.now ?? Date.now;
   const retryAfterMs = options.retryAfterMs ?? GH_LOGIN_RETRY_AFTER_MS;
@@ -25040,7 +25571,7 @@ function createGitHubLoginFallback(options) {
   let login;
   function failedRecently() {
     try {
-      const marker = JSON.parse(readFileSync11(options.markerPath, "utf-8"));
+      const marker = JSON.parse(readFileSync12(options.markerPath, "utf-8"));
       const failed = new Date(marker.failed).getTime();
       const since = now() - failed;
       return since >= 0 && since < retryAfterMs;
@@ -25050,7 +25581,7 @@ function createGitHubLoginFallback(options) {
   }
   function recordFailure2() {
     try {
-      mkdirSync6(dirname15(options.markerPath), { recursive: true });
+      mkdirSync7(dirname16(options.markerPath), { recursive: true });
       const partial = `${options.markerPath}.${process.pid}`;
       const marker = { failed: new Date(now()).toISOString() };
       writeFileSync4(partial, JSON.stringify(marker));
@@ -25076,19 +25607,19 @@ function createGitHubLoginFallback(options) {
   };
 }
 var init_github_login = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/github-login.js"() {
-    init_constants18();
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/github-login.js"() {
+    init_constants19();
     init_repository();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/paths.js
-import { readFileSync as readFileSync12, statSync as statSync7 } from "node:fs";
-import { dirname as dirname16, join as join22, resolve as resolve13 } from "node:path";
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/paths.js
+import { readFileSync as readFileSync13, statSync as statSync8 } from "node:fs";
+import { dirname as dirname17, join as join26, resolve as resolve13 } from "node:path";
 function gitMarkerAt(directory) {
-  const marker = join22(directory, GIT_DIRECTORY_NAME);
+  const marker = join26(directory, GIT_DIRECTORY_NAME);
   try {
-    if (statSync7(marker).isDirectory())
+    if (statSync8(marker).isDirectory())
       return GIT_MARKERS.REPOSITORY_ROOT;
   } catch {
     return GIT_MARKERS.NOTHING_HERE;
@@ -25097,8 +25628,8 @@ function gitMarkerAt(directory) {
 }
 function pointsAtGitDirectory(directory, marker) {
   try {
-    const pointer = readFileSync12(marker, "utf-8").match(GIT_FILE_POINTER)?.[1];
-    return pointer !== void 0 && statSync7(resolve13(directory, pointer)).isDirectory();
+    const pointer = readFileSync13(marker, "utf-8").match(GIT_FILE_POINTER)?.[1];
+    return pointer !== void 0 && statSync8(resolve13(directory, pointer)).isDirectory();
   } catch {
     return false;
   }
@@ -25111,7 +25642,7 @@ function rootFromGitMarker(directory) {
       return current;
     if (marker === GIT_MARKERS.ONLY_GIT_CAN_SAY)
       return void 0;
-    const parent = dirname16(current);
+    const parent = dirname17(current);
     const reachedFilesystemRoot = parent === current;
     if (reachedFilesystemRoot)
       return null;
@@ -25119,12 +25650,12 @@ function rootFromGitMarker(directory) {
   }
 }
 var init_paths4 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/paths.js"() {
-    init_constants18();
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/paths.js"() {
+    init_constants19();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/attribution.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/attribution.js
 import { isAbsolute as isAbsolute4 } from "node:path";
 function createRepositoryAttributor(options) {
   const rootByDirectory = /* @__PURE__ */ new Map();
@@ -25229,8 +25760,8 @@ function withoutRepositoryKeys(base, pinned) {
   return stripped;
 }
 var init_attribution = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/attribution.js"() {
-    init_constants7();
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/attribution.js"() {
+    init_constants8();
     init_paths3();
     init_github_login();
     init_paths4();
@@ -25238,9 +25769,9 @@ var init_attribution = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/index.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/index.js
 var init_git = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/index.js"() {
     init_attribution();
     init_github_login();
     init_paths4();
@@ -25350,17 +25881,17 @@ var init_captures = __esm({
   "dist/src/captures.js"() {
     "use strict";
     init_metadata();
-    init_constants17();
+    init_constants18();
     init_json();
   }
 });
 
 // dist/src/job-context.js
-import { createHash as createHash7 } from "node:crypto";
+import { createHash as createHash8 } from "node:crypto";
 function jobDigest(sessionId, context) {
   const { kind, buffer, toolIndex } = context;
   const toolUseId = toolIndex === void 0 ? null : buffer.tools[toolIndex]?.tool_use_id;
-  return createHash7("sha256").update(JSON.stringify([sessionId, kind, buffer.generation_id, toolIndex ?? null, toolUseId])).digest("hex");
+  return createHash8("sha256").update(JSON.stringify([sessionId, kind, buffer.generation_id, toolIndex ?? null, toolUseId])).digest("hex");
 }
 function jobRef(ref) {
   const value = [ref.conversationId, ref.generationId, ref.savedAtMs];
@@ -25446,7 +25977,7 @@ function toolJobContext(state, ref, fallbackOrigin) {
 var init_job_context = __esm({
   "dist/src/job-context.js"() {
     "use strict";
-    init_constants17();
+    init_constants18();
     init_state2();
   }
 });
@@ -25477,7 +26008,7 @@ var init_metadata2 = __esm({
     "use strict";
     init_metadata();
     init_config();
-    init_constants17();
+    init_constants18();
   }
 });
 
@@ -25501,25 +26032,25 @@ var requireBuiltin;
 var init_sqlite = __esm({
   "dist/src/utils/sqlite.js"() {
     "use strict";
-    init_constants17();
+    init_constants18();
     requireBuiltin = createRequire(import.meta.url);
   }
 });
 
 // dist/src/attachments.js
-import { existsSync as existsSync4, readFileSync as readFileSync13, statSync as statSync8 } from "node:fs";
+import { existsSync as existsSync4, readFileSync as readFileSync14, statSync as statSync9 } from "node:fs";
 import { homedir as homedir5, platform } from "node:os";
-import { basename as basename6, join as join23 } from "node:path";
+import { basename as basename6, join as join27 } from "node:path";
 function defaultCursorDbPath() {
   const home = homedir5();
   const tail = ["Cursor", "User", "globalStorage", "state.vscdb"];
   switch (platform()) {
     case "darwin":
-      return join23(home, "Library", "Application Support", ...tail);
+      return join27(home, "Library", "Application Support", ...tail);
     case "win32":
-      return join23(process.env.APPDATA ?? join23(home, "AppData", "Roaming"), ...tail);
+      return join27(process.env.APPDATA ?? join27(home, "AppData", "Roaming"), ...tail);
     default:
-      return join23(process.env.XDG_CONFIG_HOME ?? join23(home, ".config"), ...tail);
+      return join27(process.env.XDG_CONFIG_HOME ?? join27(home, ".config"), ...tail);
   }
 }
 function queryBubbles(dbPath, conversationId) {
@@ -25614,7 +26145,7 @@ function placeholder(text) {
 function fileToContentPart(path3) {
   const name = basename6(path3);
   try {
-    const st = statSync8(path3);
+    const st = statSync9(path3);
     if (!st.isFile()) {
       warn(`attachments: not a file, skipping: ${path3}`);
       return placeholder(`[attachment skipped: ${name} \u2014 not a file]`);
@@ -25623,7 +26154,7 @@ function fileToContentPart(path3) {
       warn(`attachments: too large (${st.size} bytes), skipping: ${path3}`);
       return placeholder(`[attachment too large: ${name} (${st.size} bytes)]`);
     }
-    const buf = readFileSync13(path3);
+    const buf = readFileSync14(path3);
     const mime = sniffMime(buf, path3);
     const base64 = buf.toString("base64");
     if (mime.startsWith("image/"))
@@ -25659,8 +26190,8 @@ function resolveTurnAttachments(opts) {
 var init_attachments = __esm({
   "dist/src/attachments.js"() {
     "use strict";
-    init_normalize();
-    init_constants17();
+    init_normalize2();
+    init_constants18();
     init_sqlite();
     init_text();
     init_logger();
@@ -25826,7 +26357,7 @@ function resolveSystemPrompts(opts) {
 var init_system_prompt = __esm({
   "dist/src/system-prompt.js"() {
     "use strict";
-    init_normalize();
+    init_normalize2();
     init_attachments();
     init_cursor_db();
     init_system_prompt_constants();
@@ -26093,7 +26624,7 @@ var agentKvKey;
 var init_conversation_steps = __esm({
   "dist/src/conversation-steps.js"() {
     "use strict";
-    init_normalize();
+    init_normalize2();
     init_attachments();
     init_system_prompt();
     init_cursor_db();
@@ -26104,7 +26635,7 @@ var init_conversation_steps = __esm({
 });
 
 // dist/src/langsmith.js
-import { createHash as createHash8 } from "node:crypto";
+import { createHash as createHash9 } from "node:crypto";
 function uuidFromDigest(hex) {
   const variant = (parseInt(hex[16], 16) & 3 | 8).toString(16);
   return [
@@ -26117,7 +26648,7 @@ function uuidFromDigest(hex) {
 }
 function stableRunId(ctx, key) {
   const seed = `${ctx.threadId}\0${ctx.turnId ?? ""}\0${key}`;
-  return uuidFromDigest(createHash8("sha256").update(seed).digest("hex"));
+  return uuidFromDigest(createHash9("sha256").update(seed).digest("hex"));
 }
 function turnRunId(conversationId, generationId) {
   return stableRunId({ agentType: "root", threadId: conversationId, turnId: generationId }, "turn");
@@ -26591,8 +27122,8 @@ var init_langsmith2 = __esm({
     "use strict";
     init_privacy2();
     init_langsmith();
-    init_normalize();
-    init_constants17();
+    init_normalize2();
+    init_constants18();
     init_metadata2();
     init_conversation_steps();
     init_logger();
@@ -26622,8 +27153,8 @@ function toolOrigin(toolInput, cwd) {
 var init_tool_origin = __esm({
   "dist/src/tool-origin.js"() {
     "use strict";
-    init_constants17();
-    init_normalize();
+    init_constants18();
+    init_normalize2();
   }
 });
 
@@ -26690,22 +27221,34 @@ var init_console = __esm({
 // dist/src/writer-options.js
 function writerOptions(config, project) {
   return {
-    destinations: [{ apiKey: config.apiKey, apiUrl: config.apiUrl, projectName: project }],
+    destinations: [
+      {
+        apiKey: config.apiKey,
+        apiUrl: config.apiUrl,
+        projectName: config.locked.includes("project") ? config.project : project
+      }
+    ],
     ...config.replicas?.length ? { replicas: config.replicas } : {},
+    ...config.locked.includes("project") ? { projectLocked: true } : {},
     redact: config.redact,
     ...config.redactExtraRules ? {
       redactExtraRules: config.redactExtraRules
     } : {}
   };
 }
+function currentWriterOptions(cwd, project) {
+  const config = loadConfig({ cwd });
+  return config.managedConfigProblem === void 0 ? writerOptions(config, project) : void 0;
+}
 var init_writer_options = __esm({
   "dist/src/writer-options.js"() {
     "use strict";
+    init_config();
   }
 });
 
 // dist/src/tracing-engine.js
-import { dirname as dirname17, join as join24 } from "node:path";
+import { dirname as dirname18, join as join28 } from "node:path";
 async function saveTurnForUpload(config, context) {
   try {
     await queueUpload(config, context);
@@ -26798,7 +27341,8 @@ async function buildQueuedRuns(job, config, plugin) {
   const context = toolRef ? toolJobContext(state, toolRef, originFromConfig(config, {})) : ref && queuedContext(state, ref);
   if (!context)
     return { status: "ready", outputs: [] };
-  const { buffer, conversationId, turnNum, origin } = context;
+  const { conversationId, turnNum, origin } = context;
+  const buffer = withLockedMute(context.buffer, config);
   const cwd = typeof origin.customMetadata?.cwd === "string" ? origin.customMetadata.cwd : config.cwd;
   const options = {
     buffer,
@@ -26834,7 +27378,7 @@ async function buildQueuedRuns(job, config, plugin) {
 }
 function attributorFor(config) {
   attributor ??= createRepositoryAttributor({
-    githubLoginMarkerPath: join24(dirname17(config.stateFilePath), GH_LOGIN_MARKER_FILE)
+    githubLoginMarkerPath: join28(dirname18(config.stateFilePath), GH_LOGIN_MARKER_FILE)
   });
   return attributor;
 }
@@ -26912,7 +27456,7 @@ async function pendingJobs(config) {
   return new Set(sessions.flatMap(({ captures }) => captures.map(({ record }) => record.eventId)));
 }
 function storageRootFor(config) {
-  return join24(dirname17(config.stateFilePath), ENGINE_STORAGE_DIR_NAME);
+  return join28(dirname18(config.stateFilePath), ENGINE_STORAGE_DIR_NAME);
 }
 function openSession(config, sessionId, project, built) {
   const storageRoot = storageRootFor(config);
@@ -26921,7 +27465,7 @@ function openSession(config, sessionId, project, built) {
     integration: LS_INTEGRATION,
     sessionId,
     writer: writerOptions(config, project),
-    currentWriter: () => writerOptions(loadConfig({ cwd: config.cwd }), project),
+    currentWriter: () => currentWriterOptions(config.cwd, project),
     scheduleWake: (id) => launchDetachedWorker([ENGINE_WORKER_COMMAND, config.cwd, id, project], { storageRoot }),
     reconstruct: (job) => {
       built?.set(job.eventId, job.sourceRefs[0]);
@@ -26938,15 +27482,15 @@ var init_tracing_engine = __esm({
     init_plugin();
     init_git();
     init_capture();
-    init_config();
     init_captures();
-    init_constants17();
+    init_constants18();
     init_job_context();
     init_state2();
     init_langsmith2();
     init_logger();
-    init_normalize();
+    init_normalize2();
     init_tool_origin();
+    init_tracing_policy();
     init_turn_origin();
     init_turn_enrichment();
     init_console();
@@ -27120,7 +27664,7 @@ function sweepTracingMode(buffered, policy) {
   return buffered === "metadata" ? "metadata" : policy;
 }
 async function saveClaimForUpload(claim, config) {
-  const policy = getThreadTracingMode(tracingPolicyPath(), claim.conversationId, config.defaultMuted);
+  const policy = getThreadTracingMode(tracingPolicyPath(), claim.conversationId, config.defaultMuted, mutingLocked(config));
   return saveTurnForUpload(config, {
     kind: "sweep",
     conversationId: claim.conversationId,
@@ -27198,15 +27742,15 @@ var init_engine_worker = __esm({
 // dist/src/hooks/dispatch.js
 init_plugin();
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/binary.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/binary.js
 import { arch as osArch, platform as osPlatform } from "node:os";
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/constants.js
 var DEFAULT_PUBLISHED_TARGETS = {
   darwin: ["arm64", "x64"]
 };
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/target.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/target.js
 function resolveTarget(options) {
   for (const field4 of ["executableName", "repository", "userAgent"]) {
     if (typeof options[field4] !== "string" || options[field4].trim() === "") {
@@ -27228,7 +27772,7 @@ function releaseAssetName(target, platform2, arch, version) {
   return `${target.executableName}-${platform2}-${arch}-${version}`;
 }
 
-// node_modules/.pnpm/@langchain+plugins-base@0.4.7_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/binary.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/binary.js
 function defineBinaryTarget(options) {
   const target = resolveTarget(options);
   return {
@@ -27269,7 +27813,7 @@ var binary = defineBinaryTarget({
 
 // dist/src/hooks/registry.js
 init_config();
-init_constants17();
+init_constants18();
 init_logger();
 var EXECUTABLE_NAME = binary.target.executableName;
 var USAGE = `Usage:

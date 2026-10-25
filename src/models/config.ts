@@ -1,3 +1,4 @@
+import type { LockableField } from "@langchain/plugins-base/settings";
 import type { LangSmithUploadReplicaConfig } from "@langchain/plugins-base/tracing/upload";
 import type { StringNodeRule } from "langsmith/anonymizer";
 
@@ -26,6 +27,8 @@ export interface Config {
   /** Extra user-supplied redaction rules (environment or common file config). */
   redactExtraRules?: StringNodeRule[];
   cwd: string;
+  locked: LockableField[];
+  managedConfigProblem?: string;
 }
 
 export interface CursorExtensions {

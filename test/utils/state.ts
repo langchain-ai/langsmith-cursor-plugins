@@ -55,6 +55,7 @@ export function testConfig(stateFilePath: string): Config {
     redact: true,
     sweepIdleMinutes: 60,
     cwd: dirname(stateFilePath),
+    locked: [],
   };
 }
 

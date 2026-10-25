@@ -42,6 +42,11 @@ export interface BeforeSubmitPromptInput extends HookInputBase {
   composer_mode?: string;
 }
 
+export interface PromptReply {
+  continue: boolean;
+  user_message?: string;
+}
+
 /** Token usage carried by both afterAgentResponse and stop. */
 export interface UsageFields {
   input_tokens?: number;

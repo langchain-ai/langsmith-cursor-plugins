@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, expect, it } from "vitest";
+import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import {
   cpSync,
   existsSync,
@@ -15,6 +15,8 @@ import { spawnSync } from "node:child_process";
 import { getThreadTracingMode } from "../src/tracing-policy.js";
 import { loadState } from "./utils/state.js";
 import { MIN_NODE } from "../src/utils/node-version.js";
+
+vi.mock("@langchain/plugins-base/settings", { spy: true });
 
 let dir: string;
 let env: NodeJS.ProcessEnv;
@@ -488,5 +490,100 @@ it.each([JSON.stringify({ enabled: true, defaultMuted: true }), "{malformed"])(
     env.LANGSMITH_CURSOR_DEFAULT_MUTED = "true";
     submit("environment wins", "env");
     expect(mode("env")).toBe("metadata");
+  },
+);
+
+it.skipIf(process.platform === "win32")(
+  "never holds back a prompt for a broken managed file, and names it in a mute reply",
+  async () => {
+    for (const [key, value] of Object.entries(env)) vi.stubEnv(key, value);
+    vi.resetModules();
+    const { handlePromptSubmit } = await import("../src/prompt-control.js");
+    const prompt = (conversation_id: string, generation_id: string, text = "work") =>
+      handlePromptSubmit({
+        conversation_id,
+        generation_id,
+        prompt: text,
+        model: "default",
+        hook_event_name: "beforeSubmitPrompt",
+        workspace_roots: [dir],
+      });
+    const managed = join(env.LS_TEST_ACCOUNT_HOME!, ".langsmith-plugins");
+    mkdirSync(managed, { recursive: true });
+    writeFileSync(join(managed, "managed.json"), "{}");
+    try {
+      expect(await prompt("thread", "first")).toEqual({ continue: true });
+      expect(await prompt("thread", "second")).toEqual({ continue: true });
+      const reply = await prompt("thread", "control", "langsmith-tracing:mute");
+      expect(reply.user_message).toContain("owned by root");
+      expect(reply.user_message).not.toContain("Master tracing is disabled");
+    } finally {
+      rmSync(join(managed, "managed.json"));
+      vi.unstubAllEnvs();
+    }
+  },
+);
+
+it("keeps a conversation muted when the managed file locks muting on", async () => {
+  for (const [key, value] of Object.entries(env)) vi.stubEnv(key, value);
+  vi.stubEnv("TRACE_TO_LANGSMITH", "true");
+  vi.stubEnv("LANGSMITH_API_KEY", "key");
+  vi.resetModules();
+  const settings = await import("@langchain/plugins-base/settings");
+  const actual = await vi.importActual<typeof settings>("@langchain/plugins-base/settings");
+  vi.mocked(settings.readCommonConfigFiles).mockImplementation((options) => ({
+    ...actual.readCommonConfigFiles(options),
+    managed: { status: "valid", common: { defaultMuted: true }, raw: {}, diagnostics: [] },
+  }));
+  const { setThreadTracingMode, tracingPolicyPath } = await import("../src/tracing-policy.js");
+  const { handlePromptSubmit } = await import("../src/prompt-control.js");
+  const prompt = (prompt: string, generation_id: string) =>
+    handlePromptSubmit({
+      conversation_id: "thread",
+      generation_id,
+      prompt,
+      model: "default",
+      hook_event_name: "beforeSubmitPrompt",
+      workspace_roots: [dir],
+    });
+  try {
+    await setThreadTracingMode(tracingPolicyPath(), "thread", "full");
+    expect((await prompt("langsmith-tracing:unmute", "control")).user_message).toContain(
+      "admin locked",
+    );
+    expect((await prompt("langsmith-tracing:mute", "control2")).user_message).toContain("muted");
+    await setThreadTracingMode(tracingPolicyPath(), "thread", "full");
+    await prompt("work", "one");
+    expect(loadState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns.one.tracingMode).toBe(
+      "metadata",
+    );
+  } finally {
+    vi.unstubAllEnvs();
+  }
+});
+
+it.each(['""', "   ", '" "'])(
+  "treats the API key %s as missing so tracing stays off",
+  async (key) => {
+    for (const [name, value] of Object.entries(env)) vi.stubEnv(name, value);
+    vi.stubEnv("TRACE_TO_LANGSMITH", "true");
+    vi.stubEnv("LANGSMITH_API_KEY", key);
+    vi.resetModules();
+    const { handlePromptSubmit } = await import("../src/prompt-control.js");
+    const { initHook } = await import("../src/utils/hook-init.js");
+    try {
+      await handlePromptSubmit({
+        conversation_id: "thread",
+        generation_id: "one",
+        prompt: "work",
+        model: "default",
+        hook_event_name: "beforeSubmitPrompt",
+        workspace_roots: [dir],
+      });
+      expect(initHook(dir)).toBeNull();
+      expect(loadState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns.one.tracingMode).toBe("off");
+    } finally {
+      vi.unstubAllEnvs();
+    }
   },
 );

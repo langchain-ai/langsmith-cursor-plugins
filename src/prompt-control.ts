@@ -1,20 +1,21 @@
+import { sdkSetting } from "@langchain/plugins-base/auth";
 import { loadConfig } from "./config.js";
-import { error as logError, initLogger } from "./logger.js";
+import { MUTE_LOCKED_MESSAGE } from "./constants.js";
+import { error as logError, initLogger, warn as logWarn } from "./logger.js";
 import { atomicUpdateState } from "./state.js";
 import { reduceBeforeSubmitPrompt } from "./reducer.js";
 import {
   getThreadTracingMode,
+  mutingLocked,
   parseTracingCommand,
   setThreadTracingMode,
   tracingPolicyPath,
 } from "./tracing-policy.js";
 import { originFromConfig } from "./turn-origin.js";
-import type { BeforeSubmitPromptInput } from "./models/types.js";
+import type { BeforeSubmitPromptInput, PromptReply } from "./models/types.js";
 
 /** Synchronous command hook contract, not an LLM skill or slash-command expansion. */
-export async function handlePromptSubmit(
-  input: BeforeSubmitPromptInput,
-): Promise<{ continue: boolean; user_message?: string }> {
+export async function handlePromptSubmit(input: BeforeSubmitPromptInput): Promise<PromptReply> {
   const command = parseTracingCommand(input.prompt);
   try {
     if (
@@ -27,6 +28,9 @@ export async function handlePromptSubmit(
     }
     const config = loadConfig({ cwd: input.workspace_roots?.[0] });
     initLogger(config.debug);
+    if (command === "unmute" && mutingLocked(config)) {
+      return { continue: false, user_message: MUTE_LOCKED_MESSAGE };
+    }
     if (command) {
       const result = await setThreadTracingMode(
         tracingPolicyPath(),
@@ -37,19 +41,29 @@ export async function handlePromptSubmit(
         continue: false,
         user_message:
           `Thread tracing ${command === "mute" ? "muted (metadata-only)" : "unmuted (full content)"}. Preference saved for the next turn; the current turn is unchanged.` +
-          (!config.enabled ? " Master tracing is disabled; this does not enable it." : "") +
+          (config.managedConfigProblem !== undefined
+            ? ` ${config.managedConfigProblem}`
+            : !config.enabled
+              ? " Master tracing is disabled; this does not enable it."
+              : "") +
           (result.warning ? ` Warning: ${result.warning}` : ""),
       };
     }
+    if (config.managedConfigProblem !== undefined) logWarn(config.managedConfigProblem);
     // Even master-off launches need evidence if tracing is enabled before stop.
-    const enabled = config.enabled && !!(config.apiKey || config.replicas?.length);
+    const enabled = config.enabled && !!(sdkSetting(config.apiKey) || config.replicas?.length);
     await atomicUpdateState(config.stateFilePath, (s) =>
       reduceBeforeSubmitPrompt(
         s,
         input,
         Date.now(),
         enabled
-          ? getThreadTracingMode(tracingPolicyPath(), input.conversation_id, config.defaultMuted)
+          ? getThreadTracingMode(
+              tracingPolicyPath(),
+              input.conversation_id,
+              config.defaultMuted,
+              mutingLocked(config),
+            )
           : "off",
         originFromConfig(config, input),
       ),
