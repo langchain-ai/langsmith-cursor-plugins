@@ -7,10 +7,10 @@ on:
     branches: [main]
   pull_request:
     paths:
-      - .cursor-plugin/plugin.json
+      - langsmith-tracing/.cursor-plugin/plugin.json
       - .github/workflows/build-binary.yml
       - binary.config.json
-      - binary/**
+      - langsmith-tracing/binary/**
       - macos-entitlements.plist
       - package.json
       - pnpm-lock.yaml
@@ -26,3 +26,4 @@ jobs:
     secrets: inherit
     with:
       bun-version: 1.4.4
+      binary-directory: langsmith-tracing/binary

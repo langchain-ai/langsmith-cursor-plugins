@@ -18,6 +18,7 @@ import { BINARY_HOOK_EVENTS } from "../src/constants.js";
 import type { CursorHooksFile } from "../src/models/cursor-hooks.js";
 import {
   PLUGIN_BINARY_DIRECTORY_NAME,
+  PLUGIN_DIRECTORY_NAME,
   PLUGIN_LAUNCHER_NAME,
   PLUGIN_ROOT_PLACEHOLDER,
 } from "./utils/plugin-layout.js";
@@ -27,7 +28,9 @@ const read = (path: string) => readFileSync(new URL(path, root), "utf8");
 const settings = JSON.parse(read("binary.config.json"));
 const workflow = read(".github/workflows/build-binary.yml");
 const lockfile = read("pnpm-lock.yaml");
-const pluginHooks = JSON.parse(read("hooks/hooks.json")) as CursorHooksFile;
+const pluginHooks = JSON.parse(
+  read(`${PLUGIN_DIRECTORY_NAME}/hooks/hooks.json`),
+) as CursorHooksFile;
 
 it("stamps the binary with the version the plugin bundle carries", () => {
   const stamped = JSON.parse(read(settings.build.versionFile)) as { version: string };
@@ -38,8 +41,8 @@ it("stamps the binary with the version the plugin bundle carries", () => {
 
 it("names every built file that carries the version, so a stale one stops the release", () => {
   const { version } = JSON.parse(read("package.json")) as { version: string };
-  const carrying = readdirSync(new URL("bundle/", root))
-    .map((name) => `bundle/${name}`)
+  const carrying = readdirSync(new URL(`${PLUGIN_DIRECTORY_NAME}/bundle/`, root))
+    .map((name) => `${PLUGIN_DIRECTORY_NAME}/bundle/${name}`)
     .filter((path) => read(path).includes(`"${version}"`));
 
   expect(carrying.length).toBeGreaterThan(0);
@@ -113,15 +116,19 @@ describe("the folder the released builds land in", () => {
   });
 
   it("survives a clone runnable", () => {
-    const mode = execFileSync("git", ["ls-files", "--stage", "--", picker], {
-      cwd: new URL(root).pathname,
-      encoding: "utf8",
-    }).slice(0, 6);
+    const mode = execFileSync(
+      "git",
+      ["ls-files", "--stage", "--", `${PLUGIN_DIRECTORY_NAME}/${picker}`],
+      {
+        cwd: new URL(root).pathname,
+        encoding: "utf8",
+      },
+    ).slice(0, 6);
     expect(mode).toBe("100755");
   });
 
   it("looks for the names the release publishes", () => {
-    const script = read(picker);
+    const script = read(`${PLUGIN_DIRECTORY_NAME}/${picker}`);
     for (const [platform, arches] of Object.entries(binary.target.publishedTargets)) {
       for (const arch of arches) {
         expect(script).toContain(`${settings.executableName}-${platform}-${arch}`);
@@ -135,7 +142,7 @@ describe("the folder the released builds land in", () => {
     mkdirSync(fakeBin, { recursive: true });
     mkdirSync(join(plugin, "binary"), { recursive: true });
     mkdirSync(join(plugin, "bundle"), { recursive: true });
-    cpSync(new URL(picker, root).pathname, join(plugin, picker));
+    cpSync(new URL(`${PLUGIN_DIRECTORY_NAME}/${picker}`, root).pathname, join(plugin, picker));
     chmodSync(join(plugin, picker), 0o755);
     writeFileSync(
       join(plugin, "bundle", "guard.js"),
@@ -260,7 +267,7 @@ describe("the folder the released builds land in", () => {
   it("survives a Windows clone runnable, where Git rewrites line endings", () => {
     const converted = execFileSync(
       "git",
-      ["-c", "core.autocrlf=true", "cat-file", "--filters", `:${picker}`],
+      ["-c", "core.autocrlf=true", "cat-file", "--filters", `:${PLUGIN_DIRECTORY_NAME}/${picker}`],
       { cwd: new URL(root).pathname },
     );
     const { plugin, build, fakeUname, pick } = sandbox();
@@ -557,7 +564,7 @@ describe("the folder the released builds land in", () => {
     );
     const committed = execFileSync(
       "git",
-      ["ls-files", "--stage", "--", `${PLUGIN_BINARY_DIRECTORY_NAME}/`],
+      ["ls-files", "--stage", "--", `${PLUGIN_DIRECTORY_NAME}/${PLUGIN_BINARY_DIRECTORY_NAME}/`],
       { cwd: new URL(root).pathname, encoding: "utf8" },
     )
       .trimEnd()
