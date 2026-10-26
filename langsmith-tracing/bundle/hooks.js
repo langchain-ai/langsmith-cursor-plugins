@@ -24402,7 +24402,7 @@ var init_config = __esm({
     init_logger();
     init_constants18();
     init_parse4();
-    LS_INTEGRATION_VERSION = true ? "0.6.2" : process.env.LANGSMITH_CURSOR_INTEGRATION_VERSION || void 0;
+    LS_INTEGRATION_VERSION = true ? "0.7.0" : process.env.LANGSMITH_CURSOR_INTEGRATION_VERSION || void 0;
   }
 });
 
