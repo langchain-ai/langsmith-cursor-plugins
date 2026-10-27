@@ -146,4 +146,19 @@ describe("resolveTurnSteps", () => {
     expect(resolveTurnSteps({ ...opts, toolUseIds: ["tool_nope"] })).toBeUndefined();
     expect(resolveTurnSteps({ ...opts, toolUseIds: [] })).toBeUndefined();
   });
+
+  it("takes the newest turn for a reply without tools only when its text matches", () => {
+    const turnC = [thinkingStep("C", 3), assistantStep("hello")];
+    const opts = { conversationId: conv, toolUseIds: [], dbPath: tmpDb() };
+    const steps = resolveTurnSteps({
+      ...opts,
+      finalText: "hello",
+      openReader: () => buildReader(conv, [turnA, turnC]),
+    });
+    expect(steps?.map((s) => s.kind)).toEqual(["thinking", "assistant"]);
+    const stale = buildReader(conv, [turnC, turnB]);
+    expect(
+      resolveTurnSteps({ ...opts, finalText: "hello", openReader: () => stale }),
+    ).toBeUndefined();
+  });
 });

@@ -35,6 +35,7 @@ export const MAX_UPLOAD_ATTEMPTS = 3;
 export const BINARY_HOOK_EVENTS = {
   beforeSubmitPrompt: "before-submit-prompt",
   afterAgentResponse: "after-agent-response",
+  afterAgentThought: "after-agent-thought",
   postToolUse: "post-tool-use",
   postToolUseFailure: "post-tool-use-failure",
   subagentStart: "subagent-start",
@@ -88,6 +89,12 @@ export const MCP_TOOL_PREFIX = "MCP:";
  * no I/O worth tracing.
  */
 export const SUBAGENT_PSEUDO_TOOLS = new Set(["UpdateCurrentStep"]);
+
+export const REDACTED_TRANSCRIPT_MARKER = /\s*\[REDACTED\]\s*$/;
+
+export const EMPTY_TOOL_ID_PREFIX = "cursor-call-";
+
+export const TOOL_FAILED_MESSAGE = "Tool failed";
 
 export const STATE_FILE_NAME = "langsmith_state.json";
 

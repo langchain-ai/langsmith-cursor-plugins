@@ -5,6 +5,7 @@ import {
   reducePostToolUse,
   reducePostToolUseFailure,
   reduceAfterAgentResponse,
+  reduceAfterAgentThought,
   reduceSubagentStart,
   reduceSubagentStop,
   reduceStop,
@@ -83,6 +84,9 @@ export function replayHookLog(
       case "afterAgentResponse":
         state = reduceAfterAgentResponse(state, p as never, now);
         break;
+      case "afterAgentThought":
+        state = reduceAfterAgentThought(state, p as never);
+        break;
       case "subagentStart":
         state = reduceSubagentStart(state, p as never, now);
         break;
@@ -103,7 +107,7 @@ export function replayHookLog(
         break;
       }
       default:
-        break; // beforeReadFile / afterAgentThought / shell / MCP — ignored in v1
+        break; // beforeReadFile / shell / MCP — ignored in v1
     }
     sweepEveryOtherThread(p.conversation_id as string, now);
   }

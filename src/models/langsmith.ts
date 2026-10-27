@@ -1,7 +1,7 @@
 import type { CodingAgentAgentType } from "@langchain/plugins-base/metadata";
 import type { CursorMetadataOptions, LlmMetadata } from "./metadata.js";
 import type { CapturedRun } from "./tracing-engine.js";
-import type { ContentPart, TracingMode, TurnBuffer } from "./types.js";
+import type { ContentPart, ToolEvent, TracingMode, TurnBuffer } from "./types.js";
 import type { Step } from "./conversation-steps.js";
 import type { UsageMetadata } from "./normalize.js";
 
@@ -37,10 +37,12 @@ export interface MetaCtx {
 
 export interface TurnCall {
   startMs: number;
-  /** LangChain `tool_call` content block for the assistant message. */
-  toolCallBlock: Record<string, unknown>;
+  endMs: number;
+  /** Chat-completions `tool_calls` entry for the assistant message. */
+  toolCall: { id: string; type: "function"; function: { name: string; arguments: string } };
   /** Tool-result message fed back into the final llm run's input. */
   resultMessage: Record<string, unknown>;
+  tool?: ToolEvent;
 }
 
 /** Everything the run builders share for one turn, so none of it lives in module state. */
@@ -79,6 +81,7 @@ export interface LlmRunSpec {
   name: string;
   messages: Array<Record<string, unknown>>;
   content: Array<Record<string, unknown>>;
+  calls?: TurnCall[];
   startMs: number;
   endMs: number;
   metadata: CursorMetadataOptions;

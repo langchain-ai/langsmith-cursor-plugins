@@ -14,6 +14,7 @@ import type {
   PostToolUseInput,
   PostToolUseFailureInput,
   AfterAgentResponseInput,
+  AfterAgentThoughtInput,
   SubagentStartInput,
   SubagentStopInput,
   StopInput,
@@ -29,7 +30,7 @@ import {
   pruneOldConversations,
   setOwnEntry,
 } from "./state.js";
-import { MAX_UPLOAD_ATTEMPTS } from "./constants.js";
+import { EMPTY_TOOL_ID_PREFIX, MAX_UPLOAD_ATTEMPTS } from "./constants.js";
 import { warn } from "./logger.js";
 import { extractMcpError, parseToolOutput, preferModel } from "./normalize.js";
 import type { SubagentToolCall } from "./models/normalize.js";
@@ -88,6 +89,10 @@ function openTurn(conv: ConversationState, generationId: string, nowMs: number):
   );
 }
 
+function toolUseId(turn: TurnBuffer, input: PostToolUseInput | PostToolUseFailureInput): string {
+  return input.tool_use_id || `${EMPTY_TOOL_ID_PREFIX}${turn.generation_id}-${turn.tools.length}`;
+}
+
 /** Pick the in-progress turn with the largest startMs (the active turn). */
 function latestTurn(turns: Record<string, TurnBuffer>): TurnBuffer | undefined {
   let best: TurnBuffer | undefined;
@@ -129,7 +134,7 @@ export function reducePostToolUse(
   turn.model = preferModel(turn.model, input.model);
   const output = parseToolOutput(input.tool_output);
   turn.tools.push({
-    tool_use_id: input.tool_use_id,
+    tool_use_id: toolUseId(turn, input),
     name: input.tool_name,
     input: input.tool_input ?? {},
     output,
@@ -154,7 +159,7 @@ export function reducePostToolUseFailure(
   const turn = openTurn(conv, input.generation_id, nowMs);
   turn.model = preferModel(turn.model, input.model);
   turn.tools.push({
-    tool_use_id: input.tool_use_id,
+    tool_use_id: toolUseId(turn, input),
     name: input.tool_name,
     input: input.tool_input ?? {},
     error: input.error_message,
@@ -185,6 +190,18 @@ export function reduceAfterAgentResponse(
     cache_write_tokens: input.cache_write_tokens,
   };
   setOwnEntry(conv.turns, input.generation_id, turn);
+  touch(conv);
+  return { ...state, [input.conversation_id]: conv };
+}
+
+export function reduceAfterAgentThought(
+  state: TracingState,
+  input: AfterAgentThoughtInput,
+): TracingState {
+  const conv = getConversationState(state, input.conversation_id);
+  const turn = ownEntry(conv.turns, input.generation_id);
+  if (!turn || !input.text) return state;
+  turn.thoughts.push({ text: input.text, duration_ms: input.duration_ms });
   touch(conv);
   return { ...state, [input.conversation_id]: conv };
 }
@@ -287,7 +304,7 @@ function transcriptToolEvent(
     tool_use_id: `subagent-tool-${index}`,
     name: call.name,
     input: call.input,
-    duration: slice / 1000,
+    duration: slice,
     endMs: end,
   };
 }

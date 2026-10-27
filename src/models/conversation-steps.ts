@@ -23,6 +23,7 @@ export interface ResolveTurnStepsOptions {
   conversationId: string;
   /** Hook-captured tool_use_ids for the current turn — used to pick the right turn. */
   toolUseIds: string[];
+  finalText?: string;
   /** Override the DB path; defaults to the platform Cursor globalStorage DB. */
   dbPath?: string;
   /** Injectable reader factory (tests). Defaults to the read-only `node:sqlite` reader. */

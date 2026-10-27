@@ -189,10 +189,18 @@ function decodeTurnSteps(reader: BlobReader, turnBlobId: Buffer): Step[] | undef
   return steps;
 }
 
-/** Resolve the current turn's steps by tool_use_id overlap. Undefined → caller falls back. */
+function answeredWithoutTools(steps: Step[], finalText: string): boolean {
+  if (steps.some((s) => s.kind === "tool")) return false;
+  return steps.filter((s) => s.kind === "assistant").at(-1)?.text === finalText;
+}
+
+/**
+ * Resolve the current turn's steps by tool_use_id overlap, or by final text when it used no
+ * tools. Undefined → caller falls back.
+ */
 export function resolveTurnSteps(opts: ResolveTurnStepsOptions): Step[] | undefined {
   const wanted = new Set(opts.toolUseIds.filter(Boolean));
-  if (wanted.size === 0) return undefined; // nothing to anchor on — keep current shape
+  if (wanted.size === 0 && !opts.finalText) return undefined; // nothing to anchor on — keep current shape
   try {
     const dbPath = opts.dbPath ?? defaultCursorDbPath();
     if (!existsSync(dbPath)) {
@@ -214,9 +222,11 @@ export function resolveTurnSteps(opts: ResolveTurnStepsOptions): Step[] | undefi
       for (let i = turnIds.length - 1; i >= 0; i--) {
         const steps = decodeTurnSteps(reader, turnIds[i]);
         if (!steps) continue;
-        const overlap = steps.some(
-          (s) => s.kind === "tool" && s.toolUseId && wanted.has(s.toolUseId),
-        );
+        const overlap =
+          wanted.size === 0
+            ? answeredWithoutTools(steps, opts.finalText ?? "")
+            : steps.some((s) => s.kind === "tool" && s.toolUseId && wanted.has(s.toolUseId));
+        if (wanted.size === 0 && !overlap) break;
         if (overlap) {
           logger.log(
             `conversation-steps: recovered ${steps.length} step(s) for ${opts.conversationId}`,
