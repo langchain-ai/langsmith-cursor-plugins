@@ -376,7 +376,13 @@ function placeRoundCalls(turn: TurnContext, rounds: Round[]): TurnCall[][] | und
     }),
   );
   if (!anyMatched) return undefined;
-  placed[placed.length - 1].push(...unplaced.values());
+  for (const call of unplaced.values()) {
+    const round =
+      [...placed].reverse().find((calls) => calls.some((c) => c.startMs <= call.startMs)) ??
+      placed[0];
+    const at = round.findIndex((c) => c.startMs > call.startMs);
+    round.splice(at < 0 ? round.length : at, 0, call);
+  }
   return placed;
 }
 

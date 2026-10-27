@@ -513,4 +513,23 @@ describe("buildTurnRuns keeps the thread view readable", () => {
       "Shell",
     ]);
   });
+
+  it("keeps a call the steps miss in the round it ran in", () => {
+    const read = { ...shell, tool_use_id: "tool_c", name: "Read", duration: 100, endMs: 5000 };
+    const subagent = {
+      tracingMode: "full" as const,
+      subagent_id: "sub_1",
+      subagent_type: "explore",
+      task: "look",
+      startMs: 2600,
+      endMs: 2800,
+    };
+    const runs = build({ ...base, tools: [shell, read], subagents: [subagent] }, [
+      { kind: "tool", toolUseId: "tool_a" },
+      { kind: "assistant", text: "next" },
+      { kind: "tool", toolUseId: "tool_c" },
+      { kind: "assistant", text: "all done" },
+    ]);
+    expect(toolCallIds(runs)).toEqual(["tool_a", "sub_1", "tool_c"]);
+  });
 });

@@ -26797,14 +26797,9 @@ function decodeTurnSteps(reader, turnBlobId) {
   }
   return steps;
 }
-function answeredWithoutTools(steps, finalText) {
-  if (steps.some((s) => s.kind === "tool"))
-    return false;
-  return steps.filter((s) => s.kind === "assistant").at(-1)?.text === finalText;
-}
 function resolveTurnSteps(opts) {
   const wanted = new Set(opts.toolUseIds.filter(Boolean));
-  if (wanted.size === 0 && !opts.finalText)
+  if (wanted.size === 0)
     return void 0;
   try {
     const dbPath = opts.dbPath ?? defaultCursorDbPath();
@@ -26826,9 +26821,7 @@ function resolveTurnSteps(opts) {
         const steps = decodeTurnSteps(reader, turnIds[i]);
         if (!steps)
           continue;
-        const overlap = wanted.size === 0 ? answeredWithoutTools(steps, opts.finalText ?? "") : steps.some((s) => s.kind === "tool" && s.toolUseId && wanted.has(s.toolUseId));
-        if (wanted.size === 0 && !overlap)
-          break;
+        const overlap = steps.some((s) => s.kind === "tool" && s.toolUseId && wanted.has(s.toolUseId));
         if (overlap) {
           log(`conversation-steps: recovered ${steps.length} step(s) for ${opts.conversationId}`);
           return steps;
@@ -27122,7 +27115,11 @@ function placeRoundCalls(turn, rounds) {
   }));
   if (!anyMatched)
     return void 0;
-  placed[placed.length - 1].push(...unplaced.values());
+  for (const call of unplaced.values()) {
+    const round = [...placed].reverse().find((calls) => calls.some((c) => c.startMs <= call.startMs)) ?? placed[0];
+    const at = round.findIndex((c) => c.startMs > call.startMs);
+    round.splice(at < 0 ? round.length : at, 0, call);
+  }
   return placed;
 }
 function addInterleavedRounds(turn, turnRun) {
@@ -27423,7 +27420,6 @@ function enrichTurn(config, options) {
   const steps = resolveTurnSteps({
     conversationId,
     toolUseIds: toTrace.tools.map((t) => t.tool_use_id),
-    finalText: toTrace.finalText,
     dbPath: config.cursorDbPath
   });
   return { ...options, attachments, systemPrompt, steps };

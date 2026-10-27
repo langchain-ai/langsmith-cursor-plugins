@@ -1,10 +1,16 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { scanFields, decodeStep, groupSteps, resolveTurnSteps } from "../src/conversation-steps.js";
+import { openDbReader } from "../src/cursor-db.js";
+import { enrichTurn } from "../src/turn-enrichment.js";
 import type { Step } from "../src/models/conversation-steps.js";
 import type { BlobReader } from "../src/models/cursor-db.js";
+import type { Config } from "../src/models/config.js";
+import type { TurnBuffer } from "../src/models/types.js";
+
+vi.mock("../src/cursor-db.js", () => ({ openDbReader: vi.fn() }));
 
 /** Real empty file so existsSync(dbPath) passes; the reader is injected. */
 function tmpDb(): string {
@@ -147,18 +153,22 @@ describe("resolveTurnSteps", () => {
     expect(resolveTurnSteps({ ...opts, toolUseIds: [] })).toBeUndefined();
   });
 
-  it("takes the newest turn for a reply without tools only when its text matches", () => {
-    const turnC = [thinkingStep("C", 3), assistantStep("hello")];
-    const opts = { conversationId: conv, toolUseIds: [], dbPath: tmpDb() };
-    const steps = resolveTurnSteps({
-      ...opts,
-      finalText: "hello",
-      openReader: () => buildReader(conv, [turnA, turnC]),
-    });
-    expect(steps?.map((s) => s.kind)).toEqual(["thinking", "assistant"]);
-    const stale = buildReader(conv, [turnC, turnB]);
-    expect(
-      resolveTurnSteps({ ...opts, finalText: "hello", openReader: () => stale }),
-    ).toBeUndefined();
+  it("leaves a reply without tools unresolved even when the newest turn says the same", () => {
+    const previous = [thinkingStep("Use option A", 1), assistantStep("Done.")];
+    vi.mocked(openDbReader).mockReturnValue(buildReader(conv, [previous]));
+    const buffer: TurnBuffer = {
+      tracingMode: "full",
+      generation_id: "gen-b",
+      prompt: "again",
+      model: "default",
+      startMs: 0,
+      thoughts: [],
+      subagents: [],
+      tools: [],
+      finalText: "Done.",
+    };
+    const config = { cursorDbPath: tmpDb() } as Config;
+    const enriched = enrichTurn(config, { buffer, conversationId: conv, turnNum: 2, project: "p" });
+    expect(enriched.steps).toBeUndefined();
   });
 });

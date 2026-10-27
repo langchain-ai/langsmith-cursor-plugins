@@ -42,7 +42,6 @@ export function enrichTurn(config: Config, options: BuildTurnOptions): BuildTurn
   const steps = resolveTurnSteps({
     conversationId,
     toolUseIds: toTrace.tools.map((t) => t.tool_use_id),
-    finalText: toTrace.finalText,
     dbPath: config.cursorDbPath,
   });
 
