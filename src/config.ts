@@ -18,6 +18,7 @@ import { join } from "node:path";
 import type { LangSmithUploadReplicaConfig } from "@langchain/plugins-base/tracing/upload";
 import { error as logError } from "./logger.js";
 import {
+  AGENT_ID_ENV_KEY,
   CURSOR_DIRECTORY_NAME,
   DEFAULT_API_URL,
   DEFAULT_PROJECT,
@@ -178,6 +179,7 @@ export function loadConfig(options?: { cwd?: string }): Config {
         api_key: process.env.LANGSMITH_CURSOR_API_KEY,
         api_url: getEnv("ENDPOINT"),
         project: getEnv("PROJECT"),
+        agent_id: process.env[AGENT_ID_ENV_KEY],
         metadata: envMetadata,
         redact: parseBoolean(getEnv("REDACT")),
         redact_extra_rules: parseRedactExtraRules(getEnv("REDACT_EXTRA")),
@@ -234,6 +236,9 @@ export function loadConfig(options?: { cwd?: string }): Config {
     defaultMuted,
     apiKey,
     apiUrl,
+    ...(common.profile === undefined ? {} : { profile: common.profile }),
+    ...(common.workspace_id === undefined ? {} : { workspaceId: common.workspace_id }),
+    ...(common.agent_id === undefined ? {} : { agentId: common.agent_id }),
     project,
     debug,
     stateFilePath,

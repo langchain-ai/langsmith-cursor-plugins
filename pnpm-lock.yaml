@@ -12,12 +12,12 @@ importers:
   .:
     dependencies:
       langsmith:
-        specifier: ^0.10.8
-        version: 0.10.8
+        specifier: ^0.11.4
+        version: 0.11.4
     devDependencies:
       '@langchain/plugins-base':
-        specifier: 0.5.0
-        version: 0.5.0(langsmith@0.10.8)
+        specifier: 0.5.1
+        version: 0.5.1(langsmith@0.11.4)
       '@types/node':
         specifier: ^26.6.4
         version: 26.6.4
@@ -217,12 +217,12 @@ packages:
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
 
-  '@langchain/plugins-base@0.5.0':
-    resolution: {integrity: sha512-1G6B7zqzVq0eOBk2FaKE/MEk8YTXRq952KGOgKLu3Um8hlUjIZ46EMJY6DbWrIECLTN7kIGFUigiV9zKNYkRlQ==}
+  '@langchain/plugins-base@0.5.1':
+    resolution: {integrity: sha512-N5B0fwRdLiPeF3nV0YeXT3Oi2E5QZgboWDkfkzL3A5Nz5yF4z9kbLaji43Dcwr7nv6HKUJ8ZqFWoDuHmJp3xwA==}
     engines: {node: '>=20'}
     hasBin: true
     peerDependencies:
-      langsmith: ^0.9.0 || ^0.10.0
+      langsmith: ^0.11.4
 
   '@napi-rs/wasm-runtime@1.2.4':
     resolution: {integrity: sha512-AJxoUD2/15ESHbvpcyjU274nsAPLuOtPHCk0vKJM5pj//Fg/B1FXNWjPnXTT9PymCYYiHo4zPj0ZomXBKhoy7g==}
@@ -769,8 +769,8 @@ packages:
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
     os: [darwin]
 
-  langsmith@0.10.8:
-    resolution: {integrity: sha512-svLrSnytr4cwZvx5XAel93fXRB1/OmC/u7tfXhnmyMpxIazPLDKKaMQYxGIjCvCRGhprmp9P4RiKM8ecZU46Mg==}
+  langsmith@0.11.4:
+    resolution: {integrity: sha512-sasOaKuuZ3OKSE9XIXSAxBUX1/r6t2z0SUe2VgBPLQHKKyLayYzKwU38nKzz0cQoMpN4zpSxz7poQwSTt1OdoA==}
     peerDependencies:
       '@opentelemetry/api': '*'
       '@opentelemetry/exporter-trace-otlp-proto': '*'
@@ -1162,9 +1162,9 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.6.0
 
-  '@langchain/plugins-base@0.5.0(langsmith@0.10.8)':
+  '@langchain/plugins-base@0.5.1(langsmith@0.11.4)':
     dependencies:
-      langsmith: 0.10.8
+      langsmith: 0.11.4
 
   '@napi-rs/wasm-runtime@1.2.4(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)':
     dependencies:
@@ -1481,7 +1481,7 @@ snapshots:
   fsevents@2.3.3:
     optional: true
 
-  langsmith@0.10.8:
+  langsmith@0.11.4:
     dependencies:
       p-queue: 6.6.2
 

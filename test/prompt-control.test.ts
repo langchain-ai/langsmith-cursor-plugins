@@ -661,6 +661,18 @@ it("never asks about a rejected key for someone signed in with the CLI", async (
   expect(vi.mocked(readLoginNotice).mock.calls.at(-1)?.[2]).toBeUndefined();
 });
 
+it("checks the expired-login notice for the configured profile", async () => {
+  const { prompt } = await withLogin({}, "login paused");
+  const { readLoginNotice } = await import("@langchain/plugins-base/auth");
+  writeFileSync(
+    join(dir, "login.json"),
+    JSON.stringify({ profiles: { work: { oauth: { refresh_token: "t" } } } }),
+  );
+  writeFileSync(join(dir, "langsmith-plugins.json"), JSON.stringify({ profile: "work" }));
+  await prompt("thread", "first");
+  expect(vi.mocked(readLoginNotice).mock.calls.at(-1)?.[3]).toBe("work");
+});
+
 it.skipIf(process.platform === "win32")(
   "names a broken managed file before an expired login",
   async () => {

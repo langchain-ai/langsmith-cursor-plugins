@@ -29,6 +29,7 @@ export function promptNotice(
           credential.kind === "api-key"
             ? { apiKey: credential.apiKey, apiUrl: credential.apiUrl }
             : undefined,
+          config.profile,
         );
   if (loginNotice !== undefined) return { kind: LOGIN_NOTICE_KIND, text: loginNotice };
   const replicaReason =
