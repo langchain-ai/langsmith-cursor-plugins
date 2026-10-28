@@ -20,6 +20,9 @@ export function uploadCredential(config: Config): UploadCredential {
     apiKey: sdkSetting(config.apiKey),
     apiUrl: config.apiUrl,
     apiUrlIsDefault: config.apiUrlIsDefault,
+    profile: config.profile,
+    workspaceId: config.workspaceId,
+    agentId: config.agentId,
   });
 }
 
@@ -45,6 +48,7 @@ export function writerOptions(config: Config, project: string): LangSmithUploadW
     destinations: [
       {
         ...destinationCredential(config),
+        ...(config.agentId === undefined ? {} : { agentId: config.agentId }),
         projectName: config.locked.includes("project") ? config.project : project,
       },
     ],

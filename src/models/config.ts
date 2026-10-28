@@ -9,6 +9,9 @@ export interface Config {
   defaultMuted: boolean;
   apiKey: string;
   apiUrl: string;
+  profile?: string;
+  workspaceId?: string;
+  agentId?: string;
   project: string;
   debug: boolean;
   stateFilePath: string;

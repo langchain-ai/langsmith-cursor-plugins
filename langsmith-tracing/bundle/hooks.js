@@ -40,7 +40,7 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   mod
 ));
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/errors.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/errors.js
 function describe(error2) {
   return error2 instanceof Error ? error2.message : String(error2);
 }
@@ -54,14 +54,14 @@ function failureStatus(error2) {
   return typeof status === "number" ? status : void 0;
 }
 var init_errors = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/errors.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/errors.js"() {
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/plugin/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/plugin/constants.js
 var POLICY_LOCK_TIMEOUT_MS, POLICY_LOCK_TIMEOUT_ERROR, POLICY_LOCK_TIMEOUT_MESSAGE, POLICY_UNREADABLE_MESSAGE, POLICY_NOT_REGULAR_MESSAGE, POLICY_ASYNC_UPDATE_MESSAGE, POLICY_FILE_MODE, POLICY_FILE_ENCODING, POLICY_TEMP_CREATE_FLAG, POLICY_DIRECTORY_OPEN_FLAG, POLICY_WARNING_SEPARATOR, POLICY_TEMP_CLOSE_WARNING, POLICY_TEMP_CLEANUP_WARNING, POLICY_DIRECTORY_CLOSE_WARNING, POLICY_LOCK_CLEANUP_FAILED_PREFIX, POLICY_CANNOT_READ_PREFIX, POLICY_DURABILITY_WARNING, POLICY_LOCK_RELEASE_WARNING, COMPILED_BINARY_ENTRY_PREFIXES, WORKER_LOG_FILE_NAME, WORKER_LOG_MODE, WORKER_LOG_MAX_BYTES, WORKER_LOG_APPEND_FLAG, WORKER_LOG_TRUNCATE_FLAG, SYSTEM_CERTIFICATES_FILE_NAME, WORKER_NO_PID_MESSAGE, UNAVAILABLE_ACCOUNT_FINGERPRINT, HOOK_HELP_FLAGS, HOOK_VERSION_FLAGS, POLICY_PARSE_RESULT_MESSAGE, HOOK_OPTIONS_INVALID_MESSAGE, HOOK_ERROR_HANDLER_WARNING;
 var init_constants = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/plugin/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/plugin/constants.js"() {
     POLICY_LOCK_TIMEOUT_MS = 2e3;
     POLICY_LOCK_TIMEOUT_ERROR = "Timed out waiting for tracing preference lock";
     POLICY_LOCK_TIMEOUT_MESSAGE = "Retry; if it persists, remove the lock only after confirming no preference writer is running.";
@@ -101,7 +101,7 @@ var init_constants = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/plugin/hook-command.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/plugin/hook-command.js
 async function dispatchHookCommand(argv, options) {
   assertHookOptions(options);
   const [argument, ...rest] = argv;
@@ -136,16 +136,16 @@ function reportHookError(name, error2, options) {
   }
 }
 var init_hook_command = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/plugin/hook-command.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/plugin/hook-command.js"() {
     init_errors();
     init_constants();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/constants.js
 var FILE_MISSING_CODE, PROCESS_MISSING_CODE, PROCESS_CHECK_SIGNAL, WINDOWS_PLATFORM, FILE_EXISTS_CODE, PERMISSION_DENIED_CODE, FILE_ACCESS_DENIED_CODE, FILE_BUSY_CODE, DIRECTORY_NOT_EMPTY_CODE, INVALID_ARGUMENT_CODE, TEMPLATE_PLACEHOLDER;
 var init_constants2 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/constants.js"() {
     FILE_MISSING_CODE = "ENOENT";
     PROCESS_MISSING_CODE = "ESRCH";
     PROCESS_CHECK_SIGNAL = 0;
@@ -160,10 +160,10 @@ var init_constants2 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/files/cleanup-constants.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/files/cleanup-constants.js
 var CLEANUP_IGNORED_DIRECTORY_CODES;
 var init_cleanup_constants = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/files/cleanup-constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/files/cleanup-constants.js"() {
     init_constants2();
     CLEANUP_IGNORED_DIRECTORY_CODES = [
       FILE_MISSING_CODE,
@@ -176,7 +176,7 @@ var init_cleanup_constants = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/files/cleanup.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/files/cleanup.js
 import { rmdir, unlink } from "node:fs/promises";
 import { dirname } from "node:path";
 async function removeFileIfPresent(path3) {
@@ -211,17 +211,17 @@ async function removeEmptyAncestors(directory, root) {
   }
 }
 var init_cleanup = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/files/cleanup.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/files/cleanup.js"() {
     init_errors();
     init_constants2();
     init_cleanup_constants();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/constants.js
 var FILE_LOCK_CLAIM_VERSION, FILE_LOCK_CLAIM_EXTENSION, FILE_LOCK_DIRECTORY_SUFFIX, FILE_LOCK_LEGACY_DIRECTORY_SUFFIX, FILE_LOCK_TIMEOUT_ERROR_NAME, FILE_LOCK_TEMP_PREFIX, FILE_LOCK_TEMP_SUFFIX, FILE_LOCK_EXCLUSIVE_FLAG, FILE_LOCK_ENCODING, FILE_LOCK_DEFAULT_TIMEOUT_MS, FILE_LOCK_POLL_INTERVAL_MS, FILE_LOCK_DIRECTORY_MODE, FILE_LOCK_FILE_MODE, FILE_LOCK_UNSELECTED_TICKET, FILE_LOCK_NEGATIVE_TICKET_LIMIT, FILE_LOCK_TIMEOUT_MESSAGE, FILE_LOCK_TICKET_LIMIT_MESSAGE, FILE_LOCK_RELEASE_MESSAGE, FILE_LOCK_INVALID_TIMEOUT_MESSAGE, FILE_LOCK_ACQUIRE_MESSAGE, FILE_LOCK_UNSAFE_DIRECTORY_MESSAGE, FILE_LOCK_RENAME_RETRY_TIMEOUT_MS, FILE_LOCK_HEARTBEAT_MS, FILE_LOCK_STALE_CLAIM_MS, FILE_LOCK_TRY_CHOOSING_WAIT_MS, FILE_LOCK_DIRECTORY_CONTENTION_CODES, FILE_LOCK_BUSY_FILE_CODES, FILE_LOCK_HEARTBEAT_WARNING, FILE_LOCK_COMPATIBLE_ACQUIRE_CLEANUP_MESSAGE, FILE_LOCK_COMPATIBLE_RELEASE_MESSAGE, FILE_LOCK_COMPATIBLE_GATE_CHANGED_MESSAGE, FILE_LOCK_COMPATIBLE_OWNER_FILE, FILE_LOCK_COMPATIBLE_OWNER_MESSAGE, FILE_LOCK_COMPATIBLE_OWNER_PID_PATTERN, FILE_LOCK_COMPATIBLE_ABANDONED_GATE_MS, FILE_LOCK_COMPATIBLE_STALE_SUFFIX, FILE_LOCK_GATE_CLEANUP_WARNING, FILE_LOCK_STALE_GATE_CLEANUP_WARNING, FILE_LOCK_WINDOWS_DENIED_RETRIES, STORAGE_NOT_WRITABLE_ERROR_NAME, STORAGE_NOT_WRITABLE_MESSAGE, STORAGE_NOT_WRITABLE_FIX, STORAGE_STALE_FILE_MAX_AGE_MS, STORAGE_STALE_DIRECTORY_WARNING, STORAGE_STALE_REMOVAL_WARNING, FILE_LOCK_LOST_MESSAGE, STORAGE_UUID, STORAGE_ENGINE_FILE_PATTERNS, STORAGE_CLAIM_FILE;
 var init_constants3 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/constants.js"() {
     init_constants2();
     FILE_LOCK_CLAIM_VERSION = 1;
     FILE_LOCK_CLAIM_EXTENSION = ".json";
@@ -285,21 +285,21 @@ var init_constants3 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/lock-folders.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/lock-folders.js
 async function removeEmptyLockFolders(lockPath, root) {
   await removeEmptyAncestors(`${lockPath}${FILE_LOCK_DIRECTORY_SUFFIX}`, root);
 }
 var init_lock_folders = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/lock-folders.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/lock-folders.js"() {
     init_cleanup();
     init_constants3();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/constants.js
-var CAPTURE_JOBS_DIRECTORY, CAPTURE_SESSIONS_DIRECTORY, CAPTURE_TURNS_DIRECTORY, CAPTURE_RECORD_VERSION, CAPTURE_DIRECTORY_MODE, CAPTURE_DIRECTORY_SETUP_ATTEMPTS, CAPTURE_REMOVED_DIRECTORY_CODES, CAPTURE_FILE_MODE, CAPTURE_INTEGRATION, CAPTURE_MAX_IDENTIFIER_BYTES, CAPTURE_HASH, CAPTURE_EVENT_FILE, JSON_ARRAY_INDEX_KEY, CAPTURE_EXPIRED_WARNING, CAPTURE_HELD_EXPIRED_WARNING, CAPTURE_SKIPPED_WARNING, CAPTURE_UNREADABLE_WARNING, CAPTURE_NAMESPACE_MISMATCH_MESSAGE, CAPTURE_RETRY_LOST_MESSAGE, CAPTURE_OUTCOME_INVALID_MESSAGE, CAPTURE_RECORD_UNSUPPORTED_MESSAGE, CAPTURE_OUTCOME_UNSUPPORTED_MESSAGE, CAPTURE_DEPENDENCIES_INVALID_MESSAGE, CAPTURE_DEPENDENCY_INVALID_MESSAGE, CAPTURE_DEPENDENCY_INTEGRATION_MESSAGE, CAPTURE_DEPENDENCY_SELF_MESSAGE, CAPTURE_DEPENDENCY_UNIQUE_MESSAGE, CAPTURE_VERSION_UNSUPPORTED_MESSAGE, CAPTURE_FIELD_UNSUPPORTED_MESSAGE, CAPTURE_TURN_CEILING_MS, CAPTURE_MARKER_SUFFIX, CAPTURE_MARKER_FILE, CAPTURE_TURN_MARKER_FILE, CAPTURE_MARKER_VERSION, CAPTURE_MARKER_REMOVED_REASON, CAPTURE_MARKER_INVALID_MESSAGE, CAPTURE_MARKER_INVALID_WARNING, CAPTURE_ROUTES_INVALID_MESSAGE, CAPTURE_ROUTE_INVALID_MESSAGE, CAPTURE_ROUTE_PROJECT_INVALID_MESSAGE, CAPTURE_FILE_EXTENSION, CAPTURE_LOCK_EXTENSION, CAPTURE_STORAGE_DIRECTORY_MESSAGE;
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/capture/constants.js
+var CAPTURE_JOBS_DIRECTORY, CAPTURE_SESSIONS_DIRECTORY, CAPTURE_TURNS_DIRECTORY, CAPTURE_RECORD_VERSION, CAPTURE_DIRECTORY_MODE, CAPTURE_DIRECTORY_SETUP_ATTEMPTS, CAPTURE_REMOVED_DIRECTORY_CODES, CAPTURE_FILE_MODE, CAPTURE_INTEGRATION, CAPTURE_MAX_IDENTIFIER_BYTES, CAPTURE_HASH, CAPTURE_EVENT_FILE, JSON_ARRAY_INDEX_KEY, CAPTURE_EXPIRED_WARNING, CAPTURE_HELD_EXPIRED_WARNING, CAPTURE_SKIPPED_WARNING, CAPTURE_UNREADABLE_WARNING, CAPTURE_NAMESPACE_MISMATCH_MESSAGE, CAPTURE_RETRY_LOST_MESSAGE, CAPTURE_OUTCOME_INVALID_MESSAGE, CAPTURE_RECORD_UNSUPPORTED_MESSAGE, CAPTURE_OUTCOME_UNSUPPORTED_MESSAGE, CAPTURE_DEPENDENCIES_INVALID_MESSAGE, CAPTURE_DEPENDENCY_INVALID_MESSAGE, CAPTURE_DEPENDENCY_INTEGRATION_MESSAGE, CAPTURE_DEPENDENCY_SELF_MESSAGE, CAPTURE_DEPENDENCY_UNIQUE_MESSAGE, CAPTURE_VERSION_UNSUPPORTED_MESSAGE, CAPTURE_FIELD_UNSUPPORTED_MESSAGE, CAPTURE_TURN_CEILING_MS, CAPTURE_MARKER_SUFFIX, CAPTURE_MARKER_FILE, CAPTURE_TURN_MARKER_FILE, CAPTURE_MARKER_VERSION, CAPTURE_MARKER_REMOVED_REASON, CAPTURE_MARKER_INVALID_MESSAGE, CAPTURE_MARKER_INVALID_WARNING, CAPTURE_ROUTES_INVALID_MESSAGE, CAPTURE_ROUTE_INVALID_MESSAGE, CAPTURE_ROUTE_PROJECT_INVALID_MESSAGE, CAPTURE_ROUTE_AGENT_INVALID_MESSAGE, CAPTURE_FILE_EXTENSION, CAPTURE_LOCK_EXTENSION, CAPTURE_STORAGE_DIRECTORY_MESSAGE;
 var init_constants4 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/capture/constants.js"() {
     init_constants2();
     CAPTURE_JOBS_DIRECTORY = "jobs";
     CAPTURE_SESSIONS_DIRECTORY = "sessions";
@@ -341,13 +341,14 @@ var init_constants4 = __esm({
     CAPTURE_ROUTES_INVALID_MESSAGE = "Invalid capture destination routes";
     CAPTURE_ROUTE_INVALID_MESSAGE = "Invalid capture destination route";
     CAPTURE_ROUTE_PROJECT_INVALID_MESSAGE = "Invalid capture route project";
+    CAPTURE_ROUTE_AGENT_INVALID_MESSAGE = "Invalid capture route agent";
     CAPTURE_FILE_EXTENSION = ".json";
     CAPTURE_LOCK_EXTENSION = ".lock";
     CAPTURE_STORAGE_DIRECTORY_MESSAGE = "Capture directory must be turns or jobs";
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/utils/serialization.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/capture/utils/serialization.js
 function canonicalJson(value) {
   const result = JSON.stringify(canonicalValue(value, /* @__PURE__ */ new Set()));
   if (result === void 0)
@@ -399,12 +400,12 @@ function canonicalValue(value, seen) {
   return result;
 }
 var init_serialization = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/utils/serialization.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/capture/utils/serialization.js"() {
     init_constants4();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/validation/objects.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/validation/objects.js
 function isPlainRecord(value) {
   return value !== null && typeof value === "object" && (Object.getPrototypeOf(value) === Object.prototype || Object.getPrototypeOf(value) === null);
 }
@@ -484,16 +485,16 @@ function parseJsonObject(contents, message) {
   return value;
 }
 var init_objects = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/validation/objects.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/validation/objects.js"() {
     init_serialization();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/errors.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/errors.js
 import { resolve } from "node:path";
 var FileLockTimeoutError, StorageNotWritableError;
 var init_errors2 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/errors.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/errors.js"() {
     init_constants3();
     init_errors();
     FileLockTimeoutError = class extends Error {
@@ -519,7 +520,7 @@ var init_errors2 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/file-lock-heartbeat.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/file-lock-heartbeat.js
 import { utimes } from "node:fs/promises";
 function startHeartbeat(path3, id) {
   const timer = setInterval(() => {
@@ -539,7 +540,7 @@ function warnUnlessMissing(error2) {
 }
 var heartbeats;
 var init_file_lock_heartbeat = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/file-lock-heartbeat.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/file-lock-heartbeat.js"() {
     init_constants3();
     init_errors();
     init_constants2();
@@ -547,7 +548,7 @@ var init_file_lock_heartbeat = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/file-lock-support.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/file-lock-support.js
 import { unlink as unlink2 } from "node:fs/promises";
 import { performance as performance2 } from "node:perf_hooks";
 function processIsAlive(pid) {
@@ -586,7 +587,7 @@ function waitForNextScan(deadline, blockedPath) {
   return new Promise((resolvePromise) => setTimeout(resolvePromise, Math.min(FILE_LOCK_POLL_INTERVAL_MS, remaining)));
 }
 var init_file_lock_support = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/file-lock-support.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/file-lock-support.js"() {
     init_constants3();
     init_errors();
     init_constants2();
@@ -594,7 +595,7 @@ var init_file_lock_support = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/legacy-gate.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/legacy-gate.js
 import { lstat, mkdir, readFile, rename, rmdir as rmdir2, writeFile } from "node:fs/promises";
 import { performance as performance3 } from "node:perf_hooks";
 import { randomUUID } from "node:crypto";
@@ -761,7 +762,7 @@ async function reclaimLegacyGate(gatePath, filePath, tryAcquire) {
   }
 }
 var init_legacy_gate = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/legacy-gate.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/legacy-gate.js"() {
     init_constants3();
     init_file_lock_heartbeat();
     init_file_lock_support();
@@ -772,7 +773,7 @@ var init_legacy_gate = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/file-lock.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/file-lock.js
 import { chmod, link, lstat as lstat2, mkdir as mkdir2, readFile as readFile2, readdir, rename as rename2, writeFile as writeFile2 } from "node:fs/promises";
 import { performance as performance4 } from "node:perf_hooks";
 import { setTimeout as delay } from "node:timers/promises";
@@ -1101,7 +1102,7 @@ async function withFileLock(filePath, callback, options) {
   }
 }
 var init_file_lock = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/file-lock.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/file-lock.js"() {
     init_objects();
     init_constants3();
     init_errors();
@@ -1113,7 +1114,7 @@ var init_file_lock = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/plugin/policy-file.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/plugin/policy-file.js
 import { randomUUID as randomUUID3 } from "node:crypto";
 import { lstatSync, readFileSync } from "node:fs";
 import { open, rename as rename3, unlink as unlink3 } from "node:fs/promises";
@@ -1231,7 +1232,7 @@ function findLockTimeout(error2) {
   return error2.errors.map(findLockTimeout).find((found) => found !== void 0);
 }
 var init_policy_file = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/plugin/policy-file.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/plugin/policy-file.js"() {
     init_lock_folders();
     init_file_lock();
     init_constants3();
@@ -1242,10 +1243,10 @@ var init_policy_file = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/errors.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/capture/errors.js
 var CaptureRecordInvalidError, CaptureRecordVersionError;
 var init_errors3 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/errors.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/capture/errors.js"() {
     CaptureRecordInvalidError = class extends Error {
     };
     CaptureRecordVersionError = class extends Error {
@@ -1253,7 +1254,7 @@ var init_errors3 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/files/publish.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/files/publish.js
 import { closeSync, openSync, renameSync, writeSync } from "node:fs";
 import { randomUUID as randomUUID4 } from "node:crypto";
 function publishByRename(path3, contents, tempSuffix, mode) {
@@ -1267,14 +1268,14 @@ function publishByRename(path3, contents, tempSuffix, mode) {
   renameSync(temp, path3);
 }
 var init_publish = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/files/publish.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/files/publish.js"() {
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/state-constants.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/state-constants.js
 var STATE_TEMP_SUFFIX, STATE_CORRUPT_SUFFIX, STATE_FILE_ENCODING, STATE_LOCK_RELEASE_WARNING, STATE_LOCK_BUSY_WARNING, STATE_CORRUPT_WARNING, STATE_LOCK_WAIT_MS, STATE_LOCK_PROBE_MS, STATE_LOCK_BUSY_MEMORY_MS, PENDING_STATE_DIR_SUFFIX, PENDING_STATE_FILE_SUFFIX, PENDING_STATE_TEMP_SUFFIX, PENDING_STATE_ABANDONED_MS, PENDING_STATE_TIME_WIDTH, PENDING_STATE_SEQUENCE_WIDTH, PENDING_STATE_WRITE_ATTEMPTS, STATE_PRIVATE_DIR_MODE, STATE_PRIVATE_FILE_MODE, STATE_CLAIM_SUFFIX, STATE_CLAIM_SKEW_MS;
 var init_state_constants = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/state-constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/state-constants.js"() {
     STATE_TEMP_SUFFIX = ".state.tmp";
     STATE_CORRUPT_SUFFIX = ".corrupt";
     STATE_FILE_ENCODING = "utf-8";
@@ -1298,7 +1299,7 @@ var init_state_constants = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/state-pending.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/state-pending.js
 import { mkdirSync, readdirSync, readFileSync as readFileSync2, rmdirSync, rmSync, statSync } from "node:fs";
 import { join as join3 } from "node:path";
 function diffValue(path3, before, after, operations) {
@@ -1459,7 +1460,7 @@ function removePending(stateFilePath, files) {
 }
 var sequence, same, pendingDirectory;
 var init_state_pending = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/state-pending.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/state-pending.js"() {
     init_publish();
     init_objects();
     init_state_constants();
@@ -1469,7 +1470,7 @@ var init_state_pending = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/state-store.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/state-store.js
 import { readFileSync as readFileSync3, renameSync as renameSync2 } from "node:fs";
 function createStateStore(options) {
   const { path: path3 } = options;
@@ -1556,7 +1557,7 @@ async function withStateFileLock(path3, warn2, callback, waitMs) {
   return true;
 }
 var init_state_store = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/state-store.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/state-store.js"() {
     init_publish();
     init_objects();
     init_errors2();
@@ -1566,7 +1567,7 @@ var init_state_store = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/state-claim.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/state-claim.js
 import { mkdirSync as mkdirSync2 } from "node:fs";
 import { dirname as dirname5 } from "node:path";
 async function claimStateEntry(path3, key, windowMs) {
@@ -1587,16 +1588,16 @@ async function claimStateEntry(path3, key, windowMs) {
   }
 }
 var init_state_claim = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/state-claim.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/state-claim.js"() {
     init_file_lock();
     init_state_constants();
     init_state_store();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/index.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/index.js
 var init_storage = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/index.js"() {
     init_file_lock();
     init_file_lock_support();
     init_errors2();
@@ -1605,7 +1606,7 @@ var init_storage = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/paths.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/capture/paths.js
 import { createHash } from "node:crypto";
 import { resolve as resolve3, join as join4 } from "node:path";
 function validateIntegration(value) {
@@ -1663,12 +1664,12 @@ function recordLockPath(root, scope) {
   return `${path3.slice(0, -CAPTURE_FILE_EXTENSION.length)}${CAPTURE_LOCK_EXTENSION}`;
 }
 var init_paths = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/paths.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/capture/paths.js"() {
     init_constants4();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/utils/atomic-file.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/capture/utils/atomic-file.js
 import { constants as fsConstants } from "node:fs";
 import { chmod as chmod2, link as link2, lstat as lstat3, mkdir as mkdir3, open as open2, rename as rename4, unlink as unlink4 } from "node:fs/promises";
 import { dirname as dirname6, isAbsolute, join as join5, relative, sep } from "node:path";
@@ -1856,14 +1857,14 @@ async function syncDirectory(path3) {
   }
 }
 var init_atomic_file = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/utils/atomic-file.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/capture/utils/atomic-file.js"() {
     init_errors();
     init_constants4();
     init_constants2();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/files/private-directory.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/files/private-directory.js
 import { lstat as lstat4, readdir as readdir2 } from "node:fs/promises";
 import { isAbsolute as isAbsolute2, join as join6, relative as relative2, resolve as resolve4, sep as sep2 } from "node:path";
 async function listPrivateDirectory(root, directory) {
@@ -1899,13 +1900,13 @@ async function lstatDirectory(path3) {
   }
 }
 var init_private_directory = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/files/private-directory.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/files/private-directory.js"() {
     init_errors();
     init_constants2();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/scope.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/capture/scope.js
 function scopeOf(value) {
   return {
     integration: value.integration,
@@ -1918,34 +1919,34 @@ function scopeKey(scope) {
   return JSON.stringify([scope.integration, scope.sessionId, scope.turnId, scope.eventId]);
 }
 var init_scope = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/scope.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/capture/scope.js"() {
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/compare.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/compare.js
 function compareText(left, right) {
   if (left === right)
     return 0;
   return left < right ? -1 : 1;
 }
 var init_compare = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/compare.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/compare.js"() {
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/order.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/capture/order.js
 function compareCaptureOrder(left, right) {
   if (left.capturedAtMs !== right.capturedAtMs)
     return left.capturedAtMs < right.capturedAtMs ? -1 : 1;
   return compareText(left.eventId, right.eventId);
 }
 var init_order = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/order.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/capture/order.js"() {
     init_compare();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/utils/digest.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/capture/utils/digest.js
 import { createHash as createHash2 } from "node:crypto";
 function captureContentDigest(record) {
   const content = { ...record };
@@ -1956,12 +1957,12 @@ function captureContentDigest(record) {
   return createHash2("sha256").update(canonicalJson(content)).digest("hex");
 }
 var init_digest = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/utils/digest.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/capture/utils/digest.js"() {
     init_serialization();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/markers.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/capture/markers.js
 import { lstat as lstat5 } from "node:fs/promises";
 import { basename, dirname as dirname7, join as join7 } from "node:path";
 function markerPath(root, scope) {
@@ -2106,7 +2107,7 @@ async function removeOldMarkers(root, directory, modifiedBeforeMs) {
   return removed;
 }
 var init_markers = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/markers.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/capture/markers.js"() {
     init_errors();
     init_constants2();
     init_objects();
@@ -2118,7 +2119,7 @@ var init_markers = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/capture-store.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/capture/capture-store.js
 import { lstat as lstat6 } from "node:fs/promises";
 import { basename as basename2, dirname as dirname8, join as join8, resolve as resolve5 } from "node:path";
 function createCaptureStore(root, directory = CAPTURE_TURNS_DIRECTORY) {
@@ -2521,12 +2522,17 @@ function normalizeDestinationRoutes(value) {
     validateIdentifier(destination, "destination");
     if (route === null || typeof route !== "object" || Array.isArray(route))
       throw new TypeError(CAPTURE_ROUTE_INVALID_MESSAGE);
-    const { projectName, sourceProjectName, ...extra } = route;
+    const { projectName, agentId, sourceProjectName, ...extra } = route;
     if (Object.keys(extra).length > 0)
       throw new TypeError(CAPTURE_ROUTE_INVALID_MESSAGE);
     if (typeof projectName !== "string")
       throw new TypeError(CAPTURE_ROUTE_PROJECT_INVALID_MESSAGE);
     validateIdentifier(projectName, "route project");
+    if (agentId !== void 0) {
+      if (typeof agentId !== "string")
+        throw new TypeError(CAPTURE_ROUTE_AGENT_INVALID_MESSAGE);
+      validateIdentifier(agentId, "route agent");
+    }
     if (sourceProjectName !== void 0) {
       if (typeof sourceProjectName !== "string")
         throw new TypeError(CAPTURE_ROUTE_PROJECT_INVALID_MESSAGE);
@@ -2534,6 +2540,7 @@ function normalizeDestinationRoutes(value) {
     }
     routes[destination] = {
       projectName,
+      ...agentId === void 0 ? {} : { agentId },
       ...sourceProjectName === void 0 ? {} : { sourceProjectName }
     };
   }
@@ -2550,7 +2557,7 @@ function failure(code, error2) {
   };
 }
 var init_capture_store = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/capture-store.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/capture/capture-store.js"() {
     init_errors3();
     init_errors();
     init_storage();
@@ -2569,26 +2576,26 @@ var init_capture_store = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/format.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/format.js
 function fillTemplate(template, values) {
   return template.replace(TEMPLATE_PLACEHOLDER, (_match, key) => String(values[key]));
 }
 var init_format = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/format.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/format.js"() {
     init_constants2();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/account.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/capture/account.js
 function isWaitingForOtherSetting(record, accountFingerprint) {
   return record.destinationFingerprint !== accountFingerprint && Object.keys(record.delivery?.outcomes ?? {}).length === 0;
 }
 var init_account = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/account.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/capture/account.js"() {
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/expiry.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/capture/expiry.js
 function liveTurnSpans(captures) {
   const spans = /* @__PURE__ */ new Map();
   for (const { record, capturedAtMs } of captures) {
@@ -2642,25 +2649,25 @@ async function removeExpiredCaptures(options) {
   return dropped;
 }
 var init_expiry = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/expiry.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/capture/expiry.js"() {
     init_format();
     init_constants4();
     init_account();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/index.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/capture/index.js
 var init_capture = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/capture/index.js"() {
     init_capture_store();
     init_expiry();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/background-worker/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/background-worker/constants.js
 var BACKGROUND_WORKER_LOCK_FILE, BACKGROUND_WORKER_PENDING_FILE, BACKGROUND_WORKER_ACTIVE_PREFIX, BACKGROUND_WORKER_LAUNCHING_FILE, BACKGROUND_WORKER_STAGING_FILE, BACKGROUND_WORKER_MARKER_ID_PATTERN, BACKGROUND_WORKER_ACTIVE_MARKER_NAME, BACKGROUND_WORKER_ATTEMPT_NAME, BACKGROUND_WORKER_MARKER_VERSION, BACKGROUND_WORKER_ATTEMPT_VERSION, BACKGROUND_WORKER_LAUNCH_VERSION, BACKGROUND_WORKER_DEFAULT_MAX_ATTEMPTS, BACKGROUND_WORKER_DEFAULT_RETRY_DELAY_MS, BACKGROUND_WORKER_OWNER_WAIT_MS, BACKGROUND_WORKER_LAUNCH_LEASE_MS, BACKGROUND_WORKER_STATE_ERROR, BACKGROUND_WORKER_LAUNCHER_MUST_RETURN_CHILD_PROCESS_ID_MESSAGE, BACKGROUND_WORKER_LAUNCH_IS_ALREADY_PENDING_MESSAGE, BACKGROUND_WORKER_MAX_ATTEMPTS_MUST_BE_POSITIVE_INTEGER_MESSAGE, BACKGROUND_WORKER_RETRY_DELAY_MUST_BE_NON_NEGATIVE_MESSAGE, BACKGROUND_WORKER_STARTUP_WAIT_MUST_BE_POSITIVE_INTEGER_MESSAGE, BACKGROUND_WORKER_ACTIVE_MARKER_ALREADY_EXISTS_MESSAGE, BACKGROUND_WORKER_RETRY_ATTEMPT_ALREADY_EXISTS_MESSAGE, BACKGROUND_WORKER_UNSAFE_LOCK_DIRECTORY_MESSAGE, BACKGROUND_WORKER_UNSAFE_PENDING_MARKER_MESSAGE, BACKGROUND_WORKER_UNSAFE_ACTIVE_MARKER_MESSAGE, BACKGROUND_WORKER_INVALID_ACTIVE_PATH_MESSAGE, BACKGROUND_WORKER_MULTIPLE_ACTIVE_MARKERS_MESSAGE, BACKGROUND_WORKER_ACTIVE_MARKER_PATH_MISMATCH_MESSAGE, BACKGROUND_WORKER_UNSAFE_RETRY_ATTEMPT_MESSAGE, BACKGROUND_WORKER_INVALID_ATTEMPT_PATH_MESSAGE, BACKGROUND_WORKER_UNSAFE_STAGING_FILE_MESSAGE, BACKGROUND_WORKER_UNSAFE_LAUNCH_MARKER_MESSAGE, BACKGROUND_WORKER_UNEXPECTED_STATE_PATH_MESSAGE, BACKGROUND_WORKER_RETRY_SEQUENCE_HAS_GAP_MESSAGE, BACKGROUND_WORKER_INVALID_LAUNCH_MARKER_MESSAGE, BACKGROUND_WORKER_STATE_DISAPPEARED_MESSAGE, BACKGROUND_WORKER_INVALID_MARKER_MESSAGE, BACKGROUND_WORKER_INVALID_RETRY_ATTEMPT_MESSAGE, BACKGROUND_WORKER_FILE_PREFIX, BACKGROUND_WORKER_SCOPED_FILE, BACKGROUND_WORKER_SHARED_DIRECTORY;
 var init_constants5 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/background-worker/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/background-worker/constants.js"() {
     BACKGROUND_WORKER_LOCK_FILE = "worker";
     BACKGROUND_WORKER_PENDING_FILE = "wake.pending";
     BACKGROUND_WORKER_ACTIVE_PREFIX = "wake.active.";
@@ -2706,7 +2713,7 @@ var init_constants5 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/background-worker/paths.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/background-worker/paths.js
 import { join as join9, resolve as resolve6 } from "node:path";
 function validateWorkerScope(scope) {
   validateIntegration(scope.integration);
@@ -2740,23 +2747,23 @@ function scopedWorkerFileName(scope, name) {
   return name.startsWith(prefix) ? `${BACKGROUND_WORKER_FILE_PREFIX}.${name.slice(prefix.length)}` : void 0;
 }
 var init_paths2 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/background-worker/paths.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/background-worker/paths.js"() {
     init_paths();
     init_constants5();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/background-worker/utils/scope.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/background-worker/utils/scope.js
 async function matchesScope(resolveScope, expected) {
   const actual = await resolveScope();
   return actual.integration === expected.integration && actual.sessionId === expected.sessionId && actual.accountFingerprint === expected.accountFingerprint;
 }
 var init_scope2 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/background-worker/utils/scope.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/background-worker/utils/scope.js"() {
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/background-worker/state.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/background-worker/state.js
 import { join as join10 } from "node:path";
 function assertPlainFile(entry, message) {
   if (!entry.isFile() || entry.isSymbolicLink())
@@ -2861,7 +2868,7 @@ function parseAttempt(contents, markerId, attempt) {
   return value;
 }
 var init_state = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/background-worker/state.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/background-worker/state.js"() {
     init_paths2();
     init_objects();
     init_atomic_file();
@@ -2870,7 +2877,7 @@ var init_state = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/background-worker/worker.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/background-worker/worker.js
 import { randomUUID as randomUUID6 } from "node:crypto";
 import { resolve as resolve7 } from "node:path";
 import { setTimeout as delay2 } from "node:timers/promises";
@@ -3140,7 +3147,7 @@ async function readLaunch(storageRoot, scope) {
   return value;
 }
 var init_worker = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/background-worker/worker.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/background-worker/worker.js"() {
     init_storage();
     init_lock_folders();
     init_cleanup();
@@ -3155,14 +3162,14 @@ var init_worker = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/background-worker/index.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/background-worker/index.js
 var init_background_worker = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/background-worker/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/background-worker/index.js"() {
     init_worker();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/files/missing.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/files/missing.js
 function ifMissing(fallback) {
   return (error2) => {
     if (errorCode(error2) === FILE_MISSING_CODE)
@@ -3171,13 +3178,13 @@ function ifMissing(fallback) {
   };
 }
 var init_missing = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/files/missing.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/files/missing.js"() {
     init_constants2();
     init_errors();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/stale-files.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/stale-files.js
 import { lstat as lstat7, readFile as readFile3, readdir as readdir3, rmdir as rmdir3 } from "node:fs/promises";
 import { basename as basename3, dirname as dirname9, join as join11 } from "node:path";
 async function removeStaleStorageFiles(root, folders, modifiedBeforeMs) {
@@ -3226,7 +3233,7 @@ function warnUnlessExpected(error2) {
     console.warn(STORAGE_STALE_DIRECTORY_WARNING, describe(error2));
 }
 var init_stale_files = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/stale-files.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/stale-files.js"() {
     init_constants2();
     init_errors();
     init_cleanup();
@@ -3236,10 +3243,10 @@ var init_stale_files = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/delivery/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/delivery/constants.js
 var DELIVERY_RETRY_BASE_MS, DELIVERY_RETRY_BACKOFF_FACTOR, DELIVERY_RETRY_MAX_MS, DELIVERY_QUICK_RETRY_MS, DELIVERY_DEFAULT_MAX_AGE_MS, DELIVERY_DEFAULT_MAX_ENTRIES, DELIVERY_DROPPED_WARNING, DELIVERY_CAPACITY_REASON, DELIVERY_REJECTED_REASON, DELIVERY_DEPENDENCY_DROPPED_REASON, DELIVERY_AUTH_STATUSES, DELIVERY_AUTH_HINT, DELIVERY_WRITER_REQUIRED_MESSAGE, DELIVERY_DESTINATION_REQUIRED_MESSAGE, DELIVERY_DESTINATION_INVALID_MESSAGE, DELIVERY_DESTINATION_DUPLICATE_MESSAGE, DELIVERY_TRANSPORT_REQUIRED_MESSAGE, DELIVERY_BATCH_LIMITS_INVALID_MESSAGE, DELIVERY_POLICY_INVALID_MESSAGE, DELIVERY_PREREQUISITE_READ_MESSAGE, DELIVERY_RECEIPT_READ_MESSAGE, DELIVERY_RECEIPT_PERSIST_MESSAGE, DELIVERY_ACCOUNT_MISMATCH_WARNING, DELIVERY_DRAIN_LOCK, DELIVERY_DROPPED_DETAIL, DELIVERY_DEPENDENTS_DROPPED_WARNING;
 var init_constants6 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/delivery/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/delivery/constants.js"() {
     DELIVERY_RETRY_BASE_MS = 5e3;
     DELIVERY_RETRY_BACKOFF_FACTOR = 2;
     DELIVERY_RETRY_MAX_MS = 30 * 60 * 1e3;
@@ -3269,18 +3276,18 @@ var init_constants6 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/retry-state.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/capture/retry-state.js
 function isWaitingForRetry(retry, now = Date.now()) {
   return retry !== void 0 && retry.notBeforeMs > now && !(retry.recordedAtMs !== void 0 && retry.recordedAtMs < PROCESS_STARTED_AT_MS);
 }
 var PROCESS_STARTED_AT_MS;
 var init_retry_state = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/storage/capture/retry-state.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/capture/retry-state.js"() {
     PROCESS_STARTED_AT_MS = Date.now();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/delivery/batch.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/delivery/batch.js
 function createBatch() {
   return { candidates: [], scopes: /* @__PURE__ */ new Set(), runIds: /* @__PURE__ */ new Set(), bytes: 0 };
 }
@@ -3300,12 +3307,12 @@ function joinBatch(batch, candidate) {
   batch.bytes += payloadBytes(candidate.entry.record);
 }
 var init_batch = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/delivery/batch.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/delivery/batch.js"() {
     init_scope();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/delivery/retry.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/delivery/retry.js
 function isRetryable(error2) {
   return error2?.retryable !== false;
 }
@@ -3325,13 +3332,13 @@ function nextRetry(previous, baseMs) {
   };
 }
 var init_retry = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/delivery/retry.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/delivery/retry.js"() {
     init_constants6();
     init_errors();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/delivery/outcomes.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/delivery/outcomes.js
 function emptyDestinationResult() {
   return { delivered: 0, dropped: 0, failed: 0, progressed: false };
 }
@@ -3411,7 +3418,7 @@ async function settleDroppedDependency(drainCache, candidate, destination, resul
   result.progressed = true;
 }
 var init_outcomes = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/delivery/outcomes.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/delivery/outcomes.js"() {
     init_scope();
     init_format();
     init_constants6();
@@ -3419,7 +3426,7 @@ var init_outcomes = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/delivery/deliver.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/delivery/deliver.js
 import { setTimeout as delay3 } from "node:timers/promises";
 async function trySend(context, destination, candidates) {
   const { policy, request } = context;
@@ -3491,13 +3498,13 @@ async function deliverBatch(context, destination, candidates) {
   return settleFailed(context, destination, candidates, error2);
 }
 var init_deliver = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/delivery/deliver.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/delivery/deliver.js"() {
     init_outcomes();
     init_retry();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/delivery/drain-cache.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/delivery/drain-cache.js
 function deliveryKey(scope, destination) {
   return JSON.stringify([scopeKey(scope), destination]);
 }
@@ -3562,13 +3569,13 @@ async function countPending(drainCache, entries, destinations) {
   return nextRetryAtMs === void 0 ? { count } : { count, nextRetryAtMs };
 }
 var init_drain_cache = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/delivery/drain-cache.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/delivery/drain-cache.js"() {
     init_scope();
     init_constants6();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/delivery/drain.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/delivery/drain.js
 async function drainLocked(captureStore, integration, sessionId, policy, request, drainCache) {
   const captures = await captureStore.enumerate(integration, sessionId);
   const eligible = captures.filter(({ record }) => record.destinationFingerprint === request.writer.accountFingerprint);
@@ -3701,7 +3708,7 @@ async function dropPending(drainCache, candidate, reason) {
   return dropped;
 }
 var init_drain = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/delivery/drain.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/delivery/drain.js"() {
     init_retry_state();
     init_scope();
     init_format();
@@ -3713,7 +3720,7 @@ var init_drain = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/delivery/options.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/delivery/options.js
 function validateDrainRequest(request) {
   if (request.writer === null || typeof request.writer !== "object")
     throw new TypeError(DELIVERY_WRITER_REQUIRED_MESSAGE);
@@ -3771,13 +3778,13 @@ function resolvePolicy(policy) {
   return resolved;
 }
 var init_options = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/delivery/options.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/delivery/options.js"() {
     init_paths();
     init_constants6();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/delivery/coordinator.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/delivery/coordinator.js
 import { join as join12, resolve as resolve8 } from "node:path";
 async function drainUnderLock(context, request, drainCache) {
   const { captureStore, integration, sessionId, storageRoot, policy } = context;
@@ -3844,7 +3851,7 @@ function createDeliveryCoordinator(options) {
   };
 }
 var init_coordinator = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/delivery/coordinator.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/delivery/coordinator.js"() {
     init_storage();
     init_lock_folders();
     init_capture();
@@ -3859,24 +3866,24 @@ var init_coordinator = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/delivery/index.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/delivery/index.js
 var init_delivery = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/delivery/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/delivery/index.js"() {
     init_coordinator();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/sdk/sdk-constants.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/sdk/sdk-constants.js
 var SDK_DOUBLE_QUOTED, SDK_SINGLE_QUOTED, SDK_PROFILE_QUOTES;
 var init_sdk_constants = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/sdk/sdk-constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/sdk/sdk-constants.js"() {
     SDK_DOUBLE_QUOTED = /^"(.*)"$/;
     SDK_SINGLE_QUOTED = /^'(.*)'$/;
     SDK_PROFILE_QUOTES = /^["']|["']$/g;
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/sdk/normalize.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/sdk/normalize.js
 function sdkSetting(value) {
   if (typeof value !== "string")
     return void 0;
@@ -3889,17 +3896,18 @@ function sdkProfileValue(value) {
   return value.trim().replace(SDK_PROFILE_QUOTES, "") || void 0;
 }
 var init_normalize = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/sdk/normalize.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/sdk/normalize.js"() {
     init_sdk_constants();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/auth/constants.js
-var LOGIN_CONFIG_FILE_VARIABLE, LOGIN_PROFILE_VARIABLE, LOGIN_HOME_VARIABLES, LOGIN_API_KEY_VARIABLES, LOGIN_CONFIG_DIRECTORY, LOGIN_CONFIG_FILE_NAME, LOGIN_DEFAULT_PROFILE, LOGIN_CONFIG_KEYS, LOGIN_DEFAULT_API_URL, LOGIN_URL_TRAILING_PATTERN, LOGIN_TOKEN_HASH, LOGIN_TOKEN_HASH_LENGTH, LOGIN_EXPIRED_MARKER_PREFIX, LOGIN_CONFIG_FILE_ENCODING, LOGIN_NOTICE_HEADING, LOGIN_NONE_REASON, LOGIN_ENDPOINT_MISMATCH_REASON, LOGIN_REPLICA_REFUSED_REASON;
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/auth/constants.js
+var LOGIN_CONFIG_FILE_VARIABLE, LOGIN_PROFILE_VARIABLE, LOGIN_WORKSPACE_VARIABLE, LOGIN_HOME_VARIABLES, LOGIN_API_KEY_VARIABLES, LOGIN_CONFIG_DIRECTORY, LOGIN_CONFIG_FILE_NAME, LOGIN_DEFAULT_PROFILE, LOGIN_CONFIG_KEYS, LOGIN_DEFAULT_API_URL, LOGIN_URL_TRAILING_PATTERN, LOGIN_TOKEN_HASH, LOGIN_TOKEN_HASH_LENGTH, LOGIN_EXPIRED_MARKER_PREFIX, LOGIN_CONFIG_FILE_ENCODING, LOGIN_COMMAND, LOGIN_PROFILE_FLAG, LOGIN_PLAIN_PROFILE_PATTERN, LOGIN_WINDOWS_PLATFORM, LOGIN_QUOTED_PROFILE_APOSTROPHE, LOGIN_NOTICE_HEADING, LOGIN_NONE_REASON, LOGIN_ENDPOINT_MISMATCH_REASON, AGENT_ID_INVALID_REASON, AGENT_ID_PATTERN, LOGIN_WORKSPACE_INVALID_REASON, LOGIN_WORKSPACE_ID_PATTERN, LOGIN_REPLICA_REFUSED_REASON;
 var init_constants7 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/auth/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/auth/constants.js"() {
     LOGIN_CONFIG_FILE_VARIABLE = "LANGSMITH_CONFIG_FILE";
     LOGIN_PROFILE_VARIABLE = "LANGSMITH_PROFILE";
+    LOGIN_WORKSPACE_VARIABLE = "LANGSMITH_WORKSPACE_ID";
     LOGIN_HOME_VARIABLES = ["HOME", "USERPROFILE"];
     LOGIN_API_KEY_VARIABLES = ["LANGSMITH_API_KEY", "LANGCHAIN_API_KEY"];
     LOGIN_CONFIG_DIRECTORY = ".langsmith";
@@ -3921,28 +3929,51 @@ var init_constants7 = __esm({
     LOGIN_TOKEN_HASH_LENGTH = 16;
     LOGIN_EXPIRED_MARKER_PREFIX = "login-expired-";
     LOGIN_CONFIG_FILE_ENCODING = "utf8";
+    LOGIN_COMMAND = "langsmith auth login";
+    LOGIN_PROFILE_FLAG = "--profile";
+    LOGIN_PLAIN_PROFILE_PATTERN = /^[\w.-]+$/u;
+    LOGIN_WINDOWS_PLATFORM = "win32";
+    LOGIN_QUOTED_PROFILE_APOSTROPHE = "'\\''";
     LOGIN_NOTICE_HEADING = "\u26A0\uFE0F LANGSMITH TRACING IS PAUSED \u26A0\uFE0F";
     LOGIN_NONE_REASON = [
       LOGIN_NOTICE_HEADING,
       "You're not signed in to LangSmith so this session isn't being traced.",
-      "\u25B6 Run the following command: langsmith auth login"
+      "\u25B6 Run the following command: {command}"
     ].join("\n");
     LOGIN_ENDPOINT_MISMATCH_REASON = [
       LOGIN_NOTICE_HEADING,
       "Your LangSmith login is for {loginUrl} but tracing sends to {apiUrl} so this session isn't being traced.",
       "\u25B6 Point tracing at {loginUrl}, or set an API key for {apiUrl}"
     ].join("\n");
+    AGENT_ID_INVALID_REASON = [
+      LOGIN_NOTICE_HEADING,
+      "Your agent_id setting {agentId} isn't an agent ID so this session isn't being traced.",
+      "\u25B6 Copy the agent ID from LangSmith, which uses lowercase letters, digits and hyphens"
+    ].join("\n");
+    AGENT_ID_PATTERN = /^[a-z]([a-z0-9-]{0,61}[a-z0-9])?$/u;
+    LOGIN_WORKSPACE_INVALID_REASON = [
+      LOGIN_NOTICE_HEADING,
+      "Your workspace_id setting {workspaceId} isn't a workspace ID so this session isn't being traced.",
+      "\u25B6 Copy the workspace ID from LangSmith's workspace settings"
+    ].join("\n");
+    LOGIN_WORKSPACE_ID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu;
     LOGIN_REPLICA_REFUSED_REASON = "LangSmith replicas on {urls} need their own API key, so they're skipped.";
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/auth/profile.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/auth/profile.js
 import { createHash as createHash3 } from "node:crypto";
 import { readFileSync as readFileSync4 } from "node:fs";
 import { join as join13 } from "node:path";
-function readLoginProfile(env) {
+function readLoginProfile(env, profile) {
   const configPath = loginConfigPath(env);
-  return configPath === void 0 ? void 0 : readProfileAt(configPath, env[LOGIN_PROFILE_VARIABLE] || void 0);
+  return configPath === void 0 ? void 0 : readProfileAt(configPath, profile || env[LOGIN_PROFILE_VARIABLE] || void 0);
+}
+function loginCommand(profile, platform2 = process.platform) {
+  if (!profile)
+    return LOGIN_COMMAND;
+  const name = LOGIN_PLAIN_PROFILE_PATTERN.test(profile) ? profile : platform2 === LOGIN_WINDOWS_PLATFORM ? `"${profile}"` : `'${profile.replaceAll("'", LOGIN_QUOTED_PROFILE_APOSTROPHE)}'`;
+  return `${LOGIN_COMMAND} ${LOGIN_PROFILE_FLAG} ${name}`;
 }
 function readProfileAt(configPath, name) {
   let config;
@@ -4003,23 +4034,23 @@ function credentialHash(value) {
   return createHash3(LOGIN_TOKEN_HASH).update(value).digest("hex").slice(0, LOGIN_TOKEN_HASH_LENGTH);
 }
 var init_profile = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/auth/profile.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/auth/profile.js"() {
     init_normalize();
     init_objects();
     init_constants7();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/auth/expiry-constants.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/auth/expiry-constants.js
 var LOGIN_EXPIRED_STATUS, LOGIN_PAUSED_NOTICE, LOGIN_KEY_REJECTED_NOTICE, LOGIN_NO_ACCESS_STATUS, LOGIN_NO_ACCESS_SUFFIX, LOGIN_NO_ACCESS_NOTICE, LOGIN_MARKER_WARNING, LOGIN_CLEANUP_WARNING, LOGIN_STATE_FILE, LOGIN_NOTICE_KIND, LOGIN_KEY_REJECTED_ENTRY;
 var init_expiry_constants = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/auth/expiry-constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/auth/expiry-constants.js"() {
     init_constants7();
     LOGIN_EXPIRED_STATUS = 401;
     LOGIN_PAUSED_NOTICE = [
       LOGIN_NOTICE_HEADING,
       "Your LangSmith login expired so this session isn't being traced.",
-      "\u25B6 Run the following command: langsmith auth login"
+      "\u25B6 Run the following command: {command}"
     ].join("\n");
     LOGIN_KEY_REJECTED_NOTICE = [
       LOGIN_NOTICE_HEADING,
@@ -4041,7 +4072,7 @@ var init_expiry_constants = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/auth/expiry.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/auth/expiry.js
 import { join as join14 } from "node:path";
 async function recordExpiredLogin(login, sentTokenHash, storageRoot, denied = false) {
   try {
@@ -4057,7 +4088,7 @@ async function recordExpiredLogin(login, sentTokenHash, storageRoot, denied = fa
   } catch (error2) {
     console.warn(LOGIN_MARKER_WARNING, describe(error2));
   }
-  console.warn(denied ? LOGIN_NO_ACCESS_NOTICE : LOGIN_PAUSED_NOTICE);
+  console.warn(denied ? LOGIN_NO_ACCESS_NOTICE : pausedNotice(login.profile));
   return "notice";
 }
 async function recordRejectedKey(key, storageRoot, denied = false) {
@@ -4079,14 +4110,15 @@ async function clearRejectedKey(storageRoot, key) {
   if (storageRoot !== void 0)
     await clearMarkers(storageRoot, entry);
 }
-function readLoginNotice(storageRoot, env = process.env, rejected) {
+function readLoginNotice(storageRoot, env = process.env, rejected, profile) {
   const saved = loginStore(storageRoot).read();
   const recorded = (key2) => unrecorded.has(key2) || saved[key2] !== void 0;
-  const key = rejected === void 0 ? loginExpiryKey(readLoginProfile(env)) : rejectedKeyEntry(rejected);
+  const login = rejected === void 0 ? readLoginProfile(env, profile) : void 0;
+  const key = rejected === void 0 ? loginExpiryKey(login) : rejectedKeyEntry(rejected);
   if (key === void 0)
     return void 0;
   if (recorded(key))
-    return rejected === void 0 ? LOGIN_PAUSED_NOTICE : LOGIN_KEY_REJECTED_NOTICE;
+    return login === void 0 ? LOGIN_KEY_REJECTED_NOTICE : pausedNotice(login.profile);
   return recorded(`${key}${LOGIN_NO_ACCESS_SUFFIX}`) ? LOGIN_NO_ACCESS_NOTICE : void 0;
 }
 async function clearLoginExpiry(login, storageRoot) {
@@ -4117,6 +4149,9 @@ async function claimLogin(profile, key, storageRoot) {
   await forgetLogins(storageRoot, expiredMarkerPrefix(profile), key);
   return "claimed";
 }
+function pausedNotice(profile) {
+  return fillTemplate(LOGIN_PAUSED_NOTICE, { command: loginCommand(profile) });
+}
 function loginExpiryKey(profile) {
   return profile && `${expiredMarkerPrefix(profile)}${profile.tokenHash}`;
 }
@@ -4139,10 +4174,11 @@ function loginStore(storageRoot) {
 }
 var unrecorded;
 var init_expiry2 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/auth/expiry.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/auth/expiry.js"() {
     init_state_claim();
     init_state_store();
     init_errors();
+    init_format();
     init_normalize();
     init_profile();
     init_expiry_constants();
@@ -4150,10 +4186,10 @@ var init_expiry2 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/metadata/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/metadata/constants.js
 var CODING_AGENT_SCHEMA_VERSION, CODING_AGENT_PURPOSE, GIT_METADATA_KEYS, LEGACY_GIT_METADATA_KEYS, ATTRIBUTION_IDENTIFIER_KEY, REPOSITORY_METADATA_KEYS, CODING_AGENT_RUN_TYPES, CODING_AGENT_RUN_SCOPES, CODING_AGENT_AGENT_TYPES, CODING_AGENT_SCHEMA_INTEGRATIONS, CODING_AGENT_CORE_INTEGRATIONS, CODING_AGENT_CODEX_INTEGRATION, CODING_AGENT_RUNTIME_NAMES, CODING_AGENT_INTEGRATION_POLICIES, CODING_AGENT_ALWAYS_FIELD_OPTIONS, CODING_AGENT_WHERE_KNOWN_FIELD_OPTIONS, CODING_AGENT_FIELD_DEFAULTS, CODING_AGENT_STRUCTURAL_FIELD_DEFAULTS, CODING_AGENT_PROVIDER_FIELD_DEFAULTS, CODING_AGENT_METADATA_PROVENANCE_FIELDS, CODING_AGENT_METADATA_PROJECTION_FIELDS, TRUSTED_METADATA, METADATA_MODE_NAME, METADATA_MODE_STATUS_VALUES, CODING_AGENT_RUNTIME_LIBRARY, CODING_AGENT_RUNTIME_SDK, CODING_AGENT_RELEASE_ENVIRONMENT_VARIABLES, CODING_AGENT_ENVIRONMENT_METADATA_PREFIXES, CODING_AGENT_ENVIRONMENT_METADATA_EXCLUDED, CODING_AGENT_ENVIRONMENT_METADATA_SENSITIVE_SUBSTRINGS, CODING_AGENT_ENVIRONMENT_METADATA_ENDPOINT_SUBSTRINGS, CODING_AGENT_REVISION_ID_VARIABLE, CODING_AGENT_REVISION_ID_KEY;
 var init_constants8 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/metadata/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/metadata/constants.js"() {
     CODING_AGENT_SCHEMA_VERSION = "coding-agent-v1";
     CODING_AGENT_PURPOSE = "coding";
     GIT_METADATA_KEYS = {
@@ -4360,13 +4396,13 @@ var init_constants8 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/metadata/contract.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/metadata/contract.js
 function field(key, options = {}) {
   return { key, ...CODING_AGENT_FIELD_DEFAULTS, ...options };
 }
 var structural, provider, CODING_AGENT_V1_CONTRACT;
 var init_contract = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/metadata/contract.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/metadata/contract.js"() {
     init_constants8();
     structural = (key, options = {}) => field(key, { ...CODING_AGENT_STRUCTURAL_FIELD_DEFAULTS, ...options });
     provider = (key, options = {}) => field(key, { ...CODING_AGENT_PROVIDER_FIELD_DEFAULTS, ...options });
@@ -4490,7 +4526,7 @@ var init_contract = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/metadata/git-names.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/metadata/git-names.js
 function withBothGitMetadataNames(metadata) {
   const both = { ...metadata };
   for (const role of Object.keys(GIT_METADATA_KEYS)) {
@@ -4503,12 +4539,12 @@ function withBothGitMetadataNames(metadata) {
   return both;
 }
 var init_git_names = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/metadata/git-names.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/metadata/git-names.js"() {
     init_constants8();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/metadata/validation.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/metadata/validation.js
 function metadataFieldTypeIssue(field4, value) {
   const matchesType = field4.type === "string" ? typeof value === "string" && value.length > 0 : field4.type === "integer" ? typeof value === "number" && Number.isSafeInteger(value) && value >= 1 : isPlainRecord(value);
   if (!matchesType)
@@ -4554,13 +4590,13 @@ function normalizeProviderMetadata(value, integration, runType) {
   return Object.fromEntries(Object.entries(value).filter(([key, entry]) => entry !== void 0 && !issues.has(key)));
 }
 var init_validation = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/metadata/validation.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/metadata/validation.js"() {
     init_objects();
     init_contract();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/metadata/builder.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/metadata/builder.js
 function buildCodingAgentMetadata(options) {
   const policy = CODING_AGENT_INTEGRATION_POLICIES[options.integration];
   const identity = {
@@ -4628,7 +4664,7 @@ function trustedCodingAgentMetadata(metadata) {
   return metadata?.[TRUSTED_METADATA];
 }
 var init_builder = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/metadata/builder.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/metadata/builder.js"() {
     init_constants8();
     init_contract();
     init_git_names();
@@ -4636,7 +4672,7 @@ var init_builder = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/metadata/runtime.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/metadata/runtime.js
 function forwardsEnvironmentVariable(name, value, environmentMetadata) {
   return typeof value === "string" && environmentMetadata.prefixes.some((prefix) => name.startsWith(prefix)) && !environmentMetadata.excluded.includes(name) && ![...environmentMetadata.sensitiveSubstrings, ...environmentMetadata.endpointSubstrings].some((part) => name.toLowerCase().includes(part));
 }
@@ -4662,12 +4698,12 @@ function buildCodingAgentRuntimeMetadata(options) {
   return { runtime, metadata };
 }
 var init_runtime = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/metadata/runtime.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/metadata/runtime.js"() {
     init_contract();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/metadata/privacy.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/metadata/privacy.js
 function projectCodingAgentMetadata(metadata, integration, status) {
   const safe = {};
   for (const [key, value] of Object.entries(metadata ?? {})) {
@@ -4689,7 +4725,7 @@ function metadataForMode(metadata, integration, mode = "full", status) {
   return projectCodingAgentMetadata(source, integration, status);
 }
 var init_privacy = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/metadata/privacy.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/metadata/privacy.js"() {
     init_constants8();
     init_contract();
     init_builder();
@@ -4697,7 +4733,7 @@ var init_privacy = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/metadata/provenance.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/metadata/provenance.js
 function prepareCodingAgentMetadataProvenance(value, integration, mode, status = "running") {
   const source = requirePlainRecord(value, "Run metadata");
   const declaredIntegration = ownDataField(source, "integration");
@@ -4772,7 +4808,7 @@ function projectedString(source, key) {
   return value;
 }
 var init_provenance = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/metadata/provenance.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/metadata/provenance.js"() {
     init_objects();
     init_constants8();
     init_constants8();
@@ -4782,9 +4818,9 @@ var init_provenance = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/metadata/index.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/metadata/index.js
 var init_metadata = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/metadata/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/metadata/index.js"() {
     init_builder();
     init_constants8();
     init_git_names();
@@ -4795,409 +4831,4518 @@ var init_metadata = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/uuid/src/max.js
-var init_max = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/uuid/src/max.js"() {
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/tslib.mjs
+function __classPrivateFieldSet(receiver, state, value, kind, f2) {
+  if (kind === "m")
+    throw new TypeError("Private method is not writable");
+  if (kind === "a" && !f2)
+    throw new TypeError("Private accessor was defined without a setter");
+  if (typeof state === "function" ? receiver !== state || !f2 : !state.has(receiver))
+    throw new TypeError("Cannot write private member to an object whose class did not declare it");
+  return kind === "a" ? f2.call(receiver, value) : f2 ? f2.value = value : state.set(receiver, value), value;
+}
+function __classPrivateFieldGet(receiver, state, kind, f2) {
+  if (kind === "a" && !f2)
+    throw new TypeError("Private accessor was defined without a getter");
+  if (typeof state === "function" ? receiver !== state || !f2 : !state.has(receiver))
+    throw new TypeError("Cannot read private member from an object whose class did not declare it");
+  return kind === "m" ? f2 : kind === "a" ? f2.call(receiver) : f2 ? f2.value : state.get(receiver);
+}
+var init_tslib = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/tslib.mjs"() {
   }
 });
 
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/uuid/src/nil.js
-var init_nil = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/uuid/src/nil.js"() {
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/utils/uuid.mjs
+var uuid4;
+var init_uuid = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/utils/uuid.mjs"() {
+    uuid4 = function() {
+      const { crypto: crypto2 } = globalThis;
+      if (crypto2?.randomUUID) {
+        uuid4 = crypto2.randomUUID.bind(crypto2);
+        return crypto2.randomUUID();
+      }
+      const u8 = new Uint8Array(1);
+      const randomByte = crypto2 ? () => crypto2.getRandomValues(u8)[0] : () => Math.random() * 255 & 255;
+      return "10000000-1000-4000-8000-100000000000".replace(/[018]/g, (c) => (+c ^ randomByte() & 15 >> +c / 4).toString(16));
+    };
   }
 });
 
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/uuid/src/regex.js
-var regex_default;
-var init_regex = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/uuid/src/regex.js"() {
-    regex_default = /^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$/i;
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/errors.mjs
+function isAbortError(err) {
+  return typeof err === "object" && err !== null && // Spec-compliant fetch implementations
+  ("name" in err && err.name === "AbortError" || // Expo fetch
+  "message" in err && String(err.message).includes("FetchRequestCanceledException"));
+}
+var castToError;
+var init_errors4 = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/errors.mjs"() {
+    castToError = (err) => {
+      if (err instanceof Error)
+        return err;
+      if (typeof err === "object" && err !== null) {
+        try {
+          if (Object.prototype.toString.call(err) === "[object Error]") {
+            const error2 = new Error(err.message, err.cause ? { cause: err.cause } : {});
+            if (err.stack)
+              error2.stack = err.stack;
+            if (err.cause && !error2.cause)
+              error2.cause = err.cause;
+            if (err.name)
+              error2.name = err.name;
+            return error2;
+          }
+        } catch {
+        }
+        try {
+          return new Error(JSON.stringify(err));
+        } catch {
+        }
+      }
+      return new Error(err);
+    };
   }
 });
 
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/uuid/src/validate.js
-function validate(uuid) {
-  return typeof uuid === "string" && regex_default.test(uuid);
-}
-var validate_default;
-var init_validate = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/uuid/src/validate.js"() {
-    init_regex();
-    validate_default = validate;
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/core/error.mjs
+var LangsmithError, APIError, APIUserAbortError, APIConnectionError, APIConnectionTimeoutError, BadRequestError, AuthenticationError, PermissionDeniedError, NotFoundError, ConflictError, UnprocessableEntityError, RateLimitError, InternalServerError;
+var init_error = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/core/error.mjs"() {
+    init_errors4();
+    LangsmithError = class extends Error {
+    };
+    APIError = class _APIError extends LangsmithError {
+      constructor(status, error2, message, headers) {
+        super(`${_APIError.makeMessage(status, error2, message)}`);
+        Object.defineProperty(this, "status", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: void 0
+        });
+        Object.defineProperty(this, "headers", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: void 0
+        });
+        Object.defineProperty(this, "error", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: void 0
+        });
+        this.status = status;
+        this.headers = headers;
+        this.error = error2;
+      }
+      static makeMessage(status, error2, message) {
+        const msg = error2?.message ? typeof error2.message === "string" ? error2.message : JSON.stringify(error2.message) : error2 ? JSON.stringify(error2) : message;
+        if (status && msg) {
+          return `${status} ${msg}`;
+        }
+        if (status) {
+          return `${status} status code (no body)`;
+        }
+        if (msg) {
+          return msg;
+        }
+        return "(no status code or body)";
+      }
+      static generate(status, errorResponse, message, headers) {
+        if (!status || !headers) {
+          return new APIConnectionError({ message, cause: castToError(errorResponse) });
+        }
+        const error2 = errorResponse;
+        if (status === 400) {
+          return new BadRequestError(status, error2, message, headers);
+        }
+        if (status === 401) {
+          return new AuthenticationError(status, error2, message, headers);
+        }
+        if (status === 403) {
+          return new PermissionDeniedError(status, error2, message, headers);
+        }
+        if (status === 404) {
+          return new NotFoundError(status, error2, message, headers);
+        }
+        if (status === 409) {
+          return new ConflictError(status, error2, message, headers);
+        }
+        if (status === 422) {
+          return new UnprocessableEntityError(status, error2, message, headers);
+        }
+        if (status === 429) {
+          return new RateLimitError(status, error2, message, headers);
+        }
+        if (status >= 500) {
+          return new InternalServerError(status, error2, message, headers);
+        }
+        return new _APIError(status, error2, message, headers);
+      }
+    };
+    APIUserAbortError = class extends APIError {
+      constructor({ message } = {}) {
+        super(void 0, void 0, message || "Request was aborted.", void 0);
+      }
+    };
+    APIConnectionError = class extends APIError {
+      constructor({ message, cause }) {
+        super(void 0, void 0, message || "Connection error.", void 0);
+        if (cause)
+          this.cause = cause;
+      }
+    };
+    APIConnectionTimeoutError = class extends APIConnectionError {
+      constructor({ message } = {}) {
+        super({ message: message ?? "Request timed out." });
+      }
+    };
+    BadRequestError = class extends APIError {
+    };
+    AuthenticationError = class extends APIError {
+    };
+    PermissionDeniedError = class extends APIError {
+    };
+    NotFoundError = class extends APIError {
+    };
+    ConflictError = class extends APIError {
+    };
+    UnprocessableEntityError = class extends APIError {
+    };
+    RateLimitError = class extends APIError {
+    };
+    InternalServerError = class extends APIError {
+    };
   }
 });
 
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/uuid/src/parse.js
-function parse(uuid) {
-  if (!validate_default(uuid)) {
-    throw TypeError("Invalid UUID");
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/utils/values.mjs
+function maybeObj(x) {
+  if (typeof x !== "object") {
+    return {};
   }
-  let v;
-  return Uint8Array.of(
-    (v = parseInt(uuid.slice(0, 8), 16)) >>> 24,
-    v >>> 16 & 255,
-    v >>> 8 & 255,
-    v & 255,
-    // Parse ........-####-....-....-............
-    (v = parseInt(uuid.slice(9, 13), 16)) >>> 8,
-    v & 255,
-    // Parse ........-....-####-....-............
-    (v = parseInt(uuid.slice(14, 18), 16)) >>> 8,
-    v & 255,
-    // Parse ........-....-....-####-............
-    (v = parseInt(uuid.slice(19, 23), 16)) >>> 8,
-    v & 255,
-    // Parse ........-....-....-....-############
-    // (Use "/" to avoid 32-bit truncation when bit-shifting high-order bytes)
-    (v = parseInt(uuid.slice(24, 36), 16)) / 1099511627776 & 255,
-    v / 4294967296 & 255,
-    v >>> 24 & 255,
-    v >>> 16 & 255,
-    v >>> 8 & 255,
-    v & 255
-  );
+  return x ?? {};
 }
-var parse_default;
-var init_parse = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/uuid/src/parse.js"() {
-    init_validate();
-    parse_default = parse;
+function isEmptyObj(obj) {
+  if (!obj)
+    return true;
+  for (const _k in obj)
+    return false;
+  return true;
+}
+function hasOwn(obj, key) {
+  return Object.prototype.hasOwnProperty.call(obj, key);
+}
+var startsWithSchemeRegexp, isAbsoluteURL, isArray, isReadonlyArray, validatePositiveInteger, safeJSON;
+var init_values = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/utils/values.mjs"() {
+    init_error();
+    startsWithSchemeRegexp = /^[a-z][a-z0-9+.-]*:/i;
+    isAbsoluteURL = (url) => {
+      return startsWithSchemeRegexp.test(url);
+    };
+    isArray = (val) => (isArray = Array.isArray, isArray(val));
+    isReadonlyArray = isArray;
+    validatePositiveInteger = (name, n2) => {
+      if (typeof n2 !== "number" || !Number.isInteger(n2)) {
+        throw new LangsmithError(`${name} must be an integer`);
+      }
+      if (n2 < 0) {
+        throw new LangsmithError(`${name} must be a positive integer`);
+      }
+      return n2;
+    };
+    safeJSON = (text) => {
+      try {
+        return JSON.parse(text);
+      } catch (err) {
+        return void 0;
+      }
+    };
   }
 });
 
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/uuid/src/stringify.js
-function unsafeStringify(arr2, offset = 0) {
-  return (byteToHex[arr2[offset + 0]] + byteToHex[arr2[offset + 1]] + byteToHex[arr2[offset + 2]] + byteToHex[arr2[offset + 3]] + "-" + byteToHex[arr2[offset + 4]] + byteToHex[arr2[offset + 5]] + "-" + byteToHex[arr2[offset + 6]] + byteToHex[arr2[offset + 7]] + "-" + byteToHex[arr2[offset + 8]] + byteToHex[arr2[offset + 9]] + "-" + byteToHex[arr2[offset + 10]] + byteToHex[arr2[offset + 11]] + byteToHex[arr2[offset + 12]] + byteToHex[arr2[offset + 13]] + byteToHex[arr2[offset + 14]] + byteToHex[arr2[offset + 15]]).toLowerCase();
-}
-var byteToHex;
-var init_stringify = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/uuid/src/stringify.js"() {
-    init_validate();
-    byteToHex = [];
-    for (let i = 0; i < 256; ++i) {
-      byteToHex.push((i + 256).toString(16).slice(1));
-    }
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/utils/sleep.mjs
+var sleep;
+var init_sleep = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/utils/sleep.mjs"() {
+    sleep = (ms) => new Promise((resolve15) => setTimeout(resolve15, ms));
   }
 });
 
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/uuid/src/rng.js
-function rng() {
-  return crypto.getRandomValues(rnds8);
-}
-var rnds8;
-var init_rng = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/uuid/src/rng.js"() {
-    rnds8 = new Uint8Array(16);
-  }
-});
-
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/uuid/src/v4.js
-function v4(options, buf, offset) {
-  if (!buf && !options && crypto.randomUUID) {
-    return crypto.randomUUID();
-  }
-  return _v4(options, buf, offset);
-}
-function _v4(options, buf, offset) {
-  options = options || {};
-  const rnds = options.random ?? options.rng?.() ?? rng();
-  if (rnds.length < 16) {
-    throw new Error("Random bytes length must be >= 16");
-  }
-  rnds[6] = rnds[6] & 15 | 64;
-  rnds[8] = rnds[8] & 63 | 128;
-  if (buf) {
-    offset = offset || 0;
-    if (offset < 0 || offset + 16 > buf.length) {
-      throw new RangeError(`UUID byte range ${offset}:${offset + 15} is out of buffer bounds`);
-    }
-    for (let i = 0; i < 16; ++i) {
-      buf[offset + i] = rnds[i];
-    }
-    return buf;
-  }
-  return unsafeStringify(rnds);
-}
-var v4_default;
-var init_v4 = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/uuid/src/v4.js"() {
-    init_rng();
-    init_stringify();
-    v4_default = v4;
-  }
-});
-
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/uuid/src/sha1.js
-function f(s, x, y, z) {
-  switch (s) {
-    case 0:
-      return x & y ^ ~x & z;
-    case 1:
-      return x ^ y ^ z;
-    case 2:
-      return x & y ^ x & z ^ y & z;
-    case 3:
-      return x ^ y ^ z;
-  }
-}
-function ROTL(x, n2) {
-  return x << n2 | x >>> 32 - n2;
-}
-function sha1(bytes) {
-  const K = [1518500249, 1859775393, 2400959708, 3395469782];
-  const H = [1732584193, 4023233417, 2562383102, 271733878, 3285377520];
-  const newBytes = new Uint8Array(bytes.length + 1);
-  newBytes.set(bytes);
-  newBytes[bytes.length] = 128;
-  bytes = newBytes;
-  const l = bytes.length / 4 + 2;
-  const N = Math.ceil(l / 16);
-  const M = new Array(N);
-  for (let i = 0; i < N; ++i) {
-    const arr2 = new Uint32Array(16);
-    for (let j = 0; j < 16; ++j) {
-      arr2[j] = bytes[i * 64 + j * 4] << 24 | bytes[i * 64 + j * 4 + 1] << 16 | bytes[i * 64 + j * 4 + 2] << 8 | bytes[i * 64 + j * 4 + 3];
-    }
-    M[i] = arr2;
-  }
-  M[N - 1][14] = (bytes.length - 1) * 8 / 2 ** 32;
-  M[N - 1][14] = Math.floor(M[N - 1][14]);
-  M[N - 1][15] = (bytes.length - 1) * 8 & 4294967295;
-  for (let i = 0; i < N; ++i) {
-    const W = new Uint32Array(80);
-    for (let t = 0; t < 16; ++t) {
-      W[t] = M[i][t];
-    }
-    for (let t = 16; t < 80; ++t) {
-      W[t] = ROTL(W[t - 3] ^ W[t - 8] ^ W[t - 14] ^ W[t - 16], 1);
-    }
-    let a = H[0];
-    let b = H[1];
-    let c = H[2];
-    let d = H[3];
-    let e = H[4];
-    for (let t = 0; t < 80; ++t) {
-      const s = Math.floor(t / 20);
-      const T = ROTL(a, 5) + f(s, b, c, d) + e + K[s] + W[t] >>> 0;
-      e = d;
-      d = c;
-      c = ROTL(b, 30) >>> 0;
-      b = a;
-      a = T;
-    }
-    H[0] = H[0] + a >>> 0;
-    H[1] = H[1] + b >>> 0;
-    H[2] = H[2] + c >>> 0;
-    H[3] = H[3] + d >>> 0;
-    H[4] = H[4] + e >>> 0;
-  }
-  return Uint8Array.of(H[0] >> 24, H[0] >> 16, H[0] >> 8, H[0], H[1] >> 24, H[1] >> 16, H[1] >> 8, H[1], H[2] >> 24, H[2] >> 16, H[2] >> 8, H[2], H[3] >> 24, H[3] >> 16, H[3] >> 8, H[3], H[4] >> 24, H[4] >> 16, H[4] >> 8, H[4]);
-}
-var sha1_default;
-var init_sha1 = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/uuid/src/sha1.js"() {
-    sha1_default = sha1;
-  }
-});
-
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/uuid/src/v35.js
-function stringToBytes(str) {
-  str = unescape(encodeURIComponent(str));
-  const bytes = new Uint8Array(str.length);
-  for (let i = 0; i < str.length; ++i) {
-    bytes[i] = str.charCodeAt(i);
-  }
-  return bytes;
-}
-function v35(version, hash, value, namespace, buf, offset) {
-  const valueBytes = typeof value === "string" ? stringToBytes(value) : value;
-  const namespaceBytes = typeof namespace === "string" ? parse_default(namespace) : namespace;
-  if (typeof namespace === "string") {
-    namespace = parse_default(namespace);
-  }
-  if (namespace?.length !== 16) {
-    throw TypeError("Namespace must be array-like (16 iterable integer values, 0-255)");
-  }
-  let bytes = new Uint8Array(16 + valueBytes.length);
-  bytes.set(namespaceBytes);
-  bytes.set(valueBytes, namespaceBytes.length);
-  bytes = hash(bytes);
-  bytes[6] = bytes[6] & 15 | version;
-  bytes[8] = bytes[8] & 63 | 128;
-  if (buf) {
-    offset ??= 0;
-    if (offset < 0 || offset + 16 > buf.length) {
-      throw new RangeError(`UUID byte range ${offset}:${offset + 15} is out of buffer bounds`);
-    }
-    for (let i = 0; i < 16; ++i) {
-      buf[offset + i] = bytes[i];
-    }
-    return buf;
-  }
-  return unsafeStringify(bytes);
-}
-var DNS, URL2;
-var init_v35 = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/uuid/src/v35.js"() {
-    init_parse();
-    init_stringify();
-    DNS = "6ba7b810-9dad-11d1-80b4-00c04fd430c8";
-    URL2 = "6ba7b811-9dad-11d1-80b4-00c04fd430c8";
-  }
-});
-
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/uuid/src/v5.js
-function v5(value, namespace, buf, offset) {
-  return v35(80, sha1_default, value, namespace, buf, offset);
-}
-var v5_default;
-var init_v5 = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/uuid/src/v5.js"() {
-    init_sha1();
-    init_v35();
-    init_v35();
-    v5.DNS = DNS;
-    v5.URL = URL2;
-    v5_default = v5;
-  }
-});
-
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/uuid/src/v7.js
-function v7(options, buf, offset) {
-  let bytes;
-  if (options) {
-    bytes = v7Bytes(options.random ?? options.rng?.() ?? rng(), options.msecs, options.seq, buf, offset);
-  } else {
-    const now = Date.now();
-    const rnds = rng();
-    updateV7State(_state, now, rnds);
-    bytes = v7Bytes(rnds, _state.msecs, _state.seq, buf, offset);
-  }
-  return buf ?? unsafeStringify(bytes);
-}
-function updateV7State(state, now, rnds) {
-  state.msecs ??= -Infinity;
-  state.seq ??= 0;
-  if (now > state.msecs) {
-    state.seq = rnds[6] << 23 | rnds[7] << 16 | rnds[8] << 8 | rnds[9];
-    state.msecs = now;
-  } else {
-    state.seq = state.seq + 1 | 0;
-    if (state.seq === 0) {
-      state.msecs++;
-    }
-  }
-  return state;
-}
-function v7Bytes(rnds, msecs, seq, buf, offset = 0) {
-  if (rnds.length < 16) {
-    throw new Error("Random bytes length must be >= 16");
-  }
-  if (!buf) {
-    buf = new Uint8Array(16);
-    offset = 0;
-  } else {
-    if (offset < 0 || offset + 16 > buf.length) {
-      throw new RangeError(`UUID byte range ${offset}:${offset + 15} is out of buffer bounds`);
-    }
-  }
-  msecs ??= Date.now();
-  seq ??= rnds[6] * 127 << 24 | rnds[7] << 16 | rnds[8] << 8 | rnds[9];
-  buf[offset++] = msecs / 1099511627776 & 255;
-  buf[offset++] = msecs / 4294967296 & 255;
-  buf[offset++] = msecs / 16777216 & 255;
-  buf[offset++] = msecs / 65536 & 255;
-  buf[offset++] = msecs / 256 & 255;
-  buf[offset++] = msecs & 255;
-  buf[offset++] = 112 | seq >>> 28 & 15;
-  buf[offset++] = seq >>> 20 & 255;
-  buf[offset++] = 128 | seq >>> 14 & 63;
-  buf[offset++] = seq >>> 6 & 255;
-  buf[offset++] = seq << 2 & 255 | rnds[10] & 3;
-  buf[offset++] = rnds[11];
-  buf[offset++] = rnds[12];
-  buf[offset++] = rnds[13];
-  buf[offset++] = rnds[14];
-  buf[offset++] = rnds[15];
-  return buf;
-}
-var _state, v7_default;
-var init_v7 = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/uuid/src/v7.js"() {
-    init_rng();
-    init_stringify();
-    _state = {};
-    v7_default = v7;
-  }
-});
-
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/uuid/src/version.js
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/version.mjs
+var VERSION;
 var init_version = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/uuid/src/version.js"() {
-    init_validate();
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/version.mjs"() {
+    VERSION = "0.11.4";
   }
 });
 
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/uuid/src/index.js
-var init_src = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/uuid/src/index.js"() {
-    init_max();
-    init_nil();
-    init_parse();
-    init_stringify();
-    init_v4();
-    init_v5();
-    init_v7();
-    init_validate();
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/detect-platform.mjs
+function getDetectedPlatform() {
+  if (typeof Deno !== "undefined" && Deno.build != null) {
+    return "deno";
+  }
+  if (typeof EdgeRuntime !== "undefined") {
+    return "edge";
+  }
+  if (Object.prototype.toString.call(typeof globalThis.process !== "undefined" ? globalThis.process : 0) === "[object process]") {
+    return "node";
+  }
+  return "unknown";
+}
+function getBrowserInfo() {
+  if (typeof navigator === "undefined" || !navigator) {
+    return null;
+  }
+  const browserPatterns = [
+    { key: "edge", pattern: /Edge(?:\W+(\d+)\.(\d+)(?:\.(\d+))?)?/ },
+    { key: "ie", pattern: /MSIE(?:\W+(\d+)\.(\d+)(?:\.(\d+))?)?/ },
+    { key: "ie", pattern: /Trident(?:.*rv\:(\d+)\.(\d+)(?:\.(\d+))?)?/ },
+    { key: "chrome", pattern: /Chrome(?:\W+(\d+)\.(\d+)(?:\.(\d+))?)?/ },
+    { key: "firefox", pattern: /Firefox(?:\W+(\d+)\.(\d+)(?:\.(\d+))?)?/ },
+    { key: "safari", pattern: /(?:Version\W+(\d+)\.(\d+)(?:\.(\d+))?)?(?:\W+Mobile\S*)?\W+Safari/ }
+  ];
+  for (const { key, pattern } of browserPatterns) {
+    const match = pattern.exec(navigator.userAgent);
+    if (match) {
+      const major = match[1] || 0;
+      const minor = match[2] || 0;
+      const patch = match[3] || 0;
+      return { browser: key, version: `${major}.${minor}.${patch}` };
+    }
+  }
+  return null;
+}
+var getPlatformProperties, normalizeArch, normalizePlatform, _platformHeaders, getPlatformHeaders;
+var init_detect_platform = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/detect-platform.mjs"() {
     init_version();
+    getPlatformProperties = () => {
+      const detectedPlatform = getDetectedPlatform();
+      if (detectedPlatform === "deno") {
+        return {
+          "X-Stainless-Lang": "js",
+          "X-Stainless-Package-Version": VERSION,
+          "X-Stainless-OS": normalizePlatform(Deno.build.os),
+          "X-Stainless-Arch": normalizeArch(Deno.build.arch),
+          "X-Stainless-Runtime": "deno",
+          "X-Stainless-Runtime-Version": typeof Deno.version === "string" ? Deno.version : Deno.version?.deno ?? "unknown"
+        };
+      }
+      if (typeof EdgeRuntime !== "undefined") {
+        return {
+          "X-Stainless-Lang": "js",
+          "X-Stainless-Package-Version": VERSION,
+          "X-Stainless-OS": "Unknown",
+          "X-Stainless-Arch": `other:${EdgeRuntime}`,
+          "X-Stainless-Runtime": "edge",
+          "X-Stainless-Runtime-Version": globalThis.process.version
+        };
+      }
+      if (detectedPlatform === "node") {
+        return {
+          "X-Stainless-Lang": "js",
+          "X-Stainless-Package-Version": VERSION,
+          "X-Stainless-OS": normalizePlatform(globalThis.process.platform ?? "unknown"),
+          "X-Stainless-Arch": normalizeArch(globalThis.process.arch ?? "unknown"),
+          "X-Stainless-Runtime": "node",
+          "X-Stainless-Runtime-Version": globalThis.process.version ?? "unknown"
+        };
+      }
+      const browserInfo = getBrowserInfo();
+      if (browserInfo) {
+        return {
+          "X-Stainless-Lang": "js",
+          "X-Stainless-Package-Version": VERSION,
+          "X-Stainless-OS": "Unknown",
+          "X-Stainless-Arch": "unknown",
+          "X-Stainless-Runtime": `browser:${browserInfo.browser}`,
+          "X-Stainless-Runtime-Version": browserInfo.version
+        };
+      }
+      return {
+        "X-Stainless-Lang": "js",
+        "X-Stainless-Package-Version": VERSION,
+        "X-Stainless-OS": "Unknown",
+        "X-Stainless-Arch": "unknown",
+        "X-Stainless-Runtime": "unknown",
+        "X-Stainless-Runtime-Version": "unknown"
+      };
+    };
+    normalizeArch = (arch) => {
+      if (arch === "x32")
+        return "x32";
+      if (arch === "x86_64" || arch === "x64")
+        return "x64";
+      if (arch === "arm")
+        return "arm";
+      if (arch === "aarch64" || arch === "arm64")
+        return "arm64";
+      if (arch)
+        return `other:${arch}`;
+      return "unknown";
+    };
+    normalizePlatform = (platform2) => {
+      platform2 = platform2.toLowerCase();
+      if (platform2.includes("ios"))
+        return "iOS";
+      if (platform2 === "android")
+        return "Android";
+      if (platform2 === "darwin")
+        return "MacOS";
+      if (platform2 === "win32")
+        return "Windows";
+      if (platform2 === "freebsd")
+        return "FreeBSD";
+      if (platform2 === "openbsd")
+        return "OpenBSD";
+      if (platform2 === "linux")
+        return "Linux";
+      if (platform2)
+        return `Other:${platform2}`;
+      return "Unknown";
+    };
+    getPlatformHeaders = () => {
+      return _platformHeaders ?? (_platformHeaders = getPlatformProperties());
+    };
   }
 });
 
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/experimental/otel/constants.js
-var GEN_AI_OPERATION_NAME, GEN_AI_SYSTEM, GEN_AI_REQUEST_MODEL, GEN_AI_RESPONSE_MODEL, GEN_AI_USAGE_INPUT_TOKENS, GEN_AI_USAGE_OUTPUT_TOKENS, GEN_AI_USAGE_TOTAL_TOKENS, GEN_AI_REQUEST_MAX_TOKENS, GEN_AI_REQUEST_TEMPERATURE, GEN_AI_REQUEST_TOP_P, GEN_AI_REQUEST_FREQUENCY_PENALTY, GEN_AI_REQUEST_PRESENCE_PENALTY, GEN_AI_RESPONSE_FINISH_REASONS, GENAI_PROMPT, GENAI_COMPLETION, GEN_AI_REQUEST_EXTRA_QUERY, GEN_AI_REQUEST_EXTRA_BODY, GEN_AI_SERIALIZED_NAME, GEN_AI_SERIALIZED_SIGNATURE, GEN_AI_SERIALIZED_DOC, GEN_AI_RESPONSE_ID, GEN_AI_TOOL_NAME, GEN_AI_TOOL_CALL_ID, GEN_AI_TOOL_DEFINITIONS, GEN_AI_RESPONSE_SERVICE_TIER, GEN_AI_RESPONSE_SYSTEM_FINGERPRINT, GEN_AI_USAGE_INPUT_TOKEN_DETAILS, GEN_AI_USAGE_OUTPUT_TOKEN_DETAILS, LANGSMITH_SESSION_ID, LANGSMITH_SESSION_NAME, LANGSMITH_RUN_TYPE, LANGSMITH_NAME, LANGSMITH_METADATA, LANGSMITH_TAGS, LANGSMITH_REQUEST_STREAMING, LANGSMITH_REQUEST_HEADERS, LANGSMITH_USAGE_METADATA;
-var init_constants9 = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/experimental/otel/constants.js"() {
-    GEN_AI_OPERATION_NAME = "gen_ai.operation.name";
-    GEN_AI_SYSTEM = "gen_ai.system";
-    GEN_AI_REQUEST_MODEL = "gen_ai.request.model";
-    GEN_AI_RESPONSE_MODEL = "gen_ai.response.model";
-    GEN_AI_USAGE_INPUT_TOKENS = "gen_ai.usage.input_tokens";
-    GEN_AI_USAGE_OUTPUT_TOKENS = "gen_ai.usage.output_tokens";
-    GEN_AI_USAGE_TOTAL_TOKENS = "gen_ai.usage.total_tokens";
-    GEN_AI_REQUEST_MAX_TOKENS = "gen_ai.request.max_tokens";
-    GEN_AI_REQUEST_TEMPERATURE = "gen_ai.request.temperature";
-    GEN_AI_REQUEST_TOP_P = "gen_ai.request.top_p";
-    GEN_AI_REQUEST_FREQUENCY_PENALTY = "gen_ai.request.frequency_penalty";
-    GEN_AI_REQUEST_PRESENCE_PENALTY = "gen_ai.request.presence_penalty";
-    GEN_AI_RESPONSE_FINISH_REASONS = "gen_ai.response.finish_reasons";
-    GENAI_PROMPT = "gen_ai.prompt";
-    GENAI_COMPLETION = "gen_ai.completion";
-    GEN_AI_REQUEST_EXTRA_QUERY = "gen_ai.request.extra_query";
-    GEN_AI_REQUEST_EXTRA_BODY = "gen_ai.request.extra_body";
-    GEN_AI_SERIALIZED_NAME = "gen_ai.serialized.name";
-    GEN_AI_SERIALIZED_SIGNATURE = "gen_ai.serialized.signature";
-    GEN_AI_SERIALIZED_DOC = "gen_ai.serialized.doc";
-    GEN_AI_RESPONSE_ID = "gen_ai.response.id";
-    GEN_AI_TOOL_NAME = "gen_ai.tool.name";
-    GEN_AI_TOOL_CALL_ID = "gen_ai.tool.call.id";
-    GEN_AI_TOOL_DEFINITIONS = "gen_ai.tool.definitions";
-    GEN_AI_RESPONSE_SERVICE_TIER = "gen_ai.response.service_tier";
-    GEN_AI_RESPONSE_SYSTEM_FINGERPRINT = "gen_ai.response.system_fingerprint";
-    GEN_AI_USAGE_INPUT_TOKEN_DETAILS = "gen_ai.usage.input_token_details";
-    GEN_AI_USAGE_OUTPUT_TOKEN_DETAILS = "gen_ai.usage.output_token_details";
-    LANGSMITH_SESSION_ID = "langsmith.trace.session_id";
-    LANGSMITH_SESSION_NAME = "langsmith.trace.session_name";
-    LANGSMITH_RUN_TYPE = "langsmith.span.kind";
-    LANGSMITH_NAME = "langsmith.trace.name";
-    LANGSMITH_METADATA = "langsmith.metadata";
-    LANGSMITH_TAGS = "langsmith.span.tags";
-    LANGSMITH_REQUEST_STREAMING = "langsmith.request.streaming";
-    LANGSMITH_REQUEST_HEADERS = "langsmith.request.headers";
-    LANGSMITH_USAGE_METADATA = "langsmith.usage_metadata";
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/shims.mjs
+function getDefaultFetch() {
+  if (typeof fetch !== "undefined") {
+    return fetch;
+  }
+  throw new Error("`fetch` is not defined as a global; Either pass `fetch` to the client, `new Langsmith({ fetch })` or polyfill the global, `globalThis.fetch = fetch`");
+}
+function makeReadableStream(...args) {
+  const ReadableStream2 = globalThis.ReadableStream;
+  if (typeof ReadableStream2 === "undefined") {
+    throw new Error("`ReadableStream` is not defined as a global; You will need to polyfill it, `globalThis.ReadableStream = ReadableStream`");
+  }
+  return new ReadableStream2(...args);
+}
+function ReadableStreamFrom(iterable) {
+  let iter = Symbol.asyncIterator in iterable ? iterable[Symbol.asyncIterator]() : iterable[Symbol.iterator]();
+  return makeReadableStream({
+    start() {
+    },
+    async pull(controller) {
+      const { done, value } = await iter.next();
+      if (done) {
+        controller.close();
+      } else {
+        controller.enqueue(value);
+      }
+    },
+    async cancel() {
+      await iter.return?.();
+    }
+  });
+}
+function ReadableStreamToAsyncIterable(stream) {
+  if (stream[Symbol.asyncIterator])
+    return stream;
+  const reader = stream.getReader();
+  return {
+    async next() {
+      try {
+        const result = await reader.read();
+        if (result?.done)
+          reader.releaseLock();
+        return result;
+      } catch (e) {
+        reader.releaseLock();
+        throw e;
+      }
+    },
+    async return() {
+      const cancelPromise = reader.cancel();
+      reader.releaseLock();
+      await cancelPromise;
+      return { done: true, value: void 0 };
+    },
+    [Symbol.asyncIterator]() {
+      return this;
+    }
+  };
+}
+async function CancelReadableStream(stream) {
+  if (stream === null || typeof stream !== "object")
+    return;
+  if (stream[Symbol.asyncIterator]) {
+    await stream[Symbol.asyncIterator]().return?.();
+    return;
+  }
+  const reader = stream.getReader();
+  const cancelPromise = reader.cancel();
+  reader.releaseLock();
+  await cancelPromise;
+}
+var init_shims = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/shims.mjs"() {
   }
 });
 
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/env.js
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/request-options.mjs
+var FallbackEncoder;
+var init_request_options = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/request-options.mjs"() {
+    FallbackEncoder = ({ headers, body }) => {
+      return {
+        bodyHeaders: {
+          "content-type": "application/json"
+        },
+        body: JSON.stringify(body)
+      };
+    };
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/qs/formats.mjs
+var default_format, default_formatter, formatters, RFC1738;
+var init_formats = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/qs/formats.mjs"() {
+    default_format = "RFC3986";
+    default_formatter = (v) => String(v);
+    formatters = {
+      RFC1738: (v) => String(v).replace(/%20/g, "+"),
+      RFC3986: default_formatter
+    };
+    RFC1738 = "RFC1738";
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/qs/utils.mjs
+function is_buffer(obj) {
+  if (!obj || typeof obj !== "object") {
+    return false;
+  }
+  return !!(obj.constructor && obj.constructor.isBuffer && obj.constructor.isBuffer(obj));
+}
+function maybe_map(val, fn) {
+  if (isArray(val)) {
+    const mapped = [];
+    for (let i = 0; i < val.length; i += 1) {
+      mapped.push(fn(val[i]));
+    }
+    return mapped;
+  }
+  return fn(val);
+}
+var has, hex_table, limit, encode;
+var init_utils = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/qs/utils.mjs"() {
+    init_formats();
+    init_values();
+    has = (obj, key) => (has = Object.hasOwn ?? Function.prototype.call.bind(Object.prototype.hasOwnProperty), has(obj, key));
+    hex_table = /* @__PURE__ */ (() => {
+      const array = [];
+      for (let i = 0; i < 256; ++i) {
+        array.push("%" + ((i < 16 ? "0" : "") + i.toString(16)).toUpperCase());
+      }
+      return array;
+    })();
+    limit = 1024;
+    encode = (str, _defaultEncoder, charset, _kind, format) => {
+      if (str.length === 0) {
+        return str;
+      }
+      let string = str;
+      if (typeof str === "symbol") {
+        string = Symbol.prototype.toString.call(str);
+      } else if (typeof str !== "string") {
+        string = String(str);
+      }
+      if (charset === "iso-8859-1") {
+        return escape(string).replace(/%u[0-9a-f]{4}/gi, function($0) {
+          return "%26%23" + parseInt($0.slice(2), 16) + "%3B";
+        });
+      }
+      let out = "";
+      for (let j = 0; j < string.length; j += limit) {
+        const segment = string.length >= limit ? string.slice(j, j + limit) : string;
+        const arr2 = [];
+        for (let i = 0; i < segment.length; ++i) {
+          let c = segment.charCodeAt(i);
+          if (c === 45 || // -
+          c === 46 || // .
+          c === 95 || // _
+          c === 126 || // ~
+          c >= 48 && c <= 57 || // 0-9
+          c >= 65 && c <= 90 || // a-z
+          c >= 97 && c <= 122 || // A-Z
+          format === RFC1738 && (c === 40 || c === 41)) {
+            arr2[arr2.length] = segment.charAt(i);
+            continue;
+          }
+          if (c < 128) {
+            arr2[arr2.length] = hex_table[c];
+            continue;
+          }
+          if (c < 2048) {
+            arr2[arr2.length] = hex_table[192 | c >> 6] + hex_table[128 | c & 63];
+            continue;
+          }
+          if (c < 55296 || c >= 57344) {
+            arr2[arr2.length] = hex_table[224 | c >> 12] + hex_table[128 | c >> 6 & 63] + hex_table[128 | c & 63];
+            continue;
+          }
+          i += 1;
+          c = 65536 + ((c & 1023) << 10 | segment.charCodeAt(i) & 1023);
+          arr2[arr2.length] = hex_table[240 | c >> 18] + hex_table[128 | c >> 12 & 63] + hex_table[128 | c >> 6 & 63] + hex_table[128 | c & 63];
+        }
+        out += arr2.join("");
+      }
+      return out;
+    };
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/qs/stringify.mjs
+function is_non_nullish_primitive(v) {
+  return typeof v === "string" || typeof v === "number" || typeof v === "boolean" || typeof v === "symbol" || typeof v === "bigint";
+}
+function inner_stringify(object2, prefix, generateArrayPrefix, commaRoundTrip, allowEmptyArrays, strictNullHandling, skipNulls, encodeDotInKeys, encoder3, filter, sort, allowDots, serializeDate, format, formatter, encodeValuesOnly, charset, sideChannel) {
+  let obj = object2;
+  let tmp_sc = sideChannel;
+  let step = 0;
+  let find_flag = false;
+  while ((tmp_sc = tmp_sc.get(sentinel)) !== void 0 && !find_flag) {
+    const pos = tmp_sc.get(object2);
+    step += 1;
+    if (typeof pos !== "undefined") {
+      if (pos === step) {
+        throw new RangeError("Cyclic object value");
+      } else {
+        find_flag = true;
+      }
+    }
+    if (typeof tmp_sc.get(sentinel) === "undefined") {
+      step = 0;
+    }
+  }
+  if (typeof filter === "function") {
+    obj = filter(prefix, obj);
+  } else if (obj instanceof Date) {
+    obj = serializeDate?.(obj);
+  } else if (generateArrayPrefix === "comma" && isArray(obj)) {
+    obj = maybe_map(obj, function(value) {
+      if (value instanceof Date) {
+        return serializeDate?.(value);
+      }
+      return value;
+    });
+  }
+  if (obj === null) {
+    if (strictNullHandling) {
+      return encoder3 && !encodeValuesOnly ? (
+        // @ts-expect-error
+        encoder3(prefix, defaults.encoder, charset, "key", format)
+      ) : prefix;
+    }
+    obj = "";
+  }
+  if (is_non_nullish_primitive(obj) || is_buffer(obj)) {
+    if (encoder3) {
+      const key_value = encodeValuesOnly ? prefix : encoder3(prefix, defaults.encoder, charset, "key", format);
+      return [
+        formatter?.(key_value) + "=" + // @ts-expect-error
+        formatter?.(encoder3(obj, defaults.encoder, charset, "value", format))
+      ];
+    }
+    return [formatter?.(prefix) + "=" + formatter?.(String(obj))];
+  }
+  const values = [];
+  if (typeof obj === "undefined") {
+    return values;
+  }
+  let obj_keys;
+  if (generateArrayPrefix === "comma" && isArray(obj)) {
+    if (encodeValuesOnly && encoder3) {
+      obj = maybe_map(obj, encoder3);
+    }
+    obj_keys = [{ value: obj.length > 0 ? obj.join(",") || null : void 0 }];
+  } else if (isArray(filter)) {
+    obj_keys = filter;
+  } else {
+    const keys = Object.keys(obj);
+    obj_keys = sort ? keys.sort(sort) : keys;
+  }
+  const encoded_prefix = encodeDotInKeys ? String(prefix).replace(/\./g, "%2E") : String(prefix);
+  const adjusted_prefix = commaRoundTrip && isArray(obj) && obj.length === 1 ? encoded_prefix + "[]" : encoded_prefix;
+  if (allowEmptyArrays && isArray(obj) && obj.length === 0) {
+    return adjusted_prefix + "[]";
+  }
+  for (let j = 0; j < obj_keys.length; ++j) {
+    const key = obj_keys[j];
+    const value = (
+      // @ts-ignore
+      typeof key === "object" && typeof key.value !== "undefined" ? key.value : obj[key]
+    );
+    if (skipNulls && value === null) {
+      continue;
+    }
+    const encoded_key = allowDots && encodeDotInKeys ? key.replace(/\./g, "%2E") : key;
+    const key_prefix = isArray(obj) ? typeof generateArrayPrefix === "function" ? generateArrayPrefix(adjusted_prefix, encoded_key) : adjusted_prefix : adjusted_prefix + (allowDots ? "." + encoded_key : "[" + encoded_key + "]");
+    sideChannel.set(object2, step);
+    const valueSideChannel = /* @__PURE__ */ new WeakMap();
+    valueSideChannel.set(sentinel, sideChannel);
+    push_to_array(values, inner_stringify(
+      value,
+      key_prefix,
+      generateArrayPrefix,
+      commaRoundTrip,
+      allowEmptyArrays,
+      strictNullHandling,
+      skipNulls,
+      encodeDotInKeys,
+      // @ts-ignore
+      generateArrayPrefix === "comma" && encodeValuesOnly && isArray(obj) ? null : encoder3,
+      filter,
+      sort,
+      allowDots,
+      serializeDate,
+      format,
+      formatter,
+      encodeValuesOnly,
+      charset,
+      valueSideChannel
+    ));
+  }
+  return values;
+}
+function normalize_stringify_options(opts = defaults) {
+  if (typeof opts.allowEmptyArrays !== "undefined" && typeof opts.allowEmptyArrays !== "boolean") {
+    throw new TypeError("`allowEmptyArrays` option can only be `true` or `false`, when provided");
+  }
+  if (typeof opts.encodeDotInKeys !== "undefined" && typeof opts.encodeDotInKeys !== "boolean") {
+    throw new TypeError("`encodeDotInKeys` option can only be `true` or `false`, when provided");
+  }
+  if (opts.encoder !== null && typeof opts.encoder !== "undefined" && typeof opts.encoder !== "function") {
+    throw new TypeError("Encoder has to be a function.");
+  }
+  const charset = opts.charset || defaults.charset;
+  if (typeof opts.charset !== "undefined" && opts.charset !== "utf-8" && opts.charset !== "iso-8859-1") {
+    throw new TypeError("The charset option must be either utf-8, iso-8859-1, or undefined");
+  }
+  let format = default_format;
+  if (typeof opts.format !== "undefined") {
+    if (!has(formatters, opts.format)) {
+      throw new TypeError("Unknown format option provided.");
+    }
+    format = opts.format;
+  }
+  const formatter = formatters[format];
+  let filter = defaults.filter;
+  if (typeof opts.filter === "function" || isArray(opts.filter)) {
+    filter = opts.filter;
+  }
+  let arrayFormat;
+  if (opts.arrayFormat && opts.arrayFormat in array_prefix_generators) {
+    arrayFormat = opts.arrayFormat;
+  } else if ("indices" in opts) {
+    arrayFormat = opts.indices ? "indices" : "repeat";
+  } else {
+    arrayFormat = defaults.arrayFormat;
+  }
+  if ("commaRoundTrip" in opts && typeof opts.commaRoundTrip !== "boolean") {
+    throw new TypeError("`commaRoundTrip` must be a boolean, or absent");
+  }
+  const allowDots = typeof opts.allowDots === "undefined" ? !!opts.encodeDotInKeys === true ? true : defaults.allowDots : !!opts.allowDots;
+  return {
+    addQueryPrefix: typeof opts.addQueryPrefix === "boolean" ? opts.addQueryPrefix : defaults.addQueryPrefix,
+    // @ts-ignore
+    allowDots,
+    allowEmptyArrays: typeof opts.allowEmptyArrays === "boolean" ? !!opts.allowEmptyArrays : defaults.allowEmptyArrays,
+    arrayFormat,
+    charset,
+    charsetSentinel: typeof opts.charsetSentinel === "boolean" ? opts.charsetSentinel : defaults.charsetSentinel,
+    commaRoundTrip: !!opts.commaRoundTrip,
+    delimiter: typeof opts.delimiter === "undefined" ? defaults.delimiter : opts.delimiter,
+    encode: typeof opts.encode === "boolean" ? opts.encode : defaults.encode,
+    encodeDotInKeys: typeof opts.encodeDotInKeys === "boolean" ? opts.encodeDotInKeys : defaults.encodeDotInKeys,
+    encoder: typeof opts.encoder === "function" ? opts.encoder : defaults.encoder,
+    encodeValuesOnly: typeof opts.encodeValuesOnly === "boolean" ? opts.encodeValuesOnly : defaults.encodeValuesOnly,
+    filter,
+    format,
+    formatter,
+    serializeDate: typeof opts.serializeDate === "function" ? opts.serializeDate : defaults.serializeDate,
+    skipNulls: typeof opts.skipNulls === "boolean" ? opts.skipNulls : defaults.skipNulls,
+    // @ts-ignore
+    sort: typeof opts.sort === "function" ? opts.sort : null,
+    strictNullHandling: typeof opts.strictNullHandling === "boolean" ? opts.strictNullHandling : defaults.strictNullHandling
+  };
+}
+function stringify(object2, opts = {}) {
+  let obj = object2;
+  const options = normalize_stringify_options(opts);
+  let obj_keys;
+  let filter;
+  if (typeof options.filter === "function") {
+    filter = options.filter;
+    obj = filter("", obj);
+  } else if (isArray(options.filter)) {
+    filter = options.filter;
+    obj_keys = filter;
+  }
+  const keys = [];
+  if (typeof obj !== "object" || obj === null) {
+    return "";
+  }
+  const generateArrayPrefix = array_prefix_generators[options.arrayFormat];
+  const commaRoundTrip = generateArrayPrefix === "comma" && options.commaRoundTrip;
+  if (!obj_keys) {
+    obj_keys = Object.keys(obj);
+  }
+  if (options.sort) {
+    obj_keys.sort(options.sort);
+  }
+  const sideChannel = /* @__PURE__ */ new WeakMap();
+  for (let i = 0; i < obj_keys.length; ++i) {
+    const key = obj_keys[i];
+    if (options.skipNulls && obj[key] === null) {
+      continue;
+    }
+    push_to_array(keys, inner_stringify(
+      obj[key],
+      key,
+      // @ts-expect-error
+      generateArrayPrefix,
+      commaRoundTrip,
+      options.allowEmptyArrays,
+      options.strictNullHandling,
+      options.skipNulls,
+      options.encodeDotInKeys,
+      options.encode ? options.encoder : null,
+      options.filter,
+      options.sort,
+      options.allowDots,
+      options.serializeDate,
+      options.format,
+      options.formatter,
+      options.encodeValuesOnly,
+      options.charset,
+      sideChannel
+    ));
+  }
+  const joined = keys.join(options.delimiter);
+  let prefix = options.addQueryPrefix === true ? "?" : "";
+  if (options.charsetSentinel) {
+    if (options.charset === "iso-8859-1") {
+      prefix += "utf8=%26%2310003%3B&";
+    } else {
+      prefix += "utf8=%E2%9C%93&";
+    }
+  }
+  return joined.length > 0 ? prefix + joined : "";
+}
+var array_prefix_generators, push_to_array, toISOString, defaults, sentinel;
+var init_stringify = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/qs/stringify.mjs"() {
+    init_utils();
+    init_formats();
+    init_values();
+    array_prefix_generators = {
+      brackets(prefix) {
+        return String(prefix) + "[]";
+      },
+      comma: "comma",
+      indices(prefix, key) {
+        return String(prefix) + "[" + key + "]";
+      },
+      repeat(prefix) {
+        return String(prefix);
+      }
+    };
+    push_to_array = function(arr2, value_or_array) {
+      Array.prototype.push.apply(arr2, isArray(value_or_array) ? value_or_array : [value_or_array]);
+    };
+    defaults = {
+      addQueryPrefix: false,
+      allowDots: false,
+      allowEmptyArrays: false,
+      arrayFormat: "indices",
+      charset: "utf-8",
+      charsetSentinel: false,
+      delimiter: "&",
+      encode: true,
+      encodeDotInKeys: false,
+      encoder: encode,
+      encodeValuesOnly: false,
+      format: default_format,
+      formatter: default_formatter,
+      /** @deprecated */
+      indices: false,
+      serializeDate(date) {
+        return (toISOString ?? (toISOString = Function.prototype.call.bind(Date.prototype.toISOString)))(date);
+      },
+      skipNulls: false,
+      strictNullHandling: false
+    };
+    sentinel = {};
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/utils/query.mjs
+function stringifyQuery(query) {
+  return stringify(query, { arrayFormat: "repeat" });
+}
+var init_query = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/utils/query.mjs"() {
+    init_stringify();
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/utils/bytes.mjs
+function concatBytes(buffers) {
+  let length = 0;
+  for (const buffer of buffers) {
+    length += buffer.length;
+  }
+  const output = new Uint8Array(length);
+  let index = 0;
+  for (const buffer of buffers) {
+    output.set(buffer, index);
+    index += buffer.length;
+  }
+  return output;
+}
+function encodeUTF8(str) {
+  let encoder3;
+  return (encodeUTF8_ ?? (encoder3 = new globalThis.TextEncoder(), encodeUTF8_ = encoder3.encode.bind(encoder3)))(str);
+}
+function decodeUTF8(bytes) {
+  let decoder;
+  return (decodeUTF8_ ?? (decoder = new globalThis.TextDecoder(), decodeUTF8_ = decoder.decode.bind(decoder)))(bytes);
+}
+var encodeUTF8_, decodeUTF8_;
+var init_bytes = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/utils/bytes.mjs"() {
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/decoders/line.mjs
+function findNewlineIndex(buffer, startIndex) {
+  const newline = 10;
+  const carriage = 13;
+  for (let i = startIndex ?? 0; i < buffer.length; i++) {
+    if (buffer[i] === newline) {
+      return { preceding: i, index: i + 1, carriage: false };
+    }
+    if (buffer[i] === carriage) {
+      return { preceding: i, index: i + 1, carriage: true };
+    }
+  }
+  return null;
+}
+function findDoubleNewlineIndex(buffer) {
+  const newline = 10;
+  const carriage = 13;
+  for (let i = 0; i < buffer.length - 1; i++) {
+    if (buffer[i] === newline && buffer[i + 1] === newline) {
+      return i + 2;
+    }
+    if (buffer[i] === carriage && buffer[i + 1] === carriage) {
+      return i + 2;
+    }
+    if (buffer[i] === carriage && buffer[i + 1] === newline && i + 3 < buffer.length && buffer[i + 2] === carriage && buffer[i + 3] === newline) {
+      return i + 4;
+    }
+  }
+  return -1;
+}
+var _LineDecoder_buffer, _LineDecoder_carriageReturnIndex, LineDecoder;
+var init_line = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/decoders/line.mjs"() {
+    init_tslib();
+    init_bytes();
+    LineDecoder = class {
+      constructor() {
+        _LineDecoder_buffer.set(this, void 0);
+        _LineDecoder_carriageReturnIndex.set(this, void 0);
+        __classPrivateFieldSet(this, _LineDecoder_buffer, new Uint8Array(), "f");
+        __classPrivateFieldSet(this, _LineDecoder_carriageReturnIndex, null, "f");
+      }
+      decode(chunk) {
+        if (chunk == null) {
+          return [];
+        }
+        const binaryChunk = chunk instanceof ArrayBuffer ? new Uint8Array(chunk) : typeof chunk === "string" ? encodeUTF8(chunk) : chunk;
+        __classPrivateFieldSet(this, _LineDecoder_buffer, concatBytes([__classPrivateFieldGet(this, _LineDecoder_buffer, "f"), binaryChunk]), "f");
+        const lines = [];
+        let patternIndex;
+        while ((patternIndex = findNewlineIndex(__classPrivateFieldGet(this, _LineDecoder_buffer, "f"), __classPrivateFieldGet(this, _LineDecoder_carriageReturnIndex, "f"))) != null) {
+          if (patternIndex.carriage && __classPrivateFieldGet(this, _LineDecoder_carriageReturnIndex, "f") == null) {
+            __classPrivateFieldSet(this, _LineDecoder_carriageReturnIndex, patternIndex.index, "f");
+            continue;
+          }
+          if (__classPrivateFieldGet(this, _LineDecoder_carriageReturnIndex, "f") != null && (patternIndex.index !== __classPrivateFieldGet(this, _LineDecoder_carriageReturnIndex, "f") + 1 || patternIndex.carriage)) {
+            lines.push(decodeUTF8(__classPrivateFieldGet(this, _LineDecoder_buffer, "f").subarray(0, __classPrivateFieldGet(this, _LineDecoder_carriageReturnIndex, "f") - 1)));
+            __classPrivateFieldSet(this, _LineDecoder_buffer, __classPrivateFieldGet(this, _LineDecoder_buffer, "f").subarray(__classPrivateFieldGet(this, _LineDecoder_carriageReturnIndex, "f")), "f");
+            __classPrivateFieldSet(this, _LineDecoder_carriageReturnIndex, null, "f");
+            continue;
+          }
+          const endIndex = __classPrivateFieldGet(this, _LineDecoder_carriageReturnIndex, "f") !== null ? patternIndex.preceding - 1 : patternIndex.preceding;
+          const line = decodeUTF8(__classPrivateFieldGet(this, _LineDecoder_buffer, "f").subarray(0, endIndex));
+          lines.push(line);
+          __classPrivateFieldSet(this, _LineDecoder_buffer, __classPrivateFieldGet(this, _LineDecoder_buffer, "f").subarray(patternIndex.index), "f");
+          __classPrivateFieldSet(this, _LineDecoder_carriageReturnIndex, null, "f");
+        }
+        return lines;
+      }
+      flush() {
+        if (!__classPrivateFieldGet(this, _LineDecoder_buffer, "f").length) {
+          return [];
+        }
+        return this.decode("\n");
+      }
+    };
+    _LineDecoder_buffer = /* @__PURE__ */ new WeakMap(), _LineDecoder_carriageReturnIndex = /* @__PURE__ */ new WeakMap();
+    Object.defineProperty(LineDecoder, "NEWLINE_CHARS", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: /* @__PURE__ */ new Set(["\n", "\r"])
+    });
+    Object.defineProperty(LineDecoder, "NEWLINE_REGEXP", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: /\r\n|[\n\r]/g
+    });
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/utils/log.mjs
+function noop() {
+}
+function makeLogFn(fnLevel, logger, logLevel) {
+  if (!logger || levelNumbers[fnLevel] > levelNumbers[logLevel]) {
+    return noop;
+  } else {
+    return logger[fnLevel].bind(logger);
+  }
+}
+function loggerFor(client) {
+  const logger = client.logger;
+  const logLevel = client.logLevel ?? "off";
+  if (!logger) {
+    return noopLogger;
+  }
+  const cachedLogger = cachedLoggers.get(logger);
+  if (cachedLogger && cachedLogger[0] === logLevel) {
+    return cachedLogger[1];
+  }
+  const levelLogger = {
+    error: makeLogFn("error", logger, logLevel),
+    warn: makeLogFn("warn", logger, logLevel),
+    info: makeLogFn("info", logger, logLevel),
+    debug: makeLogFn("debug", logger, logLevel)
+  };
+  cachedLoggers.set(logger, [logLevel, levelLogger]);
+  return levelLogger;
+}
+var levelNumbers, parseLogLevel, noopLogger, cachedLoggers, formatRequestDetails;
+var init_log = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/utils/log.mjs"() {
+    init_values();
+    levelNumbers = {
+      off: 0,
+      error: 200,
+      warn: 300,
+      info: 400,
+      debug: 500
+    };
+    parseLogLevel = (maybeLevel, sourceName, client) => {
+      if (!maybeLevel) {
+        return void 0;
+      }
+      if (hasOwn(levelNumbers, maybeLevel)) {
+        return maybeLevel;
+      }
+      loggerFor(client).warn(`${sourceName} was set to ${JSON.stringify(maybeLevel)}, expected one of ${JSON.stringify(Object.keys(levelNumbers))}`);
+      return void 0;
+    };
+    noopLogger = {
+      error: noop,
+      warn: noop,
+      info: noop,
+      debug: noop
+    };
+    cachedLoggers = /* @__PURE__ */ new WeakMap();
+    formatRequestDetails = (details) => {
+      if (details.options) {
+        details.options = { ...details.options };
+        delete details.options["headers"];
+      }
+      if (details.headers) {
+        details.headers = Object.fromEntries((details.headers instanceof Headers ? [...details.headers] : Object.entries(details.headers)).map(([name, value]) => [
+          name,
+          name.toLowerCase() === "authorization" || name.toLowerCase() === "api-key" || name.toLowerCase() === "x-api-key" || name.toLowerCase() === "cookie" || name.toLowerCase() === "set-cookie" || name.toLowerCase() === "x-tenant-id" ? "***" : value
+        ]));
+      }
+      if ("retryOfRequestLogID" in details) {
+        if (details.retryOfRequestLogID) {
+          details.retryOf = details.retryOfRequestLogID;
+        }
+        delete details.retryOfRequestLogID;
+      }
+      return details;
+    };
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/core/streaming.mjs
+async function* _iterSSEMessages(response, controller) {
+  if (!response.body) {
+    controller.abort();
+    if (typeof globalThis.navigator !== "undefined" && globalThis.navigator.product === "ReactNative") {
+      throw new LangsmithError(`The default react-native fetch implementation does not support streaming. Please use expo/fetch: https://docs.expo.dev/versions/latest/sdk/expo/#expofetch-api`);
+    }
+    throw new LangsmithError(`Attempted to iterate over a response with no body`);
+  }
+  const sseDecoder = new SSEDecoder();
+  const lineDecoder = new LineDecoder();
+  const iter = ReadableStreamToAsyncIterable(response.body);
+  for await (const sseChunk of iterSSEChunks(iter)) {
+    for (const line of lineDecoder.decode(sseChunk)) {
+      const sse = sseDecoder.decode(line);
+      if (sse)
+        yield sse;
+    }
+  }
+  for (const line of lineDecoder.flush()) {
+    const sse = sseDecoder.decode(line);
+    if (sse)
+      yield sse;
+  }
+}
+async function* iterSSEChunks(iterator) {
+  let data = new Uint8Array();
+  for await (const chunk of iterator) {
+    if (chunk == null) {
+      continue;
+    }
+    const binaryChunk = chunk instanceof ArrayBuffer ? new Uint8Array(chunk) : typeof chunk === "string" ? encodeUTF8(chunk) : chunk;
+    let newData = new Uint8Array(data.length + binaryChunk.length);
+    newData.set(data);
+    newData.set(binaryChunk, data.length);
+    data = newData;
+    let patternIndex;
+    while ((patternIndex = findDoubleNewlineIndex(data)) !== -1) {
+      yield data.slice(0, patternIndex);
+      data = data.slice(patternIndex);
+    }
+  }
+  if (data.length > 0) {
+    yield data;
+  }
+}
+function partition(str, delimiter) {
+  const index = str.indexOf(delimiter);
+  if (index !== -1) {
+    return [str.substring(0, index), delimiter, str.substring(index + delimiter.length)];
+  }
+  return [str, "", ""];
+}
+var _Stream_client, Stream, SSEDecoder;
+var init_streaming = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/core/streaming.mjs"() {
+    init_tslib();
+    init_error();
+    init_shims();
+    init_line();
+    init_shims();
+    init_errors4();
+    init_values();
+    init_bytes();
+    init_log();
+    init_error();
+    Stream = class _Stream {
+      constructor(iterator, controller, client) {
+        Object.defineProperty(this, "iterator", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: iterator
+        });
+        Object.defineProperty(this, "controller", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: void 0
+        });
+        _Stream_client.set(this, void 0);
+        this.controller = controller;
+        __classPrivateFieldSet(this, _Stream_client, client, "f");
+      }
+      static fromSSEResponse(response, controller, client) {
+        let consumed = false;
+        const logger = client ? loggerFor(client) : console;
+        async function* iterator() {
+          if (consumed) {
+            throw new LangsmithError("Cannot iterate over a consumed stream, use `.tee()` to split the stream.");
+          }
+          consumed = true;
+          let done = false;
+          try {
+            for await (const sse of _iterSSEMessages(response, controller)) {
+              if (sse.event === "end") {
+                break;
+              }
+              if (sse.event === "error") {
+                throw new APIError(void 0, safeJSON(sse.data) ?? sse.data, void 0, response.headers);
+              }
+              if (sse.event === "data") {
+                try {
+                  yield JSON.parse(sse.data);
+                } catch (e) {
+                  logger.error(`Could not parse message into JSON:`, sse.data);
+                  logger.error(`From chunk:`, sse.raw);
+                  throw e;
+                }
+              } else {
+                try {
+                  yield JSON.parse(sse.data);
+                } catch (e) {
+                  logger.error(`Could not parse message into JSON:`, sse.data);
+                  logger.error(`From chunk:`, sse.raw);
+                  throw e;
+                }
+              }
+            }
+            done = true;
+          } catch (e) {
+            if (isAbortError(e))
+              return;
+            throw e;
+          } finally {
+            if (!done)
+              controller.abort();
+          }
+        }
+        return new _Stream(iterator, controller, client);
+      }
+      /**
+       * Generates a Stream from a newline-separated ReadableStream
+       * where each item is a JSON value.
+       */
+      static fromReadableStream(readableStream, controller, client) {
+        let consumed = false;
+        async function* iterLines() {
+          const lineDecoder = new LineDecoder();
+          const iter = ReadableStreamToAsyncIterable(readableStream);
+          for await (const chunk of iter) {
+            for (const line of lineDecoder.decode(chunk)) {
+              yield line;
+            }
+          }
+          for (const line of lineDecoder.flush()) {
+            yield line;
+          }
+        }
+        async function* iterator() {
+          if (consumed) {
+            throw new LangsmithError("Cannot iterate over a consumed stream, use `.tee()` to split the stream.");
+          }
+          consumed = true;
+          let done = false;
+          try {
+            for await (const line of iterLines()) {
+              if (done)
+                continue;
+              if (line)
+                yield JSON.parse(line);
+            }
+            done = true;
+          } catch (e) {
+            if (isAbortError(e))
+              return;
+            throw e;
+          } finally {
+            if (!done)
+              controller.abort();
+          }
+        }
+        return new _Stream(iterator, controller, client);
+      }
+      [(_Stream_client = /* @__PURE__ */ new WeakMap(), Symbol.asyncIterator)]() {
+        return this.iterator();
+      }
+      /**
+       * Splits the stream into two streams which can be
+       * independently read from at different speeds.
+       */
+      tee() {
+        const left = [];
+        const right = [];
+        const iterator = this.iterator();
+        const teeIterator = (queue) => {
+          return {
+            next: () => {
+              if (queue.length === 0) {
+                const result = iterator.next();
+                left.push(result);
+                right.push(result);
+              }
+              return queue.shift();
+            }
+          };
+        };
+        return [
+          new _Stream(() => teeIterator(left), this.controller, __classPrivateFieldGet(this, _Stream_client, "f")),
+          new _Stream(() => teeIterator(right), this.controller, __classPrivateFieldGet(this, _Stream_client, "f"))
+        ];
+      }
+      /**
+       * Converts this stream to a newline-separated ReadableStream of
+       * JSON stringified values in the stream
+       * which can be turned back into a Stream with `Stream.fromReadableStream()`.
+       */
+      toReadableStream() {
+        const self = this;
+        let iter;
+        return makeReadableStream({
+          async start() {
+            iter = self[Symbol.asyncIterator]();
+          },
+          async pull(ctrl) {
+            try {
+              const { value, done } = await iter.next();
+              if (done)
+                return ctrl.close();
+              const bytes = encodeUTF8(JSON.stringify(value) + "\n");
+              ctrl.enqueue(bytes);
+            } catch (err) {
+              ctrl.error(err);
+            }
+          },
+          async cancel() {
+            await iter.return?.();
+          }
+        });
+      }
+    };
+    SSEDecoder = class {
+      constructor() {
+        Object.defineProperty(this, "data", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: void 0
+        });
+        Object.defineProperty(this, "event", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: void 0
+        });
+        Object.defineProperty(this, "chunks", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: void 0
+        });
+        this.event = null;
+        this.data = [];
+        this.chunks = [];
+      }
+      decode(line) {
+        if (line.endsWith("\r")) {
+          line = line.substring(0, line.length - 1);
+        }
+        if (!line) {
+          if (!this.event && !this.data.length)
+            return null;
+          const sse = {
+            event: this.event,
+            data: this.data.join("\n"),
+            raw: this.chunks
+          };
+          this.event = null;
+          this.data = [];
+          this.chunks = [];
+          return sse;
+        }
+        this.chunks.push(line);
+        if (line.startsWith(":")) {
+          return null;
+        }
+        let [fieldname, _, value] = partition(line, ":");
+        if (value.startsWith(" ")) {
+          value = value.substring(1);
+        }
+        if (fieldname === "event") {
+          this.event = value;
+        } else if (fieldname === "data") {
+          this.data.push(value);
+        }
+        return null;
+      }
+    };
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/parse.mjs
+async function defaultParseResponse(client, props) {
+  const { response, requestLogID, retryOfRequestLogID, startTime } = props;
+  const body = await (async () => {
+    if (props.options.stream) {
+      loggerFor(client).debug("response", response.status, response.url, response.headers, response.body);
+      if (props.options.__streamClass) {
+        return props.options.__streamClass.fromSSEResponse(response, props.controller, client);
+      }
+      return Stream.fromSSEResponse(response, props.controller, client);
+    }
+    if (response.status === 204) {
+      return null;
+    }
+    if (props.options.__binaryResponse) {
+      return response;
+    }
+    const contentType = response.headers.get("content-type");
+    const mediaType = contentType?.split(";")[0]?.trim();
+    const isJSON = mediaType?.includes("application/json") || mediaType?.endsWith("+json");
+    if (isJSON) {
+      const contentLength = response.headers.get("content-length");
+      if (contentLength === "0") {
+        return void 0;
+      }
+      const json = await response.json();
+      return json;
+    }
+    const text = await response.text();
+    return text;
+  })();
+  loggerFor(client).debug(`[${requestLogID}] response parsed`, formatRequestDetails({
+    retryOfRequestLogID,
+    url: response.url,
+    status: response.status,
+    body,
+    durationMs: Date.now() - startTime
+  }));
+  return body;
+}
+var init_parse = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/parse.mjs"() {
+    init_streaming();
+    init_log();
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/core/api-promise.mjs
+var _APIPromise_client, APIPromise;
+var init_api_promise = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/core/api-promise.mjs"() {
+    init_tslib();
+    init_parse();
+    APIPromise = class _APIPromise extends Promise {
+      constructor(client, responsePromise, parseResponse = defaultParseResponse) {
+        super((resolve15) => {
+          resolve15(null);
+        });
+        Object.defineProperty(this, "responsePromise", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: responsePromise
+        });
+        Object.defineProperty(this, "parseResponse", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: parseResponse
+        });
+        Object.defineProperty(this, "parsedPromise", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: void 0
+        });
+        _APIPromise_client.set(this, void 0);
+        __classPrivateFieldSet(this, _APIPromise_client, client, "f");
+      }
+      _thenUnwrap(transform) {
+        return new _APIPromise(__classPrivateFieldGet(this, _APIPromise_client, "f"), this.responsePromise, async (client, props) => transform(await this.parseResponse(client, props), props));
+      }
+      /**
+       * Gets the raw `Response` instance instead of parsing the response
+       * data.
+       *
+       * If you want to parse the response body but still get the `Response`
+       * instance, you can use {@link withResponse()}.
+       *
+       * 👋 Getting the wrong TypeScript type for `Response`?
+       * Try setting `"moduleResolution": "NodeNext"` or add `"lib": ["DOM"]`
+       * to your `tsconfig.json`.
+       */
+      asResponse() {
+        return this.responsePromise.then((p) => p.response);
+      }
+      /**
+       * Gets the parsed response data and the raw `Response` instance.
+       *
+       * If you just want to get the raw `Response` instance without parsing it,
+       * you can use {@link asResponse()}.
+       *
+       * 👋 Getting the wrong TypeScript type for `Response`?
+       * Try setting `"moduleResolution": "NodeNext"` or add `"lib": ["DOM"]`
+       * to your `tsconfig.json`.
+       */
+      async withResponse() {
+        const [data, response] = await Promise.all([this.parse(), this.asResponse()]);
+        return { data, response };
+      }
+      parse() {
+        if (!this.parsedPromise) {
+          this.parsedPromise = this.responsePromise.then((data) => this.parseResponse(__classPrivateFieldGet(this, _APIPromise_client, "f"), data));
+        }
+        return this.parsedPromise;
+      }
+      then(onfulfilled, onrejected) {
+        return this.parse().then(onfulfilled, onrejected);
+      }
+      catch(onrejected) {
+        return this.parse().catch(onrejected);
+      }
+      finally(onfinally) {
+        return this.parse().finally(onfinally);
+      }
+    };
+    _APIPromise_client = /* @__PURE__ */ new WeakMap();
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/core/pagination.mjs
+var _AbstractPage_client, AbstractPage, PagePromise, OffsetPaginationTopLevelArray, OffsetPaginationIssues, OffsetPaginationOnlineEvaluators, ItemsCursorPostPagination, ItemsCursorGetPagination;
+var init_pagination = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/core/pagination.mjs"() {
+    init_tslib();
+    init_error();
+    init_parse();
+    init_api_promise();
+    init_values();
+    AbstractPage = class {
+      constructor(client, response, body, options) {
+        _AbstractPage_client.set(this, void 0);
+        Object.defineProperty(this, "options", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: void 0
+        });
+        Object.defineProperty(this, "response", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: void 0
+        });
+        Object.defineProperty(this, "body", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: void 0
+        });
+        __classPrivateFieldSet(this, _AbstractPage_client, client, "f");
+        this.options = options;
+        this.response = response;
+        this.body = body;
+      }
+      hasNextPage() {
+        const items = this.getPaginatedItems();
+        if (!items.length)
+          return false;
+        return this.nextPageRequestOptions() != null;
+      }
+      async getNextPage() {
+        const nextOptions = this.nextPageRequestOptions();
+        if (!nextOptions) {
+          throw new LangsmithError("No next page expected; please check `.hasNextPage()` before calling `.getNextPage()`.");
+        }
+        return await __classPrivateFieldGet(this, _AbstractPage_client, "f").requestAPIList(this.constructor, nextOptions);
+      }
+      async *iterPages() {
+        let page = this;
+        yield page;
+        while (page.hasNextPage()) {
+          page = await page.getNextPage();
+          yield page;
+        }
+      }
+      async *[(_AbstractPage_client = /* @__PURE__ */ new WeakMap(), Symbol.asyncIterator)]() {
+        for await (const page of this.iterPages()) {
+          for (const item of page.getPaginatedItems()) {
+            yield item;
+          }
+        }
+      }
+    };
+    PagePromise = class extends APIPromise {
+      constructor(client, request, Page) {
+        super(client, request, async (client2, props) => new Page(client2, props.response, await defaultParseResponse(client2, props), props.options));
+      }
+      /**
+       * Allow auto-paginating iteration on an unawaited list call, eg:
+       *
+       *    for await (const item of client.items.list()) {
+       *      console.log(item)
+       *    }
+       */
+      async *[Symbol.asyncIterator]() {
+        const page = await this;
+        for await (const item of page) {
+          yield item;
+        }
+      }
+    };
+    OffsetPaginationTopLevelArray = class extends AbstractPage {
+      constructor(client, response, body, options) {
+        super(client, response, body, options);
+        Object.defineProperty(this, "items", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: void 0
+        });
+        this.items = body || [];
+      }
+      getPaginatedItems() {
+        return this.items ?? [];
+      }
+      nextPageRequestOptions() {
+        const offset = this.options.query.offset ?? 0;
+        const length = this.getPaginatedItems().length;
+        const currentCount = offset + length;
+        return {
+          ...this.options,
+          query: {
+            ...maybeObj(this.options.query),
+            offset: currentCount
+          }
+        };
+      }
+    };
+    OffsetPaginationIssues = class extends AbstractPage {
+      constructor(client, response, body, options) {
+        super(client, response, body, options);
+        Object.defineProperty(this, "items", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: void 0
+        });
+        this.items = body || [];
+      }
+      getPaginatedItems() {
+        return this.items ?? [];
+      }
+      nextPageRequestOptions() {
+        const offset = this.options.query.offset ?? 0;
+        const length = this.getPaginatedItems().length;
+        const currentCount = offset + length;
+        return {
+          ...this.options,
+          query: {
+            ...maybeObj(this.options.query),
+            offset: currentCount
+          }
+        };
+      }
+    };
+    OffsetPaginationOnlineEvaluators = class extends AbstractPage {
+      constructor(client, response, body, options) {
+        super(client, response, body, options);
+        Object.defineProperty(this, "evaluators", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: void 0
+        });
+        Object.defineProperty(this, "total", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: void 0
+        });
+        this.evaluators = body.evaluators || [];
+        this.total = body.total || 0;
+      }
+      getPaginatedItems() {
+        return this.evaluators ?? [];
+      }
+      nextPageRequestOptions() {
+        const offset = this.options.query.offset ?? 0;
+        const length = this.getPaginatedItems().length;
+        const currentCount = offset + length;
+        return {
+          ...this.options,
+          query: {
+            ...maybeObj(this.options.query),
+            offset: currentCount
+          }
+        };
+      }
+    };
+    ItemsCursorPostPagination = class extends AbstractPage {
+      constructor(client, response, body, options) {
+        super(client, response, body, options);
+        Object.defineProperty(this, "items", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: void 0
+        });
+        Object.defineProperty(this, "next_cursor", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: void 0
+        });
+        this.items = body.items || [];
+        this.next_cursor = body.next_cursor || "";
+      }
+      getPaginatedItems() {
+        return this.items ?? [];
+      }
+      nextPageRequestOptions() {
+        const cursor = this.next_cursor;
+        if (!cursor) {
+          return null;
+        }
+        return {
+          ...this.options,
+          body: {
+            ...maybeObj(this.options.body),
+            cursor
+          }
+        };
+      }
+    };
+    ItemsCursorGetPagination = class extends AbstractPage {
+      constructor(client, response, body, options) {
+        super(client, response, body, options);
+        Object.defineProperty(this, "items", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: void 0
+        });
+        Object.defineProperty(this, "next_cursor", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: void 0
+        });
+        this.items = body.items || [];
+        this.next_cursor = body.next_cursor || "";
+      }
+      getPaginatedItems() {
+        return this.items ?? [];
+      }
+      nextPageRequestOptions() {
+        const cursor = this.next_cursor;
+        if (!cursor) {
+          return null;
+        }
+        return {
+          ...this.options,
+          query: {
+            ...maybeObj(this.options.query),
+            cursor
+          }
+        };
+      }
+    };
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/uploads.mjs
+function makeFile(fileBits, fileName, options) {
+  checkFileSupport();
+  return new File(fileBits, fileName ?? "unknown_file", options);
+}
+function getName(value) {
+  return (typeof value === "object" && value !== null && ("name" in value && value.name && String(value.name) || "url" in value && value.url && String(value.url) || "filename" in value && value.filename && String(value.filename) || "path" in value && value.path && String(value.path)) || "").split(/[\\/]/).pop() || void 0;
+}
+var checkFileSupport, isAsyncIterable;
+var init_uploads = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/uploads.mjs"() {
+    init_shims();
+    checkFileSupport = () => {
+      if (typeof File === "undefined") {
+        const { process: process2 } = globalThis;
+        const isOldNode = typeof process2?.versions?.node === "string" && parseInt(process2.versions.node.split(".")) < 20;
+        throw new Error("`File` is not defined as a global, which is required for file uploads." + (isOldNode ? " Update to Node 20 LTS or newer, or set `globalThis.File` to `import('node:buffer').File`." : ""));
+      }
+    };
+    isAsyncIterable = (value) => value != null && typeof value === "object" && typeof value[Symbol.asyncIterator] === "function";
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/to-file.mjs
+async function toFile(value, name, options) {
+  checkFileSupport();
+  value = await value;
+  if (isFileLike(value)) {
+    if (value instanceof File) {
+      return value;
+    }
+    return makeFile([await value.arrayBuffer()], value.name);
+  }
+  if (isResponseLike(value)) {
+    const blob = await value.blob();
+    name || (name = new URL(value.url).pathname.split(/[\\/]/).pop());
+    return makeFile(await getBytes(blob), name, options);
+  }
+  const parts = await getBytes(value);
+  name || (name = getName(value));
+  if (!options?.type) {
+    const type = parts.find((part) => typeof part === "object" && "type" in part && part.type);
+    if (typeof type === "string") {
+      options = { ...options, type };
+    }
+  }
+  return makeFile(parts, name, options);
+}
+async function getBytes(value) {
+  let parts = [];
+  if (typeof value === "string" || ArrayBuffer.isView(value) || // includes Uint8Array, Buffer, etc.
+  value instanceof ArrayBuffer) {
+    parts.push(value);
+  } else if (isBlobLike(value)) {
+    parts.push(value instanceof Blob ? value : await value.arrayBuffer());
+  } else if (isAsyncIterable(value)) {
+    for await (const chunk of value) {
+      parts.push(...await getBytes(chunk));
+    }
+  } else {
+    const constructor = value?.constructor?.name;
+    throw new Error(`Unexpected data type: ${typeof value}${constructor ? `; constructor: ${constructor}` : ""}${propsForError(value)}`);
+  }
+  return parts;
+}
+function propsForError(value) {
+  if (typeof value !== "object" || value === null)
+    return "";
+  const props = Object.getOwnPropertyNames(value);
+  return `; props: [${props.map((p) => `"${p}"`).join(", ")}]`;
+}
+var isBlobLike, isFileLike, isResponseLike;
+var init_to_file = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/to-file.mjs"() {
+    init_uploads();
+    init_uploads();
+    isBlobLike = (value) => value != null && typeof value === "object" && typeof value.size === "number" && typeof value.type === "string" && typeof value.text === "function" && typeof value.slice === "function" && typeof value.arrayBuffer === "function";
+    isFileLike = (value) => value != null && typeof value === "object" && typeof value.name === "string" && typeof value.lastModified === "number" && isBlobLike(value);
+    isResponseLike = (value) => value != null && typeof value === "object" && typeof value.url === "string" && typeof value.blob === "function";
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/core/uploads.mjs
+var init_uploads2 = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/core/uploads.mjs"() {
+    init_to_file();
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/shared.mjs
+var init_shared = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/shared.mjs"() {
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/core/resource.mjs
+var APIResource;
+var init_resource = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/core/resource.mjs"() {
+    APIResource = class {
+      constructor(client) {
+        Object.defineProperty(this, "_client", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: void 0
+        });
+        this._client = client;
+      }
+    };
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/headers.mjs
+function* iterateHeaders(headers) {
+  if (!headers)
+    return;
+  if (brand_privateNullableHeaders in headers) {
+    const { values, nulls } = headers;
+    yield* values.entries();
+    for (const name of nulls) {
+      yield [name, null];
+    }
+    return;
+  }
+  let shouldClear = false;
+  let iter;
+  if (headers instanceof Headers) {
+    iter = headers.entries();
+  } else if (isReadonlyArray(headers)) {
+    iter = headers;
+  } else {
+    shouldClear = true;
+    iter = Object.entries(headers ?? {});
+  }
+  for (let row of iter) {
+    const name = row[0];
+    if (typeof name !== "string")
+      throw new TypeError("expected header name to be a string");
+    const values = isReadonlyArray(row[1]) ? row[1] : [row[1]];
+    let didClear = false;
+    for (const value of values) {
+      if (value === void 0)
+        continue;
+      if (shouldClear && !didClear) {
+        didClear = true;
+        yield [name, null];
+      }
+      yield [name, value];
+    }
+  }
+}
+var brand_privateNullableHeaders, buildHeaders;
+var init_headers = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/headers.mjs"() {
+    init_values();
+    brand_privateNullableHeaders = /* @__PURE__ */ Symbol("brand.privateNullableHeaders");
+    buildHeaders = (newHeaders) => {
+      const targetHeaders = new Headers();
+      const nullHeaders = /* @__PURE__ */ new Set();
+      for (const headers of newHeaders) {
+        const seenHeaders = /* @__PURE__ */ new Set();
+        for (const [name, value] of iterateHeaders(headers)) {
+          const lowerName = name.toLowerCase();
+          if (!seenHeaders.has(lowerName)) {
+            targetHeaders.delete(name);
+            seenHeaders.add(lowerName);
+          }
+          if (value === null) {
+            targetHeaders.delete(name);
+            nullHeaders.add(lowerName);
+          } else {
+            targetHeaders.append(name, value);
+            nullHeaders.delete(lowerName);
+          }
+        }
+      }
+      return { [brand_privateNullableHeaders]: true, values: targetHeaders, nulls: nullHeaders };
+    };
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/utils/path.mjs
+function encodeURIPath(str) {
+  return str.replace(/[^A-Za-z0-9\-._~!$&'()*+,;=:@]+/g, encodeURIComponent);
+}
+var EMPTY, createPathTagFunction, path;
+var init_path = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/utils/path.mjs"() {
+    init_error();
+    EMPTY = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.create(null));
+    createPathTagFunction = (pathEncoder = encodeURIPath) => function path3(statics, ...params) {
+      if (statics.length === 1)
+        return statics[0];
+      let postPath = false;
+      const invalidSegments = [];
+      const path4 = statics.reduce((previousValue, currentValue, index) => {
+        if (/[?#]/.test(currentValue)) {
+          postPath = true;
+        }
+        const value = params[index];
+        let encoded = (postPath ? encodeURIComponent : pathEncoder)("" + value);
+        if (index !== params.length && (value == null || typeof value === "object" && // handle values from other realms
+        value.toString === Object.getPrototypeOf(Object.getPrototypeOf(value.hasOwnProperty ?? EMPTY) ?? EMPTY)?.toString)) {
+          encoded = value + "";
+          invalidSegments.push({
+            start: previousValue.length + currentValue.length,
+            length: encoded.length,
+            error: `Value of type ${Object.prototype.toString.call(value).slice(8, -1)} is not a valid path parameter`
+          });
+        }
+        return previousValue + currentValue + (index === params.length ? "" : encoded);
+      }, "");
+      const pathOnly = path4.split(/[?#]/, 1)[0];
+      const invalidSegmentPattern = /(?<=^|\/)(?:\.|%2e){1,2}(?=\/|$)/gi;
+      let match;
+      while ((match = invalidSegmentPattern.exec(pathOnly)) !== null) {
+        invalidSegments.push({
+          start: match.index,
+          length: match[0].length,
+          error: `Value "${match[0]}" can't be safely passed as a path parameter`
+        });
+      }
+      invalidSegments.sort((a, b) => a.start - b.start);
+      if (invalidSegments.length > 0) {
+        let lastEnd = 0;
+        const underline = invalidSegments.reduce((acc, segment) => {
+          const spaces = " ".repeat(segment.start - lastEnd);
+          const arrows = "^".repeat(segment.length);
+          lastEnd = segment.start + segment.length;
+          return acc + spaces + arrows;
+        }, "");
+        throw new LangsmithError(`Path parameters result in path with invalid segments:
+${invalidSegments.map((e) => e.error).join("\n")}
+${path4}
+${underline}`);
+      }
+      return path4;
+    };
+    path = /* @__PURE__ */ createPathTagFunction(encodeURIPath);
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/agents.mjs
+var Agents;
+var init_agents = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/agents.mjs"() {
+    init_resource();
+    init_pagination();
+    init_headers();
+    init_path();
+    Agents = class extends APIResource {
+      /**
+       * Creates an Agent with a caller-assigned ID. Returns 409 if the ID already
+       * exists. Creates all four environments unless production_only is set for a FLEET
+       * agent. source_type defaults to EXTERNAL in this SDK. agent_type defaults to
+       * CUSTOM. The authenticated user becomes the owner
+       * when available. Requires permission to create projects. The response does not
+       * include runtime bindings.
+       */
+      create(body, options) {
+        return this._client.post("/api/v1/agents", {
+          body: { ...body, source_type: body.source_type === void 0 ? "EXTERNAL" : body.source_type },
+          ...options
+        });
+      }
+      /**
+       * Returns an Agent with the environments visible to the caller. The path value is
+       * the user-assigned Agent ID. Pass include=runtime_bindings to embed each
+       * environment's runtime bindings.
+       */
+      retrieve(agentID, query = {}, options) {
+        return this._client.get(path`/api/v1/agents/${agentID}`, { query, ...options });
+      }
+      /**
+       * Updates an Agent's name, source_type, agent_type, or owner_id. Omitted fields
+       * keep their values. Changing or clearing owner_id additionally requires
+       * workspaces:manage; assigning an owner also requires workspaces:read and active
+       * workspace membership. Fleet ownership cannot be changed through this endpoint.
+       * Changing agent_type requires workspaces:manage in addition to project update
+       * access; repeating the current type is a no-op. Source type can change only for
+       * an EXTERNAL Agent without runtime bindings. The id is immutable and is rejected
+       * when present. Requires update permission on every environment project.
+       */
+      update(agentID, body, options) {
+        return this._client.patch(path`/api/v1/agents/${agentID}`, { body, ...options });
+      }
+      /**
+       * Returns Agents visible to the caller. Each item is the same Agent shape as GET
+       * /api/v1/agents/{agent_id}, including the environments the caller may read. The
+       * list never embeds runtime bindings. An unknown query parameter, including limit,
+       * returns 400; use page_size to set the page size.
+       */
+      list(query = {}, options) {
+        return this._client.getAPIList("/api/v1/agents", ItemsCursorGetPagination, { query, ...options });
+      }
+      /**
+       * Permanently deletes an Agent, along with its environments, runtime bindings,
+       * runtimes, and tracing projects. This cannot be undone. Deleting an Agent that
+       * does not exist returns 204.
+       */
+      delete(agentID, options) {
+        return this._client.delete(path`/api/v1/agents/${agentID}`, {
+          ...options,
+          headers: buildHeaders([{ Accept: "*/*" }, options?.headers])
+        });
+      }
+    };
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/annotation-queues/items.mjs
+var Items;
+var init_items = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/annotation-queues/items.mjs"() {
+    init_resource();
+    init_pagination();
+    init_path();
+    Items = class extends APIResource {
+      /**
+       * Add RUN or THREAD items to a single annotation queue. RUN items require run_id
+       * unless they are created from a suggested example. THREAD items require thread_id
+       * and project_id.
+       */
+      create(queueID, params, options) {
+        const { extend_trace_retention, ...body } = params;
+        return this._client.post(path`/api/v1/platform/annotation-queues/${queueID}/items`, {
+          query: { extend_trace_retention },
+          body,
+          ...options
+        });
+      }
+      /**
+       * Partially update mutable timestamps (added_at, last_reviewed_time) for a RUN or
+       * THREAD annotation queue item. Omit a field, or pass JSON null, to leave it
+       * unchanged.
+       */
+      update(itemID, params, options) {
+        const { queue_id, ...body } = params;
+        return this._client.patch(path`/api/v1/platform/annotation-queues/${queue_id}/items/${itemID}`, {
+          body,
+          ...options
+        });
+      }
+      /**
+       * List RUN and THREAD items in a single annotation queue for one review status
+       * section, with opaque cursor pagination. Optional item_type=RUN|THREAD filters
+       * the page. Optional min_start_time/max_start_time bound the item's trace start
+       * time; items with no start time are excluded when either bound is set.
+       * direction=backward returns items before the supplied cursor. The response
+       * contains item metadata only, not expanded run or thread payloads.
+       * status=archived returns items whose queue review requirements have been
+       * satisfied, not merely items the caller personally marked completed.
+       */
+      list(queueID, query, options) {
+        return this._client.getAPIList(path`/api/v1/platform/annotation-queues/${queueID}/items`, ItemsCursorGetPagination, { query, ...options });
+      }
+      /**
+       * Log the caller's reviewer status for a RUN or THREAD annotation queue item. A
+       * null status re-shows the item for this reviewer.
+       */
+      createStatus(queueItemID, body, options) {
+        return this._client.post(path`/api/v1/platform/annotation-queues/items/${queueItemID}/status`, {
+          body,
+          ...options
+        });
+      }
+      /**
+       * Remove RUN or THREAD items from a single annotation queue by item ID. Both
+       * active and completed items can be removed.
+       */
+      deleteAll(queueID, body, options) {
+        return this._client.post(path`/api/v1/platform/annotation-queues/${queueID}/items/delete`, {
+          body,
+          ...options
+        });
+      }
+      /**
+       * Returns the number of annotation queue items in one status bucket. The two time
+       * windows are independent: start_time/end_time bound when an item was archived,
+       * min_start_time/max_start_time bound when its trace ran. Items with no trace
+       * start time are excluded when either of the latter is set.
+       */
+      retrieveCount(queueID, query, options) {
+        return this._client.get(path`/api/v1/platform/annotation-queues/${queueID}/items/count`, {
+          query,
+          ...options
+        });
+      }
+      /**
+       * Resolve a RUN or THREAD item to its current review section and zero-based
+       * position for deep linking. The returned cursor counts RUN and THREAD items
+       * together, so it is only valid for a list request with no item_type or start-time
+       * filter.
+       */
+      retrievePlacement(itemID, params, options) {
+        const { queue_id } = params;
+        return this._client.get(path`/api/v1/platform/annotation-queues/${queue_id}/items/${itemID}/placement`, options);
+      }
+    };
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/annotation-queues/runs.mjs
+var Runs;
+var init_runs = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/annotation-queues/runs.mjs"() {
+    init_resource();
+    init_path();
+    Runs = class extends APIResource {
+      /**
+       * Add Runs To Annotation Queue
+       *
+       * @deprecated Deprecated: use the annotation queue items create endpoint (POST /api/v1/platform/annotation-queues/{queue_id}/items) instead. Will be removed after Jan 31, 2027.
+       */
+      create(queueID, params, options) {
+        const { body, extend_trace_retention } = params;
+        return this._client.post(path`/api/v1/annotation-queues/${queueID}/runs`, {
+          query: { extend_trace_retention },
+          body,
+          ...options
+        });
+      }
+      /**
+       * Update Run In Annotation Queue
+       *
+       * @deprecated Deprecated: use the annotation queue items update method (PATCH /api/v1/platform/annotation-queues/{queue_id}/items/{item_id}) instead. Will be removed after Jan 31, 2027.
+       */
+      update(queueRunID, params, options) {
+        const { queue_id, ...body } = params;
+        return this._client.patch(path`/api/v1/annotation-queues/${queue_id}/runs/${queueRunID}`, {
+          body,
+          ...options
+        });
+      }
+      /**
+       * Get Runs From Annotation Queue
+       *
+       * @deprecated Deprecated: use the annotation queue items list method (GET /api/v1/platform/annotation-queues/{queue_id}/items) instead. Will be removed after Jan 31, 2027.
+       */
+      list(queueID, query = {}, options) {
+        return this._client.get(path`/api/v1/annotation-queues/${queueID}/runs`, { query, ...options });
+      }
+      /**
+       * Self-hosted deployments require LangSmith `v0.16` or later.
+       *
+       * @deprecated Deprecated: use the annotation queue items create endpoint (POST /api/v1/platform/annotation-queues/{queue_id}/items) instead. Will be removed after Jan 31, 2027.
+       */
+      createByKey(queueID, params, options) {
+        const { body, extend_trace_retention } = params;
+        return this._client.post(path`/api/v1/annotation-queues/${queueID}/runs/by-key`, {
+          query: { extend_trace_retention },
+          body,
+          ...options
+        });
+      }
+      /**
+       * Delete Runs From Annotation Queue
+       *
+       * @deprecated Deprecated: use the annotation queue items delete_all method (POST /api/v1/platform/annotation-queues/{queue_id}/items/delete) instead. Will be removed after Jan 31, 2027.
+       */
+      deleteAll(queueID, body, options) {
+        return this._client.post(path`/api/v1/annotation-queues/${queueID}/runs/delete`, { body, ...options });
+      }
+      /**
+       * Delete Run From Annotation Queue
+       *
+       * @deprecated Deprecated: use the annotation queue items delete_all method (POST /api/v1/platform/annotation-queues/{queue_id}/items/delete) with the item ID instead. Will be removed after Jan 31, 2027.
+       */
+      deleteQueue(queueRunID, params, options) {
+        const { queue_id } = params;
+        return this._client.delete(path`/api/v1/annotation-queues/${queue_id}/runs/${queueRunID}`, options);
+      }
+    };
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/annotation-queues/annotation-queues.mjs
+var AnnotationQueues;
+var init_annotation_queues = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/annotation-queues/annotation-queues.mjs"() {
+    init_resource();
+    init_items();
+    init_items();
+    init_runs();
+    init_runs();
+    init_pagination();
+    init_path();
+    AnnotationQueues = class extends APIResource {
+      constructor() {
+        super(...arguments);
+        Object.defineProperty(this, "runs", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: new Runs(this._client)
+        });
+        Object.defineProperty(this, "items", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: new Items(this._client)
+        });
+      }
+      /**
+       * Get Annotation Queue
+       */
+      retrieve(queueID, options) {
+        return this._client.get(path`/api/v1/annotation-queues/${queueID}`, options);
+      }
+      /**
+       * Update Annotation Queue
+       */
+      update(queueID, body, options) {
+        return this._client.patch(path`/api/v1/annotation-queues/${queueID}`, { body, ...options });
+      }
+      /**
+       * Delete Annotation Queue
+       */
+      delete(queueID, options) {
+        return this._client.delete(path`/api/v1/annotation-queues/${queueID}`, options);
+      }
+      /**
+       * Create Annotation Queue
+       */
+      annotationQueues(body, options) {
+        return this._client.post("/api/v1/annotation-queues", { body, ...options });
+      }
+      /**
+       * Create Identity Annotation Queue Run Status
+       *
+       * @deprecated Deprecated: use the annotation queue items create_status method (POST /api/v1/platform/annotation-queues/items/{queue_item_id}/status) instead. Will be removed after Jan 31, 2027.
+       */
+      createRunStatus(annotationQueueRunID, body, options) {
+        return this._client.post(path`/api/v1/annotation-queues/status/${annotationQueueRunID}`, {
+          body,
+          ...options
+        });
+      }
+      /**
+       * Export Annotation Queue Archived Runs
+       */
+      export(queueID, body, options) {
+        return this._client.post(path`/api/v1/annotation-queues/${queueID}/export`, { body, ...options });
+      }
+      /**
+       * Populate annotation queue with runs from an experiment.
+       */
+      populate(body, options) {
+        return this._client.post("/api/v1/annotation-queues/populate", { body, ...options });
+      }
+      /**
+       * Get Annotation Queues
+       */
+      retrieveAnnotationQueues(query = {}, options) {
+        return this._client.getAPIList("/api/v1/annotation-queues", OffsetPaginationTopLevelArray, { query, ...options });
+      }
+      /**
+       * Get Annotation Queues For Run
+       */
+      retrieveQueues(runID, options) {
+        return this._client.get(path`/api/v1/annotation-queues/${runID}/queues`, options);
+      }
+      /**
+       * Get a run from an annotation queue
+       *
+       * @deprecated Deprecated: use the annotation queue items list and retrieve_placement methods instead, which call GET /api/v1/platform/annotation-queues/{queue_id}/items and GET /api/v1/platform/annotation-queues/{queue_id}/items/{item_id}/placement. Will be removed after Jan 31, 2027.
+       */
+      retrieveRun(index, params, options) {
+        const { queue_id, ...query } = params;
+        return this._client.get(path`/api/v1/annotation-queues/${queue_id}/run/${index}`, { query, ...options });
+      }
+      /**
+       * Get Size From Annotation Queue
+       *
+       * @deprecated Deprecated: use the annotation queue items retrieve_count method (GET /api/v1/platform/annotation-queues/{queue_id}/items/count) with the desired status instead. Will be removed after Jan 31, 2027.
+       */
+      retrieveSize(queueID, query = {}, options) {
+        return this._client.get(path`/api/v1/annotation-queues/${queueID}/size`, { query, ...options });
+      }
+      /**
+       * Get Total Archived From Annotation Queue
+       *
+       * @deprecated Deprecated: use the annotation queue items retrieve_count method (GET /api/v1/platform/annotation-queues/{queue_id}/items/count?status=archived) instead. Will be removed after Jan 31, 2027.
+       */
+      retrieveTotalArchived(queueID, query = {}, options) {
+        return this._client.get(path`/api/v1/annotation-queues/${queueID}/total_archived`, { query, ...options });
+      }
+      /**
+       * Get Total Size From Annotation Queue
+       *
+       * @deprecated Deprecated: use the annotation queue items retrieve_count method (GET /api/v1/platform/annotation-queues/{queue_id}/items/count?status=all) instead. Will be removed after Jan 31, 2027.
+       */
+      retrieveTotalSize(queueID, options) {
+        return this._client.get(path`/api/v1/annotation-queues/${queueID}/total_size`, options);
+      }
+    };
+    AnnotationQueues.Runs = Runs;
+    AnnotationQueues.Items = Items;
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/datasets/examples.mjs
+var Examples;
+var init_examples = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/datasets/examples.mjs"() {
+    init_resource();
+    init_headers();
+    init_path();
+    Examples = class extends APIResource {
+      /**
+       * Soft-delete an example, preserving prior versions and their attachments. If the
+       * latest version is already deleted, the request succeeds without creating another
+       * version. Deletion is recorded at the current time or just after the latest
+       * version, whichever is later. For future-dated versions, latest reads reflect
+       * deletion immediately; timestamp reads reflect deletion only at or after the
+       * recorded deletion timestamp.
+       */
+      delete(exampleID, params, options) {
+        const { dataset_id } = params;
+        return this._client.delete(path`/api/v1/platform/datasets/${dataset_id}/examples/${exampleID}`, {
+          ...options,
+          headers: buildHeaders([{ Accept: "*/*" }, options?.headers])
+        });
+      }
+    };
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/datasets/experiment-runs.mjs
+var ExperimentRuns;
+var init_experiment_runs = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/datasets/experiment-runs.mjs"() {
+    init_resource();
+    init_pagination();
+    init_path();
+    ExperimentRuns = class extends APIResource {
+      /**
+       * Returns a paginated page of dataset examples with runs from the requested
+       * experiments. Response uses the canonical `{items, next_cursor}` envelope.
+       *
+       * Self-hosted deployments require LangSmith `v0.16` or later.
+       */
+      query(datasetID, body, options) {
+        return this._client.getAPIList(path`/api/v2/datasets/${datasetID}/experiment-runs`, ItemsCursorPostPagination, { body, method: "post", ...options });
+      }
+    };
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/datasets/datasets.mjs
+var Datasets;
+var init_datasets = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/datasets/datasets.mjs"() {
+    init_resource();
+    init_examples();
+    init_examples();
+    init_experiment_runs();
+    init_experiment_runs();
+    Datasets = class extends APIResource {
+      constructor() {
+        super(...arguments);
+        Object.defineProperty(this, "examples", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: new Examples(this._client)
+        });
+        Object.defineProperty(this, "experimentRuns", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: new ExperimentRuns(this._client)
+        });
+      }
+    };
+    Datasets.Examples = Examples;
+    Datasets.ExperimentRuns = ExperimentRuns;
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/fleet/threads.mjs
+var Threads;
+var init_threads = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/fleet/threads.mjs"() {
+    init_resource();
+    init_path();
+    Threads = class extends APIResource {
+      /**
+       * Starts or resumes the sandbox referenced by the thread and returns when it is
+       * ready. The operation is idempotent. The thread must include
+       * sandbox.sandbox_slug.
+       */
+      activateSandbox(threadID, options) {
+        return this._client.post(path`/v1/fleet/threads/${threadID}/sandbox-activation`, options);
+      }
+    };
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/fleet/fleet.mjs
+var Fleet;
+var init_fleet = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/fleet/fleet.mjs"() {
+    init_resource();
+    init_threads();
+    init_threads();
+    Fleet = class extends APIResource {
+      constructor() {
+        super(...arguments);
+        Object.defineProperty(this, "threads", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: new Threads(this._client)
+        });
+      }
+    };
+    Fleet.Threads = Threads;
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/info.mjs
+var Info;
+var init_info = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/info.mjs"() {
+    init_resource();
+    Info = class extends APIResource {
+      /**
+       * Returns information about the current LangSmith deployment: version, instance
+       * feature flags, batch-ingest limits, and max SDK versions. Unauthenticated by
+       * default; set FF_INFO_ENDPOINT_AUTH_REQUIRED=true to require auth.
+       */
+      list(options) {
+        return this._client.get("/api/v1/info", options);
+      }
+    };
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/issues.mjs
+var Issues;
+var init_issues = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/issues.mjs"() {
+    init_resource();
+    init_pagination();
+    init_path();
+    Issues = class extends APIResource {
+      /**
+       * **Beta:** This endpoint is in active development and may change without notice.
+       *
+       * Returns one issue for the authenticated tenant.
+       */
+      retrieve(id, query = {}, options) {
+        return this._client.get(path`/api/v1/platform/issues/${id}`, { query, ...options });
+      }
+      /**
+       * **Beta:** This endpoint is in active development and may change without notice.
+       *
+       * Returns issues for the authenticated tenant, optionally filtered by session,
+       * status, severity, tag, linked trace, or last modified time.
+       */
+      list(query = {}, options) {
+        return this._client.getAPIList("/api/v1/platform/issues", OffsetPaginationIssues, {
+          query,
+          ...options
+        });
+      }
+    };
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/online-evaluators.mjs
+var OnlineEvaluators;
+var init_online_evaluators = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/online-evaluators.mjs"() {
+    init_resource();
+    init_pagination();
+    init_headers();
+    init_path();
+    OnlineEvaluators = class extends APIResource {
+      /**
+       * Create a new LLM or code evaluator for the current workspace.
+       */
+      create(body, options) {
+        return this._client.post("/api/v1/platform/evaluators", { body, ...options });
+      }
+      /**
+       * Retrieve a single evaluator by its ID.
+       */
+      retrieve(evaluatorID, options) {
+        return this._client.get(path`/api/v1/platform/evaluators/${evaluatorID}`, options);
+      }
+      /**
+       * Update an existing evaluator's name, LLM configuration, or code configuration.
+       * Returns 409 when a code evaluator build is ENQUEUED or BUILDING.
+       */
+      update(evaluatorID, body, options) {
+        return this._client.patch(path`/api/v1/platform/evaluators/${evaluatorID}`, { body, ...options });
+      }
+      /**
+       * List evaluators for the current workspace, with optional filtering by type,
+       * name, tag, feedback key, or resource ID.
+       */
+      list(query = {}, options) {
+        return this._client.getAPIList("/api/v1/platform/evaluators", OffsetPaginationOnlineEvaluators, { query, ...options });
+      }
+      /**
+       * Delete an evaluator. Returns 409 when a code evaluator build is ENQUEUED or
+       * BUILDING, or when run rules still reference the evaluator and delete_run_rules
+       * is false. When delete_run_rules is true, all run rules referencing this
+       * evaluator are deleted first (same tenant) if the build is not in flight.
+       * Associated llm_evaluators and code_evaluators rows are removed by foreign-key
+       * cascade when the evaluator row is deleted.
+       */
+      delete(evaluatorID, params = {}, options) {
+        const { delete_run_rules } = params ?? {};
+        return this._client.delete(path`/api/v1/platform/evaluators/${evaluatorID}`, {
+          query: { delete_run_rules },
+          ...options,
+          headers: buildHeaders([{ Accept: "*/*" }, options?.headers])
+        });
+      }
+      /**
+       * Delete multiple evaluators by their IDs. Returns per-item success/failure.
+       */
+      bulkDelete(params, options) {
+        const { evaluator_ids, delete_run_rules } = params;
+        return this._client.delete("/api/v1/platform/evaluators", {
+          query: { evaluator_ids, delete_run_rules },
+          ...options
+        });
+      }
+      /**
+       * Returns per-day LLM evaluator spend for the requested 7-day period, grouped by
+       * evaluator, resource, or run rule. Exactly one of group_by, evaluator_id,
+       * session_id, or dataset_id is required. resource_id, type, feedback_key,
+       * tag_value_id, and agent_id may be supplied with group_by to narrow listing
+       * aggregations.
+       */
+      spend(query, options) {
+        return this._client.get("/api/v1/platform/evaluators/spend", { query, ...options });
+      }
+    };
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/product-feedback.mjs
+var ProductFeedback;
+var init_product_feedback = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/product-feedback.mjs"() {
+    init_resource();
+    init_headers();
+    init_path();
+    ProductFeedback = class extends APIResource {
+      /**
+       * **Alpha:** This endpoint is in active development and may change without notice.
+       *
+       * Submits concise product feedback with optional non-sensitive client details.
+       */
+      create(params, options) {
+        const { "Idempotency-Key": idempotencyKey, ...body } = params;
+        return this._client.post("/api/v1/platform/product-feedbacks", {
+          body,
+          ...options,
+          headers: buildHeaders([
+            { ...idempotencyKey != null ? { "Idempotency-Key": idempotencyKey } : void 0 },
+            options?.headers
+          ])
+        });
+      }
+      /**
+       * **Alpha:** This endpoint is in active development and may change without notice.
+       */
+      retrieve(id, options) {
+        return this._client.get(path`/api/v1/platform/product-feedbacks/${id}`, options);
+      }
+    };
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/prompt-webhooks.mjs
+var PromptWebhooks;
+var init_prompt_webhooks = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/prompt-webhooks.mjs"() {
+    init_resource();
+    init_headers();
+    init_path();
+    PromptWebhooks = class extends APIResource {
+      /**
+       * Create a new prompt webhook.
+       *
+       * LangSmith sends a POST request to the webhook URL for each event listed in
+       * triggers on the prompts it matches. A workspace can have one prompt webhook
+       * unless its limit was raised; creating one past the limit returns 400.
+       */
+      create(body, options) {
+        return this._client.post("/api/v1/prompt-webhooks", { body, ...options });
+      }
+      /**
+       * Get a specific prompt webhook.
+       */
+      retrieve(webhookID, options) {
+        return this._client.get(path`/api/v1/prompt-webhooks/${webhookID}`, options);
+      }
+      /**
+       * Update a specific prompt webhook.
+       *
+       * Omitted fields keep their current values; list fields and headers that are set
+       * replace the stored values.
+       */
+      update(webhookID, body, options) {
+        return this._client.patch(path`/api/v1/prompt-webhooks/${webhookID}`, { body, ...options });
+      }
+      /**
+       * List all prompt webhooks for the current tenant.
+       */
+      list(options) {
+        return this._client.get("/api/v1/prompt-webhooks", options);
+      }
+      /**
+       * Delete a specific prompt webhook.
+       */
+      delete(webhookID, options) {
+        return this._client.delete(path`/api/v1/prompt-webhooks/${webhookID}`, {
+          ...options,
+          headers: buildHeaders([{ Accept: "*/*" }, options?.headers])
+        });
+      }
+      /**
+       * Test a specific prompt webhook.
+       *
+       * Sends the sample payload to the webhook configuration in the request body
+       * without saving it, but only if the webhook's triggers include the payload's
+       * event and its prompt filters match the payload's prompt. Otherwise nothing is
+       * sent. Fails if the destination does not accept the payload.
+       */
+      test(body, options) {
+        return this._client.post("/api/v1/prompt-webhooks/test", { body, ...options });
+      }
+    };
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/public/runs.mjs
+var Runs2;
+var init_runs2 = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/public/runs.mjs"() {
+    init_resource();
+    init_headers();
+    init_path();
+    Runs2 = class extends APIResource {
+      /**
+       * Returns one run within the trace identified by the share token. The request
+       * supplies only the run ID and that run's exact start_time coordinate.
+       *
+       * Self-hosted deployments require LangSmith `v0.16` or later.
+       *
+       * @example
+       * ```ts
+       * const run = await client.public.runs.retrieve(
+       *   '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',
+       *   {
+       *     share_token: '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',
+       *     selects: ['string'],
+       *     start_time: '2019-12-27T18:11:19.117Z',
+       *   },
+       * );
+       * ```
+       */
+      retrieve(runID, params, options) {
+        const { share_token, Accept, ...query } = params;
+        return this._client.get(path`/api/v2/public/${share_token}/run/${runID}`, {
+          query,
+          ...options,
+          headers: buildHeaders([{ ...Accept != null ? { Accept } : void 0 }, options?.headers])
+        });
+      }
+      /**
+       * Returns all runs within the trace identified by the share token. The share token
+       * supplies the tenant, project, and trace scope.
+       *
+       * Self-hosted deployments require LangSmith `v0.16` or later.
+       *
+       * @example
+       * ```ts
+       * const response = await client.public.runs.query(
+       *   '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',
+       * );
+       * ```
+       */
+      query(shareToken, params, options) {
+        const { Accept, ...body } = params;
+        return this._client.post(path`/api/v2/public/${shareToken}/runs/query`, {
+          body,
+          ...options,
+          headers: buildHeaders([{ ...Accept != null ? { Accept } : void 0 }, options?.headers])
+        });
+      }
+    };
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/public/public.mjs
+var Public;
+var init_public = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/public/public.mjs"() {
+    init_resource();
+    init_runs2();
+    init_runs2();
+    Public = class extends APIResource {
+      constructor() {
+        super(...arguments);
+        Object.defineProperty(this, "runs", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: new Runs2(this._client)
+        });
+      }
+    };
+    Public.Runs = Runs2;
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/runs/share.mjs
+var Share;
+var init_share = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/runs/share.mjs"() {
+    init_resource();
+    init_headers();
+    init_path();
+    Share = class extends APIResource {
+      /**
+       * Creates or returns a share token for a run. Child runs share their trace root.
+       *
+       * Self-hosted deployments require LangSmith `v0.16` or later.
+       *
+       * @example
+       * ```ts
+       * const share = await client.runs.share.create(
+       *   '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',
+       *   {
+       *     session_id: '018e4c7e-a9fb-7ef0-a5b6-6ea3a82e9327',
+       *     trace_id: '018e4c7e-a9fb-7ef0-a5b6-6ea3a82e9327',
+       *   },
+       * );
+       * ```
+       */
+      create(runID, body, options) {
+        return this._client.post(path`/api/v2/runs/${runID}/share`, { body, ...options });
+      }
+      /**
+       * Deletes the share token for the trace identified by trace_id and session_id.
+       * Idempotent: returns 204 whether or not a share token existed.
+       *
+       * Self-hosted deployments require LangSmith `v0.16` or later.
+       *
+       * @example
+       * ```ts
+       * await client.runs.share.delete(
+       *   '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',
+       *   { session_id: '018e4c7e-a9fb-7ef0-a5b6-6ea3a82e9327' },
+       * );
+       * ```
+       */
+      delete(traceID, body, options) {
+        return this._client.delete(path`/api/v2/runs/${traceID}/share`, {
+          body,
+          ...options,
+          headers: buildHeaders([{ Accept: "*/*" }, options?.headers])
+        });
+      }
+    };
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/core/query-streaming.mjs
+async function* iterQueryStream(fetch2, paths) {
+  const itemPath = new RegExp(`^${escapeRegExp(paths.items)}/(-|\\d+)$`);
+  let cursor;
+  do {
+    let next = null;
+    const doc = [];
+    let yielded = 0;
+    let buffered = false;
+    for await (const event of await fetch2(cursor)) {
+      for (const op of event) {
+        if (op.path === "") {
+          const root = op.value;
+          next = getPointer(root, paths.nextCursor) ?? null;
+          const items = getPointer(root, paths.items) ?? [];
+          doc.splice(yielded, doc.length - yielded, ...items.slice(yielded));
+        } else if (op.path === paths.nextCursor) {
+          next = op.value ?? null;
+        } else {
+          const match = itemPath.exec(op.path);
+          if (!match)
+            continue;
+          const index = match[1] === "-" ? doc.length : Number(match[1]);
+          if (match[1] !== "-")
+            buffered = true;
+          if (op.op === "remove") {
+            if (index >= yielded && index < doc.length)
+              doc.splice(index, 1);
+          } else if (op.op === "replace") {
+            if (index >= yielded && index < doc.length)
+              doc[index] = op.value;
+          } else {
+            doc.splice(Math.min(index, doc.length), 0, op.value);
+          }
+        }
+        while (!buffered && yielded < doc.length)
+          yield doc[yielded++];
+      }
+    }
+    while (yielded < doc.length)
+      yield doc[yielded++];
+    cursor = next || void 0;
+  } while (cursor);
+}
+function getPointer(doc, pointer) {
+  let value = doc;
+  for (const segment of pointer.split("/").slice(1)) {
+    if (value == null || typeof value !== "object")
+      return void 0;
+    value = value[segment.replace(/~1/g, "/").replace(/~0/g, "~")];
+  }
+  return value;
+}
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+var init_query_streaming = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/core/query-streaming.mjs"() {
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/runs/streaming.mjs
+var Streaming;
+var init_streaming2 = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/runs/streaming.mjs"() {
+    init_resource();
+    init_query_streaming();
+    init_headers();
+    Streaming = class extends APIResource {
+      /**
+       * Returns a paginated list of runs for the given projects within min/max
+       * start_time. Supports filters, cursor pagination, and `selects` to select fields
+       * to return.
+       *
+       * When `ai_search` is set, `Accept: text/event-stream` is required; requests
+       * without it return 406. AI search is unavailable on deployments that route
+       * queries to the v1 backend and returns 501 there.
+       *
+       * Self-hosted deployments require LangSmith `v0.16` or later.
+       *
+       * @example
+       * ```ts
+       * const response = await client.runs.streaming.queryV2();
+       * ```
+       */
+      queryV2(params, options) {
+        const { Accept, ...body } = params;
+        return this._client.post("/api/v2/runs/query", {
+          body,
+          ...options,
+          headers: buildHeaders([{ Accept: Accept != null ? Accept : "text/event-stream" }, options?.headers]),
+          stream: true
+        });
+      }
+      /**
+       * Yields the items of `queryV2` one at a time across pages, following the next page cursor.
+       *
+       * @example
+       * ```ts
+       * // Automatically fetches more pages as needed.
+       * for await (const run of client.runs.streaming.queryV2Items(
+       *   {},
+       * )) {
+       *   // ...
+       * }
+       * ```
+       */
+      queryV2Items(params, options) {
+        return iterQueryStream((cursor) => this.queryV2(cursor ? { ...params, cursor } : params, options), { items: "/items", nextCursor: "/next_cursor" });
+      }
+    };
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/runs/runs.mjs
+var Runs3;
+var init_runs3 = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/runs/runs.mjs"() {
+    init_resource();
+    init_share();
+    init_share();
+    init_streaming2();
+    init_streaming2();
+    init_pagination();
+    init_headers();
+    init_path();
+    Runs3 = class extends APIResource {
+      constructor() {
+        super(...arguments);
+        Object.defineProperty(this, "streaming", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: new Streaming(this._client)
+        });
+        Object.defineProperty(this, "share", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: new Share(this._client)
+        });
+        Object.defineProperty(this, "retrieve", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: this.retrieveV2
+        });
+        Object.defineProperty(this, "query", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: this.queryV2
+        });
+      }
+      /**
+       * Returns the URL to view a specific run in the LangSmith UI. The caller must
+       * supply the run's project_id and trace_id as query parameters; start_time is
+       * optional.
+       *
+       * Self-hosted deployments require LangSmith `v0.16` or later.
+       *
+       * @example
+       * ```ts
+       * const response = await client.runs.getURL(
+       *   '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',
+       *   { project_id: 'project_id', trace_id: 'trace_id' },
+       * );
+       * ```
+       */
+      getURL(runID, query, options) {
+        return this._client.get(path`/api/v2/runs/${runID}/url`, { query, ...options });
+      }
+      /**
+       * Returns a paginated list of runs for the given projects within min/max
+       * start_time. Supports filters, cursor pagination, and `selects` to select fields
+       * to return.
+       *
+       * When `ai_search` is set, `Accept: text/event-stream` is required; requests
+       * without it return 406. AI search is unavailable on deployments that route
+       * queries to the v1 backend and returns 501 there.
+       *
+       * Self-hosted deployments require LangSmith `v0.16` or later.
+       *
+       * @example
+       * ```ts
+       * // Automatically fetches more pages as needed.
+       * for await (const run of client.runs.queryV2()) {
+       *   // ...
+       * }
+       * ```
+       */
+      queryV2(params, options) {
+        const { Accept, ...body } = params;
+        return this._client.getAPIList("/api/v2/runs/query", ItemsCursorPostPagination, {
+          body,
+          method: "post",
+          ...options,
+          headers: buildHeaders([{ ...Accept != null ? { Accept } : void 0 }, options?.headers])
+        });
+      }
+      /**
+       * Returns one run by ID for the given session. Use the `selects` query parameter
+       * (repeatable) to select fields to return.
+       *
+       * Self-hosted deployments require LangSmith `v0.16` or later.
+       *
+       * @example
+       * ```ts
+       * const run = await client.runs.retrieveV2(
+       *   '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',
+       *   { project_id: '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e' },
+       * );
+       * ```
+       */
+      retrieveV2(runID, params, options) {
+        const { Accept, ...query } = params;
+        return this._client.get(path`/api/v2/runs/${runID}`, {
+          query,
+          ...options,
+          headers: buildHeaders([{ ...Accept != null ? { Accept } : void 0 }, options?.headers])
+        });
+      }
+    };
+    Runs3.Streaming = Streaming;
+    Runs3.Share = Share;
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/sandboxes/boxes.mjs
+var Boxes;
+var init_boxes = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/sandboxes/boxes.mjs"() {
+    init_resource();
+    init_pagination();
+    init_headers();
+    init_path();
+    Boxes = class extends APIResource {
+      /**
+       * Create a new sandbox from a snapshot. Provide at most one of `snapshot_id` or
+       * `snapshot_name`; if neither is provided, the server uses the default snapshot.
+       * `snapshot_name` accepts a Docker-style `name` or `name:tag` reference (a bare
+       * name resolves to `name:latest`).
+       */
+      create(body, options) {
+        return this._client.post("/api/v2/sandboxes/boxes", { body, ...options });
+      }
+      /**
+       * Retrieve a sandbox by name. Stale provisioning sandboxes are auto-failed.
+       */
+      retrieve(name, options) {
+        return this._client.get(path`/api/v2/sandboxes/boxes/${name}`, options);
+      }
+      /**
+       * Update a sandbox's display name, retention, resources, tags, or proxy
+       * configuration. The name must be unique within the tenant. Proxy configuration
+       * sent to a sandbox that is not running is stored and applied when it next starts.
+       */
+      update(name, body, options) {
+        return this._client.patch(path`/api/v2/sandboxes/boxes/${name}`, { body, ...options });
+      }
+      /**
+       * List sandboxes for the authenticated tenant, with optional filtering, sorting,
+       * and pagination. Page with page_size and cursor: replay the response's
+       * next_cursor until it comes back null, which is the only signal that no pages
+       * remain. Cursors are opaque and only valid on this endpoint; do not parse or
+       * construct one.
+       */
+      list(query = {}, options) {
+        return this._client.getAPIList("/api/v2/sandboxes/boxes", ItemsCursorGetPagination, { query, ...options });
+      }
+      /**
+       * Delete a sandbox by name or UUID. Tears down the sandbox runtime and removes the
+       * DB record.
+       */
+      delete(name, options) {
+        return this._client.delete(path`/api/v2/sandboxes/boxes/${name}`, {
+          ...options,
+          headers: buildHeaders([{ Accept: "*/*" }, options?.headers])
+        });
+      }
+      /**
+       * Create a snapshot by capturing the current state of a sandbox or promoting an
+       * existing checkpoint.
+       */
+      createSnapshot(name, body, options) {
+        return this._client.post(path`/api/v2/sandboxes/boxes/${name}/snapshot`, { body, ...options });
+      }
+      /**
+       * Removes the sharing grant for one port, or for every port when port is omitted.
+       * A LangSmith login URL stops working immediately. A previously minted service
+       * token is not revoked and stays valid until it expires, but no new one can be
+       * issued from the removed grant.
+       */
+      deleteServiceURL(name, params = {}, options) {
+        const { port } = params ?? {};
+        return this._client.delete(path`/api/v2/sandboxes/boxes/${name}/service-urls`, {
+          query: { port },
+          ...options,
+          headers: buildHeaders([{ Accept: "*/*" }, options?.headers])
+        });
+      }
+      /**
+       * Generate a tokenized link that downloads a single file from a sandbox with no
+       * further authentication. This mints a token rather than creating an addressable
+       * resource, so it returns 200 with no Location header. The token pins the sandbox,
+       * the file path, the response content type and disposition, and the sandbox flags,
+       * so a link cannot be repointed at another file or served under a weaker policy.
+       * The file is always served with a Content-Security-Policy: a sandbox directive,
+       * plus a default-src holding every fetch to the file's own download host and a set
+       * of pre-approved third-party origins. csp_sandbox_flags may loosen the sandbox
+       * with allow-downloads, allow-forms, allow-modals, allow-orientation-lock,
+       * allow-pointer-lock, allow-popups, allow-presentation, allow-same-origin,
+       * allow-scripts, or allow-top-navigation-by-user-activation. Every file is served
+       * from its own host, derived from the sandbox and the path, so allow-same-origin
+       * gives a page localStorage and IndexedDB that no other file can read, and
+       * re-minting a link for the same file keeps them. csp_sandbox set to false drops
+       * the sandbox directive altogether, and csp_sandbox_flags must then be omitted.
+       * csp_source_bundles selects the third-party origins: cdnjs, google-fonts,
+       * jsdelivr, and unpkg are all allowed when the field is omitted, 'none' holds the
+       * file to its own host, and 'any' sends no default-src at all. Links never expire
+       * unless expires_in_seconds is set. The link is served from the sandbox service
+       * domain, not the API host.
+       */
+      generateDownloadURL(name, body, options) {
+        return this._client.post(path`/api/v2/sandboxes/boxes/${name}/download-url`, { body, ...options });
+      }
+      /**
+       * Create a short-lived JWT for accessing an HTTP service running on a specific
+       * port inside a sandbox. Returns a browser_url (sets auth cookie via redirect), an
+       * embed_url (for an iframe; carries the token in the URL fragment, so no server or
+       * Referer sees it), a service_url (for use with the
+       * X-Langsmith-Sandbox-Service-Token header), the raw token, and its expiry. Set
+       * access=restricted|workspace to instead enable durable LangSmith login (no token;
+       * users authenticate with their normal LangSmith session), or access=off to
+       * disable it. embed_origins names the pages that may show the URL in an iframe. In
+       * token mode they are bound into the minted token; with LangSmith login they are
+       * stored on the grant and a viewer signs in from inside the frame through a
+       * LangSmith popup. LangSmith login and token access are mutually exclusive per
+       * service URL.
+       */
+      generateServiceURL(name, body, options) {
+        return this._client.post(path`/api/v2/sandboxes/boxes/${name}/service-url`, { body, ...options });
+      }
+      /**
+       * Retrieve the lightweight status of a sandbox for polling.
+       */
+      getStatus(name, options) {
+        return this._client.get(path`/api/v2/sandboxes/boxes/${name}/status`, options);
+      }
+      /**
+       * Returns one entry per port the sandbox is currently reachable on, so a caller
+       * can see what is shared before turning it off. Expired token grants are omitted.
+       * Cursors are opaque and only valid on this endpoint; do not parse or construct
+       * one.
+       */
+      listServiceURLs(name, query = {}, options) {
+        return this._client.getAPIList(path`/api/v2/sandboxes/boxes/${name}/service-urls`, ItemsCursorGetPagination, { query, ...options });
+      }
+      /**
+       * Start a stopped or failed sandbox. This endpoint is not idempotent.
+       */
+      start(name, options) {
+        return this._client.post(path`/api/v2/sandboxes/boxes/${name}/start`, options);
+      }
+      /**
+       * Stop a ready sandbox. This endpoint is not idempotent; the filesystem is
+       * preserved for later restart.
+       */
+      stop(name, options) {
+        return this._client.post(path`/api/v2/sandboxes/boxes/${name}/stop`, {
+          ...options,
+          headers: buildHeaders([{ Accept: "*/*" }, options?.headers])
+        });
+      }
+    };
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/sandboxes/registries.mjs
+var Registries;
+var init_registries = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/sandboxes/registries.mjs"() {
+    init_resource();
+    init_headers();
+    init_path();
+    Registries = class extends APIResource {
+      /**
+       * Create a sandbox registry for pulling private images.
+       */
+      create(body, options) {
+        return this._client.post("/api/v2/sandboxes/registries", { body, ...options });
+      }
+      /**
+       * Get a sandbox registry by name.
+       */
+      retrieve(name, options) {
+        return this._client.get(path`/api/v2/sandboxes/registries/${name}`, options);
+      }
+      /**
+       * Update a sandbox registry's name and/or credentials.
+       */
+      update(name, body, options) {
+        return this._client.patch(path`/api/v2/sandboxes/registries/${name}`, { body, ...options });
+      }
+      /**
+       * List sandbox registries for pulling private images. Page with page_size and
+       * cursor, replaying next_cursor until it is null. Results are ordered newest
+       * first, with stable ordering for equal creation times. Keep filters unchanged
+       * between pages. Requests without page_size or cursor retain the legacy default of
+       * 50 results. Cursor requests default to 20 results, with a maximum of 100.
+       */
+      list(query = {}, options) {
+        return this._client.get("/api/v2/sandboxes/registries", { query, ...options });
+      }
+      /**
+       * Delete a sandbox registry by name.
+       */
+      delete(name, options) {
+        return this._client.delete(path`/api/v2/sandboxes/registries/${name}`, {
+          ...options,
+          headers: buildHeaders([{ Accept: "*/*" }, options?.headers])
+        });
+      }
+    };
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/sandboxes/snapshots.mjs
+var Snapshots;
+var init_snapshots = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/sandboxes/snapshots.mjs"() {
+    init_resource();
+    init_pagination();
+    init_headers();
+    init_path();
+    Snapshots = class extends APIResource {
+      /**
+       * Create a snapshot from a Docker image (async build). Names use lowercase
+       * registry-style components separated by slashes, up to 255 characters. The
+       * system/ namespace is read-only.
+       */
+      create(body, options) {
+        return this._client.post("/api/v2/sandboxes/snapshots", { body, ...options });
+      }
+      /**
+       * Get a sandbox snapshot by ID or a registry-style reference, including
+       * system/default:latest. URL-encode references containing slashes. A bare name
+       * means name:latest, falling back to the newest ready untagged snapshot of that
+       * name. To list the tags under a name, use
+       * /api/v2/sandboxes/snapshots-by-name/{name}.
+       */
+      retrieve(snapshotID, options) {
+        return this._client.get(path`/api/v2/sandboxes/snapshots/${snapshotID}`, options);
+      }
+      /**
+       * List workspace and published system snapshots, with optional filtering, sorting,
+       * and pagination. Page with page_size and cursor: replay the response's
+       * next_cursor until it comes back null, which is the only signal that no pages
+       * remain. Cursors are opaque and only valid on this endpoint; do not parse or
+       * construct one.
+       */
+      list(query = {}, options) {
+        return this._client.getAPIList("/api/v2/sandboxes/snapshots", ItemsCursorGetPagination, { query, ...options });
+      }
+      /**
+       * Delete a snapshot by ID or by a Docker-style name[:tag] reference. The
+       * underlying storage is reclaimed asynchronously.
+       */
+      delete(snapshotID, options) {
+        return this._client.delete(path`/api/v2/sandboxes/snapshots/${snapshotID}`, {
+          ...options,
+          headers: buildHeaders([{ Accept: "*/*" }, options?.headers])
+        });
+      }
+      /**
+       * Get a snapshot name and every tag under it, with the snapshot each tag resolves
+       * to. To fetch one snapshot, use /api/v2/sandboxes/snapshots/{snapshot_id}.
+       */
+      retrieveByName(name, options) {
+        return this._client.get(path`/api/v2/sandboxes/snapshots-by-name/${name}`, options);
+      }
+    };
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/sandboxes/sandboxes.mjs
+var Sandboxes;
+var init_sandboxes = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/sandboxes/sandboxes.mjs"() {
+    init_resource();
+    init_boxes();
+    init_boxes();
+    init_registries();
+    init_registries();
+    init_snapshots();
+    init_snapshots();
+    init_pagination();
+    Sandboxes = class extends APIResource {
+      constructor() {
+        super(...arguments);
+        Object.defineProperty(this, "boxes", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: new Boxes(this._client)
+        });
+        Object.defineProperty(this, "registries", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: new Registries(this._client)
+        });
+        Object.defineProperty(this, "snapshots", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: new Snapshots(this._client)
+        });
+      }
+      /**
+       * Returns priced usage per sandbox or snapshot and UTC hour in the half-open
+       * requested interval. LCU uses the recorded compute amount for sandboxes;
+       * snapshots have zero LCU. LSU allocates the recorded workspace storage amount
+       * proportionally to attributed bytes, including checkpoints on their sandbox and
+       * snapshots as separate resources. Resource filters preserve each resource's
+       * share. Rate changes do not reprice recorded amounts. An access-filtered page can
+       * have no items and a non-null next_cursor; continue until next_cursor is null.
+       */
+      listUsageCosts(query, options) {
+        return this._client.getAPIList("/api/v2/sandboxes/usage/costs", ItemsCursorGetPagination, { query, ...options });
+      }
+    };
+    Sandboxes.Boxes = Boxes;
+    Sandboxes.Registries = Registries;
+    Sandboxes.Snapshots = Snapshots;
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/sessions.mjs
+var Sessions;
+var init_sessions = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/sessions.mjs"() {
+    init_resource();
+    Sessions = class extends APIResource {
+      /**
+       * Returns the tracing project (session) an address names. An address is an AGENT
+       * (`id` and `environment`), an EXPERIMENT (`id`), or an EVALUATOR (no `id`:
+       * evaluator traces share one project per workspace). Send `kind` and `environment`
+       * in upper case, as listed; they are matched case-insensitively, while the Agent
+       * `id` is case-sensitive. An address that does not exist, or whose project you
+       * cannot read, is a 404. Pass the returned `session_id` to any endpoint that takes
+       * a project (session) ID. This is not supported on a BYOC data plane yet, and is a
+       * 501 there. Self-hosted deployments need LangSmith v0.18 or later.
+       */
+      resolve(query, options) {
+        return this._client.get("/api/v1/sessions/resolutions", { query, ...options });
+      }
+    };
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/threads/share.mjs
+var Share2;
+var init_share2 = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/threads/share.mjs"() {
+    init_resource();
+    init_headers();
+    init_path();
+    Share2 = class extends APIResource {
+      /**
+       * Mints a public share token for a thread. Idempotent: sharing an already-shared
+       * thread returns the existing token.
+       *
+       * @example
+       * ```ts
+       * const share = await client.threads.share.create(
+       *   'thread_id',
+       *   { project_id: '018e4c7e-a9fb-7ef0-a5b6-6ea3a82e9327' },
+       * );
+       * ```
+       */
+      create(threadID, body, options) {
+        return this._client.post(path`/api/v2/threads/${threadID}/share`, { body, ...options });
+      }
+      /**
+       * Returns the share token for a thread. The token is omitted when the thread is
+       * not shared. Gated on runs:share so the control's state matches the control's
+       * permission.
+       *
+       * @example
+       * ```ts
+       * const share = await client.threads.share.retrieve(
+       *   'thread_id',
+       *   { project_id: '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e' },
+       * );
+       * ```
+       */
+      retrieve(threadID, query, options) {
+        return this._client.get(path`/api/v2/threads/${threadID}/share`, { query, ...options });
+      }
+      /**
+       * Deletes the share token for a thread. Idempotent: returns 204 whether or not a
+       * share token existed. Deliberately does not verify the thread still exists.
+       *
+       * @example
+       * ```ts
+       * await client.threads.share.delete('thread_id', {
+       *   project_id: '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',
+       * });
+       * ```
+       */
+      delete(threadID, params, options) {
+        const { project_id } = params;
+        return this._client.delete(path`/api/v2/threads/${threadID}/share`, {
+          query: { project_id },
+          ...options,
+          headers: buildHeaders([{ Accept: "*/*" }, options?.headers])
+        });
+      }
+    };
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/threads/streaming.mjs
+var Streaming2;
+var init_streaming3 = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/threads/streaming.mjs"() {
+    init_resource();
+    init_query_streaming();
+    init_headers();
+    Streaming2 = class extends APIResource {
+      /**
+       * GET with body payload — no resources created. Returns the threads in a tracing
+       * project matching the query passed as the request payload. Results are filtered
+       * by the given time range and optional filters, with cursor-based pagination.
+       *
+       * When `ai_search` is set, `Accept: text/event-stream` is required; requests
+       * without it return 406. AI search is unavailable on deployments that route
+       * queries to the v1 backend and returns 501 there.
+       *
+       * Self-hosted deployments require LangSmith `v0.16` or later.
+       *
+       * @example
+       * ```ts
+       * const response = await client.threads.streaming.query();
+       * ```
+       */
+      query(params, options) {
+        const { Accept, ...body } = params;
+        return this._client.post("/api/v2/threads/query", {
+          body,
+          ...options,
+          headers: buildHeaders([{ Accept: Accept != null ? Accept : "text/event-stream" }, options?.headers]),
+          stream: true
+        });
+      }
+      /**
+       * Yields the items of `query` one at a time across pages, following the next page cursor.
+       *
+       * @example
+       * ```ts
+       * // Automatically fetches more pages as needed.
+       * for await (const thread of client.threads.streaming.queryItems(
+       *   {},
+       * )) {
+       *   // ...
+       * }
+       * ```
+       */
+      queryItems(params, options) {
+        return iterQueryStream((cursor) => this.query(cursor ? { ...params, cursor } : params, options), { items: "/items", nextCursor: "/next_cursor" });
+      }
+    };
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/threads/threads.mjs
+var Threads2;
+var init_threads2 = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/threads/threads.mjs"() {
+    init_resource();
+    init_share2();
+    init_share2();
+    init_streaming3();
+    init_streaming3();
+    init_pagination();
+    init_headers();
+    init_path();
+    Threads2 = class extends APIResource {
+      constructor() {
+        super(...arguments);
+        Object.defineProperty(this, "streaming", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: new Streaming2(this._client)
+        });
+        Object.defineProperty(this, "share", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: new Share2(this._client)
+        });
+      }
+      /**
+       * GET with body payload — no resources created. Returns aggregate statistics for
+       * threads in a tracing project. The response includes the thread counts, run
+       * counts, latency percentiles, rates, token totals, and cost totals requested in
+       * `select`.
+       *
+       * Self-hosted deployments require LangSmith `v0.17` or later.
+       *
+       * @example
+       * ```ts
+       * const response = await client.threads.aggregateStats({
+       *   project_id: '0190a1b2-c3d4-7ef0-a5b6-6ea3a82e9328',
+       *   select: [
+       *     'THREAD_COUNT',
+       *     'TRACE_COUNT',
+       *     'TOTAL_TOKENS',
+       *     'TOTAL_COST',
+       *   ],
+       * });
+       * ```
+       */
+      aggregateStats(body, options) {
+        return this._client.post("/api/v2/threads/stats", { body, ...options });
+      }
+      /**
+       * Retrieve all traces belonging to a specific thread within a project.
+       *
+       * Self-hosted deployments require LangSmith `v0.16` or later.
+       *
+       * @example
+       * ```ts
+       * // Automatically fetches more pages as needed.
+       * for await (const threadTrace of client.threads.listTraces(
+       *   'thread_id',
+       *   { project_id: '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e' },
+       * )) {
+       *   // ...
+       * }
+       * ```
+       */
+      listTraces(threadID, query, options) {
+        return this._client.getAPIList(path`/api/v2/threads/${threadID}/traces`, ItemsCursorGetPagination, { query, ...options });
+      }
+      /**
+       * GET with body payload — no resources created. Returns the threads in a tracing
+       * project matching the query passed as the request payload. Results are filtered
+       * by the given time range and optional filters, with cursor-based pagination.
+       *
+       * When `ai_search` is set, `Accept: text/event-stream` is required; requests
+       * without it return 406. AI search is unavailable on deployments that route
+       * queries to the v1 backend and returns 501 there.
+       *
+       * Self-hosted deployments require LangSmith `v0.16` or later.
+       *
+       * @example
+       * ```ts
+       * // Automatically fetches more pages as needed.
+       * for await (const thread of client.threads.query()) {
+       *   // ...
+       * }
+       * ```
+       */
+      query(params, options) {
+        const { Accept, ...body } = params;
+        return this._client.getAPIList("/api/v2/threads/query", ItemsCursorPostPagination, {
+          body,
+          method: "post",
+          ...options,
+          headers: buildHeaders([{ ...Accept != null ? { Accept } : void 0 }, options?.headers])
+        });
+      }
+      /**
+       * Compute aggregate stats for a single thread (turn count, latency percentiles,
+       * token/cost sums, and detail breakdowns) within a project.
+       *
+       * Self-hosted deployments require LangSmith `v0.16` or later.
+       *
+       * @example
+       * ```ts
+       * const threadStats = await client.threads.stats(
+       *   'thread_id',
+       *   {
+       *     selects: ['TURNS'],
+       *     session_id: '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',
+       *   },
+       * );
+       * ```
+       */
+      stats(threadID, query, options) {
+        return this._client.get(path`/api/v2/threads/${threadID}/stats`, { query, ...options });
+      }
+    };
+    Threads2.Streaming = Streaming2;
+    Threads2.Share = Share2;
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/traces/streaming.mjs
+var Streaming3;
+var init_streaming4 = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/traces/streaming.mjs"() {
+    init_resource();
+    init_query_streaming();
+    init_headers();
+    Streaming3 = class extends APIResource {
+      /**
+       * Returns a paginated list of traces (root runs) for a single tracing project.
+       * Each item carries the trace's root run plus optional trace-wide aggregates
+       * (`total_tokens`, `total_cost`, `first_token_time`) under `trace_aggregates`, so
+       * clients never have to merge by `trace_id`.
+       *
+       * Traces are scanned within a `start_time` window: `min_start_time` defaults to 24
+       * hours before the request, `max_start_time` defaults to the request time. Set
+       * either explicitly to widen or narrow the window.
+       *
+       * Supports filters (`trace_filter`, `tree_filter`), cursor pagination (`cursor`),
+       * and field projection (`selects`).
+       *
+       * When `ai_search` is set, `Accept: text/event-stream` is required; requests
+       * without it return 406. AI search is unavailable on deployments that route
+       * queries to the v1 backend and returns 501 there.
+       *
+       * Self-hosted deployments require LangSmith `v0.16` or later.
+       *
+       * @example
+       * ```ts
+       * const response = await client.traces.streaming.query();
+       * ```
+       */
+      query(params, options) {
+        const { Accept, ...body } = params;
+        return this._client.post("/api/v2/traces/query", {
+          body,
+          ...options,
+          headers: buildHeaders([{ Accept: Accept != null ? Accept : "text/event-stream" }, options?.headers]),
+          stream: true
+        });
+      }
+      /**
+       * Yields the items of `query` one at a time across pages, following the next page cursor.
+       *
+       * @example
+       * ```ts
+       * // Automatically fetches more pages as needed.
+       * for await (const trace of client.traces.streaming.queryItems(
+       *   {},
+       * )) {
+       *   // ...
+       * }
+       * ```
+       */
+      queryItems(params, options) {
+        return iterQueryStream((cursor) => this.query(cursor ? { ...params, cursor } : params, options), { items: "/items", nextCursor: "/next_cursor" });
+      }
+    };
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/traces/traces.mjs
+var Traces;
+var init_traces = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/traces/traces.mjs"() {
+    init_resource();
+    init_streaming4();
+    init_streaming4();
+    init_pagination();
+    init_headers();
+    init_path();
+    Traces = class extends APIResource {
+      constructor() {
+        super(...arguments);
+        Object.defineProperty(this, "streaming", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: new Streaming3(this._client)
+        });
+      }
+      /**
+       * Returns runs for a trace ID within min/max start time. Optional `filter`;
+       * repeatable `selects` to select fields to return.
+       *
+       * Self-hosted deployments require LangSmith `v0.16` or later.
+       *
+       * @example
+       * ```ts
+       * const response = await client.traces.listRuns(
+       *   '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',
+       *   { project_id: '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e' },
+       * );
+       * ```
+       */
+      listRuns(traceID, params, options) {
+        const { Accept, ...query } = params;
+        return this._client.get(path`/api/v2/traces/${traceID}/runs`, {
+          query,
+          ...options,
+          headers: buildHeaders([{ ...Accept != null ? { Accept } : void 0 }, options?.headers])
+        });
+      }
+      /**
+       * Returns a paginated list of traces (root runs) for a single tracing project.
+       * Each item carries the trace's root run plus optional trace-wide aggregates
+       * (`total_tokens`, `total_cost`, `first_token_time`) under `trace_aggregates`, so
+       * clients never have to merge by `trace_id`.
+       *
+       * Traces are scanned within a `start_time` window: `min_start_time` defaults to 24
+       * hours before the request, `max_start_time` defaults to the request time. Set
+       * either explicitly to widen or narrow the window.
+       *
+       * Supports filters (`trace_filter`, `tree_filter`), cursor pagination (`cursor`),
+       * and field projection (`selects`).
+       *
+       * When `ai_search` is set, `Accept: text/event-stream` is required; requests
+       * without it return 406. AI search is unavailable on deployments that route
+       * queries to the v1 backend and returns 501 there.
+       *
+       * Self-hosted deployments require LangSmith `v0.16` or later.
+       *
+       * @example
+       * ```ts
+       * // Automatically fetches more pages as needed.
+       * for await (const trace of client.traces.query()) {
+       *   // ...
+       * }
+       * ```
+       */
+      query(params, options) {
+        const { Accept, ...body } = params;
+        return this._client.getAPIList("/api/v2/traces/query", ItemsCursorPostPagination, {
+          body,
+          method: "post",
+          ...options,
+          headers: buildHeaders([{ ...Accept != null ? { Accept } : void 0 }, options?.headers])
+        });
+      }
+    };
+    Traces.Streaming = Streaming3;
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/index.mjs
+var init_resources = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/index.mjs"() {
+    init_shared();
+    init_agents();
+    init_annotation_queues();
+    init_datasets();
+    init_fleet();
+    init_info();
+    init_issues();
+    init_online_evaluators();
+    init_product_feedback();
+    init_prompt_webhooks();
+    init_public();
+    init_runs3();
+    init_sandboxes();
+    init_sessions();
+    init_threads2();
+    init_traces();
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/utils/env.mjs
+var readEnv;
+var init_env = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/utils/env.mjs"() {
+    readEnv = (env) => {
+      if (typeof globalThis.process !== "undefined") {
+        return globalThis.process.env?.[env]?.trim() || void 0;
+      }
+      if (typeof globalThis.Deno !== "undefined") {
+        return globalThis.Deno.env?.get?.(env)?.trim() || void 0;
+      }
+      return void 0;
+    };
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/client.mjs
+var _Langsmith_instances, _a, _Langsmith_encoder, _Langsmith_baseURLOverridden, Langsmith;
+var init_client = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/client.mjs"() {
+    init_tslib();
+    init_uuid();
+    init_values();
+    init_sleep();
+    init_errors4();
+    init_detect_platform();
+    init_shims();
+    init_request_options();
+    init_query();
+    init_version();
+    init_error();
+    init_pagination();
+    init_uploads2();
+    init_resources();
+    init_api_promise();
+    init_agents();
+    init_info();
+    init_issues();
+    init_online_evaluators();
+    init_product_feedback();
+    init_prompt_webhooks();
+    init_sessions();
+    init_annotation_queues();
+    init_datasets();
+    init_fleet();
+    init_public();
+    init_runs3();
+    init_sandboxes();
+    init_threads2();
+    init_traces();
+    init_headers();
+    init_env();
+    init_log();
+    init_values();
+    Langsmith = class {
+      /**
+       * API Client for interfacing with the LangChain API.
+       *
+       * @param {string | null | undefined} [opts.apiKey=process.env['LANGSMITH_API_KEY'] ?? null]
+       * @param {string | null | undefined} [opts.tenantID=process.env['LANGSMITH_TENANT_ID'] ?? null]
+       * @param {string} [opts.baseURL=process.env['LANGCHAIN_BASE_URL'] ?? https://api.smith.langchain.com/] - Override the default base URL for the API.
+       * @param {number} [opts.timeout=1.5 minutes] - The maximum amount of time (in milliseconds) the client will wait for a response before timing out.
+       * @param {MergedRequestInit} [opts.fetchOptions] - Additional `RequestInit` options to be passed to `fetch` calls.
+       * @param {Fetch} [opts.fetch] - Specify a custom `fetch` function implementation.
+       * @param {number} [opts.maxRetries=2] - The maximum number of times the client will retry a request.
+       * @param {HeadersLike} opts.defaultHeaders - Default headers to include with every request to the API.
+       * @param {Record<string, string | undefined>} opts.defaultQuery - Default query parameters to include with every request to the API.
+       */
+      constructor({ baseURL = readEnv("LANGCHAIN_BASE_URL"), apiKey = readEnv("LANGSMITH_API_KEY") ?? null, tenantID = readEnv("LANGSMITH_TENANT_ID") ?? null, ...opts } = {}) {
+        _Langsmith_instances.add(this);
+        Object.defineProperty(this, "apiKey", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: void 0
+        });
+        Object.defineProperty(this, "tenantID", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: void 0
+        });
+        Object.defineProperty(this, "baseURL", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: void 0
+        });
+        Object.defineProperty(this, "maxRetries", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: void 0
+        });
+        Object.defineProperty(this, "timeout", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: void 0
+        });
+        Object.defineProperty(this, "logger", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: void 0
+        });
+        Object.defineProperty(this, "logLevel", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: void 0
+        });
+        Object.defineProperty(this, "fetchOptions", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: void 0
+        });
+        Object.defineProperty(this, "fetch", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: void 0
+        });
+        _Langsmith_encoder.set(this, void 0);
+        Object.defineProperty(this, "idempotencyHeader", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: void 0
+        });
+        Object.defineProperty(this, "_options", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: void 0
+        });
+        Object.defineProperty(this, "productFeedback", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: new ProductFeedback(this)
+        });
+        Object.defineProperty(this, "agents", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: new Agents(this)
+        });
+        Object.defineProperty(this, "fleet", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: new Fleet(this)
+        });
+        Object.defineProperty(this, "sessions", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: new Sessions(this)
+        });
+        Object.defineProperty(this, "datasets", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: new Datasets(this)
+        });
+        Object.defineProperty(this, "runs", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: new Runs3(this)
+        });
+        Object.defineProperty(this, "threads", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: new Threads2(this)
+        });
+        Object.defineProperty(this, "traces", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: new Traces(this)
+        });
+        Object.defineProperty(this, "onlineEvaluators", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: new OnlineEvaluators(this)
+        });
+        Object.defineProperty(this, "public", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: new Public(this)
+        });
+        Object.defineProperty(this, "annotationQueues", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: new AnnotationQueues(this)
+        });
+        Object.defineProperty(this, "promptWebhooks", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: new PromptWebhooks(this)
+        });
+        Object.defineProperty(this, "info", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: new Info(this)
+        });
+        Object.defineProperty(this, "issues", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: new Issues(this)
+        });
+        Object.defineProperty(this, "sandboxes", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: new Sandboxes(this)
+        });
+        const options = {
+          apiKey,
+          tenantID,
+          ...opts,
+          baseURL: baseURL || `https://api.smith.langchain.com/`
+        };
+        this.baseURL = options.baseURL;
+        this.timeout = options.timeout ?? _a.DEFAULT_TIMEOUT;
+        this.logger = options.logger ?? console;
+        const defaultLogLevel = "warn";
+        this.logLevel = defaultLogLevel;
+        this.logLevel = parseLogLevel(options.logLevel, "ClientOptions.logLevel", this) ?? parseLogLevel(readEnv("LANGCHAIN_LOG"), "process.env['LANGCHAIN_LOG']", this) ?? defaultLogLevel;
+        this.fetchOptions = options.fetchOptions;
+        this.maxRetries = options.maxRetries ?? 2;
+        this.fetch = options.fetch ?? getDefaultFetch();
+        __classPrivateFieldSet(this, _Langsmith_encoder, FallbackEncoder, "f");
+        const customHeadersEnv = readEnv("LANGCHAIN_CUSTOM_HEADERS");
+        if (customHeadersEnv) {
+          const parsed = {};
+          for (const line of customHeadersEnv.split("\n")) {
+            const colon = line.indexOf(":");
+            if (colon >= 0) {
+              parsed[line.substring(0, colon).trim()] = line.substring(colon + 1).trim();
+            }
+          }
+          options.defaultHeaders = { ...parsed, ...options.defaultHeaders };
+        }
+        this._options = options;
+        this.apiKey = apiKey;
+        this.tenantID = tenantID;
+      }
+      /**
+       * Create a new client instance re-using the same options given to the current client with optional overriding.
+       */
+      withOptions(options) {
+        const client = new this.constructor({
+          ...this._options,
+          baseURL: this.baseURL,
+          maxRetries: this.maxRetries,
+          timeout: this.timeout,
+          logger: this.logger,
+          logLevel: this.logLevel,
+          fetch: this.fetch,
+          fetchOptions: this.fetchOptions,
+          apiKey: this.apiKey,
+          tenantID: this.tenantID,
+          ...options
+        });
+        return client;
+      }
+      defaultQuery() {
+        return this._options.defaultQuery;
+      }
+      validateHeaders({ values, nulls }) {
+        if (this.apiKey && values.get("x-api-key")) {
+          return;
+        }
+        if (nulls.has("x-api-key")) {
+          return;
+        }
+        if (this.tenantID && values.get("x-tenant-id")) {
+          return;
+        }
+        if (nulls.has("x-tenant-id")) {
+          return;
+        }
+        throw new Error('Could not resolve authentication method. Expected either apiKey or tenantID to be set. Or for one of the "X-API-Key" or "X-Tenant-Id" headers to be explicitly omitted');
+      }
+      async authHeaders(opts) {
+        return buildHeaders([await this.apiKeyAuth(opts), await this.tenantIDAuth(opts)]);
+      }
+      async apiKeyAuth(opts) {
+        if (this.apiKey == null) {
+          return void 0;
+        }
+        return buildHeaders([{ "X-API-Key": this.apiKey }]);
+      }
+      async tenantIDAuth(opts) {
+        if (this.tenantID == null) {
+          return void 0;
+        }
+        return buildHeaders([{ "X-Tenant-Id": this.tenantID }]);
+      }
+      stringifyQuery(query) {
+        return stringifyQuery(query);
+      }
+      getUserAgent() {
+        return `${this.constructor.name}/JS ${VERSION}`;
+      }
+      defaultIdempotencyKey() {
+        return `stainless-node-retry-${uuid4()}`;
+      }
+      makeStatusError(status, error2, message, headers) {
+        return APIError.generate(status, error2, message, headers);
+      }
+      buildURL(path3, query, defaultBaseURL) {
+        const baseURL = !__classPrivateFieldGet(this, _Langsmith_instances, "m", _Langsmith_baseURLOverridden).call(this) && defaultBaseURL || this.baseURL;
+        const url = isAbsoluteURL(path3) ? new URL(path3) : new URL(baseURL + (baseURL.endsWith("/") && path3.startsWith("/") ? path3.slice(1) : path3));
+        const defaultQuery = this.defaultQuery();
+        const pathQuery = Object.fromEntries(url.searchParams);
+        if (!isEmptyObj(defaultQuery) || !isEmptyObj(pathQuery)) {
+          query = { ...pathQuery, ...defaultQuery, ...query };
+        }
+        if (typeof query === "object" && query && !Array.isArray(query)) {
+          url.search = this.stringifyQuery(query);
+        }
+        return url.toString();
+      }
+      /**
+       * Used as a callback for mutating the given `FinalRequestOptions` object.
+       */
+      async prepareOptions(options) {
+      }
+      /**
+       * Used as a callback for mutating the given `RequestInit` object.
+       *
+       * This is useful for cases where you want to add certain headers based off of
+       * the request properties, e.g. `method` or `url`.
+       */
+      async prepareRequest(request, { url, options }) {
+      }
+      get(path3, opts) {
+        return this.methodRequest("get", path3, opts);
+      }
+      post(path3, opts) {
+        return this.methodRequest("post", path3, opts);
+      }
+      patch(path3, opts) {
+        return this.methodRequest("patch", path3, opts);
+      }
+      put(path3, opts) {
+        return this.methodRequest("put", path3, opts);
+      }
+      delete(path3, opts) {
+        return this.methodRequest("delete", path3, opts);
+      }
+      methodRequest(method, path3, opts) {
+        return this.request(Promise.resolve(opts).then((opts2) => {
+          return { method, path: path3, ...opts2 };
+        }));
+      }
+      request(options, remainingRetries = null) {
+        return new APIPromise(this, this.makeRequest(options, remainingRetries, void 0));
+      }
+      async makeRequest(optionsInput, retriesRemaining, retryOfRequestLogID) {
+        const options = await optionsInput;
+        const maxRetries = options.maxRetries ?? this.maxRetries;
+        if (retriesRemaining == null) {
+          retriesRemaining = maxRetries;
+        }
+        await this.prepareOptions(options);
+        const { req, url, timeout } = await this.buildRequest(options, {
+          retryCount: maxRetries - retriesRemaining
+        });
+        await this.prepareRequest(req, { url, options });
+        const requestLogID = "log_" + (Math.random() * (1 << 24) | 0).toString(16).padStart(6, "0");
+        const retryLogStr = retryOfRequestLogID === void 0 ? "" : `, retryOf: ${retryOfRequestLogID}`;
+        const startTime = Date.now();
+        loggerFor(this).debug(`[${requestLogID}] sending request`, formatRequestDetails({
+          retryOfRequestLogID,
+          method: options.method,
+          url,
+          options,
+          headers: req.headers
+        }));
+        if (options.signal?.aborted) {
+          throw new APIUserAbortError();
+        }
+        const controller = new AbortController();
+        const response = await this.fetchWithTimeout(url, req, timeout, controller).catch(castToError);
+        const headersTime = Date.now();
+        if (response instanceof globalThis.Error) {
+          const retryMessage = `retrying, ${retriesRemaining} attempts remaining`;
+          if (options.signal?.aborted) {
+            throw new APIUserAbortError();
+          }
+          const isTimeout = isAbortError(response) || /timed? ?out/i.test(String(response) + ("cause" in response ? String(response.cause) : ""));
+          if (retriesRemaining) {
+            loggerFor(this).info(`[${requestLogID}] connection ${isTimeout ? "timed out" : "failed"} - ${retryMessage}`);
+            loggerFor(this).debug(`[${requestLogID}] connection ${isTimeout ? "timed out" : "failed"} (${retryMessage})`, formatRequestDetails({
+              retryOfRequestLogID,
+              url,
+              durationMs: headersTime - startTime,
+              message: response.message
+            }));
+            return this.retryRequest(options, retriesRemaining, retryOfRequestLogID ?? requestLogID);
+          }
+          loggerFor(this).info(`[${requestLogID}] connection ${isTimeout ? "timed out" : "failed"} - error; no more retries left`);
+          loggerFor(this).debug(`[${requestLogID}] connection ${isTimeout ? "timed out" : "failed"} (error; no more retries left)`, formatRequestDetails({
+            retryOfRequestLogID,
+            url,
+            durationMs: headersTime - startTime,
+            message: response.message
+          }));
+          if (isTimeout) {
+            throw new APIConnectionTimeoutError();
+          }
+          throw new APIConnectionError({ cause: response });
+        }
+        const responseInfo = `[${requestLogID}${retryLogStr}] ${req.method} ${url} ${response.ok ? "succeeded" : "failed"} with status ${response.status} in ${headersTime - startTime}ms`;
+        if (!response.ok) {
+          const shouldRetry = await this.shouldRetry(response);
+          if (retriesRemaining && shouldRetry) {
+            const retryMessage2 = `retrying, ${retriesRemaining} attempts remaining`;
+            await CancelReadableStream(response.body);
+            loggerFor(this).info(`${responseInfo} - ${retryMessage2}`);
+            loggerFor(this).debug(`[${requestLogID}] response error (${retryMessage2})`, formatRequestDetails({
+              retryOfRequestLogID,
+              url: response.url,
+              status: response.status,
+              headers: response.headers,
+              durationMs: headersTime - startTime
+            }));
+            return this.retryRequest(options, retriesRemaining, retryOfRequestLogID ?? requestLogID, response.headers);
+          }
+          const retryMessage = shouldRetry ? `error; no more retries left` : `error; not retryable`;
+          loggerFor(this).info(`${responseInfo} - ${retryMessage}`);
+          const errText = await response.text().catch((err2) => castToError(err2).message);
+          const errJSON = safeJSON(errText);
+          const errMessage = errJSON ? void 0 : errText;
+          loggerFor(this).debug(`[${requestLogID}] response error (${retryMessage})`, formatRequestDetails({
+            retryOfRequestLogID,
+            url: response.url,
+            status: response.status,
+            headers: response.headers,
+            message: errMessage,
+            durationMs: Date.now() - startTime
+          }));
+          const err = this.makeStatusError(response.status, errJSON, errMessage, response.headers);
+          throw err;
+        }
+        loggerFor(this).info(responseInfo);
+        loggerFor(this).debug(`[${requestLogID}] response start`, formatRequestDetails({
+          retryOfRequestLogID,
+          url: response.url,
+          status: response.status,
+          headers: response.headers,
+          durationMs: headersTime - startTime
+        }));
+        return { response, options, controller, requestLogID, retryOfRequestLogID, startTime };
+      }
+      getAPIList(path3, Page, opts) {
+        return this.requestAPIList(Page, opts && "then" in opts ? opts.then((opts2) => ({ method: "get", path: path3, ...opts2 })) : { method: "get", path: path3, ...opts });
+      }
+      requestAPIList(Page, options) {
+        const request = this.makeRequest(options, null, void 0);
+        return new PagePromise(this, request, Page);
+      }
+      async fetchWithTimeout(url, init, ms, controller) {
+        const { signal, method, ...options } = init || {};
+        const abort = this._makeAbort(controller);
+        if (signal)
+          signal.addEventListener("abort", abort, { once: true });
+        const timeout = setTimeout(abort, ms);
+        const isReadableBody = globalThis.ReadableStream && options.body instanceof globalThis.ReadableStream || typeof options.body === "object" && options.body !== null && Symbol.asyncIterator in options.body;
+        const fetchOptions = {
+          signal: controller.signal,
+          ...isReadableBody ? { duplex: "half" } : {},
+          method: "GET",
+          ...options
+        };
+        if (method) {
+          fetchOptions.method = method.toUpperCase();
+        }
+        try {
+          return await this.fetch.call(void 0, url, fetchOptions);
+        } finally {
+          clearTimeout(timeout);
+        }
+      }
+      async shouldRetry(response) {
+        const shouldRetryHeader = response.headers.get("x-should-retry");
+        if (shouldRetryHeader === "true")
+          return true;
+        if (shouldRetryHeader === "false")
+          return false;
+        if (response.status === 408)
+          return true;
+        if (response.status === 409)
+          return true;
+        if (response.status === 429)
+          return true;
+        if (response.status >= 500)
+          return true;
+        return false;
+      }
+      async retryRequest(options, retriesRemaining, requestLogID, responseHeaders) {
+        let timeoutMillis;
+        const retryAfterMillisHeader = responseHeaders?.get("retry-after-ms");
+        if (retryAfterMillisHeader) {
+          const timeoutMs2 = parseFloat(retryAfterMillisHeader);
+          if (!Number.isNaN(timeoutMs2)) {
+            timeoutMillis = timeoutMs2;
+          }
+        }
+        const retryAfterHeader = responseHeaders?.get("retry-after");
+        if (retryAfterHeader && !timeoutMillis) {
+          const timeoutSeconds = parseFloat(retryAfterHeader);
+          if (!Number.isNaN(timeoutSeconds)) {
+            timeoutMillis = timeoutSeconds * 1e3;
+          } else {
+            timeoutMillis = Date.parse(retryAfterHeader) - Date.now();
+          }
+        }
+        if (timeoutMillis === void 0) {
+          const maxRetries = options.maxRetries ?? this.maxRetries;
+          timeoutMillis = this.calculateDefaultRetryTimeoutMillis(retriesRemaining, maxRetries);
+        }
+        await sleep(timeoutMillis);
+        return this.makeRequest(options, retriesRemaining - 1, requestLogID);
+      }
+      calculateDefaultRetryTimeoutMillis(retriesRemaining, maxRetries) {
+        const initialRetryDelay = 0.5;
+        const maxRetryDelay = 16;
+        const numRetries = maxRetries - retriesRemaining;
+        const sleepSeconds = Math.min(initialRetryDelay * Math.pow(2, numRetries), maxRetryDelay);
+        const jitter = 1 - Math.random() * 0.25;
+        return sleepSeconds * jitter * 1e3;
+      }
+      async buildRequest(inputOptions, { retryCount = 0 } = {}) {
+        const options = { ...inputOptions };
+        const { method, path: path3, query, defaultBaseURL } = options;
+        const url = this.buildURL(path3, query, defaultBaseURL);
+        if ("timeout" in options)
+          validatePositiveInteger("timeout", options.timeout);
+        options.timeout = options.timeout ?? this.timeout;
+        const { bodyHeaders, body } = this.buildBody({ options });
+        const reqHeaders = await this.buildHeaders({ options: inputOptions, method, bodyHeaders, retryCount });
+        const req = {
+          method,
+          headers: reqHeaders,
+          ...options.signal && { signal: options.signal },
+          ...globalThis.ReadableStream && body instanceof globalThis.ReadableStream && { duplex: "half" },
+          ...body && { body },
+          ...this.fetchOptions ?? {},
+          ...options.fetchOptions ?? {}
+        };
+        return { req, url, timeout: options.timeout };
+      }
+      async buildHeaders({ options, method, bodyHeaders, retryCount }) {
+        let idempotencyHeaders = {};
+        if (this.idempotencyHeader && method !== "get") {
+          if (!options.idempotencyKey)
+            options.idempotencyKey = this.defaultIdempotencyKey();
+          idempotencyHeaders[this.idempotencyHeader] = options.idempotencyKey;
+        }
+        const headers = buildHeaders([
+          idempotencyHeaders,
+          {
+            Accept: "application/json",
+            "User-Agent": this.getUserAgent(),
+            "X-Stainless-Retry-Count": String(retryCount),
+            ...options.timeout ? { "X-Stainless-Timeout": String(Math.trunc(options.timeout / 1e3)) } : {},
+            ...getPlatformHeaders()
+          },
+          await this.authHeaders(options),
+          this._options.defaultHeaders,
+          bodyHeaders,
+          options.headers
+        ]);
+        this.validateHeaders(headers);
+        return headers.values;
+      }
+      _makeAbort(controller) {
+        return () => controller.abort();
+      }
+      buildBody({ options: { body, headers: rawHeaders } }) {
+        if (!body) {
+          return { bodyHeaders: void 0, body: void 0 };
+        }
+        const headers = buildHeaders([rawHeaders]);
+        if (
+          // Pass raw type verbatim
+          ArrayBuffer.isView(body) || body instanceof ArrayBuffer || body instanceof DataView || typeof body === "string" && // Preserve legacy string encoding behavior for now
+          headers.values.has("content-type") || // `Blob` is superset of `File`
+          globalThis.Blob && body instanceof globalThis.Blob || // `FormData` -> `multipart/form-data`
+          body instanceof FormData || // `URLSearchParams` -> `application/x-www-form-urlencoded`
+          body instanceof URLSearchParams || // Send chunked stream (each chunk has own `length`)
+          globalThis.ReadableStream && body instanceof globalThis.ReadableStream
+        ) {
+          return { bodyHeaders: void 0, body };
+        } else if (typeof body === "object" && (Symbol.asyncIterator in body || Symbol.iterator in body && "next" in body && typeof body.next === "function")) {
+          return { bodyHeaders: void 0, body: ReadableStreamFrom(body) };
+        } else if (typeof body === "object" && headers.values.get("content-type") === "application/x-www-form-urlencoded") {
+          return {
+            bodyHeaders: { "content-type": "application/x-www-form-urlencoded" },
+            body: this.stringifyQuery(body)
+          };
+        } else {
+          return __classPrivateFieldGet(this, _Langsmith_encoder, "f").call(this, { body, headers });
+        }
+      }
+    };
+    _a = Langsmith, _Langsmith_encoder = /* @__PURE__ */ new WeakMap(), _Langsmith_instances = /* @__PURE__ */ new WeakSet(), _Langsmith_baseURLOverridden = function _Langsmith_baseURLOverridden2() {
+      return this.baseURL !== "https://api.smith.langchain.com/";
+    };
+    Object.defineProperty(Langsmith, "Langsmith", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: _a
+    });
+    Object.defineProperty(Langsmith, "DEFAULT_TIMEOUT", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: 9e4
+    });
+    Object.defineProperty(Langsmith, "LangsmithError", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: LangsmithError
+    });
+    Object.defineProperty(Langsmith, "APIError", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: APIError
+    });
+    Object.defineProperty(Langsmith, "APIConnectionError", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: APIConnectionError
+    });
+    Object.defineProperty(Langsmith, "APIConnectionTimeoutError", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: APIConnectionTimeoutError
+    });
+    Object.defineProperty(Langsmith, "APIUserAbortError", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: APIUserAbortError
+    });
+    Object.defineProperty(Langsmith, "NotFoundError", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: NotFoundError
+    });
+    Object.defineProperty(Langsmith, "ConflictError", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: ConflictError
+    });
+    Object.defineProperty(Langsmith, "RateLimitError", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: RateLimitError
+    });
+    Object.defineProperty(Langsmith, "BadRequestError", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: BadRequestError
+    });
+    Object.defineProperty(Langsmith, "AuthenticationError", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: AuthenticationError
+    });
+    Object.defineProperty(Langsmith, "InternalServerError", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: InternalServerError
+    });
+    Object.defineProperty(Langsmith, "PermissionDeniedError", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: PermissionDeniedError
+    });
+    Object.defineProperty(Langsmith, "UnprocessableEntityError", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: UnprocessableEntityError
+    });
+    Object.defineProperty(Langsmith, "toFile", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: toFile
+    });
+    Langsmith.ProductFeedback = ProductFeedback;
+    Langsmith.Agents = Agents;
+    Langsmith.Fleet = Fleet;
+    Langsmith.Sessions = Sessions;
+    Langsmith.Datasets = Datasets;
+    Langsmith.Runs = Runs3;
+    Langsmith.Threads = Threads2;
+    Langsmith.Traces = Traces;
+    Langsmith.OnlineEvaluators = OnlineEvaluators;
+    Langsmith.Public = Public;
+    Langsmith.AnnotationQueues = AnnotationQueues;
+    Langsmith.PromptWebhooks = PromptWebhooks;
+    Langsmith.Info = Info;
+    Langsmith.Issues = Issues;
+    Langsmith.Sandboxes = Sandboxes;
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/env.mjs
 function getRuntimeEnvironment() {
   if (runtimeEnvironment === void 0) {
     const env = getEnv();
@@ -5206,7 +9351,7 @@ function getRuntimeEnvironment() {
       library: "langsmith",
       runtime: env,
       sdk: "langsmith-js",
-      sdk_version: __version__,
+      sdk_version: VERSION,
       ...releaseEnv
     };
   }
@@ -5236,12 +9381,14 @@ function getLangSmithEnvVarsMetadata() {
   ];
   for (const [key, value] of Object.entries(allEnvVars)) {
     if (typeof value === "string" && !excluded.includes(key) && !isSensitiveEnvVarName(key)) {
-      if (key === "LANGCHAIN_REVISION_ID") {
-        envVars["revision_id"] = value;
-      } else {
+      if (key !== "LANGSMITH_REVISION_ID" && key !== "LANGCHAIN_REVISION_ID") {
         envVars[key] = value;
       }
     }
+  }
+  const revisionId = allEnvVars.LANGSMITH_REVISION_ID || allEnvVars.LANGCHAIN_REVISION_ID;
+  if (revisionId) {
+    envVars["revision_id"] = revisionId;
   }
   return envVars;
 }
@@ -5335,9 +9482,9 @@ function resolveTracingMode(configValue) {
   return "langsmith";
 }
 var globalEnv, isBrowser, isWebWorker, isJsDom, isDeno, isNode, getEnv, runtimeEnvironment, EXCLUDED_SUBSTRINGS, cachedCommitSHAs, _VALID_TRACING_MODES;
-var init_env = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/env.js"() {
-    init_dist();
+var init_env2 = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/env.mjs"() {
+    init_lib();
     isBrowser = () => typeof window !== "undefined" && typeof window.document !== "undefined";
     isWebWorker = () => typeof globalThis === "object" && globalThis.constructor && globalThis.constructor.name === "DedicatedWorkerGlobalScope";
     isJsDom = () => typeof window !== "undefined" && window.name === "nodejs" || typeof navigator !== "undefined" && navigator.userAgent.includes("jsdom");
@@ -5378,7 +9525,509 @@ var init_env = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/singletons/otel.js
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/address.mjs
+function ensureAddress(value) {
+  if (value == null)
+    return void 0;
+  if (typeof value !== "object") {
+    throw new Error("address must be an AgentAddress, ExperimentAddress or EvaluatorAddress object.");
+  }
+  const { kind, id, environment } = value;
+  if (kind === "EVALUATOR")
+    return { kind };
+  if (kind === "EXPERIMENT") {
+    if (typeof id !== "string" || !UUID_PATTERN.test(id)) {
+      throw new Error(`Experiment id must be a UUID, got ${JSON.stringify(id)}.`);
+    }
+    return { kind, id: id.toLowerCase() };
+  }
+  if (kind !== "AGENT") {
+    throw new Error("address must be an AgentAddress, ExperimentAddress or EvaluatorAddress object.");
+  }
+  if (typeof id !== "string" || !AGENT_ID_PATTERN2.test(id)) {
+    throw new Error(`Address agent id must be 1 to 63 lowercase ASCII letters, digits, or hyphens, start with a letter, and end with a letter or digit, got ${JSON.stringify(id)}. Use an id such as "support-agent".`);
+  }
+  const normalized = typeof environment === "string" ? environment.toLowerCase() : void 0;
+  if (normalized === void 0 || !ENVIRONMENTS.includes(normalized)) {
+    throw new Error(`Address environment must be one of ${ENVIRONMENTS.join(", ")}, got ${JSON.stringify(environment)}.`);
+  }
+  return {
+    kind,
+    id,
+    environment: normalized.toUpperCase()
+  };
+}
+function ensureAgent(value) {
+  const address = ensureAddress(value);
+  if (address && address.kind !== "AGENT") {
+    throw new Error(`Only an AgentAddress can receive traces, got ${address.kind}.`);
+  }
+  return address;
+}
+function addressToLrn(address) {
+  return `lrn:agents/${address.id}/environments/${address.environment.toLowerCase()}`;
+}
+function addressFromLrn(value) {
+  const match = typeof value === "string" ? LRN_PATTERN.exec(value) : null;
+  if (!match)
+    throw new Error("Not an agent address.");
+  return ensureAgent({ kind: "AGENT", id: match[1], environment: match[2] });
+}
+function addressFromEnv() {
+  const values = ENV_NAMES.map((name) => getEnvironmentVariable(name));
+  if (!values.some(Boolean))
+    return void 0;
+  try {
+    const missing = ENV_NAMES.filter((_, i) => !values[i]);
+    if (missing.length)
+      throw new Error(`An address needs ${missing.join(" and ")} as well.`);
+    return ensureAgent({
+      kind: "AGENT",
+      id: values[0],
+      environment: values[1]
+    });
+  } catch (e) {
+    throw new EnvAddressError(`The LANGSMITH_AGENT_* env vars can't address a run: ${e.message}`);
+  }
+}
+function envNames() {
+  return ENV_NAMES;
+}
+var UUID_PATTERN, AGENT_ID_PATTERN2, ENVIRONMENTS, LRN_PATTERN, ENV_NAMES, EnvAddressError;
+var init_address = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/address.mjs"() {
+    init_env2();
+    UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    AGENT_ID_PATTERN2 = /^[a-z]([a-z0-9-]{0,61}[a-z0-9])?$/;
+    ENVIRONMENTS = ["local", "development", "staging", "production"];
+    LRN_PATTERN = /^lrn:agents\/([^/]+)\/environments\/([^/]+)$/;
+    ENV_NAMES = ["LANGSMITH_AGENT_ID", "LANGSMITH_AGENT_ENVIRONMENT"];
+    EnvAddressError = class extends Error {
+      constructor(message) {
+        super(message);
+        this.name = "EnvAddressError";
+      }
+    };
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/uuid/src/max.mjs
+var init_max = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/uuid/src/max.mjs"() {
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/uuid/src/nil.mjs
+var init_nil = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/uuid/src/nil.mjs"() {
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/uuid/src/regex.mjs
+var regex_default;
+var init_regex = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/uuid/src/regex.mjs"() {
+    regex_default = /^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$/i;
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/uuid/src/validate.mjs
+function validate(uuid) {
+  return typeof uuid === "string" && regex_default.test(uuid);
+}
+var validate_default;
+var init_validate = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/uuid/src/validate.mjs"() {
+    init_regex();
+    validate_default = validate;
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/uuid/src/parse.mjs
+function parse(uuid) {
+  if (!validate_default(uuid)) {
+    throw TypeError("Invalid UUID");
+  }
+  let v;
+  return Uint8Array.of(
+    (v = parseInt(uuid.slice(0, 8), 16)) >>> 24,
+    v >>> 16 & 255,
+    v >>> 8 & 255,
+    v & 255,
+    // Parse ........-####-....-....-............
+    (v = parseInt(uuid.slice(9, 13), 16)) >>> 8,
+    v & 255,
+    // Parse ........-....-####-....-............
+    (v = parseInt(uuid.slice(14, 18), 16)) >>> 8,
+    v & 255,
+    // Parse ........-....-....-####-............
+    (v = parseInt(uuid.slice(19, 23), 16)) >>> 8,
+    v & 255,
+    // Parse ........-....-....-....-############
+    // (Use "/" to avoid 32-bit truncation when bit-shifting high-order bytes)
+    (v = parseInt(uuid.slice(24, 36), 16)) / 1099511627776 & 255,
+    v / 4294967296 & 255,
+    v >>> 24 & 255,
+    v >>> 16 & 255,
+    v >>> 8 & 255,
+    v & 255
+  );
+}
+var parse_default;
+var init_parse2 = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/uuid/src/parse.mjs"() {
+    init_validate();
+    parse_default = parse;
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/uuid/src/stringify.mjs
+function unsafeStringify(arr2, offset = 0) {
+  return (byteToHex[arr2[offset + 0]] + byteToHex[arr2[offset + 1]] + byteToHex[arr2[offset + 2]] + byteToHex[arr2[offset + 3]] + "-" + byteToHex[arr2[offset + 4]] + byteToHex[arr2[offset + 5]] + "-" + byteToHex[arr2[offset + 6]] + byteToHex[arr2[offset + 7]] + "-" + byteToHex[arr2[offset + 8]] + byteToHex[arr2[offset + 9]] + "-" + byteToHex[arr2[offset + 10]] + byteToHex[arr2[offset + 11]] + byteToHex[arr2[offset + 12]] + byteToHex[arr2[offset + 13]] + byteToHex[arr2[offset + 14]] + byteToHex[arr2[offset + 15]]).toLowerCase();
+}
+var byteToHex;
+var init_stringify2 = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/uuid/src/stringify.mjs"() {
+    init_validate();
+    byteToHex = [];
+    for (let i = 0; i < 256; ++i) {
+      byteToHex.push((i + 256).toString(16).slice(1));
+    }
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/uuid/src/rng.mjs
+function rng() {
+  return crypto.getRandomValues(rnds8);
+}
+var rnds8;
+var init_rng = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/uuid/src/rng.mjs"() {
+    rnds8 = new Uint8Array(16);
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/uuid/src/v4.mjs
+function v4(options, buf, offset) {
+  if (!buf && !options && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  return _v4(options, buf, offset);
+}
+function _v4(options, buf, offset) {
+  options = options || {};
+  const rnds = options.random ?? options.rng?.() ?? rng();
+  if (rnds.length < 16) {
+    throw new Error("Random bytes length must be >= 16");
+  }
+  rnds[6] = rnds[6] & 15 | 64;
+  rnds[8] = rnds[8] & 63 | 128;
+  if (buf) {
+    offset = offset || 0;
+    if (offset < 0 || offset + 16 > buf.length) {
+      throw new RangeError(`UUID byte range ${offset}:${offset + 15} is out of buffer bounds`);
+    }
+    for (let i = 0; i < 16; ++i) {
+      buf[offset + i] = rnds[i];
+    }
+    return buf;
+  }
+  return unsafeStringify(rnds);
+}
+var v4_default;
+var init_v4 = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/uuid/src/v4.mjs"() {
+    init_rng();
+    init_stringify2();
+    v4_default = v4;
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/uuid/src/sha1.mjs
+function f(s, x, y, z) {
+  switch (s) {
+    case 0:
+      return x & y ^ ~x & z;
+    case 1:
+      return x ^ y ^ z;
+    case 2:
+      return x & y ^ x & z ^ y & z;
+    case 3:
+      return x ^ y ^ z;
+  }
+}
+function ROTL(x, n2) {
+  return x << n2 | x >>> 32 - n2;
+}
+function sha1(bytes) {
+  const K = [1518500249, 1859775393, 2400959708, 3395469782];
+  const H = [1732584193, 4023233417, 2562383102, 271733878, 3285377520];
+  const newBytes = new Uint8Array(bytes.length + 1);
+  newBytes.set(bytes);
+  newBytes[bytes.length] = 128;
+  bytes = newBytes;
+  const l = bytes.length / 4 + 2;
+  const N = Math.ceil(l / 16);
+  const M = new Array(N);
+  for (let i = 0; i < N; ++i) {
+    const arr2 = new Uint32Array(16);
+    for (let j = 0; j < 16; ++j) {
+      arr2[j] = bytes[i * 64 + j * 4] << 24 | bytes[i * 64 + j * 4 + 1] << 16 | bytes[i * 64 + j * 4 + 2] << 8 | bytes[i * 64 + j * 4 + 3];
+    }
+    M[i] = arr2;
+  }
+  M[N - 1][14] = (bytes.length - 1) * 8 / 2 ** 32;
+  M[N - 1][14] = Math.floor(M[N - 1][14]);
+  M[N - 1][15] = (bytes.length - 1) * 8 & 4294967295;
+  for (let i = 0; i < N; ++i) {
+    const W = new Uint32Array(80);
+    for (let t = 0; t < 16; ++t) {
+      W[t] = M[i][t];
+    }
+    for (let t = 16; t < 80; ++t) {
+      W[t] = ROTL(W[t - 3] ^ W[t - 8] ^ W[t - 14] ^ W[t - 16], 1);
+    }
+    let a = H[0];
+    let b = H[1];
+    let c = H[2];
+    let d = H[3];
+    let e = H[4];
+    for (let t = 0; t < 80; ++t) {
+      const s = Math.floor(t / 20);
+      const T = ROTL(a, 5) + f(s, b, c, d) + e + K[s] + W[t] >>> 0;
+      e = d;
+      d = c;
+      c = ROTL(b, 30) >>> 0;
+      b = a;
+      a = T;
+    }
+    H[0] = H[0] + a >>> 0;
+    H[1] = H[1] + b >>> 0;
+    H[2] = H[2] + c >>> 0;
+    H[3] = H[3] + d >>> 0;
+    H[4] = H[4] + e >>> 0;
+  }
+  return Uint8Array.of(H[0] >> 24, H[0] >> 16, H[0] >> 8, H[0], H[1] >> 24, H[1] >> 16, H[1] >> 8, H[1], H[2] >> 24, H[2] >> 16, H[2] >> 8, H[2], H[3] >> 24, H[3] >> 16, H[3] >> 8, H[3], H[4] >> 24, H[4] >> 16, H[4] >> 8, H[4]);
+}
+var sha1_default;
+var init_sha1 = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/uuid/src/sha1.mjs"() {
+    sha1_default = sha1;
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/uuid/src/v35.mjs
+function stringToBytes(str) {
+  str = unescape(encodeURIComponent(str));
+  const bytes = new Uint8Array(str.length);
+  for (let i = 0; i < str.length; ++i) {
+    bytes[i] = str.charCodeAt(i);
+  }
+  return bytes;
+}
+function v35(version, hash, value, namespace, buf, offset) {
+  const valueBytes = typeof value === "string" ? stringToBytes(value) : value;
+  const namespaceBytes = typeof namespace === "string" ? parse_default(namespace) : namespace;
+  if (typeof namespace === "string") {
+    namespace = parse_default(namespace);
+  }
+  if (namespace?.length !== 16) {
+    throw TypeError("Namespace must be array-like (16 iterable integer values, 0-255)");
+  }
+  let bytes = new Uint8Array(16 + valueBytes.length);
+  bytes.set(namespaceBytes);
+  bytes.set(valueBytes, namespaceBytes.length);
+  bytes = hash(bytes);
+  bytes[6] = bytes[6] & 15 | version;
+  bytes[8] = bytes[8] & 63 | 128;
+  if (buf) {
+    offset ?? (offset = 0);
+    if (offset < 0 || offset + 16 > buf.length) {
+      throw new RangeError(`UUID byte range ${offset}:${offset + 15} is out of buffer bounds`);
+    }
+    for (let i = 0; i < 16; ++i) {
+      buf[offset + i] = bytes[i];
+    }
+    return buf;
+  }
+  return unsafeStringify(bytes);
+}
+var DNS, URL2;
+var init_v35 = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/uuid/src/v35.mjs"() {
+    init_parse2();
+    init_stringify2();
+    DNS = "6ba7b810-9dad-11d1-80b4-00c04fd430c8";
+    URL2 = "6ba7b811-9dad-11d1-80b4-00c04fd430c8";
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/uuid/src/v5.mjs
+function v5(value, namespace, buf, offset) {
+  return v35(80, sha1_default, value, namespace, buf, offset);
+}
+var v5_default;
+var init_v5 = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/uuid/src/v5.mjs"() {
+    init_sha1();
+    init_v35();
+    init_v35();
+    v5.DNS = DNS;
+    v5.URL = URL2;
+    v5_default = v5;
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/uuid/src/v7.mjs
+function v7(options, buf, offset) {
+  let bytes;
+  if (options) {
+    bytes = v7Bytes(options.random ?? options.rng?.() ?? rng(), options.msecs, options.seq, buf, offset);
+  } else {
+    const now = Date.now();
+    const rnds = rng();
+    updateV7State(_state, now, rnds);
+    bytes = v7Bytes(rnds, _state.msecs, _state.seq, buf, offset);
+  }
+  return buf ?? unsafeStringify(bytes);
+}
+function updateV7State(state, now, rnds) {
+  state.msecs ?? (state.msecs = -Infinity);
+  state.seq ?? (state.seq = 0);
+  if (now > state.msecs) {
+    state.seq = rnds[6] << 23 | rnds[7] << 16 | rnds[8] << 8 | rnds[9];
+    state.msecs = now;
+  } else {
+    state.seq = state.seq + 1 | 0;
+    if (state.seq === 0) {
+      state.msecs++;
+    }
+  }
+  return state;
+}
+function v7Bytes(rnds, msecs, seq, buf, offset = 0) {
+  if (rnds.length < 16) {
+    throw new Error("Random bytes length must be >= 16");
+  }
+  if (!buf) {
+    buf = new Uint8Array(16);
+    offset = 0;
+  } else {
+    if (offset < 0 || offset + 16 > buf.length) {
+      throw new RangeError(`UUID byte range ${offset}:${offset + 15} is out of buffer bounds`);
+    }
+  }
+  msecs ?? (msecs = Date.now());
+  seq ?? (seq = rnds[6] * 127 << 24 | rnds[7] << 16 | rnds[8] << 8 | rnds[9]);
+  buf[offset++] = msecs / 1099511627776 & 255;
+  buf[offset++] = msecs / 4294967296 & 255;
+  buf[offset++] = msecs / 16777216 & 255;
+  buf[offset++] = msecs / 65536 & 255;
+  buf[offset++] = msecs / 256 & 255;
+  buf[offset++] = msecs & 255;
+  buf[offset++] = 112 | seq >>> 28 & 15;
+  buf[offset++] = seq >>> 20 & 255;
+  buf[offset++] = 128 | seq >>> 14 & 63;
+  buf[offset++] = seq >>> 6 & 255;
+  buf[offset++] = seq << 2 & 255 | rnds[10] & 3;
+  buf[offset++] = rnds[11];
+  buf[offset++] = rnds[12];
+  buf[offset++] = rnds[13];
+  buf[offset++] = rnds[14];
+  buf[offset++] = rnds[15];
+  return buf;
+}
+var _state, v7_default;
+var init_v7 = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/uuid/src/v7.mjs"() {
+    init_rng();
+    init_stringify2();
+    _state = {};
+    v7_default = v7;
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/uuid/src/version.mjs
+var init_version2 = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/uuid/src/version.mjs"() {
+    init_validate();
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/uuid/src/index.mjs
+var init_src = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/uuid/src/index.mjs"() {
+    init_max();
+    init_nil();
+    init_parse2();
+    init_stringify2();
+    init_v4();
+    init_v5();
+    init_v7();
+    init_validate();
+    init_version2();
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/api_url.mjs
+function getOpenAPIBaseUrl(apiUrl) {
+  const url = apiUrl.replace(/\/$/, "");
+  for (const suffix of ["/api/v1", "/api"]) {
+    if (url.endsWith(suffix))
+      return url.slice(0, -suffix.length);
+  }
+  return url;
+}
+var init_api_url = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/api_url.mjs"() {
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/experimental/otel/constants.mjs
+var GEN_AI_OPERATION_NAME, GEN_AI_SYSTEM, GEN_AI_REQUEST_MODEL, GEN_AI_RESPONSE_MODEL, GEN_AI_USAGE_INPUT_TOKENS, GEN_AI_USAGE_OUTPUT_TOKENS, GEN_AI_USAGE_TOTAL_TOKENS, GEN_AI_REQUEST_MAX_TOKENS, GEN_AI_REQUEST_TEMPERATURE, GEN_AI_REQUEST_TOP_P, GEN_AI_REQUEST_FREQUENCY_PENALTY, GEN_AI_REQUEST_PRESENCE_PENALTY, GEN_AI_RESPONSE_FINISH_REASONS, GENAI_PROMPT, GENAI_COMPLETION, GEN_AI_REQUEST_EXTRA_QUERY, GEN_AI_REQUEST_EXTRA_BODY, GEN_AI_SERIALIZED_NAME, GEN_AI_SERIALIZED_SIGNATURE, GEN_AI_SERIALIZED_DOC, GEN_AI_RESPONSE_ID, GEN_AI_TOOL_NAME, GEN_AI_TOOL_CALL_ID, GEN_AI_TOOL_DEFINITIONS, GEN_AI_RESPONSE_SERVICE_TIER, GEN_AI_RESPONSE_SYSTEM_FINGERPRINT, GEN_AI_USAGE_INPUT_TOKEN_DETAILS, GEN_AI_USAGE_OUTPUT_TOKEN_DETAILS, LANGSMITH_SESSION_ID, LANGSMITH_SESSION_NAME, LANGSMITH_RUN_TYPE, LANGSMITH_NAME, LANGSMITH_METADATA, LANGSMITH_TAGS, LANGSMITH_REQUEST_STREAMING, LANGSMITH_REQUEST_HEADERS, LANGSMITH_USAGE_METADATA;
+var init_constants9 = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/experimental/otel/constants.mjs"() {
+    GEN_AI_OPERATION_NAME = "gen_ai.operation.name";
+    GEN_AI_SYSTEM = "gen_ai.system";
+    GEN_AI_REQUEST_MODEL = "gen_ai.request.model";
+    GEN_AI_RESPONSE_MODEL = "gen_ai.response.model";
+    GEN_AI_USAGE_INPUT_TOKENS = "gen_ai.usage.input_tokens";
+    GEN_AI_USAGE_OUTPUT_TOKENS = "gen_ai.usage.output_tokens";
+    GEN_AI_USAGE_TOTAL_TOKENS = "gen_ai.usage.total_tokens";
+    GEN_AI_REQUEST_MAX_TOKENS = "gen_ai.request.max_tokens";
+    GEN_AI_REQUEST_TEMPERATURE = "gen_ai.request.temperature";
+    GEN_AI_REQUEST_TOP_P = "gen_ai.request.top_p";
+    GEN_AI_REQUEST_FREQUENCY_PENALTY = "gen_ai.request.frequency_penalty";
+    GEN_AI_REQUEST_PRESENCE_PENALTY = "gen_ai.request.presence_penalty";
+    GEN_AI_RESPONSE_FINISH_REASONS = "gen_ai.response.finish_reasons";
+    GENAI_PROMPT = "gen_ai.prompt";
+    GENAI_COMPLETION = "gen_ai.completion";
+    GEN_AI_REQUEST_EXTRA_QUERY = "gen_ai.request.extra_query";
+    GEN_AI_REQUEST_EXTRA_BODY = "gen_ai.request.extra_body";
+    GEN_AI_SERIALIZED_NAME = "gen_ai.serialized.name";
+    GEN_AI_SERIALIZED_SIGNATURE = "gen_ai.serialized.signature";
+    GEN_AI_SERIALIZED_DOC = "gen_ai.serialized.doc";
+    GEN_AI_RESPONSE_ID = "gen_ai.response.id";
+    GEN_AI_TOOL_NAME = "gen_ai.tool.name";
+    GEN_AI_TOOL_CALL_ID = "gen_ai.tool.call.id";
+    GEN_AI_TOOL_DEFINITIONS = "gen_ai.tool.definitions";
+    GEN_AI_RESPONSE_SERVICE_TIER = "gen_ai.response.service_tier";
+    GEN_AI_RESPONSE_SYSTEM_FINGERPRINT = "gen_ai.response.system_fingerprint";
+    GEN_AI_USAGE_INPUT_TOKEN_DETAILS = "gen_ai.usage.input_token_details";
+    GEN_AI_USAGE_OUTPUT_TOKEN_DETAILS = "gen_ai.usage.output_token_details";
+    LANGSMITH_SESSION_ID = "langsmith.trace.session_id";
+    LANGSMITH_SESSION_NAME = "langsmith.trace.session_name";
+    LANGSMITH_RUN_TYPE = "langsmith.span.kind";
+    LANGSMITH_NAME = "langsmith.trace.name";
+    LANGSMITH_METADATA = "langsmith.metadata";
+    LANGSMITH_TAGS = "langsmith.span.tags";
+    LANGSMITH_REQUEST_STREAMING = "langsmith.request.streaming";
+    LANGSMITH_REQUEST_HEADERS = "langsmith.request.headers";
+    LANGSMITH_USAGE_METADATA = "langsmith.usage_metadata";
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/singletons/otel.mjs
 function getOTELTrace() {
   return OTELProviderSingleton.getTraceInstance();
 }
@@ -5390,8 +10039,8 @@ function getDefaultOTLPTracerComponents() {
 }
 var MockTracer, MockOTELTrace, MockOTELContext, OTEL_TRACE_KEY, OTEL_CONTEXT_KEY, OTEL_GET_DEFAULT_OTLP_TRACER_PROVIDER_KEY, mockOTELTrace, mockOTELContext, OTELProvider, OTELProviderSingleton;
 var init_otel = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/singletons/otel.js"() {
-    init_env();
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/singletons/otel.mjs"() {
+    init_env2();
     MockTracer = class {
       constructor() {
         Object.defineProperty(this, "hasWarned", {
@@ -5490,7 +10139,7 @@ var init_otel = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/experimental/otel/translator.js
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/experimental/otel/translator.mjs
 function getOperationName(runType) {
   return WELL_KNOWN_OPERATION_NAMES[runType] || runType;
 }
@@ -5499,7 +10148,7 @@ function isPrimitive(value) {
 }
 var WELL_KNOWN_OPERATION_NAMES, LangSmithToOTELTranslator;
 var init_translator = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/experimental/otel/translator.js"() {
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/experimental/otel/translator.mjs"() {
     init_constants9();
     init_otel();
     WELL_KNOWN_OPERATION_NAMES = {
@@ -5858,7 +10507,7 @@ var init_translator = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/is-network-error/index.js
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/is-network-error/index.mjs
 function isNetworkError(error2) {
   const isValid = error2 && isError(error2) && error2.name === "TypeError" && typeof error2.message === "string";
   if (!isValid) {
@@ -5876,7 +10525,7 @@ function isNetworkError(error2) {
 }
 var objectToString, isError, errorMessages;
 var init_is_network_error = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/is-network-error/index.js"() {
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/is-network-error/index.mjs"() {
     objectToString = Object.prototype.toString;
     isError = (value) => objectToString.call(value) === "[object Error]";
     errorMessages = /* @__PURE__ */ new Set([
@@ -5902,7 +10551,7 @@ var init_is_network_error = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/p-retry/index.js
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/p-retry/index.mjs
 function validateRetries(retries) {
   if (typeof retries === "number") {
     if (retries < 0) {
@@ -6006,16 +10655,16 @@ async function pRetry(input, options = {}) {
   if (Object.hasOwn(options, "forever")) {
     throw new Error("The `forever` option is no longer supported. For many use-cases, you can set `retries: Infinity` instead.");
   }
-  options.retries ??= 10;
-  options.factor ??= 2;
-  options.minTimeout ??= 1e3;
-  options.maxTimeout ??= Number.POSITIVE_INFINITY;
-  options.maxRetryTime ??= Number.POSITIVE_INFINITY;
-  options.randomize ??= false;
-  options.onFailedAttempt ??= () => {
-  };
-  options.shouldRetry ??= () => true;
-  options.shouldConsumeRetry ??= () => true;
+  options.retries ?? (options.retries = 10);
+  options.factor ?? (options.factor = 2);
+  options.minTimeout ?? (options.minTimeout = 1e3);
+  options.maxTimeout ?? (options.maxTimeout = Number.POSITIVE_INFINITY);
+  options.maxRetryTime ?? (options.maxRetryTime = Number.POSITIVE_INFINITY);
+  options.randomize ?? (options.randomize = false);
+  options.onFailedAttempt ?? (options.onFailedAttempt = () => {
+  });
+  options.shouldRetry ?? (options.shouldRetry = () => true);
+  options.shouldConsumeRetry ?? (options.shouldConsumeRetry = () => true);
   validateNumberOption("factor", options.factor, {
     min: 0,
     allowInfinity: false
@@ -6062,7 +10711,7 @@ async function pRetry(input, options = {}) {
 }
 var AbortError;
 var init_p_retry = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/p-retry/index.js"() {
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/p-retry/index.mjs"() {
     init_is_network_error();
     AbortError = class extends Error {
       constructor(message) {
@@ -6646,19 +11295,19 @@ var require_dist = __commonJS({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/p-queue.js
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/p-queue.mjs
 var import_p_queue, PQueue;
 var init_p_queue = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/p-queue.js"() {
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/p-queue.mjs"() {
     import_p_queue = __toESM(require_dist(), 1);
     PQueue = "default" in import_p_queue.default ? import_p_queue.default.default : import_p_queue.default;
   }
 });
 
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/async_caller.js
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/async_caller.mjs
 var STATUS_RETRYABLE, AsyncCaller;
 var init_async_caller = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/async_caller.js"() {
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/async_caller.mjs"() {
     init_p_retry();
     init_p_queue();
     STATUS_RETRYABLE = [
@@ -6790,7 +11439,7 @@ var init_async_caller = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/messages.js
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/messages.mjs
 function isLangChainMessage(message) {
   return typeof message?._getType === "function";
 }
@@ -6805,3323 +11454,11 @@ function convertLangChainMessageToExample(message) {
   return converted;
 }
 var init_messages = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/messages.js"() {
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/messages.mjs"() {
   }
 });
 
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/internal/utils/uuid.js
-var uuid4;
-var init_uuid = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/internal/utils/uuid.js"() {
-    uuid4 = function() {
-      const { crypto: crypto2 } = globalThis;
-      if (crypto2?.randomUUID) {
-        uuid4 = crypto2.randomUUID.bind(crypto2);
-        return crypto2.randomUUID();
-      }
-      const u8 = new Uint8Array(1);
-      const randomByte = crypto2 ? () => crypto2.getRandomValues(u8)[0] : () => Math.random() * 255 & 255;
-      return "10000000-1000-4000-8000-100000000000".replace(/[018]/g, (c) => (+c ^ randomByte() & 15 >> +c / 4).toString(16));
-    };
-  }
-});
-
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/internal/errors.js
-function isAbortError(err) {
-  return typeof err === "object" && err !== null && // Spec-compliant fetch implementations
-  ("name" in err && err.name === "AbortError" || // Expo fetch
-  "message" in err && String(err.message).includes("FetchRequestCanceledException"));
-}
-var castToError;
-var init_errors4 = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/internal/errors.js"() {
-    castToError = (err) => {
-      if (err instanceof Error)
-        return err;
-      if (typeof err === "object" && err !== null) {
-        try {
-          if (Object.prototype.toString.call(err) === "[object Error]") {
-            const error2 = new Error(err.message, err.cause ? { cause: err.cause } : {});
-            if (err.stack)
-              error2.stack = err.stack;
-            if (err.cause && !error2.cause)
-              error2.cause = err.cause;
-            if (err.name)
-              error2.name = err.name;
-            return error2;
-          }
-        } catch {
-        }
-        try {
-          return new Error(JSON.stringify(err));
-        } catch {
-        }
-      }
-      return new Error(err);
-    };
-  }
-});
-
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/core/error.js
-var LangsmithError, APIError, APIUserAbortError, APIConnectionError, APIConnectionTimeoutError, BadRequestError, AuthenticationError, PermissionDeniedError, NotFoundError, ConflictError, UnprocessableEntityError, RateLimitError, InternalServerError;
-var init_error = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/core/error.js"() {
-    init_errors4();
-    LangsmithError = class extends Error {
-    };
-    APIError = class _APIError extends LangsmithError {
-      constructor(status, error2, message, headers) {
-        super(`${_APIError.makeMessage(status, error2, message)}`);
-        Object.defineProperty(this, "status", {
-          enumerable: true,
-          configurable: true,
-          writable: true,
-          value: void 0
-        });
-        Object.defineProperty(this, "headers", {
-          enumerable: true,
-          configurable: true,
-          writable: true,
-          value: void 0
-        });
-        Object.defineProperty(this, "error", {
-          enumerable: true,
-          configurable: true,
-          writable: true,
-          value: void 0
-        });
-        this.status = status;
-        this.headers = headers;
-        this.error = error2;
-      }
-      static makeMessage(status, error2, message) {
-        const msg = error2?.message ? typeof error2.message === "string" ? error2.message : JSON.stringify(error2.message) : error2 ? JSON.stringify(error2) : message;
-        if (status && msg) {
-          return `${status} ${msg}`;
-        }
-        if (status) {
-          return `${status} status code (no body)`;
-        }
-        if (msg) {
-          return msg;
-        }
-        return "(no status code or body)";
-      }
-      static generate(status, errorResponse, message, headers) {
-        if (!status || !headers) {
-          return new APIConnectionError({ message, cause: castToError(errorResponse) });
-        }
-        const error2 = errorResponse;
-        if (status === 400) {
-          return new BadRequestError(status, error2, message, headers);
-        }
-        if (status === 401) {
-          return new AuthenticationError(status, error2, message, headers);
-        }
-        if (status === 403) {
-          return new PermissionDeniedError(status, error2, message, headers);
-        }
-        if (status === 404) {
-          return new NotFoundError(status, error2, message, headers);
-        }
-        if (status === 409) {
-          return new ConflictError(status, error2, message, headers);
-        }
-        if (status === 422) {
-          return new UnprocessableEntityError(status, error2, message, headers);
-        }
-        if (status === 429) {
-          return new RateLimitError(status, error2, message, headers);
-        }
-        if (status >= 500) {
-          return new InternalServerError(status, error2, message, headers);
-        }
-        return new _APIError(status, error2, message, headers);
-      }
-    };
-    APIUserAbortError = class extends APIError {
-      constructor({ message } = {}) {
-        super(void 0, void 0, message || "Request was aborted.", void 0);
-      }
-    };
-    APIConnectionError = class extends APIError {
-      constructor({ message, cause }) {
-        super(void 0, void 0, message || "Connection error.", void 0);
-        if (cause)
-          this.cause = cause;
-      }
-    };
-    APIConnectionTimeoutError = class extends APIConnectionError {
-      constructor({ message } = {}) {
-        super({ message: message ?? "Request timed out." });
-      }
-    };
-    BadRequestError = class extends APIError {
-    };
-    AuthenticationError = class extends APIError {
-    };
-    PermissionDeniedError = class extends APIError {
-    };
-    NotFoundError = class extends APIError {
-    };
-    ConflictError = class extends APIError {
-    };
-    UnprocessableEntityError = class extends APIError {
-    };
-    RateLimitError = class extends APIError {
-    };
-    InternalServerError = class extends APIError {
-    };
-  }
-});
-
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/internal/utils/values.js
-function maybeObj(x) {
-  if (typeof x !== "object") {
-    return {};
-  }
-  return x ?? {};
-}
-function isEmptyObj(obj) {
-  if (!obj)
-    return true;
-  for (const _k in obj)
-    return false;
-  return true;
-}
-function hasOwn(obj, key) {
-  return Object.prototype.hasOwnProperty.call(obj, key);
-}
-var startsWithSchemeRegexp, isAbsoluteURL, isArray, isReadonlyArray, validatePositiveInteger, safeJSON;
-var init_values = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/internal/utils/values.js"() {
-    init_error();
-    startsWithSchemeRegexp = /^[a-z][a-z0-9+.-]*:/i;
-    isAbsoluteURL = (url) => {
-      return startsWithSchemeRegexp.test(url);
-    };
-    isArray = (val) => (isArray = Array.isArray, isArray(val));
-    isReadonlyArray = isArray;
-    validatePositiveInteger = (name, n2) => {
-      if (typeof n2 !== "number" || !Number.isInteger(n2)) {
-        throw new LangsmithError(`${name} must be an integer`);
-      }
-      if (n2 < 0) {
-        throw new LangsmithError(`${name} must be a positive integer`);
-      }
-      return n2;
-    };
-    safeJSON = (text) => {
-      try {
-        return JSON.parse(text);
-      } catch (err) {
-        return void 0;
-      }
-    };
-  }
-});
-
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/internal/utils/sleep.js
-var sleep;
-var init_sleep = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/internal/utils/sleep.js"() {
-    sleep = (ms) => new Promise((resolve15) => setTimeout(resolve15, ms));
-  }
-});
-
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/version.js
-var VERSION;
-var init_version2 = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/version.js"() {
-    VERSION = "0.0.1";
-  }
-});
-
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/internal/detect-platform.js
-function getDetectedPlatform() {
-  if (typeof Deno !== "undefined" && Deno.build != null) {
-    return "deno";
-  }
-  if (typeof EdgeRuntime !== "undefined") {
-    return "edge";
-  }
-  if (Object.prototype.toString.call(typeof globalThis.process !== "undefined" ? globalThis.process : 0) === "[object process]") {
-    return "node";
-  }
-  return "unknown";
-}
-function getBrowserInfo() {
-  if (typeof navigator === "undefined" || !navigator) {
-    return null;
-  }
-  const browserPatterns = [
-    { key: "edge", pattern: /Edge(?:\W+(\d+)\.(\d+)(?:\.(\d+))?)?/ },
-    { key: "ie", pattern: /MSIE(?:\W+(\d+)\.(\d+)(?:\.(\d+))?)?/ },
-    { key: "ie", pattern: /Trident(?:.*rv\:(\d+)\.(\d+)(?:\.(\d+))?)?/ },
-    { key: "chrome", pattern: /Chrome(?:\W+(\d+)\.(\d+)(?:\.(\d+))?)?/ },
-    { key: "firefox", pattern: /Firefox(?:\W+(\d+)\.(\d+)(?:\.(\d+))?)?/ },
-    { key: "safari", pattern: /(?:Version\W+(\d+)\.(\d+)(?:\.(\d+))?)?(?:\W+Mobile\S*)?\W+Safari/ }
-  ];
-  for (const { key, pattern } of browserPatterns) {
-    const match = pattern.exec(navigator.userAgent);
-    if (match) {
-      const major = match[1] || 0;
-      const minor = match[2] || 0;
-      const patch = match[3] || 0;
-      return { browser: key, version: `${major}.${minor}.${patch}` };
-    }
-  }
-  return null;
-}
-var getPlatformProperties, normalizeArch, normalizePlatform, _platformHeaders, getPlatformHeaders;
-var init_detect_platform = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/internal/detect-platform.js"() {
-    init_version2();
-    getPlatformProperties = () => {
-      const detectedPlatform = getDetectedPlatform();
-      if (detectedPlatform === "deno") {
-        return {
-          "X-Stainless-Lang": "js",
-          "X-Stainless-Package-Version": VERSION,
-          "X-Stainless-OS": normalizePlatform(Deno.build.os),
-          "X-Stainless-Arch": normalizeArch(Deno.build.arch),
-          "X-Stainless-Runtime": "deno",
-          "X-Stainless-Runtime-Version": typeof Deno.version === "string" ? Deno.version : Deno.version?.deno ?? "unknown"
-        };
-      }
-      if (typeof EdgeRuntime !== "undefined") {
-        return {
-          "X-Stainless-Lang": "js",
-          "X-Stainless-Package-Version": VERSION,
-          "X-Stainless-OS": "Unknown",
-          "X-Stainless-Arch": `other:${EdgeRuntime}`,
-          "X-Stainless-Runtime": "edge",
-          "X-Stainless-Runtime-Version": globalThis.process.version
-        };
-      }
-      if (detectedPlatform === "node") {
-        return {
-          "X-Stainless-Lang": "js",
-          "X-Stainless-Package-Version": VERSION,
-          "X-Stainless-OS": normalizePlatform(globalThis.process.platform ?? "unknown"),
-          "X-Stainless-Arch": normalizeArch(globalThis.process.arch ?? "unknown"),
-          "X-Stainless-Runtime": "node",
-          "X-Stainless-Runtime-Version": globalThis.process.version ?? "unknown"
-        };
-      }
-      const browserInfo = getBrowserInfo();
-      if (browserInfo) {
-        return {
-          "X-Stainless-Lang": "js",
-          "X-Stainless-Package-Version": VERSION,
-          "X-Stainless-OS": "Unknown",
-          "X-Stainless-Arch": "unknown",
-          "X-Stainless-Runtime": `browser:${browserInfo.browser}`,
-          "X-Stainless-Runtime-Version": browserInfo.version
-        };
-      }
-      return {
-        "X-Stainless-Lang": "js",
-        "X-Stainless-Package-Version": VERSION,
-        "X-Stainless-OS": "Unknown",
-        "X-Stainless-Arch": "unknown",
-        "X-Stainless-Runtime": "unknown",
-        "X-Stainless-Runtime-Version": "unknown"
-      };
-    };
-    normalizeArch = (arch) => {
-      if (arch === "x32")
-        return "x32";
-      if (arch === "x86_64" || arch === "x64")
-        return "x64";
-      if (arch === "arm")
-        return "arm";
-      if (arch === "aarch64" || arch === "arm64")
-        return "arm64";
-      if (arch)
-        return `other:${arch}`;
-      return "unknown";
-    };
-    normalizePlatform = (platform2) => {
-      platform2 = platform2.toLowerCase();
-      if (platform2.includes("ios"))
-        return "iOS";
-      if (platform2 === "android")
-        return "Android";
-      if (platform2 === "darwin")
-        return "MacOS";
-      if (platform2 === "win32")
-        return "Windows";
-      if (platform2 === "freebsd")
-        return "FreeBSD";
-      if (platform2 === "openbsd")
-        return "OpenBSD";
-      if (platform2 === "linux")
-        return "Linux";
-      if (platform2)
-        return `Other:${platform2}`;
-      return "Unknown";
-    };
-    getPlatformHeaders = () => {
-      return _platformHeaders ??= getPlatformProperties();
-    };
-  }
-});
-
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/internal/shims.js
-function getDefaultFetch() {
-  if (typeof fetch !== "undefined") {
-    return fetch;
-  }
-  throw new Error("`fetch` is not defined as a global; Either pass `fetch` to the client, `new Langsmith({ fetch })` or polyfill the global, `globalThis.fetch = fetch`");
-}
-function makeReadableStream(...args) {
-  const ReadableStream2 = globalThis.ReadableStream;
-  if (typeof ReadableStream2 === "undefined") {
-    throw new Error("`ReadableStream` is not defined as a global; You will need to polyfill it, `globalThis.ReadableStream = ReadableStream`");
-  }
-  return new ReadableStream2(...args);
-}
-function ReadableStreamFrom(iterable) {
-  let iter = Symbol.asyncIterator in iterable ? iterable[Symbol.asyncIterator]() : iterable[Symbol.iterator]();
-  return makeReadableStream({
-    start() {
-    },
-    async pull(controller) {
-      const { done, value } = await iter.next();
-      if (done) {
-        controller.close();
-      } else {
-        controller.enqueue(value);
-      }
-    },
-    async cancel() {
-      await iter.return?.();
-    }
-  });
-}
-async function CancelReadableStream(stream) {
-  if (stream === null || typeof stream !== "object")
-    return;
-  if (stream[Symbol.asyncIterator]) {
-    await stream[Symbol.asyncIterator]().return?.();
-    return;
-  }
-  const reader = stream.getReader();
-  const cancelPromise = reader.cancel();
-  reader.releaseLock();
-  await cancelPromise;
-}
-var init_shims = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/internal/shims.js"() {
-  }
-});
-
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/internal/request-options.js
-var FallbackEncoder;
-var init_request_options = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/internal/request-options.js"() {
-    FallbackEncoder = ({ headers, body }) => {
-      return {
-        bodyHeaders: {
-          "content-type": "application/json"
-        },
-        body: JSON.stringify(body)
-      };
-    };
-  }
-});
-
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/internal/qs/formats.js
-var default_format, default_formatter, formatters, RFC1738;
-var init_formats = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/internal/qs/formats.js"() {
-    default_format = "RFC3986";
-    default_formatter = (v) => String(v);
-    formatters = {
-      RFC1738: (v) => String(v).replace(/%20/g, "+"),
-      RFC3986: default_formatter
-    };
-    RFC1738 = "RFC1738";
-  }
-});
-
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/internal/qs/utils.js
-function is_buffer(obj) {
-  if (!obj || typeof obj !== "object") {
-    return false;
-  }
-  return !!(obj.constructor && obj.constructor.isBuffer && obj.constructor.isBuffer(obj));
-}
-function maybe_map(val, fn) {
-  if (isArray(val)) {
-    const mapped = [];
-    for (let i = 0; i < val.length; i += 1) {
-      mapped.push(fn(val[i]));
-    }
-    return mapped;
-  }
-  return fn(val);
-}
-var has, hex_table, limit, encode;
-var init_utils = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/internal/qs/utils.js"() {
-    init_formats();
-    init_values();
-    has = (obj, key) => (has = Object.hasOwn ?? Function.prototype.call.bind(Object.prototype.hasOwnProperty), has(obj, key));
-    hex_table = /* @__PURE__ */ (() => {
-      const array = [];
-      for (let i = 0; i < 256; ++i) {
-        array.push("%" + ((i < 16 ? "0" : "") + i.toString(16)).toUpperCase());
-      }
-      return array;
-    })();
-    limit = 1024;
-    encode = (str, _defaultEncoder, charset, _kind, format) => {
-      if (str.length === 0) {
-        return str;
-      }
-      let string = str;
-      if (typeof str === "symbol") {
-        string = Symbol.prototype.toString.call(str);
-      } else if (typeof str !== "string") {
-        string = String(str);
-      }
-      if (charset === "iso-8859-1") {
-        return escape(string).replace(/%u[0-9a-f]{4}/gi, function($0) {
-          return "%26%23" + parseInt($0.slice(2), 16) + "%3B";
-        });
-      }
-      let out = "";
-      for (let j = 0; j < string.length; j += limit) {
-        const segment = string.length >= limit ? string.slice(j, j + limit) : string;
-        const arr2 = [];
-        for (let i = 0; i < segment.length; ++i) {
-          let c = segment.charCodeAt(i);
-          if (c === 45 || // -
-          c === 46 || // .
-          c === 95 || // _
-          c === 126 || // ~
-          c >= 48 && c <= 57 || // 0-9
-          c >= 65 && c <= 90 || // a-z
-          c >= 97 && c <= 122 || // A-Z
-          format === RFC1738 && (c === 40 || c === 41)) {
-            arr2[arr2.length] = segment.charAt(i);
-            continue;
-          }
-          if (c < 128) {
-            arr2[arr2.length] = hex_table[c];
-            continue;
-          }
-          if (c < 2048) {
-            arr2[arr2.length] = hex_table[192 | c >> 6] + hex_table[128 | c & 63];
-            continue;
-          }
-          if (c < 55296 || c >= 57344) {
-            arr2[arr2.length] = hex_table[224 | c >> 12] + hex_table[128 | c >> 6 & 63] + hex_table[128 | c & 63];
-            continue;
-          }
-          i += 1;
-          c = 65536 + ((c & 1023) << 10 | segment.charCodeAt(i) & 1023);
-          arr2[arr2.length] = hex_table[240 | c >> 18] + hex_table[128 | c >> 12 & 63] + hex_table[128 | c >> 6 & 63] + hex_table[128 | c & 63];
-        }
-        out += arr2.join("");
-      }
-      return out;
-    };
-  }
-});
-
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/internal/qs/stringify.js
-function is_non_nullish_primitive(v) {
-  return typeof v === "string" || typeof v === "number" || typeof v === "boolean" || typeof v === "symbol" || typeof v === "bigint";
-}
-function inner_stringify(object2, prefix, generateArrayPrefix, commaRoundTrip, allowEmptyArrays, strictNullHandling, skipNulls, encodeDotInKeys, encoder3, filter, sort, allowDots, serializeDate, format, formatter, encodeValuesOnly, charset, sideChannel) {
-  let obj = object2;
-  let tmp_sc = sideChannel;
-  let step = 0;
-  let find_flag = false;
-  while ((tmp_sc = tmp_sc.get(sentinel)) !== void 0 && !find_flag) {
-    const pos = tmp_sc.get(object2);
-    step += 1;
-    if (typeof pos !== "undefined") {
-      if (pos === step) {
-        throw new RangeError("Cyclic object value");
-      } else {
-        find_flag = true;
-      }
-    }
-    if (typeof tmp_sc.get(sentinel) === "undefined") {
-      step = 0;
-    }
-  }
-  if (typeof filter === "function") {
-    obj = filter(prefix, obj);
-  } else if (obj instanceof Date) {
-    obj = serializeDate?.(obj);
-  } else if (generateArrayPrefix === "comma" && isArray(obj)) {
-    obj = maybe_map(obj, function(value) {
-      if (value instanceof Date) {
-        return serializeDate?.(value);
-      }
-      return value;
-    });
-  }
-  if (obj === null) {
-    if (strictNullHandling) {
-      return encoder3 && !encodeValuesOnly ? (
-        // @ts-expect-error
-        encoder3(prefix, defaults.encoder, charset, "key", format)
-      ) : prefix;
-    }
-    obj = "";
-  }
-  if (is_non_nullish_primitive(obj) || is_buffer(obj)) {
-    if (encoder3) {
-      const key_value = encodeValuesOnly ? prefix : encoder3(prefix, defaults.encoder, charset, "key", format);
-      return [
-        formatter?.(key_value) + "=" + // @ts-expect-error
-        formatter?.(encoder3(obj, defaults.encoder, charset, "value", format))
-      ];
-    }
-    return [formatter?.(prefix) + "=" + formatter?.(String(obj))];
-  }
-  const values = [];
-  if (typeof obj === "undefined") {
-    return values;
-  }
-  let obj_keys;
-  if (generateArrayPrefix === "comma" && isArray(obj)) {
-    if (encodeValuesOnly && encoder3) {
-      obj = maybe_map(obj, encoder3);
-    }
-    obj_keys = [{ value: obj.length > 0 ? obj.join(",") || null : void 0 }];
-  } else if (isArray(filter)) {
-    obj_keys = filter;
-  } else {
-    const keys = Object.keys(obj);
-    obj_keys = sort ? keys.sort(sort) : keys;
-  }
-  const encoded_prefix = encodeDotInKeys ? String(prefix).replace(/\./g, "%2E") : String(prefix);
-  const adjusted_prefix = commaRoundTrip && isArray(obj) && obj.length === 1 ? encoded_prefix + "[]" : encoded_prefix;
-  if (allowEmptyArrays && isArray(obj) && obj.length === 0) {
-    return adjusted_prefix + "[]";
-  }
-  for (let j = 0; j < obj_keys.length; ++j) {
-    const key = obj_keys[j];
-    const value = (
-      // @ts-ignore
-      typeof key === "object" && typeof key.value !== "undefined" ? key.value : obj[key]
-    );
-    if (skipNulls && value === null) {
-      continue;
-    }
-    const encoded_key = allowDots && encodeDotInKeys ? key.replace(/\./g, "%2E") : key;
-    const key_prefix = isArray(obj) ? typeof generateArrayPrefix === "function" ? generateArrayPrefix(adjusted_prefix, encoded_key) : adjusted_prefix : adjusted_prefix + (allowDots ? "." + encoded_key : "[" + encoded_key + "]");
-    sideChannel.set(object2, step);
-    const valueSideChannel = /* @__PURE__ */ new WeakMap();
-    valueSideChannel.set(sentinel, sideChannel);
-    push_to_array(values, inner_stringify(
-      value,
-      key_prefix,
-      generateArrayPrefix,
-      commaRoundTrip,
-      allowEmptyArrays,
-      strictNullHandling,
-      skipNulls,
-      encodeDotInKeys,
-      // @ts-ignore
-      generateArrayPrefix === "comma" && encodeValuesOnly && isArray(obj) ? null : encoder3,
-      filter,
-      sort,
-      allowDots,
-      serializeDate,
-      format,
-      formatter,
-      encodeValuesOnly,
-      charset,
-      valueSideChannel
-    ));
-  }
-  return values;
-}
-function normalize_stringify_options(opts = defaults) {
-  if (typeof opts.allowEmptyArrays !== "undefined" && typeof opts.allowEmptyArrays !== "boolean") {
-    throw new TypeError("`allowEmptyArrays` option can only be `true` or `false`, when provided");
-  }
-  if (typeof opts.encodeDotInKeys !== "undefined" && typeof opts.encodeDotInKeys !== "boolean") {
-    throw new TypeError("`encodeDotInKeys` option can only be `true` or `false`, when provided");
-  }
-  if (opts.encoder !== null && typeof opts.encoder !== "undefined" && typeof opts.encoder !== "function") {
-    throw new TypeError("Encoder has to be a function.");
-  }
-  const charset = opts.charset || defaults.charset;
-  if (typeof opts.charset !== "undefined" && opts.charset !== "utf-8" && opts.charset !== "iso-8859-1") {
-    throw new TypeError("The charset option must be either utf-8, iso-8859-1, or undefined");
-  }
-  let format = default_format;
-  if (typeof opts.format !== "undefined") {
-    if (!has(formatters, opts.format)) {
-      throw new TypeError("Unknown format option provided.");
-    }
-    format = opts.format;
-  }
-  const formatter = formatters[format];
-  let filter = defaults.filter;
-  if (typeof opts.filter === "function" || isArray(opts.filter)) {
-    filter = opts.filter;
-  }
-  let arrayFormat;
-  if (opts.arrayFormat && opts.arrayFormat in array_prefix_generators) {
-    arrayFormat = opts.arrayFormat;
-  } else if ("indices" in opts) {
-    arrayFormat = opts.indices ? "indices" : "repeat";
-  } else {
-    arrayFormat = defaults.arrayFormat;
-  }
-  if ("commaRoundTrip" in opts && typeof opts.commaRoundTrip !== "boolean") {
-    throw new TypeError("`commaRoundTrip` must be a boolean, or absent");
-  }
-  const allowDots = typeof opts.allowDots === "undefined" ? !!opts.encodeDotInKeys === true ? true : defaults.allowDots : !!opts.allowDots;
-  return {
-    addQueryPrefix: typeof opts.addQueryPrefix === "boolean" ? opts.addQueryPrefix : defaults.addQueryPrefix,
-    // @ts-ignore
-    allowDots,
-    allowEmptyArrays: typeof opts.allowEmptyArrays === "boolean" ? !!opts.allowEmptyArrays : defaults.allowEmptyArrays,
-    arrayFormat,
-    charset,
-    charsetSentinel: typeof opts.charsetSentinel === "boolean" ? opts.charsetSentinel : defaults.charsetSentinel,
-    commaRoundTrip: !!opts.commaRoundTrip,
-    delimiter: typeof opts.delimiter === "undefined" ? defaults.delimiter : opts.delimiter,
-    encode: typeof opts.encode === "boolean" ? opts.encode : defaults.encode,
-    encodeDotInKeys: typeof opts.encodeDotInKeys === "boolean" ? opts.encodeDotInKeys : defaults.encodeDotInKeys,
-    encoder: typeof opts.encoder === "function" ? opts.encoder : defaults.encoder,
-    encodeValuesOnly: typeof opts.encodeValuesOnly === "boolean" ? opts.encodeValuesOnly : defaults.encodeValuesOnly,
-    filter,
-    format,
-    formatter,
-    serializeDate: typeof opts.serializeDate === "function" ? opts.serializeDate : defaults.serializeDate,
-    skipNulls: typeof opts.skipNulls === "boolean" ? opts.skipNulls : defaults.skipNulls,
-    // @ts-ignore
-    sort: typeof opts.sort === "function" ? opts.sort : null,
-    strictNullHandling: typeof opts.strictNullHandling === "boolean" ? opts.strictNullHandling : defaults.strictNullHandling
-  };
-}
-function stringify(object2, opts = {}) {
-  let obj = object2;
-  const options = normalize_stringify_options(opts);
-  let obj_keys;
-  let filter;
-  if (typeof options.filter === "function") {
-    filter = options.filter;
-    obj = filter("", obj);
-  } else if (isArray(options.filter)) {
-    filter = options.filter;
-    obj_keys = filter;
-  }
-  const keys = [];
-  if (typeof obj !== "object" || obj === null) {
-    return "";
-  }
-  const generateArrayPrefix = array_prefix_generators[options.arrayFormat];
-  const commaRoundTrip = generateArrayPrefix === "comma" && options.commaRoundTrip;
-  if (!obj_keys) {
-    obj_keys = Object.keys(obj);
-  }
-  if (options.sort) {
-    obj_keys.sort(options.sort);
-  }
-  const sideChannel = /* @__PURE__ */ new WeakMap();
-  for (let i = 0; i < obj_keys.length; ++i) {
-    const key = obj_keys[i];
-    if (options.skipNulls && obj[key] === null) {
-      continue;
-    }
-    push_to_array(keys, inner_stringify(
-      obj[key],
-      key,
-      // @ts-expect-error
-      generateArrayPrefix,
-      commaRoundTrip,
-      options.allowEmptyArrays,
-      options.strictNullHandling,
-      options.skipNulls,
-      options.encodeDotInKeys,
-      options.encode ? options.encoder : null,
-      options.filter,
-      options.sort,
-      options.allowDots,
-      options.serializeDate,
-      options.format,
-      options.formatter,
-      options.encodeValuesOnly,
-      options.charset,
-      sideChannel
-    ));
-  }
-  const joined = keys.join(options.delimiter);
-  let prefix = options.addQueryPrefix === true ? "?" : "";
-  if (options.charsetSentinel) {
-    if (options.charset === "iso-8859-1") {
-      prefix += "utf8=%26%2310003%3B&";
-    } else {
-      prefix += "utf8=%E2%9C%93&";
-    }
-  }
-  return joined.length > 0 ? prefix + joined : "";
-}
-var array_prefix_generators, push_to_array, toISOString, defaults, sentinel;
-var init_stringify2 = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/internal/qs/stringify.js"() {
-    init_utils();
-    init_formats();
-    init_values();
-    array_prefix_generators = {
-      brackets(prefix) {
-        return String(prefix) + "[]";
-      },
-      comma: "comma",
-      indices(prefix, key) {
-        return String(prefix) + "[" + key + "]";
-      },
-      repeat(prefix) {
-        return String(prefix);
-      }
-    };
-    push_to_array = function(arr2, value_or_array) {
-      Array.prototype.push.apply(arr2, isArray(value_or_array) ? value_or_array : [value_or_array]);
-    };
-    defaults = {
-      addQueryPrefix: false,
-      allowDots: false,
-      allowEmptyArrays: false,
-      arrayFormat: "indices",
-      charset: "utf-8",
-      charsetSentinel: false,
-      delimiter: "&",
-      encode: true,
-      encodeDotInKeys: false,
-      encoder: encode,
-      encodeValuesOnly: false,
-      format: default_format,
-      formatter: default_formatter,
-      /** @deprecated */
-      indices: false,
-      serializeDate(date) {
-        return (toISOString ??= Function.prototype.call.bind(Date.prototype.toISOString))(date);
-      },
-      skipNulls: false,
-      strictNullHandling: false
-    };
-    sentinel = {};
-  }
-});
-
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/internal/utils/query.js
-function stringifyQuery(query) {
-  return stringify(query, { arrayFormat: "repeat" });
-}
-var init_query = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/internal/utils/query.js"() {
-    init_stringify2();
-  }
-});
-
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/internal/utils/log.js
-function noop() {
-}
-function makeLogFn(fnLevel, logger, logLevel) {
-  if (!logger || levelNumbers[fnLevel] > levelNumbers[logLevel]) {
-    return noop;
-  } else {
-    return logger[fnLevel].bind(logger);
-  }
-}
-function loggerFor(client) {
-  const logger = client.logger;
-  const logLevel = client.logLevel ?? "off";
-  if (!logger) {
-    return noopLogger;
-  }
-  const cachedLogger = cachedLoggers.get(logger);
-  if (cachedLogger && cachedLogger[0] === logLevel) {
-    return cachedLogger[1];
-  }
-  const levelLogger = {
-    error: makeLogFn("error", logger, logLevel),
-    warn: makeLogFn("warn", logger, logLevel),
-    info: makeLogFn("info", logger, logLevel),
-    debug: makeLogFn("debug", logger, logLevel)
-  };
-  cachedLoggers.set(logger, [logLevel, levelLogger]);
-  return levelLogger;
-}
-var levelNumbers, parseLogLevel, noopLogger, cachedLoggers, formatRequestDetails;
-var init_log = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/internal/utils/log.js"() {
-    init_values();
-    levelNumbers = {
-      off: 0,
-      error: 200,
-      warn: 300,
-      info: 400,
-      debug: 500
-    };
-    parseLogLevel = (maybeLevel, sourceName, client) => {
-      if (!maybeLevel) {
-        return void 0;
-      }
-      if (hasOwn(levelNumbers, maybeLevel)) {
-        return maybeLevel;
-      }
-      loggerFor(client).warn(`${sourceName} was set to ${JSON.stringify(maybeLevel)}, expected one of ${JSON.stringify(Object.keys(levelNumbers))}`);
-      return void 0;
-    };
-    noopLogger = {
-      error: noop,
-      warn: noop,
-      info: noop,
-      debug: noop
-    };
-    cachedLoggers = /* @__PURE__ */ new WeakMap();
-    formatRequestDetails = (details) => {
-      if (details.options) {
-        details.options = { ...details.options };
-        delete details.options["headers"];
-      }
-      if (details.headers) {
-        details.headers = Object.fromEntries((details.headers instanceof Headers ? [...details.headers] : Object.entries(details.headers)).map(([name, value]) => [
-          name,
-          name.toLowerCase() === "authorization" || name.toLowerCase() === "api-key" || name.toLowerCase() === "x-api-key" || name.toLowerCase() === "cookie" || name.toLowerCase() === "set-cookie" || name.toLowerCase() === "x-tenant-id" ? "***" : value
-        ]));
-      }
-      if ("retryOfRequestLogID" in details) {
-        if (details.retryOfRequestLogID) {
-          details.retryOf = details.retryOfRequestLogID;
-        }
-        delete details.retryOfRequestLogID;
-      }
-      return details;
-    };
-  }
-});
-
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/internal/parse.js
-async function defaultParseResponse(client, props) {
-  const { response, requestLogID, retryOfRequestLogID, startTime } = props;
-  const body = await (async () => {
-    if (response.status === 204) {
-      return null;
-    }
-    if (props.options.__binaryResponse) {
-      return response;
-    }
-    const contentType = response.headers.get("content-type");
-    const mediaType = contentType?.split(";")[0]?.trim();
-    const isJSON = mediaType?.includes("application/json") || mediaType?.endsWith("+json");
-    if (isJSON) {
-      const contentLength = response.headers.get("content-length");
-      if (contentLength === "0") {
-        return void 0;
-      }
-      const json = await response.json();
-      return json;
-    }
-    const text = await response.text();
-    return text;
-  })();
-  loggerFor(client).debug(`[${requestLogID}] response parsed`, formatRequestDetails({
-    retryOfRequestLogID,
-    url: response.url,
-    status: response.status,
-    body,
-    durationMs: Date.now() - startTime
-  }));
-  return body;
-}
-var init_parse2 = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/internal/parse.js"() {
-    init_log();
-  }
-});
-
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/core/api-promise.js
-var __classPrivateFieldSet, __classPrivateFieldGet, _APIPromise_client, APIPromise;
-var init_api_promise = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/core/api-promise.js"() {
-    init_parse2();
-    __classPrivateFieldSet = function(receiver, state, value, kind, f2) {
-      if (kind === "m") throw new TypeError("Private method is not writable");
-      if (kind === "a" && !f2) throw new TypeError("Private accessor was defined without a setter");
-      if (typeof state === "function" ? receiver !== state || !f2 : !state.has(receiver)) throw new TypeError("Cannot write private member to an object whose class did not declare it");
-      return kind === "a" ? f2.call(receiver, value) : f2 ? f2.value = value : state.set(receiver, value), value;
-    };
-    __classPrivateFieldGet = function(receiver, state, kind, f2) {
-      if (kind === "a" && !f2) throw new TypeError("Private accessor was defined without a getter");
-      if (typeof state === "function" ? receiver !== state || !f2 : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
-      return kind === "m" ? f2 : kind === "a" ? f2.call(receiver) : f2 ? f2.value : state.get(receiver);
-    };
-    APIPromise = class _APIPromise extends Promise {
-      constructor(client, responsePromise, parseResponse = defaultParseResponse) {
-        super((resolve15) => {
-          resolve15(null);
-        });
-        Object.defineProperty(this, "responsePromise", {
-          enumerable: true,
-          configurable: true,
-          writable: true,
-          value: responsePromise
-        });
-        Object.defineProperty(this, "parseResponse", {
-          enumerable: true,
-          configurable: true,
-          writable: true,
-          value: parseResponse
-        });
-        Object.defineProperty(this, "parsedPromise", {
-          enumerable: true,
-          configurable: true,
-          writable: true,
-          value: void 0
-        });
-        _APIPromise_client.set(this, void 0);
-        __classPrivateFieldSet(this, _APIPromise_client, client, "f");
-      }
-      _thenUnwrap(transform) {
-        return new _APIPromise(__classPrivateFieldGet(this, _APIPromise_client, "f"), this.responsePromise, async (client, props) => transform(await this.parseResponse(client, props), props));
-      }
-      /**
-       * Gets the raw `Response` instance instead of parsing the response
-       * data.
-       *
-       * If you want to parse the response body but still get the `Response`
-       * instance, you can use {@link withResponse()}.
-       *
-       * 👋 Getting the wrong TypeScript type for `Response`?
-       * Try setting `"moduleResolution": "NodeNext"` or add `"lib": ["DOM"]`
-       * to your `tsconfig.json`.
-       */
-      asResponse() {
-        return this.responsePromise.then((p) => p.response);
-      }
-      /**
-       * Gets the parsed response data and the raw `Response` instance.
-       *
-       * If you just want to get the raw `Response` instance without parsing it,
-       * you can use {@link asResponse()}.
-       *
-       * 👋 Getting the wrong TypeScript type for `Response`?
-       * Try setting `"moduleResolution": "NodeNext"` or add `"lib": ["DOM"]`
-       * to your `tsconfig.json`.
-       */
-      async withResponse() {
-        const [data, response] = await Promise.all([this.parse(), this.asResponse()]);
-        return { data, response };
-      }
-      parse() {
-        if (!this.parsedPromise) {
-          this.parsedPromise = this.responsePromise.then((data) => this.parseResponse(__classPrivateFieldGet(this, _APIPromise_client, "f"), data));
-        }
-        return this.parsedPromise;
-      }
-      then(onfulfilled, onrejected) {
-        return this.parse().then(onfulfilled, onrejected);
-      }
-      catch(onrejected) {
-        return this.parse().catch(onrejected);
-      }
-      finally(onfinally) {
-        return this.parse().finally(onfinally);
-      }
-    };
-    _APIPromise_client = /* @__PURE__ */ new WeakMap();
-  }
-});
-
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/core/pagination.js
-var __classPrivateFieldSet2, __classPrivateFieldGet2, _AbstractPage_client, AbstractPage, PagePromise, OffsetPaginationTopLevelArray, OffsetPaginationIssues, OffsetPaginationOnlineEvaluators, ItemsCursorPostPagination, ItemsCursorGetPagination;
-var init_pagination = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/core/pagination.js"() {
-    init_error();
-    init_parse2();
-    init_api_promise();
-    init_values();
-    __classPrivateFieldSet2 = function(receiver, state, value, kind, f2) {
-      if (kind === "m") throw new TypeError("Private method is not writable");
-      if (kind === "a" && !f2) throw new TypeError("Private accessor was defined without a setter");
-      if (typeof state === "function" ? receiver !== state || !f2 : !state.has(receiver)) throw new TypeError("Cannot write private member to an object whose class did not declare it");
-      return kind === "a" ? f2.call(receiver, value) : f2 ? f2.value = value : state.set(receiver, value), value;
-    };
-    __classPrivateFieldGet2 = function(receiver, state, kind, f2) {
-      if (kind === "a" && !f2) throw new TypeError("Private accessor was defined without a getter");
-      if (typeof state === "function" ? receiver !== state || !f2 : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
-      return kind === "m" ? f2 : kind === "a" ? f2.call(receiver) : f2 ? f2.value : state.get(receiver);
-    };
-    AbstractPage = class {
-      constructor(client, response, body, options) {
-        _AbstractPage_client.set(this, void 0);
-        Object.defineProperty(this, "options", {
-          enumerable: true,
-          configurable: true,
-          writable: true,
-          value: void 0
-        });
-        Object.defineProperty(this, "response", {
-          enumerable: true,
-          configurable: true,
-          writable: true,
-          value: void 0
-        });
-        Object.defineProperty(this, "body", {
-          enumerable: true,
-          configurable: true,
-          writable: true,
-          value: void 0
-        });
-        __classPrivateFieldSet2(this, _AbstractPage_client, client, "f");
-        this.options = options;
-        this.response = response;
-        this.body = body;
-      }
-      hasNextPage() {
-        const items = this.getPaginatedItems();
-        if (!items.length)
-          return false;
-        return this.nextPageRequestOptions() != null;
-      }
-      async getNextPage() {
-        const nextOptions = this.nextPageRequestOptions();
-        if (!nextOptions) {
-          throw new LangsmithError("No next page expected; please check `.hasNextPage()` before calling `.getNextPage()`.");
-        }
-        return await __classPrivateFieldGet2(this, _AbstractPage_client, "f").requestAPIList(this.constructor, nextOptions);
-      }
-      async *iterPages() {
-        let page = this;
-        yield page;
-        while (page.hasNextPage()) {
-          page = await page.getNextPage();
-          yield page;
-        }
-      }
-      async *[(_AbstractPage_client = /* @__PURE__ */ new WeakMap(), Symbol.asyncIterator)]() {
-        for await (const page of this.iterPages()) {
-          for (const item of page.getPaginatedItems()) {
-            yield item;
-          }
-        }
-      }
-    };
-    PagePromise = class extends APIPromise {
-      constructor(client, request, Page) {
-        super(client, request, async (client2, props) => new Page(client2, props.response, await defaultParseResponse(client2, props), props.options));
-      }
-      /**
-       * Allow auto-paginating iteration on an unawaited list call, eg:
-       *
-       *    for await (const item of client.items.list()) {
-       *      console.log(item)
-       *    }
-       */
-      async *[Symbol.asyncIterator]() {
-        const page = await this;
-        for await (const item of page) {
-          yield item;
-        }
-      }
-    };
-    OffsetPaginationTopLevelArray = class extends AbstractPage {
-      constructor(client, response, body, options) {
-        super(client, response, body, options);
-        Object.defineProperty(this, "items", {
-          enumerable: true,
-          configurable: true,
-          writable: true,
-          value: void 0
-        });
-        this.items = body || [];
-      }
-      getPaginatedItems() {
-        return this.items ?? [];
-      }
-      nextPageRequestOptions() {
-        const offset = this.options.query.offset ?? 0;
-        const length = this.getPaginatedItems().length;
-        const currentCount = offset + length;
-        return {
-          ...this.options,
-          query: {
-            ...maybeObj(this.options.query),
-            offset: currentCount
-          }
-        };
-      }
-    };
-    OffsetPaginationIssues = class extends AbstractPage {
-      constructor(client, response, body, options) {
-        super(client, response, body, options);
-        Object.defineProperty(this, "items", {
-          enumerable: true,
-          configurable: true,
-          writable: true,
-          value: void 0
-        });
-        this.items = body || [];
-      }
-      getPaginatedItems() {
-        return this.items ?? [];
-      }
-      nextPageRequestOptions() {
-        const offset = this.options.query.offset ?? 0;
-        const length = this.getPaginatedItems().length;
-        const currentCount = offset + length;
-        return {
-          ...this.options,
-          query: {
-            ...maybeObj(this.options.query),
-            offset: currentCount
-          }
-        };
-      }
-    };
-    OffsetPaginationOnlineEvaluators = class extends AbstractPage {
-      constructor(client, response, body, options) {
-        super(client, response, body, options);
-        Object.defineProperty(this, "evaluators", {
-          enumerable: true,
-          configurable: true,
-          writable: true,
-          value: void 0
-        });
-        Object.defineProperty(this, "total", {
-          enumerable: true,
-          configurable: true,
-          writable: true,
-          value: void 0
-        });
-        this.evaluators = body.evaluators || [];
-        this.total = body.total || 0;
-      }
-      getPaginatedItems() {
-        return this.evaluators ?? [];
-      }
-      nextPageRequestOptions() {
-        const offset = this.options.query.offset ?? 0;
-        const length = this.getPaginatedItems().length;
-        const currentCount = offset + length;
-        return {
-          ...this.options,
-          query: {
-            ...maybeObj(this.options.query),
-            offset: currentCount
-          }
-        };
-      }
-    };
-    ItemsCursorPostPagination = class extends AbstractPage {
-      constructor(client, response, body, options) {
-        super(client, response, body, options);
-        Object.defineProperty(this, "items", {
-          enumerable: true,
-          configurable: true,
-          writable: true,
-          value: void 0
-        });
-        Object.defineProperty(this, "next_cursor", {
-          enumerable: true,
-          configurable: true,
-          writable: true,
-          value: void 0
-        });
-        this.items = body.items || [];
-        this.next_cursor = body.next_cursor || "";
-      }
-      getPaginatedItems() {
-        return this.items ?? [];
-      }
-      nextPageRequestOptions() {
-        const cursor = this.next_cursor;
-        if (!cursor) {
-          return null;
-        }
-        return {
-          ...this.options,
-          body: {
-            ...maybeObj(this.options.body),
-            cursor
-          }
-        };
-      }
-    };
-    ItemsCursorGetPagination = class extends AbstractPage {
-      constructor(client, response, body, options) {
-        super(client, response, body, options);
-        Object.defineProperty(this, "items", {
-          enumerable: true,
-          configurable: true,
-          writable: true,
-          value: void 0
-        });
-        Object.defineProperty(this, "next_cursor", {
-          enumerable: true,
-          configurable: true,
-          writable: true,
-          value: void 0
-        });
-        this.items = body.items || [];
-        this.next_cursor = body.next_cursor || "";
-      }
-      getPaginatedItems() {
-        return this.items ?? [];
-      }
-      nextPageRequestOptions() {
-        const cursor = this.next_cursor;
-        if (!cursor) {
-          return null;
-        }
-        return {
-          ...this.options,
-          query: {
-            ...maybeObj(this.options.query),
-            cursor
-          }
-        };
-      }
-    };
-  }
-});
-
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/internal/uploads.js
-function makeFile(fileBits, fileName, options) {
-  checkFileSupport();
-  return new File(fileBits, fileName ?? "unknown_file", options);
-}
-function getName(value) {
-  return (typeof value === "object" && value !== null && ("name" in value && value.name && String(value.name) || "url" in value && value.url && String(value.url) || "filename" in value && value.filename && String(value.filename) || "path" in value && value.path && String(value.path)) || "").split(/[\\/]/).pop() || void 0;
-}
-var checkFileSupport, isAsyncIterable;
-var init_uploads = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/internal/uploads.js"() {
-    init_shims();
-    checkFileSupport = () => {
-      if (typeof File === "undefined") {
-        const { process: process2 } = globalThis;
-        const isOldNode = typeof process2?.versions?.node === "string" && parseInt(process2.versions.node.split(".")) < 20;
-        throw new Error("`File` is not defined as a global, which is required for file uploads." + (isOldNode ? " Update to Node 20 LTS or newer, or set `globalThis.File` to `import('node:buffer').File`." : ""));
-      }
-    };
-    isAsyncIterable = (value) => value != null && typeof value === "object" && typeof value[Symbol.asyncIterator] === "function";
-  }
-});
-
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/internal/to-file.js
-async function toFile(value, name, options) {
-  checkFileSupport();
-  value = await value;
-  if (isFileLike(value)) {
-    if (value instanceof File) {
-      return value;
-    }
-    return makeFile([await value.arrayBuffer()], value.name);
-  }
-  if (isResponseLike(value)) {
-    const blob = await value.blob();
-    name ||= new URL(value.url).pathname.split(/[\\/]/).pop();
-    return makeFile(await getBytes(blob), name, options);
-  }
-  const parts = await getBytes(value);
-  name ||= getName(value);
-  if (!options?.type) {
-    const type = parts.find((part) => typeof part === "object" && "type" in part && part.type);
-    if (typeof type === "string") {
-      options = { ...options, type };
-    }
-  }
-  return makeFile(parts, name, options);
-}
-async function getBytes(value) {
-  let parts = [];
-  if (typeof value === "string" || ArrayBuffer.isView(value) || // includes Uint8Array, Buffer, etc.
-  value instanceof ArrayBuffer) {
-    parts.push(value);
-  } else if (isBlobLike(value)) {
-    parts.push(value instanceof Blob ? value : await value.arrayBuffer());
-  } else if (isAsyncIterable(value)) {
-    for await (const chunk of value) {
-      parts.push(...await getBytes(chunk));
-    }
-  } else {
-    const constructor = value?.constructor?.name;
-    throw new Error(`Unexpected data type: ${typeof value}${constructor ? `; constructor: ${constructor}` : ""}${propsForError(value)}`);
-  }
-  return parts;
-}
-function propsForError(value) {
-  if (typeof value !== "object" || value === null)
-    return "";
-  const props = Object.getOwnPropertyNames(value);
-  return `; props: [${props.map((p) => `"${p}"`).join(", ")}]`;
-}
-var isBlobLike, isFileLike, isResponseLike;
-var init_to_file = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/internal/to-file.js"() {
-    init_uploads();
-    init_uploads();
-    isBlobLike = (value) => value != null && typeof value === "object" && typeof value.size === "number" && typeof value.type === "string" && typeof value.text === "function" && typeof value.slice === "function" && typeof value.arrayBuffer === "function";
-    isFileLike = (value) => value != null && typeof value === "object" && typeof value.name === "string" && typeof value.lastModified === "number" && isBlobLike(value);
-    isResponseLike = (value) => value != null && typeof value === "object" && typeof value.url === "string" && typeof value.blob === "function";
-  }
-});
-
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/core/uploads.js
-var init_uploads2 = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/core/uploads.js"() {
-    init_to_file();
-  }
-});
-
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/core/resource.js
-var APIResource;
-var init_resource = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/core/resource.js"() {
-    APIResource = class {
-      constructor(client) {
-        Object.defineProperty(this, "_client", {
-          enumerable: true,
-          configurable: true,
-          writable: true,
-          value: void 0
-        });
-        this._client = client;
-      }
-    };
-  }
-});
-
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/internal/utils/path.js
-function encodeURIPath(str) {
-  return str.replace(/[^A-Za-z0-9\-._~!$&'()*+,;=:@]+/g, encodeURIComponent);
-}
-var EMPTY, createPathTagFunction, path;
-var init_path = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/internal/utils/path.js"() {
-    init_error();
-    EMPTY = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.create(null));
-    createPathTagFunction = (pathEncoder = encodeURIPath) => function path3(statics, ...params) {
-      if (statics.length === 1)
-        return statics[0];
-      let postPath = false;
-      const invalidSegments = [];
-      const path4 = statics.reduce((previousValue, currentValue, index) => {
-        if (/[?#]/.test(currentValue)) {
-          postPath = true;
-        }
-        const value = params[index];
-        let encoded = (postPath ? encodeURIComponent : pathEncoder)("" + value);
-        if (index !== params.length && (value == null || typeof value === "object" && // handle values from other realms
-        value.toString === Object.getPrototypeOf(Object.getPrototypeOf(value.hasOwnProperty ?? EMPTY) ?? EMPTY)?.toString)) {
-          encoded = value + "";
-          invalidSegments.push({
-            start: previousValue.length + currentValue.length,
-            length: encoded.length,
-            error: `Value of type ${Object.prototype.toString.call(value).slice(8, -1)} is not a valid path parameter`
-          });
-        }
-        return previousValue + currentValue + (index === params.length ? "" : encoded);
-      }, "");
-      const pathOnly = path4.split(/[?#]/, 1)[0];
-      const invalidSegmentPattern = /(?<=^|\/)(?:\.|%2e){1,2}(?=\/|$)/gi;
-      let match;
-      while ((match = invalidSegmentPattern.exec(pathOnly)) !== null) {
-        invalidSegments.push({
-          start: match.index,
-          length: match[0].length,
-          error: `Value "${match[0]}" can't be safely passed as a path parameter`
-        });
-      }
-      invalidSegments.sort((a, b) => a.start - b.start);
-      if (invalidSegments.length > 0) {
-        let lastEnd = 0;
-        const underline = invalidSegments.reduce((acc, segment) => {
-          const spaces = " ".repeat(segment.start - lastEnd);
-          const arrows = "^".repeat(segment.length);
-          lastEnd = segment.start + segment.length;
-          return acc + spaces + arrows;
-        }, "");
-        throw new LangsmithError(`Path parameters result in path with invalid segments:
-${invalidSegments.map((e) => e.error).join("\n")}
-${path4}
-${underline}`);
-      }
-      return path4;
-    };
-    path = /* @__PURE__ */ createPathTagFunction(encodeURIPath);
-  }
-});
-
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/resources/annotation-queues/items.js
-var Items;
-var init_items = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/resources/annotation-queues/items.js"() {
-    init_resource();
-    init_pagination();
-    init_path();
-    Items = class extends APIResource {
-      /**
-       * Add RUN or THREAD items to a single annotation queue. RUN items require run_id
-       * unless they are created from a suggested example. THREAD items require thread_id
-       * and project_id.
-       */
-      create(queueID, params, options) {
-        const { extend_trace_retention, ...body } = params;
-        return this._client.post(path`/api/v1/platform/annotation-queues/${queueID}/items`, {
-          query: { extend_trace_retention },
-          body,
-          ...options
-        });
-      }
-      /**
-       * Partially update mutable timestamps (added_at, last_reviewed_time) for a RUN or
-       * THREAD annotation queue item. Omit a field, or pass JSON null, to leave it
-       * unchanged.
-       */
-      update(itemID, params, options) {
-        const { queue_id, ...body } = params;
-        return this._client.patch(path`/api/v1/platform/annotation-queues/${queue_id}/items/${itemID}`, {
-          body,
-          ...options
-        });
-      }
-      /**
-       * List RUN and THREAD items in a single annotation queue for one review status
-       * section, with opaque cursor pagination. Optional item_type=RUN|THREAD filters
-       * the page. direction=backward returns items before the supplied cursor. The
-       * response contains item metadata only, not expanded run or thread payloads.
-       * status=archived returns items whose queue review requirements have been
-       * satisfied, not merely items the caller personally marked completed.
-       */
-      list(queueID, query, options) {
-        return this._client.getAPIList(path`/api/v1/platform/annotation-queues/${queueID}/items`, ItemsCursorGetPagination, { query, ...options });
-      }
-      /**
-       * Log the caller's reviewer status for a RUN or THREAD annotation queue item. A
-       * null status re-shows the item for this reviewer.
-       */
-      createStatus(queueItemID, body, options) {
-        return this._client.post(path`/api/v1/platform/annotation-queues/items/${queueItemID}/status`, {
-          body,
-          ...options
-        });
-      }
-      /**
-       * Remove RUN or THREAD items from a single annotation queue by item ID.
-       */
-      deleteAll(queueID, body, options) {
-        return this._client.post(path`/api/v1/platform/annotation-queues/${queueID}/items/delete`, {
-          body,
-          ...options
-        });
-      }
-      /**
-       * Returns the number of annotation queue items for the requested reviewer-specific
-       * or archived bucket.
-       */
-      retrieveCount(queueID, query, options) {
-        return this._client.get(path`/api/v1/platform/annotation-queues/${queueID}/items/count`, {
-          query,
-          ...options
-        });
-      }
-      /**
-       * Resolve a RUN or THREAD item to its current review section and zero-based
-       * position for deep linking.
-       */
-      retrievePlacement(itemID, params, options) {
-        const { queue_id } = params;
-        return this._client.get(path`/api/v1/platform/annotation-queues/${queue_id}/items/${itemID}/placement`, options);
-      }
-    };
-  }
-});
-
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/resources/annotation-queues/runs.js
-var Runs;
-var init_runs = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/resources/annotation-queues/runs.js"() {
-    init_resource();
-    init_path();
-    Runs = class extends APIResource {
-      /**
-       * Add Runs To Annotation Queue
-       *
-       * @deprecated Deprecated: use the annotation queue items create endpoint (POST /api/v1/platform/annotation-queues/{queue_id}/items) instead. Will be removed after Jan 31, 2027.
-       */
-      create(queueID, params, options) {
-        const { body, extend_trace_retention } = params;
-        return this._client.post(path`/api/v1/annotation-queues/${queueID}/runs`, {
-          query: { extend_trace_retention },
-          body,
-          ...options
-        });
-      }
-      /**
-       * Update Run In Annotation Queue
-       *
-       * @deprecated Deprecated: use the annotation queue items update method (PATCH /api/v1/platform/annotation-queues/{queue_id}/items/{item_id}) instead. Will be removed after Jan 31, 2027.
-       */
-      update(queueRunID, params, options) {
-        const { queue_id, ...body } = params;
-        return this._client.patch(path`/api/v1/annotation-queues/${queue_id}/runs/${queueRunID}`, {
-          body,
-          ...options
-        });
-      }
-      /**
-       * Get Runs From Annotation Queue
-       *
-       * @deprecated Deprecated: use the annotation queue items list method (GET /api/v1/platform/annotation-queues/{queue_id}/items) instead. Will be removed after Jan 31, 2027.
-       */
-      list(queueID, query = {}, options) {
-        return this._client.get(path`/api/v1/annotation-queues/${queueID}/runs`, { query, ...options });
-      }
-      /**
-       * Self-hosted deployments require LangSmith `v0.16` or later.
-       *
-       * @deprecated Deprecated: use the annotation queue items create endpoint (POST /api/v1/platform/annotation-queues/{queue_id}/items) instead. Will be removed after Jan 31, 2027.
-       */
-      createByKey(queueID, params, options) {
-        const { body, extend_trace_retention } = params;
-        return this._client.post(path`/api/v1/annotation-queues/${queueID}/runs/by-key`, {
-          query: { extend_trace_retention },
-          body,
-          ...options
-        });
-      }
-      /**
-       * Delete Runs From Annotation Queue
-       *
-       * @deprecated Deprecated: use the annotation queue items delete_all method (POST /api/v1/platform/annotation-queues/{queue_id}/items/delete) instead. Will be removed after Jan 31, 2027.
-       */
-      deleteAll(queueID, body, options) {
-        return this._client.post(path`/api/v1/annotation-queues/${queueID}/runs/delete`, { body, ...options });
-      }
-      /**
-       * Delete Run From Annotation Queue
-       *
-       * @deprecated Deprecated: use the annotation queue items delete_all method (POST /api/v1/platform/annotation-queues/{queue_id}/items/delete) with the item ID instead. Will be removed after Jan 31, 2027.
-       */
-      deleteQueue(queueRunID, params, options) {
-        const { queue_id } = params;
-        return this._client.delete(path`/api/v1/annotation-queues/${queue_id}/runs/${queueRunID}`, options);
-      }
-    };
-  }
-});
-
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/resources/annotation-queues/annotation-queues.js
-var AnnotationQueues;
-var init_annotation_queues = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/resources/annotation-queues/annotation-queues.js"() {
-    init_resource();
-    init_items();
-    init_items();
-    init_runs();
-    init_runs();
-    init_pagination();
-    init_path();
-    AnnotationQueues = class extends APIResource {
-      constructor() {
-        super(...arguments);
-        Object.defineProperty(this, "runs", {
-          enumerable: true,
-          configurable: true,
-          writable: true,
-          value: new Runs(this._client)
-        });
-        Object.defineProperty(this, "items", {
-          enumerable: true,
-          configurable: true,
-          writable: true,
-          value: new Items(this._client)
-        });
-      }
-      /**
-       * Get Annotation Queue
-       */
-      retrieve(queueID, options) {
-        return this._client.get(path`/api/v1/annotation-queues/${queueID}`, options);
-      }
-      /**
-       * Update Annotation Queue
-       */
-      update(queueID, body, options) {
-        return this._client.patch(path`/api/v1/annotation-queues/${queueID}`, { body, ...options });
-      }
-      /**
-       * Delete Annotation Queue
-       */
-      delete(queueID, options) {
-        return this._client.delete(path`/api/v1/annotation-queues/${queueID}`, options);
-      }
-      /**
-       * Create Annotation Queue
-       */
-      annotationQueues(body, options) {
-        return this._client.post("/api/v1/annotation-queues", { body, ...options });
-      }
-      /**
-       * Create Identity Annotation Queue Run Status
-       *
-       * @deprecated Deprecated: use the annotation queue items create_status method (POST /api/v1/platform/annotation-queues/items/{queue_item_id}/status) instead. Will be removed after Jan 31, 2027.
-       */
-      createRunStatus(annotationQueueRunID, body, options) {
-        return this._client.post(path`/api/v1/annotation-queues/status/${annotationQueueRunID}`, {
-          body,
-          ...options
-        });
-      }
-      /**
-       * Export Annotation Queue Archived Runs
-       */
-      export(queueID, body, options) {
-        return this._client.post(path`/api/v1/annotation-queues/${queueID}/export`, { body, ...options });
-      }
-      /**
-       * Populate annotation queue with runs from an experiment.
-       */
-      populate(body, options) {
-        return this._client.post("/api/v1/annotation-queues/populate", { body, ...options });
-      }
-      /**
-       * Get Annotation Queues
-       */
-      retrieveAnnotationQueues(query = {}, options) {
-        return this._client.getAPIList("/api/v1/annotation-queues", OffsetPaginationTopLevelArray, { query, ...options });
-      }
-      /**
-       * Get Annotation Queues For Run
-       */
-      retrieveQueues(runID, options) {
-        return this._client.get(path`/api/v1/annotation-queues/${runID}/queues`, options);
-      }
-      /**
-       * Get a run from an annotation queue
-       *
-       * @deprecated Deprecated: use the annotation queue items list and retrieve_placement methods instead, which call GET /api/v1/platform/annotation-queues/{queue_id}/items and GET /api/v1/platform/annotation-queues/{queue_id}/items/{item_id}/placement. Will be removed after Jan 31, 2027.
-       */
-      retrieveRun(index, params, options) {
-        const { queue_id, ...query } = params;
-        return this._client.get(path`/api/v1/annotation-queues/${queue_id}/run/${index}`, { query, ...options });
-      }
-      /**
-       * Get Size From Annotation Queue
-       *
-       * @deprecated Deprecated: use the annotation queue items retrieve_count method (GET /api/v1/platform/annotation-queues/{queue_id}/items/count) with the desired status instead. Will be removed after Jan 31, 2027.
-       */
-      retrieveSize(queueID, query = {}, options) {
-        return this._client.get(path`/api/v1/annotation-queues/${queueID}/size`, { query, ...options });
-      }
-      /**
-       * Get Total Archived From Annotation Queue
-       *
-       * @deprecated Deprecated: use the annotation queue items retrieve_count method (GET /api/v1/platform/annotation-queues/{queue_id}/items/count?status=archived) instead. Will be removed after Jan 31, 2027.
-       */
-      retrieveTotalArchived(queueID, query = {}, options) {
-        return this._client.get(path`/api/v1/annotation-queues/${queueID}/total_archived`, { query, ...options });
-      }
-      /**
-       * Get Total Size From Annotation Queue
-       *
-       * @deprecated Deprecated: use the annotation queue items retrieve_count method (GET /api/v1/platform/annotation-queues/{queue_id}/items/count?status=all) instead. Will be removed after Jan 31, 2027.
-       */
-      retrieveTotalSize(queueID, options) {
-        return this._client.get(path`/api/v1/annotation-queues/${queueID}/total_size`, options);
-      }
-    };
-    AnnotationQueues.Runs = Runs;
-    AnnotationQueues.Items = Items;
-  }
-});
-
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/resources/datasets/experiment-runs.js
-var ExperimentRuns;
-var init_experiment_runs = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/resources/datasets/experiment-runs.js"() {
-    init_resource();
-    init_pagination();
-    init_path();
-    ExperimentRuns = class extends APIResource {
-      /**
-       * Returns a paginated page of dataset examples with runs from the requested
-       * experiments. Response uses the canonical `{items, next_cursor}` envelope.
-       *
-       * Self-hosted deployments require LangSmith `v0.16` or later.
-       */
-      query(datasetID, body, options) {
-        return this._client.getAPIList(path`/api/v2/datasets/${datasetID}/experiment-runs`, ItemsCursorPostPagination, { body, method: "post", ...options });
-      }
-    };
-  }
-});
-
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/resources/datasets/datasets.js
-var Datasets;
-var init_datasets = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/resources/datasets/datasets.js"() {
-    init_resource();
-    init_experiment_runs();
-    init_experiment_runs();
-    Datasets = class extends APIResource {
-      constructor() {
-        super(...arguments);
-        Object.defineProperty(this, "experimentRuns", {
-          enumerable: true,
-          configurable: true,
-          writable: true,
-          value: new ExperimentRuns(this._client)
-        });
-      }
-    };
-    Datasets.ExperimentRuns = ExperimentRuns;
-  }
-});
-
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/resources/info.js
-var Info;
-var init_info = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/resources/info.js"() {
-    init_resource();
-    Info = class extends APIResource {
-      /**
-       * Returns information about the current LangSmith deployment: version, instance
-       * feature flags, batch-ingest limits, and max SDK versions. Unauthenticated by
-       * default; set FF_INFO_ENDPOINT_AUTH_REQUIRED=true to require auth.
-       */
-      list(options) {
-        return this._client.get("/api/v1/info", options);
-      }
-    };
-  }
-});
-
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/resources/issues.js
-var Issues;
-var init_issues = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/resources/issues.js"() {
-    init_resource();
-    init_pagination();
-    init_path();
-    Issues = class extends APIResource {
-      /**
-       * **Beta:** This endpoint is in active development and may change without notice.
-       *
-       * Returns one issue for the authenticated tenant.
-       */
-      retrieve(id, options) {
-        return this._client.get(path`/api/v1/platform/issues/${id}`, options);
-      }
-      /**
-       * **Beta:** This endpoint is in active development and may change without notice.
-       *
-       * Returns issues for the authenticated tenant, optionally filtered by session,
-       * status, severity, tag, linked trace, or last modified time.
-       */
-      list(query = {}, options) {
-        return this._client.getAPIList("/api/v1/platform/issues", OffsetPaginationIssues, {
-          query,
-          ...options
-        });
-      }
-    };
-  }
-});
-
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/internal/headers.js
-function* iterateHeaders(headers) {
-  if (!headers)
-    return;
-  if (brand_privateNullableHeaders in headers) {
-    const { values, nulls } = headers;
-    yield* values.entries();
-    for (const name of nulls) {
-      yield [name, null];
-    }
-    return;
-  }
-  let shouldClear = false;
-  let iter;
-  if (headers instanceof Headers) {
-    iter = headers.entries();
-  } else if (isReadonlyArray(headers)) {
-    iter = headers;
-  } else {
-    shouldClear = true;
-    iter = Object.entries(headers ?? {});
-  }
-  for (let row of iter) {
-    const name = row[0];
-    if (typeof name !== "string")
-      throw new TypeError("expected header name to be a string");
-    const values = isReadonlyArray(row[1]) ? row[1] : [row[1]];
-    let didClear = false;
-    for (const value of values) {
-      if (value === void 0)
-        continue;
-      if (shouldClear && !didClear) {
-        didClear = true;
-        yield [name, null];
-      }
-      yield [name, value];
-    }
-  }
-}
-var brand_privateNullableHeaders, buildHeaders;
-var init_headers = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/internal/headers.js"() {
-    init_values();
-    brand_privateNullableHeaders = /* @__PURE__ */ Symbol("brand.privateNullableHeaders");
-    buildHeaders = (newHeaders) => {
-      const targetHeaders = new Headers();
-      const nullHeaders = /* @__PURE__ */ new Set();
-      for (const headers of newHeaders) {
-        const seenHeaders = /* @__PURE__ */ new Set();
-        for (const [name, value] of iterateHeaders(headers)) {
-          const lowerName = name.toLowerCase();
-          if (!seenHeaders.has(lowerName)) {
-            targetHeaders.delete(name);
-            seenHeaders.add(lowerName);
-          }
-          if (value === null) {
-            targetHeaders.delete(name);
-            nullHeaders.add(lowerName);
-          } else {
-            targetHeaders.append(name, value);
-            nullHeaders.delete(lowerName);
-          }
-        }
-      }
-      return { [brand_privateNullableHeaders]: true, values: targetHeaders, nulls: nullHeaders };
-    };
-  }
-});
-
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/resources/online-evaluators.js
-var OnlineEvaluators;
-var init_online_evaluators = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/resources/online-evaluators.js"() {
-    init_resource();
-    init_pagination();
-    init_headers();
-    init_path();
-    OnlineEvaluators = class extends APIResource {
-      /**
-       * Create a new LLM or code evaluator for the current workspace.
-       */
-      create(body, options) {
-        return this._client.post("/api/v1/platform/evaluators", { body, ...options });
-      }
-      /**
-       * Retrieve a single evaluator by its ID.
-       */
-      retrieve(evaluatorID, options) {
-        return this._client.get(path`/api/v1/platform/evaluators/${evaluatorID}`, options);
-      }
-      /**
-       * Update an existing evaluator's name, LLM configuration, or code configuration.
-       */
-      update(evaluatorID, body, options) {
-        return this._client.patch(path`/api/v1/platform/evaluators/${evaluatorID}`, { body, ...options });
-      }
-      /**
-       * List evaluators for the current workspace, with optional filtering by type,
-       * name, tag, feedback key, or resource ID.
-       */
-      list(query = {}, options) {
-        return this._client.getAPIList("/api/v1/platform/evaluators", OffsetPaginationOnlineEvaluators, { query, ...options });
-      }
-      /**
-       * Delete an evaluator. When delete_run_rules is true, all run rules referencing
-       * this evaluator are deleted first (same tenant). Associated llm_evaluators and
-       * code_evaluators rows are removed by foreign-key cascade when the evaluator row
-       * is deleted.
-       */
-      delete(evaluatorID, params = {}, options) {
-        const { delete_run_rules } = params ?? {};
-        return this._client.delete(path`/api/v1/platform/evaluators/${evaluatorID}`, {
-          query: { delete_run_rules },
-          ...options,
-          headers: buildHeaders([{ Accept: "*/*" }, options?.headers])
-        });
-      }
-      /**
-       * Delete multiple evaluators by their IDs. Returns per-item success/failure.
-       */
-      bulkDelete(params, options) {
-        const { evaluator_ids, delete_run_rules } = params;
-        return this._client.delete("/api/v1/platform/evaluators", {
-          query: { evaluator_ids, delete_run_rules },
-          ...options
-        });
-      }
-      /**
-       * Returns per-day LLM evaluator spend for the requested 7-day period, grouped by
-       * evaluator, resource, or run rule. Exactly one of group_by, evaluator_id,
-       * session_id, or dataset_id is required. resource_id, type, feedback_key, and
-       * tag_value_id may be supplied with group_by to narrow listing aggregations.
-       */
-      spend(query, options) {
-        return this._client.get("/api/v1/platform/evaluators/spend", { query, ...options });
-      }
-    };
-  }
-});
-
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/resources/public/runs.js
-var Runs2;
-var init_runs2 = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/resources/public/runs.js"() {
-    init_resource();
-    init_headers();
-    init_path();
-    Runs2 = class extends APIResource {
-      /**
-       * Returns one run within the trace identified by the share token. The request
-       * supplies only the run ID and that run's exact start_time coordinate.
-       *
-       * Self-hosted deployments require LangSmith `v0.16` or later.
-       *
-       * @example
-       * ```ts
-       * const run = await client.public.runs.retrieve(
-       *   '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',
-       *   {
-       *     share_token: '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',
-       *     selects: ['string'],
-       *     start_time: '2019-12-27T18:11:19.117Z',
-       *   },
-       * );
-       * ```
-       */
-      retrieve(runID, params, options) {
-        const { share_token, Accept, ...query } = params;
-        return this._client.get(path`/api/v2/public/${share_token}/run/${runID}`, {
-          query,
-          ...options,
-          headers: buildHeaders([{ ...Accept != null ? { Accept } : void 0 }, options?.headers])
-        });
-      }
-      /**
-       * Returns all runs within the trace identified by the share token. The share token
-       * supplies the tenant, project, and trace scope.
-       *
-       * Self-hosted deployments require LangSmith `v0.16` or later.
-       *
-       * @example
-       * ```ts
-       * const response = await client.public.runs.query(
-       *   '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',
-       * );
-       * ```
-       */
-      query(shareToken, params, options) {
-        const { Accept, ...body } = params;
-        return this._client.post(path`/api/v2/public/${shareToken}/runs/query`, {
-          body,
-          ...options,
-          headers: buildHeaders([{ ...Accept != null ? { Accept } : void 0 }, options?.headers])
-        });
-      }
-    };
-  }
-});
-
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/resources/public/public.js
-var Public;
-var init_public = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/resources/public/public.js"() {
-    init_resource();
-    init_runs2();
-    init_runs2();
-    Public = class extends APIResource {
-      constructor() {
-        super(...arguments);
-        Object.defineProperty(this, "runs", {
-          enumerable: true,
-          configurable: true,
-          writable: true,
-          value: new Runs2(this._client)
-        });
-      }
-    };
-    Public.Runs = Runs2;
-  }
-});
-
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/resources/runs/share.js
-var Share;
-var init_share = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/resources/runs/share.js"() {
-    init_resource();
-    init_headers();
-    init_path();
-    Share = class extends APIResource {
-      /**
-       * Creates or returns a share token for a run. Child runs share their trace root.
-       *
-       * Self-hosted deployments require LangSmith `v0.16` or later.
-       *
-       * @example
-       * ```ts
-       * const share = await client.runs.share.create(
-       *   '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',
-       * );
-       * ```
-       */
-      create(runID, body, options) {
-        return this._client.post(path`/api/v2/runs/${runID}/share`, { body, ...options });
-      }
-      /**
-       * Deletes the share token for the trace identified by trace_id and session_id.
-       * Idempotent: returns 204 whether or not a share token existed.
-       *
-       * Self-hosted deployments require LangSmith `v0.16` or later.
-       *
-       * @example
-       * ```ts
-       * await client.runs.share.delete(
-       *   '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',
-       * );
-       * ```
-       */
-      delete(traceID, body, options) {
-        return this._client.delete(path`/api/v2/runs/${traceID}/share`, {
-          body,
-          ...options,
-          headers: buildHeaders([{ Accept: "*/*" }, options?.headers])
-        });
-      }
-    };
-  }
-});
-
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/resources/runs/runs.js
-var Runs3;
-var init_runs3 = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/resources/runs/runs.js"() {
-    init_resource();
-    init_share();
-    init_share();
-    init_pagination();
-    init_headers();
-    init_path();
-    Runs3 = class extends APIResource {
-      constructor() {
-        super(...arguments);
-        Object.defineProperty(this, "share", {
-          enumerable: true,
-          configurable: true,
-          writable: true,
-          value: new Share(this._client)
-        });
-        Object.defineProperty(this, "retrieve", {
-          enumerable: true,
-          configurable: true,
-          writable: true,
-          value: this.retrieveV2
-        });
-        Object.defineProperty(this, "query", {
-          enumerable: true,
-          configurable: true,
-          writable: true,
-          value: this.queryV2
-        });
-      }
-      /**
-       * Returns the URL to view a specific run in the LangSmith UI. The caller must
-       * supply the run's project_id and trace_id as query parameters; start_time is
-       * optional.
-       *
-       * Self-hosted deployments require LangSmith `v0.16` or later.
-       *
-       * @example
-       * ```ts
-       * const response = await client.runs.getURL(
-       *   '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',
-       *   { project_id: 'project_id', trace_id: 'trace_id' },
-       * );
-       * ```
-       */
-      getURL(runID, query, options) {
-        return this._client.get(path`/api/v2/runs/${runID}/url`, { query, ...options });
-      }
-      /**
-       * Returns a paginated list of runs for the given projects within min/max
-       * start_time. Supports filters, cursor pagination, and `selects` to select fields
-       * to return.
-       *
-       * Self-hosted deployments require LangSmith `v0.16` or later.
-       *
-       * @example
-       * ```ts
-       * // Automatically fetches more pages as needed.
-       * for await (const run of client.runs.queryV2()) {
-       *   // ...
-       * }
-       * ```
-       */
-      queryV2(params, options) {
-        const { Accept, ...body } = params;
-        return this._client.getAPIList("/api/v2/runs/query", ItemsCursorPostPagination, {
-          body,
-          method: "post",
-          ...options,
-          headers: buildHeaders([{ ...Accept != null ? { Accept } : void 0 }, options?.headers])
-        });
-      }
-      /**
-       * Returns one run by ID for the given session. Use the `selects` query parameter
-       * (repeatable) to select fields to return.
-       *
-       * Self-hosted deployments require LangSmith `v0.16` or later.
-       *
-       * @example
-       * ```ts
-       * const run = await client.runs.retrieveV2(
-       *   '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',
-       *   { project_id: '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e' },
-       * );
-       * ```
-       */
-      retrieveV2(runID, params, options) {
-        const { Accept, ...query } = params;
-        return this._client.get(path`/api/v2/runs/${runID}`, {
-          query,
-          ...options,
-          headers: buildHeaders([{ ...Accept != null ? { Accept } : void 0 }, options?.headers])
-        });
-      }
-    };
-    Runs3.Share = Share;
-  }
-});
-
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/resources/sandboxes/boxes.js
-var Boxes;
-var init_boxes = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/resources/sandboxes/boxes.js"() {
-    init_resource();
-    init_pagination();
-    init_headers();
-    init_path();
-    Boxes = class extends APIResource {
-      /**
-       * Create a new sandbox from a snapshot. Provide at most one of `snapshot_id` or
-       * `snapshot_name`; if neither is provided, the server uses the default snapshot.
-       * `snapshot_name` accepts a Docker-style `name` or `name:tag` reference (a bare
-       * name resolves to `name:latest`).
-       */
-      create(body, options) {
-        return this._client.post("/api/v2/sandboxes/boxes", { body, ...options });
-      }
-      /**
-       * Retrieve a sandbox by name. Stale provisioning sandboxes are auto-failed.
-       */
-      retrieve(name, options) {
-        return this._client.get(path`/api/v2/sandboxes/boxes/${name}`, options);
-      }
-      /**
-       * Update a sandbox's display name, retention, resources, tags, or proxy
-       * configuration. The name must be unique within the tenant. Proxy configuration
-       * sent to a sandbox that is not running is stored and applied when it next starts.
-       */
-      update(name, body, options) {
-        return this._client.patch(path`/api/v2/sandboxes/boxes/${name}`, { body, ...options });
-      }
-      /**
-       * List sandboxes for the authenticated tenant, with optional filtering, sorting,
-       * and pagination. Page with page_size and cursor: replay the response's
-       * next_cursor until it comes back null, which is the only signal that no pages
-       * remain. Cursors are opaque and only valid on this endpoint; do not parse or
-       * construct one.
-       */
-      list(query = {}, options) {
-        return this._client.getAPIList("/api/v2/sandboxes/boxes", ItemsCursorGetPagination, { query, ...options });
-      }
-      /**
-       * Delete a sandbox by name or UUID. Tears down the sandbox runtime and removes the
-       * DB record.
-       */
-      delete(name, options) {
-        return this._client.delete(path`/api/v2/sandboxes/boxes/${name}`, {
-          ...options,
-          headers: buildHeaders([{ Accept: "*/*" }, options?.headers])
-        });
-      }
-      /**
-       * Create a snapshot by capturing the current state of a sandbox or promoting an
-       * existing checkpoint.
-       */
-      createSnapshot(name, body, options) {
-        return this._client.post(path`/api/v2/sandboxes/boxes/${name}/snapshot`, { body, ...options });
-      }
-      /**
-       * Generate a tokenized link that downloads a single file from a sandbox with no
-       * further authentication. This mints a token rather than creating an addressable
-       * resource, so it returns 200 with no Location header. The token pins the sandbox,
-       * the file path, and the response content type and disposition, so a link cannot
-       * be repointed at another file. Links never expire unless expires_in_seconds is
-       * set. The link is served from the sandbox service domain, not the API host.
-       */
-      generateDownloadURL(name, body, options) {
-        return this._client.post(path`/api/v2/sandboxes/boxes/${name}/download-url`, { body, ...options });
-      }
-      /**
-       * Create a short-lived JWT for accessing an HTTP service running on a specific
-       * port inside a sandbox. Returns a browser_url (sets auth cookie via redirect), a
-       * service_url (for use with the X-Langsmith-Sandbox-Service-Token header), the raw
-       * token, and its expiry.
-       */
-      generateServiceURL(name, body, options) {
-        return this._client.post(path`/api/v2/sandboxes/boxes/${name}/service-url`, { body, ...options });
-      }
-      /**
-       * Retrieve the lightweight status of a sandbox for polling.
-       */
-      getStatus(name, options) {
-        return this._client.get(path`/api/v2/sandboxes/boxes/${name}/status`, options);
-      }
-      /**
-       * Start a stopped or failed sandbox. This endpoint is not idempotent.
-       */
-      start(name, options) {
-        return this._client.post(path`/api/v2/sandboxes/boxes/${name}/start`, options);
-      }
-      /**
-       * Stop a ready sandbox. This endpoint is not idempotent; the filesystem is
-       * preserved for later restart.
-       */
-      stop(name, options) {
-        return this._client.post(path`/api/v2/sandboxes/boxes/${name}/stop`, {
-          ...options,
-          headers: buildHeaders([{ Accept: "*/*" }, options?.headers])
-        });
-      }
-    };
-  }
-});
-
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/resources/sandboxes/registries.js
-var Registries;
-var init_registries = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/resources/sandboxes/registries.js"() {
-    init_resource();
-    init_headers();
-    init_path();
-    Registries = class extends APIResource {
-      /**
-       * Create a sandbox registry for pulling private images.
-       */
-      create(body, options) {
-        return this._client.post("/api/v2/sandboxes/registries", { body, ...options });
-      }
-      /**
-       * Get a sandbox registry by name.
-       */
-      retrieve(name, options) {
-        return this._client.get(path`/api/v2/sandboxes/registries/${name}`, options);
-      }
-      /**
-       * Update a sandbox registry's name and/or credentials.
-       */
-      update(name, body, options) {
-        return this._client.patch(path`/api/v2/sandboxes/registries/${name}`, { body, ...options });
-      }
-      /**
-       * List sandbox registries for pulling private images.
-       */
-      list(query = {}, options) {
-        return this._client.get("/api/v2/sandboxes/registries", { query, ...options });
-      }
-      /**
-       * Delete a sandbox registry by name.
-       */
-      delete(name, options) {
-        return this._client.delete(path`/api/v2/sandboxes/registries/${name}`, {
-          ...options,
-          headers: buildHeaders([{ Accept: "*/*" }, options?.headers])
-        });
-      }
-    };
-  }
-});
-
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/resources/sandboxes/snapshots.js
-var Snapshots;
-var init_snapshots = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/resources/sandboxes/snapshots.js"() {
-    init_resource();
-    init_pagination();
-    init_headers();
-    init_path();
-    Snapshots = class extends APIResource {
-      /**
-       * Create a snapshot from a Docker image (async build).
-       */
-      create(body, options) {
-        return this._client.post("/api/v2/sandboxes/snapshots", { body, ...options });
-      }
-      /**
-       * Get a sandbox snapshot by ID or by a Docker-style reference. A bare name means
-       * name:latest, falling back to the newest ready untagged snapshot of that name. To
-       * list the tags under a name, use /api/v2/sandboxes/snapshots-by-name/{name}.
-       */
-      retrieve(snapshotID, options) {
-        return this._client.get(path`/api/v2/sandboxes/snapshots/${snapshotID}`, options);
-      }
-      /**
-       * List sandbox snapshots for the authenticated tenant, with optional filtering,
-       * sorting, and pagination. Page with page_size and cursor: replay the response's
-       * next_cursor until it comes back null, which is the only signal that no pages
-       * remain. Cursors are opaque and only valid on this endpoint; do not parse or
-       * construct one.
-       */
-      list(query = {}, options) {
-        return this._client.getAPIList("/api/v2/sandboxes/snapshots", ItemsCursorGetPagination, { query, ...options });
-      }
-      /**
-       * Delete a snapshot by ID or by a Docker-style name[:tag] reference. The
-       * underlying storage is reclaimed asynchronously.
-       */
-      delete(snapshotID, options) {
-        return this._client.delete(path`/api/v2/sandboxes/snapshots/${snapshotID}`, {
-          ...options,
-          headers: buildHeaders([{ Accept: "*/*" }, options?.headers])
-        });
-      }
-      /**
-       * Get a snapshot name and every tag under it, with the snapshot each tag resolves
-       * to. To fetch one snapshot, use /api/v2/sandboxes/snapshots/{snapshot_id}.
-       */
-      retrieveByName(name, options) {
-        return this._client.get(path`/api/v2/sandboxes/snapshots-by-name/${name}`, options);
-      }
-    };
-  }
-});
-
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/resources/sandboxes/sandboxes.js
-var Sandboxes;
-var init_sandboxes = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/resources/sandboxes/sandboxes.js"() {
-    init_resource();
-    init_boxes();
-    init_boxes();
-    init_registries();
-    init_registries();
-    init_snapshots();
-    init_snapshots();
-    Sandboxes = class extends APIResource {
-      constructor() {
-        super(...arguments);
-        Object.defineProperty(this, "boxes", {
-          enumerable: true,
-          configurable: true,
-          writable: true,
-          value: new Boxes(this._client)
-        });
-        Object.defineProperty(this, "registries", {
-          enumerable: true,
-          configurable: true,
-          writable: true,
-          value: new Registries(this._client)
-        });
-        Object.defineProperty(this, "snapshots", {
-          enumerable: true,
-          configurable: true,
-          writable: true,
-          value: new Snapshots(this._client)
-        });
-      }
-    };
-    Sandboxes.Boxes = Boxes;
-    Sandboxes.Registries = Registries;
-    Sandboxes.Snapshots = Snapshots;
-  }
-});
-
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/resources/threads.js
-var Threads;
-var init_threads = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/resources/threads.js"() {
-    init_resource();
-    init_pagination();
-    init_path();
-    Threads = class extends APIResource {
-      /**
-       * Retrieve all traces belonging to a specific thread within a project.
-       *
-       * Self-hosted deployments require LangSmith `v0.16` or later.
-       *
-       * @example
-       * ```ts
-       * // Automatically fetches more pages as needed.
-       * for await (const threadTrace of client.threads.listTraces(
-       *   'thread_id',
-       *   { project_id: '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e' },
-       * )) {
-       *   // ...
-       * }
-       * ```
-       */
-      listTraces(threadID, query, options) {
-        return this._client.getAPIList(path`/api/v2/threads/${threadID}/traces`, ItemsCursorGetPagination, { query, ...options });
-      }
-      /**
-       * Query threads within a project (session), with cursor-based pagination. Returns
-       * threads matching the given time range and optional filters.
-       *
-       * Self-hosted deployments require LangSmith `v0.16` or later.
-       *
-       * @example
-       * ```ts
-       * // Automatically fetches more pages as needed.
-       * for await (const thread of client.threads.query()) {
-       *   // ...
-       * }
-       * ```
-       */
-      query(body, options) {
-        return this._client.getAPIList("/api/v2/threads/query", ItemsCursorPostPagination, {
-          body,
-          method: "post",
-          ...options
-        });
-      }
-      /**
-       * Compute aggregate stats for a single thread (turn count, latency percentiles,
-       * token/cost sums, and detail breakdowns) within a project.
-       *
-       * Self-hosted deployments require LangSmith `v0.16` or later.
-       *
-       * @example
-       * ```ts
-       * const threadStats = await client.threads.stats(
-       *   'thread_id',
-       *   {
-       *     selects: ['TURNS'],
-       *     session_id: '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',
-       *   },
-       * );
-       * ```
-       */
-      stats(threadID, query, options) {
-        return this._client.get(path`/api/v2/threads/${threadID}/stats`, { query, ...options });
-      }
-    };
-  }
-});
-
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/resources/traces.js
-var Traces;
-var init_traces = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/resources/traces.js"() {
-    init_resource();
-    init_pagination();
-    init_headers();
-    init_path();
-    Traces = class extends APIResource {
-      /**
-       * Returns runs for a trace ID within min/max start time. Optional `filter`;
-       * repeatable `selects` to select fields to return.
-       *
-       * Self-hosted deployments require LangSmith `v0.16` or later.
-       *
-       * @example
-       * ```ts
-       * const response = await client.traces.listRuns(
-       *   '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',
-       *   { project_id: '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e' },
-       * );
-       * ```
-       */
-      listRuns(traceID, params, options) {
-        const { Accept, ...query } = params;
-        return this._client.get(path`/api/v2/traces/${traceID}/runs`, {
-          query,
-          ...options,
-          headers: buildHeaders([{ ...Accept != null ? { Accept } : void 0 }, options?.headers])
-        });
-      }
-      /**
-       * Returns a paginated list of traces (root runs) for a single tracing project.
-       * Each item carries the trace's root run plus optional trace-wide aggregates
-       * (`total_tokens`, `total_cost`, `first_token_time`) under `trace_aggregates`, so
-       * clients never have to merge by `trace_id`.
-       *
-       * Traces are scanned within a `start_time` window: `min_start_time` defaults to 24
-       * hours before the request, `max_start_time` defaults to the request time. Set
-       * either explicitly to widen or narrow the window.
-       *
-       * Supports filters (`trace_filter`, `tree_filter`), cursor pagination (`cursor`),
-       * and field projection (`selects`).
-       *
-       * Self-hosted deployments require LangSmith `v0.16` or later.
-       *
-       * @example
-       * ```ts
-       * // Automatically fetches more pages as needed.
-       * for await (const trace of client.traces.query()) {
-       *   // ...
-       * }
-       * ```
-       */
-      query(body, options) {
-        return this._client.getAPIList("/api/v2/traces/query", ItemsCursorPostPagination, {
-          body,
-          method: "post",
-          ...options
-        });
-      }
-    };
-  }
-});
-
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/resources/index.js
-var init_resources = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/resources/index.js"() {
-    init_annotation_queues();
-    init_datasets();
-    init_info();
-    init_issues();
-    init_online_evaluators();
-    init_public();
-    init_runs3();
-    init_sandboxes();
-    init_threads();
-    init_traces();
-  }
-});
-
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/internal/utils/env.js
-var readEnv;
-var init_env2 = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/internal/utils/env.js"() {
-    readEnv = (env) => {
-      if (typeof globalThis.process !== "undefined") {
-        return globalThis.process.env?.[env]?.trim() || void 0;
-      }
-      if (typeof globalThis.Deno !== "undefined") {
-        return globalThis.Deno.env?.get?.(env)?.trim() || void 0;
-      }
-      return void 0;
-    };
-  }
-});
-
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/client.js
-var __classPrivateFieldSet3, __classPrivateFieldGet3, _Langsmith_instances, _a, _Langsmith_encoder, _Langsmith_baseURLOverridden, Langsmith;
-var init_client = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/client.js"() {
-    init_uuid();
-    init_values();
-    init_sleep();
-    init_errors4();
-    init_detect_platform();
-    init_shims();
-    init_request_options();
-    init_query();
-    init_version2();
-    init_error();
-    init_pagination();
-    init_uploads2();
-    init_resources();
-    init_api_promise();
-    init_info();
-    init_issues();
-    init_online_evaluators();
-    init_threads();
-    init_traces();
-    init_annotation_queues();
-    init_datasets();
-    init_public();
-    init_runs3();
-    init_sandboxes();
-    init_headers();
-    init_env2();
-    init_log();
-    init_values();
-    __classPrivateFieldSet3 = function(receiver, state, value, kind, f2) {
-      if (kind === "m") throw new TypeError("Private method is not writable");
-      if (kind === "a" && !f2) throw new TypeError("Private accessor was defined without a setter");
-      if (typeof state === "function" ? receiver !== state || !f2 : !state.has(receiver)) throw new TypeError("Cannot write private member to an object whose class did not declare it");
-      return kind === "a" ? f2.call(receiver, value) : f2 ? f2.value = value : state.set(receiver, value), value;
-    };
-    __classPrivateFieldGet3 = function(receiver, state, kind, f2) {
-      if (kind === "a" && !f2) throw new TypeError("Private accessor was defined without a getter");
-      if (typeof state === "function" ? receiver !== state || !f2 : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
-      return kind === "m" ? f2 : kind === "a" ? f2.call(receiver) : f2 ? f2.value : state.get(receiver);
-    };
-    Langsmith = class {
-      /**
-       * API Client for interfacing with the LangChain API.
-       *
-       * @param {string | null | undefined} [opts.apiKey=process.env['LANGSMITH_API_KEY'] ?? null]
-       * @param {string | null | undefined} [opts.tenantID=process.env['LANGSMITH_TENANT_ID'] ?? null]
-       * @param {string} [opts.baseURL=process.env['LANGCHAIN_BASE_URL'] ?? https://api.smith.langchain.com/] - Override the default base URL for the API.
-       * @param {number} [opts.timeout=1.5 minutes] - The maximum amount of time (in milliseconds) the client will wait for a response before timing out.
-       * @param {MergedRequestInit} [opts.fetchOptions] - Additional `RequestInit` options to be passed to `fetch` calls.
-       * @param {Fetch} [opts.fetch] - Specify a custom `fetch` function implementation.
-       * @param {number} [opts.maxRetries=2] - The maximum number of times the client will retry a request.
-       * @param {HeadersLike} opts.defaultHeaders - Default headers to include with every request to the API.
-       * @param {Record<string, string | undefined>} opts.defaultQuery - Default query parameters to include with every request to the API.
-       */
-      constructor({ baseURL = readEnv("LANGCHAIN_BASE_URL"), apiKey = readEnv("LANGSMITH_API_KEY") ?? null, tenantID = readEnv("LANGSMITH_TENANT_ID") ?? null, ...opts } = {}) {
-        _Langsmith_instances.add(this);
-        Object.defineProperty(this, "apiKey", {
-          enumerable: true,
-          configurable: true,
-          writable: true,
-          value: void 0
-        });
-        Object.defineProperty(this, "tenantID", {
-          enumerable: true,
-          configurable: true,
-          writable: true,
-          value: void 0
-        });
-        Object.defineProperty(this, "baseURL", {
-          enumerable: true,
-          configurable: true,
-          writable: true,
-          value: void 0
-        });
-        Object.defineProperty(this, "maxRetries", {
-          enumerable: true,
-          configurable: true,
-          writable: true,
-          value: void 0
-        });
-        Object.defineProperty(this, "timeout", {
-          enumerable: true,
-          configurable: true,
-          writable: true,
-          value: void 0
-        });
-        Object.defineProperty(this, "logger", {
-          enumerable: true,
-          configurable: true,
-          writable: true,
-          value: void 0
-        });
-        Object.defineProperty(this, "logLevel", {
-          enumerable: true,
-          configurable: true,
-          writable: true,
-          value: void 0
-        });
-        Object.defineProperty(this, "fetchOptions", {
-          enumerable: true,
-          configurable: true,
-          writable: true,
-          value: void 0
-        });
-        Object.defineProperty(this, "fetch", {
-          enumerable: true,
-          configurable: true,
-          writable: true,
-          value: void 0
-        });
-        _Langsmith_encoder.set(this, void 0);
-        Object.defineProperty(this, "idempotencyHeader", {
-          enumerable: true,
-          configurable: true,
-          writable: true,
-          value: void 0
-        });
-        Object.defineProperty(this, "_options", {
-          enumerable: true,
-          configurable: true,
-          writable: true,
-          value: void 0
-        });
-        Object.defineProperty(this, "datasets", {
-          enumerable: true,
-          configurable: true,
-          writable: true,
-          value: new Datasets(this)
-        });
-        Object.defineProperty(this, "runs", {
-          enumerable: true,
-          configurable: true,
-          writable: true,
-          value: new Runs3(this)
-        });
-        Object.defineProperty(this, "threads", {
-          enumerable: true,
-          configurable: true,
-          writable: true,
-          value: new Threads(this)
-        });
-        Object.defineProperty(this, "traces", {
-          enumerable: true,
-          configurable: true,
-          writable: true,
-          value: new Traces(this)
-        });
-        Object.defineProperty(this, "onlineEvaluators", {
-          enumerable: true,
-          configurable: true,
-          writable: true,
-          value: new OnlineEvaluators(this)
-        });
-        Object.defineProperty(this, "public", {
-          enumerable: true,
-          configurable: true,
-          writable: true,
-          value: new Public(this)
-        });
-        Object.defineProperty(this, "annotationQueues", {
-          enumerable: true,
-          configurable: true,
-          writable: true,
-          value: new AnnotationQueues(this)
-        });
-        Object.defineProperty(this, "info", {
-          enumerable: true,
-          configurable: true,
-          writable: true,
-          value: new Info(this)
-        });
-        Object.defineProperty(this, "issues", {
-          enumerable: true,
-          configurable: true,
-          writable: true,
-          value: new Issues(this)
-        });
-        Object.defineProperty(this, "sandboxes", {
-          enumerable: true,
-          configurable: true,
-          writable: true,
-          value: new Sandboxes(this)
-        });
-        const options = {
-          apiKey,
-          tenantID,
-          ...opts,
-          baseURL: baseURL || `https://api.smith.langchain.com/`
-        };
-        this.baseURL = options.baseURL;
-        this.timeout = options.timeout ?? _a.DEFAULT_TIMEOUT;
-        this.logger = options.logger ?? console;
-        const defaultLogLevel = "warn";
-        this.logLevel = defaultLogLevel;
-        this.logLevel = parseLogLevel(options.logLevel, "ClientOptions.logLevel", this) ?? parseLogLevel(readEnv("LANGCHAIN_LOG"), "process.env['LANGCHAIN_LOG']", this) ?? defaultLogLevel;
-        this.fetchOptions = options.fetchOptions;
-        this.maxRetries = options.maxRetries ?? 2;
-        this.fetch = options.fetch ?? getDefaultFetch();
-        __classPrivateFieldSet3(this, _Langsmith_encoder, FallbackEncoder, "f");
-        const customHeadersEnv = readEnv("LANGCHAIN_CUSTOM_HEADERS");
-        if (customHeadersEnv) {
-          const parsed = {};
-          for (const line of customHeadersEnv.split("\n")) {
-            const colon = line.indexOf(":");
-            if (colon >= 0) {
-              parsed[line.substring(0, colon).trim()] = line.substring(colon + 1).trim();
-            }
-          }
-          options.defaultHeaders = { ...parsed, ...options.defaultHeaders };
-        }
-        this._options = options;
-        this.apiKey = apiKey;
-        this.tenantID = tenantID;
-      }
-      /**
-       * Create a new client instance re-using the same options given to the current client with optional overriding.
-       */
-      withOptions(options) {
-        const client = new this.constructor({
-          ...this._options,
-          baseURL: this.baseURL,
-          maxRetries: this.maxRetries,
-          timeout: this.timeout,
-          logger: this.logger,
-          logLevel: this.logLevel,
-          fetch: this.fetch,
-          fetchOptions: this.fetchOptions,
-          apiKey: this.apiKey,
-          tenantID: this.tenantID,
-          ...options
-        });
-        return client;
-      }
-      defaultQuery() {
-        return this._options.defaultQuery;
-      }
-      validateHeaders({ values, nulls }) {
-        if (this.apiKey && values.get("x-api-key")) {
-          return;
-        }
-        if (nulls.has("x-api-key")) {
-          return;
-        }
-        if (this.tenantID && values.get("x-tenant-id")) {
-          return;
-        }
-        if (nulls.has("x-tenant-id")) {
-          return;
-        }
-        throw new Error('Could not resolve authentication method. Expected either apiKey or tenantID to be set. Or for one of the "X-API-Key" or "X-Tenant-Id" headers to be explicitly omitted');
-      }
-      async authHeaders(opts) {
-        return buildHeaders([await this.apiKeyAuth(opts), await this.tenantIDAuth(opts)]);
-      }
-      async apiKeyAuth(opts) {
-        if (this.apiKey == null) {
-          return void 0;
-        }
-        return buildHeaders([{ "X-API-Key": this.apiKey }]);
-      }
-      async tenantIDAuth(opts) {
-        if (this.tenantID == null) {
-          return void 0;
-        }
-        return buildHeaders([{ "X-Tenant-Id": this.tenantID }]);
-      }
-      stringifyQuery(query) {
-        return stringifyQuery(query);
-      }
-      getUserAgent() {
-        return `${this.constructor.name}/JS ${VERSION}`;
-      }
-      defaultIdempotencyKey() {
-        return `stainless-node-retry-${uuid4()}`;
-      }
-      makeStatusError(status, error2, message, headers) {
-        return APIError.generate(status, error2, message, headers);
-      }
-      buildURL(path3, query, defaultBaseURL) {
-        const baseURL = !__classPrivateFieldGet3(this, _Langsmith_instances, "m", _Langsmith_baseURLOverridden).call(this) && defaultBaseURL || this.baseURL;
-        const url = isAbsoluteURL(path3) ? new URL(path3) : new URL(baseURL + (baseURL.endsWith("/") && path3.startsWith("/") ? path3.slice(1) : path3));
-        const defaultQuery = this.defaultQuery();
-        const pathQuery = Object.fromEntries(url.searchParams);
-        if (!isEmptyObj(defaultQuery) || !isEmptyObj(pathQuery)) {
-          query = { ...pathQuery, ...defaultQuery, ...query };
-        }
-        if (typeof query === "object" && query && !Array.isArray(query)) {
-          url.search = this.stringifyQuery(query);
-        }
-        return url.toString();
-      }
-      /**
-       * Used as a callback for mutating the given `FinalRequestOptions` object.
-       */
-      async prepareOptions(options) {
-      }
-      /**
-       * Used as a callback for mutating the given `RequestInit` object.
-       *
-       * This is useful for cases where you want to add certain headers based off of
-       * the request properties, e.g. `method` or `url`.
-       */
-      async prepareRequest(request, { url, options }) {
-      }
-      get(path3, opts) {
-        return this.methodRequest("get", path3, opts);
-      }
-      post(path3, opts) {
-        return this.methodRequest("post", path3, opts);
-      }
-      patch(path3, opts) {
-        return this.methodRequest("patch", path3, opts);
-      }
-      put(path3, opts) {
-        return this.methodRequest("put", path3, opts);
-      }
-      delete(path3, opts) {
-        return this.methodRequest("delete", path3, opts);
-      }
-      methodRequest(method, path3, opts) {
-        return this.request(Promise.resolve(opts).then((opts2) => {
-          return { method, path: path3, ...opts2 };
-        }));
-      }
-      request(options, remainingRetries = null) {
-        return new APIPromise(this, this.makeRequest(options, remainingRetries, void 0));
-      }
-      async makeRequest(optionsInput, retriesRemaining, retryOfRequestLogID) {
-        const options = await optionsInput;
-        const maxRetries = options.maxRetries ?? this.maxRetries;
-        if (retriesRemaining == null) {
-          retriesRemaining = maxRetries;
-        }
-        await this.prepareOptions(options);
-        const { req, url, timeout } = await this.buildRequest(options, {
-          retryCount: maxRetries - retriesRemaining
-        });
-        await this.prepareRequest(req, { url, options });
-        const requestLogID = "log_" + (Math.random() * (1 << 24) | 0).toString(16).padStart(6, "0");
-        const retryLogStr = retryOfRequestLogID === void 0 ? "" : `, retryOf: ${retryOfRequestLogID}`;
-        const startTime = Date.now();
-        loggerFor(this).debug(`[${requestLogID}] sending request`, formatRequestDetails({
-          retryOfRequestLogID,
-          method: options.method,
-          url,
-          options,
-          headers: req.headers
-        }));
-        if (options.signal?.aborted) {
-          throw new APIUserAbortError();
-        }
-        const controller = new AbortController();
-        const response = await this.fetchWithTimeout(url, req, timeout, controller).catch(castToError);
-        const headersTime = Date.now();
-        if (response instanceof globalThis.Error) {
-          const retryMessage = `retrying, ${retriesRemaining} attempts remaining`;
-          if (options.signal?.aborted) {
-            throw new APIUserAbortError();
-          }
-          const isTimeout = isAbortError(response) || /timed? ?out/i.test(String(response) + ("cause" in response ? String(response.cause) : ""));
-          if (retriesRemaining) {
-            loggerFor(this).info(`[${requestLogID}] connection ${isTimeout ? "timed out" : "failed"} - ${retryMessage}`);
-            loggerFor(this).debug(`[${requestLogID}] connection ${isTimeout ? "timed out" : "failed"} (${retryMessage})`, formatRequestDetails({
-              retryOfRequestLogID,
-              url,
-              durationMs: headersTime - startTime,
-              message: response.message
-            }));
-            return this.retryRequest(options, retriesRemaining, retryOfRequestLogID ?? requestLogID);
-          }
-          loggerFor(this).info(`[${requestLogID}] connection ${isTimeout ? "timed out" : "failed"} - error; no more retries left`);
-          loggerFor(this).debug(`[${requestLogID}] connection ${isTimeout ? "timed out" : "failed"} (error; no more retries left)`, formatRequestDetails({
-            retryOfRequestLogID,
-            url,
-            durationMs: headersTime - startTime,
-            message: response.message
-          }));
-          if (isTimeout) {
-            throw new APIConnectionTimeoutError();
-          }
-          throw new APIConnectionError({ cause: response });
-        }
-        const responseInfo = `[${requestLogID}${retryLogStr}] ${req.method} ${url} ${response.ok ? "succeeded" : "failed"} with status ${response.status} in ${headersTime - startTime}ms`;
-        if (!response.ok) {
-          const shouldRetry = await this.shouldRetry(response);
-          if (retriesRemaining && shouldRetry) {
-            const retryMessage2 = `retrying, ${retriesRemaining} attempts remaining`;
-            await CancelReadableStream(response.body);
-            loggerFor(this).info(`${responseInfo} - ${retryMessage2}`);
-            loggerFor(this).debug(`[${requestLogID}] response error (${retryMessage2})`, formatRequestDetails({
-              retryOfRequestLogID,
-              url: response.url,
-              status: response.status,
-              headers: response.headers,
-              durationMs: headersTime - startTime
-            }));
-            return this.retryRequest(options, retriesRemaining, retryOfRequestLogID ?? requestLogID, response.headers);
-          }
-          const retryMessage = shouldRetry ? `error; no more retries left` : `error; not retryable`;
-          loggerFor(this).info(`${responseInfo} - ${retryMessage}`);
-          const errText = await response.text().catch((err2) => castToError(err2).message);
-          const errJSON = safeJSON(errText);
-          const errMessage = errJSON ? void 0 : errText;
-          loggerFor(this).debug(`[${requestLogID}] response error (${retryMessage})`, formatRequestDetails({
-            retryOfRequestLogID,
-            url: response.url,
-            status: response.status,
-            headers: response.headers,
-            message: errMessage,
-            durationMs: Date.now() - startTime
-          }));
-          const err = this.makeStatusError(response.status, errJSON, errMessage, response.headers);
-          throw err;
-        }
-        loggerFor(this).info(responseInfo);
-        loggerFor(this).debug(`[${requestLogID}] response start`, formatRequestDetails({
-          retryOfRequestLogID,
-          url: response.url,
-          status: response.status,
-          headers: response.headers,
-          durationMs: headersTime - startTime
-        }));
-        return { response, options, controller, requestLogID, retryOfRequestLogID, startTime };
-      }
-      getAPIList(path3, Page, opts) {
-        return this.requestAPIList(Page, opts && "then" in opts ? opts.then((opts2) => ({ method: "get", path: path3, ...opts2 })) : { method: "get", path: path3, ...opts });
-      }
-      requestAPIList(Page, options) {
-        const request = this.makeRequest(options, null, void 0);
-        return new PagePromise(this, request, Page);
-      }
-      async fetchWithTimeout(url, init, ms, controller) {
-        const { signal, method, ...options } = init || {};
-        const abort = this._makeAbort(controller);
-        if (signal)
-          signal.addEventListener("abort", abort, { once: true });
-        const timeout = setTimeout(abort, ms);
-        const isReadableBody = globalThis.ReadableStream && options.body instanceof globalThis.ReadableStream || typeof options.body === "object" && options.body !== null && Symbol.asyncIterator in options.body;
-        const fetchOptions = {
-          signal: controller.signal,
-          ...isReadableBody ? { duplex: "half" } : {},
-          method: "GET",
-          ...options
-        };
-        if (method) {
-          fetchOptions.method = method.toUpperCase();
-        }
-        try {
-          return await this.fetch.call(void 0, url, fetchOptions);
-        } finally {
-          clearTimeout(timeout);
-        }
-      }
-      async shouldRetry(response) {
-        const shouldRetryHeader = response.headers.get("x-should-retry");
-        if (shouldRetryHeader === "true")
-          return true;
-        if (shouldRetryHeader === "false")
-          return false;
-        if (response.status === 408)
-          return true;
-        if (response.status === 409)
-          return true;
-        if (response.status === 429)
-          return true;
-        if (response.status >= 500)
-          return true;
-        return false;
-      }
-      async retryRequest(options, retriesRemaining, requestLogID, responseHeaders) {
-        let timeoutMillis;
-        const retryAfterMillisHeader = responseHeaders?.get("retry-after-ms");
-        if (retryAfterMillisHeader) {
-          const timeoutMs2 = parseFloat(retryAfterMillisHeader);
-          if (!Number.isNaN(timeoutMs2)) {
-            timeoutMillis = timeoutMs2;
-          }
-        }
-        const retryAfterHeader = responseHeaders?.get("retry-after");
-        if (retryAfterHeader && !timeoutMillis) {
-          const timeoutSeconds = parseFloat(retryAfterHeader);
-          if (!Number.isNaN(timeoutSeconds)) {
-            timeoutMillis = timeoutSeconds * 1e3;
-          } else {
-            timeoutMillis = Date.parse(retryAfterHeader) - Date.now();
-          }
-        }
-        if (timeoutMillis === void 0) {
-          const maxRetries = options.maxRetries ?? this.maxRetries;
-          timeoutMillis = this.calculateDefaultRetryTimeoutMillis(retriesRemaining, maxRetries);
-        }
-        await sleep(timeoutMillis);
-        return this.makeRequest(options, retriesRemaining - 1, requestLogID);
-      }
-      calculateDefaultRetryTimeoutMillis(retriesRemaining, maxRetries) {
-        const initialRetryDelay = 0.5;
-        const maxRetryDelay = 16;
-        const numRetries = maxRetries - retriesRemaining;
-        const sleepSeconds = Math.min(initialRetryDelay * Math.pow(2, numRetries), maxRetryDelay);
-        const jitter = 1 - Math.random() * 0.25;
-        return sleepSeconds * jitter * 1e3;
-      }
-      async buildRequest(inputOptions, { retryCount = 0 } = {}) {
-        const options = { ...inputOptions };
-        const { method, path: path3, query, defaultBaseURL } = options;
-        const url = this.buildURL(path3, query, defaultBaseURL);
-        if ("timeout" in options)
-          validatePositiveInteger("timeout", options.timeout);
-        options.timeout = options.timeout ?? this.timeout;
-        const { bodyHeaders, body } = this.buildBody({ options });
-        const reqHeaders = await this.buildHeaders({ options: inputOptions, method, bodyHeaders, retryCount });
-        const req = {
-          method,
-          headers: reqHeaders,
-          ...options.signal && { signal: options.signal },
-          ...globalThis.ReadableStream && body instanceof globalThis.ReadableStream && { duplex: "half" },
-          ...body && { body },
-          ...this.fetchOptions ?? {},
-          ...options.fetchOptions ?? {}
-        };
-        return { req, url, timeout: options.timeout };
-      }
-      async buildHeaders({ options, method, bodyHeaders, retryCount }) {
-        let idempotencyHeaders = {};
-        if (this.idempotencyHeader && method !== "get") {
-          if (!options.idempotencyKey)
-            options.idempotencyKey = this.defaultIdempotencyKey();
-          idempotencyHeaders[this.idempotencyHeader] = options.idempotencyKey;
-        }
-        const headers = buildHeaders([
-          idempotencyHeaders,
-          {
-            Accept: "application/json",
-            "User-Agent": this.getUserAgent(),
-            "X-Stainless-Retry-Count": String(retryCount),
-            ...options.timeout ? { "X-Stainless-Timeout": String(Math.trunc(options.timeout / 1e3)) } : {},
-            ...getPlatformHeaders()
-          },
-          await this.authHeaders(options),
-          this._options.defaultHeaders,
-          bodyHeaders,
-          options.headers
-        ]);
-        this.validateHeaders(headers);
-        return headers.values;
-      }
-      _makeAbort(controller) {
-        return () => controller.abort();
-      }
-      buildBody({ options: { body, headers: rawHeaders } }) {
-        if (!body) {
-          return { bodyHeaders: void 0, body: void 0 };
-        }
-        const headers = buildHeaders([rawHeaders]);
-        if (
-          // Pass raw type verbatim
-          ArrayBuffer.isView(body) || body instanceof ArrayBuffer || body instanceof DataView || typeof body === "string" && // Preserve legacy string encoding behavior for now
-          headers.values.has("content-type") || // `Blob` is superset of `File`
-          globalThis.Blob && body instanceof globalThis.Blob || // `FormData` -> `multipart/form-data`
-          body instanceof FormData || // `URLSearchParams` -> `application/x-www-form-urlencoded`
-          body instanceof URLSearchParams || // Send chunked stream (each chunk has own `length`)
-          globalThis.ReadableStream && body instanceof globalThis.ReadableStream
-        ) {
-          return { bodyHeaders: void 0, body };
-        } else if (typeof body === "object" && (Symbol.asyncIterator in body || Symbol.iterator in body && "next" in body && typeof body.next === "function")) {
-          return { bodyHeaders: void 0, body: ReadableStreamFrom(body) };
-        } else if (typeof body === "object" && headers.values.get("content-type") === "application/x-www-form-urlencoded") {
-          return {
-            bodyHeaders: { "content-type": "application/x-www-form-urlencoded" },
-            body: this.stringifyQuery(body)
-          };
-        } else {
-          return __classPrivateFieldGet3(this, _Langsmith_encoder, "f").call(this, { body, headers });
-        }
-      }
-    };
-    _a = Langsmith, _Langsmith_encoder = /* @__PURE__ */ new WeakMap(), _Langsmith_instances = /* @__PURE__ */ new WeakSet(), _Langsmith_baseURLOverridden = function _Langsmith_baseURLOverridden2() {
-      return this.baseURL !== "https://api.smith.langchain.com/";
-    };
-    Object.defineProperty(Langsmith, "Langsmith", {
-      enumerable: true,
-      configurable: true,
-      writable: true,
-      value: _a
-    });
-    Object.defineProperty(Langsmith, "DEFAULT_TIMEOUT", {
-      enumerable: true,
-      configurable: true,
-      writable: true,
-      value: 9e4
-    });
-    Object.defineProperty(Langsmith, "LangsmithError", {
-      enumerable: true,
-      configurable: true,
-      writable: true,
-      value: LangsmithError
-    });
-    Object.defineProperty(Langsmith, "APIError", {
-      enumerable: true,
-      configurable: true,
-      writable: true,
-      value: APIError
-    });
-    Object.defineProperty(Langsmith, "APIConnectionError", {
-      enumerable: true,
-      configurable: true,
-      writable: true,
-      value: APIConnectionError
-    });
-    Object.defineProperty(Langsmith, "APIConnectionTimeoutError", {
-      enumerable: true,
-      configurable: true,
-      writable: true,
-      value: APIConnectionTimeoutError
-    });
-    Object.defineProperty(Langsmith, "APIUserAbortError", {
-      enumerable: true,
-      configurable: true,
-      writable: true,
-      value: APIUserAbortError
-    });
-    Object.defineProperty(Langsmith, "NotFoundError", {
-      enumerable: true,
-      configurable: true,
-      writable: true,
-      value: NotFoundError
-    });
-    Object.defineProperty(Langsmith, "ConflictError", {
-      enumerable: true,
-      configurable: true,
-      writable: true,
-      value: ConflictError
-    });
-    Object.defineProperty(Langsmith, "RateLimitError", {
-      enumerable: true,
-      configurable: true,
-      writable: true,
-      value: RateLimitError
-    });
-    Object.defineProperty(Langsmith, "BadRequestError", {
-      enumerable: true,
-      configurable: true,
-      writable: true,
-      value: BadRequestError
-    });
-    Object.defineProperty(Langsmith, "AuthenticationError", {
-      enumerable: true,
-      configurable: true,
-      writable: true,
-      value: AuthenticationError
-    });
-    Object.defineProperty(Langsmith, "InternalServerError", {
-      enumerable: true,
-      configurable: true,
-      writable: true,
-      value: InternalServerError
-    });
-    Object.defineProperty(Langsmith, "PermissionDeniedError", {
-      enumerable: true,
-      configurable: true,
-      writable: true,
-      value: PermissionDeniedError
-    });
-    Object.defineProperty(Langsmith, "UnprocessableEntityError", {
-      enumerable: true,
-      configurable: true,
-      writable: true,
-      value: UnprocessableEntityError
-    });
-    Object.defineProperty(Langsmith, "toFile", {
-      enumerable: true,
-      configurable: true,
-      writable: true,
-      value: toFile
-    });
-    Langsmith.Datasets = Datasets;
-    Langsmith.Runs = Runs3;
-    Langsmith.Threads = Threads;
-    Langsmith.Traces = Traces;
-    Langsmith.OnlineEvaluators = OnlineEvaluators;
-    Langsmith.Public = Public;
-    Langsmith.AnnotationQueues = AnnotationQueues;
-    Langsmith.Info = Info;
-    Langsmith.Issues = Issues;
-    Langsmith.Sandboxes = Sandboxes;
-  }
-});
-
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/index.js
-var init_openapi_client = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/_openapi_client/index.js"() {
-    init_client();
-    init_uploads2();
-    init_api_promise();
-    init_client();
-    init_pagination();
-    init_error();
-  }
-});
-
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/warn.js
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/warn.mjs
 function warnOnce(message, options) {
   const key = options?.code ?? message;
   if (!warnedMessages[key]) {
@@ -10137,12 +11474,12 @@ function warnOnce(message, options) {
 }
 var warnedMessages;
 var init_warn = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/warn.js"() {
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/warn.mjs"() {
     warnedMessages = {};
   }
 });
 
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/xxhash/xxhash.js
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/xxhash/xxhash.mjs
 function hexToBytes(hex) {
   const bytes = new Uint8Array(hex.length / 2);
   for (let i = 0; i < hex.length; i += 2) {
@@ -10391,7 +11728,7 @@ function xxh128ToBytes(hash128) {
 }
 var n, PRIME32_1, PRIME32_2, PRIME32_3, PRIME64_1, PRIME64_2, PRIME64_3, PRIME64_4, PRIME64_5, PRIME_MX1, PRIME_MX2, kkey, mask128, mask64, mask32, STRIPE_LEN, ACC_NB, _U64, _U32, bswap64, bswap32, XXH_mult32to64, assert;
 var init_xxhash = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/xxhash/xxhash.js"() {
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/xxhash/xxhash.mjs"() {
     n = (n2) => BigInt(n2);
     PRIME32_1 = n("0x9E3779B1");
     PRIME32_2 = n("0x85EBCA77");
@@ -10427,7 +11764,7 @@ var init_xxhash = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/_uuid.js
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/_uuid.mjs
 function assertUuid(str, which) {
   if (!UUID_REGEX.test(str)) {
     const msg = which !== void 0 ? `Invalid UUID for ${which}: ${str}` : `Invalid UUID: ${str}`;
@@ -10482,7 +11819,7 @@ function nonCryptographicUuid7Deterministic(originalId, key) {
 }
 var UUID_REGEX, _textEncoder;
 var init_uuid2 = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/_uuid.js"() {
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/_uuid.mjs"() {
     init_src();
     init_warn();
     init_xxhash();
@@ -10491,10 +11828,10 @@ var init_uuid2 = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/sampling.js
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/sampling.mjs
 var SAMPLING_HASH_MODULUS, encoder, isSampledById;
 var init_sampling = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/sampling.js"() {
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/sampling.mjs"() {
     init_xxhash();
     SAMPLING_HASH_MODULUS = 1000000n;
     encoder = new TextEncoder();
@@ -10514,72 +11851,10 @@ var init_sampling = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/address.js
-function agent(agentId, agentEnvironment) {
-  if (typeof agentId !== "string" || !AGENT_ID_PATTERN.test(agentId)) {
-    throw new Error(`Address agent id must be 1 to 63 lowercase ASCII letters, digits, or hyphens, start with a letter, and end with a letter or digit, got ${JSON.stringify(agentId)}. Use an id such as "support-agent".`);
-  }
-  const environment = typeof agentEnvironment === "string" ? agentEnvironment.toLowerCase() : void 0;
-  if (environment === void 0 || !ENVIRONMENTS.includes(environment)) {
-    throw new Error(`Address environment must be one of ${ENVIRONMENTS.join(", ")}, got ${JSON.stringify(agentEnvironment)}.`);
-  }
-  return `lrn:agents/${agentId}/environments/${environment}`;
-}
-function parse2(value) {
-  const match = typeof value === "string" ? ADDRESS_PATTERN.exec(value) : void 0;
-  if (!match) {
-    throw new Error(`An address must be a string like "lrn:agents/{id}/environments/{environment}", got ${JSON.stringify(value)}.`);
-  }
-  return agent(match[1], match[2]);
-}
-function fromEnv() {
-  const values = ENV_NAMES.map((name) => getEnvironmentVariable(name));
-  if (!values.some(Boolean)) {
-    return void 0;
-  }
-  try {
-    const missing = ENV_NAMES.filter((_, i) => !values[i]);
-    if (missing.length > 0) {
-      throw new Error(`An address needs ${missing.join(" and ")} as well.`);
-    }
-    return agent(values[0], values[1]);
-  } catch (e) {
-    const present = ENV_NAMES.flatMap((name, i) => values[i] ? [`${name}=${JSON.stringify(values[i])}`] : []).join(", ");
-    throw new EnvAddressError(`The LANGSMITH_AGENT_* env vars can't address a run (${present}): ${e.message}`);
-  }
-}
-function envNames() {
-  return ENV_NAMES;
-}
-var AGENT_ID_PATTERN, ENVIRONMENTS, ADDRESS_PATTERN, ENV_NAMES, EnvAddressError;
-var init_address = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/address.js"() {
-    init_env();
-    AGENT_ID_PATTERN = /^[a-z]([a-z0-9-]{0,61}[a-z0-9])?$/;
-    ENVIRONMENTS = [
-      "local",
-      "development",
-      "staging",
-      "production"
-    ];
-    ADDRESS_PATTERN = /^lrn:agents\/([^/]*)\/environments\/([^/]*)$/;
-    ENV_NAMES = ["LANGSMITH_AGENT_ID", "LANGSMITH_AGENT_ENVIRONMENT"];
-    EnvAddressError = class extends Error {
-      constructor(message) {
-        super(message);
-        this.name = "EnvAddressError";
-      }
-    };
-  }
-});
-
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/agent_addressing.js
-function checkAddress(address2) {
-  return address2 == null ? void 0 : parse2(address2);
-}
-function rejectConflicting(project, address2) {
-  if (project && address2) {
-    throw new Error(`A run is sent to a project (${JSON.stringify(project)}) or to an address (${JSON.stringify(address2)}), not both.`);
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/addressing.mjs
+function rejectConflicting(project, address) {
+  if (project && address) {
+    throw new Error(`A run is sent to a project (${JSON.stringify(project)}) or to an address, not both.`);
   }
 }
 function getEnvProject() {
@@ -10587,11 +11862,11 @@ function getEnvProject() {
 }
 function resolveFromEnv() {
   const project = getEnvProject();
-  const address2 = fromEnv();
-  if (project && address2) {
+  const address = addressFromEnv();
+  if (project && address) {
     throw new EnvAddressError("LANGSMITH_AGENT_* and a project are both set in the environment.");
   }
-  return address2 ? [void 0, address2] : [project ?? "default", void 0];
+  return address ? [void 0, address] : [project ?? "default", void 0];
 }
 function logUntraced(error2) {
   warnOnce(`LangSmith is not tracing this call: ${error2.message}`);
@@ -10608,31 +11883,39 @@ function warnOnEnv() {
 }
 function applyToPayload(run11, { update = false } = {}) {
   const payload = run11;
-  let address2 = checkAddress(payload.address);
+  let address;
+  if (typeof payload.address === "string") {
+    try {
+      address = addressFromLrn(payload.address);
+    } catch {
+      throw new Error("The run's `address` is not a valid agent address.");
+    }
+  } else {
+    address = ensureAgent(payload.address);
+  }
   delete payload.address;
   const namedProject = payload.session_id != null || payload.session_name != null;
-  if (!address2 && !update && !namedProject) {
-    address2 = fromEnv();
+  if (!address && !update && !namedProject) {
+    address = addressFromEnv();
   }
-  if (!address2) {
+  if (!address) {
     return;
   }
-  warnOnce("Sending runs to an `address` is in beta and enabled per workspace; a workspace without it rejects the runs.");
-  payload.address = address2;
+  payload.address = addressToLrn(address);
   if (!namedProject) {
     delete payload.session_name;
     delete payload.session_id;
   }
 }
-var init_agent_addressing = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/agent_addressing.js"() {
+var init_addressing = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/addressing.mjs"() {
     init_address();
-    init_env();
+    init_env2();
     init_warn();
   }
 });
 
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/v2_migration.js
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/v2_migration.mjs
 function getQueryBackend(instanceFlags) {
   const flags = instanceFlags ?? {};
   const chEnabled = Boolean(flags.ch_query_enabled ?? true);
@@ -10645,7 +11928,7 @@ function getQueryBackend(instanceFlags) {
 }
 var QueryBackend;
 var init_v2_migration = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/v2_migration.js"() {
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/v2_migration.mjs"() {
     QueryBackend = {
       CLICKHOUSE_ONLY: "clickhouse_only",
       SMITHDB_ONLY: "smithdb_only",
@@ -10654,7 +11937,7 @@ var init_v2_migration = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/error.js
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/error.mjs
 function getInvalidPromptIdentifierMsg(identifier) {
   return `Invalid prompt identifier format: "${identifier}". Expected one of:
   - "prompt-name" (for private prompts)
@@ -10707,7 +11990,7 @@ function isConflictingEndpointsError(err) {
 }
 var LangSmithConflictError, LangSmithNotFoundError, ERR_CONFLICTING_ENDPOINTS, ConflictingEndpointsError;
 var init_error2 = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/error.js"() {
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/error.mjs"() {
     LangSmithConflictError = class extends Error {
       constructor(message) {
         super(message);
@@ -10750,7 +12033,7 @@ var init_error2 = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/prompts.js
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/prompts.mjs
 function parseHubIdentifier(identifier) {
   if (!identifier || identifier.split("/").length > 2 || identifier.startsWith("/") || identifier.endsWith("/") || identifier.split(":").length > 2) {
     throw new Error(getInvalidPromptIdentifierMsg(identifier));
@@ -10771,12 +12054,12 @@ function parseHubIdentifier(identifier) {
   }
 }
 var init_prompts = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/prompts.js"() {
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/prompts.mjs"() {
     init_error2();
   }
 });
 
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/fs.js
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/fs.mjs
 import * as nodeFs from "node:fs";
 import * as nodeFsPromises from "node:fs/promises";
 import * as nodePath from "node:path";
@@ -10830,12 +12113,12 @@ async function rmRecursive(filePath) {
 }
 var path2;
 var init_fs = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/fs.js"() {
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/fs.mjs"() {
     path2 = nodePath;
   }
 });
 
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/prompt_cache/index.js
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/prompt_cache/index.mjs
 function isStale(entry, ttlSeconds) {
   if (ttlSeconds === null) {
     return false;
@@ -10845,7 +12128,7 @@ function isStale(entry, ttlSeconds) {
 }
 var PromptCache, promptCacheSingleton;
 var init_prompt_cache = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/prompt_cache/index.js"() {
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/prompt_cache/index.mjs"() {
     init_fs();
     PromptCache = class {
       constructor(config = {}) {
@@ -11115,11 +12398,11 @@ var init_prompt_cache = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/singletons/fetch.js
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/singletons/fetch.mjs
 var DEFAULT_FETCH_IMPLEMENTATION, globalFetchSupportsWebStreaming, LANGSMITH_FETCH_IMPLEMENTATION_KEY, _shouldStreamForGlobalFetchImplementation, _getFetchImplementation;
 var init_fetch = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/singletons/fetch.js"() {
-    init_env();
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/singletons/fetch.mjs"() {
+    init_env2();
     DEFAULT_FETCH_IMPLEMENTATION = (...args) => fetch(...args);
     globalFetchSupportsWebStreaming = void 0;
     LANGSMITH_FETCH_IMPLEMENTATION_KEY = /* @__PURE__ */ Symbol.for("ls:fetch_implementation");
@@ -11146,7 +12429,7 @@ var init_fetch = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/profile-lock.js
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/profile-lock.mjs
 function sleep2(ms) {
   return new Promise((resolve15) => setTimeout(resolve15, ms));
 }
@@ -11227,7 +12510,7 @@ ${owner}
 }
 var LOCK_POLL_INTERVAL_MS, LOCK_STALE_AFTER_MS, LOCK_METADATA_FILE;
 var init_profile_lock = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/profile-lock.js"() {
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/profile-lock.mjs"() {
     init_fs();
     LOCK_POLL_INTERVAL_MS = 10;
     LOCK_STALE_AFTER_MS = 1e4;
@@ -11235,13 +12518,13 @@ var init_profile_lock = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/profiles.js
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/profiles.mjs
 function isBrowserLikeRuntime() {
   const env = getEnv();
   return env === "browser" || env === "webworker";
 }
-function getProfileConfigPath() {
-  const explicitPath = getEnvironmentVariable("LANGSMITH_CONFIG_FILE");
+function getProfileConfigPath(selected) {
+  const explicitPath = selected || getEnvironmentVariable("LANGSMITH_CONFIG_FILE");
   if (explicitPath) {
     return explicitPath;
   }
@@ -11251,10 +12534,10 @@ function getProfileConfigPath() {
   }
   return path2.join(home, ".langsmith", "config.json");
 }
-function resolveProfileName(config) {
-  const envProfile = getEnvironmentVariable("LANGSMITH_PROFILE");
-  if (envProfile) {
-    return envProfile;
+function resolveProfileName(config, selected) {
+  const chosen = selected || getEnvironmentVariable("LANGSMITH_PROFILE");
+  if (chosen) {
+    return chosen;
   }
   if (config.current_profile) {
     return config.current_profile;
@@ -11264,17 +12547,17 @@ function resolveProfileName(config) {
   }
   return void 0;
 }
-function loadProfileState() {
+function loadProfileState(selection = {}) {
   if (isBrowserLikeRuntime()) {
     return void 0;
   }
-  const configPath = getProfileConfigPath();
+  const configPath = getProfileConfigPath(selection.configPath);
   if (!configPath || !existsSync2(configPath)) {
     return void 0;
   }
   try {
     const config = JSON.parse(readFileSync6(configPath));
-    const profileName = resolveProfileName(config);
+    const profileName = resolveProfileName(config, selection.profile);
     const profile = profileName ? config.profiles?.[profileName] : void 0;
     if (!profileName || !profile) {
       return void 0;
@@ -11403,7 +12686,7 @@ async function resolveTokenEndpoint(apiUrl, fetchImplementation) {
   return `${normalizeConfigUrl(apiUrl)}/oauth/token`;
 }
 function applyTokenResponse(profile, token) {
-  profile.oauth ??= {};
+  profile.oauth ?? (profile.oauth = {});
   if (token.access_token) {
     profile.oauth.access_token = token.access_token;
   }
@@ -11440,8 +12723,8 @@ async function waitForAbortSignal(promise, signal) {
     cleanup?.();
   }
 }
-function loadProfileClientConfig() {
-  const state = loadProfileState();
+function loadProfileClientConfig(selection = {}) {
+  const state = loadProfileState(selection);
   const profile = state?.profile;
   if (!state || !profile) {
     return {};
@@ -11481,8 +12764,8 @@ function authHeaderFromProfile(profile) {
 }
 var DEFAULT_API_URL, OAUTH_CLIENT_ID, TOKEN_REFRESH_LEEWAY_MS, TOKEN_REFRESH_TIMEOUT_MS, OAUTH_DISCOVERY_TIMEOUT_MS, WELL_KNOWN_OAUTH_PATH, ProfileAuth;
 var init_profiles = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/profiles.js"() {
-    init_env();
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/profiles.mjs"() {
+    init_env2();
     init_fs();
     init_profile_lock();
     DEFAULT_API_URL = "https://api.smith.langchain.com";
@@ -11549,6 +12832,7 @@ var init_profiles = __esm({
         }
       }
       async refreshOAuthToken(fetchImplementation) {
+        var _a2;
         const refreshToken = this.state.profile.oauth?.refresh_token;
         if (!refreshToken) {
           return;
@@ -11584,7 +12868,7 @@ var init_profiles = __esm({
             return;
           }
           applyTokenResponse(this.state.profile, token);
-          this.state.config.profiles ??= {};
+          (_a2 = this.state.config).profiles ?? (_a2.profiles = {});
           this.state.config.profiles[this.state.profileName] = this.state.profile;
           await writeFileAtomic(this.state.configPath, `${JSON.stringify(this.state.config, null, 2)}
 `);
@@ -11601,7 +12885,7 @@ var init_profiles = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/fast-safe-stringify/index.js
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/fast-safe-stringify/index.mjs
 function defaultOptions() {
   return {
     depthLimit: Number.MAX_SAFE_INTEGER,
@@ -11887,8 +13171,8 @@ function replaceGetterValues(replacer) {
 }
 var LIMIT_REPLACE_NODE, CIRCULAR_REPLACE_NODE, arr, replacerStack, encoder2;
 var init_fast_safe_stringify = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/fast-safe-stringify/index.js"() {
-    init_env();
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/fast-safe-stringify/index.mjs"() {
+    init_env2();
     LIMIT_REPLACE_NODE = "[...]";
     CIRCULAR_REPLACE_NODE = { result: "[Circular]" };
     arr = [];
@@ -11897,17 +13181,17 @@ var init_fast_safe_stringify = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/worker_threads.js
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/worker_threads.mjs
 import { Worker as NodeWorker } from "node:worker_threads";
 var Worker, WORKER_THREADS_AVAILABLE;
 var init_worker_threads = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/worker_threads.js"() {
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/worker_threads.mjs"() {
     Worker = NodeWorker;
     WORKER_THREADS_AVAILABLE = true;
   }
 });
 
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/serialize_worker.js
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/serialize_worker.mjs
 function getSharedSerializeWorker() {
   if (sharedWorker === null)
     sharedWorker = new SerializeWorker();
@@ -11965,7 +13249,7 @@ function hasLargeString(value, threshold = LARGE_STRING_THRESHOLD, nodeBudget = 
 }
 var WORKER_SOURCE, SerializeWorker, sharedWorker, LARGE_STRING_THRESHOLD, NODE_BUDGET;
 var init_serialize_worker = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/serialize_worker.js"() {
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/serialize_worker.mjs"() {
     init_worker_threads();
     WORKER_SOURCE = /* js */
     `
@@ -12196,7 +13480,7 @@ parentPort.on("message", (msg) => {
   }
 });
 
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/client.js
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/client.mjs
 function assertPullPublicPromptAllowed(promptIdentifier, dangerouslyPullPublicPrompt) {
   const [owner] = parseHubIdentifier(promptIdentifier);
   if (owner !== "-" && !dangerouslyPullPublicPrompt) {
@@ -12278,9 +13562,9 @@ function _checkBackendVersion(backendVersion, minVersion) {
   if (!backendVersion) {
     return;
   }
-  const parse3 = (v) => v.split(".").map((s) => parseInt(s, 10));
-  const [maj, min, pat] = parse3(backendVersion);
-  const [rMaj, rMin, rPat] = parse3(minVersion);
+  const parse2 = (v) => v.split(".").map((s) => parseInt(s, 10));
+  const [maj, min, pat] = parse2(backendVersion);
+  const [rMaj, rMin, rPat] = parse2(minVersion);
   if (isNaN(maj) || isNaN(min) || isNaN(pat) || isNaN(rMaj) || isNaN(rMin) || isNaN(rPat)) {
     console.warn(`[LANGSMITH]: Could not parse backend version ${JSON.stringify(backendVersion)} for compatibility check.`);
     return;
@@ -12333,22 +13617,30 @@ function mergeCallerHeaders(base, overrides, reserved) {
 function isExampleCreate(input) {
   return "dataset_id" in input || "dataset_name" in input;
 }
+function getExampleReferenceOutputs(example) {
+  if (example.reference_outputs !== void 0 && example.outputs !== void 0) {
+    throw new Error("Cannot specify both reference_outputs and outputs");
+  }
+  return example.reference_outputs ?? example.outputs;
+}
 var getTracingSamplingRate, isLocalhost, handle429, DEFAULT_UNCOMPRESSED_BATCH_SIZE_LIMIT_BYTES, DEFAULT_MAX_SIZE_BYTES, SERVER_INFO_REQUEST_TIMEOUT_MS, DEFAULT_BATCH_SIZE_LIMIT, AutoBatchQueue, Client;
 var init_client2 = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/client.js"() {
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/client.mjs"() {
+    init_address();
     init_src();
+    init_api_url();
     init_translator();
     init_otel();
     init_async_caller();
     init_messages();
-    init_env();
-    init_dist();
-    init_openapi_client();
+    init_env2();
+    init_lib();
+    init_client();
     init_uuid2();
     init_sampling();
     init_warn();
     init_address();
-    init_agent_addressing();
+    init_addressing();
     init_v2_migration();
     init_prompts();
     init_error2();
@@ -12925,7 +14217,12 @@ var init_client2 = __esm({
           writable: true,
           value: getEnvironmentVariable("LANGSMITH_DEBUG") === "true"
         });
-        const defaultConfig = _Client.getDefaultClientConfig();
+        const defaultConfig = _Client.getDefaultClientConfig({
+          profile: config.profile,
+          apiKey: config.apiKey,
+          profileConfigPath: config.profileConfigPath,
+          preferProfileAuth: config.preferProfileAuth
+        });
         this.tracingSampleRate = getTracingSamplingRate(config.tracingSamplingRate);
         this.apiUrl = trimQuotes(config.apiUrl ?? defaultConfig.apiUrl) ?? "";
         if (this.apiUrl.endsWith("/")) {
@@ -13010,11 +14307,15 @@ var init_client2 = __esm({
           this._promptCache = promptCacheSingleton;
         }
       }
-      static getDefaultClientConfig() {
-        const profileConfig = loadProfileClientConfig();
-        const envApiKey = getLangSmithEnvironmentVariable("API_KEY");
-        const envApiUrl = getLangSmithEnvironmentVariable("ENDPOINT");
-        const envWorkspaceId = getLangSmithEnvironmentVariable("WORKSPACE_ID");
+      static getDefaultClientConfig(options = {}) {
+        const profileConfig = loadProfileClientConfig({
+          profile: options.profile,
+          configPath: options.profileConfigPath
+        });
+        const useProfile = options.preferProfileAuth === true && !hasValue(trimQuotes(options.apiKey)) && profileConfig.profileAuth !== void 0;
+        const envApiKey = useProfile ? void 0 : getLangSmithEnvironmentVariable("API_KEY");
+        const envApiUrl = useProfile ? void 0 : getLangSmithEnvironmentVariable("ENDPOINT");
+        const envWorkspaceId = useProfile && profileConfig.workspaceId != null ? void 0 : getLangSmithEnvironmentVariable("WORKSPACE_ID");
         const envAuthSet = hasValue(envApiKey);
         const apiUrl = envApiUrl ?? profileConfig.apiUrl ?? DEFAULT_API_URL;
         const apiUrlSource = envApiUrl != null ? "LANGSMITH_ENDPOINT / LANGCHAIN_ENDPOINT environment variable" : profileConfig.apiUrl != null ? "profile config" : "built-in default";
@@ -13104,7 +14405,7 @@ var init_client2 = __esm({
       }
       get _mergedHeaders() {
         const headers = {
-          "User-Agent": `langsmith-js/${__version__}`,
+          "User-Agent": `langsmith-js/${VERSION}`,
           ...this._callerHeaders
         };
         if (this.apiKey !== void 0) {
@@ -13131,7 +14432,7 @@ var init_client2 = __esm({
       get _openAPIClientOptions() {
         const headers = { ...this._callerHeaders };
         if (!Object.keys(headers).some((name) => name.toLowerCase() === "user-agent")) {
-          headers["User-Agent"] = `langsmith-js/${__version__}`;
+          headers["User-Agent"] = `langsmith-js/${VERSION}`;
         }
         const callerApiKeyName = Object.keys(headers).find((name) => name.toLowerCase() === "x-api-key");
         let apiKey = this.apiKey;
@@ -13160,12 +14461,7 @@ var init_client2 = __esm({
         this._customHeaders = value ?? {};
       }
       _getOpenAPIBaseUrl() {
-        const url = this.apiUrl.replace(/\/$/, "");
-        for (const suffix of ["/api/v1", "/api"]) {
-          if (url.endsWith(suffix))
-            return url.slice(0, -suffix.length);
-        }
-        return url;
+        return getOpenAPIBaseUrl(this.apiUrl);
       }
       /**
        * The generated OpenAPI client, rebuilt whenever its auth or headers change.
@@ -13234,6 +14530,18 @@ var init_client2 = __esm({
       get traces() {
         this._checkStainlessVersion("0.16.0");
         return this.openAPIClient.traces;
+      }
+      /**
+       * Access the sessions resource, which resolves an address to the
+       * project its traces go to: `client.sessions.resolve(address)`.
+       */
+      get sessions() {
+        this._checkStainlessVersion("0.18.0");
+        return this.openAPIClient.sessions;
+      }
+      /** Manage workspace registry agents and their tracing destinations. */
+      get agents() {
+        return this.openAPIClient.agents;
       }
       /** Access the public shared-run resource. */
       get public() {
@@ -13533,12 +14841,15 @@ var init_client2 = __esm({
           return;
         }
         const batchSizeBytes = batch.reduce((sum, item) => sum + (item.size ?? 0), 0);
+        const feedbacks = batch.filter((item) => item.action === "feedback").map((item) => item.item);
+        const runItems = batch.filter((item) => item.action !== "feedback");
         try {
           if (this.langSmithToOTELTranslator !== void 0) {
-            for (const item of batch) {
+            for (const item of runItems) {
               item.item = await this._maskRunMetadata(item.item);
             }
-            this._sendBatchToOTELTranslator(batch);
+            this._sendBatchToOTELTranslator(runItems);
+            await this._postFeedbacks(feedbacks, options);
           } else {
             const ingestParams = {
               runCreates: batch.filter((item) => item.action === "create").map((item) => item.item),
@@ -13549,7 +14860,7 @@ var init_client2 = __esm({
             if (useMultipart) {
               const useGzip = !this._runCompressionDisabled && serverInfo?.instance_flags?.gzip_body_enabled;
               try {
-                await this.multipartIngestRuns(ingestParams, {
+                await this.multipartIngestRuns({ ...ingestParams, feedbacks }, {
                   ...options,
                   useGzip,
                   sizeBytes: batchSizeBytes
@@ -13561,6 +14872,7 @@ var init_client2 = __esm({
                     ...options,
                     sizeBytes: batchSizeBytes
                   });
+                  await this._postFeedbacks(feedbacks, options);
                 } else {
                   throw e;
                 }
@@ -13570,6 +14882,7 @@ var init_client2 = __esm({
                 ...options,
                 sizeBytes: batchSizeBytes
               });
+              await this._postFeedbacks(feedbacks, options);
             }
           }
         } catch (e) {
@@ -13625,7 +14938,9 @@ var init_client2 = __esm({
       async processRunOperation(item) {
         clearTimeout(this.autoBatchTimeout);
         this.autoBatchTimeout = void 0;
-        item.item = mergeRuntimeEnvIntoRun(item.item, this.cachedLSEnvVarsForMetadata, this.omitTracedRuntimeInfo, this.tracingSampleRate);
+        if (item.action !== "feedback") {
+          item.item = mergeRuntimeEnvIntoRun(item.item, this.cachedLSEnvVarsForMetadata, this.omitTracedRuntimeInfo, this.tracingSampleRate);
+        }
         const itemPromise = this.autoBatchQueue.push(item);
         if (this.manualFlushMode) {
           return itemPromise;
@@ -13747,12 +15062,12 @@ var init_client2 = __esm({
           ...this._mergedHeaders,
           "Content-Type": "application/json"
         };
-        const address2 = checkAddress(run11.address);
+        const address = ensureAgent(run11.address);
         const bodySessionName = run11.session_name;
-        rejectConflicting(run11.project_name ?? bodySessionName, address2);
+        rejectConflicting(run11.project_name ?? bodySessionName, address);
         const session_name = run11.project_name;
         delete run11.project_name;
-        if (!session_name && bodySessionName == null && !address2) {
+        if (!session_name && bodySessionName == null && !address) {
           try {
             run11.address = resolveFromEnv()[1];
           } catch (e) {
@@ -13879,8 +15194,8 @@ var init_client2 = __esm({
        * Batch ingest/upsert multiple runs in the Langsmith system.
        * @param runs
        */
-      async multipartIngestRuns({ runCreates, runUpdates }, options) {
-        if (runCreates === void 0 && runUpdates === void 0) {
+      async multipartIngestRuns({ runCreates, runUpdates, feedbacks }, options) {
+        if (runCreates === void 0 && runUpdates === void 0 && !feedbacks?.length) {
           return;
         }
         const allAttachments = {};
@@ -13925,7 +15240,7 @@ var init_client2 = __esm({
           preparedCreateParams = Object.values(createById);
           preparedUpdateParams = standaloneUpdates;
         }
-        if (preparedCreateParams.length === 0 && preparedUpdateParams.length === 0) {
+        if (preparedCreateParams.length === 0 && preparedUpdateParams.length === 0 && !feedbacks?.length) {
           return;
         }
         const accumulatedContext = [];
@@ -13985,6 +15300,16 @@ var init_client2 = __esm({
             }
             accumulatedContext.push(`trace=${payload.trace_id},id=${payload.id}`);
           }
+        }
+        for (const feedback of feedbacks ?? []) {
+          const stringifiedFeedback = await this._serializeBody(feedback, `Serializing for multipart ingestion of feedback with id: ${feedback.id}`);
+          accumulatedParts.push({
+            name: `feedback.${feedback.id}`,
+            payload: new Blob([stringifiedFeedback], {
+              type: `application/json; length=${stringifiedFeedback.length}`
+            })
+          });
+          accumulatedContext.push(`trace=${feedback.trace_id},id=${feedback.id}`);
         }
         await this._sendMultipartRequest(accumulatedParts, accumulatedContext.join("; "), options);
       }
@@ -14131,7 +15456,7 @@ Context: ${context}`);
         if (run11.events) {
           run11.events = this._filterNewTokenEvents(run11.events);
         }
-        applyToPayload(run11, { update: true });
+        ensureAgent(run11.address);
         const data = { ...run11, id: runId };
         if (!this._filterForSampling([data]).length) {
           return;
@@ -14170,7 +15495,9 @@ Context: ${context}`);
         if (options?.workspaceId !== void 0) {
           headers["x-tenant-id"] = options.workspaceId;
         }
-        const body = serialize(run11.extra ? mergeRuntimeEnvIntoRun(run11, this.cachedLSEnvVarsForMetadata, this.omitTracedRuntimeInfo, this.tracingSampleRate) : run11, `Serializing payload to update run with id: ${runId}`);
+        const wireRun = { ...run11 };
+        applyToPayload(wireRun, { update: true });
+        const body = serialize(wireRun.extra ? mergeRuntimeEnvIntoRun(wireRun, this.cachedLSEnvVarsForMetadata, this.omitTracedRuntimeInfo, this.tracingSampleRate) : wireRun, `Serializing payload to update run with id: ${runId}`);
         await this.caller.call(async () => {
           const res = await this._fetch(`${options?.apiUrl ?? this.apiUrl}/runs/${runId}`, {
             method: "PATCH",
@@ -14205,12 +15532,12 @@ Context: ${context}`);
         return run11;
       }
       /** @deprecated Use `client.runs.getURL()` instead. See https://docs.langchain.com/langsmith/smithdb-sdk-migration-runs#runs-get-url for the migration guide. Will be removed after Jan 31, 2027. */
-      async getRunUrl({ runId, run: run11, projectOpts }) {
+      async getRunUrl({ runId, run: run11, projectOpts, address: rawAddress }) {
         warnOnce("getRunUrl() is deprecated and will be removed after Jan 31, 2027. Use client.runs.getURL() instead. See https://docs.langchain.com/langsmith/smithdb-sdk-migration-runs#runs-get-url for the migration guide.", { type: "DeprecationWarning", code: "LANGSMITH_DEPRECATED_GET_RUN_URL" });
         if (run11 !== void 0) {
-          if (!run11.session_id && run11.address) {
-            throw new Error("Addressed runs have no URL until read back.");
-          }
+          const argumentAddress = ensureAddress(rawAddress);
+          rejectConflicting(projectOpts?.projectName ?? projectOpts?.projectId, argumentAddress);
+          const address = argumentAddress ?? ensureAgent(run11.address);
           let sessionId;
           if (run11.session_id) {
             sessionId = run11.session_id;
@@ -14218,6 +15545,8 @@ Context: ${context}`);
             sessionId = (await this.readProject({ projectName: projectOpts?.projectName })).id;
           } else if (projectOpts?.projectId) {
             sessionId = projectOpts?.projectId;
+          } else if (address) {
+            sessionId = await this._resolveAddress(address);
           } else {
             const project = await this.readProject({
               projectName: getLangSmithEnvironmentVariable("PROJECT") || "default"
@@ -14236,6 +15565,12 @@ Context: ${context}`);
         } else {
           throw new Error("Must provide either runId or run");
         }
+      }
+      /** The ID of the project an address names, with one request. */
+      async _resolveAddress(address) {
+        const { session_id: sessionId } = await this.sessions.resolve(address);
+        assertUuid(sessionId);
+        return sessionId;
       }
       async _loadChildRuns(run11) {
         const childRuns = await toArray(this._listRuns({
@@ -15188,10 +16523,7 @@ Message: ${Array.isArray(result.detail) ? result.detail.join("\n") : "Unspecifie
           await this.readDataset({ datasetId, datasetName });
           return true;
         } catch (e) {
-          if (
-            // eslint-disable-next-line no-instanceof/no-instanceof
-            e instanceof Error && e.message.toLocaleLowerCase().includes("not found")
-          ) {
+          if (e instanceof Error && e.message.toLocaleLowerCase().includes("not found")) {
             return false;
           }
           throw e;
@@ -15344,14 +16676,14 @@ Message: ${Array.isArray(result.detail) ? result.detail.join("\n") : "Unspecifie
           return res;
         });
       }
-      async createExample(inputsOrUpdate, outputs, options) {
+      async createExample(inputsOrUpdate, referenceOutputs, options) {
         if (isExampleCreate(inputsOrUpdate)) {
-          if (outputs !== void 0 || options !== void 0) {
-            throw new Error("Cannot provide outputs or options when using ExampleCreate object");
+          if (referenceOutputs !== void 0 || options !== void 0) {
+            throw new Error("Cannot provide referenceOutputs or options when using ExampleCreate object");
           }
         }
-        let datasetId_ = outputs ? options?.datasetId : inputsOrUpdate.dataset_id;
-        const datasetName_ = outputs ? options?.datasetName : inputsOrUpdate.dataset_name;
+        let datasetId_ = referenceOutputs ? options?.datasetId : inputsOrUpdate.dataset_id;
+        const datasetName_ = referenceOutputs ? options?.datasetName : inputsOrUpdate.dataset_name;
         if (datasetId_ === void 0 && datasetName_ === void 0) {
           throw new Error("Must provide either datasetName or datasetId");
         } else if (datasetId_ !== void 0 && datasetName_ !== void 0) {
@@ -15360,12 +16692,12 @@ Message: ${Array.isArray(result.detail) ? result.detail.join("\n") : "Unspecifie
           const dataset = await this.readDataset({ datasetName: datasetName_ });
           datasetId_ = dataset.id;
         }
-        const createdAt_ = (outputs ? options?.createdAt : inputsOrUpdate.created_at) || /* @__PURE__ */ new Date();
+        const createdAt_ = (referenceOutputs ? options?.createdAt : inputsOrUpdate.created_at) || /* @__PURE__ */ new Date();
         let data;
         if (!isExampleCreate(inputsOrUpdate)) {
           data = {
             inputs: inputsOrUpdate,
-            outputs,
+            reference_outputs: referenceOutputs,
             created_at: createdAt_?.toISOString(),
             id: options?.exampleId,
             metadata: options?.metadata,
@@ -15402,7 +16734,10 @@ Message: ${Array.isArray(result.detail) ? result.detail.join("\n") : "Unspecifie
           const examples2 = await Promise.all(response2.example_ids.map((id) => this.readExample(id)));
           return examples2;
         }
-        const { inputs, outputs, metadata, splits, sourceRunIds, useSourceRunIOs, useSourceRunAttachments, attachments, exampleIds, datasetId, datasetName } = propsOrUploads;
+        const { inputs, referenceOutputs, outputs, metadata, splits, sourceRunIds, useSourceRunIOs, useSourceRunAttachments, attachments, exampleIds, datasetId, datasetName } = propsOrUploads;
+        if (referenceOutputs !== void 0 && outputs !== void 0) {
+          throw new Error("Cannot specify both referenceOutputs and outputs");
+        }
         if (inputs === void 0) {
           throw new Error("Must provide inputs when using legacy parameters");
         }
@@ -15420,7 +16755,7 @@ Message: ${Array.isArray(result.detail) ? result.detail.join("\n") : "Unspecifie
           return {
             dataset_id: datasetId_,
             inputs: input,
-            outputs: outputs?.[idx],
+            reference_outputs: (referenceOutputs ?? outputs)?.[idx],
             metadata: metadata?.[idx],
             split: splits?.[idx],
             id: exampleIds?.[idx],
@@ -15464,7 +16799,7 @@ Message: ${Array.isArray(result.detail) ? result.detail.join("\n") : "Unspecifie
         }
         return example;
       }
-      async *listExamples({ datasetId, datasetName, exampleIds, asOf, splits, inlineS3Urls, metadata, limit: limit2, offset, filter, includeAttachments } = {}) {
+      async *listExamples({ datasetId, datasetName, exampleIds, asOf, splits, inlineS3Urls, metadata, limit: limit2, offset, filter, includeAttachments, select, excludeDefaultFields } = {}) {
         let datasetId_;
         if (datasetId !== void 0 && datasetName !== void 0) {
           throw new Error("Must provide either datasetName or datasetId, not both");
@@ -15506,8 +16841,17 @@ Message: ${Array.isArray(result.detail) ? result.detail.join("\n") : "Unspecifie
         if (filter !== void 0) {
           params.append("filter", filter);
         }
+        const selectFields = new Set(select ?? []);
         if (includeAttachments === true) {
-          ["attachment_urls", "outputs", "metadata"].forEach((field4) => params.append("select", field4));
+          for (const field4 of ["attachment_urls", "outputs", "metadata"]) {
+            selectFields.add(field4);
+          }
+        }
+        for (const field4 of selectFields) {
+          params.append("select", field4);
+        }
+        if (excludeDefaultFields === true) {
+          params.append("exclude_default_fields", "true");
         }
         let i = 0;
         for await (const rawExamples of this._getPaginated("/examples", params)) {
@@ -15723,15 +17067,15 @@ Message: ${Array.isArray(result.detail) ? result.detail.join("\n") : "Unspecifie
       }
       async createFeedback(runIdOrParams, keyArg, optionsArg) {
         const { runId = null, key, score, value, correction, comment, sourceInfo, feedbackSourceType = "api", sourceRunId, feedbackId, feedbackConfig, projectId, traceId, comparativeExperimentId, sessionId, startTime, extendTraceRetention, address: rawAddress } = typeof runIdOrParams === "object" && runIdOrParams !== null ? runIdOrParams : { runId: runIdOrParams, key: keyArg, ...optionsArg };
-        const address2 = checkAddress(rawAddress);
-        rejectConflicting(sessionId ?? projectId, address2);
+        const address = ensureAgent(rawAddress);
+        rejectConflicting(sessionId ?? projectId, address);
         if (!runId && !projectId) {
           throw new Error("One of runId or projectId must be provided");
         }
         if (runId && projectId) {
           throw new Error("Only one of runId or projectId can be provided");
         }
-        if (runId && sessionId === void 0 && !address2) {
+        if (runId && sessionId === void 0 && !address) {
           await this._checkFeedbackSessionId();
         }
         const feedback_source = {
@@ -15764,12 +17108,44 @@ Message: ${Array.isArray(result.detail) ? result.detail.join("\n") : "Unspecifie
         if (samplingId != null && !this._shouldSample(samplingId)) {
           return feedback;
         }
-        const body = JSON.stringify(address2 ? { ...feedback, address: address2 } : feedback);
-        const url = `${this.apiUrl}/feedback`;
+        const payload = address ? { ...feedback, address: addressToLrn(address) } : feedback;
+        if (runId && traceId && extendTraceRetention !== false && await this._canBatchFeedback()) {
+          void this.processRunOperation({
+            action: "feedback",
+            item: {
+              ...payload,
+              // Multipart parses start_time as a timestamp string only.
+              start_time: typeof startTime === "number" ? new Date(startTime).toISOString() : startTime
+            }
+          }).catch(console.error);
+          return feedback;
+        }
+        await this._postFeedback(payload);
+        return feedback;
+      }
+      async _canBatchFeedback() {
+        if (!this.autoBatchTracing || this.langSmithToOTELTranslator !== void 0 || this._multipartDisabled) {
+          return false;
+        }
+        const serverInfo = await this._ensureServerInfo();
+        return serverInfo?.batch_ingest_config?.use_multipart_endpoint ?? true;
+      }
+      async _postFeedback(feedback, options) {
+        const headers = {
+          ...this._mergedHeaders,
+          "Content-Type": "application/json"
+        };
+        if (options?.apiKey !== void 0) {
+          headers["x-api-key"] = options.apiKey;
+        }
+        if (options?.workspaceId !== void 0) {
+          headers["x-tenant-id"] = options.workspaceId;
+        }
+        const body = JSON.stringify(feedback);
         await this.caller.call(async () => {
-          const res = await this._fetch(url, {
+          const res = await this._fetch(`${options?.apiUrl ?? this.apiUrl}/feedback`, {
             method: "POST",
-            headers: { ...this._mergedHeaders, "Content-Type": "application/json" },
+            headers,
             signal: AbortSignal.timeout(this.timeout_ms),
             ...this.fetchOptions,
             body
@@ -15777,7 +17153,10 @@ Message: ${Array.isArray(result.detail) ? result.detail.join("\n") : "Unspecifie
           await raiseForStatus(res, "create feedback", true);
           return res;
         });
-        return feedback;
+      }
+      /** Sends batched feedback one request at a time when multipart is unavailable. */
+      async _postFeedbacks(feedbacks, options) {
+        await Promise.all(feedbacks.map((feedback) => this._postFeedback(feedback, options)));
       }
       async updateFeedback(feedbackId, { score, value, correction, comment }) {
         const feedbackUpdate = {};
@@ -16007,16 +17386,25 @@ Message: ${Array.isArray(result.detail) ? result.detail.join("\n") : "Unspecifie
        * @param options - The options for creating a feedback config
        * @param options.feedbackKey - The unique key for this feedback config
        * @param options.feedbackConfig - The config specifying type, bounds, and categories
-       * @param options.isLowerScoreBetter - Whether a lower score is better
+       * @param options.isLowerScoreBetter - Whether a lower score is better. When
+       *   omitted, a key that already has configs keeps its direction, and a new
+       *   key defaults to higher is better.
+       * @param options.isEnforced - Create the key's enforced config, which sets
+       *   the rules for the whole workspace. Requires the
+       *   feedback-configs:manage-enforced permission, which workspace admins
+       *   have. Fails if the key already has an enforced config.
        * @returns The created FeedbackConfigSchema object
        */
       async createFeedbackConfig(options) {
-        const { feedbackKey, feedbackConfig, isLowerScoreBetter = false } = options;
+        const { feedbackKey, feedbackConfig, isLowerScoreBetter, isEnforced = false } = options;
         const body = {
           feedback_key: feedbackKey,
           feedback_config: feedbackConfig,
-          is_lower_score_better: isLowerScoreBetter
+          is_enforced: isEnforced
         };
+        if (isLowerScoreBetter !== void 0) {
+          body.is_lower_score_better = isLowerScoreBetter;
+        }
         const response = await this.caller.call(async () => {
           const res = await this._fetch(`${this.apiUrl}/feedback-configs`, {
             method: "POST",
@@ -16832,6 +18220,9 @@ Message: ${Array.isArray(result.detail) ? result.detail.join("\n") : "Unspecifie
         return this._uploadExamplesMultipart(datasetId, uploads);
       }
       async _uploadExamplesMultipart(datasetId, uploads = []) {
+        for (const example of uploads) {
+          getExampleReferenceOutputs(example);
+        }
         if (!await this._getDatasetExamplesMultiPartSupport()) {
           throw new Error("Your LangSmith deployment does not allow using the multipart examples endpoint, please upgrade your deployment to the latest version.");
         }
@@ -16862,8 +18253,9 @@ Message: ${Array.isArray(result.detail) ? result.detail.join("\n") : "Unspecifie
             });
             formData.append(`${exampleId}.inputs`, inputsBlob);
           }
-          if (example.outputs) {
-            const stringifiedOutputs = serialize(example.outputs, `Serializing outputs for uploaded example with id: ${exampleId}`);
+          const referenceOutputs = getExampleReferenceOutputs(example);
+          if (referenceOutputs !== void 0) {
+            const stringifiedOutputs = serialize(referenceOutputs, `Serializing outputs for uploaded example with id: ${exampleId}`);
             const outputsBlob = new Blob([stringifiedOutputs], {
               type: "application/json"
             });
@@ -17479,11 +18871,11 @@ Message: ${Array.isArray(result.detail) ? result.detail.join("\n") : "Unspecifie
   }
 });
 
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/env.js
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/env.mjs
 var isEnvTracingEnabled;
 var init_env3 = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/env.js"() {
-    init_env();
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/env.mjs"() {
+    init_env2();
     isEnvTracingEnabled = (tracingEnabled) => {
       if (tracingEnabled !== void 0) {
         return tracingEnabled;
@@ -17494,16 +18886,16 @@ var init_env3 = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/singletons/constants.js
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/singletons/constants.mjs
 var _LC_CONTEXT_VARIABLES_KEY, _REPLICA_TRACE_ROOTS_KEY;
 var init_constants10 = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/singletons/constants.js"() {
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/singletons/constants.mjs"() {
     _LC_CONTEXT_VARIABLES_KEY = /* @__PURE__ */ Symbol.for("lc:context_variables");
     _REPLICA_TRACE_ROOTS_KEY = /* @__PURE__ */ Symbol.for("langsmith:replica_trace_roots");
   }
 });
 
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/context_vars.js
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/context_vars.mjs
 function getContextVar(runTree, key) {
   if (_LC_CONTEXT_VARIABLES_KEY in runTree) {
     const contextVars = runTree[_LC_CONTEXT_VARIABLES_KEY];
@@ -17520,12 +18912,12 @@ function setContextVar(runTree, key, value) {
   runTree[_LC_CONTEXT_VARIABLES_KEY] = contextVars;
 }
 var init_context_vars = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/context_vars.js"() {
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/context_vars.mjs"() {
     init_constants10();
   }
 });
 
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/run_trees.js
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/run_trees.mjs
 function getReplicaKey(replica) {
   const sortedKeys = Object.keys(replica).sort();
   const keyData = sortedKeys.map((key) => `${key}:${replica[key] ?? ""}`).join("|");
@@ -17546,11 +18938,8 @@ function convertToDottedOrderFormat(epoch, runId, executionOrder = 1) {
   };
 }
 function addressFromHeader(value) {
-  if (value == null) {
-    return void 0;
-  }
   try {
-    return parse2(value);
+    return addressFromLrn(value);
   } catch {
     console.warn("Ignoring an unusable address in a `baggage` header.");
     return void 0;
@@ -17664,8 +19053,8 @@ function _ensureWriteReplicas(replicas) {
         updates: replica[1]
       };
     }
-    const address2 = checkAddress(replica.address);
-    return address2 ? { ...replica, address: address2 } : replica;
+    const address = ensureAgent(replica.address);
+    return address ? { ...replica, address } : replica;
   }) : _getWriteReplicasFromEnv();
   if (ensured.filter((replica) => replica.primary === true).length > 1) {
     throw new Error("Only one replica can be marked as primary.");
@@ -17677,20 +19066,21 @@ function _checkEndpointEnvUnset(parsed) {
     throw new ConflictingEndpointsError();
   }
 }
-var TIMESTAMP_LENGTH, UUID_NAMESPACE_DNS, HEADER_SAFE_REPLICA_FIELDS, LANGSMITH_ADDRESS, Baggage, RunTree;
+var TIMESTAMP_LENGTH, UUID_NAMESPACE_DNS, HEADER_SAFE_REPLICA_FIELDS, Baggage, RunTree;
 var init_run_trees = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/run_trees.js"() {
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/run_trees.mjs"() {
+    init_address();
     init_client2();
     init_env3();
     init_error2();
     init_constants10();
     init_context_vars();
-    init_env();
-    init_env();
+    init_env2();
+    init_env2();
     init_warn();
     init_uuid2();
     init_src();
-    init_agent_addressing();
+    init_addressing();
     init_address();
     TIMESTAMP_LENGTH = 36;
     UUID_NAMESPACE_DNS = "6ba7b810-9dad-11d1-80b4-00c04fd430c8";
@@ -17701,9 +19091,8 @@ var init_run_trees = __esm({
       "reroot",
       "address"
     ]);
-    LANGSMITH_ADDRESS = "langsmith-address";
     Baggage = class _Baggage {
-      constructor(metadata, tags, project_name, replicas, address2) {
+      constructor(metadata, tags, project_name, replicas, address) {
         Object.defineProperty(this, "metadata", {
           enumerable: true,
           configurable: true,
@@ -17738,7 +19127,7 @@ var init_run_trees = __esm({
         this.tags = tags;
         this.project_name = project_name;
         this.replicas = replicas;
-        this.address = address2;
+        this.address = address;
       }
       static fromHeader(value) {
         const items = value.split(",");
@@ -17746,7 +19135,7 @@ var init_run_trees = __esm({
         let tags = [];
         let project_name;
         let replicas;
-        let address2;
+        let address;
         for (const item of items) {
           const [key, uriValue] = item.split("=");
           const value2 = decodeURIComponent(uriValue);
@@ -17756,8 +19145,8 @@ var init_run_trees = __esm({
             tags = value2.split(",");
           } else if (key === "langsmith-project") {
             project_name = value2;
-          } else if (key === LANGSMITH_ADDRESS) {
-            address2 = addressFromHeader(value2);
+          } else if (key === "langsmith-address") {
+            address = addressFromHeader(value2);
           } else if (key === "langsmith-replicas") {
             const parsed = JSON.parse(value2);
             replicas = parsed.flatMap((replica) => {
@@ -17767,15 +19156,15 @@ var init_run_trees = __esm({
               const filtered = filterReplicaForHeaders(replica);
               const raw = filtered.address;
               delete filtered.address;
-              const address3 = addressFromHeader(raw);
               if (filtered.projectName || raw == null) {
                 return [filtered];
               }
-              return address3 ? [{ ...filtered, address: address3 }] : [];
+              const replicaAddress = addressFromHeader(raw);
+              return replicaAddress ? [{ ...filtered, address: replicaAddress }] : [];
             });
           }
         }
-        return new _Baggage(metadata, tags, project_name, replicas, address2);
+        return new _Baggage(metadata, tags, project_name, replicas, address);
       }
       toHeader() {
         const items = [];
@@ -17789,7 +19178,7 @@ var init_run_trees = __esm({
           items.push(`langsmith-project=${encodeURIComponent(this.project_name)}`);
         }
         if (this.address) {
-          items.push(`${LANGSMITH_ADDRESS}=${encodeURIComponent(this.address)}`);
+          items.push(`langsmith-address=${encodeURIComponent(addressToLrn(this.address))}`);
         }
         return items.join(",");
       }
@@ -17987,8 +19376,8 @@ var init_run_trees = __esm({
         }
         Object.assign(this, { ...defaultConfig, ...config, client });
         this._resolveAddressing(config);
-        this.execution_order ??= 1;
-        this.child_execution_order ??= 1;
+        this.execution_order ?? (this.execution_order = 1);
+        this.child_execution_order ?? (this.child_execution_order = 1);
         if (!this.dotted_order) {
           this._serialized_start_time = getMicrosecondPrecisionDatestring(this.start_time, this.execution_order);
         }
@@ -18014,12 +19403,12 @@ var init_run_trees = __esm({
       }
       /** Falls back to the env; a bad env leaves the run untraced. */
       _resolveAddressing(config) {
-        const address2 = checkAddress(config.address);
+        const address = ensureAgent(config.address);
         const project = config.project_name || void 0;
-        rejectConflicting(project, address2);
-        if (project || address2) {
+        rejectConflicting(project, address);
+        if (project || address) {
           this.project_name = project;
-          this.address = address2;
+          this.address = address;
           return;
         }
         try {
@@ -18206,27 +19595,27 @@ var init_run_trees = __esm({
       }
       /** A replica naming neither inherits the run tree's destination. */
       _replicaAddressing(replica) {
-        const address2 = checkAddress(replica.address);
+        const address = ensureAgent(replica.address);
         if (replica.projectName != null) {
-          rejectConflicting(replica.projectName, address2);
+          rejectConflicting(replica.projectName, address);
           return [replica.projectName, void 0];
         }
-        if (address2) {
-          return [void 0, address2];
+        if (address) {
+          return [void 0, address];
         }
         return [this.project_name, this.address];
       }
       _remapForProject(params) {
-        const { projectName, address: address2, primary, runtimeEnv, excludeChildRuns = true, reroot = false, distributedParentId, apiUrl, apiKey, workspaceId } = params;
+        const { projectName, address, primary, runtimeEnv, excludeChildRuns = true, reroot = false, distributedParentId, apiUrl, apiKey, workspaceId } = params;
         const baseRun = this._convertToCreate(this, runtimeEnv, excludeChildRuns);
-        if (primary === void 0 && !this.replicas?.some((r) => r.primary === true) && projectName === this.project_name && address2 === this.address) {
+        if (primary === void 0 && !this.replicas?.some((r) => r.primary === true) && projectName === this.project_name && (address ? addressToLrn(address) : void 0) === (this.address ? addressToLrn(this.address) : void 0)) {
           return {
             ...baseRun,
             session_name: projectName,
-            address: address2
+            address
           };
         }
-        const seed = projectName ?? address2 ?? "agent//";
+        const seed = projectName ?? (address ? addressToLrn(address) : void 0) ?? "agent//";
         if (reroot) {
           if (distributedParentId) {
             this._sliceParentId(distributedParentId, baseRun);
@@ -18281,7 +19670,7 @@ var init_run_trees = __esm({
           return {
             ...baseRun,
             session_name: projectName,
-            address: address2
+            address
           };
         }
         const oldId = baseRun.id;
@@ -18313,7 +19702,7 @@ var init_run_trees = __esm({
           parent_run_id: newParentId,
           dotted_order: newDottedOrder,
           session_name: projectName,
-          address: address2
+          address
         };
       }
       async postRun(excludeChildRuns = true) {
@@ -18325,10 +19714,10 @@ var init_run_trees = __esm({
           if (this.replicas && this.replicas.length > 0) {
             for (const replica of this.replicas) {
               const { primary, apiKey, apiUrl, workspaceId, reroot, client: replicaClient } = replica;
-              const [projectName, address2] = this._replicaAddressing(replica);
+              const [projectName, address] = this._replicaAddressing(replica);
               const runCreate = this._remapForProject({
                 projectName,
-                address: address2,
+                address,
                 primary,
                 runtimeEnv,
                 excludeChildRuns: true,
@@ -18377,10 +19766,10 @@ var init_run_trees = __esm({
         if (this.replicas && this.replicas.length > 0) {
           for (const replica of this.replicas) {
             const { primary, apiKey, apiUrl, workspaceId, updates, reroot, client: replicaClient } = replica;
-            const [projectName, address2] = this._replicaAddressing(replica);
+            const [projectName, address] = this._replicaAddressing(replica);
             const runData = this._remapForProject({
               projectName,
-              address: address2,
+              address,
               primary,
               runtimeEnv: void 0,
               excludeChildRuns: true,
@@ -18585,14 +19974,14 @@ var init_run_trees = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/project.js
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/project.mjs
 var init_project = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/project.js"() {
-    init_env();
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/project.mjs"() {
+    init_env2();
   }
 });
 
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/uuid.js
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/uuid.mjs
 function computeRunIdForSecondaryReplica(runId, projectName) {
   if (typeof projectName !== "string" || projectName.length === 0) {
     throw new Error("projectName must be a non-empty string");
@@ -18605,17 +19994,17 @@ function computeRunIdForSecondaryReplica(runId, projectName) {
   return nonCryptographicUuid7Deterministic(normalizedRunId, projectName);
 }
 var init_uuid3 = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/uuid.js"() {
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/uuid.mjs"() {
     init_src();
     init_uuid2();
     init_uuid2();
   }
 });
 
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/singletons/traceable.js
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/singletons/traceable.mjs
 var MockAsyncLocalStorage, TRACING_ALS_KEY, mockAsyncLocalStorage, AsyncLocalStorageProvider, AsyncLocalStorageProviderSingleton;
 var init_traceable = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/singletons/traceable.js"() {
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/singletons/traceable.mjs"() {
     MockAsyncLocalStorage = class {
       getStore() {
         return void 0;
@@ -18640,18 +20029,17 @@ var init_traceable = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/guard.js
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/guard.mjs
 var init_guard = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/utils/guard.js"() {
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/guard.mjs"() {
     init_env3();
     init_traceable();
   }
 });
 
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/index.js
-var __version__;
-var init_dist = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/index.js"() {
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/index.mjs
+var init_lib = __esm({
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/index.mjs"() {
     init_client2();
     init_run_trees();
     init_address();
@@ -18661,21 +20049,27 @@ var init_dist = __esm({
     init_guard();
     init_prompt_cache();
     init_error();
-    __version__ = "0.10.8";
+    init_version();
   }
 });
 
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/index.js
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/index.mjs
 var init_langsmith = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/index.js"() {
-    init_dist();
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/index.mjs"() {
+    init_client();
+    init_uploads2();
+    init_api_promise();
+    init_client();
+    init_pagination();
+    init_error();
+    init_lib();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/privacy/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/privacy/constants.js
 var MUTED_TRACE_CONTENT, METADATA_MODE_RUN_CONFIG_FIELDS;
 var init_constants11 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/privacy/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/privacy/constants.js"() {
     MUTED_TRACE_CONTENT = "[LangSmith system notice: content omitted because tracing is muted.]";
     METADATA_MODE_RUN_CONFIG_FIELDS = [
       "client",
@@ -18694,7 +20088,7 @@ var init_constants11 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/privacy/run-tree.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/privacy/run-tree.js
 function mutedContent(role) {
   return { messages: [{ role, content: MUTED_TRACE_CONTENT }] };
 }
@@ -18815,51 +20209,32 @@ function survivingCodingAgentPatchFields(projectedRun, fields) {
   });
 }
 var init_run_tree = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/privacy/run-tree.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/privacy/run-tree.js"() {
     init_langsmith();
     init_metadata();
     init_constants11();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/privacy/index.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/privacy/index.js
 var init_privacy2 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/privacy/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/privacy/index.js"() {
     init_run_tree();
     init_constants11();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/env.js
-function withoutEnvVariables(names2, run11) {
-  const hidden = names2.flatMap((name) => {
-    const value = process.env[name];
-    return value === void 0 ? [] : [[name, value]];
-  });
-  for (const [name] of hidden)
-    delete process.env[name];
-  try {
-    return run11();
-  } finally {
-    for (const [name, value] of hidden)
-      process.env[name] = value;
-  }
-}
-var init_env4 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/env.js"() {
-  }
-});
-
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/constants.js
-var UPLOAD_ACCOUNT_FINGERPRINT_PREFIX, UPLOAD_DESTINATION_ID_PREFIX, UPLOAD_FINGERPRINT_LENGTH, UPLOAD_ALREADY_RECEIVED_STATUS, UPLOAD_CONTROL_CHARACTER_PATTERN, UPLOAD_API_URL_TRAILING_SLASH_PATTERN, UPLOAD_UUID_PATTERN, UPLOAD_REPLICA_UUID_V7_PATTERN, UPLOAD_REPLICA_UUID_V5_NAMESPACE, UPLOAD_REPLICA_UUID_V5_NAMESPACE_BYTES, UPLOAD_REPLICA_UUID_V5_DOMAIN, UPLOAD_REPLICA_DOTTED_ORDER_ID_LENGTH, UPLOAD_REPLICA_IDENTITY_UPDATE_FIELDS, UPLOAD_REPLICA_PATCH_UPDATE_FIELDS, UPLOAD_PATCH_FIELDS, UPLOAD_REDACTED_FIELDS, UPLOAD_FAILED_MESSAGE, UPLOAD_RETRYABLE_STATUSES, UPLOAD_SDK_MAX_RETRIES, UPLOAD_BUN_RUNTIME, UPLOAD_NODE_RUNTIME, UPLOAD_DOTTED_ORDER_SEGMENT, UPLOAD_REQUEST_TIMEOUT_MS, UPLOAD_SEND_DEADLINE_MS, UPLOAD_BATCH_LIMITS, UPLOAD_ALREADY_RECEIVED_MESSAGE, UPLOAD_DEADLINE_MESSAGE, UPLOAD_RECEIPT_MISSING_MESSAGE, UPLOAD_ERROR_NAME, UPLOAD_SERVER_ERROR_MIN_STATUS, UPLOAD_UNKNOWN_DESTINATION_MESSAGE, UPLOAD_SAMPLING_RATE_VARIABLES, UPLOAD_SAMPLING_HASH, UPLOAD_SAMPLING_BUCKET_BYTES, UPLOAD_DOTTED_ORDER_ROOT_ID, UPLOAD_SDK_API_KEY_FIELD, UPLOAD_SDK_API_URL_FIELD, UPLOAD_AUTHORIZATION_HEADER, UPLOAD_BEARER_PATTERN, UPLOAD_LOGIN_UNUSABLE_MESSAGE, UPLOAD_KEY_UNUSABLE_MESSAGE, UPLOAD_CREDENTIAL_REQUIRED_MESSAGE, UPLOAD_LOGIN_INVALID_MESSAGE, UPLOAD_LOGIN_FIELD_NAMES;
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/upload/constants.js
+var UPLOAD_ACCOUNT_FINGERPRINT_PREFIX, UPLOAD_DESTINATION_ID_PREFIX, UPLOAD_FINGERPRINT_LENGTH, UPLOAD_ALREADY_RECEIVED_STATUS, UPLOAD_CONTROL_CHARACTER_PATTERN, UPLOAD_API_URL_TRAILING_SLASH_PATTERN, UPLOAD_AGENT_ADDRESS, UPLOAD_UUID_PATTERN, UPLOAD_REPLICA_UUID_V7_PATTERN, UPLOAD_REPLICA_UUID_V5_NAMESPACE, UPLOAD_REPLICA_UUID_V5_NAMESPACE_BYTES, UPLOAD_REPLICA_UUID_V5_DOMAIN, UPLOAD_REPLICA_DOTTED_ORDER_ID_LENGTH, UPLOAD_REPLICA_IDENTITY_UPDATE_FIELDS, UPLOAD_REPLICA_PATCH_UPDATE_FIELDS, UPLOAD_PATCH_FIELDS, UPLOAD_REDACTED_FIELDS, UPLOAD_FAILED_MESSAGE, UPLOAD_RETRYABLE_STATUSES, UPLOAD_SDK_MAX_RETRIES, UPLOAD_BUN_RUNTIME, UPLOAD_NODE_RUNTIME, UPLOAD_DOTTED_ORDER_SEGMENT, UPLOAD_REQUEST_TIMEOUT_MS, UPLOAD_SEND_DEADLINE_MS, UPLOAD_BATCH_LIMITS, UPLOAD_ALREADY_RECEIVED_MESSAGE, UPLOAD_DEADLINE_MESSAGE, UPLOAD_RECEIPT_MISSING_MESSAGE, UPLOAD_ERROR_NAME, UPLOAD_SERVER_ERROR_MIN_STATUS, UPLOAD_UNKNOWN_DESTINATION_MESSAGE, UPLOAD_SAMPLING_RATE_VARIABLES, UPLOAD_SAMPLING_HASH, UPLOAD_SAMPLING_BUCKET_BYTES, UPLOAD_DOTTED_ORDER_ROOT_ID, UPLOAD_SDK_API_KEY_FIELD, UPLOAD_SDK_API_URL_FIELD, UPLOAD_AUTHORIZATION_HEADER, UPLOAD_BEARER_PATTERN, UPLOAD_LOGIN_UNUSABLE_MESSAGE, UPLOAD_KEY_UNUSABLE_MESSAGE, UPLOAD_CREDENTIAL_REQUIRED_MESSAGE, UPLOAD_LOGIN_INVALID_MESSAGE, UPLOAD_LOGIN_FIELD_NAMES;
 var init_constants12 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/upload/constants.js"() {
     UPLOAD_ACCOUNT_FINGERPRINT_PREFIX = "account_";
     UPLOAD_DESTINATION_ID_PREFIX = "destination_";
     UPLOAD_FINGERPRINT_LENGTH = 32;
     UPLOAD_ALREADY_RECEIVED_STATUS = 409;
     UPLOAD_CONTROL_CHARACTER_PATTERN = /\p{Cc}/u;
     UPLOAD_API_URL_TRAILING_SLASH_PATTERN = /\/$/;
+    UPLOAD_AGENT_ADDRESS = "lrn:agents/{agentId}/environments/production";
     UPLOAD_UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
     UPLOAD_REPLICA_UUID_V7_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
     UPLOAD_REPLICA_UUID_V5_NAMESPACE = "6ba7b810-9dad-11d1-80b4-00c04fd430c8";
@@ -18937,10 +20312,15 @@ var init_constants12 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/client.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/upload/client.js
 function createUploadClient(options) {
   const { apiKey, apiUrl, workspaceId, login, anonymizer, redactedFields } = options;
-  const auth = login === void 0 ? { apiKey: apiKey ?? "", workspaceId: workspaceId ?? "" } : {};
+  const auth = login === void 0 ? { apiKey: apiKey ?? "", workspaceId: workspaceId ?? "" } : {
+    profile: login.profile,
+    profileConfigPath: login.configPath,
+    preferProfileAuth: true,
+    ...login.workspaceId === void 0 ? {} : { workspaceId: login.workspaceId }
+  };
   const config = {
     ...auth,
     apiUrl,
@@ -18962,7 +20342,7 @@ function createUploadClient(options) {
       return response;
     }
   };
-  const client = withoutEnvVariables(LOGIN_API_KEY_VARIABLES, () => new Client(config));
+  const client = new Client(config);
   return client;
 }
 function takeRejectedAccessToken(client) {
@@ -18972,17 +20352,15 @@ function takeRejectedAccessToken(client) {
 }
 var rejectedAuthorizations;
 var init_client3 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/client.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/upload/client.js"() {
     init_langsmith();
-    init_constants7();
     init_expiry_constants();
-    init_env4();
     init_constants12();
     rejectedAuthorizations = /* @__PURE__ */ new WeakMap();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/auth/credential.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/auth/credential.js
 function resolveUploadCredential(options = {}) {
   const env = options.env ?? process.env;
   const workspaceId = sdkSetting(options.workspaceId);
@@ -18990,27 +20368,47 @@ function resolveUploadCredential(options = {}) {
   const configuredUrl = sdkSetting(options.apiUrl);
   const apiUrl = options.apiUrlIsDefault ? void 0 : configuredUrl;
   const apiKey = sdkSetting(options.apiKey);
+  const { agentId } = options;
+  if (agentId !== void 0 && !AGENT_ID_PATTERN.test(agentId))
+    return {
+      kind: "none",
+      reason: fillTemplate(AGENT_ID_INVALID_REASON, { agentId: JSON.stringify(agentId) })
+    };
   if (apiKey !== void 0)
-    return keyCredential(apiKey, configuredUrl, workspace);
-  const login = loginCredential(env, apiUrl, workspace);
-  if (login.kind === "login")
+    return keyCredential(apiKey, configuredUrl);
+  const login = loginCredential(env, apiUrl, workspace, options.profile);
+  if (login.kind === "login" || options.profile)
     return login;
   const envKey = LOGIN_API_KEY_VARIABLES.map((name) => sdkSetting(env[name])).find(Boolean);
-  return envKey === void 0 ? login : keyCredential(envKey, configuredUrl, workspace);
+  return envKey === void 0 ? login : keyCredential(envKey, configuredUrl);
 }
-function keyCredential(apiKey, apiUrl, workspace) {
-  return { kind: "api-key", apiKey, apiUrl: apiUrl ?? LOGIN_DEFAULT_API_URL, ...workspace };
+function keyCredential(apiKey, apiUrl) {
+  return { kind: "api-key", apiKey, apiUrl: apiUrl ?? LOGIN_DEFAULT_API_URL };
 }
-function loginCredential(env, apiUrl, workspace) {
-  const profile = readLoginProfile(env);
+function loginCredential(env, apiUrl, workspace, configuredProfile) {
+  const requestedWorkspace = workspace.workspaceId ?? sdkSetting(env[LOGIN_WORKSPACE_VARIABLE]);
+  if (requestedWorkspace !== void 0 && !LOGIN_WORKSPACE_ID_PATTERN.test(requestedWorkspace))
+    return {
+      kind: "none",
+      reason: fillTemplate(LOGIN_WORKSPACE_INVALID_REASON, {
+        workspaceId: JSON.stringify(requestedWorkspace)
+      })
+    };
+  const profile = readLoginProfile(env, configuredProfile);
   if (profile === void 0)
-    return { kind: "none", reason: LOGIN_NONE_REASON };
+    return {
+      kind: "none",
+      reason: fillTemplate(LOGIN_NONE_REASON, {
+        command: loginCommand(configuredProfile || env[LOGIN_PROFILE_VARIABLE])
+      })
+    };
   if (apiUrl !== void 0 && !sameServer(apiUrl, profile.apiUrl))
     return {
       kind: "none",
       reason: fillTemplate(LOGIN_ENDPOINT_MISMATCH_REASON, { loginUrl: profile.apiUrl, apiUrl })
     };
-  const { configPath, profile: name, workspaceId: loginWorkspace } = profile;
+  const { configPath, profile: name } = profile;
+  const loginWorkspace = requestedWorkspace ?? profile.workspaceId;
   return {
     kind: "login",
     login: {
@@ -19032,7 +20430,7 @@ function loginReplicaRefusal(replicas, apiUrl) {
   return usable ? void 0 : refusedLoginReplicas(configured, apiUrl);
 }
 var init_credential = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/auth/credential.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/auth/credential.js"() {
     init_format();
     init_constants7();
     init_normalize();
@@ -19040,7 +20438,7 @@ var init_credential = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/destination-identity.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/upload/destination-identity.js
 import { createHash as createHash4 } from "node:crypto";
 function resolveUploadDestinationIdentities(options) {
   if (!Array.isArray(options.destinations) || options.destinations.length === 0) {
@@ -19084,6 +20482,7 @@ function resolveDestination(config, sourceProjectName, updates, replicaProjectNa
   }
   const apiUrl = normalizeApiUrl(config.apiUrl);
   const projectName = normalizeRequiredText(config.projectName, "project name");
+  const agentId = config.agentId === void 0 ? void 0 : normalizeRequiredText(config.agentId, "agent ID");
   const workspaceId = config.workspaceId === void 0 ? void 0 : sdkSetting(normalizeRequiredText(config.workspaceId, "workspace ID"));
   const identity = JSON.stringify({
     ...login === void 0 ? { apiKey: config.apiKey } : { login },
@@ -19097,6 +20496,7 @@ function resolveDestination(config, sourceProjectName, updates, replicaProjectNa
     ...login === void 0 ? { apiKey: config.apiKey } : { login },
     apiUrl,
     projectName,
+    ...agentId === void 0 ? {} : { agentId },
     ...workspaceId === void 0 ? {} : { workspaceId },
     ...sourceProjectName === void 0 ? {} : { sourceProjectName },
     ...updates === void 0 ? {} : { updates }
@@ -19114,6 +20514,7 @@ function resolveReplicaDestination(replica, primary, primaryProjectName) {
     ...!ownKey && primary.login ? { login: primary.login } : {},
     apiUrl: replica.apiUrl ?? primary.apiUrl,
     projectName: replica.projectName ?? primary.projectName,
+    ...replica.projectName === void 0 && primary.agentId !== void 0 && !ownKey && (replica.apiUrl === void 0 || replica.apiUrl === primary.apiUrl) && (replica.workspaceId === void 0 || replica.workspaceId === primary.workspaceId) ? { agentId: primary.agentId } : {},
     ...workspaceId === void 0 ? {} : { workspaceId }
   }, primaryProjectName, updates, replica.projectName === void 0 ? null : normalizeRequiredText(replica.projectName, "project name"));
 }
@@ -19186,7 +20587,7 @@ function fingerprint(value) {
   return createHash4("sha256").update(value).digest("hex").slice(0, UPLOAD_FINGERPRINT_LENGTH);
 }
 var init_destination_identity = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/destination-identity.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/upload/destination-identity.js"() {
     init_credential();
     init_profile();
     init_normalize();
@@ -19195,7 +20596,7 @@ var init_destination_identity = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/anonymizer/index.js
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/anonymizer/index.mjs
 function extractStringNodes(data, options) {
   const parsedOptions = { ...options, maxDepth: options.maxDepth ?? 10 };
   const queue = [[data, 0, "", null, ""]];
@@ -19309,7 +20710,7 @@ function createSecretAnonymizer(options) {
 }
 var SECRET_PLACEHOLDER, DEFAULT_SECRET_RULES;
 var init_anonymizer = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/dist/anonymizer/index.js"() {
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/anonymizer/index.mjs"() {
     SECRET_PLACEHOLDER = "[SECRET_DETECTED]";
     DEFAULT_SECRET_RULES = [
       // ── Provider API keys (prefix-anchored) ─────────────────────────────────
@@ -19386,7 +20787,7 @@ var init_anonymizer = __esm({
       //  - value excludes & and ; so query-string params past the secret survive.
       //  - requires a 6+ char value so short non-secret values are not touched.
       {
-        pattern: /\b([A-Za-z0-9_.-]*(?:API[_-]?KEY|SECRET|TOKEN|PASSWORD|PASSWD|PRIVATE[_-]?KEY|ACCESS[_-]?KEY|AUTH[_-]?TOKEN|CLIENT[_-]?SECRET)(?![A-Za-z0-9])(?:[_.-][A-Za-z0-9]+)*["']?\s*[:=]\s*["']?)(?:(?:bearer|token|basic)\s+)?[^\s"'&;]{6,}/gi,
+        pattern: /\b([A-Za-z0-9_.-]*(?:API[_-]?KEY[_-]?SALT|LICENSE[_-]?KEY|API[_-]?KEY|SECRET|TOKEN|PASSWORD|PASSWD|PRIVATE[_-]?KEY|ACCESS[_-]?KEY|AUTH[_-]?TOKEN|CLIENT[_-]?SECRET)(?![A-Za-z0-9])(?:[_.-][A-Za-z0-9]+)*["']?\s*[:=]\s*["']?)(?:(?:bearer|token|basic)\s+)?[^\s"'&;]{6,}/gi,
         replace: `$1${SECRET_PLACEHOLDER}`
       },
       // Authorization / API-key headers. Keep the header name + separator ($1$2)
@@ -19410,14 +20811,14 @@ var init_anonymizer = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/anonymizer.js
+// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/anonymizer.mjs
 var init_anonymizer2 = __esm({
-  "node_modules/.pnpm/langsmith@0.10.8/node_modules/langsmith/anonymizer.js"() {
+  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/anonymizer.mjs"() {
     init_anonymizer();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/redaction.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/upload/redaction.js
 function createUploadAnonymizer(enabled, extraRules) {
   if (!enabled)
     return void 0;
@@ -19447,13 +20848,13 @@ function normalizedRedactedFields(value) {
   return UPLOAD_REDACTED_FIELDS.filter((field4) => value.includes(field4));
 }
 var init_redaction = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/redaction.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/upload/redaction.js"() {
     init_anonymizer2();
     init_constants12();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/destinations.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/upload/destinations.js
 function resolveUploadDestinations(options) {
   const resolved = resolveUploadDestinationIdentities(options);
   const destinations = resolved.destinations.map((destination) => {
@@ -19482,7 +20883,7 @@ function usesLogin(login, client) {
   return loginUrl === void 0 || typeof clientUrl === "string" && sameServer(clientUrl, loginUrl);
 }
 var init_destinations = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/destinations.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/upload/destinations.js"() {
     init_client3();
     init_profile();
     init_constants12();
@@ -19491,7 +20892,7 @@ var init_destinations = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/client-cache.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/upload/client-cache.js
 function createUploadClientCache() {
   const clientsByMode = /* @__PURE__ */ new Map();
   return {
@@ -19510,19 +20911,19 @@ function createUploadClientCache() {
   };
 }
 var init_client_cache = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/client-cache.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/upload/client-cache.js"() {
     init_client3();
     init_redaction();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/errors.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/upload/errors.js
 function isAlreadyReceived(cause) {
   return failureStatus(cause) === UPLOAD_ALREADY_RECEIVED_STATUS && describe(cause).includes(UPLOAD_ALREADY_RECEIVED_MESSAGE);
 }
 var UploadError;
 var init_errors5 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/errors.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/upload/errors.js"() {
     init_errors();
     init_expiry_constants();
     init_constants12();
@@ -19542,14 +20943,14 @@ var init_errors5 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/runtime-metadata.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/upload/runtime-metadata.js
 function applyRuntimeMetadata(payload, privacyMode) {
   if (privacyMode !== "full")
     return;
   const added = buildCodingAgentRuntimeMetadata({
     env: process.env,
     runtime: "Bun" in globalThis ? UPLOAD_BUN_RUNTIME : UPLOAD_NODE_RUNTIME,
-    sdkVersion: __version__
+    sdkVersion: VERSION
   });
   const extra = payload.extra ?? {};
   const metadata = { ...added.metadata, ...extra["metadata"] };
@@ -19560,14 +20961,14 @@ function applyRuntimeMetadata(payload, privacyMode) {
   };
 }
 var init_runtime_metadata = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/runtime-metadata.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/upload/runtime-metadata.js"() {
     init_langsmith();
     init_metadata();
     init_constants12();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/replica-identifiers.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/upload/replica-identifiers.js
 import { createHash as createHash5 } from "node:crypto";
 function contextForDestination(context, destination) {
   if (destination.sourceProjectName === void 0)
@@ -19611,13 +21012,13 @@ function remapReplicaDottedOrder(dottedOrder, projectName) {
   }).join(".");
 }
 var init_replica_identifiers = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/replica-identifiers.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/upload/replica-identifiers.js"() {
     init_langsmith();
     init_constants12();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/replica-updates.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/upload/replica-updates.js
 function applyReplicaPatchUpdates(payload, destination, privacyMode) {
   if (privacyMode !== "full" || destination.updates === void 0)
     return;
@@ -19644,12 +21045,12 @@ function mergeReplicaExtra(baseValue, updateValue) {
   };
 }
 var init_replica_updates = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/replica-updates.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/upload/replica-updates.js"() {
     init_objects();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/deadline.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/upload/deadline.js
 async function withDeadline(work) {
   let timer;
   const expired = new Promise((_resolve, reject) => {
@@ -19662,12 +21063,12 @@ async function withDeadline(work) {
   }
 }
 var init_deadline = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/deadline.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/upload/deadline.js"() {
     init_constants12();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/sampling.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/upload/sampling.js
 import { createHash as createHash6 } from "node:crypto";
 function samplingRate(environment) {
   for (const name of UPLOAD_SAMPLING_RATE_VARIABLES) {
@@ -19690,12 +21091,12 @@ function traceIdOf(run11) {
   return run11.trace_id ?? UPLOAD_DOTTED_ORDER_ROOT_ID.exec(run11.dotted_order ?? "")?.[1] ?? run11.id;
 }
 var init_sampling2 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/sampling.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/upload/sampling.js"() {
     init_constants12();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/timestamps.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/upload/timestamps.js
 function startTimeFromDottedOrder(dottedOrder) {
   if (typeof dottedOrder !== "string")
     return void 0;
@@ -19714,22 +21115,23 @@ function startTimeText(supplied, dottedOrder) {
   return startTimeFromDottedOrder(dottedOrder);
 }
 var init_timestamps = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/timestamps.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/upload/timestamps.js"() {
     init_constants12();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/upload.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/upload/upload.js
 function createLangSmithUploadWriter(options) {
   const resolved = resolveUploadDestinations(options);
   const destinations = resolved.destinations.map(({ id }) => Object.freeze({ id }));
   const byId = new Map(resolved.destinations.map((destination) => [destination.id, destination]));
   const clients = createUploadClientCache();
   const rate = samplingRate(process.env);
-  const routes = Object.freeze(Object.fromEntries(resolved.destinations.map(({ id, projectName, sourceProjectName }) => [
+  const routes = Object.freeze(Object.fromEntries(resolved.destinations.map(({ id, projectName, agentId, sourceProjectName }) => [
     id,
     Object.freeze({
       projectName,
+      ...agentId === void 0 ? {} : { agentId },
       ...sourceProjectName === void 0 ? {} : { sourceProjectName }
     })
   ])));
@@ -19789,6 +21191,10 @@ function createLangSmithUploadWriter(options) {
 }
 function routedDestination(destination, route) {
   const routed = { ...destination, projectName: route.projectName };
+  if (route.agentId === void 0)
+    delete routed.agentId;
+  else
+    routed.agentId = route.agentId;
   if (route.sourceProjectName === void 0)
     delete routed.sourceProjectName;
   else
@@ -19828,13 +21234,20 @@ function ingestFor(items) {
   const runUpdates = [];
   for (const { payload, submission, destination, operation } of items) {
     if (operation === "posted") {
-      runCreates.push({ ...payload, session_name: destination.projectName });
+      runCreates.push(withTarget(payload, destination));
     } else {
       const id = runIdForDestination(submission.run.id, destination);
-      runUpdates.push({ ...payload, id });
+      runUpdates.push(withTarget({ ...payload, id }, destination));
     }
   }
   return { runCreates, runUpdates };
+}
+function withTarget(payload, destination) {
+  if (destination.agentId === void 0)
+    return { ...payload, session_name: destination.projectName };
+  const { session_name: _project, ...rest } = payload;
+  const address = fillTemplate(UPLOAD_AGENT_ADDRESS, { agentId: destination.agentId });
+  return { ...rest, address };
 }
 function ignoreAlreadyReceived(error2) {
   if (!isAlreadyReceived(error2))
@@ -19988,11 +21401,12 @@ function validatePatch(submission) {
   }
 }
 var init_upload = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/upload.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/upload/upload.js"() {
     init_profile();
     init_expiry_constants();
     init_expiry2();
     init_metadata();
+    init_format();
     init_privacy2();
     init_destinations();
     init_constants12();
@@ -20009,23 +21423,23 @@ var init_upload = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/index.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/upload/index.js
 var init_upload2 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/upload/index.js"() {
     init_upload();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/capture-wake-constants.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/capture-wake-constants.js
 var CAPTURE_WAKE_ERROR_NAME, CAPTURE_WAKE_FAILURE_MESSAGE;
 var init_capture_wake_constants = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/capture-wake-constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/capture-wake-constants.js"() {
     CAPTURE_WAKE_ERROR_NAME = "CaptureWakeError";
     CAPTURE_WAKE_FAILURE_MESSAGE = "Trace work was saved but its worker could not start";
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/capture-wake.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/capture-wake.js
 async function wakeCapturedWork(captureResult, wake) {
   try {
     await wake();
@@ -20050,7 +21464,7 @@ async function readSavedCaptureWake(error2, options) {
 }
 var CaptureWakeError;
 var init_capture_wake = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/capture-wake.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/capture-wake.js"() {
     init_capture_wake_constants();
     init_digest();
     CaptureWakeError = class extends Error {
@@ -20064,10 +21478,10 @@ var init_capture_wake = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/constants.js
 var ROOT_RUN_EXECUTION_ORDER, DOTTED_ORDER_TIME_PREFIX_LENGTH, DOTTED_ORDER_SEGMENT_PATTERN, DOTTED_ORDER_STRIP_PATTERN, LIFECYCLE_POST_EVENT_KIND, LIFECYCLE_PATCH_EVENT_KIND, LIFECYCLE_SETTLEMENT_EVENT_KIND, LIFECYCLE_ATTRIBUTION_READY_FIELD, LIFECYCLE_ENGINE_FOLDERS, LIFECYCLE_SETTLEMENT_LOCK_PREFIX, LIFECYCLE_TURN_CLOSURE_STATES, LIFECYCLE_SWEEP_WARNING, LIFECYCLE_CHILD_TURN_GRACE_MS, LIFECYCLE_UPLOAD_ACCOUNT_CHANGED_MESSAGE, LIFECYCLE_STORED_RUN_CONTEXT_IS_REQUIRED_MESSAGE, LIFECYCLE_STORED_INTEGRATION_DOES_NOT_MATCH_LIFECYCLE_BRIDGE_MESSAGE, LIFECYCLE_STORED_RUN_DATA_IS_REQUIRED_MESSAGE, LIFECYCLE_STORED_RUN_ID_DOES_NOT_MATCH_ITS_CAPTURE_MESSAGE, LIFECYCLE_STORED_PRIVACY_MODE_IS_INVALID_MESSAGE, LIFECYCLE_STORED_CAPTURE_IS_MISSING_THREAD_IDENTITY_MESSAGE, LIFECYCLE_RUN_INTEGRATION_MISMATCH_MESSAGE, LIFECYCLE_INVALID_PRIVACY_MODE_MESSAGE, LIFECYCLE_INVALID_RUN_OPERATION_MESSAGE, LIFECYCLE_INVALID_CLOSURE_STATE_MESSAGE, LIFECYCLE_RUN_IDENTITY_CHANGED_MESSAGE, LIFECYCLE_PATCH_START_TIME_MESSAGE, LIFECYCLE_RUN_TRACE_ORDER_MESSAGE, LIFECYCLE_INVALID_PATCH_FIELD_MESSAGE, LIFECYCLE_PATCH_FIELDS_UNIQUE_MESSAGE, LIFECYCLE_PATCH_FIELD_VALUE_MESSAGE, LIFECYCLE_INVALID_PATCH_PRIVACY_STATUS_MESSAGE, LIFECYCLE_IDENTITY_FIELD_LABELS;
 var init_constants13 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/constants.js"() {
     init_constants4();
     ROOT_RUN_EXECUTION_ORDER = 1;
     DOTTED_ORDER_TIME_PREFIX_LENGTH = 18;
@@ -20108,7 +21522,7 @@ var init_constants13 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/settlement/readiness.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/settlement/readiness.js
 async function captureReadiness(scopes, destinations, readOutcome) {
   const pending = /* @__PURE__ */ new Set();
   const dropped = /* @__PURE__ */ new Set();
@@ -20128,11 +21542,11 @@ async function captureReadiness(scopes, destinations, readOutcome) {
   return pending.size > 0 ? { status: "pending", destinations: [...pending].toSorted() } : dropped.size > 0 ? { status: "dropped", destinations: [...dropped].toSorted() } : { status: "delivered", destinations: [] };
 }
 var init_readiness = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/settlement/readiness.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/settlement/readiness.js"() {
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/closure.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/closure.js
 function deriveAttributionReadiness(value, integration) {
   const source = requirePlainRecord(value, "Prepared run submission");
   const metadata = prepareCodingAgentMetadataProvenance(requireOwnDataField(source, "metadata"), integration, "full");
@@ -20273,7 +21687,7 @@ function field2(value, key) {
   return value !== null && typeof value === "object" && !Array.isArray(value) ? value[key] : void 0;
 }
 var init_closure = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/closure.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/closure.js"() {
     init_metadata();
     init_constants8();
     init_objects();
@@ -20282,7 +21696,7 @@ var init_closure = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/identity.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/identity.js
 function createRunIdentity(input) {
   const id = requireNonBlankString(input.id, "Run ID");
   const start_time = requireTimestamp(input.start_time);
@@ -20342,13 +21756,13 @@ function dottedOrderSegment(startTime, runId) {
   return `${precisionTime.replace(DOTTED_ORDER_STRIP_PATTERN, "")}${runId}`;
 }
 var init_identity = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/identity.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/identity.js"() {
     init_objects();
     init_constants13();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/projection.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/projection.js
 function projectPostSubmission(source, common, priorIdentity) {
   const { integration, privacyMode, redaction } = common;
   const run11 = canonicalIdentity(normalizedRunSnapshot(requireOwnDataField(source, "run")), priorIdentity);
@@ -20615,7 +22029,7 @@ function requiredText(source, key, name) {
   return requireNonBlankString(requireOwnDataField(source, key), name);
 }
 var init_projection = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/projection.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/projection.js"() {
     init_metadata();
     init_privacy2();
     init_objects();
@@ -20626,7 +22040,7 @@ var init_projection = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/settlement/projection.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/settlement/projection.js
 function projectCapture(record, integration) {
   const rawPayload = canonicalJsonObject(record.normalizedPayload, "Stored run payload");
   const submission = projectSubmission({ ...rawPayload, metadata: record.metadataProvenance }, integration);
@@ -20714,7 +22128,7 @@ function closureRank(state) {
   return state === "authoritative" ? 2 : state === "provisional" ? 1 : 0;
 }
 var init_projection2 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/settlement/projection.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/settlement/projection.js"() {
     init_metadata();
     init_objects();
     init_constants13();
@@ -20723,10 +22137,10 @@ var init_projection2 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/settlement/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/settlement/constants.js
 var REPOSITORY_NAME_KEY, SETTLEMENT_EVENT_ID_PREFIX, SETTLEMENT_DROPPED_RUN_WARNING, SETTLEMENT_ATTRIBUTION_LOST_MESSAGE, SETTLEMENT_QUIET_TURN_MS, SETTLEMENT_NEVER_ENDED_WARNING;
 var init_constants14 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/settlement/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/settlement/constants.js"() {
     init_constants8();
     REPOSITORY_NAME_KEY = GIT_METADATA_KEYS.repository;
     SETTLEMENT_EVENT_ID_PREFIX = "turn-settlement-";
@@ -20737,7 +22151,7 @@ var init_constants14 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/settlement/recorded-run.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/settlement/recorded-run.js
 function recordRun(events) {
   const latest = events.at(-1);
   const run11 = latest.payload.run;
@@ -20780,13 +22194,13 @@ function mergeMetadataObject(previous, current) {
   return { ...previous, ...current };
 }
 var init_recorded_run = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/settlement/recorded-run.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/settlement/recorded-run.js"() {
     init_metadata();
     init_objects();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/settlement/source-order.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/settlement/source-order.js
 function uniqueScopes(scopes) {
   const unique = /* @__PURE__ */ new Map();
   for (const scope of scopes)
@@ -20888,14 +22302,14 @@ function report(turnId, status, reason, runIds = [], destinations = []) {
   };
 }
 var init_source_order = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/settlement/source-order.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/settlement/source-order.js"() {
     init_order();
     init_compare();
     init_scope();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/settlement/revision.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/settlement/revision.js
 import { createHash as createHash7 } from "node:crypto";
 function settlementEventId(turnId, runId, dependencies, rootRunId, childRunIds, attribution) {
   const revision = createHash7("sha256").update(JSON.stringify({
@@ -20909,13 +22323,13 @@ function settlementEventId(turnId, runId, dependencies, rootRunId, childRunIds, 
   return `${SETTLEMENT_EVENT_ID_PREFIX}${revision}`;
 }
 var init_revision = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/settlement/revision.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/settlement/revision.js"() {
     init_constants14();
     init_source_order();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/settlement/run-state.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/settlement/run-state.js
 function hasCausalRunError(events) {
   let hasError = false;
   for (const { payload } of events) {
@@ -20947,12 +22361,12 @@ function retainedEndTime(events) {
   return endTime;
 }
 var init_run_state = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/settlement/run-state.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/settlement/run-state.js"() {
     init_objects();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/settlement/settlement.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/settlement/settlement.js
 function attributionOf(metadata) {
   const carried = {};
   const named = withBothGitMetadataNames(metadata ?? {});
@@ -20986,14 +22400,14 @@ function metadataAfterFill(run11, filled) {
 }
 var namesARepository;
 var init_settlement = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/settlement/settlement.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/settlement/settlement.js"() {
     init_constants14();
     init_git_names();
     namesARepository = (carried) => carried[REPOSITORY_NAME_KEY] !== void 0;
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/settlement/settle-turn.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/settlement/settle-turn.js
 function unsettled(settlementReport) {
   return { report: settlementReport, patches: [], captured: 0 };
 }
@@ -21233,7 +22647,7 @@ async function settleOneTurn(turnId, events, generated, allByRunId, options) {
 }
 var warnedNeverEndedTurns, warnedDroppedRuns;
 var init_settle_turn = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/settlement/settle-turn.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/settlement/settle-turn.js"() {
     init_metadata();
     init_format();
     init_objects();
@@ -21251,7 +22665,7 @@ var init_settle_turn = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/settlement/pass.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/settlement/pass.js
 async function settleCapturedTurns(options) {
   if (options.destinations.length === 0)
     throw new TypeError("At least one settlement destination is required");
@@ -21313,7 +22727,7 @@ async function refreshSettlementProgress(work, destinations, readOutcome) {
   return { captured: work.progress.captured, turns };
 }
 var init_pass = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/settlement/pass.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/settlement/pass.js"() {
     init_constants13();
     init_readiness();
     init_projection2();
@@ -21322,7 +22736,7 @@ var init_pass = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/validation/snapshot.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/validation/snapshot.js
 function snapshotData(value) {
   return copySnapshot(value, /* @__PURE__ */ new WeakMap());
 }
@@ -21362,11 +22776,11 @@ function copySnapshot(value, copies) {
   return copy;
 }
 var init_snapshot = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/validation/snapshot.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/validation/snapshot.js"() {
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/turn-removal.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/turn-removal.js
 async function removeSettledTurns(options) {
   const known = new Set(options.knownScopes.map(turnEventKey));
   const removable = /* @__PURE__ */ new Map();
@@ -21433,12 +22847,12 @@ function field3(value, key) {
   return value !== null && typeof value === "object" && !Array.isArray(value) ? value[key] : void 0;
 }
 var init_turn_removal = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/turn-removal.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/turn-removal.js"() {
     init_constants13();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/bridge.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/bridge.js
 import { join as join15, resolve as resolve9 } from "node:path";
 function createLifecycleBridge(options) {
   const context = createBridgeContext(options);
@@ -21795,7 +23209,7 @@ function restoreSubmission(record, integration) {
   return { ...projected.value.payload, metadata: projected.value.metadata };
 }
 var init_bridge = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/bridge.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/bridge.js"() {
     init_storage();
     init_lock_folders();
     init_capture();
@@ -21820,17 +23234,17 @@ var init_bridge = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/index.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/index.js
 var init_lifecycle = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/index.js"() {
     init_bridge();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/constants.js
 var RECONSTRUCTION_DRAIN_LOCK, RECONSTRUCTION_RUN_ID_PREFIX, RECONSTRUCTION_MAPPING_EVENT_ID_PREFIX, RECONSTRUCTION_JOB_KIND, RECONSTRUCTION_MAPPING_KIND, RECONSTRUCTION_RECORD_VERSION, RECONSTRUCTION_DEFERRED_REASON, RECONSTRUCTION_CLOSURE_STATES, RECONSTRUCTION_JOB_INPUT_KEYS, RECONSTRUCTION_JOB_OPTIONAL_INPUT_KEYS, RECONSTRUCTION_SOURCE_SNAPSHOT_KEYS, RECONSTRUCTION_SOURCE_SNAPSHOT_OPTIONAL_KEYS, RECONSTRUCTION_STORED_JOB_KEYS, RECONSTRUCTION_STORED_JOB_OPTIONAL_KEYS, RECONSTRUCTION_ATTRIBUTION_CONTEXT_KEYS, RECONSTRUCTION_ATTRIBUTION_CONTEXT_OPTIONAL_KEYS, RECONSTRUCTION_TOOL_ORIGIN_KEYS, RECONSTRUCTION_TOOL_ORIGIN_OPTIONAL_KEYS, RECONSTRUCTION_OUTPUT_KEYS, RECONSTRUCTION_OUTPUT_OPTIONAL_KEYS, RECONSTRUCTION_TURN_EVIDENCE_KEYS, RECONSTRUCTION_TURN_EVIDENCE_KEYS_WITH_ROOT, RECONSTRUCTION_DEPENDENCY_KEYS, RECONSTRUCTION_OUTPUTS_MUST_BE_ARRAY_MESSAGE, RECONSTRUCTION_OUTPUT_HAS_UNSUPPORTED_FIELDS_MESSAGE, RECONSTRUCTION_EVENT_IDS_MUST_BE_UNIQUE_MESSAGE, RECONSTRUCTION_INTEGRATION_CHANGED_MESSAGE, RECONSTRUCTION_PRIVACY_MODE_IS_INVALID_MESSAGE, RECONSTRUCTION_METADATA_FULL_MODE_MESSAGE, RECONSTRUCTION_DEPENDENCIES_MUST_BE_ARRAY_MESSAGE, RECONSTRUCTION_EVIDENCE_IDENTITY_MESSAGE, RECONSTRUCTION_SNAPSHOT_OUTPUTS_REQUIRE_SOURCE_REF_MESSAGE, RECONSTRUCTION_OUTPUT_SOURCE_REF_HAS_NO_SNAPSHOT_MESSAGE, RECONSTRUCTION_OUTPUT_REF_UNKNOWN_MESSAGE, RECONSTRUCTION_DEPENDENCY_SCOPE_MESSAGE, RECONSTRUCTION_DEPENDENCY_INTEGRATION_MESSAGE, RECONSTRUCTION_CAPTURES_CANNOT_DEPEND_ON_THEMSELVES_MESSAGE, RECONSTRUCTION_DEPENDENCIES_MUST_BE_UNIQUE_MESSAGE, RECONSTRUCTION_JOB_HAS_UNSUPPORTED_FIELDS_MESSAGE, RECONSTRUCTION_SOURCE_REFS_ARE_REQUIRED_MESSAGE, RECONSTRUCTION_SOURCE_REFS_MUST_BE_UNIQUE_MESSAGE, RECONSTRUCTION_SOURCE_CONFLICT_MESSAGE, RECONSTRUCTION_SNAPSHOTS_EMPTY_MESSAGE, RECONSTRUCTION_SNAPSHOT_FIELDS_MESSAGE, RECONSTRUCTION_SNAPSHOT_REF_MUST_BELONG_TO_JOB_MESSAGE, RECONSTRUCTION_SNAPSHOT_REFS_MUST_BE_UNIQUE_MESSAGE, RECONSTRUCTION_SNAPSHOT_PRIVACY_MESSAGE, RECONSTRUCTION_SNAPSHOT_START_TIME_MESSAGE, RECONSTRUCTION_SNAPSHOT_NOT_READY_MESSAGE, RECONSTRUCTION_SNAPSHOT_COVERAGE_MESSAGE, RECONSTRUCTION_PATHLESS_REF_MESSAGE, RECONSTRUCTION_CONTEXT_FIELDS_MESSAGE, RECONSTRUCTION_TOOL_ORIGIN_HAS_UNSUPPORTED_FIELDS_MESSAGE, RECONSTRUCTION_PINNED_BLANK_MESSAGE, RECONSTRUCTION_PINNED_UNIQUE_MESSAGE, RECONSTRUCTION_EVIDENCE_STRUCTURAL_MESSAGE, RECONSTRUCTION_CLOSURE_STATE_MESSAGE, RECONSTRUCTION_STORED_NAMESPACE_MESSAGE, RECONSTRUCTION_UNSUPPORTED_RECONSTRUCTION_JOB_MESSAGE, RECONSTRUCTION_STORED_FIELDS_MESSAGE, RECONSTRUCTION_STORED_PRIVACY_MESSAGE, RECONSTRUCTION_STORED_REFS_EMPTY_MESSAGE, RECONSTRUCTION_STORED_REFS_UNIQUE_MESSAGE, RECONSTRUCTION_STORED_SOURCE_CONFLICT_MESSAGE, RECONSTRUCTION_PROVENANCE_MESSAGE, RECONSTRUCTION_JOB_DEPENDENCIES_MESSAGE, RECONSTRUCTION_UNSUPPORTED_RECONSTRUCTION_MAPPING_MESSAGE, RECONSTRUCTION_STORED_NO_OUTPUTS_MESSAGE, RECONSTRUCTION_STORED_EVENTS_UNIQUE_MESSAGE, RECONSTRUCTION_STORED_DEPENDENCIES_MESSAGE, RECONSTRUCTION_DEFERRAL_REASON_INVALID_MESSAGE, RECONSTRUCTION_RESULT_STATUS_INVALID_MESSAGE, RECONSTRUCTION_TERMINAL_OUTCOME_MESSAGE, RECONSTRUCTION_CALLBACKS_REQUIRED_MESSAGE, RECONSTRUCTION_DRAIN_TIME_MESSAGE, RECONSTRUCTION_RECORD_UNSUPPORTED_MESSAGE, RECONSTRUCTION_JOB_MISSING_MESSAGE, RECONSTRUCTION_LABEL_OUTPUT, RECONSTRUCTION_LABEL_EVENT_ID, RECONSTRUCTION_LABEL_EVENT_ID_FIELD, RECONSTRUCTION_LABEL_SUBMISSION, RECONSTRUCTION_LABEL_INTEGRATION, RECONSTRUCTION_LABEL_RUN, RECONSTRUCTION_LABEL_RUN_ID, RECONSTRUCTION_LABEL_RUN_ID_FIELD, RECONSTRUCTION_LABEL_SOURCE_REF, RECONSTRUCTION_LABEL_SOURCE_REF_FIELD, RECONSTRUCTION_SUBMISSION_INVALID_MESSAGE;
 var init_constants15 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/constants.js"() {
     RECONSTRUCTION_DRAIN_LOCK = "reconstruction";
     RECONSTRUCTION_RUN_ID_PREFIX = "reconstruction:";
     RECONSTRUCTION_MAPPING_EVENT_ID_PREFIX = "reconstruction-map:";
@@ -21955,18 +23369,18 @@ var init_constants15 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/known-keys.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/known-keys.js
 function assertKnownKeys(record, required, optional, message) {
   const keys = Object.keys(record);
   if (required.some((key) => !keys.includes(key)) || keys.some((key) => !required.includes(key) && !optional.includes(key)))
     throw new TypeError(message);
 }
 var init_known_keys = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/known-keys.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/known-keys.js"() {
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/job-validation.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/job-validation.js
 function readEventId(output, seen) {
   const eventId = requireNonBlankString(requireOwnDataField(output, "eventId"), RECONSTRUCTION_LABEL_EVENT_ID);
   validateIdentifier(eventId, RECONSTRUCTION_LABEL_EVENT_ID_FIELD);
@@ -22237,7 +23651,7 @@ function validateTurnEvidence(value) {
   };
 }
 var init_job_validation = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/job-validation.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/job-validation.js"() {
     init_paths();
     init_serialization();
     init_objects();
@@ -22250,7 +23664,7 @@ var init_job_validation = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/job-records.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/job-records.js
 function snapshotJob(job) {
   return Object.freeze({
     ...job,
@@ -22448,7 +23862,7 @@ function mappingScope(job) {
   return { ...scopeOf(job), eventId };
 }
 var init_job_records = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/job-records.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/job-records.js"() {
     init_known_keys();
     init_paths();
     init_serialization();
@@ -22460,7 +23874,7 @@ var init_job_records = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/job-processing.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/job-processing.js
 async function processJob(candidate, context) {
   const { job, scope } = candidate;
   const retry = candidate.entry.record.delivery?.retries[job.accountFingerprint];
@@ -22578,7 +23992,7 @@ async function recordTerminal(store, scope, accountFingerprint, outcome, reason)
   return result.status === "recorded";
 }
 var init_job_processing = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/job-processing.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/job-processing.js"() {
     init_retry_state();
     init_constants6();
     init_retry();
@@ -22590,7 +24004,7 @@ var init_job_processing = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/worker.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/worker.js
 import { join as join16, resolve as resolve10 } from "node:path";
 function createReconstructionWorker(options) {
   const integration = options.integration;
@@ -22746,7 +24160,7 @@ async function summarizePending(context) {
   };
 }
 var init_worker2 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/worker.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/worker.js"() {
     init_constants4();
     init_storage();
     init_lock_folders();
@@ -22766,14 +24180,14 @@ var init_worker2 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/index.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/index.js
 var init_reconstruction = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/index.js"() {
     init_worker2();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/engine/pass-results.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/engine/pass-results.js
 function reconstructionPassResult(result) {
   if (result.status === "busy")
     return "retryable-failure";
@@ -22792,14 +24206,14 @@ function waitingOnBackoff(result) {
   return result.pending > 0 && result.nextRetryAtMs !== void 0;
 }
 var init_pass_results = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/engine/pass-results.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/engine/pass-results.js"() {
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/engine/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/engine/constants.js
 var TRACING_ENGINE_FOREIGN_SESSION_MIN_AGE_MS, TRACING_ENGINE_BACKGROUND_RECOVERY_REPORT_ERROR, TRACING_ENGINE_BACKGROUND_RECOVERY_SESSION_CALLBACK_ERROR, TRACING_ENGINE_BACKGROUND_RECOVERY_REPORT_CALLBACK_ERROR, TRACING_ENGINE_BACKGROUND_RECOVERY_MINIMUM_AGE_ERROR, TRACING_ENGINE_MAX_RETRY_WAIT_MS, TRACING_ENGINE_MAX_RETRY_PASSES, TRACING_ENGINE_RECOVERY_TIME_MUST_BE_VALID_TIMESTAMP_MESSAGE, TRACING_ENGINE_SESSION_RECOVERY_OPTIONS_CALLBACK_IS_REQUIRED_MESSAGE, TRACING_ENGINE_RECOVERY_ACCOUNT_FINGERPRINT_DOES_NOT_MATCH_ACTIVE_SESSION_MESSAGE, TRACING_ENGINE_SESSION_RECOVERY_OPTIONS_MUST_BE_OBJECT_MESSAGE, TRACING_ENGINE_RECOVERY_MAX_FOREIGN_SESSIONS, TRACING_ENGINE_STORAGE_ROOT_REQUIRED_MESSAGE, TRACING_ENGINE_RECOVERY_SETTLEMENT_CONFLICT_MESSAGE, TRACING_ENGINE_MISSING_SETTLEMENT_CAPTURE_MESSAGE;
 var init_constants16 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/engine/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/engine/constants.js"() {
     TRACING_ENGINE_FOREIGN_SESSION_MIN_AGE_MS = 2 * 60 * 60 * 1e3;
     TRACING_ENGINE_BACKGROUND_RECOVERY_REPORT_ERROR = "Background recovery report callback failed";
     TRACING_ENGINE_BACKGROUND_RECOVERY_SESSION_CALLBACK_ERROR = "Background recovery session callback is required";
@@ -22818,7 +24232,7 @@ var init_constants16 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/engine/options.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/engine/options.js
 import { resolve as resolve11 } from "node:path";
 function snapshotEngineOptions(options) {
   if (typeof options.storageRoot !== "string" || options.storageRoot.trim() === "")
@@ -22860,15 +24274,15 @@ function snapshotWriterOptions(options) {
   });
 }
 var init_options2 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/engine/options.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/engine/options.js"() {
     init_constants16();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/engine/errors.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/engine/errors.js
 var MissingSettlementCaptureError;
 var init_errors6 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/engine/errors.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/engine/errors.js"() {
     init_constants16();
     MissingSettlementCaptureError = class extends Error {
       constructor() {
@@ -22879,7 +24293,7 @@ var init_errors6 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery-settlement.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery-settlement.js
 async function hasUnsettledRecoverySettlement(options) {
   try {
     const work = await settleCapturedTurns({
@@ -22922,7 +24336,7 @@ async function hasUnsettledRecoverySettlement(options) {
   }
 }
 var init_recovery_settlement = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery-settlement.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery-settlement.js"() {
     init_serialization();
     init_pass();
     init_constants16();
@@ -22930,7 +24344,7 @@ var init_recovery_settlement = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery.js
 function validateRecoveryRequest(request) {
   const now = request.now ?? Date.now();
   if (!Number.isSafeInteger(now) || !Number.isFinite(new Date(now).getTime()))
@@ -23078,7 +24492,7 @@ async function recoverTracingSessions(runtime, request, scopeGuard) {
   return { scheduled, failed };
 }
 var init_recovery = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery.js"() {
     init_constants4();
     init_retry_state();
     init_capture();
@@ -23095,7 +24509,7 @@ var init_recovery = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/engine/background-recovery.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/engine/background-recovery.js
 function retryableFailure(error2) {
   return { status: "failed", message: describe(error2), retryable: true };
 }
@@ -23143,14 +24557,14 @@ async function runBackgroundRecovery(runtime, options, scopeGuard) {
   }
 }
 var init_background_recovery = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/engine/background-recovery.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/engine/background-recovery.js"() {
     init_errors();
     init_constants16();
     init_recovery();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/engine/retry-wait.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/engine/retry-wait.js
 import { setTimeout as delay4 } from "node:timers/promises";
 async function drainThroughBackoff(drain) {
   let waitedMs = 0;
@@ -23171,12 +24585,12 @@ async function drainThroughBackoff(drain) {
   return result;
 }
 var init_retry_wait = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/engine/retry-wait.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/engine/retry-wait.js"() {
     init_constants16();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/engine/engine.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/engine/engine.js
 function createTracingEngine(options) {
   const config = snapshotEngineOptions(options);
   const forSession = (sessionOptions) => createSession(config, snapshotSessionOptions(sessionOptions));
@@ -23295,7 +24709,7 @@ async function drainSession(context) {
   return result;
 }
 var init_engine = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/engine/engine.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/engine/engine.js"() {
     init_background_worker();
     init_scope2();
     init_lifecycle();
@@ -23311,24 +24725,24 @@ var init_engine = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/engine/index.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/engine/index.js
 var init_engine2 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/engine/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/engine/index.js"() {
     init_engine();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/identity.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/upload/identity.js
 function resolveUploadDestinationFingerprint(options) {
   return resolveUploadDestinationIdentities(options).accountFingerprint;
 }
 var init_identity2 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/identity.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/upload/identity.js"() {
     init_destination_identity();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/plugin/session.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/plugin/session.js
 function openPluginSession(options) {
   const { storageRoot, integration, sessionId, writer } = options;
   const callbacks = (id) => ({
@@ -23368,7 +24782,7 @@ function fingerprintOf(writer) {
   }
 }
 var init_session = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/plugin/session.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/plugin/session.js"() {
     init_capture();
     init_engine2();
     init_identity2();
@@ -23376,19 +24790,19 @@ var init_session = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/binary-runtime.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/binary-runtime.js
 function builtAsBinary() {
   return typeof LS_COMPILED_BINARY !== "undefined";
 }
 var init_binary_runtime = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/binary-runtime.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/binary-runtime.js"() {
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/tls/tls-constants.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/tls/tls-constants.js
 var EXTRA_CERTIFICATES_VARIABLE, SYSTEM_CERTIFICATE_STORE, CERTIFICATE_FILE_ENCODING, SYSTEM_CERTIFICATES_WARNING, CERTIFICATE_PATTERN;
 var init_tls_constants = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/tls/tls-constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/tls/tls-constants.js"() {
     EXTRA_CERTIFICATES_VARIABLE = "NODE_EXTRA_CA_CERTS";
     SYSTEM_CERTIFICATE_STORE = "system";
     CERTIFICATE_FILE_ENCODING = "utf8";
@@ -23397,7 +24811,7 @@ var init_tls_constants = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/tls/system-certificates.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/tls/system-certificates.js
 import { readFileSync as readFileSync7, writeFileSync as writeFileSync3 } from "node:fs";
 import * as tls from "node:tls";
 function trustSystemCertificates(file, environment, readSystem = readSystemStore) {
@@ -23435,13 +24849,13 @@ function readIfPresent(file) {
   }
 }
 var init_system_certificates = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/tls/system-certificates.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/tls/system-certificates.js"() {
     init_errors();
     init_tls_constants();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/plugin/worker-launch.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/plugin/worker-launch.js
 import { spawn } from "node:child_process";
 import { closeSync as closeSync2, mkdirSync as mkdirSync5, openSync as openSync2, statSync as statSync3, writeSync as writeSync2 } from "node:fs";
 import { dirname as dirname10, join as join17 } from "node:path";
@@ -23495,25 +24909,25 @@ function logWarning(log2, warning) {
   }
 }
 var init_worker_launch = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/plugin/worker-launch.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/plugin/worker-launch.js"() {
     init_constants();
     init_binary_runtime();
     init_system_certificates();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/plugin/notice-cooldown.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/plugin/notice-cooldown.js
 import { join as join18 } from "node:path";
 var init_notice_cooldown = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/plugin/notice-cooldown.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/plugin/notice-cooldown.js"() {
     init_state_claim();
     init_constants();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/plugin/index.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/plugin/index.js
 var init_plugin = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/plugin/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/plugin/index.js"() {
     init_hook_command();
     init_policy_file();
     init_session();
@@ -23522,21 +24936,22 @@ var init_plugin = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/auth/index.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/auth/index.js
 var init_auth = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/auth/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/auth/index.js"() {
     init_credential();
     init_expiry2();
+    init_profile();
     init_normalize();
     init_expiry_constants();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/settings/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/settings/constants.js
 import { constants } from "node:fs";
-var COMMON_BOOLEAN_SETTINGS, COMMON_NOTICE_COOLDOWN_OFF, COMMON_STRICT_BOOLEAN_FIELDS, COMMON_DEFAULT_API_URL, COMMON_CONFIG_FILE_NAME, COMMON_CONFIG_OPEN_FLAGS, COMMON_CONFIG_ROOT_FILE_NAME, COMMON_CONFIG_USER_ROOT_FILE_NAME, MANAGED_CONFIG_DIRECTORY, MANAGED_CONFIG_FILE_NAME, MANAGED_CONFIG_OPEN_FLAGS, MANAGED_CONFIG_OWNER_UID, GROUP_OR_OTHERS_WRITE_BITS, MANAGED_CONFIG_OVERRIDE_SOURCES, MANAGED_CONFIG_UNSAFE_OWNERSHIP, MANAGED_CONFIG_INVALID, MANAGED_CONFIG_UNLOCKABLE_WARNING, MANAGED_CONFIG_OVERRIDE_WARNING, MANAGED_CONFIG_OVERRIDE_FIELD_SEPARATOR, MANAGED_CONFIG_OVERRIDE_SOURCE_SEPARATOR, ACCOUNT_LOOKUP_TIMEOUT_MS, MACOS_ACCOUNT_LOOKUP, MACOS_ACCOUNT_LOOKUP_ARGUMENTS, MACOS_ACCOUNT_HOME_FIELD, LINUX_ACCOUNT_LIST_FILE, LINUX_ACCOUNT_LOOKUPS, LINUX_ACCOUNT_HOME_FIELD, ACCOUNT_ID_FIELD, ACCOUNT_FIELD_SEPARATOR, UTF8_BOM;
+var COMMON_BOOLEAN_SETTINGS, COMMON_NOTICE_COOLDOWN_OFF, COMMON_STRICT_BOOLEAN_FIELDS, COMMON_DEFAULT_API_URL, COMMON_USER_ONLY_FIELDS, COMMON_CONFIG_FILE_NAME, COMMON_CONFIG_OPEN_FLAGS, COMMON_CONFIG_ROOT_FILE_NAME, COMMON_CONFIG_USER_ROOT_FILE_NAME, MANAGED_CONFIG_DIRECTORY, MANAGED_CONFIG_FILE_NAME, MANAGED_CONFIG_OPEN_FLAGS, MANAGED_CONFIG_OWNER_UID, GROUP_OR_OTHERS_WRITE_BITS, MANAGED_CONFIG_OVERRIDE_SOURCES, MANAGED_CONFIG_UNSAFE_OWNERSHIP, MANAGED_CONFIG_INVALID, MANAGED_CONFIG_UNLOCKABLE_WARNING, MANAGED_CONFIG_OVERRIDE_WARNING, MANAGED_CONFIG_OVERRIDE_FIELD_SEPARATOR, MANAGED_CONFIG_OVERRIDE_SOURCE_SEPARATOR, ACCOUNT_LOOKUP_TIMEOUT_MS, MACOS_ACCOUNT_LOOKUP, MACOS_ACCOUNT_LOOKUP_ARGUMENTS, MACOS_ACCOUNT_HOME_FIELD, LINUX_ACCOUNT_LIST_FILE, LINUX_ACCOUNT_LOOKUPS, LINUX_ACCOUNT_HOME_FIELD, ACCOUNT_ID_FIELD, ACCOUNT_FIELD_SEPARATOR, UTF8_BOM;
 var init_constants17 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/settings/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/settings/constants.js"() {
     COMMON_BOOLEAN_SETTINGS = {
       enabled: { default: false, restrictive: false },
       defaultMuted: { default: false, restrictive: true }
@@ -23544,6 +24959,7 @@ var init_constants17 = __esm({
     COMMON_NOTICE_COOLDOWN_OFF = "off";
     COMMON_STRICT_BOOLEAN_FIELDS = ["redact", "strict_auth"];
     COMMON_DEFAULT_API_URL = "https://api.smith.langchain.com";
+    COMMON_USER_ONLY_FIELDS = ["profile"];
     COMMON_CONFIG_FILE_NAME = "langsmith.json";
     COMMON_CONFIG_OPEN_FLAGS = constants.O_RDONLY | (constants.O_NONBLOCK ?? 0);
     COMMON_CONFIG_ROOT_FILE_NAME = "langsmith-plugins.json";
@@ -23579,16 +24995,16 @@ var init_constants17 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/settings/utils/records.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/settings/utils/records.js
 function object(value) {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 var init_records = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/settings/utils/records.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/settings/utils/records.js"() {
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/settings/parse.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/settings/parse.js
 function invalid(raw) {
   return {
     status: "invalid",
@@ -23639,7 +25055,14 @@ function parseCommonConfig(value) {
     if (typeof entry !== "boolean")
       diagnostics.push(`Invalid ${field4}; using restrictive value.`);
   }
-  for (const field4 of ["api_key", "api_url", "project"]) {
+  for (const field4 of [
+    "api_key",
+    "api_url",
+    "project",
+    "agent_id",
+    "profile",
+    "workspace_id"
+  ]) {
     if (!Object.hasOwn(value, field4))
       continue;
     if (typeof value[field4] !== "string")
@@ -23703,13 +25126,13 @@ function parseCommonConfig(value) {
   return { status: "valid", common, raw: value, diagnostics };
 }
 var init_parse3 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/settings/parse.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/settings/parse.js"() {
     init_constants17();
     init_records();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/settings/utils/account-home.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/settings/utils/account-home.js
 import { execFileSync } from "node:child_process";
 import { readFileSync as readFileSync8 } from "node:fs";
 import { userInfo } from "node:os";
@@ -23783,12 +25206,12 @@ function homeField(entry, field4) {
 }
 var cachedBunHome;
 var init_account_home = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/settings/utils/account-home.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/settings/utils/account-home.js"() {
     init_constants17();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/settings/utils/warnings.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/settings/utils/warnings.js
 function warnOnce2(lines) {
   for (const line of lines) {
     if (warned.has(line))
@@ -23799,12 +25222,12 @@ function warnOnce2(lines) {
 }
 var warned;
 var init_warnings = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/settings/utils/warnings.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/settings/utils/warnings.js"() {
     warned = /* @__PURE__ */ new Set();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/settings/managed-config.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/settings/managed-config.js
 import { closeSync as closeSync3, fstatSync, lstatSync as lstatSync2, openSync as openSync3, readFileSync as readFileSync9 } from "node:fs";
 import { homedir } from "node:os";
 import { dirname as dirname11, join as join19 } from "node:path";
@@ -23867,7 +25290,7 @@ function lockPluginFields(managed, fields) {
   return Object.fromEntries(present(fields.lockable).map((name) => [name, raw[name]]));
 }
 var init_managed_config = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/settings/managed-config.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/settings/managed-config.js"() {
     init_constants17();
     init_parse3();
     init_account_home();
@@ -23876,10 +25299,12 @@ var init_managed_config = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/settings/managed-lock.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/settings/managed-lock.js
 import { isDeepStrictEqual } from "node:util";
 function lockedValues(common) {
   const lock = { ...common };
+  for (const field4 of COMMON_USER_ONLY_FIELDS)
+    delete lock[field4];
   if (lock.api_key !== void 0 || lock.replicas !== void 0)
     lock.api_url ??= COMMON_DEFAULT_API_URL;
   if (lock.api_url !== void 0 || lock.project !== void 0)
@@ -23887,6 +25312,10 @@ function lockedValues(common) {
   if (lock.redact_extra_rules !== void 0)
     lock.redact ??= true;
   return lock;
+}
+function userOnlyDiagnostics(common) {
+  const ignored = COMMON_USER_ONLY_FIELDS.filter((field4) => common[field4] !== void 0);
+  return ignored.length === 0 ? [] : [MANAGED_CONFIG_UNLOCKABLE_WARNING.replace("{fields}", ignored.join(", "))];
 }
 function lockedFields(lock) {
   const fields = [];
@@ -23928,13 +25357,13 @@ function overrideDiagnostics(sources, lock) {
   return [MANAGED_CONFIG_OVERRIDE_WARNING.replace("{overrides}", list)];
 }
 var init_managed_lock = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/settings/managed-lock.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/settings/managed-lock.js"() {
     init_constants17();
     init_records();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/settings/common-config.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/settings/common-config.js
 function resolveField(sources, field4) {
   return sources.find((source) => source[field4] !== void 0)?.[field4];
 }
@@ -23950,7 +25379,11 @@ function mergeCommonConfig(sources, options = {}) {
     redact: true,
     locked: lockedFields(lock),
     defaulted: Object.keys(defaults2).filter((field4) => resolveField([lock, env, ...files], field4) === void 0),
-    diagnostics: [...managed.diagnostics, ...overrideDiagnostics(sources, lock)]
+    diagnostics: [
+      ...managed.diagnostics,
+      ...userOnlyDiagnostics(managed.common),
+      ...overrideDiagnostics(sources, lock)
+    ]
   };
   for (const field4 of ["enabled", "defaultMuted"]) {
     merged[field4] = resolveField(switches, field4) ?? COMMON_BOOLEAN_SETTINGS[field4].default;
@@ -23964,6 +25397,11 @@ function mergeCommonConfig(sources, options = {}) {
   merged.api_key = resolveField(precedence, "api_key");
   merged.api_url = resolveField(precedence, "api_url");
   merged.project = resolveField(precedence, "project");
+  merged.agent_id = resolveField(precedence, "agent_id");
+  if (lock.project !== void 0 && lock.agent_id === void 0)
+    delete merged.agent_id;
+  merged.profile = resolveField(precedence, "profile");
+  merged.workspace_id = resolveField(precedence, "workspace_id");
   merged.replicas = resolveField(precedence, "replicas");
   merged.redact = resolveField(precedence, "redact") ?? true;
   merged.redact_extra_rules = resolveField(precedence, "redact_extra_rules");
@@ -23983,7 +25421,7 @@ function toSdkReplicas(replicas) {
   }));
 }
 var init_common_config = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/settings/common-config.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/settings/common-config.js"() {
     init_constants17();
     init_managed_config();
     init_managed_lock();
@@ -23991,7 +25429,7 @@ var init_common_config = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/settings/config-files.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/settings/config-files.js
 import { closeSync as closeSync4, fstatSync as fstatSync2, lstatSync as lstatSync3, openSync as openSync4, readFileSync as readFileSync10 } from "node:fs";
 import { join as join20 } from "node:path";
 function readCommonConfigFile(path3) {
@@ -24034,16 +25472,16 @@ function readCommonConfigFiles(options) {
   };
 }
 var init_config_files = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/settings/config-files.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/settings/config-files.js"() {
     init_constants17();
     init_managed_config();
     init_parse3();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/settings/index.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/settings/index.js
 var init_settings = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/settings/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/settings/index.js"() {
     init_constants17();
     init_common_config();
     init_config_files();
@@ -24053,7 +25491,7 @@ var init_settings = __esm({
 });
 
 // dist/src/constants.js
-var TURN_RUN_NAME, SKILL_RUN_NAME, DEFAULT_TAGS, DEFAULT_PROJECT, DEFAULT_SWEEP_IDLE_MINUTES, NOTICE_KINDS, MUTE_LOCKED_MESSAGE, DEFAULT_API_URL2, CURSOR_DIRECTORY_NAME, MANAGED_PLUGIN_FIELDS, MAX_UPLOAD_ATTEMPTS, BINARY_HOOK_EVENTS, LEADING_BYTE_ORDER_MARKS, LS_INTEGRATION, SKILL_READ_TOOLS, PATH_SEPARATOR, MAX_ATTACHMENT_BYTES, MAX_LOG_BYTES, CONVERSATION_MAX_AGE_MS, WHITESPACE_RUN, MODEL_SUFFIXES, PROVIDER_PREFIX, CLAUDE_VERSIONED_MODEL, OPENAI_MODEL_PREFIX, CURSOR_VENDOR_PREFIX, MCP_TOOL_PREFIX, SUBAGENT_PSEUDO_TOOLS, REDACTED_TRANSCRIPT_MARKER, EMPTY_TOOL_ID_PREFIX, TOOL_FAILED_MESSAGE, STATE_FILE_NAME, LEGACY_STATE_FILE_NAME, TRACING_POLICY_FILE_NAME, LEGACY_TRACING_POLICY_FILE_NAME, HOOK_LOG_FILE_NAME, HOOK_CONTINUE_OUTPUT, ENGINE_WORKER_COMMAND, ENGINE_STORAGE_DIR_NAME, JOB_EVENT_PREFIX, JOB_REF_PREFIX, TOOL_JOB_REF_PREFIX, JOB_STORE_DIR_NAME, GH_LOGIN_MARKER_FILE, TOOL_PATH_INPUT_KEYS, RUN_EVENT_PREFIX, PATCH_EVENT_PREFIX, RUN_SNAPSHOT_FIELDS, RUN_PATCH_FIELDS, CAPTURE_PUBLISHED_STATUS, CAPTURE_DUPLICATE_STATUS, TURN_ON_OTHER_ACCOUNT_MESSAGE, SQLITE_EXPERIMENTAL_WARNING;
+var TURN_RUN_NAME, SKILL_RUN_NAME, DEFAULT_TAGS, DEFAULT_PROJECT, DEFAULT_SWEEP_IDLE_MINUTES, NOTICE_KINDS, MUTE_LOCKED_MESSAGE, DEFAULT_API_URL2, AGENT_ID_ENV_KEY, CURSOR_DIRECTORY_NAME, MANAGED_PLUGIN_FIELDS, MAX_UPLOAD_ATTEMPTS, BINARY_HOOK_EVENTS, LEADING_BYTE_ORDER_MARKS, LS_INTEGRATION, SKILL_READ_TOOLS, PATH_SEPARATOR, MAX_ATTACHMENT_BYTES, MAX_LOG_BYTES, CONVERSATION_MAX_AGE_MS, WHITESPACE_RUN, MODEL_SUFFIXES, PROVIDER_PREFIX, CLAUDE_VERSIONED_MODEL, OPENAI_MODEL_PREFIX, CURSOR_VENDOR_PREFIX, MCP_TOOL_PREFIX, SUBAGENT_PSEUDO_TOOLS, REDACTED_TRANSCRIPT_MARKER, EMPTY_TOOL_ID_PREFIX, TOOL_FAILED_MESSAGE, STATE_FILE_NAME, LEGACY_STATE_FILE_NAME, TRACING_POLICY_FILE_NAME, LEGACY_TRACING_POLICY_FILE_NAME, HOOK_LOG_FILE_NAME, HOOK_CONTINUE_OUTPUT, ENGINE_WORKER_COMMAND, ENGINE_STORAGE_DIR_NAME, JOB_EVENT_PREFIX, JOB_REF_PREFIX, TOOL_JOB_REF_PREFIX, JOB_STORE_DIR_NAME, GH_LOGIN_MARKER_FILE, TOOL_PATH_INPUT_KEYS, RUN_EVENT_PREFIX, PATCH_EVENT_PREFIX, RUN_SNAPSHOT_FIELDS, RUN_PATCH_FIELDS, CAPTURE_PUBLISHED_STATUS, CAPTURE_DUPLICATE_STATUS, TURN_ON_OTHER_ACCOUNT_MESSAGE, SQLITE_EXPERIMENTAL_WARNING;
 var init_constants18 = __esm({
   "dist/src/constants.js"() {
     "use strict";
@@ -24069,6 +25507,7 @@ var init_constants18 = __esm({
     };
     MUTE_LOCKED_MESSAGE = "Thread tracing stays muted because an admin locked muting on.";
     DEFAULT_API_URL2 = "https://api.smith.langchain.com";
+    AGENT_ID_ENV_KEY = "LANGSMITH_AGENT_ID";
     CURSOR_DIRECTORY_NAME = ".cursor";
     MANAGED_PLUGIN_FIELDS = {
       lockable: ["attachments", "system_prompt"],
@@ -24295,11 +25734,11 @@ function parseStrictBoolean(value) {
     return false;
   return void 0;
 }
-function envBoolean({ name, parse: parse3, restrictive }) {
+function envBoolean({ name, parse: parse2, restrictive }) {
   const value = process.env[name];
   if (value === void 0)
     return void 0;
-  return parse3(value) ?? restrictive;
+  return parse2(value) ?? restrictive;
 }
 function getEnv2(suffix) {
   return process.env[`LANGSMITH_CURSOR_${suffix}`] ?? process.env[`LANGSMITH_${suffix}`];
@@ -24351,6 +25790,7 @@ function loadConfig(options) {
       api_key: process.env.LANGSMITH_CURSOR_API_KEY,
       api_url: getEnv2("ENDPOINT"),
       project: getEnv2("PROJECT"),
+      agent_id: process.env[AGENT_ID_ENV_KEY] || void 0,
       metadata: envMetadata,
       redact: parseBoolean(getEnv2("REDACT")),
       redact_extra_rules: parseRedactExtraRules(getEnv2("REDACT_EXTRA")),
@@ -24379,6 +25819,9 @@ function loadConfig(options) {
     defaultMuted,
     apiKey,
     apiUrl,
+    ...common.profile === void 0 ? {} : { profile: common.profile },
+    ...common.workspace_id === void 0 ? {} : { workspaceId: common.workspace_id },
+    ...common.agent_id === void 0 ? {} : { agentId: common.agent_id },
     project,
     debug: debug2,
     stateFilePath,
@@ -24442,7 +25885,10 @@ function uploadCredential(config) {
   return resolveUploadCredential({
     apiKey: sdkSetting(config.apiKey),
     apiUrl: config.apiUrl,
-    apiUrlIsDefault: config.apiUrlIsDefault
+    apiUrlIsDefault: config.apiUrlIsDefault,
+    profile: config.profile,
+    workspaceId: config.workspaceId,
+    agentId: config.agentId
   });
 }
 function uploadProblem(config, credential) {
@@ -24464,6 +25910,7 @@ function writerOptions(config, project) {
     destinations: [
       {
         ...destinationCredential(config),
+        ...config.agentId === void 0 ? {} : { agentId: config.agentId },
         projectName: config.locked.includes("project") ? config.project : project
       }
     ],
@@ -24496,7 +25943,7 @@ function promptNotice(config, credential, problem) {
   if (!config.enabled)
     return void 0;
   const keyedReplicasOnly = !!config.replicas?.length && config.replicas.every((replica) => sdkSetting(replica.apiKey));
-  const loginNotice = credential.kind === "none" || keyedReplicasOnly ? void 0 : readLoginNotice(storageRootFor(config), process.env, credential.kind === "api-key" ? { apiKey: credential.apiKey, apiUrl: credential.apiUrl } : void 0);
+  const loginNotice = credential.kind === "none" || keyedReplicasOnly ? void 0 : readLoginNotice(storageRootFor(config), process.env, credential.kind === "api-key" ? { apiKey: credential.apiKey, apiUrl: credential.apiUrl } : void 0, config.profile);
   if (loginNotice !== void 0)
     return { kind: LOGIN_NOTICE_KIND, text: loginNotice };
   const replicaReason = credential.kind === "login" ? refusedLoginReplicas(config.replicas, credential.apiUrl) : void 0;
@@ -25510,7 +26957,7 @@ var init_subagent_stop = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/paths.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/paths.js
 import { statSync as statSync6 } from "node:fs";
 import { dirname as dirname16 } from "node:path";
 function nearestExistingDirectory(path3) {
@@ -25529,14 +26976,14 @@ function nearestExistingDirectory(path3) {
   }
 }
 var init_paths3 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/paths.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/paths.js"() {
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/git/constants.js
 var GIT_LOCATION_ENV_KEYS, NOT_A_REPOSITORY, REMOTE_PATH_EDGE_SLASHES, REMOTE_PATH_TRAILING_SLASHES, REMOTE_GIT_SUFFIX, REMOTE_LINE_WHITESPACE, SCP_REMOTE_PATTERN, GIT_DIRECTORY_NAME, GIT_FILE_POINTER, GIT_MARKERS, GIT_PROVIDERS, SELF_HOSTED_PROVIDER_HINTS, PROVIDER_HOSTS, GIT_COMMAND_TIMEOUT_MS, GH_LOGIN_COMMAND, GIT_COMMAND, GIT_COMMAND_MISSING, GH_LOGIN_ARGUMENTS, GH_LOGIN_TIMEOUT_MS, GH_LOGIN_PATTERN, GH_LOGIN_NULL_OUTPUT, GH_LOGIN_RETRY_AFTER_MS;
 var init_constants19 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/git/constants.js"() {
     GIT_LOCATION_ENV_KEYS = [
       "GIT_DIR",
       "GIT_WORK_TREE",
@@ -25582,10 +27029,10 @@ var init_constants19 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/desktop/desktop-constants.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/desktop/desktop-constants.js
 var DESKTOP_WINDOWS_EXTENSIONS, DESKTOP_WINDOWS_SEPARATOR, DESKTOP_PATH_SEPARATOR, DESKTOP_PATH_VARIABLES, DESKTOP_EXTENSIONS_VARIABLE;
 var init_desktop_constants = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/desktop/desktop-constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/desktop/desktop-constants.js"() {
     DESKTOP_WINDOWS_EXTENSIONS = ".EXE;.CMD;.BAT";
     DESKTOP_WINDOWS_SEPARATOR = ";";
     DESKTOP_PATH_SEPARATOR = ":";
@@ -25594,7 +27041,7 @@ var init_desktop_constants = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/desktop/launch.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/desktop/launch.js
 import { accessSync, constants as constants3, statSync as statSync7 } from "node:fs";
 import { join as join26, posix, win32 } from "node:path";
 function findExecutable(name, env, platform2) {
@@ -25617,13 +27064,13 @@ function findExecutable(name, env, platform2) {
   return void 0;
 }
 var init_launch = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/desktop/launch.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/desktop/launch.js"() {
     init_constants2();
     init_desktop_constants();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/repository.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/git/repository.js
 import { execFileSync as execFileSync2 } from "node:child_process";
 import { resolve as resolve12 } from "node:path";
 function parseRepoName(remoteUrl) {
@@ -25770,7 +27217,7 @@ function installedCommand(name) {
   return found;
 }
 var init_repository = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/repository.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/git/repository.js"() {
     init_launch();
     init_constants19();
     init_constants8();
@@ -25778,7 +27225,7 @@ var init_repository = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/github-login.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/git/github-login.js
 import { mkdirSync as mkdirSync7, readFileSync as readFileSync12, renameSync as renameSync6, writeFileSync as writeFileSync4 } from "node:fs";
 import { dirname as dirname17 } from "node:path";
 function createGitHubLoginFallback(options) {
@@ -25824,13 +27271,13 @@ function createGitHubLoginFallback(options) {
   };
 }
 var init_github_login = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/github-login.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/git/github-login.js"() {
     init_constants19();
     init_repository();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/paths.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/git/paths.js
 import { readFileSync as readFileSync13, statSync as statSync8 } from "node:fs";
 import { dirname as dirname18, join as join27, resolve as resolve13 } from "node:path";
 function gitMarkerAt(directory) {
@@ -25867,12 +27314,12 @@ function rootFromGitMarker(directory) {
   }
 }
 var init_paths4 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/paths.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/git/paths.js"() {
     init_constants19();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/attribution.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/git/attribution.js
 import { isAbsolute as isAbsolute4 } from "node:path";
 function createRepositoryAttributor(options) {
   const rootByDirectory = /* @__PURE__ */ new Map();
@@ -25977,7 +27424,7 @@ function withoutRepositoryKeys(base, pinned) {
   return stripped;
 }
 var init_attribution = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/attribution.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/git/attribution.js"() {
     init_constants8();
     init_paths3();
     init_github_login();
@@ -25986,9 +27433,9 @@ var init_attribution = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/index.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/git/index.js
 var init_git = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/git/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/git/index.js"() {
     init_attribution();
     init_github_login();
     init_paths4();
@@ -26783,11 +28230,11 @@ function decodeTurnSteps(reader, turnBlobId) {
   const turnBlob = reader.get(agentKvKey(turnBlobId));
   if (!turnBlob)
     return void 0;
-  const agent2 = firstBytes(turnBlob, TURN_AGENT_FIELD);
-  if (!agent2)
+  const agent = firstBytes(turnBlob, TURN_AGENT_FIELD);
+  if (!agent)
     return void 0;
   const steps = [];
-  for (const stepId of allBytes(agent2, AGENT_STEPS_FIELD)) {
+  for (const stepId of allBytes(agent, AGENT_STEPS_FIELD)) {
     const stepBlob = reader.get(agentKvKey(stepId));
     if (!stepBlob)
       continue;
@@ -27945,15 +29392,15 @@ var init_engine_worker = __esm({
 // dist/src/hooks/dispatch.js
 init_plugin();
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/binary.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/binary.js
 import { arch as osArch, platform as osPlatform } from "node:os";
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/constants.js
 var DEFAULT_PUBLISHED_TARGETS = {
   darwin: ["arm64", "x64"]
 };
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/target.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/target.js
 function resolveTarget(options) {
   for (const field4 of ["executableName", "repository", "userAgent"]) {
     if (typeof options[field4] !== "string" || options[field4].trim() === "") {
@@ -27975,7 +29422,7 @@ function releaseAssetName(target, platform2, arch, version) {
   return `${target.executableName}-${platform2}-${arch}-${version}`;
 }
 
-// node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/binary.js
+// node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/binary.js
 function defineBinaryTarget(options) {
   const target = resolveTarget(options);
   return {

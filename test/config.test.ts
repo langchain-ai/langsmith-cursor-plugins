@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach, beforeEach } from "vitest";
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
+import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -350,6 +350,40 @@ describe("loadConfig", () => {
         login: expect.objectContaining({ profile: "default" }),
         apiUrl: "https://login.test",
         projectName: "p",
+      });
+    });
+
+    it("uploads with the configured profile and workspace", () => {
+      writeLogin("https://login.test");
+      const config = JSON.parse(readFileSync(join(home, ".langsmith", "config.json"), "utf8"));
+      config.profiles.work = { api_url: "https://login.test", oauth: { refresh_token: "w" } };
+      writeFileSync(join(home, ".langsmith", "config.json"), JSON.stringify(config));
+      write(1, { profile: "work", workspace_id: "6f1f4a7e-3c2b-4d5a-9e8f-0a1b2c3d4e5f" });
+      expect(writerOptions(loadConfig({ cwd }), "p").destinations[0]).toEqual({
+        login: expect.objectContaining({
+          profile: "work",
+          workspaceId: "6f1f4a7e-3c2b-4d5a-9e8f-0a1b2c3d4e5f",
+        }),
+        apiUrl: "https://login.test",
+        workspaceId: "6f1f4a7e-3c2b-4d5a-9e8f-0a1b2c3d4e5f",
+        projectName: "p",
+      });
+    });
+
+    it("sends to the configured agent and refuses an invalid agent ID", () => {
+      writeLogin("https://login.test");
+      write(1, { agent_id: "support-bot" });
+      vi.stubEnv("LANGSMITH_AGENT_ID", "");
+      const config = loadConfig({ cwd });
+      expect(uploadCredential(config).kind).toBe("login");
+      expect(writerOptions(config, "p").destinations[0]).toMatchObject({
+        agentId: "support-bot",
+      });
+      write(1, { agent_id: "Not An Agent" });
+      expect(uploadCredential(loadConfig({ cwd })).kind).toBe("none");
+      vi.stubEnv("LANGSMITH_AGENT_ID", "env-bot");
+      expect(writerOptions(loadConfig({ cwd }), "p").destinations[0]).toMatchObject({
+        agentId: "env-bot",
       });
     });
 

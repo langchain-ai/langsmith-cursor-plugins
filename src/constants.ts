@@ -22,6 +22,8 @@ export const MUTE_LOCKED_MESSAGE = "Thread tracing stays muted because an admin 
 
 export const DEFAULT_API_URL = "https://api.smith.langchain.com";
 
+export const AGENT_ID_ENV_KEY = "LANGSMITH_AGENT_ID";
+
 export const CURSOR_DIRECTORY_NAME = ".cursor";
 
 export const MANAGED_PLUGIN_FIELDS = {
