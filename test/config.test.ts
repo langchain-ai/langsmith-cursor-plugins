@@ -373,6 +373,7 @@ describe("loadConfig", () => {
     it("sends to the configured agent and refuses an invalid agent ID", () => {
       writeLogin("https://login.test");
       write(1, { agent_id: "support-bot" });
+      vi.stubEnv("LANGSMITH_AGENT_ID", "");
       const config = loadConfig({ cwd });
       expect(uploadCredential(config).kind).toBe("login");
       expect(writerOptions(config, "p").destinations[0]).toMatchObject({

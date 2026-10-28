@@ -25790,7 +25790,7 @@ function loadConfig(options) {
       api_key: process.env.LANGSMITH_CURSOR_API_KEY,
       api_url: getEnv2("ENDPOINT"),
       project: getEnv2("PROJECT"),
-      agent_id: process.env[AGENT_ID_ENV_KEY],
+      agent_id: process.env[AGENT_ID_ENV_KEY] || void 0,
       metadata: envMetadata,
       redact: parseBoolean(getEnv2("REDACT")),
       redact_extra_rules: parseRedactExtraRules(getEnv2("REDACT_EXTRA")),

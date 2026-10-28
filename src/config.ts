@@ -179,7 +179,7 @@ export function loadConfig(options?: { cwd?: string }): Config {
         api_key: process.env.LANGSMITH_CURSOR_API_KEY,
         api_url: getEnv("ENDPOINT"),
         project: getEnv("PROJECT"),
-        agent_id: process.env[AGENT_ID_ENV_KEY],
+        agent_id: process.env[AGENT_ID_ENV_KEY] || undefined,
         metadata: envMetadata,
         redact: parseBoolean(getEnv("REDACT")),
         redact_extra_rules: parseRedactExtraRules(getEnv("REDACT_EXTRA")),
