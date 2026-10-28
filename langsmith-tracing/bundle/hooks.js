@@ -117,9 +117,9 @@ async function dispatchHookCommand(argv, options) {
     options.onUnknown(argument);
   }
 }
-async function guarded(name, run10, options) {
+async function guarded(name, run11, options) {
   try {
-    await run10();
+    await run11();
   } catch (error2) {
     reportHookError(name, error2, options);
   }
@@ -6347,11 +6347,11 @@ var require_priority_queue = __commonJS({
       constructor() {
         this._queue = [];
       }
-      enqueue(run10, options) {
+      enqueue(run11, options) {
         options = Object.assign({ priority: 0 }, options);
         const element = {
           priority: options.priority,
-          run: run10
+          run: run11
         };
         if (this.size && this._queue[this.size - 1].priority >= options.priority) {
           this._queue.push(element);
@@ -6520,7 +6520,7 @@ var require_dist = __commonJS({
       */
       async add(fn, options = {}) {
         return new Promise((resolve15, reject) => {
-          const run10 = async () => {
+          const run11 = async () => {
             this._pendingCount++;
             this._intervalCount++;
             try {
@@ -6536,7 +6536,7 @@ var require_dist = __commonJS({
             }
             this._next();
           };
-          this._queue.enqueue(run10, options);
+          this._queue.enqueue(run11, options);
           this._tryToStartAnother();
           this.emit("add");
         });
@@ -10606,8 +10606,8 @@ function warnOnEnv() {
     warnOnce(`${e.message} Runs that name no destination in code are not traced.`);
   }
 }
-function applyToPayload(run10, { update = false } = {}) {
-  const payload = run10;
+function applyToPayload(run11, { update = false } = {}) {
+  const payload = run11;
   let address2 = checkAddress(payload.address);
   delete payload.address;
   const namedProject = payload.session_id != null || payload.session_name != null;
@@ -12209,36 +12209,36 @@ function _ensureUTCTimestamp(ts) {
   }
   return ts;
 }
-function _normalizeRunTimestamps(run10) {
+function _normalizeRunTimestamps(run11) {
   return {
-    ...run10,
-    start_time: _ensureUTCTimestamp(run10.start_time),
-    end_time: _ensureUTCTimestamp(run10.end_time)
+    ...run11,
+    start_time: _ensureUTCTimestamp(run11.start_time),
+    end_time: _ensureUTCTimestamp(run11.end_time)
   };
 }
 function indexRunCreatesById(creates) {
   const byId = {};
-  for (const run10 of creates) {
-    if (!run10.id) {
+  for (const run11 of creates) {
+    if (!run11.id) {
       continue;
     }
-    const previous = byId[run10.id];
-    if (previous !== void 0 && previous.session_name !== run10.session_name) {
-      console.warn(`LangSmith run ${run10.id} was queued for two projects with the same id (${JSON.stringify(previous.session_name)} and ${JSON.stringify(run10.session_name)}); only one of the projects will keep the run. This usually means two write replicas both keep the original run ids, for example a replica marked \`primary\` plus one for the run's own project.`);
+    const previous = byId[run11.id];
+    if (previous !== void 0 && previous.session_name !== run11.session_name) {
+      console.warn(`LangSmith run ${run11.id} was queued for two projects with the same id (${JSON.stringify(previous.session_name)} and ${JSON.stringify(run11.session_name)}); only one of the projects will keep the run. This usually means two write replicas both keep the original run ids, for example a replica marked \`primary\` plus one for the run's own project.`);
     }
-    byId[run10.id] = run10;
+    byId[run11.id] = run11;
   }
   return byId;
 }
-function mergeRuntimeEnvIntoRun(run10, cachedEnvVars, omitTracedRuntimeInfo, tracingSampleRate) {
+function mergeRuntimeEnvIntoRun(run11, cachedEnvVars, omitTracedRuntimeInfo, tracingSampleRate) {
   if (omitTracedRuntimeInfo) {
-    return run10;
+    return run11;
   }
   const runtimeEnv = getRuntimeEnvironment();
   const envVars = cachedEnvVars ?? getLangSmithEnvVarsMetadata();
-  const extra = run10.extra ?? {};
+  const extra = run11.extra ?? {};
   const metadata = extra.metadata;
-  run10.extra = {
+  run11.extra = {
     ...extra,
     runtime: {
       ...runtimeEnv,
@@ -12246,14 +12246,14 @@ function mergeRuntimeEnvIntoRun(run10, cachedEnvVars, omitTracedRuntimeInfo, tra
     },
     metadata: {
       ...envVars,
-      ...envVars.revision_id || "revision_id" in run10 && run10.revision_id ? {
-        revision_id: ("revision_id" in run10 ? run10.revision_id : void 0) ?? envVars.revision_id
+      ...envVars.revision_id || "revision_id" in run11 && run11.revision_id ? {
+        revision_id: ("revision_id" in run11 ? run11.revision_id : void 0) ?? envVars.revision_id
       } : {},
       ...metadata,
       ...tracingSampleRate !== void 0 ? { ls_tracing_sample_rate: tracingSampleRate } : {}
     }
   };
-  return run10;
+  return run11;
 }
 async function toArray(iterable) {
   const result = [];
@@ -13311,8 +13311,8 @@ var init_client2 = __esm({
           return event;
         });
       }
-      async prepareRunCreateOrUpdateInputs(run10, options) {
-        const runParams = { ...run10 };
+      async prepareRunCreateOrUpdateInputs(run11, options) {
+        const runParams = { ...run11 };
         applyToPayload(runParams, { update: options?.update ?? false });
         if (runParams.inputs !== void 0) {
           runParams.inputs = await this.processInputs(runParams.inputs);
@@ -13422,7 +13422,7 @@ var init_client2 = __esm({
         return isSampledById(identifier, this.tracingSampleRate);
       }
       _filterForSampling(runs) {
-        return runs.filter((run10) => this._shouldSample(run10.trace_id ?? run10.dotted_order?.split(".", 1)[0].split("Z")[1] ?? run10.id));
+        return runs.filter((run11) => this._shouldSample(run11.trace_id ?? run11.dotted_order?.split(".", 1)[0].split("Z")[1] ?? run11.id));
       }
       async _getBatchSizeLimitBytes() {
         const serverInfo = await this._ensureServerInfo();
@@ -13603,20 +13603,20 @@ var init_client2 = __esm({
           this.langSmithToOTELTranslator.exportBatch(operations, otelContextMap);
         }
       }
-      async _maskRunMetadata(run10) {
-        if (run10.extra?.metadata == null) {
-          return run10;
+      async _maskRunMetadata(run11) {
+        if (run11.extra?.metadata == null) {
+          return run11;
         }
         return {
-          ...run10,
+          ...run11,
           extra: {
-            ...run10.extra,
-            metadata: await this.processMetadata(run10.extra.metadata)
+            ...run11.extra,
+            metadata: await this.processMetadata(run11.extra.metadata)
           }
         };
       }
-      async _mergeRuntimeEnvAndMaskMetadata(run10) {
-        const merged = mergeRuntimeEnvIntoRun(run10, this.cachedLSEnvVarsForMetadata, this.omitTracedRuntimeInfo, this.tracingSampleRate);
+      async _mergeRuntimeEnvAndMaskMetadata(run11) {
+        const merged = mergeRuntimeEnvIntoRun(run11, this.cachedLSEnvVarsForMetadata, this.omitTracedRuntimeInfo, this.tracingSampleRate);
         if (this.omitTracedRuntimeInfo) {
           return merged;
         }
@@ -13739,22 +13739,22 @@ var init_client2 = __esm({
         }
         return void 0;
       }
-      async createRun(run10, options) {
-        if (!this._filterForSampling([run10]).length) {
+      async createRun(run11, options) {
+        if (!this._filterForSampling([run11]).length) {
           return;
         }
         const headers = {
           ...this._mergedHeaders,
           "Content-Type": "application/json"
         };
-        const address2 = checkAddress(run10.address);
-        const bodySessionName = run10.session_name;
-        rejectConflicting(run10.project_name ?? bodySessionName, address2);
-        const session_name = run10.project_name;
-        delete run10.project_name;
+        const address2 = checkAddress(run11.address);
+        const bodySessionName = run11.session_name;
+        rejectConflicting(run11.project_name ?? bodySessionName, address2);
+        const session_name = run11.project_name;
+        delete run11.project_name;
         if (!session_name && bodySessionName == null && !address2) {
           try {
-            run10.address = resolveFromEnv()[1];
+            run11.address = resolveFromEnv()[1];
           } catch (e) {
             if (!(e instanceof EnvAddressError)) {
               throw e;
@@ -13765,8 +13765,8 @@ var init_client2 = __esm({
         }
         const runCreate = await this.prepareRunCreateOrUpdateInputs({
           session_name,
-          ...run10,
-          start_time: run10.start_time ?? Date.now()
+          ...run11,
+          start_time: run11.start_time ?? Date.now()
         });
         if (this.autoBatchTracing && runCreate.trace_id !== void 0 && runCreate.dotted_order !== void 0) {
           const otelContext = this._cloneCurrentOTELContext();
@@ -14111,34 +14111,34 @@ Context: ${context}`);
           }
         }
       }
-      async updateRun(runId, run10, options) {
+      async updateRun(runId, run11, options) {
         assertUuid(runId);
-        if (run10.inputs) {
-          run10.inputs = await this.processInputs(run10.inputs);
+        if (run11.inputs) {
+          run11.inputs = await this.processInputs(run11.inputs);
         }
-        if (run10.outputs) {
-          run10.outputs = await this.processOutputs(run10.outputs);
+        if (run11.outputs) {
+          run11.outputs = await this.processOutputs(run11.outputs);
         }
-        if (run10.error) {
-          run10.error = await this.processError(run10.error);
+        if (run11.error) {
+          run11.error = await this.processError(run11.error);
         }
-        if (run10.extra != null && "metadata" in run10.extra) {
-          run10.extra = {
-            ...run10.extra,
-            metadata: await this.processMetadata(run10.extra.metadata)
+        if (run11.extra != null && "metadata" in run11.extra) {
+          run11.extra = {
+            ...run11.extra,
+            metadata: await this.processMetadata(run11.extra.metadata)
           };
         }
-        if (run10.events) {
-          run10.events = this._filterNewTokenEvents(run10.events);
+        if (run11.events) {
+          run11.events = this._filterNewTokenEvents(run11.events);
         }
-        applyToPayload(run10, { update: true });
-        const data = { ...run10, id: runId };
+        applyToPayload(run11, { update: true });
+        const data = { ...run11, id: runId };
         if (!this._filterForSampling([data]).length) {
           return;
         }
         if (this.autoBatchTracing && data.trace_id !== void 0 && data.dotted_order !== void 0) {
           const otelContext = this._cloneCurrentOTELContext();
-          if (run10.end_time !== void 0 && data.parent_run_id === void 0 && this.blockOnRootRunFinalization && !this.manualFlushMode) {
+          if (run11.end_time !== void 0 && data.parent_run_id === void 0 && this.blockOnRootRunFinalization && !this.manualFlushMode) {
             await this.processRunOperation({
               action: "update",
               item: data,
@@ -14170,7 +14170,7 @@ Context: ${context}`);
         if (options?.workspaceId !== void 0) {
           headers["x-tenant-id"] = options.workspaceId;
         }
-        const body = serialize(run10.extra ? mergeRuntimeEnvIntoRun(run10, this.cachedLSEnvVarsForMetadata, this.omitTracedRuntimeInfo, this.tracingSampleRate) : run10, `Serializing payload to update run with id: ${runId}`);
+        const body = serialize(run11.extra ? mergeRuntimeEnvIntoRun(run11, this.cachedLSEnvVarsForMetadata, this.omitTracedRuntimeInfo, this.tracingSampleRate) : run11, `Serializing payload to update run with id: ${runId}`);
         await this.caller.call(async () => {
           const res = await this._fetch(`${options?.apiUrl ?? this.apiUrl}/runs/${runId}`, {
             method: "PATCH",
@@ -14198,22 +14198,22 @@ Context: ${context}`);
        */
       async _readRun(runId, { loadChildRuns } = { loadChildRuns: false }) {
         assertUuid(runId);
-        let run10 = _normalizeRunTimestamps(await this._get(`/runs/${runId}`));
+        let run11 = _normalizeRunTimestamps(await this._get(`/runs/${runId}`));
         if (loadChildRuns) {
-          run10 = await this._loadChildRuns(run10);
+          run11 = await this._loadChildRuns(run11);
         }
-        return run10;
+        return run11;
       }
       /** @deprecated Use `client.runs.getURL()` instead. See https://docs.langchain.com/langsmith/smithdb-sdk-migration-runs#runs-get-url for the migration guide. Will be removed after Jan 31, 2027. */
-      async getRunUrl({ runId, run: run10, projectOpts }) {
+      async getRunUrl({ runId, run: run11, projectOpts }) {
         warnOnce("getRunUrl() is deprecated and will be removed after Jan 31, 2027. Use client.runs.getURL() instead. See https://docs.langchain.com/langsmith/smithdb-sdk-migration-runs#runs-get-url for the migration guide.", { type: "DeprecationWarning", code: "LANGSMITH_DEPRECATED_GET_RUN_URL" });
-        if (run10 !== void 0) {
-          if (!run10.session_id && run10.address) {
+        if (run11 !== void 0) {
+          if (!run11.session_id && run11.address) {
             throw new Error("Addressed runs have no URL until read back.");
           }
           let sessionId;
-          if (run10.session_id) {
-            sessionId = run10.session_id;
+          if (run11.session_id) {
+            sessionId = run11.session_id;
           } else if (projectOpts?.projectName) {
             sessionId = (await this.readProject({ projectName: projectOpts?.projectName })).id;
           } else if (projectOpts?.projectId) {
@@ -14225,7 +14225,7 @@ Context: ${context}`);
             sessionId = project.id;
           }
           const tenantId = await this._getTenantId();
-          return `${this.getHostUrl()}/o/${tenantId}/projects/p/${sessionId}/r/${run10.id}?poll=true`;
+          return `${this.getHostUrl()}/o/${tenantId}/projects/p/${sessionId}/r/${run11.id}?poll=true`;
         } else if (runId !== void 0) {
           const run_ = await this._readRun(runId);
           if (!run_.app_path) {
@@ -14237,11 +14237,11 @@ Context: ${context}`);
           throw new Error("Must provide either runId or run");
         }
       }
-      async _loadChildRuns(run10) {
+      async _loadChildRuns(run11) {
         const childRuns = await toArray(this._listRuns({
           isRoot: false,
-          projectId: run10.session_id,
-          traceId: run10.trace_id
+          projectId: run11.session_id,
+          traceId: run11.trace_id
         }));
         const treemap = {};
         const runs = {};
@@ -14250,7 +14250,7 @@ Context: ${context}`);
           if (childRun.parent_run_id === null || childRun.parent_run_id === void 0) {
             throw new Error(`Child run ${childRun.id} has no parent`);
           }
-          if (childRun.dotted_order?.startsWith(run10.dotted_order ?? "") && childRun.id !== run10.id) {
+          if (childRun.dotted_order?.startsWith(run11.dotted_order ?? "") && childRun.id !== run11.id) {
             if (!(childRun.parent_run_id in treemap)) {
               treemap[childRun.parent_run_id] = [];
             }
@@ -14258,13 +14258,13 @@ Context: ${context}`);
             runs[childRun.id] = childRun;
           }
         }
-        run10.child_runs = treemap[run10.id] || [];
+        run11.child_runs = treemap[run11.id] || [];
         for (const runId in treemap) {
-          if (runId !== run10.id) {
+          if (runId !== run11.id) {
             runs[runId].child_runs = treemap[runId];
           }
         }
-        return run10;
+        return run11;
       }
       /**
        * List runs from the LangSmith server.
@@ -14560,11 +14560,11 @@ Context: ${context}`);
         const threadsMap = /* @__PURE__ */ new Map();
         for await (const runs of this._getCursorPaginatedList("/runs/query", bodyQuery)) {
           for (const raw of runs) {
-            const run10 = _normalizeRunTimestamps(raw);
-            const tid = run10.thread_id;
+            const run11 = _normalizeRunTimestamps(raw);
+            const tid = run11.thread_id;
             if (tid) {
               const list = threadsMap.get(tid) ?? [];
-              list.push(run10);
+              list.push(run11);
               threadsMap.set(tid, list);
             }
           }
@@ -15955,7 +15955,7 @@ Message: ${Array.isArray(result.detail) ? result.detail.join("\n") : "Unspecifie
         }
         return results_;
       }
-      async _logEvaluationFeedback(evaluatorResponse, run10, sourceInfo, sessionId) {
+      async _logEvaluationFeedback(evaluatorResponse, run11, sourceInfo, sessionId) {
         const evalResults = this._selectEvalResults(evaluatorResponse);
         const feedbacks = [];
         for (const res of evalResults) {
@@ -15966,8 +15966,8 @@ Message: ${Array.isArray(result.detail) ? result.detail.join("\n") : "Unspecifie
           let runId_ = null;
           if (res.targetRunId) {
             runId_ = res.targetRunId;
-          } else if (run10) {
-            runId_ = run10.id;
+          } else if (run11) {
+            runId_ = run11.id;
           }
           feedbacks.push(await this.createFeedback(runId_, res.key, {
             score: res.score,
@@ -15978,21 +15978,21 @@ Message: ${Array.isArray(result.detail) ? result.detail.join("\n") : "Unspecifie
             sourceRunId: res.sourceRunId,
             feedbackConfig: res.feedbackConfig,
             feedbackSourceType: "model",
-            sessionId: run10?.session_id ?? sessionId,
-            startTime: run10?.start_time,
+            sessionId: run11?.session_id ?? sessionId,
+            startTime: run11?.start_time,
             // If an evaluator result targets a different run, we can't
             // guarantee to know its trace ID.
-            traceId: runId_ === run10?.id ? run10?.trace_id : void 0
+            traceId: runId_ === run11?.id ? run11?.trace_id : void 0
           }));
         }
         return [evalResults, feedbacks];
       }
-      async logEvaluationFeedback(evaluatorResponseOrParams, run10, sourceInfo, sessionId) {
+      async logEvaluationFeedback(evaluatorResponseOrParams, run11, sourceInfo, sessionId) {
         if (evaluatorResponseOrParams != null && typeof evaluatorResponseOrParams === "object" && "evaluatorResponse" in evaluatorResponseOrParams) {
           const [results2] = await this._logEvaluationFeedback(evaluatorResponseOrParams.evaluatorResponse, evaluatorResponseOrParams.run, evaluatorResponseOrParams.sourceInfo, evaluatorResponseOrParams.projectId);
           return results2;
         }
-        const [results] = await this._logEvaluationFeedback(evaluatorResponseOrParams, run10, sourceInfo, sessionId);
+        const [results] = await this._logEvaluationFeedback(evaluatorResponseOrParams, run11, sourceInfo, sessionId);
         return results;
       }
       /**
@@ -16261,14 +16261,14 @@ Message: ${Array.isArray(result.detail) ? result.detail.join("\n") : "Unspecifie
         let body;
         if (!allStrings) {
           url = `${base}/by-key`;
-          body = JSON.stringify(runs.map((run10, i) => {
+          body = JSON.stringify(runs.map((run11, i) => {
             const serialized = {
-              run_id: assertUuid(run10.runId, `runs[${i}].runId`).toString(),
-              session_id: assertUuid(run10.sessionId, `runs[${i}].sessionId`).toString(),
-              start_time: typeof run10.startTime === "string" ? run10.startTime : new Date(run10.startTime).toISOString()
+              run_id: assertUuid(run11.runId, `runs[${i}].runId`).toString(),
+              session_id: assertUuid(run11.sessionId, `runs[${i}].sessionId`).toString(),
+              start_time: typeof run11.startTime === "string" ? run11.startTime : new Date(run11.startTime).toISOString()
             };
-            if (run10.sourceProposedExampleId != null) {
-              serialized.source_proposed_example_id = assertUuid(run10.sourceProposedExampleId, `runs[${i}].sourceProposedExampleId`).toString();
+            if (run11.sourceProposedExampleId != null) {
+              serialized.source_proposed_example_id = assertUuid(run11.sourceProposedExampleId, `runs[${i}].sourceProposedExampleId`).toString();
             }
             return serialized;
           }));
@@ -16314,8 +16314,8 @@ Message: ${Array.isArray(result.detail) ? result.detail.join("\n") : "Unspecifie
           await raiseForStatus(res, "get run from annotation queue");
           return res;
         });
-        const run10 = await response.json();
-        return _normalizeRunTimestamps(run10);
+        const run11 = await response.json();
+        return _normalizeRunTimestamps(run11);
       }
       /**
        * List the runs in an annotation queue.
@@ -16336,8 +16336,8 @@ Message: ${Array.isArray(result.detail) ? result.detail.join("\n") : "Unspecifie
         let count = 0;
         const path3 = `/annotation-queues/${assertUuid(queueId, "queueId")}/runs`;
         for await (const runs of this._getPaginated(path3, params)) {
-          for (const run10 of runs) {
-            yield _normalizeRunTimestamps(run10);
+          for (const run11 of runs) {
+            yield _normalizeRunTimestamps(run11);
             count++;
             if (count >= limit2)
               return;
@@ -18127,8 +18127,8 @@ var init_run_trees = __esm({
           this.extra = this.extra ? { ...this.extra, metadata: { ...this.extra.metadata, ...metadata } } : { metadata };
         }
       }
-      _convertToCreate(run10, runtimeEnv, excludeChildRuns = true) {
-        const runExtra = run10.extra ?? {};
+      _convertToCreate(run11, runtimeEnv, excludeChildRuns = true) {
+        const runExtra = run11.extra ?? {};
         if (runExtra?.runtime?.library === void 0) {
           if (!runExtra.runtime) {
             runExtra.runtime = {};
@@ -18141,39 +18141,39 @@ var init_run_trees = __esm({
             }
           }
         }
-        const parent_run_id = run10.parent_run?.id ?? run10.parent_run_id;
+        const parent_run_id = run11.parent_run?.id ?? run11.parent_run_id;
         let child_runs;
         if (!excludeChildRuns) {
-          child_runs = run10.child_runs.map((child_run) => this._convertToCreate(child_run, runtimeEnv, excludeChildRuns));
+          child_runs = run11.child_runs.map((child_run) => this._convertToCreate(child_run, runtimeEnv, excludeChildRuns));
         } else {
           child_runs = [];
         }
         return {
-          id: run10.id,
-          name: run10.name,
-          start_time: run10._serialized_start_time ?? run10.start_time,
-          end_time: run10.end_time,
-          run_type: run10.run_type,
-          reference_example_id: run10.reference_example_id,
+          id: run11.id,
+          name: run11.name,
+          start_time: run11._serialized_start_time ?? run11.start_time,
+          end_time: run11.end_time,
+          run_type: run11.run_type,
+          reference_example_id: run11.reference_example_id,
           extra: runExtra,
-          serialized: run10.serialized,
-          error: run10.error,
-          inputs: run10.inputs,
-          outputs: run10.outputs,
-          session_name: run10.project_name,
-          address: run10.address,
+          serialized: run11.serialized,
+          error: run11.error,
+          inputs: run11.inputs,
+          outputs: run11.outputs,
+          session_name: run11.project_name,
+          address: run11.address,
           child_runs,
           parent_run_id,
-          trace_id: run10.trace_id,
-          dotted_order: run10.dotted_order,
-          tags: run10.tags,
-          attachments: run10.attachments,
-          events: run10.events
+          trace_id: run11.trace_id,
+          dotted_order: run11.dotted_order,
+          tags: run11.tags,
+          attachments: run11.attachments,
+          events: run11.events
         };
       }
-      _sliceParentId(parentId, run10) {
-        if (run10.dotted_order) {
-          const segs = run10.dotted_order.split(".");
+      _sliceParentId(parentId, run11) {
+        if (run11.dotted_order) {
+          const segs = run11.dotted_order.split(".");
           let startIdx = null;
           for (let idx = 0; idx < segs.length; idx++) {
             const segId = segs[idx].slice(-TIMESTAMP_LENGTH);
@@ -18184,16 +18184,16 @@ var init_run_trees = __esm({
           }
           if (startIdx !== null) {
             const trimmedSegs = segs.slice(startIdx + 1);
-            run10.dotted_order = trimmedSegs.join(".");
+            run11.dotted_order = trimmedSegs.join(".");
             if (trimmedSegs.length > 0) {
-              run10.trace_id = trimmedSegs[0].slice(-TIMESTAMP_LENGTH);
+              run11.trace_id = trimmedSegs[0].slice(-TIMESTAMP_LENGTH);
             } else {
-              run10.trace_id = run10.id;
+              run11.trace_id = run11.id;
             }
           }
         }
-        if (run10.parent_run_id === parentId) {
-          run10.parent_run_id = void 0;
+        if (run11.parent_run_id === parentId) {
+          run11.parent_run_id = void 0;
         }
       }
       _setReplicaTraceRoot(replicaKey, traceRootId) {
@@ -18698,11 +18698,11 @@ var init_constants11 = __esm({
 function mutedContent(role) {
   return { messages: [{ role, content: MUTED_TRACE_CONTENT }] };
 }
-function statusOfRun(run10) {
-  const metadataStatus = run10.extra?.metadata?.status;
-  if (run10.error != null || metadataStatus === "error")
+function statusOfRun(run11) {
+  const metadataStatus = run11.extra?.metadata?.status;
+  if (run11.error != null || metadataStatus === "error")
     return "error";
-  if (run10.end_time != null || metadataStatus === "completed")
+  if (run11.end_time != null || metadataStatus === "completed")
     return "completed";
   return "running";
 }
@@ -18744,33 +18744,33 @@ function configForMetadataMode(config, integration, privacyContext) {
   safe.extra = extraForMode(metadataForMode(originalExtra?.metadata, integration, "metadata", status) ?? {}, integration, status);
   return safe;
 }
-function sanitizeRunTree(run10, integration) {
-  const status = statusOfRun(run10);
-  const metadata = projectCodingAgentMetadata(run10.extra?.metadata, integration, status);
-  run10.inputs = mutedContent("user");
-  run10.outputs = mutedContent("assistant");
-  delete run10.error;
-  run10.serialized = {};
-  if (!Array.isArray(run10.tags) || run10.tags.length > 0)
-    delete run10.tags;
-  delete run10.reference_example_id;
-  delete run10.attachments;
-  delete run10.events;
-  if (run10.replicas)
-    run10.replicas = run10.replicas.map(projectReplica);
-  for (const child of run10.child_runs ?? [])
+function sanitizeRunTree(run11, integration) {
+  const status = statusOfRun(run11);
+  const metadata = projectCodingAgentMetadata(run11.extra?.metadata, integration, status);
+  run11.inputs = mutedContent("user");
+  run11.outputs = mutedContent("assistant");
+  delete run11.error;
+  run11.serialized = {};
+  if (!Array.isArray(run11.tags) || run11.tags.length > 0)
+    delete run11.tags;
+  delete run11.reference_example_id;
+  delete run11.attachments;
+  delete run11.events;
+  if (run11.replicas)
+    run11.replicas = run11.replicas.map(projectReplica);
+  for (const child of run11.child_runs ?? [])
     sanitizeRunTree(child, integration);
-  run10.extra = extraForMode(metadata, integration, status);
+  run11.extra = extraForMode(metadata, integration, status);
 }
-function protectRunTree(run10, integration) {
-  sanitizeRunTree(run10, integration);
-  const createChild = run10.createChild.bind(run10);
-  run10.createChild = (config) => protectRunTree(createChild(configForMetadataMode(config, integration)), integration);
-  const postRun = run10.postRun.bind(run10);
-  run10.postRun = async (excludeChildRuns = true) => {
-    sanitizeRunTree(run10, integration);
+function protectRunTree(run11, integration) {
+  sanitizeRunTree(run11, integration);
+  const createChild = run11.createChild.bind(run11);
+  run11.createChild = (config) => protectRunTree(createChild(configForMetadataMode(config, integration)), integration);
+  const postRun = run11.postRun.bind(run11);
+  run11.postRun = async (excludeChildRuns = true) => {
+    sanitizeRunTree(run11, integration);
     if (!excludeChildRuns) {
-      const childRuns = [...run10.child_runs];
+      const childRuns = [...run11.child_runs];
       await postRun(true);
       for (const childRun of childRuns)
         await childRun.postRun(false);
@@ -18778,35 +18778,35 @@ function protectRunTree(run10, integration) {
     }
     return postRun(excludeChildRuns);
   };
-  const patchRun = run10.patchRun.bind(run10);
-  run10.patchRun = (options) => {
-    sanitizeRunTree(run10, integration);
+  const patchRun = run11.patchRun.bind(run11);
+  run11.patchRun = (options) => {
+    sanitizeRunTree(run11, integration);
     return patchRun({ excludeInputs: false, ...options });
   };
-  const end = run10.end.bind(run10);
-  run10.end = (outputs, error2, endTime, metadata) => {
-    const status = error2 != null ? "error" : endTime != null ? "completed" : statusOfRun(run10);
+  const end = run11.end.bind(run11);
+  run11.end = (outputs, error2, endTime, metadata) => {
+    const status = error2 != null ? "error" : endTime != null ? "completed" : statusOfRun(run11);
     const safeMetadata = metadataForMode(metadata, integration, "metadata", status) ?? { status };
     return end(mutedContent("assistant"), void 0, endTime, safeMetadata);
   };
-  const toJSON = run10.toJSON.bind(run10);
-  run10.toJSON = () => {
-    sanitizeRunTree(run10, integration);
+  const toJSON = run11.toJSON.bind(run11);
+  run11.toJSON = () => {
+    sanitizeRunTree(run11, integration);
     return toJSON();
   };
-  return run10;
+  return run11;
 }
-function preserveFullModePatchInputs(run10) {
-  const createChild = run10.createChild.bind(run10);
-  run10.createChild = (config) => preserveFullModePatchInputs(createChild(config));
-  const patchRun = run10.patchRun.bind(run10);
-  run10.patchRun = (options) => patchRun({ excludeInputs: false, ...options });
-  return run10;
+function preserveFullModePatchInputs(run11) {
+  const createChild = run11.createChild.bind(run11);
+  run11.createChild = (config) => preserveFullModePatchInputs(createChild(config));
+  const patchRun = run11.patchRun.bind(run11);
+  run11.patchRun = (options) => patchRun({ excludeInputs: false, ...options });
+  return run11;
 }
 function createCodingAgentRunTree(config, integration, mode = "full", privacyContext) {
   const routed = config.replicas === void 0 ? { ...config, replicas: [] } : config;
-  const run10 = new RunTree(mode === "metadata" ? configForMetadataMode(routed, integration, privacyContext) : routed);
-  return mode === "metadata" ? protectRunTree(run10, integration) : preserveFullModePatchInputs(run10);
+  const run11 = new RunTree(mode === "metadata" ? configForMetadataMode(routed, integration, privacyContext) : routed);
+  return mode === "metadata" ? protectRunTree(run11, integration) : preserveFullModePatchInputs(run11);
 }
 function survivingCodingAgentPatchFields(projectedRun, fields) {
   return fields.filter((field4) => {
@@ -18831,7 +18831,7 @@ var init_privacy2 = __esm({
 });
 
 // node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/utils/env.js
-function withoutEnvVariables(names2, run10) {
+function withoutEnvVariables(names2, run11) {
   const hidden = names2.flatMap((name) => {
     const value = process.env[name];
     return value === void 0 ? [] : [[name, value]];
@@ -18839,7 +18839,7 @@ function withoutEnvVariables(names2, run10) {
   for (const [name] of hidden)
     delete process.env[name];
   try {
-    return run10();
+    return run11();
   } finally {
     for (const [name, value] of hidden)
       process.env[name] = value;
@@ -19686,8 +19686,8 @@ function isSampled(item, rate) {
   const digest = createHash6(UPLOAD_SAMPLING_HASH).update(traceId.toLowerCase()).digest();
   return digest.readUIntBE(0, UPLOAD_SAMPLING_BUCKET_BYTES) / 2 ** (8 * UPLOAD_SAMPLING_BUCKET_BYTES) < rate;
 }
-function traceIdOf(run10) {
-  return run10.trace_id ?? UPLOAD_DOTTED_ORDER_ROOT_ID.exec(run10.dotted_order ?? "")?.[1] ?? run10.id;
+function traceIdOf(run11) {
+  return run11.trace_id ?? UPLOAD_DOTTED_ORDER_ROOT_ID.exec(run11.dotted_order ?? "")?.[1] ?? run11.id;
 }
 var init_sampling2 = __esm({
   "node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/upload/sampling.js"() {
@@ -19874,10 +19874,10 @@ function preparePostRunPayload(submission, destination) {
   if (source.reference_example_id !== void 0) {
     config.reference_example_id = source.reference_example_id;
   }
-  const run10 = createCodingAgentRunTree(config, submission.integration, submission.privacyMode, submission.privacyContext);
+  const run11 = createCodingAgentRunTree(config, submission.integration, submission.privacyMode, submission.privacyContext);
   if (source.events !== void 0)
-    run10.events = source.events;
-  const create = JSON.parse(JSON.stringify(run10.toJSON()));
+    run11.events = source.events;
+  const create = JSON.parse(JSON.stringify(run11.toJSON()));
   const startTime = startTimeText(source.start_time, create.dotted_order);
   if (startTime !== void 0)
     create.start_time = startTime;
@@ -19902,11 +19902,11 @@ function preparePatchRunPayload(submission, destination) {
       config.reference_example_id = submission.patch.values.reference_example_id;
     }
   }
-  const run10 = createCodingAgentRunTree(config, submission.integration, submission.privacyMode, submission.privacyContext);
+  const run11 = createCodingAgentRunTree(config, submission.integration, submission.privacyMode, submission.privacyContext);
   if (submission.patch.fields.includes("events")) {
-    run10.events = submission.patch.values.events;
+    run11.events = submission.patch.values.events;
   }
-  const snapshot = JSON.parse(JSON.stringify(run10.toJSON()));
+  const snapshot = JSON.parse(JSON.stringify(run11.toJSON()));
   const update = {
     extra: snapshot["extra"],
     session_name: destination.projectName,
@@ -20207,8 +20207,8 @@ function hasPriorEndTime(record, sourceByScope) {
 function recordHasEndTime(record) {
   const payload = requirePlainRecord(record.normalizedPayload, "Stored run payload");
   if (payload["operation"] === "post") {
-    const run10 = requirePlainRecord(requireOwnDataField(payload, "run"), "Stored run snapshot");
-    const endTime2 = ownDataField(run10, "end_time");
+    const run11 = requirePlainRecord(requireOwnDataField(payload, "run"), "Stored run snapshot");
+    const endTime2 = ownDataField(run11, "end_time");
     return endTime2.present && endTime2.value !== void 0;
   }
   if (payload["operation"] !== "patch")
@@ -20249,11 +20249,11 @@ function removeOutgoingEndTime(submission) {
   const privacyContext = submission.privacyMode !== "metadata" ? void 0 : {
     status: submission.run.error !== void 0 || submission.privacyContext?.status === "error" ? "error" : "running"
   };
-  const run10 = { ...submission.run };
-  delete run10.end_time;
+  const run11 = { ...submission.run };
+  delete run11.end_time;
   return {
     ...submission,
-    run: run10,
+    run: run11,
     ...privacyContext === void 0 ? {} : { privacyContext }
   };
 }
@@ -20351,9 +20351,9 @@ var init_identity = __esm({
 // node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/projection.js
 function projectPostSubmission(source, common, priorIdentity) {
   const { integration, privacyMode, redaction } = common;
-  const run10 = canonicalIdentity(normalizedRunSnapshot(requireOwnDataField(source, "run")), priorIdentity);
+  const run11 = canonicalIdentity(normalizedRunSnapshot(requireOwnDataField(source, "run")), priorIdentity);
   const suppliedPrivacyContext = ownDataField(source, "privacyContext");
-  const status = run10.error !== void 0 ? "error" : suppliedPrivacyContext.present ? privacyStatus(suppliedPrivacyContext.value).status : statusForPost(run10);
+  const status = run11.error !== void 0 ? "error" : suppliedPrivacyContext.present ? privacyStatus(suppliedPrivacyContext.value).status : statusForPost(run11);
   const metadata = prepareCodingAgentMetadataProvenance(requireOwnDataField(source, "metadata"), integration, privacyMode, status);
   if (metadata.status === "deferred")
     return metadata;
@@ -20364,7 +20364,7 @@ function projectPostSubmission(source, common, priorIdentity) {
       privacyMode,
       ...redaction,
       ...privacyMode === "metadata" ? { privacyContext: { status } } : {},
-      run: privacyMode === "metadata" ? projectPost(run10, metadata.value, status) : run10
+      run: privacyMode === "metadata" ? projectPost(run11, metadata.value, status) : run11
     },
     metadata: metadata.value,
     privacyStatus: status
@@ -20373,7 +20373,7 @@ function projectPostSubmission(source, common, priorIdentity) {
 }
 function projectPatchSubmission(source, common, priorIdentity) {
   const { integration, privacyMode, redaction } = common;
-  const run10 = canonicalIdentity(normalizedRunContext(requireOwnDataField(source, "run")), priorIdentity, true);
+  const run11 = canonicalIdentity(normalizedRunContext(requireOwnDataField(source, "run")), priorIdentity, true);
   const patch = normalizedPatch(requireOwnDataField(source, "patch"));
   const privacyContext = privacyStatus(requireOwnDataField(source, "privacyContext"));
   const metadata = prepareCodingAgentMetadataProvenance(requireOwnDataField(source, "metadata"), integration, privacyMode, privacyContext.status);
@@ -20385,9 +20385,9 @@ function projectPatchSubmission(source, common, priorIdentity) {
       integration,
       privacyMode,
       ...redaction,
-      run: run10,
+      run: run11,
       privacyContext,
-      patch: privacyMode === "metadata" ? projectPatch(run10, patch, integration, metadata.value, privacyContext) : patch
+      patch: privacyMode === "metadata" ? projectPatch(run11, patch, integration, metadata.value, privacyContext) : patch
     },
     metadata: metadata.value,
     privacyStatus: privacyContext.status
@@ -20431,38 +20431,38 @@ function projectTurnEvidence(value, mode, attributionReady) {
   }
   return canonicalJsonValue(mode === "metadata" ? persisted : { ...source, ...persisted });
 }
-function projectPost(run10, metadata, status) {
+function projectPost(run11, metadata, status) {
   const tree = createCodingAgentRunTree({
-    id: run10.id,
-    name: run10.name,
-    run_type: run10.run_type,
-    ...run10.start_time === void 0 ? {} : { start_time: run10.start_time },
-    inputs: run10.inputs,
+    id: run11.id,
+    name: run11.name,
+    run_type: run11.run_type,
+    ...run11.start_time === void 0 ? {} : { start_time: run11.start_time },
+    inputs: run11.inputs,
     extra: { metadata: buildCodingAgentMetadata(metadata) },
-    ...run10.end_time === void 0 ? {} : { end_time: run10.end_time },
-    ...run10.outputs === void 0 ? {} : { outputs: run10.outputs },
-    ...run10.parent_run_id === void 0 ? {} : { parent_run_id: run10.parent_run_id },
-    ...run10.trace_id === void 0 ? {} : { trace_id: run10.trace_id },
-    ...run10.dotted_order === void 0 ? {} : { dotted_order: run10.dotted_order },
-    ...run10.error === void 0 ? {} : { error: run10.error },
-    ...run10.tags === void 0 ? {} : { tags: run10.tags },
-    ...run10.serialized === void 0 ? {} : { serialized: run10.serialized },
-    ...run10.reference_example_id === void 0 ? {} : { reference_example_id: run10.reference_example_id }
+    ...run11.end_time === void 0 ? {} : { end_time: run11.end_time },
+    ...run11.outputs === void 0 ? {} : { outputs: run11.outputs },
+    ...run11.parent_run_id === void 0 ? {} : { parent_run_id: run11.parent_run_id },
+    ...run11.trace_id === void 0 ? {} : { trace_id: run11.trace_id },
+    ...run11.dotted_order === void 0 ? {} : { dotted_order: run11.dotted_order },
+    ...run11.error === void 0 ? {} : { error: run11.error },
+    ...run11.tags === void 0 ? {} : { tags: run11.tags },
+    ...run11.serialized === void 0 ? {} : { serialized: run11.serialized },
+    ...run11.reference_example_id === void 0 ? {} : { reference_example_id: run11.reference_example_id }
   }, metadata.integration, "metadata", { status });
-  if (run10.events !== void 0)
-    tree.events = run10.events;
+  if (run11.events !== void 0)
+    tree.events = run11.events;
   const projected = tree.toJSON();
   return {
-    id: run10.id,
-    name: run10.name,
-    run_type: run10.run_type,
-    start_time: requireTimestamp(run10.start_time),
+    id: run11.id,
+    name: run11.name,
+    run_type: run11.run_type,
+    start_time: requireTimestamp(run11.start_time),
     inputs: canonicalJsonObject(projected["inputs"], "Projected run inputs"),
     outputs: canonicalJsonObject(projected["outputs"], "Projected run outputs"),
-    ...run10.end_time === void 0 ? {} : { end_time: run10.end_time },
-    ...run10.parent_run_id === void 0 ? {} : { parent_run_id: run10.parent_run_id },
-    ...run10.trace_id === void 0 ? {} : { trace_id: run10.trace_id },
-    ...run10.dotted_order === void 0 ? {} : { dotted_order: run10.dotted_order },
+    ...run11.end_time === void 0 ? {} : { end_time: run11.end_time },
+    ...run11.parent_run_id === void 0 ? {} : { parent_run_id: run11.parent_run_id },
+    ...run11.trace_id === void 0 ? {} : { trace_id: run11.trace_id },
+    ...run11.dotted_order === void 0 ? {} : { dotted_order: run11.dotted_order },
     ...Array.isArray(projected["tags"]) ? { tags: requireStringArray(projected["tags"], "Projected run tags") } : {}
   };
 }
@@ -20499,68 +20499,68 @@ function projectPatch(context, patch, integration, metadata, privacyContext) {
 }
 function normalizedRunSnapshot(value) {
   const source = requirePlainRecord(value, "Normalized run snapshot");
-  const run10 = {
+  const run11 = {
     id: requiredText(source, "id", "Run ID"),
     name: requiredText(source, "name", "Run name"),
     run_type: requiredText(source, "run_type", "Run type"),
     inputs: canonicalJsonObject(requireOwnDataField(source, "inputs"), "Run inputs")
   };
-  copyRunContext(source, run10);
+  copyRunContext(source, run11);
   const endTime = ownDataField(source, "end_time");
   if (endTime.present && endTime.value !== void 0)
-    run10.end_time = requireTimestamp(endTime.value);
+    run11.end_time = requireTimestamp(endTime.value);
   const outputs = ownDataField(source, "outputs");
   if (outputs.present && outputs.value !== void 0)
-    run10.outputs = canonicalJsonObject(outputs.value, "Run outputs");
+    run11.outputs = canonicalJsonObject(outputs.value, "Run outputs");
   const tags = ownDataField(source, "tags");
   if (tags.present && tags.value !== void 0)
-    run10.tags = requireStringArray(tags.value, "Run tags");
+    run11.tags = requireStringArray(tags.value, "Run tags");
   const error2 = ownDataField(source, "error");
   if (error2.present && error2.value !== void 0)
-    run10.error = requireString(error2.value, "Run error");
+    run11.error = requireString(error2.value, "Run error");
   const serialized = ownDataField(source, "serialized");
   if (serialized.present && serialized.value !== void 0)
-    run10.serialized = canonicalJsonObject(serialized.value, "Serialized run data");
+    run11.serialized = canonicalJsonObject(serialized.value, "Serialized run data");
   const events = ownDataField(source, "events");
   if (events.present && events.value !== void 0)
-    run10.events = canonicalJsonArray(events.value, "Run events");
+    run11.events = canonicalJsonArray(events.value, "Run events");
   const example = ownDataField(source, "reference_example_id");
   if (example.present && example.value !== void 0) {
-    run10.reference_example_id = requireNonBlankString(example.value, "Reference example ID");
+    run11.reference_example_id = requireNonBlankString(example.value, "Reference example ID");
   }
-  return run10;
+  return run11;
 }
 function normalizedRunContext(value) {
   const source = requirePlainRecord(value, "Normalized run context");
-  const run10 = {
+  const run11 = {
     id: requiredText(source, "id", "Run ID"),
     name: requiredText(source, "name", "Run name"),
     run_type: requiredText(source, "run_type", "Run type")
   };
-  copyRunContext(source, run10);
-  return run10;
+  copyRunContext(source, run11);
+  return run11;
 }
-function copyRunContext(source, run10) {
+function copyRunContext(source, run11) {
   const start = ownDataField(source, "start_time");
   if (start.present && start.value !== void 0)
-    run10.start_time = requireTimestamp(start.value);
+    run11.start_time = requireTimestamp(start.value);
   for (const [key, name] of LIFECYCLE_IDENTITY_FIELD_LABELS) {
     const field4 = ownDataField(source, key);
     if (field4.present && field4.value !== void 0)
-      run10[key] = requireNonBlankString(field4.value, name);
+      run11[key] = requireNonBlankString(field4.value, name);
   }
 }
-function canonicalIdentity(run10, prior, requireStableIdentity = false) {
-  const reusable = prior?.id === run10.id && prior.parent_run_id === run10.parent_run_id ? prior : void 0;
-  if (reusable !== void 0 && (run10.start_time !== void 0 && run10.start_time !== reusable.start_time || run10.trace_id !== void 0 && run10.trace_id !== reusable.trace_id || run10.dotted_order !== void 0 && run10.dotted_order !== reusable.dotted_order)) {
+function canonicalIdentity(run11, prior, requireStableIdentity = false) {
+  const reusable = prior?.id === run11.id && prior.parent_run_id === run11.parent_run_id ? prior : void 0;
+  if (reusable !== void 0 && (run11.start_time !== void 0 && run11.start_time !== reusable.start_time || run11.trace_id !== void 0 && run11.trace_id !== reusable.trace_id || run11.dotted_order !== void 0 && run11.dotted_order !== reusable.dotted_order)) {
     throw new TypeError(LIFECYCLE_RUN_IDENTITY_CHANGED_MESSAGE);
   }
-  const knownStartTime = run10.start_time ?? reusable?.start_time;
+  const knownStartTime = run11.start_time ?? reusable?.start_time;
   if (knownStartTime === void 0 && requireStableIdentity) {
     throw new TypeError(LIFECYCLE_PATCH_START_TIME_MESSAGE);
   }
   const startTime = knownStartTime ?? Date.now();
-  const result = { ...run10, start_time: startTime };
+  const result = { ...run11, start_time: startTime };
   const canGenerateRootIdentity = !requireStableIdentity && result.parent_run_id === void 0;
   const generatedOrder = canGenerateRootIdentity && result.dotted_order === void 0 && reusable?.dotted_order === void 0 ? createRunIdentity({ id: result.id, start_time: startTime }).dotted_order : void 0;
   const traceId = result.trace_id ?? reusable?.trace_id ?? (canGenerateRootIdentity ? result.id : void 0);
@@ -20604,10 +20604,10 @@ function privacyStatus(value) {
   }
   return { status };
 }
-function statusForPost(run10) {
-  if (run10.error !== void 0)
+function statusForPost(run11) {
+  if (run11.error !== void 0)
     return "error";
-  if (run10.end_time !== void 0)
+  if (run11.end_time !== void 0)
     return "completed";
   return "running";
 }
@@ -20740,14 +20740,14 @@ var init_constants14 = __esm({
 // node_modules/.pnpm/@langchain+plugins-base@0.5.0_langsmith@0.10.8/node_modules/@langchain/plugins-base/dist/tracing/settlement/recorded-run.js
 function recordRun(events) {
   const latest = events.at(-1);
-  const run10 = latest.payload.run;
+  const run11 = latest.payload.run;
   return {
     run_id: latest.record.runId,
-    ...run10.parent_run_id === void 0 ? {} : { parent_run_id: run10.parent_run_id },
-    trace_id: requireNonBlankString(run10.trace_id, "Trace ID"),
-    dotted_order: requireNonBlankString(run10.dotted_order, "Dotted order"),
-    name: requireNonBlankString(run10.name, "Run name"),
-    run_type: requireNonBlankString(run10.run_type, "Run type"),
+    ...run11.parent_run_id === void 0 ? {} : { parent_run_id: run11.parent_run_id },
+    trace_id: requireNonBlankString(run11.trace_id, "Trace ID"),
+    dotted_order: requireNonBlankString(run11.dotted_order, "Dotted order"),
+    name: requireNonBlankString(run11.name, "Run name"),
+    run_type: requireNonBlankString(run11.run_type, "Run type"),
     tracing: latest.payload.privacyMode,
     open: latest.open,
     metadata: buildCodingAgentMetadata(mergeMetadataOptions(events))
@@ -20974,15 +20974,15 @@ function turnAttribution(record) {
     filled[ATTRIBUTION_IDENTIFIER_KEY] = author;
   return Object.keys(filled).length > 0 ? filled : void 0;
 }
-function metadataAfterFill(run10, filled) {
-  const carried = attributionOf(run10.metadata);
+function metadataAfterFill(run11, filled) {
+  const carried = attributionOf(run11.metadata);
   const workedOutItsOwn = namesARepository(carried) && carried[REPOSITORY_NAME_KEY] !== filled[REPOSITORY_NAME_KEY];
   if (workedOutItsOwn)
     return void 0;
   const missing = Object.entries(filled).filter(([key]) => carried[key] === void 0);
   if (missing.length === 0)
     return void 0;
-  return { ...run10.metadata, ...Object.fromEntries(missing) };
+  return { ...run11.metadata, ...Object.fromEntries(missing) };
 }
 var namesARepository;
 var init_settlement = __esm({
@@ -21069,9 +21069,9 @@ function buildTurnRecord(turnId, rootRunId, requiredRunIds, recorded) {
 function planRunPatch(state, runId) {
   const { attribution, captureEvents, recorded } = state;
   const events = captureEvents.get(runId);
-  const run10 = recorded.get(runId);
-  const merged = attribution === void 0 ? void 0 : metadataAfterFill(run10, attribution);
-  const currentAttribution = attributionOf(run10.metadata);
+  const run11 = recorded.get(runId);
+  const merged = attribution === void 0 ? void 0 : metadataAfterFill(run11, attribution);
+  const currentAttribution = attributionOf(run11.metadata);
   const added = Object.fromEntries(Object.entries(merged === void 0 ? {} : attribution ?? {}).filter(([key]) => currentAttribution[key] === void 0));
   const endTime = retainedEndTime(events);
   const restoreEndTime = endTime !== void 0 && events.some((event) => (event.metadata.runType === "tool" || event.metadata.runType === "root") && !event.attributionReady && capturedEndTime(event) !== void 0);
@@ -21532,14 +21532,14 @@ async function retryWithoutSuppliedIdentity(context, request, scope, turnEvidenc
   const winner = await context.captureStore.read(scope);
   if (winner?.runId !== projected.payload.run.id)
     return void 0;
-  const run10 = { ...projected.payload.run };
+  const run11 = { ...projected.payload.run };
   if (!identityPresence.startTime)
-    delete run10.start_time;
+    delete run11.start_time;
   if (!identityPresence.traceId)
-    delete run10.trace_id;
+    delete run11.trace_id;
   if (!identityPresence.dottedOrder)
-    delete run10.dotted_order;
-  const retry = projectSubmission({ ...projected.payload, run: run10, metadata: projected.metadata }, context.integration, previousRunContext(winner));
+    delete run11.dotted_order;
+  const retry = projectSubmission({ ...projected.payload, run: run11, metadata: projected.metadata }, context.integration, previousRunContext(winner));
   if (retry.status !== "ready")
     return void 0;
   return saveProjectedSubmission(context, request, turnEvidence, retry.value);
@@ -21737,9 +21737,9 @@ function capturedRoute(record, sourceSnapshot, destination) {
 }
 function suppliedRunIdentityFields(value) {
   const source = requirePlainRecord(value, "Prepared run submission");
-  const run10 = requirePlainRecord(requireOwnDataField(source, "run"), "Normalized run snapshot");
+  const run11 = requirePlainRecord(requireOwnDataField(source, "run"), "Normalized run snapshot");
   const supplied = (key) => {
-    const field4 = ownDataField(run10, key);
+    const field4 = ownDataField(run11, key);
     return field4.present && field4.value !== void 0;
   };
   return {
@@ -21753,24 +21753,24 @@ function previousRunContext(record) {
   const runField = ownDataField(payload, "run");
   if (!runField.present)
     throw new TypeError(LIFECYCLE_STORED_RUN_CONTEXT_IS_REQUIRED_MESSAGE);
-  const run10 = requirePlainRecord(runField.value, "Stored run context");
+  const run11 = requirePlainRecord(runField.value, "Stored run context");
   const context = {
-    id: requireNonBlankString(run10["id"], "Run ID"),
-    name: requireNonBlankString(run10["name"], "Run name"),
-    run_type: requireNonBlankString(run10["run_type"], "Run type")
+    id: requireNonBlankString(run11["id"], "Run ID"),
+    name: requireNonBlankString(run11["name"], "Run name"),
+    run_type: requireNonBlankString(run11["run_type"], "Run type")
   };
-  const startTime = ownDataField(run10, "start_time");
+  const startTime = ownDataField(run11, "start_time");
   if (startTime.present && startTime.value !== void 0)
     context.start_time = requireTimestamp(startTime.value);
-  const parentRunId = ownDataField(run10, "parent_run_id");
+  const parentRunId = ownDataField(run11, "parent_run_id");
   if (parentRunId.present && parentRunId.value !== void 0) {
     context.parent_run_id = requireNonBlankString(parentRunId.value, "Parent run ID");
   }
-  const traceId = ownDataField(run10, "trace_id");
+  const traceId = ownDataField(run11, "trace_id");
   if (traceId.present && traceId.value !== void 0) {
     context.trace_id = requireNonBlankString(traceId.value, "Trace ID");
   }
-  const dottedOrder = ownDataField(run10, "dotted_order");
+  const dottedOrder = ownDataField(run11, "dotted_order");
   if (dottedOrder.present && dottedOrder.value !== void 0) {
     context.dotted_order = requireNonBlankString(dottedOrder.value, "Dotted order");
   }
@@ -21783,8 +21783,8 @@ function restoreSubmission(record, integration) {
   if (payload["run"] === null || typeof payload["run"] !== "object") {
     throw new TypeError(LIFECYCLE_STORED_RUN_DATA_IS_REQUIRED_MESSAGE);
   }
-  const run10 = payload["run"];
-  if (run10["id"] !== record.runId)
+  const run11 = payload["run"];
+  if (run11["id"] !== record.runId)
     throw new TypeError(LIFECYCLE_STORED_RUN_ID_DOES_NOT_MATCH_ITS_CAPTURE_MESSAGE);
   const mode = payload["privacyMode"];
   if (mode !== "full" && mode !== "metadata")
@@ -21994,8 +21994,8 @@ function readSubmission(output, job) {
   return submission;
 }
 function readRunId(submission) {
-  const run10 = requirePlainRecord(submission.run, RECONSTRUCTION_LABEL_RUN);
-  const runId = requireNonBlankString(requireOwnDataField(run10, "id"), RECONSTRUCTION_LABEL_RUN_ID);
+  const run11 = requirePlainRecord(submission.run, RECONSTRUCTION_LABEL_RUN);
+  const runId = requireNonBlankString(requireOwnDataField(run11, "id"), RECONSTRUCTION_LABEL_RUN_ID);
   validateIdentifier(runId, RECONSTRUCTION_LABEL_RUN_ID_FIELD);
   return runId;
 }
@@ -22138,8 +22138,8 @@ function snapshotSubmission(source, integration, privacyMode) {
   if (requireOwnDataField(submission, "privacyMode") !== privacyMode)
     throw new TypeError(RECONSTRUCTION_SNAPSHOT_PRIVACY_MESSAGE);
   if (submission["operation"] === "post") {
-    const run10 = requirePlainRecord(requireOwnDataField(submission, "run"), "Prepared run");
-    if (!ownDataField(run10, "start_time").present)
+    const run11 = requirePlainRecord(requireOwnDataField(submission, "run"), "Prepared run");
+    if (!ownDataField(run11, "start_time").present)
       throw new TypeError(RECONSTRUCTION_SNAPSHOT_START_TIME_MESSAGE);
   }
   const projected = projectSubmission(submission, integration);
@@ -23287,10 +23287,10 @@ async function reportBackgroundRecovery(context, backgroundRecovery) {
 async function drainSession(context) {
   const { session, state } = context;
   state.droppedWork = false;
-  const run10 = await state.backgroundWorker.run();
-  const result = state.droppedWork && (run10 === "completed" || run10 === "idle" || run10 === "deferred") ? "dropped" : run10;
+  const run11 = await state.backgroundWorker.run();
+  const result = state.droppedWork && (run11 === "completed" || run11 === "idle" || run11 === "deferred") ? "dropped" : run11;
   const backgroundRecovery = session.backgroundRecovery;
-  if (backgroundRecovery && (run10 === "completed" || run10 === "idle"))
+  if (backgroundRecovery && (run11 === "completed" || run11 === "idle"))
     await reportBackgroundRecovery(context, backgroundRecovery);
   return result;
 }
@@ -24053,7 +24053,7 @@ var init_settings = __esm({
 });
 
 // dist/src/constants.js
-var TURN_RUN_NAME, SKILL_RUN_NAME, DEFAULT_TAGS, DEFAULT_PROJECT, DEFAULT_SWEEP_IDLE_MINUTES, NOTICE_KINDS, MUTE_LOCKED_MESSAGE, DEFAULT_API_URL2, CURSOR_DIRECTORY_NAME, MANAGED_PLUGIN_FIELDS, MAX_UPLOAD_ATTEMPTS, BINARY_HOOK_EVENTS, LEADING_BYTE_ORDER_MARKS, LS_INTEGRATION, SKILL_READ_TOOLS, PATH_SEPARATOR, MAX_ATTACHMENT_BYTES, MAX_LOG_BYTES, CONVERSATION_MAX_AGE_MS, WHITESPACE_RUN, MODEL_SUFFIXES, PROVIDER_PREFIX, CLAUDE_VERSIONED_MODEL, OPENAI_MODEL_PREFIX, CURSOR_VENDOR_PREFIX, MCP_TOOL_PREFIX, SUBAGENT_PSEUDO_TOOLS, STATE_FILE_NAME, LEGACY_STATE_FILE_NAME, TRACING_POLICY_FILE_NAME, LEGACY_TRACING_POLICY_FILE_NAME, HOOK_LOG_FILE_NAME, HOOK_CONTINUE_OUTPUT, ENGINE_WORKER_COMMAND, ENGINE_STORAGE_DIR_NAME, JOB_EVENT_PREFIX, JOB_REF_PREFIX, TOOL_JOB_REF_PREFIX, JOB_STORE_DIR_NAME, GH_LOGIN_MARKER_FILE, TOOL_PATH_INPUT_KEYS, RUN_EVENT_PREFIX, PATCH_EVENT_PREFIX, RUN_SNAPSHOT_FIELDS, RUN_PATCH_FIELDS, CAPTURE_PUBLISHED_STATUS, CAPTURE_DUPLICATE_STATUS, TURN_ON_OTHER_ACCOUNT_MESSAGE, SQLITE_EXPERIMENTAL_WARNING;
+var TURN_RUN_NAME, SKILL_RUN_NAME, DEFAULT_TAGS, DEFAULT_PROJECT, DEFAULT_SWEEP_IDLE_MINUTES, NOTICE_KINDS, MUTE_LOCKED_MESSAGE, DEFAULT_API_URL2, CURSOR_DIRECTORY_NAME, MANAGED_PLUGIN_FIELDS, MAX_UPLOAD_ATTEMPTS, BINARY_HOOK_EVENTS, LEADING_BYTE_ORDER_MARKS, LS_INTEGRATION, SKILL_READ_TOOLS, PATH_SEPARATOR, MAX_ATTACHMENT_BYTES, MAX_LOG_BYTES, CONVERSATION_MAX_AGE_MS, WHITESPACE_RUN, MODEL_SUFFIXES, PROVIDER_PREFIX, CLAUDE_VERSIONED_MODEL, OPENAI_MODEL_PREFIX, CURSOR_VENDOR_PREFIX, MCP_TOOL_PREFIX, SUBAGENT_PSEUDO_TOOLS, REDACTED_TRANSCRIPT_MARKER, EMPTY_TOOL_ID_PREFIX, TOOL_FAILED_MESSAGE, STATE_FILE_NAME, LEGACY_STATE_FILE_NAME, TRACING_POLICY_FILE_NAME, LEGACY_TRACING_POLICY_FILE_NAME, HOOK_LOG_FILE_NAME, HOOK_CONTINUE_OUTPUT, ENGINE_WORKER_COMMAND, ENGINE_STORAGE_DIR_NAME, JOB_EVENT_PREFIX, JOB_REF_PREFIX, TOOL_JOB_REF_PREFIX, JOB_STORE_DIR_NAME, GH_LOGIN_MARKER_FILE, TOOL_PATH_INPUT_KEYS, RUN_EVENT_PREFIX, PATCH_EVENT_PREFIX, RUN_SNAPSHOT_FIELDS, RUN_PATCH_FIELDS, CAPTURE_PUBLISHED_STATUS, CAPTURE_DUPLICATE_STATUS, TURN_ON_OTHER_ACCOUNT_MESSAGE, SQLITE_EXPERIMENTAL_WARNING;
 var init_constants18 = __esm({
   "dist/src/constants.js"() {
     "use strict";
@@ -24078,6 +24078,7 @@ var init_constants18 = __esm({
     BINARY_HOOK_EVENTS = {
       beforeSubmitPrompt: "before-submit-prompt",
       afterAgentResponse: "after-agent-response",
+      afterAgentThought: "after-agent-thought",
       postToolUse: "post-tool-use",
       postToolUseFailure: "post-tool-use-failure",
       subagentStart: "subagent-start",
@@ -24108,6 +24109,9 @@ var init_constants18 = __esm({
     CURSOR_VENDOR_PREFIX = /^cursor-/i;
     MCP_TOOL_PREFIX = "MCP:";
     SUBAGENT_PSEUDO_TOOLS = /* @__PURE__ */ new Set(["UpdateCurrentStep"]);
+    REDACTED_TRANSCRIPT_MARKER = /\s*\[REDACTED\]\s*$/;
+    EMPTY_TOOL_ID_PREFIX = "cursor-call-";
+    TOOL_FAILED_MESSAGE = "Tool failed";
     STATE_FILE_NAME = "langsmith_state.json";
     LEGACY_STATE_FILE_NAME = "langsmith-state.json";
     TRACING_POLICY_FILE_NAME = "langsmith_state_privacy.json";
@@ -24701,8 +24705,10 @@ function parseSubagentTranscript(rows) {
         if (SUBAGENT_PSEUDO_TOOLS.has(part.name))
           continue;
         toolCalls.push({ name: part.name, input: isRecord(part.input) ? part.input : {} });
-      } else if (part.type === "text" && typeof part.text === "string" && part.text.trim()) {
-        resultText = part.text;
+      } else if (part.type === "text" && typeof part.text === "string") {
+        const text = part.text.replace(REDACTED_TRANSCRIPT_MARKER, "");
+        if (text.trim())
+          resultText = text;
       }
     }
   }
@@ -24761,6 +24767,9 @@ function acceptLateEvent(conv, conversationId, input) {
 function openTurn(conv, generationId, nowMs) {
   return ownEntry(conv.turns, generationId) ?? newTurnBuffer(generationId, nowMs, nextTurnNum(conv));
 }
+function toolUseId(turn, input) {
+  return input.tool_use_id || `${EMPTY_TOOL_ID_PREFIX}${turn.generation_id}-${turn.tools.length}`;
+}
 function latestTurn(turns) {
   let best;
   for (const candidate of Object.values(turns)) {
@@ -24792,7 +24801,7 @@ function reducePostToolUse(state, input, nowMs) {
   turn.model = preferModel(turn.model, input.model);
   const output = parseToolOutput(input.tool_output);
   turn.tools.push({
-    tool_use_id: input.tool_use_id,
+    tool_use_id: toolUseId(turn, input),
     name: input.tool_name,
     input: input.tool_input ?? {},
     output,
@@ -24813,7 +24822,7 @@ function reducePostToolUseFailure(state, input, nowMs) {
   const turn = openTurn(conv, input.generation_id, nowMs);
   turn.model = preferModel(turn.model, input.model);
   turn.tools.push({
-    tool_use_id: input.tool_use_id,
+    tool_use_id: toolUseId(turn, input),
     name: input.tool_name,
     input: input.tool_input ?? {},
     error: input.error_message,
@@ -24840,6 +24849,15 @@ function reduceAfterAgentResponse(state, input, nowMs) {
     cache_write_tokens: input.cache_write_tokens
   };
   setOwnEntry(conv.turns, input.generation_id, turn);
+  touch(conv);
+  return { ...state, [input.conversation_id]: conv };
+}
+function reduceAfterAgentThought(state, input) {
+  const conv = getConversationState(state, input.conversation_id);
+  const turn = ownEntry(conv.turns, input.generation_id);
+  if (!turn || !input.text)
+    return state;
+  turn.thoughts.push({ text: input.text, duration_ms: input.duration_ms });
   touch(conv);
   return { ...state, [input.conversation_id]: conv };
 }
@@ -24904,7 +24922,7 @@ function transcriptToolEvent(call, index, count, startMs, endMs) {
     tool_use_id: `subagent-tool-${index}`,
     name: call.name,
     input: call.input,
-    duration: slice / 1e3,
+    duration: slice,
     endMs: end
   };
 }
@@ -25340,18 +25358,36 @@ var init_after_agent_response = __esm({
   }
 });
 
-// dist/src/hooks/subagent-start.js
-var subagent_start_exports = {};
-__export(subagent_start_exports, {
+// dist/src/hooks/after-agent-thought.js
+var after_agent_thought_exports = {};
+__export(after_agent_thought_exports, {
   run: () => run3
 });
 var run3;
+var init_after_agent_thought = __esm({
+  "dist/src/hooks/after-agent-thought.js"() {
+    "use strict";
+    init_reducer();
+    init_state_hook();
+    run3 = stateHook({
+      describe: (input) => `afterAgentThought conv=${input.conversation_id} gen=${input.generation_id}`,
+      reduce: reduceAfterAgentThought
+    });
+  }
+});
+
+// dist/src/hooks/subagent-start.js
+var subagent_start_exports = {};
+__export(subagent_start_exports, {
+  run: () => run4
+});
+var run4;
 var init_subagent_start = __esm({
   "dist/src/hooks/subagent-start.js"() {
     "use strict";
     init_reducer();
     init_state_hook();
-    run3 = stateHook({
+    run4 = stateHook({
       describe: (input) => `subagentStart ${input.subagent_type} (${input.subagent_id})`,
       reduce: reduceSubagentStart
     });
@@ -25361,6 +25397,18 @@ var init_subagent_start = __esm({
 // dist/src/utils/text.js
 function normalizeWs(text) {
   return text.replace(WHITESPACE_RUN, " ").trim();
+}
+function readableText(value) {
+  if (typeof value === "string")
+    return value;
+  if (value === null || typeof value !== "object")
+    return String(value);
+  const entries = Array.isArray(value) ? value.map((item) => ["-", item]) : Object.entries(value).map(([key, item]) => [`${key}:`, item]);
+  return entries.map(([label, item]) => {
+    const text = readableText(item);
+    return text.includes("\n") || item !== null && typeof item === "object" ? `${label}
+${text}` : `${label} ${text}`;
+  }).join("\n");
 }
 var init_text = __esm({
   "dist/src/utils/text.js"() {
@@ -25436,9 +25484,9 @@ var init_subagent_transcript = __esm({
 // dist/src/hooks/subagent-stop.js
 var subagent_stop_exports = {};
 __export(subagent_stop_exports, {
-  run: () => run4
+  run: () => run5
 });
-async function run4() {
+async function run5() {
   const input = await readStdin();
   const config = initHook(input.workspace_roots?.[0]);
   if (!config)
@@ -25964,21 +26012,21 @@ function turnCaptures(runs) {
   const rootRunId = runs[0]?.run.id;
   if (!rootRunId)
     return [];
-  const childRunIds = runs.slice(1).map(({ run: run10 }) => run10.id);
+  const childRunIds = runs.slice(1).map(({ run: run11 }) => run11.id);
   return runs.map((captured) => {
-    const { run: run10, mode } = captured;
+    const { run: run11, mode } = captured;
     return {
       turnId: rootRunId,
-      eventId: `${RUN_EVENT_PREFIX}${run10.id}`,
+      eventId: `${RUN_EVENT_PREFIX}${run11.id}`,
       submission: {
         operation: "post",
         integration: LS_INTEGRATION,
         privacyMode: mode,
         metadata: metadataWithInherited(captured),
-        privacyContext: { status: runStatus(run10) },
-        run: runSnapshot(run10, mode)
+        privacyContext: { status: runStatus(run11) },
+        run: runSnapshot(run11, mode)
       },
-      turnEvidence: run10.id !== rootRunId ? { childRunIds: [run10.id], closureState: "open" } : run10.end_time != null ? { rootRunId, childRunIds, closureState: "authoritative" } : { rootRunId, childRunIds: [], closureState: "open" }
+      turnEvidence: run11.id !== rootRunId ? { childRunIds: [run11.id], closureState: "open" } : run11.end_time != null ? { rootRunId, childRunIds, closureState: "authoritative" } : { rootRunId, childRunIds: [], closureState: "open" }
     };
   });
 }
@@ -26027,23 +26075,23 @@ function rootPatch(post, sessionId) {
     ]
   };
 }
-function runStatus(run10) {
-  if (run10.error != null)
+function runStatus(run11) {
+  if (run11.error != null)
     return "error";
-  if (run10.end_time != null)
+  if (run11.end_time != null)
     return "completed";
   return "running";
 }
-function runSnapshot(run10, mode) {
+function runSnapshot(run11, mode) {
   return withoutUndefined(Object.fromEntries([
-    ...RUN_SNAPSHOT_FIELDS.map((key) => [key, run10[key]]),
-    ["parent_run_id", run10.parent_run?.id],
+    ...RUN_SNAPSHOT_FIELDS.map((key) => [key, run11[key]]),
+    ["parent_run_id", run11.parent_run?.id],
     ...mode === "metadata" ? [["tags", []]] : []
   ]));
 }
-function metadataWithInherited({ run: run10, metadata }) {
+function metadataWithInherited({ run: run11, metadata }) {
   const own = buildCodingAgentMetadata(metadata);
-  const inherited = Object.fromEntries(Object.entries(run10.extra?.metadata ?? {}).filter(([key]) => !(key in own)));
+  const inherited = Object.fromEntries(Object.entries(run11.extra?.metadata ?? {}).filter(([key]) => !(key in own)));
   return withoutUndefined({ ...metadata, runSpecific: { ...inherited, ...metadata.runSpecific } });
 }
 var init_captures = __esm({
@@ -26059,8 +26107,8 @@ var init_captures = __esm({
 import { createHash as createHash8 } from "node:crypto";
 function jobDigest(sessionId, context) {
   const { kind, buffer, toolIndex } = context;
-  const toolUseId = toolIndex === void 0 ? null : buffer.tools[toolIndex]?.tool_use_id;
-  return createHash8("sha256").update(JSON.stringify([sessionId, kind, buffer.generation_id, toolIndex ?? null, toolUseId])).digest("hex");
+  const toolUseId2 = toolIndex === void 0 ? null : buffer.tools[toolIndex]?.tool_use_id;
+  return createHash8("sha256").update(JSON.stringify([sessionId, kind, buffer.generation_id, toolIndex ?? null, toolUseId2])).digest("hex");
 }
 function jobRef(ref) {
   const value = [ref.conversationId, ref.generationId, ref.savedAtMs];
@@ -26108,20 +26156,20 @@ function finishedJobRefs(built, pendingEventIds) {
   return [...built].filter(([eventId]) => !pendingEventIds.has(eventId)).flatMap(([, ref]) => parseJobRef(ref) ?? []);
 }
 function toolJobRef(ref) {
-  const { conversationId, generationId, toolIndex, toolUseId, model, withRoot } = ref;
-  const value = [conversationId, generationId, toolIndex, toolUseId, model ?? null, withRoot];
+  const { conversationId, generationId, toolIndex, toolUseId: toolUseId2, model, withRoot } = ref;
+  const value = [conversationId, generationId, toolIndex, toolUseId2, model ?? null, withRoot];
   return `${TOOL_JOB_REF_PREFIX}${Buffer.from(JSON.stringify(value)).toString("base64url")}`;
 }
 function parseToolJobRef(ref) {
   if (!ref?.startsWith(TOOL_JOB_REF_PREFIX))
     return void 0;
   try {
-    const [conversationId, generationId, toolIndex, toolUseId, model, withRoot] = JSON.parse(Buffer.from(ref.slice(TOOL_JOB_REF_PREFIX.length), "base64url").toString("utf8"));
+    const [conversationId, generationId, toolIndex, toolUseId2, model, withRoot] = JSON.parse(Buffer.from(ref.slice(TOOL_JOB_REF_PREFIX.length), "base64url").toString("utf8"));
     return {
       conversationId,
       generationId,
       toolIndex,
-      toolUseId,
+      toolUseId: toolUseId2,
       model: model ?? void 0,
       withRoot
     };
@@ -26676,7 +26724,7 @@ function decodeStep(buf) {
   }
   const tool = firstBytes(buf, STEP_TOOL_FIELD);
   if (tool) {
-    const toolUseId = firstBytes(tool, TOOLCALL_TOOL_USE_ID_FIELD)?.toString("utf-8");
+    const toolUseId2 = firstBytes(tool, TOOLCALL_TOOL_USE_ID_FIELD)?.toString("utf-8");
     let toolField;
     for (const f2 of scanFields(tool)) {
       if (f2.field === TOOLCALL_TOOL_USE_ID_FIELD || f2.field === TOOLCALL_HOOK_CONTEXTS_FIELD) {
@@ -26687,7 +26735,7 @@ function decodeStep(buf) {
     }
     return {
       kind: "tool",
-      toolUseId,
+      toolUseId: toolUseId2,
       toolField,
       toolName: toolField != null ? TOOL_FIELD_NAMES[toolField] : void 0
     };
@@ -26838,26 +26886,34 @@ function userMessageContent(prompt, attachments) {
   return [...textPart, ...attachments];
 }
 function toolStartMs(tool) {
-  const durMs = (tool.duration ?? 0) * 1e3;
-  return Math.max(0, tool.endMs - durMs);
+  return Math.max(0, Math.round(tool.endMs - (tool.duration ?? 0)));
+}
+function toolError(tool) {
+  if (tool.error == null && tool.failure_type == null)
+    return void 0;
+  return tool.error || tool.failure_type || TOOL_FAILED_MESSAGE;
 }
 function toolResultText(tool) {
-  if (tool.error != null)
-    return tool.error;
+  const error2 = toolError(tool);
+  if (error2 != null)
+    return error2;
   const out = tool.output;
   if (out == null)
     return "";
-  return typeof out === "string" ? out : JSON.stringify(out);
+  return readableText(out) || JSON.stringify(out);
+}
+function callEntry(id, name, args, text) {
+  return {
+    toolCall: { id, type: "function", function: { name, arguments: JSON.stringify(args) } },
+    resultMessage: { role: "tool", tool_call_id: id, content: [{ type: "text", text }] }
+  };
 }
 function toolCall(t, floorMs) {
   return {
     startMs: Math.max(floorMs, toolStartMs(t)),
-    toolCallBlock: { type: "tool_call", name: t.name, args: t.input, id: t.tool_use_id },
-    resultMessage: {
-      role: "tool",
-      tool_call_id: t.tool_use_id,
-      content: [{ type: "text", text: toolResultText(t) }]
-    }
+    endMs: t.endMs,
+    ...callEntry(t.tool_use_id, t.name, t.input, toolResultText(t)),
+    tool: t
   };
 }
 function orderedTurnCalls(buffer) {
@@ -26865,28 +26921,23 @@ function orderedTurnCalls(buffer) {
     ...buffer.tools.map((t) => toolCall(t, buffer.startMs)),
     ...buffer.subagents.map((s) => ({
       startMs: s.startMs,
-      toolCallBlock: {
-        type: "tool_call",
-        name: "Subagent",
-        args: {
-          subagent_type: s.subagent_type,
-          task: s.tracingMode === "full" ? s.task : MUTED_TRACE_CONTENT
-        },
-        id: s.subagent_id
-      },
-      resultMessage: {
-        role: "tool",
-        tool_call_id: s.subagent_id,
-        content: [
-          {
-            type: "text",
-            text: s.tracingMode === "full" ? s.resultText ?? `status: ${s.status ?? "completed"}` : MUTED_TRACE_CONTENT
-          }
-        ]
-      }
+      endMs: s.endMs ?? s.startMs,
+      ...callEntry(s.subagent_id, "Subagent", {
+        subagent_type: s.subagent_type,
+        task: s.tracingMode === "full" ? s.task : MUTED_TRACE_CONTENT
+      }, s.tracingMode === "full" ? s.resultText ?? `status: ${s.status ?? "completed"}` : MUTED_TRACE_CONTENT)
     }))
   ];
   return calls.sort((a, b) => a.startMs - b.startMs);
+}
+function assistantMessage(content, calls = []) {
+  if (content.length === 0 && calls.length === 0)
+    return void 0;
+  return {
+    role: "assistant",
+    content,
+    ...calls.length ? { tool_calls: calls.map((c) => c.toolCall) } : {}
+  };
 }
 function buildTurnRuns(options) {
   if (options.buffer.tracingMode === "off")
@@ -26944,7 +26995,7 @@ function createTurnContext(options) {
       runSpecific: { ls_provider, ls_invocation_params: { model: ls_model_name } }
     },
     usageMetadata: buildUsageMetadata(buffer.usage),
-    thinking: buffer.thoughts.map((t) => ({ type: "thinking", thinking: t.text })),
+    thinking: thinkingBlocks(buffer.thoughts.length ? buffer.thoughts : (options.steps ?? []).filter((s) => s.kind === "thinking")),
     finalTextBlocks: buffer.finalText ? [{ type: "text", text: buffer.finalText }] : [],
     calls: orderedTurnCalls(buffer),
     turnEndMs: Math.max(buffer.startMs, ...toolEnds, ...subagentEnds, options.savedAtMs ?? Date.now())
@@ -26952,7 +27003,7 @@ function createTurnContext(options) {
 }
 function addRootRun(turn) {
   const { options, ctx } = turn;
-  const run10 = new RunTree({
+  const run11 = new RunTree({
     id: stableRunId(ctx, "turn"),
     name: `${TURN_RUN_NAME} ${options.turnNum}`,
     run_type: "chain",
@@ -26962,14 +27013,14 @@ function addRootRun(turn) {
     tags: DEFAULT_TAGS,
     extra: { metadata: codingAgentMetadata(rootMetadata(turn)) }
   });
-  turn.runs.push({ run: run10, mode: turn.mode, metadata: withIntegration(rootMetadata(turn)) });
-  return run10;
+  turn.runs.push({ run: run11, mode: turn.mode, metadata: withIntegration(rootMetadata(turn)) });
+  return run11;
 }
 function rootMetadata({ ctx, options }) {
   return { ...ctx, runType: "root", runSpecific: { model: options.buffer.model } };
 }
 function addRun(turn, parent, spec) {
-  const run10 = parent.createChild({
+  const run11 = parent.createChild({
     id: stableRunId(turn.ctx, spec.key),
     name: spec.name,
     run_type: spec.type,
@@ -26982,19 +27033,20 @@ function addRun(turn, parent, spec) {
   });
   const parentMode = turn.runs.find((c) => c.run.id === parent.id)?.mode;
   turn.runs.push({
-    run: run10,
+    run: run11,
     mode: parentMode === "metadata" ? "metadata" : spec.mode ?? parentMode ?? "full",
     metadata: withIntegration(spec.metadata)
   });
-  return run10;
+  return run11;
 }
 function addLlmRun(turn, parent, spec) {
+  const message = assistantMessage(spec.content, spec.calls);
   return addRun(turn, parent, {
     key: spec.key,
     name: spec.name,
     type: "llm",
     inputs: { messages: spec.messages },
-    outputs: { messages: [{ role: "assistant", content: spec.content }] },
+    outputs: { messages: message ? [message] : [] },
     startMs: spec.startMs,
     endMs: spec.endMs,
     metadata: spec.metadata
@@ -27017,12 +27069,13 @@ function addAgenticRuns(turn, turnRun) {
   const { buffer, systemPrompt } = options;
   const firstCallStart = Math.min(...calls.map((c) => c.startMs));
   const lastCallEnd = Math.max(buffer.startMs, ...buffer.tools.map((t) => t.endMs), ...buffer.subagents.map((s) => s.endMs ?? s.startMs));
-  const assistantDecision = [...turn.thinking, ...calls.map((c) => c.toolCallBlock)];
+  const assistantDecision = assistantMessage(turn.thinking, calls);
   addLlmRun(turn, turnRun, {
     key: "decide",
     name: turn.llmName,
     messages: withSystem([{ role: "user", content: turn.userContent }], systemPrompt),
-    content: assistantDecision,
+    content: turn.thinking,
+    calls,
     startMs: buffer.startMs,
     endMs: Math.max(buffer.startMs, firstCallStart),
     metadata: { ...ctx, ...turn.llmMeta }
@@ -27036,7 +27089,7 @@ function addAgenticRuns(turn, turnRun) {
     name: turn.llmName,
     messages: withSystem([
       { role: "user", content: turn.userContent },
-      { role: "assistant", content: assistantDecision },
+      assistantDecision,
       ...calls.map((c) => c.resultMessage)
     ], systemPrompt),
     content: turn.finalTextBlocks,
@@ -27048,49 +27101,65 @@ function addAgenticRuns(turn, turnRun) {
 function thinkingBlocks(thinking) {
   return thinking.flatMap((t) => t.text ? [{ type: "thinking", thinking: t.text }] : []);
 }
+function placeRoundCalls(turn, rounds) {
+  const unplaced = new Map(turn.calls.map((c) => [c.toolCall.id, c]));
+  const idless = turn.calls.filter((c) => c.toolCall.id.startsWith(EMPTY_TOOL_ID_PREFIX));
+  let anyMatched = false;
+  const placed = rounds.map((round) => round.toolSteps.flatMap((ts) => {
+    const call = ts.toolUseId ? unplaced.get(ts.toolUseId) : idless.find((c) => unplaced.has(c.toolCall.id));
+    if (!call)
+      return [];
+    anyMatched ||= Boolean(ts.toolUseId && call.tool);
+    unplaced.delete(call.toolCall.id);
+    return [call];
+  }));
+  if (!anyMatched)
+    return void 0;
+  for (const call of unplaced.values()) {
+    const round = [...placed].reverse().find((calls) => calls.some((c) => c.startMs <= call.startMs)) ?? placed[0];
+    const at = round.findIndex((c) => c.startMs > call.startMs);
+    round.splice(at < 0 ? round.length : at, 0, call);
+  }
+  return placed;
+}
 function addInterleavedRounds(turn, turnRun) {
   const { options, ctx } = turn;
   const { buffer, systemPrompt } = options;
-  const toolMap = /* @__PURE__ */ new Map();
-  for (const t of buffer.tools)
-    if (t.tool_use_id)
-      toolMap.set(t.tool_use_id, t);
   const rounds = groupSteps(options.steps ?? []);
   if (rounds.length === 0)
     return false;
   const last = rounds[rounds.length - 1];
   const finalRound = last.toolSteps.length === 0 ? last : void 0;
   const actionRounds = finalRound ? rounds.slice(0, -1) : rounds;
-  const anyMatched = actionRounds.some((r) => r.toolSteps.some((ts) => ts.toolUseId != null && toolMap.has(ts.toolUseId)));
-  if (!anyMatched)
+  const placed = placeRoundCalls(turn, actionRounds);
+  if (!placed)
     return false;
   const msgs = [{ role: "user", content: turn.userContent }];
   let cursorMs = buffer.startMs;
   for (const [roundIndex, round] of actionRounds.entries()) {
-    const matched = round.toolSteps.map((ts) => ts.toolUseId != null ? toolMap.get(ts.toolUseId) : void 0).filter((t) => t != null);
-    const calls = matched.map((t) => toolCall(t, buffer.startMs));
+    const calls = placed[roundIndex];
     const textBlocks = round.assistantText ? [{ type: "text", text: round.assistantText }] : [];
-    const assistantContent = [
-      ...thinkingBlocks(round.thinking),
-      ...textBlocks,
-      ...calls.map((c) => c.toolCallBlock)
-    ];
+    const assistantContent = [...thinkingBlocks(round.thinking), ...textBlocks];
     addLlmRun(turn, turnRun, {
       key: `round:${roundIndex}`,
       name: turn.llmName,
       messages: withSystem([...msgs], systemPrompt),
       content: assistantContent,
+      calls,
       startMs: cursorMs,
       endMs: calls.length ? Math.max(cursorMs, Math.min(...calls.map((c) => c.startMs))) : cursorMs,
       metadata: { ...ctx, ...turn.llmMeta }
     });
-    for (const t of matched)
-      addToolRun(turn, turnRun, ctx, t, toolKey(buffer.tools.indexOf(t), t));
-    msgs.push({ role: "assistant", content: assistantContent });
+    for (const { tool: t } of calls)
+      if (t)
+        addToolRun(turn, turnRun, ctx, t, toolKey(buffer.tools.indexOf(t), t));
+    const assistant = assistantMessage(assistantContent, calls);
+    if (assistant)
+      msgs.push(assistant);
     for (const c of calls)
       msgs.push(c.resultMessage);
-    if (matched.length)
-      cursorMs = Math.max(cursorMs, ...matched.map((t) => t.endMs));
+    if (calls.length)
+      cursorMs = Math.max(cursorMs, ...calls.map((c) => c.endMs));
   }
   for (const [i, sub] of buffer.subagents.entries())
     addSubagentRun(turn, turnRun, sub, `subagent:${i}:${sub.subagent_id}`);
@@ -27108,14 +27177,14 @@ function addInterleavedRounds(turn, turnRun) {
 function addToolRun(turn, parent, ctx, tool, key, clearSubagent = false) {
   const floorMs = typeof parent.start_time === "number" ? parent.start_time : 0;
   const startMs = Math.max(floorMs, toolStartMs(tool));
-  const isError2 = tool.error != null;
+  const error2 = toolError(tool);
   addRun(turn, parent, {
     key,
     name: tool.name,
     type: "tool",
     inputs: { input: tool.input },
-    outputs: isError2 ? { error: tool.error } : { output: tool.output ?? "" },
-    error: isError2 ? tool.error : void 0,
+    outputs: error2 != null ? { error: error2 } : { output: tool.output ?? "" },
+    error: error2,
     startMs,
     endMs: tool.endMs,
     metadata: {
@@ -27260,12 +27329,12 @@ function addSubagentAgenticRuns(turn, subagentRun, sub, key, subagentCtx) {
   const calls = tools.map((t) => toolCall(t, startMs)).sort((a, b) => a.startMs - b.startMs);
   const firstCallStart = Math.min(...calls.map((c) => c.startMs));
   const lastCallEnd = Math.max(startMs, ...tools.map((t) => t.endMs));
-  const assistantDecision = calls.map((c) => c.toolCallBlock);
   addLlmRun(turn, subagentRun, {
     key: `${key}:decide`,
     name: llm.name,
     messages: baseMessages,
-    content: assistantDecision,
+    content: [],
+    calls,
     startMs,
     endMs: Math.max(startMs, firstCallStart),
     metadata: llm.metadata
@@ -27275,11 +27344,7 @@ function addSubagentAgenticRuns(turn, subagentRun, sub, key, subagentCtx) {
   addLlmRun(turn, subagentRun, {
     key: `${key}:answer`,
     name: llm.name,
-    messages: [
-      ...baseMessages,
-      { role: "assistant", content: assistantDecision },
-      ...calls.map((c) => c.resultMessage)
-    ],
+    messages: [...baseMessages, assistantMessage([], calls), ...calls.map((c) => c.resultMessage)],
     content: subagentFinalBlocks(sub),
     startMs: lastCallEnd,
     endMs,
@@ -27295,6 +27360,7 @@ var init_langsmith2 = __esm({
     init_constants18();
     init_metadata2();
     init_conversation_steps();
+    init_text();
     init_logger();
   }
 });
@@ -27372,11 +27438,11 @@ var init_turn_enrichment = __esm({
 });
 
 // dist/src/utils/console.js
-async function withWarningsTo(sink, run10) {
+async function withWarningsTo(sink, run11) {
   const original = console.warn;
   console.warn = (...args) => sink(args.map(String).join(" "));
   try {
-    return await run10();
+    return await run11();
   } finally {
     console.warn = original;
   }
@@ -27436,13 +27502,13 @@ async function queueUpload(config, context) {
   const generationId = buffer.generation_id;
   let ref;
   if (context.kind === "tool") {
-    const toolUseId = buffer.tools[toolIndex].tool_use_id;
+    const toolUseId2 = buffer.tools[toolIndex].tool_use_id;
     const { model } = buffer;
     ref = toolJobRef({
       conversationId,
       generationId,
       toolIndex,
-      toolUseId,
+      toolUseId: toolUseId2,
       model,
       withRoot: !root
     });
@@ -27638,9 +27704,9 @@ var init_tracing_engine = __esm({
 // dist/src/hooks/stop.js
 var stop_exports = {};
 __export(stop_exports, {
-  run: () => run5
+  run: () => run6
 });
-async function run5() {
+async function run6() {
   const input = await readStdin();
   const config = initHook(input.workspace_roots?.[0]);
   if (!config) {
@@ -27740,15 +27806,15 @@ var init_tool_hook = __esm({
 // dist/src/hooks/post-tool-use.js
 var post_tool_use_exports = {};
 __export(post_tool_use_exports, {
-  run: () => run6
+  run: () => run7
 });
-var run6;
+var run7;
 var init_post_tool_use = __esm({
   "dist/src/hooks/post-tool-use.js"() {
     "use strict";
     init_reducer();
     init_tool_hook();
-    run6 = toolHook({
+    run7 = toolHook({
       describe: (input) => `postToolUse ${input.tool_name} conv=${input.conversation_id} gen=${input.generation_id}`,
       reduce: reducePostToolUse
     });
@@ -27758,15 +27824,15 @@ var init_post_tool_use = __esm({
 // dist/src/hooks/post-tool-use-failure.js
 var post_tool_use_failure_exports = {};
 __export(post_tool_use_failure_exports, {
-  run: () => run7
+  run: () => run8
 });
-var run7;
+var run8;
 var init_post_tool_use_failure = __esm({
   "dist/src/hooks/post-tool-use-failure.js"() {
     "use strict";
     init_reducer();
     init_tool_hook();
-    run7 = toolHook({
+    run8 = toolHook({
       describe: (input) => `postToolUseFailure ${input.tool_name} conv=${input.conversation_id}`,
       reduce: reducePostToolUseFailure
     });
@@ -27776,9 +27842,9 @@ var init_post_tool_use_failure = __esm({
 // dist/src/hooks/session-start.js
 var session_start_exports = {};
 __export(session_start_exports, {
-  run: () => run8
+  run: () => run9
 });
-async function run8() {
+async function run9() {
   const input = await readStdin();
   const config = initHook(input.workspace_roots?.[0]);
   if (!config)
@@ -27852,9 +27918,9 @@ var init_sweep = __esm({
 // dist/src/hooks/engine-worker.js
 var engine_worker_exports = {};
 __export(engine_worker_exports, {
-  run: () => run9
+  run: () => run10
 });
-async function run9([cwd, sessionId, project]) {
+async function run10([cwd, sessionId, project]) {
   const config = initHook(cwd);
   if (!config || !sessionId)
     return;
@@ -27961,6 +28027,7 @@ Hook names: ${Object.values(BINARY_HOOK_EVENTS).join(", ")}`;
 var HOOK_RUNNERS = {
   [BINARY_HOOK_EVENTS.beforeSubmitPrompt]: () => Promise.resolve().then(() => (init_before_submit_prompt(), before_submit_prompt_exports)).then((hook) => hook.run()),
   [BINARY_HOOK_EVENTS.afterAgentResponse]: () => Promise.resolve().then(() => (init_after_agent_response(), after_agent_response_exports)).then((hook) => hook.run()),
+  [BINARY_HOOK_EVENTS.afterAgentThought]: () => Promise.resolve().then(() => (init_after_agent_thought(), after_agent_thought_exports)).then((hook) => hook.run()),
   [BINARY_HOOK_EVENTS.subagentStart]: () => Promise.resolve().then(() => (init_subagent_start(), subagent_start_exports)).then((hook) => hook.run()),
   [BINARY_HOOK_EVENTS.subagentStop]: () => Promise.resolve().then(() => (init_subagent_stop(), subagent_stop_exports)).then((hook) => hook.run()),
   [BINARY_HOOK_EVENTS.stop]: () => Promise.resolve().then(() => (init_stop(), stop_exports)).then((hook) => hook.run()),

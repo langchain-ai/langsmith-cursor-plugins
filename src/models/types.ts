@@ -65,6 +65,12 @@ export interface AfterAgentResponseInput extends HookInputBase, UsageFields {
   text: string;
 }
 
+export interface AfterAgentThoughtInput extends HookInputBase {
+  hook_event_name: "afterAgentThought";
+  text: string;
+  duration_ms?: number;
+}
+
 export interface StopInput extends HookInputBase, UsageFields {
   hook_event_name: "stop";
   status?: string;

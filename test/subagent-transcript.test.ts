@@ -40,6 +40,7 @@ describe("parseSubagentTranscript", () => {
 
   it("recovers the subagent's final answer text", () => {
     expect(parsed.resultText && parsed.resultText.length).toBeGreaterThan(0);
+    expect(parsed.resultText).not.toContain("[REDACTED]");
   });
 
   it("ignores malformed / non-assistant rows gracefully", () => {

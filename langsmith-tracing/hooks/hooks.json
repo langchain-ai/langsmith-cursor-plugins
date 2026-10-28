@@ -10,6 +10,9 @@
     "afterAgentResponse": [
       { "command": "\"${CURSOR_PLUGIN_ROOT}/binary/langsmith-tracing.cmd\" after-agent-response" }
     ],
+    "afterAgentThought": [
+      { "command": "\"${CURSOR_PLUGIN_ROOT}/binary/langsmith-tracing.cmd\" after-agent-thought" }
+    ],
     "postToolUse": [
       { "command": "\"${CURSOR_PLUGIN_ROOT}/binary/langsmith-tracing.cmd\" post-tool-use" }
     ],

@@ -7,6 +7,7 @@ import { getAssumedTreeFromCalls } from "./utils/tree.js";
 import { sendTurn } from "./utils/engine.js";
 import type { TurnBuffer } from "../src/models/types.js";
 import type { Step } from "../src/models/conversation-steps.js";
+import { buildTurnRuns } from "../src/langsmith.js";
 
 const CAPTURE = join(process.cwd(), "test/fixtures/cursor-hooks.jsonl");
 const PARENT_CONV = "6bd3db3e-e838-485e-befc-b5f0d05b18cd";
@@ -48,6 +49,10 @@ describe("replay run2 hooks.jsonl through the event-buffer reducers", () => {
     expect(sub.tools!.some((t) => t.output != null)).toBe(true);
     // A failed tool is captured too (a Read of a missing file).
     expect(sub.tools!.some((t) => t.error != null)).toBe(true);
+  });
+
+  it("keeps the thinking Cursor reports through its thought hook", () => {
+    expect(finalized.some((f) => f.buffer.thoughts.length > 0)).toBe(true);
   });
 
   it("captures per-turn usage and a concrete model where available", () => {
@@ -152,7 +157,7 @@ describe("buildTurnRuns produces the expected LangSmith run tree", () => {
     expect(subInputs.some((m) => m.role === "user")).toBe(false);
   });
 
-  it("emits tool_call content blocks in the llm assistant message", async () => {
+  it("emits tool_calls on the llm assistant message", async () => {
     const { client, callSpy } = mockClient();
 
     const { finalized } = replayHookLog(CAPTURE);
@@ -169,18 +174,15 @@ describe("buildTurnRuns produces the expected LangSmith run tree", () => {
 
     const tree = await getAssumedTreeFromCalls(callSpy.mock.calls, client);
     const llm = Object.values(tree.data).find((r) => r.run_type === "llm")!;
-    const content = (llm.outputs as { messages: { content: Array<Record<string, unknown>> }[] })
-      .messages[0].content;
+    const toolCalls = (llm.outputs as { messages: { tool_calls: unknown[] }[] }).messages[0]
+      .tool_calls;
 
-    const toolCalls = content.filter((b) => b.type === "tool_call");
     expect(toolCalls.length).toBe(turn.buffer.tools.length);
-    // Each block carries the LangChain tool_call shape (name + args + id).
     const first = turn.buffer.tools[0];
     expect(toolCalls).toContainEqual({
-      type: "tool_call",
-      name: first.name,
-      args: first.input,
       id: first.tool_use_id,
+      type: "function",
+      function: { name: first.name, arguments: JSON.stringify(first.input) },
     });
   });
 
@@ -211,7 +213,7 @@ describe("buildTurnRuns produces the expected LangSmith run tree", () => {
     expect(middle.every((r) => r.run_type === "tool")).toBe(true);
   });
 
-  it("renders a subagent invocation as a Task tool_call block in the llm message", async () => {
+  it("renders a subagent invocation as a Subagent tool call in the llm message", async () => {
     const { client, callSpy } = mockClient();
 
     const { finalized } = replayHookLog(CAPTURE);
@@ -230,12 +232,13 @@ describe("buildTurnRuns produces the expected LangSmith run tree", () => {
     const decide = Object.values(tree.data).find(
       (r) => r.run_type === "llm" && r.parent_run_id === root.id,
     )!;
-    const content = (decide.outputs as { messages: { content: Array<Record<string, unknown>> }[] })
-      .messages[0].content;
+    const toolCalls = (
+      decide.outputs as { messages: { tool_calls: { function: Record<string, string> }[] }[] }
+    ).messages[0].tool_calls;
 
-    const taskCall = content.find((b) => b.type === "tool_call" && b.name === "Subagent");
+    const taskCall = toolCalls.find((c) => c.function.name === "Subagent");
     expect(taskCall).toBeDefined();
-    expect((taskCall!.args as { subagent_type?: string }).subagent_type).toBe("explore");
+    expect(JSON.parse(taskCall!.function.arguments).subagent_type).toBe("explore");
   });
 
   it("emits attachment content parts on the llm + root inputs (inline-render shape)", async () => {
@@ -382,11 +385,9 @@ describe("buildTurnRuns interleaved step fidelity", () => {
       return c.some((b) => b.type === "text" && b.text === "looking");
     })!;
     expect(round0).toBeDefined();
-    const r0Content = (
-      round0.outputs as { messages: { content: Array<Record<string, unknown>> }[] }
-    ).messages[0].content;
-    const r0ToolCalls = r0Content.filter((b) => b.type === "tool_call").map((b) => b.id);
-    expect(r0ToolCalls).toEqual(["tool_a", "tool_b"]);
+    const r0ToolCalls = (round0.outputs as { messages: { tool_calls: { id: string }[] }[] })
+      .messages[0].tool_calls;
+    expect(r0ToolCalls.map((c) => c.id)).toEqual(["tool_a", "tool_b"]);
   });
 
   it("falls back to the decide/answer shape when steps don't match the buffered tools", async () => {
@@ -410,5 +411,151 @@ describe("buildTurnRuns interleaved step fidelity", () => {
     const llms = Object.values(tree.data).filter((r) => r.run_type === "llm");
     // Decide/answer shape: exactly two llm runs (not three rounds).
     expect(llms.length).toBe(2);
+  });
+
+  it.each([
+    ["matching", steps],
+    ["orphan", [{ kind: "tool", toolUseId: "tool_zzz", toolField: 8, toolName: "Read" }] as Step[]],
+  ])("sends whole-millisecond times when tool durations are fractional (%s steps)", async (_name, turnSteps) => {
+    const { client, callSpy } = mockClient();
+    const fractional = {
+      ...buffer,
+      tools: buffer.tools.map((t) => ({ ...t, duration: 12.026 })),
+    };
+
+    await sendTurn(callSpy, {
+      buffer: fractional,
+      conversationId: "conv-x",
+      turnNum: 1,
+      project: "test",
+      steps: turnSteps,
+    });
+
+    const tree = await getAssumedTreeFromCalls(callSpy.mock.calls, client);
+    for (const run of Object.values(tree.data)) {
+      for (const time of [run.start_time, run.end_time]) {
+        if (typeof time === "number") expect(Number.isInteger(time)).toBe(true);
+      }
+    }
+  });
+});
+
+describe("buildTurnRuns keeps the thread view readable", () => {
+  const startMs = 1000;
+  const base: TurnBuffer = {
+    tracingMode: "full",
+    generation_id: "gen-1",
+    prompt: "do stuff",
+    model: "default",
+    startMs,
+    thoughts: [],
+    subagents: [],
+    finalText: "all done",
+    status: "completed",
+    tools: [],
+  };
+  const shell = {
+    tool_use_id: "tool_a",
+    name: "Shell",
+    input: { command: "ls" },
+    output: { exitCode: 0, stdout: "a\nb" },
+    duration: 500,
+    endMs: 3000,
+  };
+  const timedOut = {
+    tool_use_id: "tool_b",
+    name: "Read",
+    input: { path: "x" },
+    failure_type: "timeout",
+    endMs: 4000,
+  };
+  const build = (buffer: TurnBuffer, steps?: Step[]) =>
+    buildTurnRuns({ buffer, conversationId: "conv-x", turnNum: 1, project: "test", steps }).map(
+      (c) => c.run,
+    );
+  const answer = (runs: ReturnType<typeof build>) =>
+    runs.filter((r) => r.run_type === "llm").at(-1)!;
+  const toolCallIds = (runs: ReturnType<typeof build>) =>
+    (answer(runs).inputs.messages as Array<{ tool_calls?: Array<{ id: string }> }>).flatMap(
+      (m) => m.tool_calls?.map((c) => c.id) ?? [],
+    );
+  const toolText = (runs: ReturnType<typeof build>, id: string) =>
+    (
+      answer(runs).inputs.messages as Array<{ tool_call_id?: string; content: { text: string }[] }>
+    ).find((m) => m.tool_call_id === id)!.content[0].text;
+
+  it("starts a tool at its end minus Cursor's millisecond duration", () => {
+    const runs = build({ ...base, tools: [shell] });
+    expect(runs.find((r) => r.name === "Shell")!.start_time).toBe(2500);
+  });
+
+  it("shows object tool output as readable lines", () => {
+    expect(toolText(build({ ...base, tools: [shell] }), "tool_a")).toBe(
+      "exitCode: 0\nstdout:\na\nb",
+    );
+  });
+
+  it("marks a tool failure that carries no message as an error", () => {
+    const runs = build({ ...base, tools: [timedOut] });
+    expect(runs.find((r) => r.name === "Read")!.error).toBe("timeout");
+    expect(toolText(runs, "tool_b")).toBe("timeout");
+  });
+
+  it("ends a turn with no reply without an empty assistant message", () => {
+    const runs = build({ ...base, finalText: undefined, status: "aborted", tools: [shell] });
+    expect(answer(runs).outputs).toEqual({ messages: [] });
+  });
+
+  it("keeps the database's thinking on a turn without tools", () => {
+    const runs = build(base, [
+      { kind: "thinking", text: "plan" },
+      { kind: "assistant", text: "all done" },
+    ]);
+    expect(answer(runs).outputs!.messages[0].content).toContainEqual({
+      type: "thinking",
+      thinking: "plan",
+    });
+  });
+
+  it("places id-less writes where the steps put them and keeps unnamed subagents", () => {
+    const write = { ...shell, tool_use_id: "cursor-call-gen-1-0", name: "Write", endMs: 2000 };
+    const subagent = {
+      tracingMode: "full" as const,
+      subagent_id: "sub_1",
+      subagent_type: "explore",
+      task: "look",
+      startMs: 3500,
+      endMs: 3600,
+    };
+    const runs = build({ ...base, tools: [write, shell], subagents: [subagent] }, [
+      { kind: "tool", toolUseId: "" },
+      { kind: "assistant", text: "next" },
+      { kind: "tool", toolUseId: "tool_a" },
+      { kind: "assistant", text: "all done" },
+    ]);
+    expect(toolCallIds(runs)).toEqual(["cursor-call-gen-1-0", "tool_a", "sub_1"]);
+    expect(runs.filter((r) => r.run_type === "tool").map((r) => r.name)).toEqual([
+      "Write",
+      "Shell",
+    ]);
+  });
+
+  it("keeps a call the steps miss in the round it ran in", () => {
+    const read = { ...shell, tool_use_id: "tool_c", name: "Read", duration: 100, endMs: 5000 };
+    const subagent = {
+      tracingMode: "full" as const,
+      subagent_id: "sub_1",
+      subagent_type: "explore",
+      task: "look",
+      startMs: 2600,
+      endMs: 2800,
+    };
+    const runs = build({ ...base, tools: [shell, read], subagents: [subagent] }, [
+      { kind: "tool", toolUseId: "tool_a" },
+      { kind: "assistant", text: "next" },
+      { kind: "tool", toolUseId: "tool_c" },
+      { kind: "assistant", text: "all done" },
+    ]);
+    expect(toolCallIds(runs)).toEqual(["tool_a", "sub_1", "tool_c"]);
   });
 });

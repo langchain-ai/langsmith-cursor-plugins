@@ -13,11 +13,19 @@ import type {
   TurnContext,
 } from "./models/langsmith.js";
 import { buildUsageMetadata, deriveModelInfo } from "./normalize.js";
-import { DEFAULT_TAGS, SKILL_RUN_NAME, TURN_RUN_NAME } from "./constants.js";
+import {
+  DEFAULT_TAGS,
+  EMPTY_TOOL_ID_PREFIX,
+  SKILL_RUN_NAME,
+  TOOL_FAILED_MESSAGE,
+  TURN_RUN_NAME,
+} from "./constants.js";
 import { codingAgentMetadata, skillNameFromTool, withIntegration } from "./metadata.js";
 import type { CursorMetadataOptions } from "./models/metadata.js";
 import type { CapturedRun } from "./models/tracing-engine.js";
 import { groupSteps } from "./conversation-steps.js";
+import type { Round } from "./models/conversation-steps.js";
+import { readableText } from "./utils/text.js";
 import * as logger from "./logger.js";
 import { createHash } from "node:crypto";
 
@@ -67,30 +75,44 @@ function userMessageContent(prompt: string, attachments: ContentPart[]): Content
   return [...textPart, ...attachments];
 }
 
-/** Tool start = end − duration (seconds). Clamp so start never exceeds end. */
+/** Tool start = end − duration (milliseconds). Clamp so start never exceeds end. */
 function toolStartMs(tool: ToolEvent): number {
-  const durMs = (tool.duration ?? 0) * 1000;
-  return Math.max(0, tool.endMs - durMs);
+  return Math.max(0, Math.round(tool.endMs - (tool.duration ?? 0)));
+}
+
+function toolError(tool: ToolEvent): string | undefined {
+  if (tool.error == null && tool.failure_type == null) return undefined;
+  return tool.error || tool.failure_type || TOOL_FAILED_MESSAGE;
 }
 
 /** Render a tool's output (or error) as text for a tool-result message. */
 function toolResultText(tool: ToolEvent): string {
-  if (tool.error != null) return tool.error;
+  const error = toolError(tool);
+  if (error != null) return error;
   const out = tool.output;
   if (out == null) return "";
-  return typeof out === "string" ? out : JSON.stringify(out);
+  return readableText(out) || JSON.stringify(out);
 }
 
-/** One tool event → its ordered TurnCall (tool_call block + tool-result message). */
+function callEntry(
+  id: string,
+  name: string,
+  args: unknown,
+  text: string,
+): Pick<TurnCall, "toolCall" | "resultMessage"> {
+  return {
+    toolCall: { id, type: "function", function: { name, arguments: JSON.stringify(args) } },
+    resultMessage: { role: "tool", tool_call_id: id, content: [{ type: "text", text }] },
+  };
+}
+
+/** One tool event → its ordered TurnCall (tool call + tool-result message). */
 function toolCall(t: ToolEvent, floorMs: number): TurnCall {
   return {
     startMs: Math.max(floorMs, toolStartMs(t)),
-    toolCallBlock: { type: "tool_call", name: t.name, args: t.input, id: t.tool_use_id },
-    resultMessage: {
-      role: "tool",
-      tool_call_id: t.tool_use_id,
-      content: [{ type: "text", text: toolResultText(t) }],
-    },
+    endMs: t.endMs,
+    ...callEntry(t.tool_use_id, t.name, t.input, toolResultText(t)),
+    tool: t,
   };
 }
 
@@ -100,31 +122,33 @@ function orderedTurnCalls(buffer: TurnBuffer): TurnCall[] {
     ...buffer.tools.map((t) => toolCall(t, buffer.startMs)),
     ...buffer.subagents.map((s) => ({
       startMs: s.startMs,
-      toolCallBlock: {
-        type: "tool_call",
-        name: "Subagent",
-        args: {
+      endMs: s.endMs ?? s.startMs,
+      ...callEntry(
+        s.subagent_id,
+        "Subagent",
+        {
           subagent_type: s.subagent_type,
           task: s.tracingMode === "full" ? s.task : MUTED_TRACE_CONTENT,
         },
-        id: s.subagent_id,
-      },
-      resultMessage: {
-        role: "tool",
-        tool_call_id: s.subagent_id,
-        content: [
-          {
-            type: "text",
-            text:
-              s.tracingMode === "full"
-                ? (s.resultText ?? `status: ${s.status ?? "completed"}`)
-                : MUTED_TRACE_CONTENT,
-          },
-        ],
-      },
+        s.tracingMode === "full"
+          ? (s.resultText ?? `status: ${s.status ?? "completed"}`)
+          : MUTED_TRACE_CONTENT,
+      ),
     })),
   ];
   return calls.sort((a, b) => a.startMs - b.startMs);
+}
+
+function assistantMessage(
+  content: Array<Record<string, unknown>>,
+  calls: TurnCall[] = [],
+): Record<string, unknown> | undefined {
+  if (content.length === 0 && calls.length === 0) return undefined;
+  return {
+    role: "assistant",
+    content,
+    ...(calls.length ? { tool_calls: calls.map((c) => c.toolCall) } : {}),
+  };
 }
 
 /** Build the full LangSmith trace for one finalized turn. */
@@ -194,7 +218,11 @@ function createTurnContext(options: BuildTurnOptions): TurnContext {
       runSpecific: { ls_provider, ls_invocation_params: { model: ls_model_name } },
     },
     usageMetadata: buildUsageMetadata(buffer.usage),
-    thinking: buffer.thoughts.map((t) => ({ type: "thinking", thinking: t.text })),
+    thinking: thinkingBlocks(
+      buffer.thoughts.length
+        ? buffer.thoughts
+        : (options.steps ?? []).filter((s) => s.kind === "thinking"),
+    ),
     finalTextBlocks: buffer.finalText ? [{ type: "text", text: buffer.finalText }] : [],
     calls: orderedTurnCalls(buffer),
     turnEndMs: Math.max(
@@ -249,12 +277,13 @@ function addRun(turn: TurnContext, parent: RunTree, spec: RunSpec): RunTree {
 }
 
 function addLlmRun(turn: TurnContext, parent: RunTree, spec: LlmRunSpec): RunTree {
+  const message = assistantMessage(spec.content, spec.calls);
   return addRun(turn, parent, {
     key: spec.key,
     name: spec.name,
     type: "llm",
     inputs: { messages: spec.messages },
-    outputs: { messages: [{ role: "assistant", content: spec.content }] },
+    outputs: { messages: message ? [message] : [] },
     startMs: spec.startMs,
     endMs: spec.endMs,
     metadata: spec.metadata,
@@ -285,14 +314,15 @@ function addAgenticRuns(turn: TurnContext, turnRun: RunTree): void {
     ...buffer.tools.map((t) => t.endMs),
     ...buffer.subagents.map((s) => s.endMs ?? s.startMs),
   );
-  const assistantDecision = [...turn.thinking, ...calls.map((c) => c.toolCallBlock)];
+  const assistantDecision = assistantMessage(turn.thinking, calls);
 
   // "decide" llm — emits the tool calls. Usage goes on the answer run.
   addLlmRun(turn, turnRun, {
     key: "decide",
     name: turn.llmName,
     messages: withSystem([{ role: "user", content: turn.userContent }], systemPrompt),
-    content: assistantDecision,
+    content: turn.thinking,
+    calls,
     startMs: buffer.startMs,
     endMs: Math.max(buffer.startMs, firstCallStart),
     metadata: { ...ctx, ...turn.llmMeta },
@@ -311,7 +341,7 @@ function addAgenticRuns(turn: TurnContext, turnRun: RunTree): void {
     messages: withSystem(
       [
         { role: "user", content: turn.userContent },
-        { role: "assistant", content: assistantDecision },
+        assistantDecision!,
         ...calls.map((c) => c.resultMessage),
       ],
       systemPrompt,
@@ -330,6 +360,32 @@ function thinkingBlocks(
   return thinking.flatMap((t) => (t.text ? [{ type: "thinking", thinking: t.text }] : []));
 }
 
+function placeRoundCalls(turn: TurnContext, rounds: Round[]): TurnCall[][] | undefined {
+  const unplaced = new Map(turn.calls.map((c) => [c.toolCall.id, c]));
+  const idless = turn.calls.filter((c) => c.toolCall.id.startsWith(EMPTY_TOOL_ID_PREFIX));
+  let anyMatched = false;
+  const placed = rounds.map((round) =>
+    round.toolSteps.flatMap((ts) => {
+      const call = ts.toolUseId
+        ? unplaced.get(ts.toolUseId)
+        : idless.find((c) => unplaced.has(c.toolCall.id));
+      if (!call) return [];
+      anyMatched ||= Boolean(ts.toolUseId && call.tool);
+      unplaced.delete(call.toolCall.id);
+      return [call];
+    }),
+  );
+  if (!anyMatched) return undefined;
+  for (const call of unplaced.values()) {
+    const round =
+      [...placed].reverse().find((calls) => calls.some((c) => c.startMs <= call.startMs)) ??
+      placed[0];
+    const at = round.findIndex((c) => c.startMs > call.startMs);
+    round.splice(at < 0 ? round.length : at, 0, call);
+  }
+  return placed;
+}
+
 /**
  * Render the turn as interleaved per-round llm + tool runs from the decoded steps.
  * Returns false when the steps don't line up with hook tools, so the caller falls back.
@@ -337,8 +393,6 @@ function thinkingBlocks(
 function addInterleavedRounds(turn: TurnContext, turnRun: RunTree): boolean {
   const { options, ctx } = turn;
   const { buffer, systemPrompt } = options;
-  const toolMap = new Map<string, ToolEvent>();
-  for (const t of buffer.tools) if (t.tool_use_id) toolMap.set(t.tool_use_id, t);
 
   const rounds = groupSteps(options.steps ?? []);
   if (rounds.length === 0) return false;
@@ -349,43 +403,36 @@ function addInterleavedRounds(turn: TurnContext, turnRun: RunTree): boolean {
   const actionRounds = finalRound ? rounds.slice(0, -1) : rounds;
 
   // Need at least one tool that lines up with the hook buffer to justify interleaving.
-  const anyMatched = actionRounds.some((r) =>
-    r.toolSteps.some((ts) => ts.toolUseId != null && toolMap.has(ts.toolUseId)),
-  );
-  if (!anyMatched) return false;
+  const placed = placeRoundCalls(turn, actionRounds);
+  if (!placed) return false;
 
   const msgs: Array<Record<string, unknown>> = [{ role: "user", content: turn.userContent }];
   let cursorMs = buffer.startMs;
 
   for (const [roundIndex, round] of actionRounds.entries()) {
-    const matched = round.toolSteps
-      .map((ts) => (ts.toolUseId != null ? toolMap.get(ts.toolUseId) : undefined))
-      .filter((t): t is ToolEvent => t != null);
-    const calls = matched.map((t) => toolCall(t, buffer.startMs));
-
+    const calls = placed[roundIndex];
     const textBlocks = round.assistantText ? [{ type: "text", text: round.assistantText }] : [];
-    const assistantContent = [
-      ...thinkingBlocks(round.thinking),
-      ...textBlocks,
-      ...calls.map((c) => c.toolCallBlock),
-    ];
+    const assistantContent = [...thinkingBlocks(round.thinking), ...textBlocks];
 
     addLlmRun(turn, turnRun, {
       key: `round:${roundIndex}`,
       name: turn.llmName,
       messages: withSystem([...msgs], systemPrompt),
       content: assistantContent,
+      calls,
       startMs: cursorMs,
       endMs: calls.length ? Math.max(cursorMs, Math.min(...calls.map((c) => c.startMs))) : cursorMs,
       metadata: { ...ctx, ...turn.llmMeta },
     });
 
-    for (const t of matched) addToolRun(turn, turnRun, ctx, t, toolKey(buffer.tools.indexOf(t), t));
+    for (const { tool: t } of calls)
+      if (t) addToolRun(turn, turnRun, ctx, t, toolKey(buffer.tools.indexOf(t), t));
 
     // Thread this round's assistant turn + tool results into the running conversation.
-    msgs.push({ role: "assistant", content: assistantContent });
+    const assistant = assistantMessage(assistantContent, calls);
+    if (assistant) msgs.push(assistant);
     for (const c of calls) msgs.push(c.resultMessage);
-    if (matched.length) cursorMs = Math.max(cursorMs, ...matched.map((t) => t.endMs));
+    if (calls.length) cursorMs = Math.max(cursorMs, ...calls.map((c) => c.endMs));
   }
 
   // Subagents render as nested chains, ordered in the UI by their own start_time.
@@ -418,15 +465,15 @@ function addToolRun(
   // mis-sorting tools ahead of the llm.
   const floorMs = typeof parent.start_time === "number" ? parent.start_time : 0;
   const startMs = Math.max(floorMs, toolStartMs(tool));
-  const isError = tool.error != null;
+  const error = toolError(tool);
 
   addRun(turn, parent, {
     key,
     name: tool.name,
     type: "tool",
     inputs: { input: tool.input },
-    outputs: isError ? { error: tool.error } : { output: tool.output ?? "" },
-    error: isError ? tool.error : undefined,
+    outputs: error != null ? { error } : { output: tool.output ?? "" },
+    error,
     startMs,
     endMs: tool.endMs,
     metadata: {
@@ -615,13 +662,12 @@ function addSubagentAgenticRuns(
   const calls = tools.map((t) => toolCall(t, startMs)).sort((a, b) => a.startMs - b.startMs);
   const firstCallStart = Math.min(...calls.map((c) => c.startMs));
   const lastCallEnd = Math.max(startMs, ...tools.map((t) => t.endMs));
-  const assistantDecision = calls.map((c) => c.toolCallBlock);
-
   addLlmRun(turn, subagentRun, {
     key: `${key}:decide`,
     name: llm.name,
     messages: baseMessages,
-    content: assistantDecision,
+    content: [],
+    calls,
     startMs,
     endMs: Math.max(startMs, firstCallStart),
     metadata: llm.metadata,
@@ -633,11 +679,7 @@ function addSubagentAgenticRuns(
   addLlmRun(turn, subagentRun, {
     key: `${key}:answer`,
     name: llm.name,
-    messages: [
-      ...baseMessages,
-      { role: "assistant", content: assistantDecision },
-      ...calls.map((c) => c.resultMessage),
-    ],
+    messages: [...baseMessages, assistantMessage([], calls)!, ...calls.map((c) => c.resultMessage)],
     content: subagentFinalBlocks(sub),
     startMs: lastCallEnd,
     endMs,

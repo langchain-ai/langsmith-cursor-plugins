@@ -142,3 +142,15 @@ describe("turn numbering", () => {
     expect(result.state[CONV].turns_started).toBe(2);
   });
 });
+
+describe("tool ids", () => {
+  it("gives each tool Cursor sent without an id its own id", () => {
+    let state: TracingState = {};
+    state = reduceBeforeSubmitPrompt(state, submit("g1"), T0);
+    state = reducePostToolUse(state, toolUse("g1", ""), T0 + 1);
+    state = reducePostToolUse(state, toolUse("g1", ""), T0 + 2);
+    const ids = state[CONV].turns.g1.tools.map((t) => t.tool_use_id);
+    expect(new Set(ids).size).toBe(2);
+    expect(ids.every(Boolean)).toBe(true);
+  });
+});

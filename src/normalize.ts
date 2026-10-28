@@ -10,6 +10,7 @@ import {
   MODEL_SUFFIXES,
   OPENAI_MODEL_PREFIX,
   PROVIDER_PREFIX,
+  REDACTED_TRANSCRIPT_MARKER,
   SUBAGENT_PSEUDO_TOOLS,
 } from "./constants.js";
 import type { UsageFields } from "./models/types.js";
@@ -171,8 +172,9 @@ export function parseSubagentTranscript(rows: unknown[]): {
       if (part.type === "tool_use" && typeof part.name === "string") {
         if (SUBAGENT_PSEUDO_TOOLS.has(part.name)) continue;
         toolCalls.push({ name: part.name, input: isRecord(part.input) ? part.input : {} });
-      } else if (part.type === "text" && typeof part.text === "string" && part.text.trim()) {
-        resultText = part.text; // keep the last non-empty assistant text
+      } else if (part.type === "text" && typeof part.text === "string") {
+        const text = part.text.replace(REDACTED_TRANSCRIPT_MARKER, "");
+        if (text.trim()) resultText = text; // keep the last non-empty assistant text
       }
     }
   }
