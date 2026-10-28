@@ -1,6 +1,6 @@
 {
   "name": "@langchain/langsmith-cursor-plugins",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "Cursor plugin for LangSmith tracing",
   "type": "module",
   "scripts": {
