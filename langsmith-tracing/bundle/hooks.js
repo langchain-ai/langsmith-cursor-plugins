@@ -26886,7 +26886,7 @@ function userMessageContent(prompt, attachments) {
   return [...textPart, ...attachments];
 }
 function toolStartMs(tool) {
-  return Math.max(0, tool.endMs - (tool.duration ?? 0));
+  return Math.max(0, Math.round(tool.endMs - (tool.duration ?? 0)));
 }
 function toolError(tool) {
   if (tool.error == null && tool.failure_type == null)

@@ -412,6 +412,32 @@ describe("buildTurnRuns interleaved step fidelity", () => {
     // Decide/answer shape: exactly two llm runs (not three rounds).
     expect(llms.length).toBe(2);
   });
+
+  it.each([
+    ["matching", steps],
+    ["orphan", [{ kind: "tool", toolUseId: "tool_zzz", toolField: 8, toolName: "Read" }] as Step[]],
+  ])("sends whole-millisecond times when tool durations are fractional (%s steps)", async (_name, turnSteps) => {
+    const { client, callSpy } = mockClient();
+    const fractional = {
+      ...buffer,
+      tools: buffer.tools.map((t) => ({ ...t, duration: 12.026 })),
+    };
+
+    await sendTurn(callSpy, {
+      buffer: fractional,
+      conversationId: "conv-x",
+      turnNum: 1,
+      project: "test",
+      steps: turnSteps,
+    });
+
+    const tree = await getAssumedTreeFromCalls(callSpy.mock.calls, client);
+    for (const run of Object.values(tree.data)) {
+      for (const time of [run.start_time, run.end_time]) {
+        if (typeof time === "number") expect(Number.isInteger(time)).toBe(true);
+      }
+    }
+  });
 });
 
 describe("buildTurnRuns keeps the thread view readable", () => {

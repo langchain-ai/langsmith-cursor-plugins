@@ -77,7 +77,7 @@ function userMessageContent(prompt: string, attachments: ContentPart[]): Content
 
 /** Tool start = end − duration (milliseconds). Clamp so start never exceeds end. */
 function toolStartMs(tool: ToolEvent): number {
-  return Math.max(0, tool.endMs - (tool.duration ?? 0));
+  return Math.max(0, Math.round(tool.endMs - (tool.duration ?? 0)));
 }
 
 function toolError(tool: ToolEvent): string | undefined {
