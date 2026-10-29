@@ -1,6 +1,6 @@
 :; : <<'WINDOWS_BATCH'
 @echo off
-node "%~dp0..\bundle\guard.js" %*
+node "%~dp0..\bundle\guard.mjs" %*
 exit /b %ERRORLEVEL%
 WINDOWS_BATCH
 
@@ -9,7 +9,7 @@ set -eu
 OUR_EXIT_CODES="0"
 
 here=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd -P)
-node_hook="$here/../bundle/guard.js"
+node_hook="$here/../bundle/guard.mjs"
 
 started() {
   case " $OUR_EXIT_CODES " in

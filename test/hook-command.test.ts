@@ -42,7 +42,7 @@ function sandbox(builds: string[], startable = true): string {
   cpSync(fileURLToPath(new URL(`${PLUGIN_DIRECTORY_NAME}/${picker}`, root)), join(dir, picker));
   chmodSync(join(dir, picker), 0o755);
   writeFileSync(
-    join(dir, "bundle/guard.js"),
+    join(dir, "bundle/guard.mjs"),
     'let turn = "";\nprocess.stdin.on("data", (c) => (turn += c));\n' +
       `process.stdin.on("end", () => { turn = turn.replace(${LEADING_BYTE_ORDER_MARKS}, ""); ` +
       'process.stdout.write("node " + process.argv[2] + " " + turn.length + " " +' +
@@ -116,7 +116,7 @@ it.each(Object.values(BINARY_HOOK_EVENTS))(
   (hook) => {
     const result = spawnSync(
       process.execPath,
-      [fileURLToPath(new URL(`${PLUGIN_DIRECTORY_NAME}/bundle/guard.js`, root)), hook],
+      [fileURLToPath(new URL(`${PLUGIN_DIRECTORY_NAME}/bundle/guard.mjs`, root)), hook],
       {
         encoding: "utf8",
         input: "this is not an event",

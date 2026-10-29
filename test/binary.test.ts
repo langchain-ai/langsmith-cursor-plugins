@@ -190,7 +190,7 @@ describe("a cached plugin install without node_modules", () => {
     cpSync(fileURLToPath(new URL(`${PLUGIN_DIRECTORY_NAME}/bundle`, root)), pluginBundle, {
       recursive: true,
     });
-    const command = [process.execPath, join(pluginBundle, "guard.js")];
+    const command = [process.execPath, join(pluginBundle, "guard.mjs")];
     const env = {
       TRACE_TO_LANGSMITH: "1",
       LANGSMITH_CURSOR_API_KEY: "test-key",

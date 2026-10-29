@@ -50,7 +50,7 @@ function submit(prompt: string, generation_id = "generation", cwd = dir) {
   expect(match).not.toBeNull();
   const result = spawnSync(
     process.execPath,
-    [new URL(`../${PLUGIN_DIRECTORY_NAME}/bundle/guard.js`, import.meta.url).pathname, match![1]],
+    [new URL(`../${PLUGIN_DIRECTORY_NAME}/bundle/guard.mjs`, import.meta.url).pathname, match![1]],
     {
       cwd,
       env,
@@ -85,7 +85,7 @@ function raw(input: string) {
   return spawnSync(
     process.execPath,
     [
-      new URL(`../${PLUGIN_DIRECTORY_NAME}/bundle/guard.js`, import.meta.url).pathname,
+      new URL(`../${PLUGIN_DIRECTORY_NAME}/bundle/guard.mjs`, import.meta.url).pathname,
       "before-submit-prompt",
     ],
     { cwd: dir, env, encoding: "utf8", timeout: 10000, input },
@@ -107,7 +107,7 @@ it("lets the prompt through when Node is too old to trace", () => {
     [
       "--import",
       pathToFileURL(shim).href,
-      new URL(`../${PLUGIN_DIRECTORY_NAME}/bundle/guard.js`, import.meta.url).pathname,
+      new URL(`../${PLUGIN_DIRECTORY_NAME}/bundle/guard.mjs`, import.meta.url).pathname,
       "before-submit-prompt",
     ],
     { cwd: dir, env, encoding: "utf8", timeout: 10000, input: "{}" },
@@ -120,16 +120,34 @@ it("lets the prompt through when Node is too old to trace", () => {
 it("lets the prompt through when the hook itself cannot be loaded", () => {
   const alone = mkdtempSync(join(tmpdir(), "cursor alone "));
   cpSync(
-    new URL(`../${PLUGIN_DIRECTORY_NAME}/bundle/guard.js`, import.meta.url).pathname,
-    join(alone, "guard.js"),
+    new URL(`../${PLUGIN_DIRECTORY_NAME}/bundle/guard.mjs`, import.meta.url).pathname,
+    join(alone, "guard.mjs"),
   );
-  const result = spawnSync(process.execPath, [join(alone, "guard.js"), "before-submit-prompt"], {
+  const result = spawnSync(process.execPath, [join(alone, "guard.mjs"), "before-submit-prompt"], {
     cwd: dir,
     env,
     encoding: "utf8",
     timeout: 10000,
     input: "{}",
   });
+  expect(result.status, result.stderr).toBe(0);
+  expect(JSON.parse(result.stdout).continue).toBe(true);
+});
+
+it("loads the bundle as ES modules under a folder that declares commonjs", () => {
+  writeFileSync(join(dir, "package.json"), '{"type":"commonjs"}');
+  const bundle = join(dir, "plugin", "bundle");
+  cpSync(new URL(`../${PLUGIN_DIRECTORY_NAME}/bundle`, import.meta.url).pathname, bundle, {
+    recursive: true,
+  });
+  const result = spawnSync(process.execPath, [join(bundle, "guard.mjs"), "before-submit-prompt"], {
+    cwd: dir,
+    env,
+    encoding: "utf8",
+    timeout: 10000,
+    input: "{}",
+  });
+  expect(result.stderr).not.toContain("SyntaxError");
   expect(result.status, result.stderr).toBe(0);
   expect(JSON.parse(result.stdout).continue).toBe(true);
 });
@@ -238,7 +256,7 @@ function event(name: string, generation_id = "generation", extra: Record<string,
   expect(match).not.toBeNull();
   const result = spawnSync(
     process.execPath,
-    [new URL(`../${PLUGIN_DIRECTORY_NAME}/bundle/guard.js`, import.meta.url).pathname, match![1]],
+    [new URL(`../${PLUGIN_DIRECTORY_NAME}/bundle/guard.mjs`, import.meta.url).pathname, match![1]],
     {
       cwd: dir,
       env,

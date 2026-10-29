@@ -29445,7 +29445,7 @@ var binary_config_default = {
     ],
     minify: false,
     stampedVersionFiles: [
-      "langsmith-tracing/bundle/hooks.js"
+      "langsmith-tracing/bundle/hooks.mjs"
     ]
   },
   sign: {
