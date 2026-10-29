@@ -184,6 +184,7 @@ export function loadConfig(options?: { cwd?: string }): Config {
         redact: parseBoolean(getEnv("REDACT")),
         redact_extra_rules: parseRedactExtraRules(getEnv("REDACT_EXTRA")),
         strict_auth: parseBoolean(getEnv("STRICT_AUTH")),
+        capture_hook_outputs: parseBoolean(getEnv("CAPTURE_HOOK_OUTPUTS")),
       },
       defaults: { api_key: "", api_url: DEFAULT_API_URL, project: DEFAULT_PROJECT },
     },
@@ -254,6 +255,7 @@ export function loadConfig(options?: { cwd?: string }): Config {
     locked: common.locked,
     apiUrlIsDefault: common.defaulted.includes("api_url"),
     strictAuth: common.strict_auth === true,
+    captureHookOutputs: common.capture_hook_outputs === true,
     ...(common.managedConfigProblem === undefined
       ? {}
       : { managedConfigProblem: common.managedConfigProblem }),

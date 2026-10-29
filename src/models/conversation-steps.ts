@@ -1,3 +1,4 @@
+import type { HookOutput } from "@langchain/plugins-base/tracing";
 import type { BlobReader } from "./cursor-db.js";
 
 /** A decoded top-level protobuf field. `num` = varint value; `bytes` = wire-type-2 payload. */
@@ -27,4 +28,26 @@ export interface ResolveTurnStepsOptions {
   dbPath?: string;
   /** Injectable reader factory (tests). Defaults to the read-only `node:sqlite` reader. */
   openReader?: (dbPath: string) => BlobReader;
+}
+
+export interface HookPlacement {
+  direction: "input" | "output";
+  scope: "tool" | "turn";
+}
+
+export interface RunHooks {
+  inputs: HookOutput[];
+  outputs: HookOutput[];
+}
+
+export interface TurnHooks extends RunHooks {
+  tools: Map<string, RunHooks>;
+}
+
+export interface ResolveTurnHooksOptions {
+  conversationId: string;
+  generationId: string;
+  idlessToolId?: string;
+  subagentToolIds: Map<string, string[]>;
+  dbPath?: string;
 }

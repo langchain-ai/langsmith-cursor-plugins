@@ -420,6 +420,14 @@ describe("loadConfig", () => {
       lock({ strict_auth: false });
       expect(loadConfig({ cwd }).strictAuth).toBe(false);
     });
+
+    it("captures hook output only when the environment turns it on and the lock allows it", () => {
+      expect(loadConfig({ cwd }).captureHookOutputs).toBe(false);
+      vi.stubEnv("LANGSMITH_CURSOR_CAPTURE_HOOK_OUTPUTS", "true");
+      expect(loadConfig({ cwd }).captureHookOutputs).toBe(true);
+      lock({ capture_hook_outputs: false });
+      expect(loadConfig({ cwd }).captureHookOutputs).toBe(false);
+    });
   });
 
   describe("run metadata", () => {

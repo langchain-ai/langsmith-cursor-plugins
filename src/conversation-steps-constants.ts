@@ -1,3 +1,5 @@
+import type { HookPlacement } from "./models/conversation-steps.js";
+
 // ─── Protobuf field numbers (wire-stable; verified against Cursor 3.7.19) ─────
 
 /** ConversationStateStructure.turns — repeated bytes (each = a turn blob id). */
@@ -18,6 +20,11 @@ export const THINKING_DURATION_FIELD = 2;
 export const TOOLCALL_TOOL_USE_ID_FIELD = 57;
 /** ToolCall.hook_additional_contexts=54 — not the tool oneof; skip when sniffing it. */
 export const TOOLCALL_HOOK_CONTEXTS_FIELD = 54;
+export const TURN_USER_MESSAGE_FIELD = 1;
+export const USER_MESSAGE_ID_FIELD = 2;
+export const USER_MESSAGE_HOOK_CONTEXTS_FIELD = 21;
+export const HOOK_CONTEXT_NAME_FIELD = 1;
+export const HOOK_CONTEXT_TEXT_FIELD = 2;
 
 /** ToolCall oneof field number → human-readable tool name (fallback labels only). */
 export const TOOL_FIELD_NAMES: Record<number, string> = {
@@ -70,3 +77,29 @@ export const TOOL_FIELD_NAMES: Record<number, string> = {
   55: "SendMessage",
   58: "SendToUser",
 };
+
+export const HOOK_EVENT_PLACEMENT = new Map<string, HookPlacement>([
+  ["sessionStart", { direction: "input", scope: "turn" }],
+  ["sessionEnd", { direction: "output", scope: "turn" }],
+  ["preToolUse", { direction: "input", scope: "tool" }],
+  ["postToolUse", { direction: "output", scope: "tool" }],
+  ["postToolUseFailure", { direction: "output", scope: "tool" }],
+  ["subagentStart", { direction: "input", scope: "turn" }],
+  ["subagentStop", { direction: "output", scope: "turn" }],
+  ["beforeShellExecution", { direction: "input", scope: "tool" }],
+  ["afterShellExecution", { direction: "output", scope: "tool" }],
+  ["beforeMCPExecution", { direction: "input", scope: "tool" }],
+  ["afterMCPExecution", { direction: "output", scope: "tool" }],
+  ["beforeReadFile", { direction: "input", scope: "tool" }],
+  ["afterFileEdit", { direction: "output", scope: "tool" }],
+  ["beforeSubmitPrompt", { direction: "input", scope: "turn" }],
+  ["preCompact", { direction: "input", scope: "turn" }],
+  ["stop", { direction: "output", scope: "turn" }],
+  ["afterAgentResponse", { direction: "output", scope: "turn" }],
+  ["afterAgentThought", { direction: "output", scope: "turn" }],
+  ["beforeTabFileRead", { direction: "input", scope: "turn" }],
+  ["afterTabFileEdit", { direction: "output", scope: "turn" }],
+  ["workspaceOpen", { direction: "input", scope: "turn" }],
+]);
+
+export const UNKNOWN_HOOK_PLACEMENT: HookPlacement = { direction: "input", scope: "turn" };
