@@ -145,7 +145,7 @@ describe("the folder the released builds land in", () => {
     cpSync(new URL(`${PLUGIN_DIRECTORY_NAME}/${picker}`, root).pathname, join(plugin, picker));
     chmodSync(join(plugin, picker), 0o755);
     writeFileSync(
-      join(plugin, "bundle", "guard.js"),
+      join(plugin, "bundle", "guard.mjs"),
       'process.stdout.write("node " + process.argv[2]);\n',
     );
 
@@ -204,7 +204,7 @@ describe("the folder the released builds land in", () => {
       countingGuard() {
         const counts = 'let n=0;process.stdin.on("data",(c)=>{n+=c.length});';
         const reports = 'process.stdin.on("end",()=>process.stdout.write("node "+n+" bytes"));\n';
-        writeFileSync(join(plugin, "bundle", "guard.js"), counts + reports);
+        writeFileSync(join(plugin, "bundle", "guard.mjs"), counts + reports);
       },
       attempt(input?: string) {
         return spawnSync("/bin/sh", ["-c", `"${join(plugin, picker)}" stop`], {

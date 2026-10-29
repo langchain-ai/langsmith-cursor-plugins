@@ -157,7 +157,7 @@ if (!hookName) {
   console.error("[langsmith] guard: missing hook name argument");
   process.exit(0);
 }
-await import(new URL("./hooks.js", import.meta.url).href).catch((err) => {
+await import(new URL("./hooks.mjs", import.meta.url).href).catch((err) => {
   console.error(`[langsmith] hook ${hookName} failed:`, err);
   if (hookName === "before-submit-prompt")
     process.stdout.write(HOOK_CONTINUE_OUTPUT);

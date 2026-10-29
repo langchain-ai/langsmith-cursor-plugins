@@ -15,7 +15,7 @@
  * until the check has passed. (A dynamic import runs after this module's own
  * code; a static import would be hoisted and crash before the check.)
  *
- * Invoked as: node ./bundle/guard.js <hook-name>
+ * Invoked as: node ./bundle/guard.mjs <hook-name>
  */
 import { execFileSync, spawnSync } from "node:child_process";
 import { userInfo } from "node:os";
@@ -110,7 +110,7 @@ if (!hookName) {
 
 // Defer loading the real (sqlite-importing) hooks until the version check passes.
 // Resolve relative to this file so it works regardless of cwd.
-await import(new URL("./hooks.js", import.meta.url).href).catch((err: unknown) => {
+await import(new URL("./hooks.mjs", import.meta.url).href).catch((err: unknown) => {
   console.error(`[langsmith] hook ${hookName} failed:`, err);
   if (hookName === "before-submit-prompt") process.stdout.write(HOOK_CONTINUE_OUTPUT);
   process.exit(0);
