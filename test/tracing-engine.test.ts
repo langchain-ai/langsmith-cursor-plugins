@@ -180,6 +180,19 @@ describe("saving a turn for upload", () => {
     expect(base("Read")).toMatchObject({ repository_name: "acme/gadget" });
   });
 
+  it("uses a main-conversation tool's own workspace for its repo", async () => {
+    const session = repo("widget");
+    const other = repo("gadget");
+    const own = { ...tool("t1", "Shell", T0 + 1000, { command: "ls" }), workspace_root: other };
+    await saveTurnForUpload(config, {
+      ...toolTurn,
+      buffer: { ...toolTurn.buffer, tools: [own] },
+      origin: { project: "cursor", customMetadata: { cwd: session } },
+    });
+    const shell = (await build()).find(({ submission }) => submission.run.name === "Shell")!;
+    expect(shell.submission.metadata.base?.repository_name).toBe("acme/gadget");
+  });
+
   it("finds the repo from real Cursor's path keys and from a subagent's own workspace", async () => {
     const session = repo("widget");
     const other = repo("gadget");
