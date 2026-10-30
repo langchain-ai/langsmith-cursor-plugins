@@ -150,6 +150,7 @@ export interface ToolEvent {
   duration?: number;
   /** Wall-clock ms when the hook fired (tool end). */
   endMs: number;
+  workspace_root?: string;
 }
 
 /** A subagent invocation, rendered as a Task tool run with nested tool children. */
@@ -206,6 +207,7 @@ export interface TurnBuffer {
   generation_id: string;
   turnNum?: number;
   prompt?: string;
+  typedCommand?: string;
   /** Best model label seen for this turn (from beforeSubmitPrompt / stop). */
   model?: string;
   /** Wall-clock ms when the turn started (beforeSubmitPrompt). */

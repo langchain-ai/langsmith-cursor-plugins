@@ -50,8 +50,18 @@ export const LEADING_BYTE_ORDER_MARKS = /^\uFEFF+/;
 
 export const LS_INTEGRATION = "cursor";
 
-/** Read tools only, so a glob or grep naming SKILL.md is not counted as an invocation. */
-export const SKILL_READ_TOOLS = new Set(["read_file_v2", "ReadFile", "Read"]);
+/** Read tools and Shell only, so a glob or grep naming SKILL.md is not counted as an invocation. */
+export const SKILL_READ_TOOLS = new Set(["read_file_v2", "ReadFile", "Read", "Shell"]);
+
+export const SHELL_CAT_PATH = /\bcat\s+["']?([^\s"']+)/;
+
+export const SYNCED_SKILLS_FOLDER = "synced";
+
+export const SKILL_FOLDERS = new Set(["skills", "skills-cursor"]);
+
+export const TYPED_SKILL_COMMAND = /^\s*\/([\w-]+)/;
+
+export const TYPED_SKILL_ROOT_DIRS = [".cursor", ".agents", ".claude", ".codex"];
 
 export const PATH_SEPARATOR = /[/\\]/;
 
@@ -126,7 +136,15 @@ export const JOB_STORE_DIR_NAME = "jobs";
 
 export const GH_LOGIN_MARKER_FILE = "langsmith_gh_login.json";
 
-export const TOOL_PATH_INPUT_KEYS = ["file_path", "path", "target_file", "targetDirectory", "cwd"];
+export const TOOL_PATH_INPUT_KEYS = [
+  "file_path",
+  "path",
+  "target_file",
+  "targetDirectory",
+  "target_directory",
+  "working_directory",
+  "cwd",
+];
 
 export const RUN_EVENT_PREFIX = "post:";
 

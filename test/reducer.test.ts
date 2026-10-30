@@ -59,6 +59,16 @@ function response(generationId: string): AfterAgentResponseInput {
   };
 }
 
+describe("typed commands", () => {
+  it("records the leading /name of a typed command on the turn", () => {
+    const next = reduceBeforeSubmitPrompt({}, submit("g1", "/deploy now"), T0);
+    expect(next[CONV].turns.g1.typedCommand).toBe("deploy");
+    expect(
+      reduceBeforeSubmitPrompt({}, submit("g1", "deploy"), T0)[CONV].turns.g1.typedCommand,
+    ).toBeUndefined();
+  });
+});
+
 describe("turn numbering", () => {
   it("numbers a turn when it starts", () => {
     let state: TracingState = {};
