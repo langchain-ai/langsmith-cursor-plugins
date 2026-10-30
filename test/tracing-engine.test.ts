@@ -284,6 +284,44 @@ describe("naming each run's repo from the folder its tools touched", () => {
     expect(baseOf(outputs, "Grep")).toMatchObject({ repository_name: "acme/sprocket" });
   });
 
+  it("keeps two tools in one turn apart when they share an id", async () => {
+    const widget = repo("widget");
+    const gadget = repo("gadget");
+    writeFileSync(join(widget, "a.ts"), "");
+    writeFileSync(join(gadget, "a.ts"), "");
+    const tools = [
+      { ...tool("same", "Read", T0 + 1000, { path: "a.ts" }), workspace_root: widget },
+      { ...tool("same", "Grep", T0 + 2000, { path: "a.ts" }), workspace_root: gadget },
+    ];
+    const outputs = await buildRuns({ ...toolTurn.buffer, tools }, repo("plain"));
+    expect(baseOf(outputs, "Read")).toMatchObject({ repository_name: "acme/widget" });
+    expect(baseOf(outputs, "Grep")).toMatchObject({ repository_name: "acme/gadget" });
+  });
+
+  it("keeps two tools of one subagent apart when they share an id", async () => {
+    const widget = repo("widget");
+    const gadget = repo("gadget");
+    writeFileSync(join(widget, "a.ts"), "");
+    writeFileSync(join(gadget, "a.ts"), "");
+    const tools = [
+      { ...tool("same", "Read", T0 + 1500, { path: "a.ts" }), workspace_root: widget },
+      { ...tool("same", "Grep", T0 + 2500, { path: "a.ts" }), workspace_root: gadget },
+    ];
+    const subagents = [
+      {
+        subagent_id: "sub",
+        subagent_type: "explore",
+        task: "look",
+        startMs: T0 + 1000,
+        endMs: T0 + 3000,
+        tools,
+      },
+    ];
+    const outputs = await buildRuns({ ...toolTurn.buffer, tools: [], subagents }, repo("plain"));
+    expect(baseOf(outputs, "Read")).toMatchObject({ repository_name: "acme/widget" });
+    expect(baseOf(outputs, "Grep")).toMatchObject({ repository_name: "acme/gadget" });
+  });
+
   it("falls back to the session folder for a tool that recorded none", async () => {
     const widget = repo("widget");
     writeFileSync(join(widget, "a.ts"), "");

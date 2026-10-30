@@ -28335,13 +28335,23 @@ function toolRunId(conversationId, buffer, toolIndex) {
   };
   return stableRunId(ctx, toolKey(toolIndex, buffer.tools[toolIndex]));
 }
-function subagentRunId(conversationId, buffer, index) {
+function toolRootsByRunId(conversationId, buffer) {
   const ctx = {
     agentType: "root",
     threadId: conversationId,
     turnId: buffer.generation_id
   };
-  return stableRunId(ctx, subagentKey(index, buffer.subagents[index]));
+  const roots = /* @__PURE__ */ new Map();
+  for (const [index, tool] of buffer.tools.entries()) {
+    roots.set(stableRunId(ctx, toolKey(index, tool)), tool.workspace_root);
+  }
+  for (const [index, sub] of buffer.subagents.entries()) {
+    for (const [toolIndex, tool] of (sub.tools ?? []).entries()) {
+      const key = subagentToolKey(subagentKey(index, sub), toolIndex, tool);
+      roots.set(stableRunId(ctx, key), tool.workspace_root);
+    }
+  }
+  return roots;
 }
 function withSystem(messages, systemPrompt) {
   return systemPrompt ? [{ role: "system", content: systemPrompt }, ...messages] : messages;
@@ -28433,6 +28443,9 @@ function buildToolRuns(options, toolIndex) {
 }
 function toolKey(index, tool) {
   return `tool:${index}:${tool.tool_use_id}`;
+}
+function subagentToolKey(parentKey, index, tool) {
+  return `${parentKey}:tool:${index}:${tool.tool_use_id}`;
 }
 function subagentKey(index, sub) {
   return `subagent:${index}:${sub.subagent_id}`;
@@ -28808,7 +28821,7 @@ function addSubagentAgenticRuns(turn, subagentRun, sub, key, subagentCtx) {
     metadata: llm.metadata
   });
   for (const [i, tool] of tools.entries())
-    addToolRun(turn, subagentRun, subagentCtx, tool, `${key}:tool:${i}:${tool.tool_use_id}`, true);
+    addToolRun(turn, subagentRun, subagentCtx, tool, subagentToolKey(key, i, tool), true);
   addLlmRun(turn, subagentRun, {
     key: `${key}:answer`,
     name: llm.name,
@@ -28836,9 +28849,6 @@ var init_langsmith2 = __esm({
 // dist/src/tool-origin.js
 import { existsSync as existsSync7 } from "node:fs";
 import { isAbsolute as isAbsolute5, resolve as resolve14 } from "node:path";
-function toolRoots(tools) {
-  return new Map(tools.map((tool) => [tool.tool_use_id, tool.workspace_root]));
-}
 function toolOrigin(toolInput, cwd) {
   if (!isRecord(toolInput))
     return { cwd, namedAPath: false };
@@ -29039,20 +29049,12 @@ async function buildQueuedRuns(job, config, plugin) {
   }
   const attributor2 = attributorFor(config);
   const toolOrigins = buffer.tools.map((tool) => toolOrigin(tool.input, tool.workspace_root ?? cwd));
-  const parentRoots = toolRoots(buffer.tools);
-  const subagentRoots = new Map(buffer.subagents.map((sub, index) => [
-    subagentRunId(conversationId, buffer, index),
-    toolRoots(sub.tools ?? [])
-  ]));
-  const rootOf = (metadata, parentRunId) => {
-    const roots = metadata.clearSubagent ? subagentRoots.get(parentRunId ?? "") : parentRoots;
-    return roots?.get(String(metadata.runSpecific?.tool_use_id)) ?? cwd;
-  };
+  const rootByRunId = toolRootsByRunId(conversationId, buffer);
   return {
     status: "ready",
     outputs: inputs.map(({ eventId, submission, turnEvidence, dependencies }) => {
       const { metadata } = submission;
-      const base = submission.operation === "post" && submission.run.run_type === "tool" ? attributor2.toolMetadata(metadata.base, toolOrigin(submission.run.inputs?.input, rootOf(metadata, submission.run.parent_run_id))) : attributor2.turnMetadata(metadata.base, cwd, toolOrigins);
+      const base = submission.operation === "post" && submission.run.run_type === "tool" ? attributor2.toolMetadata(metadata.base, toolOrigin(submission.run.inputs?.input, rootByRunId.get(submission.run.id) ?? cwd)) : attributor2.turnMetadata(metadata.base, cwd, toolOrigins);
       return {
         eventId,
         submission: { ...submission, metadata: { ...metadata, base: base ?? metadata.base } },

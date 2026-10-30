@@ -10,7 +10,6 @@ import type {
   ReconstructionJobInput,
   ReconstructionResult,
 } from "@langchain/plugins-base/tracing/reconstruction";
-import type { CodingAgentMetadataOptions } from "@langchain/plugins-base/metadata";
 import type { Config } from "./models/config.js";
 import { rootPatch, turnCaptures, withRootDependency } from "./captures.js";
 import {
@@ -38,13 +37,19 @@ import {
   toolJobRef,
 } from "./job-context.js";
 import { atomicUpdateState, readState } from "./state.js";
-import { buildToolRuns, buildTurnRuns, subagentRunId, toolRunId, turnRunId } from "./langsmith.js";
+import {
+  buildToolRuns,
+  buildTurnRuns,
+  toolRootsByRunId,
+  toolRunId,
+  turnRunId,
+} from "./langsmith.js";
 import type { ToolJobRef, UploadJobContext } from "./models/job-context.js";
 import type { BuildTurnOptions } from "./models/langsmith.js";
 import type { RecoveryReport, SavedCapture } from "./models/tracing-engine.js";
 import { debug, warn } from "./logger.js";
 import { isRecord } from "./normalize.js";
-import { toolOrigin, toolRoots } from "./tool-origin.js";
+import { toolOrigin } from "./tool-origin.js";
 import { withLockedMute } from "./tracing-policy.js";
 import { originFromConfig } from "./turn-origin.js";
 import { enrichTurn, toolAttachments } from "./turn-enrichment.js";
@@ -187,17 +192,7 @@ async function buildQueuedRuns(
   const toolOrigins = buffer.tools.map((tool) =>
     toolOrigin(tool.input, tool.workspace_root ?? cwd),
   );
-  const parentRoots = toolRoots(buffer.tools);
-  const subagentRoots = new Map(
-    buffer.subagents.map((sub, index) => [
-      subagentRunId(conversationId, buffer, index),
-      toolRoots(sub.tools ?? []),
-    ]),
-  );
-  const rootOf = (metadata: CodingAgentMetadataOptions, parentRunId?: string): string => {
-    const roots = metadata.clearSubagent ? subagentRoots.get(parentRunId ?? "") : parentRoots;
-    return roots?.get(String(metadata.runSpecific?.tool_use_id)) ?? cwd;
-  };
+  const rootByRunId = toolRootsByRunId(conversationId, buffer);
   return {
     status: "ready",
     outputs: inputs.map(({ eventId, submission, turnEvidence, dependencies }) => {
@@ -206,10 +201,7 @@ async function buildQueuedRuns(
         submission.operation === "post" && submission.run.run_type === "tool"
           ? attributor.toolMetadata(
               metadata.base,
-              toolOrigin(
-                submission.run.inputs?.input,
-                rootOf(metadata, submission.run.parent_run_id),
-              ),
+              toolOrigin(submission.run.inputs?.input, rootByRunId.get(submission.run.id) ?? cwd),
             )
           : attributor.turnMetadata(metadata.base, cwd, toolOrigins);
       return {

@@ -60,13 +60,26 @@ export function toolRunId(conversationId: string, buffer: TurnBuffer, toolIndex:
   return stableRunId(ctx, toolKey(toolIndex, buffer.tools[toolIndex]));
 }
 
-export function subagentRunId(conversationId: string, buffer: TurnBuffer, index: number): string {
+export function toolRootsByRunId(
+  conversationId: string,
+  buffer: TurnBuffer,
+): Map<string, string | undefined> {
   const ctx: MetaCtx = {
     agentType: "root",
     threadId: conversationId,
     turnId: buffer.generation_id,
   };
-  return stableRunId(ctx, subagentKey(index, buffer.subagents[index]));
+  const roots = new Map<string, string | undefined>();
+  for (const [index, tool] of buffer.tools.entries()) {
+    roots.set(stableRunId(ctx, toolKey(index, tool)), tool.workspace_root);
+  }
+  for (const [index, sub] of buffer.subagents.entries()) {
+    for (const [toolIndex, tool] of (sub.tools ?? []).entries()) {
+      const key = subagentToolKey(subagentKey(index, sub), toolIndex, tool);
+      roots.set(stableRunId(ctx, key), tool.workspace_root);
+    }
+  }
+  return roots;
 }
 
 /** Prepend a system message to an llm run's input messages, when one was recovered. */
@@ -194,6 +207,10 @@ export function buildToolRuns(options: BuildTurnOptions, toolIndex: number): Cap
 
 function toolKey(index: number, tool: ToolEvent): string {
   return `tool:${index}:${tool.tool_use_id}`;
+}
+
+function subagentToolKey(parentKey: string, index: number, tool: ToolEvent): string {
+  return `${parentKey}:tool:${index}:${tool.tool_use_id}`;
 }
 
 function subagentKey(index: number, sub: SubagentEvent): string {
@@ -687,7 +704,7 @@ function addSubagentAgenticRuns(
   });
 
   for (const [i, tool] of tools.entries())
-    addToolRun(turn, subagentRun, subagentCtx, tool, `${key}:tool:${i}:${tool.tool_use_id}`, true);
+    addToolRun(turn, subagentRun, subagentCtx, tool, subagentToolKey(key, i, tool), true);
 
   addLlmRun(turn, subagentRun, {
     key: `${key}:answer`,
