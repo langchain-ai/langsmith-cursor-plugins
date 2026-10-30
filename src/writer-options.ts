@@ -1,7 +1,6 @@
 import type { LangSmithUploadWriterOptions } from "@langchain/plugins-base/tracing/upload";
 import {
   loginReplicaRefusal,
-  refusedLoginReplicas,
   resolveUploadCredential,
   sdkSetting,
   type UploadCredential,
@@ -35,18 +34,6 @@ export function uploadProblem(config: Config, credential: UploadCredential): str
   if (credential.kind !== "none" || config.replicas?.some((replica) => sdkSetting(replica.apiKey)))
     return undefined;
   return credential.reason;
-}
-
-export function replacingReplicaCount(config: Config): number {
-  const replicas = config.replicas ?? [];
-  const credential = uploadCredential(config);
-  if (credential.kind === "api-key") return replicas.length;
-  return replicas.filter(
-    (replica) =>
-      sdkSetting(replica.apiKey) !== undefined ||
-      (credential.kind === "login" &&
-        refusedLoginReplicas([replica], credential.apiUrl) === undefined),
-  ).length;
 }
 
 export function destinationCredential(config: Config): DestinationCredential {

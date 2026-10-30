@@ -1,3 +1,4 @@
+import { refusedLoginReplicas, sdkSetting } from "@langchain/plugins-base/auth";
 import {
   describeSetup,
   parseSetupArguments,
@@ -8,7 +9,7 @@ import { loadConfig } from "./config.js";
 import { CURSOR_DIRECTORY_NAME, NOTICE_KINDS, SETUP_COMMAND_PATTERN } from "./constants.js";
 import { uploadStatus } from "./notice.js";
 import { getThreadTracingMode, mutingLocked, tracingPolicyPath } from "./tracing-policy.js";
-import { destinationCredential, replacingReplicaCount } from "./writer-options.js";
+import { destinationCredential, uploadCredential } from "./writer-options.js";
 import type { Config } from "./models/config.js";
 import type {
   BeforeSubmitPromptInput,
@@ -20,6 +21,18 @@ import type {
 export function parseSetupCommand(prompt: string): string | undefined {
   const match = SETUP_COMMAND_PATTERN.exec(prompt);
   return match ? (match[1] ?? "") : undefined;
+}
+
+function replacingReplicaCount(config: Config): number {
+  const replicas = config.replicas ?? [];
+  const credential = uploadCredential(config);
+  if (credential.kind === "api-key") return replicas.length;
+  return replicas.filter(
+    (replica) =>
+      sdkSetting(replica.apiKey) !== undefined ||
+      (credential.kind === "login" &&
+        refusedLoginReplicas([replica], credential.apiUrl) === undefined),
+  ).length;
 }
 
 function uploadStatusAsIfTracingOn(config: Config): UploadStatus {

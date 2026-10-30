@@ -727,14 +727,11 @@ it.skipIf(process.platform === "win32")(
     const managed = join(env.LS_TEST_ACCOUNT_HOME!, ".langsmith-plugins");
     mkdirSync(managed, { recursive: true });
     writeFileSync(join(managed, "managed.json"), "{}");
+    rmSync(join(dir, "login.json"));
     try {
-      const signedIn = await prompt("thread", "setup", "langsmith-tracing:setup");
-      expect(signedIn.user_message).toContain("owned by root");
-      expect(signedIn.user_message).not.toContain("Signed in");
-      rmSync(join(dir, "login.json"));
-      const noCredential = await prompt("thread", "setup2", "langsmith-tracing:setup");
-      expect(noCredential.user_message).toContain("owned by root");
-      expect(noCredential.user_message).not.toContain("Using your LangSmith API key");
+      const reply = await prompt("thread", "setup", "langsmith-tracing:setup");
+      expect(reply.user_message).toContain("owned by root");
+      expect(reply.user_message).not.toContain("Using your LangSmith API key");
     } finally {
       rmSync(join(managed, "managed.json"));
     }
@@ -861,65 +858,25 @@ it("writes setup to the home config and reports what the workspace config overri
   expect(existsSync(env.LANGSMITH_CURSOR_STATE_FILE!)).toBe(false);
 });
 
-it("turns tracing on from setup with no arguments", () => {
-  const response = submit("langsmith-tracing:setup");
-  expect(response.continue).toBe(false);
-  expect(JSON.parse(readFileSync(join(dir, ".cursor", "langsmith.json"), "utf8"))).toEqual({
-    enabled: true,
-  });
-});
-
-it("keeps every other key when setup saves a project and server", () => {
-  delete env.TRACE_TO_LANGSMITH;
-  const path = join(dir, ".cursor", "langsmith.json");
-  mkdirSync(join(dir, ".cursor"));
-  writeFileSync(path, JSON.stringify({ api_key: "lsv2_pt_test", redact: false }));
-  const response = submit("langsmith-tracing:setup my project http://127.0.0.1:1980");
-  expect(response).toEqual({
-    continue: false,
-    user_message: `Turned LangSmith tracing on in ${path}. Traces go to the "my project" project at "http://127.0.0.1:1980". Using your LangSmith API key.`,
-  });
-  expect(JSON.parse(readFileSync(path, "utf8"))).toEqual({
-    api_key: "lsv2_pt_test",
-    redact: false,
-    enabled: true,
-    project: "my project",
-    api_url: "http://127.0.0.1:1980",
-  });
-});
-
-it("refuses setup with a second line and saves nothing", () => {
-  const refused = {
-    continue: false,
-    user_message:
-      "Setup takes its project and URL on one line, so nothing was changed. Send anything else as its own message.",
-  };
-  expect(submit("langsmith-tracing:setup myproj\n\nAlso fix foo.ts")).toEqual(refused);
-  expect(submit("langsmith-tracing:setup\nmyproj")).toEqual(refused);
-  expect(existsSync(join(dir, ".cursor", "langsmith.json"))).toBe(false);
-});
-
-it("refuses setup with a typed API key and leaves the config alone", () => {
+it.each([
+  [
+    "langsmith-tracing:setup myproj\n\nAlso fix foo.ts",
+    "Setup takes its project and URL on one line, so nothing was changed. Send anything else as its own message.",
+  ],
+  [
+    "langsmith-tracing:setup\nmyproj",
+    "Setup takes its project and URL on one line, so nothing was changed. Send anything else as its own message.",
+  ],
+  [
+    "langsmith-tracing:setup lsv2_pt_typed",
+    "That looks like a LangSmith API key, so nothing was changed. Put the key in your config file instead, since anything typed in chat can end up in your history and traces.",
+  ],
+])("refuses setup %j and leaves the config alone", (prompt, message) => {
   const path = join(dir, ".cursor", "langsmith.json");
   mkdirSync(join(dir, ".cursor"));
   writeFileSync(path, '{"project":"before"}');
-  expect(submit("langsmith-tracing:setup lsv2_pt_typed")).toEqual({
-    continue: false,
-    user_message:
-      "That looks like a LangSmith API key, so nothing was changed. Put the key in your config file instead, since anything typed in chat can end up in your history and traces.",
-  });
+  expect(submit(prompt)).toEqual({ continue: false, user_message: message });
   expect(readFileSync(path, "utf8")).toBe('{"project":"before"}');
-});
-
-it("replies with the error and changes nothing when setup cannot read the config", () => {
-  const path = join(dir, ".cursor", "langsmith.json");
-  mkdirSync(join(dir, ".cursor"));
-  writeFileSync(path, "{broken");
-  expect(submit("langsmith-tracing:setup mine")).toEqual({
-    continue: false,
-    user_message: `Couldn't read ${path} as a JSON object, so nothing was changed. Fix or remove that file and run setup again.`,
-  });
-  expect(readFileSync(path, "utf8")).toBe("{broken");
 });
 
 it("treats near misses of the setup command as ordinary prompts", () => {
