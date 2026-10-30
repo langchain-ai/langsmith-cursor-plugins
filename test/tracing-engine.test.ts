@@ -127,6 +127,17 @@ beforeEach(() => {
   engine.attachmentLoads = 0;
 });
 
+function repo(name: string): string {
+  const cwd = mkdtempSync(join(tmpdir(), `cursor-${name}-`));
+  const git = (...args: string[]) => execFileSync("git", args, { cwd });
+  git("init", "-q", "-b", "trunk");
+  git("config", "user.name", "Repo Author");
+  git("config", "user.email", "author@example.com");
+  git("remote", "add", "origin", `git@github.com:acme/${name}.git`);
+  git("commit", "-q", "--allow-empty", "-m", "c");
+  return cwd;
+}
+
 describe("saving a turn for upload", () => {
   it("only queues a to-do for the uploader, and builds no runs in the hook", async () => {
     expect(await saveTurnForUpload(config, toolTurn)).toBe(true);
@@ -150,16 +161,6 @@ describe("saving a turn for upload", () => {
   });
 
   it("fills the session's repo and each tool's own repo in the uploader", async () => {
-    const repo = (name: string) => {
-      const cwd = mkdtempSync(join(tmpdir(), `cursor-${name}-`));
-      const git = (...args: string[]) => execFileSync("git", args, { cwd });
-      git("init", "-q", "-b", "trunk");
-      git("config", "user.name", "Repo Author");
-      git("config", "user.email", "author@example.com");
-      git("remote", "add", "origin", `git@github.com:acme/${name}.git`);
-      git("commit", "-q", "--allow-empty", "-m", "c");
-      return cwd;
-    };
     const session = repo("widget");
     const other = repo("gadget");
     const tools = [tool("t1", "Read", T0 + 1000, { path: join(other, "a.ts") })];
@@ -177,6 +178,42 @@ describe("saving a turn for upload", () => {
       ls_attribution_identifier: "Repo Author",
     });
     expect(base("Read")).toMatchObject({ repository_name: "acme/gadget" });
+  });
+
+  it("uses a main-conversation tool's own workspace for its repo", async () => {
+    const session = repo("widget");
+    const other = repo("gadget");
+    const own = { ...tool("t1", "Shell", T0 + 1000, { command: "ls" }), workspace_root: other };
+    await saveTurnForUpload(config, {
+      ...toolTurn,
+      buffer: { ...toolTurn.buffer, tools: [own] },
+      origin: { project: "cursor", customMetadata: { cwd: session } },
+    });
+    const shell = (await build()).find(({ submission }) => submission.run.name === "Shell")!;
+    expect(shell.submission.metadata.base?.repository_name).toBe("acme/gadget");
+  });
+
+  it("finds the repo from real Cursor's path keys and from a subagent's own workspace", async () => {
+    const session = repo("widget");
+    const other = repo("gadget");
+    const inOther = { workspace_root: other };
+    const tools = [
+      tool("t1", "Glob", T0 + 1000, { target_directory: other }),
+      tool("t2", "Shell", T0 + 2000, { working_directory: other }),
+    ];
+    const subTool = { ...tool("t3", "Shell", T0 + 3000, { command: "ls" }), ...inOther };
+    const subagents = [
+      { subagent_id: "s1", subagent_type: "explore", task: "t", startMs: T0, tools: [subTool] },
+    ];
+    await saveTurnForUpload(config, {
+      ...toolTurn,
+      buffer: { ...toolTurn.buffer, tools, subagents },
+      origin: { project: "cursor", customMetadata: { cwd: session } },
+    });
+    const repos = (await build())
+      .filter(({ submission }) => ["Glob", "Shell"].includes(submission.run.name ?? ""))
+      .map(({ submission }) => submission.metadata.base?.repository_name);
+    expect(repos).toEqual(["acme/gadget", "acme/gadget", "acme/gadget"]);
   });
 });
 

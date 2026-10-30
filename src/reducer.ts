@@ -30,7 +30,7 @@ import {
   pruneOldConversations,
   setOwnEntry,
 } from "./state.js";
-import { EMPTY_TOOL_ID_PREFIX, MAX_UPLOAD_ATTEMPTS } from "./constants.js";
+import { EMPTY_TOOL_ID_PREFIX, MAX_UPLOAD_ATTEMPTS, TYPED_SKILL_COMMAND } from "./constants.js";
 import { warn } from "./logger.js";
 import { extractMcpError, parseToolOutput, preferModel } from "./normalize.js";
 import type { SubagentToolCall } from "./models/normalize.js";
@@ -117,6 +117,7 @@ export function reduceBeforeSubmitPrompt(
   turn.tracingMode = mode;
   turn.origin = origin;
   turn.prompt = mode === "off" ? undefined : input.prompt;
+  turn.typedCommand = input.prompt?.match(TYPED_SKILL_COMMAND)?.[1];
   turn.model = input.model;
   setOwnEntry(conv.turns, input.generation_id, turn);
   touch(conv);
@@ -143,6 +144,7 @@ export function reducePostToolUse(
     error: extractMcpError(input.tool_name, output),
     duration: input.duration,
     endMs: nowMs,
+    workspace_root: input.workspace_roots?.[0],
   });
   setOwnEntry(conv.turns, input.generation_id, turn);
   touch(conv);
@@ -166,6 +168,7 @@ export function reducePostToolUseFailure(
     failure_type: input.failure_type,
     duration: input.duration,
     endMs: nowMs,
+    workspace_root: input.workspace_roots?.[0],
   });
   setOwnEntry(conv.turns, input.generation_id, turn);
   touch(conv);

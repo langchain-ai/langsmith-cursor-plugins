@@ -3,6 +3,7 @@ import {
   reduceAfterAgentResponse,
   reduceBeforeSubmitPrompt,
   reducePostToolUse,
+  reducePostToolUseFailure,
   reduceStop,
 } from "../src/reducer.js";
 import type {
@@ -58,6 +59,32 @@ function response(generationId: string): AfterAgentResponseInput {
     text: "done",
   };
 }
+
+describe("tool workspace", () => {
+  it("stores the hook's first workspace root on a finished and a failed tool", () => {
+    const workspace_roots = ["/ws/a", "/ws/b"];
+    let state = reduceBeforeSubmitPrompt({}, submit("g1"), T0);
+    state = reducePostToolUse(state, { ...toolUse("g1", "t1"), workspace_roots }, T0 + 1);
+    const failure = {
+      ...toolUse("g1", "t2"),
+      hook_event_name: "postToolUseFailure" as const,
+      error_message: "boom",
+      workspace_roots,
+    };
+    state = reducePostToolUseFailure(state, failure, T0 + 2);
+    expect(state[CONV].turns.g1.tools.map((t) => t.workspace_root)).toEqual(["/ws/a", "/ws/a"]);
+  });
+});
+
+describe("typed commands", () => {
+  it("records the leading /name of a typed command on the turn", () => {
+    const next = reduceBeforeSubmitPrompt({}, submit("g1", "/deploy now"), T0);
+    expect(next[CONV].turns.g1.typedCommand).toBe("deploy");
+    expect(
+      reduceBeforeSubmitPrompt({}, submit("g1", "deploy"), T0)[CONV].turns.g1.typedCommand,
+    ).toBeUndefined();
+  });
+});
 
 describe("turn numbering", () => {
   it("numbers a turn when it starts", () => {

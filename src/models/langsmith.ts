@@ -59,6 +59,7 @@ export interface TurnContext {
   finalTextBlocks: Array<Record<string, unknown>>;
   calls: TurnCall[];
   turnEndMs: number;
+  skills: Set<string>;
 }
 
 /** One run to create under a parent, and the metadata its capture is built from. */
