@@ -36,7 +36,7 @@ export function uploadProblem(config: Config, credential: UploadCredential): str
   return credential.reason;
 }
 
-function destinationCredential(config: Config): DestinationCredential {
+export function destinationCredential(config: Config): DestinationCredential {
   const credential = uploadCredential(config);
   if (credential.kind === "none") return { apiKey: config.apiKey, apiUrl: config.apiUrl };
   const { kind: _kind, ...destination } = credential;

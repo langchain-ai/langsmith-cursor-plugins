@@ -1,10 +1,10 @@
-import { LOGIN_NOTICE_KIND } from "@langchain/plugins-base/auth";
 import { loadConfig } from "./config.js";
-import { MUTE_LOCKED_MESSAGE, NOTICE_KINDS } from "./constants.js";
+import { MUTE_LOCKED_MESSAGE } from "./constants.js";
 import { error as logError, initLogger, warn as logWarn } from "./logger.js";
-import { promptNotice } from "./notice.js";
+import { uploadStatus } from "./notice.js";
 import { atomicUpdateState } from "./state.js";
 import { reduceBeforeSubmitPrompt } from "./reducer.js";
+import { parseSetupCommand, runSetupCommand } from "./setup-command.js";
 import {
   getThreadTracingMode,
   mutingLocked,
@@ -13,11 +13,12 @@ import {
   tracingPolicyPath,
 } from "./tracing-policy.js";
 import { originFromConfig } from "./turn-origin.js";
-import { uploadCredential, uploadProblem } from "./writer-options.js";
 import type { BeforeSubmitPromptInput, PromptReply } from "./models/types.js";
 
 /** Synchronous command hook contract, not an LLM skill or slash-command expansion. */
 export async function handlePromptSubmit(input: BeforeSubmitPromptInput): Promise<PromptReply> {
+  const setupArguments = parseSetupCommand(input.prompt);
+  if (setupArguments !== undefined) return runSetupCommand(setupArguments, input);
   const command = parseTracingCommand(input.prompt);
   try {
     if (
@@ -52,8 +53,7 @@ export async function handlePromptSubmit(input: BeforeSubmitPromptInput): Promis
       };
     }
     // Even master-off launches need evidence if tracing is enabled before stop.
-    const credential = uploadCredential(config);
-    const problem = uploadProblem(config, credential);
+    const { problem, notice, untraced } = uploadStatus(config);
     const enabled = config.enabled && problem === undefined;
     const mode = getThreadTracingMode(
       tracingPolicyPath(),
@@ -61,10 +61,6 @@ export async function handlePromptSubmit(input: BeforeSubmitPromptInput): Promis
       config.defaultMuted,
       mutingLocked(config),
     );
-    const notice = promptNotice(config, credential, problem);
-    const untraced =
-      notice?.kind === LOGIN_NOTICE_KIND ||
-      (notice?.kind !== NOTICE_KINDS.managed && problem !== undefined);
     if (notice && untraced && config.strictAuth)
       return { continue: false, user_message: notice.text };
     if (notice) logWarn(notice.text);
