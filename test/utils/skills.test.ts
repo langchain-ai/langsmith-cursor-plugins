@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
-import { matchName, typedCommandOf, typedSkillName } from "../../src/utils/skills.js";
+import { pickName, typedCommandOf, typedSkillName } from "../../src/utils/skills.js";
 
 let dir: string;
 let home: string;
@@ -57,11 +57,11 @@ describe("typedCommandOf", () => {
   });
 });
 
-describe("matchName", () => {
-  it("prefers the exact name over a different-case one, whatever the order", () => {
-    expect(matchName(["Deploy", "deploy"], "deploy")).toBe("deploy");
-    expect(matchName(["deploy", "Deploy"], "Deploy")).toBe("Deploy");
-    expect(matchName(["Deploy"], "deploy")).toBe("Deploy");
+describe("pickName", () => {
+  it("takes the exact name wherever it sits, then the smallest name", () => {
+    expect(pickName(["Deploy", "deploy"], "deploy")).toBe("deploy");
+    expect(pickName(["deploy", "Deploy"], "Deploy")).toBe("Deploy");
+    expect(pickName(["deploy", "Deploy", "DEPLOY"], "dePloy")).toBe("DEPLOY");
   });
 });
 
@@ -84,11 +84,6 @@ describe("typedSkillName", () => {
     expect(resolve(name)).toBe(name);
   });
 
-  it("returns the folder's real name when the typed case differs", () => {
-    addSkill(dir, "project", ".cursor", "skills", "deploy");
-    expect(resolve("Deploy")).toBe("deploy");
-  });
-
   it("finds a differently cased name inside a group or a synced id", () => {
     addSkill(dir, "project", ".cursor", "skills", "grp", "Foo");
     addSkill(dir, "home", ".agents", "skills", "synced", "id1", "Bar");
@@ -103,10 +98,18 @@ describe("typedSkillName", () => {
     expect(resolve("deploy")).toBe("deploy");
   });
 
-  it("asks the workspace before the home folder", () => {
+  it("prefers an exact-case match in any folder over a case-folded one found first", () => {
     addSkill(dir, "project", ".cursor", "skills", "Deploy");
+    addSkill(dir, "project", ".agents", "skills", "grp", "DEPLOY");
     addSkill(dir, "home", ".cursor", "skills", "deploy");
-    expect(resolve("deploy")).toBe("Deploy");
+    expect(resolve("deploy")).toBe("deploy");
+    expect(resolve("dePloy")).toBe("DEPLOY");
+  });
+
+  it("ignores a folder in a group that has no SKILL.md", () => {
+    mkdirSync(join(project, ".cursor", "skills", "grp", "empty"), { recursive: true });
+    addSkill(dir, "project", ".cursor", "skills", "grp", "real");
+    expect(resolve("empty")).toBeUndefined();
   });
 
   it("checks every workspace root, not only the first", () => {

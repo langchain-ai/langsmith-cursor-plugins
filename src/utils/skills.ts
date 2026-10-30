@@ -102,27 +102,25 @@ function folderNames(folder: string): string[] {
   }
 }
 
-export function matchName(names: string[], name: string): string | undefined {
-  return (
-    names.find((entry) => entry === name) ??
-    names.find((entry) => entry.toLowerCase() === name.toLowerCase())
-  );
+export function matchingNames(names: string[], name: string): string[] {
+  return names.filter((entry) => entry.toLowerCase() === name.toLowerCase());
+}
+
+export function pickName(candidates: string[], name: string): string | undefined {
+  return candidates.find((candidate) => candidate === name) ?? [...candidates].sort()[0];
 }
 
 function skillNamesIn(folder: string): string[] {
   return folderNames(folder).filter((entry) => existsSync(join(folder, entry, SKILL_FILE_NAME)));
 }
 
-function findInSkillsFolder(folder: string, name: string): string | undefined {
-  const children = folderNames(folder);
+function findInSkillsFolder(folder: string, name: string): string[] {
   const skills = skillNamesIn(folder);
-  const own = matchName(skills, name);
-  if (own !== undefined) return own;
-  for (const group of children.filter((child) => !skills.includes(child))) {
-    const found = matchName(skillNamesIn(join(folder, group)), name);
-    if (found !== undefined) return found;
-  }
-  return undefined;
+  const groups = folderNames(folder).filter((child) => !skills.includes(child));
+  return [
+    ...matchingNames(skills, name),
+    ...groups.flatMap((group) => matchingNames(skillNamesIn(join(folder, group)), name)),
+  ];
 }
 
 export function typedCommandOf(prompt: unknown, workspaceRoots: unknown): TypedCommand | undefined {
@@ -135,15 +133,15 @@ export function typedCommandOf(prompt: unknown, workspaceRoots: unknown): TypedC
 }
 
 export function typedSkillName(command: TypedCommand, home: string): string | undefined {
+  const candidates: string[] = [];
   try {
     for (const root of [...command.workspaceRoots, home]) {
       for (const folder of SKILL_FOLDERS) {
-        const found = findInSkillsFolder(join(root, ...folder), command.name);
-        if (found !== undefined) return found;
+        candidates.push(...findInSkillsFolder(join(root, ...folder), command.name));
       }
     }
   } catch {
     return undefined;
   }
-  return undefined;
+  return pickName(candidates, command.name);
 }

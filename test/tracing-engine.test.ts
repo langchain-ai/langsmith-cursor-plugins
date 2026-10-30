@@ -173,6 +173,20 @@ describe("saving a turn for upload", () => {
     expect(loadState(config.stateFilePath).c1.turns.g1.typedSkill).toBe(expected);
   });
 
+  it("searches the real home folder for a typed skill", async () => {
+    const realHome = mkdtempSync(join(tmpdir(), "cursor-home-"));
+    mkdirSync(join(realHome, ".cursor", "skills", "mine"), { recursive: true });
+    writeFileSync(join(realHome, ".cursor", "skills", "mine", "SKILL.md"), "x");
+    vi.stubEnv("HOME", realHome);
+    try {
+      const typedCommand = { name: "mine", workspaceRoots: [] };
+      await saveTool({ ...toolSave, buffer: { ...toolSave.buffer, typedCommand } });
+    } finally {
+      vi.unstubAllEnvs();
+    }
+    expect(loadState(config.stateFilePath).c1.turns.g1.typedSkill).toBe("mine");
+  });
+
   it("leaves a turn without a typed command untouched in the state file", async () => {
     await saveTool(toolSave);
     expect(loadState(config.stateFilePath).c1.turns.g1.typedSkill).toBeUndefined();

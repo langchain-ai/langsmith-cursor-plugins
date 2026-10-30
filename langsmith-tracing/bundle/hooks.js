@@ -26778,24 +26778,22 @@ function folderNames(folder) {
     return [];
   }
 }
-function matchName(names2, name) {
-  return names2.find((entry) => entry === name) ?? names2.find((entry) => entry.toLowerCase() === name.toLowerCase());
+function matchingNames(names2, name) {
+  return names2.filter((entry) => entry.toLowerCase() === name.toLowerCase());
+}
+function pickName(candidates, name) {
+  return candidates.find((candidate) => candidate === name) ?? [...candidates].sort()[0];
 }
 function skillNamesIn(folder) {
   return folderNames(folder).filter((entry) => existsSync4(join25(folder, entry, SKILL_FILE_NAME)));
 }
 function findInSkillsFolder(folder, name) {
-  const children = folderNames(folder);
   const skills = skillNamesIn(folder);
-  const own = matchName(skills, name);
-  if (own !== void 0)
-    return own;
-  for (const group of children.filter((child) => !skills.includes(child))) {
-    const found = matchName(skillNamesIn(join25(folder, group)), name);
-    if (found !== void 0)
-      return found;
-  }
-  return void 0;
+  const groups = folderNames(folder).filter((child) => !skills.includes(child));
+  return [
+    ...matchingNames(skills, name),
+    ...groups.flatMap((group) => matchingNames(skillNamesIn(join25(folder, group)), name))
+  ];
 }
 function typedCommandOf(prompt, workspaceRoots) {
   const name = typeof prompt === "string" ? TYPED_SKILL_COMMAND.exec(prompt)?.[1] : void 0;
@@ -26805,18 +26803,17 @@ function typedCommandOf(prompt, workspaceRoots) {
   return { name, workspaceRoots: roots };
 }
 function typedSkillName(command, home) {
+  const candidates = [];
   try {
     for (const root of [...command.workspaceRoots, home]) {
       for (const folder of SKILL_FOLDERS) {
-        const found = findInSkillsFolder(join25(root, ...folder), command.name);
-        if (found !== void 0)
-          return found;
+        candidates.push(...findInSkillsFolder(join25(root, ...folder), command.name));
       }
     }
   } catch {
     return void 0;
   }
-  return void 0;
+  return pickName(candidates, command.name);
 }
 var init_skills = __esm({
   "dist/src/utils/skills.js"() {
