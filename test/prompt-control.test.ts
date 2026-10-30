@@ -210,6 +210,25 @@ it("records the project and repo the turn was launched in", () => {
   expect(origin?.customMetadata?.cwd).toBe(dir);
 });
 
+it("saves a typed /name and the folders without checking the disk, and survives a bad folder", () => {
+  env.TRACE_TO_LANGSMITH = "true";
+  env.LANGSMITH_API_KEY = "test";
+  submit("/anything go", "typed");
+  const input = (roots: unknown[]) =>
+    JSON.stringify({
+      prompt: "/deploy",
+      generation_id: "badroot",
+      conversation_id: "thread",
+      model: "default",
+      hook_event_name: "beforeSubmitPrompt",
+      workspace_roots: roots,
+    });
+  expect(JSON.parse(raw(input([null])).stdout).continue).toBe(true);
+  const turns = loadState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns;
+  expect(turns.typed.typedCommand).toEqual({ name: "anything", workspaceRoots: [dir] });
+  expect(turns.badroot.typedCommand).toEqual({ name: "deploy", workspaceRoots: [] });
+});
+
 it("blocks both controls on corrupt preference; ordinary work gets metadata fallback", () => {
   env.TRACE_TO_LANGSMITH = "true";
   env.LANGSMITH_API_KEY = "test";

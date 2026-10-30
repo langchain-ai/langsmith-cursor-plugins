@@ -50,8 +50,16 @@ export function enrichTurn(config: Config, options: BuildTurnOptions): BuildTurn
   return { ...options, attachments, systemPrompt, steps };
 }
 
+const typedSkillsResolved = new Map<string, string | undefined>();
+
 export function withTypedSkill(buffer: TurnBuffer): TurnBuffer {
-  const typedSkill = buffer.typedCommand && typedSkillName(buffer.typedCommand, homedir());
+  const { typedCommand } = buffer;
+  if (!typedCommand) return buffer;
+  const home = homedir();
+  const key = JSON.stringify([buffer.generation_id, typedCommand, home]);
+  if (!typedSkillsResolved.has(key))
+    typedSkillsResolved.set(key, typedSkillName(typedCommand, home));
+  const typedSkill = typedSkillsResolved.get(key);
   return typedSkill ? { ...buffer, typedSkill } : buffer;
 }
 

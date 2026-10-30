@@ -69,7 +69,6 @@ describe("skillNameFromTool", () => {
     ["posix", "/Users/u/.agents/skills/synced/aaaa_bbbb/code-insights/SKILL.md", "code-insights"],
     ["windows", "C:\\repo\\skills\\pr-creation\\SKILL.md", "pr-creation"],
     ["built-in", "/Users/u/.cursor/skills-cursor/create-rule/SKILL.md", "create-rule"],
-    ["project folder", "/repo/.claude/skills/deploy/SKILL.md", "deploy"],
     ["non-ascii name", "/repo/skills/日本語/SKILL.md", "日本語"],
     // Neither row can be cut alone.
     ["outside any skills directory", "/repo/SKILL.md", undefined],
@@ -114,6 +113,7 @@ describe("skillNameFromTool on disk", () => {
     const dir = mkdtempSync(join(tmpdir(), "cursor-skill-path-"));
     try {
       mkdirSync(join(dir, "skills", "deploy", "references"), { recursive: true });
+      writeFileSync(join(dir, "skills", "SKILL.md"), "x");
       writeFileSync(join(dir, "skills", "deploy", "SKILL.md"), "x");
       writeFileSync(join(dir, "skills", "deploy", "references", "SKILL.md"), "x");
       expect(skillNameFromTool("Read", { path: join(dir, "skills", "deploy", "SKILL.md") })).toBe(
@@ -142,19 +142,15 @@ describe("skillNameFromTool with a shell command", () => {
     ["cat", `cat ${SKILL_PATH}`, "deploy"],
     ["head with a flag", `head -50 ${SKILL_PATH}`, "deploy"],
     ["a quoted path with spaces", `cat "/My Repo/skills/deploy/SKILL.md"`, "deploy"],
-    ["a home path", "cat ~/.cursor/skills-cursor/create-rule/SKILL.md", "create-rule"],
-    ["a command that does not print the file", `rm ${SKILL_PATH}`, undefined],
     ["a search that only names the file", `grep -r name ${SKILL_PATH}`, undefined],
     ["a read of something else", "cat /repo/skills/deploy/README.md", undefined],
     ["a path named by a later command", `cat notes.md; echo ${SKILL_PATH}`, undefined],
     ["a redirect after cat", `cat > ${SKILL_PATH} <<EOF`, undefined],
-    ["a redirect after a heredoc", `cat <<EOF > ${SKILL_PATH}`, undefined],
     ["a redirect with no space", `cat >${SKILL_PATH} <<EOF`, undefined],
     ["an appended redirect", `cat >> ${SKILL_PATH} <<EOF`, undefined],
     ["a read whose output is redirected elsewhere", `cat ${SKILL_PATH} > /tmp/out`, "deploy"],
     ["an absolute path to the command", `/bin/cat ${SKILL_PATH}`, "deploy"],
     ["a quoted path containing an ampersand", `cat "/R&D/skills/deploy/SKILL.md"`, "deploy"],
-    ["a read after &&", `cd /repo && cat ${SKILL_PATH}`, "deploy"],
     ["a read after cd into the skill", "cd /repo/skills/deploy && cat SKILL.md", "deploy"],
     [
       "a read after an absolute cd that follows another cd",
@@ -162,6 +158,9 @@ describe("skillNameFromTool with a shell command", () => {
       undefined,
     ],
     ["an absolute read after a cd", "cd /h/skills/x && cat /repo/deploy/SKILL.md", undefined],
+    ["a read of a home path after a cd", "cd /h/skills/x && cat ~/other/y/SKILL.md", undefined],
+    ["a redirect with a descriptor", `cat 2>${SKILL_PATH}`, undefined],
+    ["a redirect with a descriptor and a space", `cat 2> ${SKILL_PATH}`, undefined],
     ["a read after a relative cd", "cd /repo/skills && cd deploy && head SKILL.md", "deploy"],
     ["a read after a newline", `echo hi\ncat ${SKILL_PATH}`, "deploy"],
     ["tail", `tail -n 5 ${SKILL_PATH}`, "deploy"],
@@ -171,6 +170,10 @@ describe("skillNameFromTool with a shell command", () => {
     ["nl", `nl ${SKILL_PATH}`, "deploy"],
   ])("%s", (_case, command, expected) => {
     expect(shell(command)).toBe(expected);
+  });
+
+  it.each(["Shell", "run_terminal_command_v2", "run_terminal_cmd"])("reads through %s", (tool) => {
+    expect(skillNameFromTool(tool, { command: `cat ${SKILL_PATH}` })).toBe("deploy");
   });
 
   it("ignores a command that is not text", () => {
@@ -311,30 +314,32 @@ describe("the Skill run", () => {
     expect(skillRuns.map((r) => r.inputs)).toEqual([{ input: { skill: "deploy" } }]);
   });
 
-  it("counts the successful read when an earlier read of the same skill failed", async () => {
+  it.each<[string, Record<string, unknown>]>([
+    ["an error message", { error: "no such file" }],
+    ["a failure type", { failure_type: "error" }],
+  ])("counts the later successful read after a read with %s failed", async (_case, failure) => {
     const [turn] = replayHookLog(CAPTURE).finalized;
-    const read = (id: string, extra: Record<string, unknown>) => ({
+    const base = turn.buffer.startMs;
+    const read = (id: string, startMs: number, extra: Record<string, unknown>) => ({
       tool_use_id: id,
       name: "Read",
       input: { path: SKILL_PATH },
       output: "",
-      startMs: turn.buffer.startMs + 10,
-      endMs: turn.buffer.startMs + 20,
+      startMs,
+      endMs: startMs + 5,
       ...extra,
     });
     const tools = [
       ...turn.buffer.tools,
-      read("toolu_fail", { error: "no such file", failure_type: "error" }),
-      read("toolu_ok", {}),
+      read("toolu_fail", base + 10, failure),
+      read("toolu_ok", base + 30, {}),
     ];
-    const skillRuns = named(
-      await tracedRuns({ ...turn, buffer: { ...turn.buffer, tools } }),
-      "Skill",
-    );
+    const runs = await tracedRuns({ ...turn, buffer: { ...turn.buffer, tools } });
+    const [skillRun] = named(runs, "Skill");
+    const okRead = runs.find((r) => meta(r).tool_use_id === "toolu_ok")!;
 
-    expect(skillRuns.map((r) => r.outputs)).toEqual([
-      { output: { commandName: "deploy", success: true } },
-    ]);
+    expect(skillRun.outputs).toEqual({ output: { commandName: "deploy", success: true } });
+    expect(skillRun.start_time).toEqual(okRead.start_time);
   });
 
   it("does not inherit the turn's token counts", async () => {

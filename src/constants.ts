@@ -97,6 +97,8 @@ export const SKILL_FOLDERS: PathSegments[] = [
 
 export const SKILL_SEARCH_DEPTH = 3;
 
+export const SKILL_SEARCH_ENTRY_LIMIT = 2000;
+
 export const POSIX_SEPARATOR = "/";
 
 export const HOME_PREFIX = "~";
