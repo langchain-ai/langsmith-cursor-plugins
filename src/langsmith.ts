@@ -159,6 +159,14 @@ export function buildTurnRuns(options: BuildTurnOptions): CapturedRun[] {
 
   // Root turn run. createChild derives ids, trace_id and dotted_order for children.
   const turnRun = addRootRun(turn);
+  if (buffer.typedSkill) {
+    addSkillRun(turn, turnRun, turn.ctx, "typed-skill", false, {
+      skillName: buffer.typedSkill,
+      success: true,
+      startMs: buffer.startMs,
+      endMs: buffer.startMs,
+    });
+  }
   const interleaved = options.steps?.length ? addInterleavedRounds(turn, turnRun) : false;
   if (!interleaved) {
     if (turn.calls.length === 0) addSingleLlmRun(turn, turnRun);
@@ -225,6 +233,7 @@ function createTurnContext(options: BuildTurnOptions): TurnContext {
     ),
     finalTextBlocks: buffer.finalText ? [{ type: "text", text: buffer.finalText }] : [],
     calls: orderedTurnCalls(buffer),
+    countedSkillTools: countedSkillTools(buffer),
     turnEndMs: Math.max(
       buffer.startMs,
       ...toolEnds,
@@ -232,6 +241,20 @@ function createTurnContext(options: BuildTurnOptions): TurnContext {
       options.savedAtMs ?? Date.now(),
     ),
   };
+}
+
+function countedSkillTools(buffer: TurnBuffer): Set<ToolEvent> {
+  const seen = new Set<string>(buffer.typedSkill ? [buffer.typedSkill] : []);
+  const counted = new Set<ToolEvent>();
+  const subagentTools = buffer.subagents.flatMap((sub) => sub.tools ?? []);
+  for (const tool of [...buffer.tools, ...subagentTools]) {
+    const name = skillNameFromTool(tool.name, tool.input);
+    if (name && !seen.has(name)) {
+      seen.add(name);
+      counted.add(tool);
+    }
+  }
+  return counted;
 }
 
 function addRootRun(turn: TurnContext): RunTree {
@@ -492,7 +515,7 @@ function addToolRun(
   });
 
   const skillName = skillNameFromTool(tool.name, tool.input);
-  if (skillName) {
+  if (skillName && turn.countedSkillTools.has(tool)) {
     addSkillRun(turn, parent, ctx, `${key}:skill`, clearSubagent, {
       skillName,
       // A failure hook may carry no message, so failure_type is the surer signal.

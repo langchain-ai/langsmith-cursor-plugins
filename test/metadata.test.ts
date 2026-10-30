@@ -64,14 +64,19 @@ describe("skillNameFromTool", () => {
 
   // Each row is one path and the skill it yields.
   it.each<[string, string, string | undefined]>([
-    ["posix", "/Users/u/.cursor/skills/example-pack/code-insights/SKILL.md", "code-insights"],
+    ["posix", "/Users/u/.agents/skills/synced/aaaa_bbbb/code-insights/SKILL.md", "code-insights"],
     ["windows", "C:\\repo\\skills\\pr-creation\\SKILL.md", "pr-creation"],
+    ["built-in", "/Users/u/.cursor/skills-cursor/create-rule/SKILL.md", "create-rule"],
+    ["project folder", "/repo/.claude/skills/deploy/SKILL.md", "deploy"],
     ["non-ascii name", "/repo/skills/日本語/SKILL.md", "日本語"],
     // Neither row can be cut alone.
     ["outside any skills directory", "/repo/SKILL.md", undefined],
     ["no skill directory of its own", "/repo/skills/SKILL.md", undefined],
     ["a backup beside the real one", "/repo/skills/deploy/SKILL.md.bak", undefined],
     ["traversal in place of the name", "/repo/skills/deploy/../SKILL.md", undefined],
+    ["a reference file inside a skill", "/repo/skills/deploy/references/SKILL.md", undefined],
+    ["a pack folder that is not synced", "/repo/skills/pack/deploy/SKILL.md", undefined],
+    ["a lookalike of the built-in folder", "/repo/skills-cursor-x/deploy/SKILL.md", undefined],
   ])("%s: %s → %s", (_case, path, expected) => {
     expect(read({ path })).toBe(expected);
   });
@@ -102,6 +107,27 @@ describe("skillNameFromTool", () => {
   });
 });
 
+describe("skillNameFromTool with a shell command", () => {
+  const shell = (command: unknown) => skillNameFromTool("Shell", { command });
+
+  it.each<[string, string, string | undefined]>([
+    ["cat", `cat ${SKILL_PATH}`, "deploy"],
+    ["head with a flag", `head -50 ${SKILL_PATH}`, "deploy"],
+    ["a quoted path with spaces", `cat "/My Repo/skills/deploy/SKILL.md"`, "deploy"],
+    ["a home path", "cat ~/.cursor/skills-cursor/create-rule/SKILL.md", "create-rule"],
+    ["a command that does not print the file", `rm ${SKILL_PATH}`, undefined],
+    ["a search that only names the file", `grep -r name ${SKILL_PATH}`, undefined],
+    ["a read of something else", "cat /repo/skills/deploy/README.md", undefined],
+    ["a path named by a later command", `cat notes.md; echo ${SKILL_PATH}`, undefined],
+  ])("%s", (_case, command, expected) => {
+    expect(shell(command)).toBe(expected);
+  });
+
+  it("ignores a command that is not text", () => {
+    expect(shell(42)).toBeUndefined();
+  });
+});
+
 describe("the Skill run", () => {
   /** Traces the first turn of a capture. Every case here needs the whole run tree. */
   const replay = (capture: string) => tracedRuns(replayHookLog(capture).finalized[0]);
@@ -111,7 +137,7 @@ describe("the Skill run", () => {
   /** The two skill reads in SKILL_CAPTURE, in the order the fixture makes them. */
   const SKILL_READ_IDS = ["toolu_read_skill", "toolu_read_skill_again"];
 
-  it("stands beside the read that loaded it, once per skill read", async () => {
+  it("stands beside the read that loaded it, once per skill", async () => {
     const runs = await replay(SKILL_CAPTURE);
     const turnRun = runs.find((r) => !r.parent_run_id)!;
     const skillRuns = named(runs, "Skill");
@@ -119,8 +145,8 @@ describe("the Skill run", () => {
     // The glob and the ordinary read are decoys, and both trace.
     expect(named(runs, "glob_file_search")).toHaveLength(1);
     expect(named(runs, "read_file_v2")).toHaveLength(3);
-    // Two reads of one skill are two invocations; Claude Code does not dedup either.
-    expect(skillRuns).toHaveLength(2);
+    // The same skill read twice in a turn is one use.
+    expect(skillRuns).toHaveLength(1);
     for (const run of skillRuns) {
       expect(run.run_type).toBe("tool");
       // Sibling of the read, not its child.
@@ -138,13 +164,13 @@ describe("the Skill run", () => {
     const ms = (t: unknown) => (typeof t === "number" ? t : Date.parse(t as string));
     const window = (r: Run) => [ms(r.start_time), ms(r.end_time)];
     const byStart = (a: Run, b: Run) => ms(a.start_time) - ms(b.start_time);
-    const skillReads = named(runs, "read_file_v2")
+    const firstRead = named(runs, "read_file_v2")
       .filter((r) => SKILL_READ_IDS.includes(meta(r).tool_use_id as string))
-      .sort(byStart);
-    const skillRuns = named(runs, "Skill").sort(byStart);
+      .sort(byStart)[0];
+    const skillRuns = named(runs, "Skill");
 
-    expect(skillRuns).toHaveLength(2);
-    expect(skillRuns.map(window)).toEqual(skillReads.map(window));
+    expect(skillRuns).toHaveLength(1);
+    expect(skillRuns.map(window)).toEqual([window(firstRead)]);
   });
 
   it("hangs off the subagent run when the read happened there", async () => {
@@ -174,7 +200,6 @@ describe("the Skill run", () => {
     const tagged = runs.filter((r) => meta(r).ls_skill_name);
     expect(tagged.map((r) => [r.name, meta(r).ls_skill_name])).toEqual([
       ["Skill", "code-insights"],
-      ["Skill", "code-insights"],
     ]);
     for (const read of named(runs, "read_file_v2")) {
       expect(meta(read)).not.toHaveProperty("ls_skill_name");
@@ -191,6 +216,45 @@ describe("the Skill run", () => {
       // A failure hook with no message: `error` is unset, only failure_type says it failed.
       { output: { commandName: "quiet-failure", success: false } },
     ]);
+  });
+
+  it("counts a skill typed as /name once, even when the model then reads it", async () => {
+    const [turn] = replayHookLog(SKILL_CAPTURE).finalized;
+    const typed = { ...turn, buffer: { ...turn.buffer, typedSkill: "code-insights" } };
+    const skillRuns = named(await tracedRuns(typed), "Skill");
+
+    expect(skillRuns).toHaveLength(1);
+    expect(skillRuns[0].inputs).toEqual({ input: { skill: "code-insights" } });
+  });
+
+  it("counts a typed skill that the model never reads", async () => {
+    const [turn] = replayHookLog(CAPTURE).finalized;
+    const typed = { ...turn, buffer: { ...turn.buffer, typedSkill: "add-plugin" } };
+    const runs = await tracedRuns(typed);
+
+    expect(named(runs, "Skill").map((r) => r.outputs)).toEqual([
+      { output: { commandName: "add-plugin", success: true } },
+    ]);
+    expect(named(runs, "Skill")[0].parent_run_id).toBe(runs.find((r) => !r.parent_run_id)!.id);
+  });
+
+  it("counts a skill printed with cat in the Shell tool", async () => {
+    const [turn] = replayHookLog(CAPTURE).finalized;
+    const shellTool = {
+      tool_use_id: "toolu_shell_skill",
+      name: "Shell",
+      input: { command: `cat ${SKILL_PATH}`, working_directory: "/repo" },
+      output: "",
+      startMs: turn.buffer.startMs + 10,
+      endMs: turn.buffer.startMs + 20,
+    };
+    const buffer = {
+      ...turn.buffer,
+      tools: [...turn.buffer.tools, shellTool, { ...shellTool, tool_use_id: "toolu_shell_again" }],
+    };
+    const skillRuns = named(await tracedRuns({ ...turn, buffer }), "Skill");
+
+    expect(skillRuns.map((r) => r.inputs)).toEqual([{ input: { skill: "deploy" } }]);
   });
 
   it("does not inherit the turn's token counts", async () => {

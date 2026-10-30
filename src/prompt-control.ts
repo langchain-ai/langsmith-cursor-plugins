@@ -1,3 +1,4 @@
+import { homedir } from "node:os";
 import { LOGIN_NOTICE_KIND } from "@langchain/plugins-base/auth";
 import { loadConfig } from "./config.js";
 import { MUTE_LOCKED_MESSAGE, NOTICE_KINDS } from "./constants.js";
@@ -13,6 +14,7 @@ import {
   tracingPolicyPath,
 } from "./tracing-policy.js";
 import { originFromConfig } from "./turn-origin.js";
+import { typedSkillName } from "./utils/skills.js";
 import { uploadCredential, uploadProblem } from "./writer-options.js";
 import type { BeforeSubmitPromptInput, PromptReply } from "./models/types.js";
 
@@ -75,6 +77,7 @@ export async function handlePromptSubmit(input: BeforeSubmitPromptInput): Promis
         Date.now(),
         enabled ? mode : "off",
         originFromConfig(config, input),
+        typedSkillName(input.prompt, input.workspace_roots ?? [], homedir()),
       ),
     );
     return { continue: true };

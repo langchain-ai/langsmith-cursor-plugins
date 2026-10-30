@@ -59,6 +59,29 @@ function response(generationId: string): AfterAgentResponseInput {
   };
 }
 
+describe("typed skill", () => {
+  it("is kept on the turn when tracing is on and dropped when it is off", () => {
+    const kept = reduceBeforeSubmitPrompt(
+      {},
+      submit("g1", "/deploy"),
+      T0,
+      "metadata",
+      undefined,
+      "deploy",
+    );
+    const off = reduceBeforeSubmitPrompt(
+      {},
+      submit("g1", "/deploy"),
+      T0,
+      "off",
+      undefined,
+      "deploy",
+    );
+    expect(kept[CONV].turns.g1.typedSkill).toBe("deploy");
+    expect(off[CONV].turns.g1.typedSkill).toBeUndefined();
+  });
+});
+
 describe("turn numbering", () => {
   it("numbers a turn when it starts", () => {
     let state: TracingState = {};

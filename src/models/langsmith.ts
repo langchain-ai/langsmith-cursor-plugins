@@ -58,6 +58,8 @@ export interface TurnContext {
   thinking: Array<Record<string, unknown>>;
   finalTextBlocks: Array<Record<string, unknown>>;
   calls: TurnCall[];
+  /** The tools whose skill read counts, which is the first read of each skill in the turn. */
+  countedSkillTools: Set<ToolEvent>;
   turnEndMs: number;
 }
 

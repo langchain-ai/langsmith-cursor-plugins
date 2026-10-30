@@ -108,6 +108,7 @@ export function reduceBeforeSubmitPrompt(
   nowMs: number,
   mode: TurnMode = "full",
   origin?: TurnOrigin,
+  typedSkill?: string,
 ): TracingState {
   const conv = getConversationState(state, input.conversation_id);
   if (!acceptLateEvent(conv, input.conversation_id, input)) return state;
@@ -117,6 +118,7 @@ export function reduceBeforeSubmitPrompt(
   turn.tracingMode = mode;
   turn.origin = origin;
   turn.prompt = mode === "off" ? undefined : input.prompt;
+  turn.typedSkill = mode === "off" ? undefined : typedSkill;
   turn.model = input.model;
   setOwnEntry(conv.turns, input.generation_id, turn);
   touch(conv);
