@@ -53,7 +53,7 @@ export const LS_INTEGRATION = "cursor";
 /** Read tools and Shell only, so a glob or grep naming SKILL.md is not counted as an invocation. */
 export const SKILL_READ_TOOLS = new Set(["read_file_v2", "ReadFile", "Read", "Shell"]);
 
-export const SHELL_CAT_PATH = /\bcat\s+["']?([^\s"']+)/;
+export const SHELL_CAT_PATH = /(?:^|[;&|])\s*cat\s+["']?([^\s"']+)/;
 
 export const SYNCED_SKILLS_FOLDER = "synced";
 

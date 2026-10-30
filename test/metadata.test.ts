@@ -90,6 +90,13 @@ describe("skillNameFromTool", () => {
     ["older captures spell it Read, keyed file_path", "Read", { file_path: SKILL_PATH }, "deploy"],
     ["subagent transcripts spell it ReadFile", "ReadFile", { path: SKILL_PATH }, "deploy"],
     ["a shell cat reads it", "Shell", { command: `cat "${SKILL_PATH}"` }, "deploy"],
+    [
+      "a shell echo of cat is not a read",
+      "Shell",
+      { command: `echo cat ${SKILL_PATH}` },
+      undefined,
+    ],
+    ["a cat after && is a read", "Shell", { command: `cd /repo && cat ${SKILL_PATH}` }, "deploy"],
     ["a shell grep is not a read", "Shell", { command: `grep x ${SKILL_PATH}` }, undefined],
     ["a glob is not a read", "glob_file_search", { path: SKILL_PATH }, undefined],
     ["a grep is not a read", "Grep", { file_path: SKILL_PATH }, undefined],
