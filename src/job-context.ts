@@ -49,8 +49,9 @@ export function reduceTypedSkill(
   generationId: string,
   typedSkill: string | null | undefined,
 ): TracingState {
-  const turn = getTurnBuffer(state, conversationId, generationId);
-  if (turn) turn.typedSkill = typedSkill;
+  const active = getTurnBuffer(state, conversationId, generationId);
+  const pending = ownEntry(ownEntry(state, conversationId)?.pending, generationId)?.buffer;
+  for (const buffer of [active, pending]) if (buffer) buffer.typedSkill = typedSkill;
   return state;
 }
 

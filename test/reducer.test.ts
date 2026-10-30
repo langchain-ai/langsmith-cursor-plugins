@@ -12,6 +12,7 @@ import type {
   StopInput,
   TracingState,
 } from "../src/models/types.js";
+import { reduceTypedSkill } from "../src/job-context.js";
 import { MINUTE, T0, conversation, turn } from "./utils/state.js";
 
 const CONV = "c1";
@@ -59,21 +60,20 @@ function response(generationId: string): AfterAgentResponseInput {
   };
 }
 
-describe("typed command", () => {
+describe("typed command and answer", () => {
   const typed = { name: "deploy", workspaceRoots: ["/repo"] };
+  const start = (mode: "metadata" | "off") =>
+    reduceBeforeSubmitPrompt({}, submit("g1", "/deploy"), T0, mode, undefined, typed);
 
-  it("is kept on the turn when tracing is on and dropped when it is off", () => {
-    const kept = reduceBeforeSubmitPrompt(
-      {},
-      submit("g1", "/deploy"),
-      T0,
-      "metadata",
-      undefined,
-      typed,
-    );
-    const off = reduceBeforeSubmitPrompt({}, submit("g1", "/deploy"), T0, "off", undefined, typed);
-    expect(kept[CONV].turns.g1.typedCommand).toEqual(typed);
-    expect(off[CONV].turns.g1.typedCommand).toBeUndefined();
+  it("keeps the command when tracing is on and drops it when off", () => {
+    expect(start("metadata")[CONV].turns.g1.typedCommand).toEqual(typed);
+    expect(start("off")[CONV].turns.g1.typedCommand).toBeUndefined();
+  });
+
+  it("keeps the answer on the active turn and on the pending copy a retry resubmits", () => {
+    const stopped = reduceStop(start("metadata"), stop("g1"), T0 + 1).state;
+    const answered = reduceTypedSkill(stopped, CONV, "g1", "deploy");
+    expect(answered[CONV].pending?.g1.buffer.typedSkill).toBe("deploy");
   });
 });
 

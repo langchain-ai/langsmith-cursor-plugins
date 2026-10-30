@@ -20,7 +20,7 @@ import {
   TOOL_FAILED_MESSAGE,
   TURN_RUN_NAME,
 } from "./constants.js";
-import { codingAgentMetadata, skillNameFromTool, withIntegration } from "./metadata.js";
+import { codingAgentMetadata, skillNamesFromTool, withIntegration } from "./metadata.js";
 import type { CursorMetadataOptions } from "./models/metadata.js";
 import type { CapturedRun } from "./models/tracing-engine.js";
 import { groupSteps } from "./conversation-steps.js";
@@ -186,7 +186,7 @@ export function buildTurnRuns(options: BuildTurnOptions): CapturedRun[] {
 export function buildToolRuns(options: BuildTurnOptions, toolIndex: number): CapturedRun[] {
   const tool = options.buffer.tools[toolIndex];
   if (!tool) return [];
-  const turn = createTurnContext(options);
+  const turn = { ...createTurnContext(options), countedSkillTools: new Map<ToolEvent, string[]>() };
   addToolRun(turn, addRootRun(turn), turn.ctx, tool, toolKey(toolIndex, tool));
   return turn.runs;
 }
@@ -247,16 +247,19 @@ function toolSucceeded(tool: ToolEvent): boolean {
   return tool.error == null && tool.failure_type == null;
 }
 
-function countedSkillTools(buffer: TurnBuffer): Set<ToolEvent> {
+function countedSkillTools(buffer: TurnBuffer): Map<ToolEvent, string[]> {
   const chosen = new Map<string, ToolEvent>();
   const subagentTools = buffer.subagents.flatMap((sub) => sub.tools ?? []);
   for (const tool of [...buffer.tools, ...subagentTools]) {
-    const name = skillNameFromTool(tool.name, tool.input);
-    if (!name || name === buffer.typedSkill) continue;
-    const earlier = chosen.get(name);
-    if (!earlier || (!toolSucceeded(earlier) && toolSucceeded(tool))) chosen.set(name, tool);
+    for (const name of skillNamesFromTool(tool.name, tool.input)) {
+      const earlier = chosen.get(name);
+      if (name === buffer.typedSkill) continue;
+      if (!earlier || (!toolSucceeded(earlier) && toolSucceeded(tool))) chosen.set(name, tool);
+    }
   }
-  return new Set(chosen.values());
+  const counted = new Map<ToolEvent, string[]>();
+  for (const [name, tool] of chosen) counted.set(tool, [...(counted.get(tool) ?? []), name]);
+  return counted;
 }
 
 function addRootRun(turn: TurnContext): RunTree {
@@ -516,9 +519,8 @@ function addToolRun(
     },
   });
 
-  const skillName = skillNameFromTool(tool.name, tool.input);
-  if (skillName && turn.countedSkillTools.has(tool)) {
-    addSkillRun(turn, parent, ctx, `${key}:skill`, clearSubagent, {
+  for (const skillName of turn.countedSkillTools.get(tool) ?? []) {
+    addSkillRun(turn, parent, ctx, `${key}:skill:${skillName}`, clearSubagent, {
       skillName,
       // A failure hook may carry no message, so failure_type is the surer signal.
       success: toolSucceeded(tool),

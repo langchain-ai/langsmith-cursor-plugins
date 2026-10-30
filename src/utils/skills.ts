@@ -66,20 +66,21 @@ function resolveAgainst(directory: string, word: string): string {
     : join(directory, word);
 }
 
-export function skillPathFromShellCommand(command: string): string | undefined {
+export function skillPathsFromShellCommand(command: string): string[] {
+  const paths: string[] = [];
   let directory = "";
   for (const words of shellSegments(command)) {
     if (words[0] === SHELL_CHANGE_DIRECTORY && words[1]) {
       directory = resolveAgainst(directory, words[1]);
-      continue;
+    } else if (SKILL_SHELL_READ_COMMANDS.has(commandName(words[0]))) {
+      words.forEach((word, i) => {
+        if (i > 0 && word.endsWith(SKILL_FILE_NAME) && !isRedirectTarget(words, i)) {
+          paths.push(resolveAgainst(directory, word));
+        }
+      });
     }
-    if (!SKILL_SHELL_READ_COMMANDS.has(commandName(words[0]))) continue;
-    const index = words.findIndex(
-      (word, i) => i > 0 && word.endsWith(SKILL_FILE_NAME) && !isRedirectTarget(words, i),
-    );
-    if (index >= 0) return resolveAgainst(directory, words[index]);
   }
-  return undefined;
+  return paths;
 }
 
 export function isSkillFolder(ancestors: string[]): boolean {

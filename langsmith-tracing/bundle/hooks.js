@@ -26745,20 +26745,21 @@ function isRedirectTarget(words, index) {
 function resolveAgainst(directory, word) {
   return !directory || isAbsolute4(word) || word.startsWith(HOME_PREFIX) ? word : join25(directory, word);
 }
-function skillPathFromShellCommand(command) {
+function skillPathsFromShellCommand(command) {
+  const paths = [];
   let directory = "";
   for (const words of shellSegments(command)) {
     if (words[0] === SHELL_CHANGE_DIRECTORY && words[1]) {
       directory = resolveAgainst(directory, words[1]);
-      continue;
+    } else if (SKILL_SHELL_READ_COMMANDS.has(commandName(words[0]))) {
+      words.forEach((word, i) => {
+        if (i > 0 && word.endsWith(SKILL_FILE_NAME) && !isRedirectTarget(words, i)) {
+          paths.push(resolveAgainst(directory, word));
+        }
+      });
     }
-    if (!SKILL_SHELL_READ_COMMANDS.has(commandName(words[0])))
-      continue;
-    const index = words.findIndex((word, i) => i > 0 && word.endsWith(SKILL_FILE_NAME) && !isRedirectTarget(words, i));
-    if (index >= 0)
-      return resolveAgainst(directory, words[index]);
   }
-  return void 0;
+  return paths;
 }
 function isSkillFolder(ancestors) {
   const rootIndex = ancestors.findIndex((segment) => SKILL_DIRECTORY_NAMES.has(segment));
@@ -27729,9 +27730,11 @@ function queuedContext(state, ref) {
   return queued?.savedAtMs === ref.savedAtMs ? queued : void 0;
 }
 function reduceTypedSkill(state, conversationId, generationId, typedSkill) {
-  const turn = getTurnBuffer(state, conversationId, generationId);
-  if (turn)
-    turn.typedSkill = typedSkill;
+  const active = getTurnBuffer(state, conversationId, generationId);
+  const pending = ownEntry(ownEntry(state, conversationId)?.pending, generationId)?.buffer;
+  for (const buffer of [active, pending])
+    if (buffer)
+      buffer.typedSkill = typedSkill;
   return state;
 }
 function reduceQueued(state, context, savedAtMs) {
@@ -27812,13 +27815,15 @@ function withIntegration(opts) {
 function codingAgentMetadata(opts) {
   return buildCodingAgentMetadata(withIntegration(opts));
 }
-function skillNameFromTool(toolName, toolInput) {
+function skillNamesFromTool(toolName, toolInput) {
   const input = toolInput;
+  let paths = [];
   if (SKILL_READ_TOOLS.has(toolName))
-    return skillNameFromPath(input?.path ?? input?.file_path);
-  if (SKILL_SHELL_TOOLS.has(toolName) && typeof input?.command === "string")
-    return skillNameFromPath(skillPathFromShellCommand(input.command));
-  return void 0;
+    paths = [input?.path ?? input?.file_path];
+  else if (SKILL_SHELL_TOOLS.has(toolName) && typeof input?.command === "string")
+    paths = skillPathsFromShellCommand(input.command);
+  const names2 = paths.flatMap((path3) => skillNameFromPath(path3) ?? []);
+  return [...new Set(names2)];
 }
 function skillNameFromPath(filePath) {
   if (typeof filePath !== "string")
@@ -28581,7 +28586,7 @@ function buildToolRuns(options, toolIndex) {
   const tool = options.buffer.tools[toolIndex];
   if (!tool)
     return [];
-  const turn = createTurnContext(options);
+  const turn = { ...createTurnContext(options), countedSkillTools: /* @__PURE__ */ new Map() };
   addToolRun(turn, addRootRun(turn), turn.ctx, tool, toolKey(toolIndex, tool));
   return turn.runs;
 }
@@ -28628,14 +28633,18 @@ function countedSkillTools(buffer) {
   const chosen = /* @__PURE__ */ new Map();
   const subagentTools = buffer.subagents.flatMap((sub) => sub.tools ?? []);
   for (const tool of [...buffer.tools, ...subagentTools]) {
-    const name = skillNameFromTool(tool.name, tool.input);
-    if (!name || name === buffer.typedSkill)
-      continue;
-    const earlier = chosen.get(name);
-    if (!earlier || !toolSucceeded(earlier) && toolSucceeded(tool))
-      chosen.set(name, tool);
+    for (const name of skillNamesFromTool(tool.name, tool.input)) {
+      const earlier = chosen.get(name);
+      if (name === buffer.typedSkill)
+        continue;
+      if (!earlier || !toolSucceeded(earlier) && toolSucceeded(tool))
+        chosen.set(name, tool);
+    }
   }
-  return new Set(chosen.values());
+  const counted = /* @__PURE__ */ new Map();
+  for (const [name, tool] of chosen)
+    counted.set(tool, [...counted.get(tool) ?? [], name]);
+  return counted;
 }
 function addRootRun(turn) {
   const { options, ctx } = turn;
@@ -28837,9 +28846,8 @@ function addToolRun(turn, parent, ctx, tool, key, clearSubagent = false) {
       }
     }
   });
-  const skillName = skillNameFromTool(tool.name, tool.input);
-  if (skillName && turn.countedSkillTools.has(tool)) {
-    addSkillRun(turn, parent, ctx, `${key}:skill`, clearSubagent, {
+  for (const skillName of turn.countedSkillTools.get(tool) ?? []) {
+    addSkillRun(turn, parent, ctx, `${key}:skill:${skillName}`, clearSubagent, {
       skillName,
       // A failure hook may carry no message, so failure_type is the surer signal.
       success: toolSucceeded(tool),

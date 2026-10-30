@@ -101,6 +101,13 @@ async function build(): Promise<Output[]> {
   return result.outputs;
 }
 
+function skillRoot(name: string): string {
+  const root = mkdtempSync(join(tmpdir(), "cursor-typed-"));
+  mkdirSync(join(root, ".cursor", "skills", name), { recursive: true });
+  writeFileSync(join(root, ".cursor", "skills", name, "SKILL.md"), "x");
+  return root;
+}
+
 async function saveTool(context: UploadJobContext): Promise<void> {
   saveState(config.stateFilePath, { c1: conversation([context.buffer]) });
   await saveToolForUpload(config, context);
@@ -150,41 +157,38 @@ describe("saving a turn for upload", () => {
   });
 
   it("turns a typed /name into a Skill run in the uploader, not in the hook", async () => {
-    const workspace = mkdtempSync(join(tmpdir(), "cursor-typed-"));
-    mkdirSync(join(workspace, ".cursor", "skills", "deploy"), { recursive: true });
-    writeFileSync(join(workspace, ".cursor", "skills", "deploy", "SKILL.md"), "x");
-    await saveTurnForUpload(config, {
-      ...toolTurn,
-      buffer: { ...toolTurn.buffer, typedCommand: { name: "deploy", workspaceRoots: [workspace] } },
-    });
+    const workspace = skillRoot("deploy");
+    const typedCommand = { name: "deploy", workspaceRoots: [workspace] };
+    await saveTurnForUpload(config, { ...toolTurn, buffer: { ...toolTurn.buffer, typedCommand } });
     const names = (await build()).map(({ submission }) => submission.run.name);
     expect(names.filter((name) => name === "Skill")).toHaveLength(1);
   });
 
-  it.each<[string, string | null]>([
-    ["deploy", "deploy"],
-    ["add-plugin", null],
-  ])("keeps the answer for typed /%s on the turn so later jobs agree", async (name, expected) => {
-    const workspace = mkdtempSync(join(tmpdir(), "cursor-typed-"));
-    mkdirSync(join(workspace, ".cursor", "skills", "deploy"), { recursive: true });
-    writeFileSync(join(workspace, ".cursor", "skills", "deploy", "SKILL.md"), "x");
-    const typedCommand = { name, workspaceRoots: [workspace] };
-    await saveTool({ ...toolSave, buffer: { ...toolSave.buffer, typedCommand } });
-    expect(loadState(config.stateFilePath).c1.turns.g1.typedSkill).toBe(expected);
-  });
+  it.each<[string, string | null, boolean]>([
+    ["deploy", "deploy", false],
+    ["add-plugin", null, false],
+    ["mine", "mine", true],
+  ])(
+    "keeps the answer for typed /%s on the turn so later jobs agree",
+    async (name, expected, inHome) => {
+      const root = skillRoot(name === "add-plugin" ? "deploy" : name);
+      if (inHome) vi.stubEnv("HOME", root);
+      try {
+        const typedCommand = { name, workspaceRoots: inHome ? [] : [root] };
+        await saveTool({ ...toolSave, buffer: { ...toolSave.buffer, typedCommand } });
+      } finally {
+        vi.unstubAllEnvs();
+      }
+      expect(loadState(config.stateFilePath).c1.turns.g1.typedSkill).toBe(expected);
+    },
+  );
 
-  it("searches the real home folder for a typed skill", async () => {
-    const realHome = mkdtempSync(join(tmpdir(), "cursor-home-"));
-    mkdirSync(join(realHome, ".cursor", "skills", "mine"), { recursive: true });
-    writeFileSync(join(realHome, ".cursor", "skills", "mine", "SKILL.md"), "x");
-    vi.stubEnv("HOME", realHome);
-    try {
-      const typedCommand = { name: "mine", workspaceRoots: [] };
-      await saveTool({ ...toolSave, buffer: { ...toolSave.buffer, typedCommand } });
-    } finally {
-      vi.unstubAllEnvs();
-    }
-    expect(loadState(config.stateFilePath).c1.turns.g1.typedSkill).toBe("mine");
+  it("leaves the skill run to the stop job, so an early failed read cannot add a second one", async () => {
+    const read = tool("t1", "Read", T0 + 1000, { path: "/repo/skills/deploy/SKILL.md" });
+    await saveTool({ ...toolSave, buffer: { ...toolSave.buffer, tools: [read] } });
+    const names = (await build()).map(({ submission }) => submission.run.name);
+    expect(names).toContain("Read");
+    expect(names).not.toContain("Skill");
   });
 
   it("leaves a turn without a typed command untouched in the state file", async () => {

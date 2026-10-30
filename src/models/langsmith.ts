@@ -58,7 +58,7 @@ export interface TurnContext {
   thinking: Array<Record<string, unknown>>;
   finalTextBlocks: Array<Record<string, unknown>>;
   calls: TurnCall[];
-  countedSkillTools: Set<ToolEvent>;
+  countedSkillTools: Map<ToolEvent, string[]>;
   turnEndMs: number;
 }
 

@@ -10,7 +10,7 @@ import {
   SKILL_READ_TOOLS,
   SKILL_SHELL_TOOLS,
 } from "./constants.js";
-import { isSkillFolder, skillPathFromShellCommand } from "./utils/skills.js";
+import { isSkillFolder, skillPathsFromShellCommand } from "./utils/skills.js";
 import type { CursorMetadataOptions } from "./models/metadata.js";
 
 export function withIntegration(opts: CursorMetadataOptions): CodingAgentMetadataOptions {
@@ -24,16 +24,18 @@ export function codingAgentMetadata(opts: CursorMetadataOptions): Record<string,
 // ─── Skill detection ──────────────────────────────────────────────────────────
 
 /** A heuristic: Cursor has no Skill tool, so a skill read looks like any other read. */
-export function skillNameFromTool(toolName: string, toolInput: unknown): string | undefined {
+export function skillNamesFromTool(toolName: string, toolInput: unknown): string[] {
   // Older captures use `file_path`.
   const input = toolInput as
     | { path?: unknown; file_path?: unknown; command?: unknown }
     | null
     | undefined;
-  if (SKILL_READ_TOOLS.has(toolName)) return skillNameFromPath(input?.path ?? input?.file_path);
-  if (SKILL_SHELL_TOOLS.has(toolName) && typeof input?.command === "string")
-    return skillNameFromPath(skillPathFromShellCommand(input.command));
-  return undefined;
+  let paths: unknown[] = [];
+  if (SKILL_READ_TOOLS.has(toolName)) paths = [input?.path ?? input?.file_path];
+  else if (SKILL_SHELL_TOOLS.has(toolName) && typeof input?.command === "string")
+    paths = skillPathsFromShellCommand(input.command);
+  const names = paths.flatMap((path) => skillNameFromPath(path) ?? []);
+  return [...new Set(names)];
 }
 
 function skillNameFromPath(filePath: unknown): string | undefined {
