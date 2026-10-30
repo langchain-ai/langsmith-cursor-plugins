@@ -206,7 +206,6 @@ export interface TurnBuffer {
   generation_id: string;
   turnNum?: number;
   prompt?: string;
-  /** The skill the prompt started with as `/name`, when a skill of that name exists. */
   typedSkill?: string;
   /** Best model label seen for this turn (from beforeSubmitPrompt / stop). */
   model?: string;

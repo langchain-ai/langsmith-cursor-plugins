@@ -57,7 +57,6 @@ export const PATH_SEPARATOR = /[/\\]/;
 
 export const SKILL_SHELL_TOOLS = new Set(["Shell", "run_terminal_command_v2", "run_terminal_cmd"]);
 
-/** Commands that only print a file, so running one on a SKILL.md is a read of that skill. */
 export const SKILL_SHELL_READ_COMMANDS = new Set([
   "cat",
   "head",
@@ -68,10 +67,8 @@ export const SKILL_SHELL_READ_COMMANDS = new Set([
   "nl",
 ]);
 
-/** Splits a shell command into words, keeping a quoted path together. */
 export const SHELL_WORD = /"([^"]*)"|'([^']*)'|\S+/g;
 
-/** The first simple command of a line: everything before a pipe, `;` or `&`. */
 export const SHELL_COMMAND_END = /[|;&]/;
 
 export const SKILL_FILE_NAME = "SKILL.md";
@@ -82,10 +79,8 @@ export const SKILL_DIRECTORY_NAMES = new Set([SKILL_DIRECTORY_NAME, "skills-curs
 
 export const SYNCED_SKILLS_DIRECTORY_NAME = "synced";
 
-/** A typed `/name` at the very start of a prompt, ending at whitespace so `/Users/x` is not a command. */
 export const TYPED_SKILL_COMMAND = /^\/([A-Za-z0-9][A-Za-z0-9._-]*)(?=\s|$)/;
 
-/** Folders Cursor loads skills from, in a project and in the home folder. */
 export const SKILL_FOLDERS = [
   [".agents", "skills"],
   [".cursor", "skills"],
@@ -93,10 +88,8 @@ export const SKILL_FOLDERS = [
   [".codex", "skills"],
 ];
 
-/** Cursor's built-in skills, which exist only in the home folder. */
 export const BUILT_IN_SKILL_FOLDER = [".cursor", "skills-cursor"];
 
-/** Synced skills sit one folder deeper, under an id, inside the home `.agents/skills`. */
 export const SYNCED_SKILL_FOLDER = [".agents", "skills", "synced"];
 
 /** Skip attachments larger than this (raw bytes) — base64 inflates ~33% on top. */

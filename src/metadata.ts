@@ -26,7 +26,7 @@ export function codingAgentMetadata(opts: CursorMetadataOptions): Record<string,
 
 // ─── Skill detection ──────────────────────────────────────────────────────────
 
-/** A heuristic: Cursor has no Skill tool, so a skill read looks like any other read or `cat`. */
+/** A heuristic: Cursor has no Skill tool, so a skill read looks like any other read. */
 export function skillNameFromTool(toolName: string, toolInput: unknown): string | undefined {
   // Older captures use `file_path`.
   const input = toolInput as
@@ -51,7 +51,6 @@ function skillNameFromPath(filePath: unknown): string | undefined {
   return isSkillsFolder(segments) ? name : undefined;
 }
 
-/** `segments` holds the directories above the skill: a skills folder, or an id inside `synced`. */
 function isSkillsFolder(segments: string[]): boolean {
   const parent = segments.at(-1);
   if (parent !== undefined && SKILL_DIRECTORY_NAMES.has(parent)) return true;

@@ -11,7 +11,6 @@ import {
   TYPED_SKILL_COMMAND,
 } from "../constants.js";
 
-/** The SKILL.md a plain read command (`cat path`, `head -50 path`) prints, if it names one. */
 export function skillPathFromShellCommand(command: string): string | undefined {
   const [first = ""] = command.split(SHELL_COMMAND_END);
   const words = [...first.matchAll(SHELL_WORD)].map((m) => m[1] ?? m[2] ?? m[0]);
@@ -37,7 +36,6 @@ function skillFolders(roots: string[], home: string): string[] {
   ];
 }
 
-/** The skill a prompt starts with as `/name`, only when a skill of that name exists to load. */
 export function typedSkillName(
   prompt: string,
   workspaceRoots: string[],
