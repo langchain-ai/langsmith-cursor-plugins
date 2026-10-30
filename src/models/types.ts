@@ -4,6 +4,7 @@
  */
 
 import type { UploadJobContext } from "./job-context.js";
+import type { TypedCommand } from "./skills.js";
 
 // ─── Multimodal content ──────────────────────────────────────────────────────
 
@@ -206,6 +207,7 @@ export interface TurnBuffer {
   generation_id: string;
   turnNum?: number;
   prompt?: string;
+  typedCommand?: TypedCommand;
   typedSkill?: string;
   /** Best model label seen for this turn (from beforeSubmitPrompt / stop). */
   model?: string;

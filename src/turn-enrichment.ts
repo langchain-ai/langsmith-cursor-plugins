@@ -1,9 +1,11 @@
+import { homedir } from "node:os";
 import { resolveTurnAttachments } from "./attachments.js";
 import { resolveTurnSteps } from "./conversation-steps.js";
 import { resolveSystemPrompts } from "./system-prompt.js";
 import type { Config } from "./models/config.js";
 import type { BuildTurnOptions } from "./models/langsmith.js";
-import type { ContentPart } from "./models/types.js";
+import type { ContentPart, TurnBuffer } from "./models/types.js";
+import { typedSkillName } from "./utils/skills.js";
 
 export function enrichTurn(config: Config, options: BuildTurnOptions): BuildTurnOptions {
   const { buffer: toTrace, conversationId } = options;
@@ -46,6 +48,11 @@ export function enrichTurn(config: Config, options: BuildTurnOptions): BuildTurn
   });
 
   return { ...options, attachments, systemPrompt, steps };
+}
+
+export function withTypedSkill(buffer: TurnBuffer): TurnBuffer {
+  const typedSkill = buffer.typedCommand && typedSkillName(buffer.typedCommand, homedir());
+  return typedSkill ? { ...buffer, typedSkill } : buffer;
 }
 
 export function toolAttachments(config: Config, options: BuildTurnOptions): ContentPart[] {

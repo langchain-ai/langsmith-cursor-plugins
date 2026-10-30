@@ -59,7 +59,9 @@ function response(generationId: string): AfterAgentResponseInput {
   };
 }
 
-describe("typed skill", () => {
+describe("typed command", () => {
+  const typed = { name: "deploy", workspaceRoots: ["/repo"] };
+
   it("is kept on the turn when tracing is on and dropped when it is off", () => {
     const kept = reduceBeforeSubmitPrompt(
       {},
@@ -67,18 +69,11 @@ describe("typed skill", () => {
       T0,
       "metadata",
       undefined,
-      "deploy",
+      typed,
     );
-    const off = reduceBeforeSubmitPrompt(
-      {},
-      submit("g1", "/deploy"),
-      T0,
-      "off",
-      undefined,
-      "deploy",
-    );
-    expect(kept[CONV].turns.g1.typedSkill).toBe("deploy");
-    expect(off[CONV].turns.g1.typedSkill).toBeUndefined();
+    const off = reduceBeforeSubmitPrompt({}, submit("g1", "/deploy"), T0, "off", undefined, typed);
+    expect(kept[CONV].turns.g1.typedCommand).toEqual(typed);
+    expect(off[CONV].turns.g1.typedCommand).toBeUndefined();
   });
 });
 

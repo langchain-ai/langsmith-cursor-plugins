@@ -1,5 +1,3 @@
-import { existsSync } from "node:fs";
-import { join } from "node:path";
 import {
   buildCodingAgentMetadata,
   type CodingAgentMetadataOptions,
@@ -8,12 +6,11 @@ import { LS_INTEGRATION_VERSION } from "./config.js";
 import {
   LS_INTEGRATION,
   PATH_SEPARATOR,
-  SKILL_DIRECTORY_NAMES,
   SKILL_FILE_NAME,
   SKILL_READ_TOOLS,
   SKILL_SHELL_TOOLS,
 } from "./constants.js";
-import { skillPathFromShellCommand } from "./utils/skills.js";
+import { isSkillFolder, skillPathFromShellCommand } from "./utils/skills.js";
 import type { CursorMetadataOptions } from "./models/metadata.js";
 
 export function withIntegration(opts: CursorMetadataOptions): CodingAgentMetadataOptions {
@@ -48,6 +45,5 @@ function skillNameFromPath(filePath: unknown): string | undefined {
   const name = segments.pop();
   // A leading dot would let "." or ".." stand in for the skill name.
   if (file !== SKILL_FILE_NAME || !name || name.startsWith(".")) return undefined;
-  if (!segments.some((segment) => SKILL_DIRECTORY_NAMES.has(segment))) return undefined;
-  return existsSync(join(segments.join("/"), SKILL_FILE_NAME)) ? undefined : name;
+  return isSkillFolder(segments) ? name : undefined;
 }

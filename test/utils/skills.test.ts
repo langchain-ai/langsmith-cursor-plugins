@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
-import { typedSkillName } from "../../src/utils/skills.js";
+import { typedCommandOf, typedSkillName } from "../../src/utils/skills.js";
 
 let dir: string;
 let home: string;
@@ -12,6 +12,20 @@ function addSkill(...segments: string[]): void {
   const file = join(...segments, "SKILL.md");
   mkdirSync(dirname(file), { recursive: true });
   writeFileSync(file, "---\nname: x\n---\n");
+}
+
+function resolve(name: string, roots: string[] = [project]): string | undefined {
+  return typedSkillName({ name, workspaceRoots: roots }, home);
+}
+
+function isCaseInsensitiveFilesystem(): boolean {
+  mkdirSync(join(dir, "Probe"));
+  try {
+    mkdirSync(join(dir, "probe"));
+    return false;
+  } catch {
+    return true;
+  }
 }
 
 beforeEach(() => {
@@ -26,6 +40,37 @@ afterEach(() => {
   rmSync(dir, { recursive: true, force: true });
 });
 
+describe("typedCommandOf", () => {
+  it("takes the name and the folders the prompt was typed in", () => {
+    expect(typedCommandOf("/deploy to staging", ["/a", "/b"])).toEqual({
+      name: "deploy",
+      workspaceRoots: ["/a", "/b"],
+    });
+  });
+
+  it("drops folders that are not text instead of failing", () => {
+    expect(typedCommandOf("/deploy", [null, "/a", 5])).toEqual({
+      name: "deploy",
+      workspaceRoots: ["/a"],
+    });
+    expect(typedCommandOf("/deploy", undefined)).toEqual({ name: "deploy", workspaceRoots: [] });
+  });
+
+  it.each([
+    ["a slash that is not first", "please run /deploy"],
+    ["a path", "/deploy/now"],
+    ["a traversal", "/../deploy"],
+    ["plain text", "deploy"],
+    ["no text", 42],
+  ])("ignores %s", (_case, prompt) => {
+    expect(typedCommandOf(prompt, [])).toBeUndefined();
+  });
+
+  it("stops at a newline", () => {
+    expect(typedCommandOf("/deploy\nwith details", [])?.name).toBe("deploy");
+  });
+});
+
 describe("typedSkillName", () => {
   it.each<[string, string[], string]>([
     ["a project .cursor skill", ["project", ".cursor", "skills", "deploy"], "deploy"],
@@ -37,6 +82,7 @@ describe("typedSkillName", () => {
     ["a home .claude skill", ["home", ".claude", "skills", "deploy"], "deploy"],
     ["a home .codex skill", ["home", ".codex", "skills", "deploy"], "deploy"],
     ["a built-in skill", ["home", ".cursor", "skills-cursor", "create-rule"], "create-rule"],
+    ["a group folder", ["home", ".cursor", "skills", "group", "deploy"], "deploy"],
     [
       "a synced skill",
       ["home", ".agents", "skills", "synced", "aaa_bbb", "explainer"],
@@ -44,49 +90,68 @@ describe("typedSkillName", () => {
     ],
   ])("finds %s", (_case, segments, name) => {
     addSkill(dir, ...segments);
-    expect(typedSkillName(`/${name} do it`, [project], home)).toBe(name);
+    expect(resolve(name)).toBe(name);
   });
 
   it("returns the folder's real name when the typed case differs", () => {
     addSkill(dir, "project", ".cursor", "skills", "deploy");
-    expect(typedSkillName("/Deploy", [project], home)).toBe("deploy");
+    expect(resolve("Deploy")).toBe("deploy");
   });
 
-  it("finds a skill inside a group folder", () => {
-    addSkill(dir, "home", ".cursor", "skills", "group", "deploy");
-    expect(typedSkillName("/deploy", [project], home)).toBe("deploy");
+  it("prefers the exact name over a different-case folder", (ctx) => {
+    if (isCaseInsensitiveFilesystem()) ctx.skip();
+    addSkill(dir, "project", ".cursor", "skills", "Deploy");
+    addSkill(dir, "project", ".cursor", "skills", "deploy");
+    expect(resolve("deploy")).toBe("deploy");
+  });
+
+  it("follows a symlinked skill folder", () => {
+    addSkill(dir, "elsewhere", "deploy");
+    mkdirSync(join(project, ".cursor", "skills"), { recursive: true });
+    symlinkSync(join(dir, "elsewhere", "deploy"), join(project, ".cursor", "skills", "deploy"));
+    expect(resolve("deploy")).toBe("deploy");
+  });
+
+  it("asks the workspace before the home folder", () => {
+    addSkill(dir, "project", ".cursor", "skills", "Deploy");
+    addSkill(dir, "home", ".cursor", "skills", "deploy");
+    expect(resolve("deploy")).toBe("Deploy");
   });
 
   it("checks every workspace root, not only the first", () => {
     const second = join(dir, "second");
     mkdirSync(second);
     addSkill(dir, "second", ".cursor", "skills", "deploy");
-    expect(typedSkillName("/deploy", [project, second], home)).toBe("deploy");
+    expect(resolve("deploy", [project, second])).toBe("deploy");
+  });
+
+  it("stops looking three folders down", () => {
+    addSkill(dir, "project", ".cursor", "skills", "a", "b", "c", "deep");
+    addSkill(dir, "project", ".cursor", "skills", "a", "b", "shallow");
+    expect(resolve("shallow")).toBe("shallow");
+    expect(resolve("deep")).toBeUndefined();
+  });
+
+  it("does not look inside another skill, the same rule a read follows", () => {
+    addSkill(dir, "project", ".cursor", "skills", "outer");
+    addSkill(dir, "project", ".cursor", "skills", "outer", "inner");
+    expect(resolve("outer")).toBe("outer");
+    expect(resolve("inner")).toBeUndefined();
   });
 
   it("ignores a command with no skill of that name, like a built-in /add-plugin", () => {
     addSkill(dir, "home", ".cursor", "skills", "deploy");
-    expect(typedSkillName("/add-plugin https://github.com/x/y", [project], home)).toBeUndefined();
+    expect(resolve("add-plugin")).toBeUndefined();
   });
 
   it("ignores a skill folder with no SKILL.md in it", () => {
     mkdirSync(join(project, ".cursor", "skills", "empty"), { recursive: true });
-    expect(typedSkillName("/empty", [project], home)).toBeUndefined();
+    expect(resolve("empty")).toBeUndefined();
   });
 
-  it.each([
-    ["a slash that is not first", "please run /deploy"],
-    ["a path", "/deploy/now"],
-    ["a traversal", "/../deploy"],
-    ["plain text", "deploy"],
-  ])("ignores %s", (_case, prompt) => {
-    addSkill(dir, "project", ".cursor", "skills", "deploy");
-    expect(typedSkillName(prompt, [project], home)).toBeUndefined();
-  });
-
-  it("matches a command followed by a newline and nothing else", () => {
-    addSkill(dir, "project", ".cursor", "skills", "deploy");
-    expect(typedSkillName("/deploy\nwith details", [project], home)).toBe("deploy");
-    expect(typedSkillName("/deploy", [project], home)).toBe("deploy");
+  it("gives nothing, rather than failing, when a folder is not text", () => {
+    expect(
+      typedSkillName({ name: "deploy", workspaceRoots: [null as unknown as string] }, home),
+    ).toBeUndefined();
   });
 });

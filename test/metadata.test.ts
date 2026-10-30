@@ -124,6 +124,11 @@ describe("skillNameFromTool on disk", () => {
           path: join(dir, "skills", "deploy", "references", "SKILL.md"),
         }),
       ).toBeUndefined();
+      mkdirSync(join(dir, "skills", "deploy", "refs", "c"), { recursive: true });
+      writeFileSync(join(dir, "skills", "deploy", "refs", "c", "SKILL.md"), "x");
+      expect(
+        skillNameFromTool("Read", { path: join(dir, "skills", "deploy", "refs", "c", "SKILL.md") }),
+      ).toBeUndefined();
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
@@ -151,6 +156,12 @@ describe("skillNameFromTool with a shell command", () => {
     ["a quoted path containing an ampersand", `cat "/R&D/skills/deploy/SKILL.md"`, "deploy"],
     ["a read after &&", `cd /repo && cat ${SKILL_PATH}`, "deploy"],
     ["a read after cd into the skill", "cd /repo/skills/deploy && cat SKILL.md", "deploy"],
+    [
+      "a read after an absolute cd that follows another cd",
+      "cd /h/skills/x && cd /repo/deploy && cat SKILL.md",
+      undefined,
+    ],
+    ["an absolute read after a cd", "cd /h/skills/x && cat /repo/deploy/SKILL.md", undefined],
     ["a read after a relative cd", "cd /repo/skills && cd deploy && head SKILL.md", "deploy"],
     ["a read after a newline", `echo hi\ncat ${SKILL_PATH}`, "deploy"],
     ["tail", `tail -n 5 ${SKILL_PATH}`, "deploy"],
@@ -184,7 +195,6 @@ describe("the Skill run", () => {
     // The glob and the ordinary read are decoys, and both trace.
     expect(named(runs, "glob_file_search")).toHaveLength(1);
     expect(named(runs, "read_file_v2")).toHaveLength(3);
-    // The same skill read twice in a turn is one use.
     expect(skillRuns).toHaveLength(1);
     for (const run of skillRuns) {
       expect(run.run_type).toBe("tool");
@@ -275,6 +285,11 @@ describe("the Skill run", () => {
       { output: { commandName: "add-plugin", success: true } },
     ]);
     expect(named(runs, "Skill")[0].parent_run_id).toBe(runs.find((r) => !r.parent_run_id)!.id);
+    const ms = (t: unknown) => (typeof t === "number" ? t : Date.parse(t as string));
+    expect([ms(named(runs, "Skill")[0].start_time), ms(named(runs, "Skill")[0].end_time)]).toEqual([
+      turn.buffer.startMs,
+      turn.buffer.startMs,
+    ]);
   });
 
   it("counts a skill printed with cat in the Shell tool", async () => {

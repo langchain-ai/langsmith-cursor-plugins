@@ -34,6 +34,7 @@ import { EMPTY_TOOL_ID_PREFIX, MAX_UPLOAD_ATTEMPTS } from "./constants.js";
 import { warn } from "./logger.js";
 import { extractMcpError, parseToolOutput, preferModel } from "./normalize.js";
 import type { SubagentToolCall } from "./models/normalize.js";
+import type { TypedCommand } from "./models/skills.js";
 import type {
   ConversationSweep,
   ResolvedSubagent,
@@ -108,7 +109,7 @@ export function reduceBeforeSubmitPrompt(
   nowMs: number,
   mode: TurnMode = "full",
   origin?: TurnOrigin,
-  typedSkill?: string,
+  typedCommand?: TypedCommand,
 ): TracingState {
   const conv = getConversationState(state, input.conversation_id);
   if (!acceptLateEvent(conv, input.conversation_id, input)) return state;
@@ -118,7 +119,7 @@ export function reduceBeforeSubmitPrompt(
   turn.tracingMode = mode;
   turn.origin = origin;
   turn.prompt = mode === "off" ? undefined : input.prompt;
-  turn.typedSkill = mode === "off" ? undefined : typedSkill;
+  turn.typedCommand = mode === "off" ? undefined : typedCommand;
   turn.model = input.model;
   setOwnEntry(conv.turns, input.generation_id, turn);
   touch(conv);

@@ -149,6 +149,18 @@ describe("saving a turn for upload", () => {
     expect(engine.warnings.join("\n")).toContain("Keeping the turn for a later retry");
   });
 
+  it("turns a typed /name into a Skill run in the uploader, not in the hook", async () => {
+    const workspace = mkdtempSync(join(tmpdir(), "cursor-typed-"));
+    mkdirSync(join(workspace, ".cursor", "skills", "deploy"), { recursive: true });
+    writeFileSync(join(workspace, ".cursor", "skills", "deploy", "SKILL.md"), "x");
+    await saveTurnForUpload(config, {
+      ...toolTurn,
+      buffer: { ...toolTurn.buffer, typedCommand: { name: "deploy", workspaceRoots: [workspace] } },
+    });
+    const names = (await build()).map(({ submission }) => submission.run.name);
+    expect(names.filter((name) => name === "Skill")).toHaveLength(1);
+  });
+
   it("fills the session's repo and each tool's own repo in the uploader", async () => {
     const repo = (name: string) => {
       const cwd = mkdtempSync(join(tmpdir(), `cursor-${name}-`));

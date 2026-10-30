@@ -46,7 +46,7 @@ import { isRecord } from "./normalize.js";
 import { toolOrigin } from "./tool-origin.js";
 import { withLockedMute } from "./tracing-policy.js";
 import { originFromConfig } from "./turn-origin.js";
-import { enrichTurn, toolAttachments } from "./turn-enrichment.js";
+import { enrichTurn, toolAttachments, withTypedSkill } from "./turn-enrichment.js";
 import { withWarningsTo } from "./utils/console.js";
 import { currentWriterOptions, storageRootFor, writerOptions } from "./writer-options.js";
 
@@ -155,7 +155,7 @@ async function buildQueuedRuns(
     : ref && queuedContext(state, ref);
   if (!context) return { status: "ready", outputs: [] };
   const { conversationId, turnNum, origin } = context;
-  const buffer = withLockedMute(context.buffer, config);
+  const buffer = withTypedSkill(withLockedMute(context.buffer, config));
   const cwd =
     typeof origin.customMetadata?.cwd === "string" ? origin.customMetadata.cwd : config.cwd;
   const options: BuildTurnOptions = {

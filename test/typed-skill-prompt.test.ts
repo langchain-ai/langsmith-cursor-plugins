@@ -3,7 +3,9 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { handlePromptSubmit } from "../src/prompt-control.js";
+import { withTypedSkill } from "../src/turn-enrichment.js";
 import { loadState } from "./utils/state.js";
+import type { TurnBuffer } from "../src/models/types.js";
 
 let dir: string;
 let home: string;
@@ -35,29 +37,49 @@ function addSkill(root: string, name: string): void {
   writeFileSync(file, "x");
 }
 
-async function typedSkillOf(prompt: string): Promise<string | undefined> {
-  await handlePromptSubmit({
+async function submit(prompt: string, roots: unknown = [workspace]) {
+  const reply = await handlePromptSubmit({
     hook_event_name: "beforeSubmitPrompt",
     conversation_id: "thread",
     generation_id: "generation",
     model: "default",
     prompt,
-    workspace_roots: [workspace],
+    workspace_roots: roots as string[],
   });
-  return loadState(join(dir, "state.json")).thread.turns.generation.typedSkill;
+  return { reply, turn: loadState(join(dir, "state.json")).thread.turns.generation };
 }
 
-it("finds a skill that lives only in the workspace folder", async () => {
+const bufferTyping = (name: string, roots: string[]): TurnBuffer => ({
+  generation_id: "generation",
+  startMs: 0,
+  tools: [],
+  thoughts: [],
+  subagents: [],
+  typedCommand: { name, workspaceRoots: roots },
+});
+
+it("saves the typed name and folders without looking at the disk", async () => {
+  const { turn } = await submit("/anything go");
+  expect(turn.typedCommand).toEqual({ name: "anything", workspaceRoots: [workspace] });
+});
+
+it("keeps the turn when a workspace folder is not text", async () => {
+  const { reply, turn } = await submit("/deploy", [null]);
+  expect(reply.continue).toBe(true);
+  expect(turn.typedCommand).toEqual({ name: "deploy", workspaceRoots: [] });
+});
+
+it("resolves a skill that lives only in the workspace folder at upload", () => {
   addSkill(workspace, "project-only");
-  expect(await typedSkillOf("/project-only go")).toBe("project-only");
+  expect(withTypedSkill(bufferTyping("project-only", [workspace])).typedSkill).toBe("project-only");
 });
 
-it("finds a skill that lives only in the home folder", async () => {
+it("resolves a skill that lives only in the home folder at upload", () => {
   addSkill(home, "home-only");
-  expect(await typedSkillOf("/home-only go")).toBe("home-only");
+  expect(withTypedSkill(bufferTyping("home-only", [workspace])).typedSkill).toBe("home-only");
 });
 
-it("records nothing for a command with no skill behind it", async () => {
+it("leaves a command with no skill behind it unresolved", () => {
   addSkill(home, "deploy");
-  expect(await typedSkillOf("/add-plugin https://github.com/x/y")).toBeUndefined();
+  expect(withTypedSkill(bufferTyping("add-plugin", [workspace])).typedSkill).toBeUndefined();
 });

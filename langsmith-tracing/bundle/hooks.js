@@ -25491,7 +25491,7 @@ var init_settings = __esm({
 });
 
 // dist/src/constants.js
-var TURN_RUN_NAME, SKILL_RUN_NAME, DEFAULT_TAGS, DEFAULT_PROJECT, DEFAULT_SWEEP_IDLE_MINUTES, NOTICE_KINDS, MUTE_LOCKED_MESSAGE, DEFAULT_API_URL2, AGENT_ID_ENV_KEY, CURSOR_DIRECTORY_NAME, MANAGED_PLUGIN_FIELDS, MAX_UPLOAD_ATTEMPTS, BINARY_HOOK_EVENTS, LEADING_BYTE_ORDER_MARKS, LS_INTEGRATION, SKILL_READ_TOOLS, PATH_SEPARATOR, SKILL_SHELL_TOOLS, SKILL_SHELL_READ_COMMANDS, SHELL_SEPARATORS, SHELL_QUOTES, SHELL_WHITESPACE, SHELL_REDIRECT_WORD, SHELL_REDIRECT_OPERATOR, SHELL_CHANGE_DIRECTORY, SKILL_FILE_NAME, SKILL_DIRECTORY_NAMES, TYPED_SKILL_COMMAND, SKILL_FOLDERS, SKILL_SEARCH_DEPTH, MAX_ATTACHMENT_BYTES, MAX_LOG_BYTES, CONVERSATION_MAX_AGE_MS, WHITESPACE_RUN, MODEL_SUFFIXES, PROVIDER_PREFIX, CLAUDE_VERSIONED_MODEL, OPENAI_MODEL_PREFIX, CURSOR_VENDOR_PREFIX, MCP_TOOL_PREFIX, SUBAGENT_PSEUDO_TOOLS, REDACTED_TRANSCRIPT_MARKER, EMPTY_TOOL_ID_PREFIX, TOOL_FAILED_MESSAGE, STATE_FILE_NAME, LEGACY_STATE_FILE_NAME, TRACING_POLICY_FILE_NAME, LEGACY_TRACING_POLICY_FILE_NAME, HOOK_LOG_FILE_NAME, HOOK_CONTINUE_OUTPUT, ENGINE_WORKER_COMMAND, ENGINE_STORAGE_DIR_NAME, JOB_EVENT_PREFIX, JOB_REF_PREFIX, TOOL_JOB_REF_PREFIX, JOB_STORE_DIR_NAME, GH_LOGIN_MARKER_FILE, TOOL_PATH_INPUT_KEYS, RUN_EVENT_PREFIX, PATCH_EVENT_PREFIX, RUN_SNAPSHOT_FIELDS, RUN_PATCH_FIELDS, CAPTURE_PUBLISHED_STATUS, CAPTURE_DUPLICATE_STATUS, TURN_ON_OTHER_ACCOUNT_MESSAGE, SQLITE_EXPERIMENTAL_WARNING;
+var TURN_RUN_NAME, SKILL_RUN_NAME, DEFAULT_TAGS, DEFAULT_PROJECT, DEFAULT_SWEEP_IDLE_MINUTES, NOTICE_KINDS, MUTE_LOCKED_MESSAGE, DEFAULT_API_URL2, AGENT_ID_ENV_KEY, CURSOR_DIRECTORY_NAME, MANAGED_PLUGIN_FIELDS, MAX_UPLOAD_ATTEMPTS, BINARY_HOOK_EVENTS, LEADING_BYTE_ORDER_MARKS, LS_INTEGRATION, SKILL_READ_TOOLS, PATH_SEPARATOR, SKILL_SHELL_TOOLS, SKILL_SHELL_READ_COMMANDS, SHELL_SEPARATORS, SHELL_QUOTES, SHELL_WHITESPACE, SHELL_REDIRECT_WORD, SHELL_REDIRECT_OPERATOR, SHELL_CHANGE_DIRECTORY, SKILL_FILE_NAME, SKILL_DIRECTORY_NAMES, TYPED_SKILL_COMMAND, SKILL_FOLDERS, SKILL_SEARCH_DEPTH, POSIX_SEPARATOR, HOME_PREFIX, MAX_ATTACHMENT_BYTES, MAX_LOG_BYTES, CONVERSATION_MAX_AGE_MS, WHITESPACE_RUN, MODEL_SUFFIXES, PROVIDER_PREFIX, CLAUDE_VERSIONED_MODEL, OPENAI_MODEL_PREFIX, CURSOR_VENDOR_PREFIX, MCP_TOOL_PREFIX, SUBAGENT_PSEUDO_TOOLS, REDACTED_TRANSCRIPT_MARKER, EMPTY_TOOL_ID_PREFIX, TOOL_FAILED_MESSAGE, STATE_FILE_NAME, LEGACY_STATE_FILE_NAME, TRACING_POLICY_FILE_NAME, LEGACY_TRACING_POLICY_FILE_NAME, HOOK_LOG_FILE_NAME, HOOK_CONTINUE_OUTPUT, ENGINE_WORKER_COMMAND, ENGINE_STORAGE_DIR_NAME, JOB_EVENT_PREFIX, JOB_REF_PREFIX, TOOL_JOB_REF_PREFIX, JOB_STORE_DIR_NAME, GH_LOGIN_MARKER_FILE, TOOL_PATH_INPUT_KEYS, RUN_EVENT_PREFIX, PATCH_EVENT_PREFIX, RUN_SNAPSHOT_FIELDS, RUN_PATCH_FIELDS, CAPTURE_PUBLISHED_STATUS, CAPTURE_DUPLICATE_STATUS, TURN_ON_OTHER_ACCOUNT_MESSAGE, SQLITE_EXPERIMENTAL_WARNING;
 var init_constants18 = __esm({
   "dist/src/constants.js"() {
     "use strict";
@@ -25556,6 +25556,8 @@ var init_constants18 = __esm({
       [".cursor", "skills-cursor"]
     ];
     SKILL_SEARCH_DEPTH = 3;
+    POSIX_SEPARATOR = "/";
+    HOME_PREFIX = "~";
     MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024;
     MAX_LOG_BYTES = 5 * 1024 * 1024;
     CONVERSATION_MAX_AGE_MS = 24 * 60 * 60 * 1e3;
@@ -26252,7 +26254,7 @@ function latestTurn(turns) {
   }
   return best;
 }
-function reduceBeforeSubmitPrompt(state, input, nowMs, mode = "full", origin, typedSkill) {
+function reduceBeforeSubmitPrompt(state, input, nowMs, mode = "full", origin, typedCommand) {
   const conv = getConversationState(state, input.conversation_id);
   if (!acceptLateEvent(conv, input.conversation_id, input))
     return state;
@@ -26262,7 +26264,7 @@ function reduceBeforeSubmitPrompt(state, input, nowMs, mode = "full", origin, ty
   turn.tracingMode = mode;
   turn.origin = origin;
   turn.prompt = mode === "off" ? void 0 : input.prompt;
-  turn.typedSkill = mode === "off" ? void 0 : typedSkill;
+  turn.typedCommand = mode === "off" ? void 0 : typedCommand;
   turn.model = input.model;
   setOwnEntry(conv.turns, input.generation_id, turn);
   touch(conv);
@@ -26700,7 +26702,7 @@ var init_turn_origin = __esm({
 
 // dist/src/utils/skills.js
 import { existsSync as existsSync4, readdirSync as readdirSync2 } from "node:fs";
-import { join as join25 } from "node:path";
+import { isAbsolute as isAbsolute4, join as join25 } from "node:path";
 function shellSegments(command) {
   const segments = [[]];
   let word = "";
@@ -26740,21 +26742,34 @@ function commandName(word) {
 function isRedirectTarget(words, index) {
   return SHELL_REDIRECT_WORD.test(words[index]) || index > 0 && SHELL_REDIRECT_OPERATOR.test(words[index - 1]);
 }
+function resolveAgainst(directory, word) {
+  return !directory || isAbsolute4(word) || word.startsWith(HOME_PREFIX) ? word : join25(directory, word);
+}
 function skillPathFromShellCommand(command) {
   let directory = "";
   for (const words of shellSegments(command)) {
     if (words[0] === SHELL_CHANGE_DIRECTORY && words[1]) {
-      directory = words[1].startsWith("/") ? words[1] : join25(directory, words[1]);
+      directory = resolveAgainst(directory, words[1]);
       continue;
     }
     if (!SKILL_SHELL_READ_COMMANDS.has(commandName(words[0])))
       continue;
     const index = words.findIndex((word, i) => i > 0 && word.endsWith(SKILL_FILE_NAME) && !isRedirectTarget(words, i));
-    if (index < 0)
-      continue;
-    return words[index].startsWith("/") || !directory ? words[index] : join25(directory, words[index]);
+    if (index >= 0)
+      return resolveAgainst(directory, words[index]);
   }
   return void 0;
+}
+function isSkillFolder(ancestors) {
+  const rootIndex = ancestors.findIndex((segment) => SKILL_DIRECTORY_NAMES.has(segment));
+  if (rootIndex < 0)
+    return false;
+  for (let end = ancestors.length; end > rootIndex + 1; end--) {
+    const folder = ancestors.slice(0, end).join(POSIX_SEPARATOR);
+    if (existsSync4(join25(folder, SKILL_FILE_NAME)))
+      return false;
+  }
+  return true;
 }
 function folderNames(folder) {
   try {
@@ -26765,28 +26780,35 @@ function folderNames(folder) {
 }
 function findSkillFolderName(folder, name, depth) {
   const names2 = folderNames(folder);
-  const own = names2.find((entry) => entry === name) ?? names2.find((entry) => entry.toLowerCase() === name.toLowerCase());
-  if (own !== void 0 && existsSync4(join25(folder, own, SKILL_FILE_NAME)))
+  const skills = names2.filter((entry) => existsSync4(join25(folder, entry, SKILL_FILE_NAME)));
+  const own = skills.find((entry) => entry === name) ?? skills.find((entry) => entry.toLowerCase() === name.toLowerCase());
+  if (own !== void 0 || depth <= 1)
     return own;
-  if (depth <= 1)
-    return void 0;
-  for (const entry of names2) {
+  for (const entry of names2.filter((candidate) => !skills.includes(candidate))) {
     const found = findSkillFolderName(join25(folder, entry), name, depth - 1);
     if (found !== void 0)
       return found;
   }
   return void 0;
 }
-function typedSkillName(prompt, workspaceRoots, home) {
-  const name = TYPED_SKILL_COMMAND.exec(prompt)?.[1];
+function typedCommandOf(prompt, workspaceRoots) {
+  const name = typeof prompt === "string" ? TYPED_SKILL_COMMAND.exec(prompt)?.[1] : void 0;
   if (!name)
     return void 0;
-  for (const root of [...workspaceRoots, home]) {
-    for (const folder of SKILL_FOLDERS) {
-      const found = findSkillFolderName(join25(root, ...folder), name, SKILL_SEARCH_DEPTH);
-      if (found !== void 0)
-        return found;
+  const roots = Array.isArray(workspaceRoots) ? workspaceRoots.filter((root) => typeof root === "string") : [];
+  return { name, workspaceRoots: roots };
+}
+function typedSkillName(command, home) {
+  try {
+    for (const root of [...command.workspaceRoots, home]) {
+      for (const folder of SKILL_FOLDERS) {
+        const found = findSkillFolderName(join25(root, ...folder), command.name, SKILL_SEARCH_DEPTH);
+        if (found !== void 0)
+          return found;
+      }
     }
+  } catch {
+    return void 0;
   }
   return void 0;
 }
@@ -26798,7 +26820,6 @@ var init_skills = __esm({
 });
 
 // dist/src/prompt-control.js
-import { homedir as homedir5 } from "node:os";
 async function handlePromptSubmit(input) {
   const command = parseTracingCommand(input.prompt);
   try {
@@ -26827,7 +26848,7 @@ async function handlePromptSubmit(input) {
       return { continue: false, user_message: notice.text };
     if (notice)
       warn(notice.text);
-    await atomicUpdateState(config.stateFilePath, (s) => reduceBeforeSubmitPrompt(s, input, Date.now(), enabled ? mode : "off", originFromConfig(config, input), typedSkillName(input.prompt, input.workspace_roots ?? [], homedir5())));
+    await atomicUpdateState(config.stateFilePath, (s) => reduceBeforeSubmitPrompt(s, input, Date.now(), enabled ? mode : "off", originFromConfig(config, input), typedCommandOf(input.prompt, input.workspace_roots)));
     return { continue: true };
   } catch (error2) {
     const detail = error2 instanceof Error ? error2.message : String(error2);
@@ -27449,7 +27470,7 @@ var init_paths4 = __esm({
 });
 
 // node_modules/.pnpm/@langchain+plugins-base@0.5.1_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/git/attribution.js
-import { isAbsolute as isAbsolute4 } from "node:path";
+import { isAbsolute as isAbsolute5 } from "node:path";
 function createRepositoryAttributor(options) {
   const rootByDirectory = /* @__PURE__ */ new Map();
   const attributionByRoot = /* @__PURE__ */ new Map();
@@ -27495,7 +27516,7 @@ function createRepositoryAttributor(options) {
     if (namedSomewhereNothingSits)
       return base;
     const path3 = origin.path ?? origin.cwd;
-    if (!path3 || !isAbsolute4(path3))
+    if (!path3 || !isAbsolute5(path3))
       return base;
     const root = rootForPath(path3);
     const gitCouldNotAnswer = root === void 0;
@@ -27776,8 +27797,6 @@ var init_job_context = __esm({
 });
 
 // dist/src/metadata.js
-import { existsSync as existsSync5 } from "node:fs";
-import { join as join29 } from "node:path";
 function withIntegration(opts) {
   return { ...opts, integration: LS_INTEGRATION, integrationVersion: LS_INTEGRATION_VERSION };
 }
@@ -27800,9 +27819,7 @@ function skillNameFromPath(filePath) {
   const name = segments.pop();
   if (file !== SKILL_FILE_NAME || !name || name.startsWith("."))
     return void 0;
-  if (!segments.some((segment) => SKILL_DIRECTORY_NAMES.has(segment)))
-    return void 0;
-  return existsSync5(join29(segments.join("/"), SKILL_FILE_NAME)) ? void 0 : name;
+  return isSkillFolder(segments) ? name : void 0;
 }
 var init_metadata2 = __esm({
   "dist/src/metadata.js"() {
@@ -27840,19 +27857,19 @@ var init_sqlite = __esm({
 });
 
 // dist/src/attachments.js
-import { existsSync as existsSync6, readFileSync as readFileSync14, statSync as statSync9 } from "node:fs";
-import { homedir as homedir6, platform } from "node:os";
-import { basename as basename6, join as join30 } from "node:path";
+import { existsSync as existsSync5, readFileSync as readFileSync14, statSync as statSync9 } from "node:fs";
+import { homedir as homedir5, platform } from "node:os";
+import { basename as basename6, join as join29 } from "node:path";
 function defaultCursorDbPath() {
-  const home = homedir6();
+  const home = homedir5();
   const tail = ["Cursor", "User", "globalStorage", "state.vscdb"];
   switch (platform()) {
     case "darwin":
-      return join30(home, "Library", "Application Support", ...tail);
+      return join29(home, "Library", "Application Support", ...tail);
     case "win32":
-      return join30(process.env.APPDATA ?? join30(home, "AppData", "Roaming"), ...tail);
+      return join29(process.env.APPDATA ?? join29(home, "AppData", "Roaming"), ...tail);
     default:
-      return join30(process.env.XDG_CONFIG_HOME ?? join30(home, ".config"), ...tail);
+      return join29(process.env.XDG_CONFIG_HOME ?? join29(home, ".config"), ...tail);
   }
 }
 function queryBubbles(dbPath, conversationId) {
@@ -27970,7 +27987,7 @@ function fileToContentPart(path3) {
 function resolveTurnAttachments(opts) {
   try {
     const dbPath = opts.dbPath ?? defaultCursorDbPath();
-    if (!existsSync6(dbPath)) {
+    if (!existsSync5(dbPath)) {
       debug(`attachments: no Cursor DB at ${dbPath}`);
       return [];
     }
@@ -28035,7 +28052,7 @@ var init_system_prompt_constants = __esm({
 });
 
 // dist/src/system-prompt.js
-import { existsSync as existsSync7 } from "node:fs";
+import { existsSync as existsSync6 } from "node:fs";
 function readVarint(buf, c) {
   let result = 0;
   let shift = 1;
@@ -28137,7 +28154,7 @@ function resolveSystemPrompts(opts) {
     return result;
   try {
     const dbPath = opts.dbPath ?? defaultCursorDbPath();
-    if (!existsSync7(dbPath)) {
+    if (!existsSync6(dbPath)) {
       debug(`system-prompt: no Cursor DB at ${dbPath}`);
       return result;
     }
@@ -28236,7 +28253,7 @@ var init_conversation_steps_constants = __esm({
 });
 
 // dist/src/conversation-steps.js
-import { existsSync as existsSync8 } from "node:fs";
+import { existsSync as existsSync7 } from "node:fs";
 function scanFields(buf) {
   const out = [];
   let p = 0;
@@ -28388,7 +28405,7 @@ function resolveTurnSteps(opts) {
     return void 0;
   try {
     const dbPath = opts.dbPath ?? defaultCursorDbPath();
-    if (!existsSync8(dbPath)) {
+    if (!existsSync7(dbPath)) {
       debug(`conversation-steps: no Cursor DB at ${dbPath}`);
       return void 0;
     }
@@ -28976,8 +28993,8 @@ var init_langsmith2 = __esm({
 });
 
 // dist/src/tool-origin.js
-import { existsSync as existsSync9 } from "node:fs";
-import { isAbsolute as isAbsolute5, resolve as resolve14 } from "node:path";
+import { existsSync as existsSync8 } from "node:fs";
+import { isAbsolute as isAbsolute6, resolve as resolve14 } from "node:path";
 function toolOrigin(toolInput, cwd) {
   if (!isRecord(toolInput))
     return { cwd, namedAPath: false };
@@ -28987,10 +29004,10 @@ function toolOrigin(toolInput, cwd) {
     if (typeof value !== "string" || value.length === 0)
       continue;
     namedAPath = true;
-    if (isAbsolute5(value))
+    if (isAbsolute6(value))
       return { cwd, path: value, namedAPath };
     const resolved = resolve14(cwd, value);
-    if (isAbsolute5(cwd) && existsSync9(resolved))
+    if (isAbsolute6(cwd) && existsSync8(resolved))
       return { cwd, path: resolved, namedAPath };
   }
   return { cwd, namedAPath };
@@ -29004,6 +29021,7 @@ var init_tool_origin = __esm({
 });
 
 // dist/src/turn-enrichment.js
+import { homedir as homedir6 } from "node:os";
 function enrichTurn(config, options) {
   const { buffer: toTrace, conversationId } = options;
   let attachments = [];
@@ -29034,6 +29052,10 @@ function enrichTurn(config, options) {
   });
   return { ...options, attachments, systemPrompt, steps };
 }
+function withTypedSkill(buffer) {
+  const typedSkill = buffer.typedCommand && typedSkillName(buffer.typedCommand, homedir6());
+  return typedSkill ? { ...buffer, typedSkill } : buffer;
+}
 function toolAttachments(config, options) {
   const { buffer, conversationId } = options;
   return config.attachmentsEnabled && buffer.tracingMode === "full" ? resolveTurnAttachments({ conversationId, prompt: buffer.prompt, dbPath: config.cursorDbPath }) : [];
@@ -29044,6 +29066,7 @@ var init_turn_enrichment = __esm({
     init_attachments();
     init_conversation_steps();
     init_system_prompt();
+    init_skills();
   }
 });
 
@@ -29064,7 +29087,7 @@ var init_console = __esm({
 });
 
 // dist/src/tracing-engine.js
-import { dirname as dirname19, join as join31 } from "node:path";
+import { dirname as dirname19, join as join30 } from "node:path";
 async function saveTurnForUpload(config, context) {
   try {
     await queueUpload(config, context);
@@ -29158,7 +29181,7 @@ async function buildQueuedRuns(job, config, plugin) {
   if (!context)
     return { status: "ready", outputs: [] };
   const { conversationId, turnNum, origin } = context;
-  const buffer = withLockedMute(context.buffer, config);
+  const buffer = withTypedSkill(withLockedMute(context.buffer, config));
   const cwd = typeof origin.customMetadata?.cwd === "string" ? origin.customMetadata.cwd : config.cwd;
   const options = {
     buffer,
@@ -29194,7 +29217,7 @@ async function buildQueuedRuns(job, config, plugin) {
 }
 function attributorFor(config) {
   attributor ??= createRepositoryAttributor({
-    githubLoginMarkerPath: join31(dirname19(config.stateFilePath), GH_LOGIN_MARKER_FILE)
+    githubLoginMarkerPath: join30(dirname19(config.stateFilePath), GH_LOGIN_MARKER_FILE)
   });
   return attributor;
 }

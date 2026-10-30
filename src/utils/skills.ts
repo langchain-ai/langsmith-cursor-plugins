@@ -1,13 +1,17 @@
 import { existsSync, readdirSync } from "node:fs";
-import { join } from "node:path";
+import { isAbsolute, join } from "node:path";
+import type { TypedCommand } from "../models/skills.js";
 import {
+  HOME_PREFIX,
   PATH_SEPARATOR,
+  POSIX_SEPARATOR,
   SHELL_CHANGE_DIRECTORY,
   SHELL_QUOTES,
   SHELL_REDIRECT_OPERATOR,
   SHELL_REDIRECT_WORD,
   SHELL_SEPARATORS,
   SHELL_WHITESPACE,
+  SKILL_DIRECTORY_NAMES,
   SKILL_FILE_NAME,
   SKILL_FOLDERS,
   SKILL_SEARCH_DEPTH,
@@ -57,23 +61,36 @@ function isRedirectTarget(words: string[], index: number): boolean {
   );
 }
 
+function resolveAgainst(directory: string, word: string): string {
+  return !directory || isAbsolute(word) || word.startsWith(HOME_PREFIX)
+    ? word
+    : join(directory, word);
+}
+
 export function skillPathFromShellCommand(command: string): string | undefined {
   let directory = "";
   for (const words of shellSegments(command)) {
     if (words[0] === SHELL_CHANGE_DIRECTORY && words[1]) {
-      directory = words[1].startsWith("/") ? words[1] : join(directory, words[1]);
+      directory = resolveAgainst(directory, words[1]);
       continue;
     }
     if (!SKILL_SHELL_READ_COMMANDS.has(commandName(words[0]))) continue;
     const index = words.findIndex(
       (word, i) => i > 0 && word.endsWith(SKILL_FILE_NAME) && !isRedirectTarget(words, i),
     );
-    if (index < 0) continue;
-    return words[index].startsWith("/") || !directory
-      ? words[index]
-      : join(directory, words[index]);
+    if (index >= 0) return resolveAgainst(directory, words[index]);
   }
   return undefined;
+}
+
+export function isSkillFolder(ancestors: string[]): boolean {
+  const rootIndex = ancestors.findIndex((segment) => SKILL_DIRECTORY_NAMES.has(segment));
+  if (rootIndex < 0) return false;
+  for (let end = ancestors.length; end > rootIndex + 1; end--) {
+    const folder = ancestors.slice(0, end).join(POSIX_SEPARATOR);
+    if (existsSync(join(folder, SKILL_FILE_NAME))) return false;
+  }
+  return true;
 }
 
 function folderNames(folder: string): string[] {
@@ -88,30 +105,37 @@ function folderNames(folder: string): string[] {
 
 function findSkillFolderName(folder: string, name: string, depth: number): string | undefined {
   const names = folderNames(folder);
+  const skills = names.filter((entry) => existsSync(join(folder, entry, SKILL_FILE_NAME)));
   const own =
-    names.find((entry) => entry === name) ??
-    names.find((entry) => entry.toLowerCase() === name.toLowerCase());
-  if (own !== undefined && existsSync(join(folder, own, SKILL_FILE_NAME))) return own;
-  if (depth <= 1) return undefined;
-  for (const entry of names) {
+    skills.find((entry) => entry === name) ??
+    skills.find((entry) => entry.toLowerCase() === name.toLowerCase());
+  if (own !== undefined || depth <= 1) return own;
+  for (const entry of names.filter((candidate) => !skills.includes(candidate))) {
     const found = findSkillFolderName(join(folder, entry), name, depth - 1);
     if (found !== undefined) return found;
   }
   return undefined;
 }
 
-export function typedSkillName(
-  prompt: string,
-  workspaceRoots: string[],
-  home: string,
-): string | undefined {
-  const name = TYPED_SKILL_COMMAND.exec(prompt)?.[1];
+export function typedCommandOf(prompt: unknown, workspaceRoots: unknown): TypedCommand | undefined {
+  const name = typeof prompt === "string" ? TYPED_SKILL_COMMAND.exec(prompt)?.[1] : undefined;
   if (!name) return undefined;
-  for (const root of [...workspaceRoots, home]) {
-    for (const folder of SKILL_FOLDERS) {
-      const found = findSkillFolderName(join(root, ...folder), name, SKILL_SEARCH_DEPTH);
-      if (found !== undefined) return found;
+  const roots = Array.isArray(workspaceRoots)
+    ? workspaceRoots.filter((root): root is string => typeof root === "string")
+    : [];
+  return { name, workspaceRoots: roots };
+}
+
+export function typedSkillName(command: TypedCommand, home: string): string | undefined {
+  try {
+    for (const root of [...command.workspaceRoots, home]) {
+      for (const folder of SKILL_FOLDERS) {
+        const found = findSkillFolderName(join(root, ...folder), command.name, SKILL_SEARCH_DEPTH);
+        if (found !== undefined) return found;
+      }
     }
+  } catch {
+    return undefined;
   }
   return undefined;
 }

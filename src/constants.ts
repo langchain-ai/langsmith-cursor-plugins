@@ -97,6 +97,10 @@ export const SKILL_FOLDERS: PathSegments[] = [
 
 export const SKILL_SEARCH_DEPTH = 3;
 
+export const POSIX_SEPARATOR = "/";
+
+export const HOME_PREFIX = "~";
+
 /** Skip attachments larger than this (raw bytes) — base64 inflates ~33% on top. */
 export const MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024; // 10 MB
 
