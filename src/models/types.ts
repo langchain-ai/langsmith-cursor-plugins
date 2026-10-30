@@ -142,7 +142,6 @@ export interface ToolEvent {
   tool_use_id: string;
   name: string;
   input: Record<string, unknown>;
-  /** First workspace folder of the conversation that ran the tool. */
   workspace_root?: string;
   /** Parsed tool_output (postToolUse), if any. */
   output?: unknown;
