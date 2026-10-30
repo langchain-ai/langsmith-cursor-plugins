@@ -5,10 +5,8 @@ import { TOOL_PATH_INPUT_KEYS } from "./constants.js";
 import type { ToolEvent } from "./models/types.js";
 import { isRecord } from "./normalize.js";
 
-export function toolRoots(tools: ToolEvent[]): Map<string, string> {
-  return new Map(
-    tools.flatMap((tool) => (tool.workspace_root ? [[tool.tool_use_id, tool.workspace_root]] : [])),
-  );
+export function toolRoots(tools: ToolEvent[]): Map<string, string | undefined> {
+  return new Map(tools.map((tool) => [tool.tool_use_id, tool.workspace_root]));
 }
 
 export function toolOrigin(toolInput: unknown, cwd: string): ReconstructionToolOrigin {

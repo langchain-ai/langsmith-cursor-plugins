@@ -188,11 +188,16 @@ async function buildQueuedRuns(
     toolOrigin(tool.input, tool.workspace_root ?? cwd),
   );
   const parentRoots = toolRoots(buffer.tools);
-  const subagentRoots = toolRoots(buffer.subagents.flatMap((sub) => sub.tools ?? []));
-  const rootOf = (metadata: CodingAgentMetadataOptions): string => {
-    const toolUseId = metadata.runSpecific?.tool_use_id;
-    const roots = metadata.clearSubagent ? subagentRoots : parentRoots;
-    return (typeof toolUseId === "string" ? roots.get(toolUseId) : undefined) ?? cwd;
+  const subagentRoots = new Map(
+    buffer.subagents.map((sub) => [sub.subagent_id, toolRoots(sub.tools ?? [])]),
+  );
+  const subagentByRunId = new Map(
+    inputs.map(({ submission }) => [submission.run.id, submission.metadata.subagentId]),
+  );
+  const rootOf = (metadata: CodingAgentMetadataOptions, parentRunId?: string): string => {
+    const subagentId = subagentByRunId.get(parentRunId ?? "") ?? "";
+    const roots = metadata.clearSubagent ? subagentRoots.get(subagentId) : parentRoots;
+    return roots?.get(String(metadata.runSpecific?.tool_use_id)) ?? cwd;
   };
   return {
     status: "ready",
@@ -202,7 +207,10 @@ async function buildQueuedRuns(
         submission.operation === "post" && submission.run.run_type === "tool"
           ? attributor.toolMetadata(
               metadata.base,
-              toolOrigin(submission.run.inputs?.input, rootOf(metadata)),
+              toolOrigin(
+                submission.run.inputs?.input,
+                rootOf(metadata, submission.run.parent_run_id),
+              ),
             )
           : attributor.turnMetadata(metadata.base, cwd, toolOrigins);
       return {

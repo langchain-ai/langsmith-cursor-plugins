@@ -28825,7 +28825,7 @@ var init_langsmith2 = __esm({
 import { existsSync as existsSync7 } from "node:fs";
 import { isAbsolute as isAbsolute5, resolve as resolve14 } from "node:path";
 function toolRoots(tools) {
-  return new Map(tools.flatMap((tool) => tool.workspace_root ? [[tool.tool_use_id, tool.workspace_root]] : []));
+  return new Map(tools.map((tool) => [tool.tool_use_id, tool.workspace_root]));
 }
 function toolOrigin(toolInput, cwd) {
   if (!isRecord(toolInput))
@@ -29028,17 +29028,18 @@ async function buildQueuedRuns(job, config, plugin) {
   const attributor2 = attributorFor(config);
   const toolOrigins = buffer.tools.map((tool) => toolOrigin(tool.input, tool.workspace_root ?? cwd));
   const parentRoots = toolRoots(buffer.tools);
-  const subagentRoots = toolRoots(buffer.subagents.flatMap((sub) => sub.tools ?? []));
-  const rootOf = (metadata) => {
-    const toolUseId2 = metadata.runSpecific?.tool_use_id;
-    const roots = metadata.clearSubagent ? subagentRoots : parentRoots;
-    return (typeof toolUseId2 === "string" ? roots.get(toolUseId2) : void 0) ?? cwd;
+  const subagentRoots = new Map(buffer.subagents.map((sub) => [sub.subagent_id, toolRoots(sub.tools ?? [])]));
+  const subagentByRunId = new Map(inputs.map(({ submission }) => [submission.run.id, submission.metadata.subagentId]));
+  const rootOf = (metadata, parentRunId) => {
+    const subagentId = subagentByRunId.get(parentRunId ?? "") ?? "";
+    const roots = metadata.clearSubagent ? subagentRoots.get(subagentId) : parentRoots;
+    return roots?.get(String(metadata.runSpecific?.tool_use_id)) ?? cwd;
   };
   return {
     status: "ready",
     outputs: inputs.map(({ eventId, submission, turnEvidence, dependencies }) => {
       const { metadata } = submission;
-      const base = submission.operation === "post" && submission.run.run_type === "tool" ? attributor2.toolMetadata(metadata.base, toolOrigin(submission.run.inputs?.input, rootOf(metadata))) : attributor2.turnMetadata(metadata.base, cwd, toolOrigins);
+      const base = submission.operation === "post" && submission.run.run_type === "tool" ? attributor2.toolMetadata(metadata.base, toolOrigin(submission.run.inputs?.input, rootOf(metadata, submission.run.parent_run_id))) : attributor2.turnMetadata(metadata.base, cwd, toolOrigins);
       return {
         eventId,
         submission: { ...submission, metadata: { ...metadata, base: base ?? metadata.base } },
