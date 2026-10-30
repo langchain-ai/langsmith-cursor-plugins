@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
-import { typedCommandOf, typedSkillName } from "../../src/utils/skills.js";
+import { matchName, typedCommandOf, typedSkillName } from "../../src/utils/skills.js";
 
 let dir: string;
 let home: string;
@@ -16,16 +16,6 @@ function addSkill(...segments: string[]): void {
 
 function resolve(name: string, roots: string[] = [project]): string | undefined {
   return typedSkillName({ name, workspaceRoots: roots }, home);
-}
-
-function isCaseInsensitiveFilesystem(): boolean {
-  mkdirSync(join(dir, "Probe"));
-  try {
-    mkdirSync(join(dir, "probe"));
-    return false;
-  } catch {
-    return true;
-  }
 }
 
 beforeEach(() => {
@@ -67,6 +57,14 @@ describe("typedCommandOf", () => {
   });
 });
 
+describe("matchName", () => {
+  it("prefers the exact name over a different-case one, whatever the order", () => {
+    expect(matchName(["Deploy", "deploy"], "deploy")).toBe("deploy");
+    expect(matchName(["deploy", "Deploy"], "Deploy")).toBe("Deploy");
+    expect(matchName(["Deploy"], "deploy")).toBe("Deploy");
+  });
+});
+
 describe("typedSkillName", () => {
   it.each<[string, string[], string]>([
     ["a project .cursor skill", ["project", ".cursor", "skills", "deploy"], "deploy"],
@@ -91,11 +89,11 @@ describe("typedSkillName", () => {
     expect(resolve("Deploy")).toBe("deploy");
   });
 
-  it("prefers the exact name over a different-case folder", (ctx) => {
-    if (isCaseInsensitiveFilesystem()) ctx.skip();
-    addSkill(dir, "project", ".cursor", "skills", "Deploy");
-    addSkill(dir, "project", ".cursor", "skills", "deploy");
-    expect(resolve("deploy")).toBe("deploy");
+  it("finds a differently cased name inside a group or a synced id", () => {
+    addSkill(dir, "project", ".cursor", "skills", "grp", "Foo");
+    addSkill(dir, "home", ".agents", "skills", "synced", "id1", "Bar");
+    expect(resolve("foo")).toBe("Foo");
+    expect(resolve("BAR")).toBe("Bar");
   });
 
   it("follows a symlinked skill folder", () => {

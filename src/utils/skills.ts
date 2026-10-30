@@ -102,26 +102,27 @@ function folderNames(folder: string): string[] {
   }
 }
 
-function matchName(names: string[], name: string): string | undefined {
+export function matchName(names: string[], name: string): string | undefined {
   return (
     names.find((entry) => entry === name) ??
     names.find((entry) => entry.toLowerCase() === name.toLowerCase())
   );
 }
 
-function hasSkillFile(folder: string, name: string): boolean {
-  return existsSync(join(folder, name, SKILL_FILE_NAME));
+function skillNamesIn(folder: string): string[] {
+  return folderNames(folder).filter((entry) => existsSync(join(folder, entry, SKILL_FILE_NAME)));
 }
 
 function findInSkillsFolder(folder: string, name: string): string | undefined {
   const children = folderNames(folder);
-  const skills = children.filter((child) => hasSkillFile(folder, child));
+  const skills = skillNamesIn(folder);
   const own = matchName(skills, name);
   if (own !== undefined) return own;
-  const group = children.find(
-    (child) => !skills.includes(child) && hasSkillFile(join(folder, child), name),
-  );
-  return group === undefined ? undefined : matchName(folderNames(join(folder, group)), name);
+  for (const group of children.filter((child) => !skills.includes(child))) {
+    const found = matchName(skillNamesIn(join(folder, group)), name);
+    if (found !== undefined) return found;
+  }
+  return undefined;
 }
 
 export function typedCommandOf(prompt: unknown, workspaceRoots: unknown): TypedCommand | undefined {

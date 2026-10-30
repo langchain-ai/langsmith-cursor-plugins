@@ -26781,17 +26781,21 @@ function folderNames(folder) {
 function matchName(names2, name) {
   return names2.find((entry) => entry === name) ?? names2.find((entry) => entry.toLowerCase() === name.toLowerCase());
 }
-function hasSkillFile(folder, name) {
-  return existsSync4(join25(folder, name, SKILL_FILE_NAME));
+function skillNamesIn(folder) {
+  return folderNames(folder).filter((entry) => existsSync4(join25(folder, entry, SKILL_FILE_NAME)));
 }
 function findInSkillsFolder(folder, name) {
   const children = folderNames(folder);
-  const skills = children.filter((child) => hasSkillFile(folder, child));
+  const skills = skillNamesIn(folder);
   const own = matchName(skills, name);
   if (own !== void 0)
     return own;
-  const group = children.find((child) => !skills.includes(child) && hasSkillFile(join25(folder, child), name));
-  return group === void 0 ? void 0 : matchName(folderNames(join25(folder, group)), name);
+  for (const group of children.filter((child) => !skills.includes(child))) {
+    const found = matchName(skillNamesIn(join25(folder, group)), name);
+    if (found !== void 0)
+      return found;
+  }
+  return void 0;
 }
 function typedCommandOf(prompt, workspaceRoots) {
   const name = typeof prompt === "string" ? TYPED_SKILL_COMMAND.exec(prompt)?.[1] : void 0;
@@ -29029,7 +29033,6 @@ var init_tool_origin = __esm({
 });
 
 // dist/src/turn-enrichment.js
-import { homedir as homedir6 } from "node:os";
 function enrichTurn(config, options) {
   const { buffer: toTrace, conversationId } = options;
   let attachments = [];
@@ -29060,12 +29063,6 @@ function enrichTurn(config, options) {
   });
   return { ...options, attachments, systemPrompt, steps };
 }
-function withTypedSkill(buffer) {
-  const { typedCommand } = buffer;
-  if (!typedCommand || buffer.typedSkill !== void 0)
-    return buffer;
-  return { ...buffer, typedSkill: typedSkillName(typedCommand, homedir6()) ?? null };
-}
 function toolAttachments(config, options) {
   const { buffer, conversationId } = options;
   return config.attachmentsEnabled && buffer.tracingMode === "full" ? resolveTurnAttachments({ conversationId, prompt: buffer.prompt, dbPath: config.cursorDbPath }) : [];
@@ -29076,7 +29073,6 @@ var init_turn_enrichment = __esm({
     init_attachments();
     init_conversation_steps();
     init_system_prompt();
-    init_skills();
   }
 });
 
@@ -29097,6 +29093,7 @@ var init_console = __esm({
 });
 
 // dist/src/tracing-engine.js
+import { homedir as homedir6 } from "node:os";
 import { dirname as dirname19, join as join30 } from "node:path";
 async function saveTurnForUpload(config, context) {
   try {
@@ -29120,13 +29117,12 @@ function wakeUploader(config, conversationId) {
   });
 }
 async function resolveTypedSkill(config, job) {
-  const buffer = withTypedSkill(job.buffer);
-  if (buffer === job.buffer)
+  const { typedCommand, typedSkill, generation_id } = job.buffer;
+  if (!typedCommand || typedSkill !== void 0)
     return job;
-  if (job.kind === "tool") {
-    await atomicUpdateState(config.stateFilePath, (s) => reduceTypedSkill(s, job.conversationId, buffer.generation_id, buffer.typedSkill));
-  }
-  return { ...job, buffer };
+  const resolved = typedSkillName(typedCommand, homedir6()) ?? null;
+  await atomicUpdateState(config.stateFilePath, (s) => reduceTypedSkill(s, job.conversationId, generation_id, resolved));
+  return { ...job, buffer: { ...job.buffer, typedSkill: resolved } };
 }
 async function queueUpload(config, queued) {
   const context = await resolveTypedSkill(config, queued);
@@ -29349,6 +29345,7 @@ var init_tracing_engine = __esm({
     init_tracing_policy();
     init_turn_origin();
     init_turn_enrichment();
+    init_skills();
     init_console();
     init_writer_options();
   }

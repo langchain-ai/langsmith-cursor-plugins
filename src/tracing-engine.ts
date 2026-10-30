@@ -1,3 +1,4 @@
+import { homedir } from "node:os";
 import { dirname, join } from "node:path";
 import { launchDetachedWorker, openPluginSession } from "@langchain/plugins-base/plugin";
 import type { PluginSession } from "@langchain/plugins-base/plugin";
@@ -47,7 +48,8 @@ import { isRecord } from "./normalize.js";
 import { toolOrigin } from "./tool-origin.js";
 import { withLockedMute } from "./tracing-policy.js";
 import { originFromConfig } from "./turn-origin.js";
-import { enrichTurn, toolAttachments, withTypedSkill } from "./turn-enrichment.js";
+import { enrichTurn, toolAttachments } from "./turn-enrichment.js";
+import { typedSkillName } from "./utils/skills.js";
 import { withWarningsTo } from "./utils/console.js";
 import { currentWriterOptions, storageRootFor, writerOptions } from "./writer-options.js";
 
@@ -81,14 +83,13 @@ export function wakeUploader(config: Config, conversationId: string): Promise<nu
 }
 
 async function resolveTypedSkill(config: Config, job: UploadJobContext): Promise<UploadJobContext> {
-  const buffer = withTypedSkill(job.buffer);
-  if (buffer === job.buffer) return job;
-  if (job.kind === "tool") {
-    await atomicUpdateState(config.stateFilePath, (s) =>
-      reduceTypedSkill(s, job.conversationId, buffer.generation_id, buffer.typedSkill),
-    );
-  }
-  return { ...job, buffer };
+  const { typedCommand, typedSkill, generation_id } = job.buffer;
+  if (!typedCommand || typedSkill !== undefined) return job;
+  const resolved = typedSkillName(typedCommand, homedir()) ?? null;
+  await atomicUpdateState(config.stateFilePath, (s) =>
+    reduceTypedSkill(s, job.conversationId, generation_id, resolved),
+  );
+  return { ...job, buffer: { ...job.buffer, typedSkill: resolved } };
 }
 
 async function queueUpload(config: Config, queued: UploadJobContext): Promise<void> {

@@ -173,6 +173,11 @@ describe("saving a turn for upload", () => {
     expect(loadState(config.stateFilePath).c1.turns.g1.typedSkill).toBe(expected);
   });
 
+  it("leaves a turn without a typed command untouched in the state file", async () => {
+    await saveTool(toolSave);
+    expect(loadState(config.stateFilePath).c1.turns.g1.typedSkill).toBeUndefined();
+  });
+
   it("uses the answer a job already kept instead of looking again", async () => {
     const typedCommand = { name: "gone", workspaceRoots: [] };
     await saveTurnForUpload(config, {
