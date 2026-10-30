@@ -199,6 +199,8 @@ describe("naming each run's repo from the folder its tools touched", () => {
     ["Read", "file_path"],
     ["Grep", "path"],
     ["Glob", "target_directory"],
+    ["Read", "target_file"],
+    ["Glob", "targetDirectory"],
     ["Shell", "working_directory"],
   ])("gives a %s run the repo of its %s", async (name, key) => {
     const widget = repo("widget");
@@ -229,6 +231,46 @@ describe("naming each run's repo from the folder its tools touched", () => {
     const outputs = await buildRuns({ ...toolTurn.buffer, tools: [], subagents }, widget);
     expect(baseOf(outputs, "Read")).toMatchObject({ repository_name: "acme/gadget" });
     expect(baseOf(outputs, "Shell")).toMatchObject({ repository_name: "acme/gadget" });
+  });
+
+  it("keeps a parent tool's folder apart from a subagent tool with the same id", async () => {
+    const widget = repo("widget");
+    const gadget = repo("gadget");
+    writeFileSync(join(widget, "a.ts"), "");
+    writeFileSync(join(gadget, "a.ts"), "");
+    const parentTool = {
+      ...tool("same", "Read", T0 + 1000, { path: "a.ts" }),
+      workspace_root: widget,
+    };
+    const subagentTool = {
+      ...tool("same", "Grep", T0 + 3000, { path: "a.ts" }),
+      workspace_root: gadget,
+    };
+    const subagents = [
+      {
+        subagent_id: "sub1",
+        subagent_type: "explore",
+        task: "look",
+        startMs: T0 + 2000,
+        endMs: T0 + 4000,
+        tools: [subagentTool],
+      },
+    ];
+    const outputs = await buildRuns(
+      { ...toolTurn.buffer, tools: [parentTool], subagents },
+      repo("plain"),
+    );
+    expect(baseOf(outputs, "Read")).toMatchObject({ repository_name: "acme/widget" });
+    expect(baseOf(outputs, "Grep")).toMatchObject({ repository_name: "acme/gadget" });
+  });
+
+  it("resolves a turn's tool paths against the folder each tool ran in", async () => {
+    const gadget = repo("gadget");
+    writeFileSync(join(gadget, "a.ts"), "");
+    const plain = mkdtempSync(join(tmpdir(), "cursor-plain-"));
+    const tools = [{ ...tool("t1", "Read", T0 + 1000, { path: "a.ts" }), workspace_root: gadget }];
+    const outputs = await buildRuns({ ...toolTurn.buffer, tools }, plain);
+    expect(baseOf(outputs, "Cursor Turn 1")).toMatchObject({ repository_name: "acme/gadget" });
   });
 
   it("resolves a relative path against the tool's folder when the file exists", async () => {

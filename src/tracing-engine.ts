@@ -10,6 +10,7 @@ import type {
   ReconstructionJobInput,
   ReconstructionResult,
 } from "@langchain/plugins-base/tracing/reconstruction";
+import type { CodingAgentMetadataOptions } from "@langchain/plugins-base/metadata";
 import type { Config } from "./models/config.js";
 import { rootPatch, turnCaptures, withRootDependency } from "./captures.js";
 import {
@@ -43,7 +44,7 @@ import type { BuildTurnOptions } from "./models/langsmith.js";
 import type { RecoveryReport, SavedCapture } from "./models/tracing-engine.js";
 import { debug, warn } from "./logger.js";
 import { isRecord } from "./normalize.js";
-import { toolOrigin } from "./tool-origin.js";
+import { toolOrigin, toolRoots } from "./tool-origin.js";
 import { withLockedMute } from "./tracing-policy.js";
 import { originFromConfig } from "./turn-origin.js";
 import { enrichTurn, toolAttachments } from "./turn-enrichment.js";
@@ -186,12 +187,13 @@ async function buildQueuedRuns(
   const toolOrigins = buffer.tools.map((tool) =>
     toolOrigin(tool.input, tool.workspace_root ?? cwd),
   );
-  const toolsById = new Map(
-    [...buffer.tools, ...buffer.subagents.flatMap((sub) => sub.tools ?? [])].map((tool) => [
-      tool.tool_use_id,
-      tool,
-    ]),
-  );
+  const parentRoots = toolRoots(buffer.tools);
+  const subagentRoots = toolRoots(buffer.subagents.flatMap((sub) => sub.tools ?? []));
+  const rootOf = (metadata: CodingAgentMetadataOptions): string => {
+    const toolUseId = metadata.runSpecific?.tool_use_id;
+    const roots = metadata.clearSubagent ? subagentRoots : parentRoots;
+    return (typeof toolUseId === "string" ? roots.get(toolUseId) : undefined) ?? cwd;
+  };
   return {
     status: "ready",
     outputs: inputs.map(({ eventId, submission, turnEvidence, dependencies }) => {
@@ -200,10 +202,7 @@ async function buildQueuedRuns(
         submission.operation === "post" && submission.run.run_type === "tool"
           ? attributor.toolMetadata(
               metadata.base,
-              toolOrigin(
-                submission.run.inputs?.input,
-                toolsById.get(String(metadata.runSpecific?.tool_use_id))?.workspace_root ?? cwd,
-              ),
+              toolOrigin(submission.run.inputs?.input, rootOf(metadata)),
             )
           : attributor.turnMetadata(metadata.base, cwd, toolOrigins);
       return {

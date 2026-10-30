@@ -25565,7 +25565,14 @@ var init_constants18 = __esm({
     TOOL_JOB_REF_PREFIX = "cursor-tool:";
     JOB_STORE_DIR_NAME = "jobs";
     GH_LOGIN_MARKER_FILE = "langsmith_gh_login.json";
-    TOOL_PATH_INPUT_KEYS = ["file_path", "path", "target_directory", "working_directory"];
+    TOOL_PATH_INPUT_KEYS = [
+      "file_path",
+      "path",
+      "target_file",
+      "target_directory",
+      "targetDirectory",
+      "working_directory"
+    ];
     RUN_EVENT_PREFIX = "post:";
     PATCH_EVENT_PREFIX = "patch:";
     RUN_SNAPSHOT_FIELDS = [
@@ -28817,6 +28824,9 @@ var init_langsmith2 = __esm({
 // dist/src/tool-origin.js
 import { existsSync as existsSync7 } from "node:fs";
 import { isAbsolute as isAbsolute5, resolve as resolve14 } from "node:path";
+function toolRoots(tools) {
+  return new Map(tools.flatMap((tool) => tool.workspace_root ? [[tool.tool_use_id, tool.workspace_root]] : []));
+}
 function toolOrigin(toolInput, cwd) {
   if (!isRecord(toolInput))
     return { cwd, namedAPath: false };
@@ -29017,15 +29027,18 @@ async function buildQueuedRuns(job, config, plugin) {
   }
   const attributor2 = attributorFor(config);
   const toolOrigins = buffer.tools.map((tool) => toolOrigin(tool.input, tool.workspace_root ?? cwd));
-  const toolsById = new Map([...buffer.tools, ...buffer.subagents.flatMap((sub) => sub.tools ?? [])].map((tool) => [
-    tool.tool_use_id,
-    tool
-  ]));
+  const parentRoots = toolRoots(buffer.tools);
+  const subagentRoots = toolRoots(buffer.subagents.flatMap((sub) => sub.tools ?? []));
+  const rootOf = (metadata) => {
+    const toolUseId2 = metadata.runSpecific?.tool_use_id;
+    const roots = metadata.clearSubagent ? subagentRoots : parentRoots;
+    return (typeof toolUseId2 === "string" ? roots.get(toolUseId2) : void 0) ?? cwd;
+  };
   return {
     status: "ready",
     outputs: inputs.map(({ eventId, submission, turnEvidence, dependencies }) => {
       const { metadata } = submission;
-      const base = submission.operation === "post" && submission.run.run_type === "tool" ? attributor2.toolMetadata(metadata.base, toolOrigin(submission.run.inputs?.input, toolsById.get(String(metadata.runSpecific?.tool_use_id))?.workspace_root ?? cwd)) : attributor2.turnMetadata(metadata.base, cwd, toolOrigins);
+      const base = submission.operation === "post" && submission.run.run_type === "tool" ? attributor2.toolMetadata(metadata.base, toolOrigin(submission.run.inputs?.input, rootOf(metadata))) : attributor2.turnMetadata(metadata.base, cwd, toolOrigins);
       return {
         eventId,
         submission: { ...submission, metadata: { ...metadata, base: base ?? metadata.base } },
