@@ -60,6 +60,15 @@ export function toolRunId(conversationId: string, buffer: TurnBuffer, toolIndex:
   return stableRunId(ctx, toolKey(toolIndex, buffer.tools[toolIndex]));
 }
 
+export function subagentRunId(conversationId: string, buffer: TurnBuffer, index: number): string {
+  const ctx: MetaCtx = {
+    agentType: "root",
+    threadId: conversationId,
+    turnId: buffer.generation_id,
+  };
+  return stableRunId(ctx, subagentKey(index, buffer.subagents[index]));
+}
+
 /** Prepend a system message to an llm run's input messages, when one was recovered. */
 function withSystem(
   messages: Array<Record<string, unknown>>,
@@ -185,6 +194,10 @@ export function buildToolRuns(options: BuildTurnOptions, toolIndex: number): Cap
 
 function toolKey(index: number, tool: ToolEvent): string {
   return `tool:${index}:${tool.tool_use_id}`;
+}
+
+function subagentKey(index: number, sub: SubagentEvent): string {
+  return `subagent:${index}:${sub.subagent_id}`;
 }
 
 function createTurnContext(options: BuildTurnOptions): TurnContext {
@@ -332,7 +345,7 @@ function addAgenticRuns(turn: TurnContext, turnRun: RunTree): void {
   for (const [i, tool] of buffer.tools.entries())
     addToolRun(turn, turnRun, ctx, tool, toolKey(i, tool));
   for (const [i, sub] of buffer.subagents.entries())
-    addSubagentRun(turn, turnRun, sub, `subagent:${i}:${sub.subagent_id}`);
+    addSubagentRun(turn, turnRun, sub, subagentKey(i, sub));
 
   // "answer" llm — tool results fed back in, produces the final text.
   addLlmRun(turn, turnRun, {
@@ -437,7 +450,7 @@ function addInterleavedRounds(turn: TurnContext, turnRun: RunTree): boolean {
 
   // Subagents render as nested chains, ordered in the UI by their own start_time.
   for (const [i, sub] of buffer.subagents.entries())
-    addSubagentRun(turn, turnRun, sub, `subagent:${i}:${sub.subagent_id}`);
+    addSubagentRun(turn, turnRun, sub, subagentKey(i, sub));
 
   // Final answer llm — carries turn usage; folds in any trailing text-only round.
   addLlmRun(turn, turnRun, {

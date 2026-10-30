@@ -38,7 +38,7 @@ import {
   toolJobRef,
 } from "./job-context.js";
 import { atomicUpdateState, readState } from "./state.js";
-import { buildToolRuns, buildTurnRuns, toolRunId, turnRunId } from "./langsmith.js";
+import { buildToolRuns, buildTurnRuns, subagentRunId, toolRunId, turnRunId } from "./langsmith.js";
 import type { ToolJobRef, UploadJobContext } from "./models/job-context.js";
 import type { BuildTurnOptions } from "./models/langsmith.js";
 import type { RecoveryReport, SavedCapture } from "./models/tracing-engine.js";
@@ -189,14 +189,13 @@ async function buildQueuedRuns(
   );
   const parentRoots = toolRoots(buffer.tools);
   const subagentRoots = new Map(
-    buffer.subagents.map((sub) => [sub.subagent_id, toolRoots(sub.tools ?? [])]),
-  );
-  const subagentByRunId = new Map(
-    inputs.map(({ submission }) => [submission.run.id, submission.metadata.subagentId]),
+    buffer.subagents.map((sub, index) => [
+      subagentRunId(conversationId, buffer, index),
+      toolRoots(sub.tools ?? []),
+    ]),
   );
   const rootOf = (metadata: CodingAgentMetadataOptions, parentRunId?: string): string => {
-    const subagentId = subagentByRunId.get(parentRunId ?? "") ?? "";
-    const roots = metadata.clearSubagent ? subagentRoots.get(subagentId) : parentRoots;
+    const roots = metadata.clearSubagent ? subagentRoots.get(parentRunId ?? "") : parentRoots;
     return roots?.get(String(metadata.runSpecific?.tool_use_id)) ?? cwd;
   };
   return {

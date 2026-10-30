@@ -133,6 +133,7 @@ export const TOOL_PATH_INPUT_KEYS = [
   "target_directory",
   "targetDirectory",
   "working_directory",
+  "cwd",
 ];
 
 export const RUN_EVENT_PREFIX = "post:";

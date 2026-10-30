@@ -25571,7 +25571,8 @@ var init_constants18 = __esm({
       "target_file",
       "target_directory",
       "targetDirectory",
-      "working_directory"
+      "working_directory",
+      "cwd"
     ];
     RUN_EVENT_PREFIX = "post:";
     PATCH_EVENT_PREFIX = "patch:";
@@ -28334,6 +28335,14 @@ function toolRunId(conversationId, buffer, toolIndex) {
   };
   return stableRunId(ctx, toolKey(toolIndex, buffer.tools[toolIndex]));
 }
+function subagentRunId(conversationId, buffer, index) {
+  const ctx = {
+    agentType: "root",
+    threadId: conversationId,
+    turnId: buffer.generation_id
+  };
+  return stableRunId(ctx, subagentKey(index, buffer.subagents[index]));
+}
 function withSystem(messages, systemPrompt) {
   return systemPrompt ? [{ role: "system", content: systemPrompt }, ...messages] : messages;
 }
@@ -28424,6 +28433,9 @@ function buildToolRuns(options, toolIndex) {
 }
 function toolKey(index, tool) {
   return `tool:${index}:${tool.tool_use_id}`;
+}
+function subagentKey(index, sub) {
+  return `subagent:${index}:${sub.subagent_id}`;
 }
 function createTurnContext(options) {
   const { buffer, conversationId, turnNum, userEmail, customMetadata } = options;
@@ -28539,7 +28551,7 @@ function addAgenticRuns(turn, turnRun) {
   for (const [i, tool] of buffer.tools.entries())
     addToolRun(turn, turnRun, ctx, tool, toolKey(i, tool));
   for (const [i, sub] of buffer.subagents.entries())
-    addSubagentRun(turn, turnRun, sub, `subagent:${i}:${sub.subagent_id}`);
+    addSubagentRun(turn, turnRun, sub, subagentKey(i, sub));
   addLlmRun(turn, turnRun, {
     key: "answer",
     name: turn.llmName,
@@ -28618,7 +28630,7 @@ function addInterleavedRounds(turn, turnRun) {
       cursorMs = Math.max(cursorMs, ...calls.map((c) => c.endMs));
   }
   for (const [i, sub] of buffer.subagents.entries())
-    addSubagentRun(turn, turnRun, sub, `subagent:${i}:${sub.subagent_id}`);
+    addSubagentRun(turn, turnRun, sub, subagentKey(i, sub));
   addLlmRun(turn, turnRun, {
     key: "answer",
     name: turn.llmName,
@@ -29028,11 +29040,12 @@ async function buildQueuedRuns(job, config, plugin) {
   const attributor2 = attributorFor(config);
   const toolOrigins = buffer.tools.map((tool) => toolOrigin(tool.input, tool.workspace_root ?? cwd));
   const parentRoots = toolRoots(buffer.tools);
-  const subagentRoots = new Map(buffer.subagents.map((sub) => [sub.subagent_id, toolRoots(sub.tools ?? [])]));
-  const subagentByRunId = new Map(inputs.map(({ submission }) => [submission.run.id, submission.metadata.subagentId]));
+  const subagentRoots = new Map(buffer.subagents.map((sub, index) => [
+    subagentRunId(conversationId, buffer, index),
+    toolRoots(sub.tools ?? [])
+  ]));
   const rootOf = (metadata, parentRunId) => {
-    const subagentId = subagentByRunId.get(parentRunId ?? "") ?? "";
-    const roots = metadata.clearSubagent ? subagentRoots.get(subagentId) : parentRoots;
+    const roots = metadata.clearSubagent ? subagentRoots.get(parentRunId ?? "") : parentRoots;
     return roots?.get(String(metadata.runSpecific?.tool_use_id)) ?? cwd;
   };
   return {
