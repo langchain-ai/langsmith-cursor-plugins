@@ -3,11 +3,13 @@ import {
   reduceAfterAgentResponse,
   reduceBeforeSubmitPrompt,
   reducePostToolUse,
+  reducePostToolUseFailure,
   reduceStop,
 } from "../src/reducer.js";
 import type {
   AfterAgentResponseInput,
   BeforeSubmitPromptInput,
+  PostToolUseFailureInput,
   PostToolUseInput,
   StopInput,
   TracingState,
@@ -152,5 +154,24 @@ describe("tool ids", () => {
     const ids = state[CONV].turns.g1.tools.map((t) => t.tool_use_id);
     expect(new Set(ids).size).toBe(2);
     expect(ids.every(Boolean)).toBe(true);
+  });
+});
+
+describe("the folder a tool ran in", () => {
+  it("keeps the first workspace folder of a finished tool and of a failed one", () => {
+    const roots = ["/work/gadget", "/work/other"];
+    const failure: PostToolUseFailureInput = {
+      ...toolUse("g1", "t2"),
+      hook_event_name: "postToolUseFailure",
+      error_message: "boom",
+      failure_type: "error",
+      workspace_roots: roots,
+    };
+    let state: TracingState = {};
+    state = reduceBeforeSubmitPrompt(state, submit("g1"), T0);
+    state = reducePostToolUse(state, { ...toolUse("g1", "t1"), workspace_roots: roots }, T0 + 1);
+    state = reducePostToolUseFailure(state, failure, T0 + 2);
+    const folders = state[CONV].turns.g1.tools.map((t) => t.workspace_root);
+    expect(folders).toEqual(["/work/gadget", "/work/gadget"]);
   });
 });

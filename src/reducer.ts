@@ -137,6 +137,7 @@ export function reducePostToolUse(
     tool_use_id: toolUseId(turn, input),
     name: input.tool_name,
     input: input.tool_input ?? {},
+    workspace_root: input.workspace_roots?.[0],
     output,
     // Cursor never fires postToolUseFailure for MCP tools; a failed MCP call
     // arrives here with isError in the output. Flag it so the run is an error.
@@ -162,6 +163,7 @@ export function reducePostToolUseFailure(
     tool_use_id: toolUseId(turn, input),
     name: input.tool_name,
     input: input.tool_input ?? {},
+    workspace_root: input.workspace_roots?.[0],
     error: input.error_message,
     failure_type: input.failure_type,
     duration: input.duration,

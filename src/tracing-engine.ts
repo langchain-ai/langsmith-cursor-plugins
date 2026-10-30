@@ -183,14 +183,28 @@ async function buildQueuedRuns(
     );
   }
   const attributor = attributorFor(config);
-  const toolOrigins = buffer.tools.map((tool) => toolOrigin(tool.input, cwd));
+  const toolOrigins = buffer.tools.map((tool) =>
+    toolOrigin(tool.input, tool.workspace_root ?? cwd),
+  );
+  const toolsById = new Map(
+    [...buffer.tools, ...buffer.subagents.flatMap((sub) => sub.tools ?? [])].map((tool) => [
+      tool.tool_use_id,
+      tool,
+    ]),
+  );
   return {
     status: "ready",
     outputs: inputs.map(({ eventId, submission, turnEvidence, dependencies }) => {
       const { metadata } = submission;
       const base =
         submission.operation === "post" && submission.run.run_type === "tool"
-          ? attributor.toolMetadata(metadata.base, toolOrigin(submission.run.inputs?.input, cwd))
+          ? attributor.toolMetadata(
+              metadata.base,
+              toolOrigin(
+                submission.run.inputs?.input,
+                toolsById.get(String(metadata.runSpecific?.tool_use_id))?.workspace_root ?? cwd,
+              ),
+            )
           : attributor.turnMetadata(metadata.base, cwd, toolOrigins);
       return {
         eventId,

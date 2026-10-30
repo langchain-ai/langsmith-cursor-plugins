@@ -1,7 +1,7 @@
 import { execFileSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, relative } from "node:path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { turnRunId } from "../src/langsmith.js";
 import type { UploadJobContext } from "../src/models/job-context.js";
@@ -115,6 +115,30 @@ async function saveToolEarly(fingerprint: string): Promise<string[]> {
   return early;
 }
 
+function repo(name: string): string {
+  const cwd = mkdtempSync(join(tmpdir(), `cursor-${name}-`));
+  const git = (...args: string[]) => execFileSync("git", args, { cwd });
+  git("init", "-q", "-b", "trunk");
+  git("config", "user.name", "Repo Author");
+  git("config", "user.email", "author@example.com");
+  git("remote", "add", "origin", `git@github.com:acme/${name}.git`);
+  git("commit", "-q", "--allow-empty", "-m", "c");
+  return cwd;
+}
+
+async function buildRuns(buffer: UploadJobContext["buffer"], cwd: string): Promise<Output[]> {
+  await saveTurnForUpload(config, {
+    ...toolTurn,
+    buffer,
+    origin: { project: "cursor", customMetadata: { cwd } },
+  });
+  return build();
+}
+
+function baseOf(outputs: Output[], name: string): Record<string, unknown> | undefined {
+  return outputs.find(({ submission }) => submission.run.name === name)!.submission.metadata.base;
+}
+
 beforeEach(() => {
   config = testConfig(join(mkdtempSync(join(tmpdir(), "cursor-engine-")), "state.json"));
   engine.queued.length = 0;
@@ -150,16 +174,6 @@ describe("saving a turn for upload", () => {
   });
 
   it("fills the session's repo and each tool's own repo in the uploader", async () => {
-    const repo = (name: string) => {
-      const cwd = mkdtempSync(join(tmpdir(), `cursor-${name}-`));
-      const git = (...args: string[]) => execFileSync("git", args, { cwd });
-      git("init", "-q", "-b", "trunk");
-      git("config", "user.name", "Repo Author");
-      git("config", "user.email", "author@example.com");
-      git("remote", "add", "origin", `git@github.com:acme/${name}.git`);
-      git("commit", "-q", "--allow-empty", "-m", "c");
-      return cwd;
-    };
     const session = repo("widget");
     const other = repo("gadget");
     const tools = [tool("t1", "Read", T0 + 1000, { path: join(other, "a.ts") })];
@@ -177,6 +191,71 @@ describe("saving a turn for upload", () => {
       ls_attribution_identifier: "Repo Author",
     });
     expect(base("Read")).toMatchObject({ repository_name: "acme/gadget" });
+  });
+});
+
+describe("naming each run's repo from the folder its tools touched", () => {
+  it.each([
+    ["Read", "file_path"],
+    ["Grep", "path"],
+    ["Glob", "target_directory"],
+    ["Shell", "working_directory"],
+  ])("gives a %s run the repo of its %s", async (name, key) => {
+    const widget = repo("widget");
+    const gadget = repo("gadget");
+    const tools = [tool("t1", name, T0 + 1000, { [key]: gadget })];
+    const outputs = await buildRuns({ ...toolTurn.buffer, tools }, widget);
+    expect(baseOf(outputs, name)).toMatchObject({ repository_name: "acme/gadget" });
+  });
+
+  it("gives a subagent's tool the repo of the subagent's own folder", async () => {
+    const widget = repo("widget");
+    const gadget = repo("gadget");
+    writeFileSync(join(gadget, "a.ts"), "");
+    const subagentTools = [
+      { ...tool("s1", "Read", T0 + 2000, { path: "a.ts" }), workspace_root: gadget },
+      { ...tool("s2", "Shell", T0 + 3000, { command: "ls" }), workspace_root: gadget },
+    ];
+    const subagents = [
+      {
+        subagent_id: "sub1",
+        subagent_type: "explore",
+        task: "look",
+        startMs: T0 + 1500,
+        endMs: T0 + 4000,
+        tools: subagentTools,
+      },
+    ];
+    const outputs = await buildRuns({ ...toolTurn.buffer, tools: [], subagents }, widget);
+    expect(baseOf(outputs, "Read")).toMatchObject({ repository_name: "acme/gadget" });
+    expect(baseOf(outputs, "Shell")).toMatchObject({ repository_name: "acme/gadget" });
+  });
+
+  it("resolves a relative path against the tool's folder when the file exists", async () => {
+    const widget = repo("widget");
+    const gadget = repo("gadget");
+    writeFileSync(join(gadget, "a.ts"), "");
+    const toward = (file: string) => relative(widget, join(gadget, file));
+    const tools = [
+      tool("t1", "Read", T0 + 1000, { path: toward("a.ts") }),
+      tool("t2", "Glob", T0 + 2000, { target_directory: toward("missing.ts") }),
+    ];
+    const outputs = await buildRuns({ ...toolTurn.buffer, tools }, widget);
+    expect(baseOf(outputs, "Read")).toMatchObject({ repository_name: "acme/gadget" });
+    expect(baseOf(outputs, "Glob")).toMatchObject({ repository_name: "acme/widget" });
+  });
+
+  it("gives the turn and its model runs the repo its tools touched when the session folder has none", async () => {
+    const gadget = repo("gadget");
+    const plain = mkdtempSync(join(tmpdir(), "cursor-plain-"));
+    const tools = [tool("t1", "Read", T0 + 1000, { path: join(gadget, "a.ts") })];
+    const outputs = await buildRuns({ ...toolTurn.buffer, tools }, plain);
+    const llms = outputs.filter(({ submission }) => submission.run.name === "cursor");
+    expect(baseOf(outputs, "Cursor Turn 1")).toMatchObject({ repository_name: "acme/gadget" });
+    expect(llms).toHaveLength(2);
+    for (const { submission } of llms) {
+      expect(submission.metadata.base).toMatchObject({ repository_name: "acme/gadget" });
+    }
   });
 });
 

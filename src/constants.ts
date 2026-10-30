@@ -126,7 +126,7 @@ export const JOB_STORE_DIR_NAME = "jobs";
 
 export const GH_LOGIN_MARKER_FILE = "langsmith_gh_login.json";
 
-export const TOOL_PATH_INPUT_KEYS = ["file_path", "path", "target_file", "targetDirectory", "cwd"];
+export const TOOL_PATH_INPUT_KEYS = ["file_path", "path", "target_directory", "working_directory"];
 
 export const RUN_EVENT_PREFIX = "post:";
 

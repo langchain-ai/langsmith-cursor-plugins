@@ -25565,7 +25565,7 @@ var init_constants18 = __esm({
     TOOL_JOB_REF_PREFIX = "cursor-tool:";
     JOB_STORE_DIR_NAME = "jobs";
     GH_LOGIN_MARKER_FILE = "langsmith_gh_login.json";
-    TOOL_PATH_INPUT_KEYS = ["file_path", "path", "target_file", "targetDirectory", "cwd"];
+    TOOL_PATH_INPUT_KEYS = ["file_path", "path", "target_directory", "working_directory"];
     RUN_EVENT_PREFIX = "post:";
     PATCH_EVENT_PREFIX = "patch:";
     RUN_SNAPSHOT_FIELDS = [
@@ -26251,6 +26251,7 @@ function reducePostToolUse(state, input, nowMs) {
     tool_use_id: toolUseId(turn, input),
     name: input.tool_name,
     input: input.tool_input ?? {},
+    workspace_root: input.workspace_roots?.[0],
     output,
     // Cursor never fires postToolUseFailure for MCP tools; a failed MCP call
     // arrives here with isError in the output. Flag it so the run is an error.
@@ -26272,6 +26273,7 @@ function reducePostToolUseFailure(state, input, nowMs) {
     tool_use_id: toolUseId(turn, input),
     name: input.tool_name,
     input: input.tool_input ?? {},
+    workspace_root: input.workspace_roots?.[0],
     error: input.error_message,
     failure_type: input.failure_type,
     duration: input.duration,
@@ -29014,12 +29016,16 @@ async function buildQueuedRuns(job, config, plugin) {
     await atomicUpdateState(config.stateFilePath, (s) => reduceChosenOutputs(s, ref, outputEventIds));
   }
   const attributor2 = attributorFor(config);
-  const toolOrigins = buffer.tools.map((tool) => toolOrigin(tool.input, cwd));
+  const toolOrigins = buffer.tools.map((tool) => toolOrigin(tool.input, tool.workspace_root ?? cwd));
+  const toolsById = new Map([...buffer.tools, ...buffer.subagents.flatMap((sub) => sub.tools ?? [])].map((tool) => [
+    tool.tool_use_id,
+    tool
+  ]));
   return {
     status: "ready",
     outputs: inputs.map(({ eventId, submission, turnEvidence, dependencies }) => {
       const { metadata } = submission;
-      const base = submission.operation === "post" && submission.run.run_type === "tool" ? attributor2.toolMetadata(metadata.base, toolOrigin(submission.run.inputs?.input, cwd)) : attributor2.turnMetadata(metadata.base, cwd, toolOrigins);
+      const base = submission.operation === "post" && submission.run.run_type === "tool" ? attributor2.toolMetadata(metadata.base, toolOrigin(submission.run.inputs?.input, toolsById.get(String(metadata.runSpecific?.tool_use_id))?.workspace_root ?? cwd)) : attributor2.turnMetadata(metadata.base, cwd, toolOrigins);
       return {
         eventId,
         submission: { ...submission, metadata: { ...metadata, base: base ?? metadata.base } },
