@@ -41,6 +41,20 @@ beforeEach(() => {
 afterEach(() => rmSync(dir, { recursive: true, force: true }));
 
 function submit(prompt: string, generation_id = "generation", cwd = dir) {
+  return submitWith({ prompt, generation_id, cwd });
+}
+
+function submitWith({
+  prompt,
+  generation_id = "generation",
+  cwd = dir,
+  workspace = dir,
+}: {
+  prompt: string;
+  generation_id?: string;
+  cwd?: string;
+  workspace?: string;
+}) {
   const hooks = JSON.parse(
     readFileSync(new URL(`../${PLUGIN_DIRECTORY_NAME}/hooks/hooks.json`, import.meta.url), "utf8"),
   );
@@ -62,7 +76,7 @@ function submit(prompt: string, generation_id = "generation", cwd = dir) {
         conversation_id: "thread",
         model: "default",
         hook_event_name: "beforeSubmitPrompt",
-        workspace_roots: [dir],
+        workspace_roots: [workspace],
       }),
     },
   );
@@ -690,6 +704,43 @@ it.skipIf(process.platform === "win32")(
   },
 );
 
+it.skipIf(process.platform === "win32")(
+  "never holds back a prompt in strict mode over a broken managed file",
+  async () => {
+    const { prompt } = await withLogin({ LANGSMITH_CURSOR_STRICT_AUTH: "true" });
+    rmSync(join(dir, "login.json"));
+    const managed = join(env.LS_TEST_ACCOUNT_HOME!, ".langsmith-plugins");
+    mkdirSync(managed, { recursive: true });
+    writeFileSync(join(managed, "managed.json"), "{}");
+    try {
+      expect(await prompt("thread", "first")).toEqual({ continue: true });
+    } finally {
+      rmSync(join(managed, "managed.json"));
+    }
+  },
+);
+
+it.skipIf(process.platform === "win32")(
+  "tells setup about a broken managed file instead of a sign-in",
+  async () => {
+    const { prompt } = await withLogin({});
+    const managed = join(env.LS_TEST_ACCOUNT_HOME!, ".langsmith-plugins");
+    mkdirSync(managed, { recursive: true });
+    writeFileSync(join(managed, "managed.json"), "{}");
+    try {
+      const signedIn = await prompt("thread", "setup", "langsmith-tracing:setup");
+      expect(signedIn.user_message).toContain("owned by root");
+      expect(signedIn.user_message).not.toContain("Signed in");
+      rmSync(join(dir, "login.json"));
+      const noCredential = await prompt("thread", "setup2", "langsmith-tracing:setup");
+      expect(noCredential.user_message).toContain("owned by root");
+      expect(noCredential.user_message).not.toContain("Using your LangSmith API key");
+    } finally {
+      rmSync(join(managed, "managed.json"));
+    }
+  },
+);
+
 it("stops tracing and names keyless replicas the login can't reach", async () => {
   const { initHook, prompt } = await withLogin({
     LANGSMITH_CURSOR_RUNS_ENDPOINTS: JSON.stringify([{ api_url: "https://replica.test" }]),
@@ -734,7 +785,12 @@ it("keeps a conversation muted when the managed file locks muting on", async () 
     expect(loadState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns.one.tracingMode).toBe(
       "metadata",
     );
+    await setThreadTracingMode(tracingPolicyPath(), "thread", "full");
+    expect((await prompt("langsmith-tracing:setup", "setup")).user_message).toContain(
+      "This thread is muted",
+    );
   } finally {
+    vi.mocked(settings.readCommonConfigFiles).mockRestore();
     vi.unstubAllEnvs();
   }
 });
@@ -777,4 +833,243 @@ it("keeps tracing while a replica with its own key can still upload", async () =
     ]),
   });
   expect(initHook(dir)).not.toBeNull();
+});
+
+it("writes setup to the home config and reports what the workspace config overrides", () => {
+  env.LANGSMITH_CURSOR_ENDPOINT = "http://127.0.0.1:9";
+  const workspace = join(dir, "workspace");
+  mkdirSync(join(workspace, ".cursor"), { recursive: true });
+  writeFileSync(join(workspace, ".cursor", "langsmith.json"), '{"project":"from-repo"}');
+  const path = join(dir, ".cursor", "langsmith.json");
+  const response = submitWith({
+    prompt: "langsmith-tracing:setup mine https://example.test",
+    workspace,
+  });
+  expect(response.continue).toBe(false);
+  expect(response.user_message).toContain(
+    `Turned LangSmith tracing on in ${path}. Traces go to the "from-repo" project at "http://127.0.0.1:9". Tracing is still off because`,
+  );
+  expect(response.user_message).toContain("LANGSMITH TRACING IS PAUSED");
+  expect(JSON.parse(readFileSync(path, "utf8"))).toEqual({
+    enabled: true,
+    project: "mine",
+    api_url: "https://example.test",
+  });
+  expect(readFileSync(join(workspace, ".cursor", "langsmith.json"), "utf8")).toBe(
+    '{"project":"from-repo"}',
+  );
+  expect(existsSync(env.LANGSMITH_CURSOR_STATE_FILE!)).toBe(false);
+});
+
+it("turns tracing on from setup with no arguments", () => {
+  const response = submit("langsmith-tracing:setup");
+  expect(response.continue).toBe(false);
+  expect(JSON.parse(readFileSync(join(dir, ".cursor", "langsmith.json"), "utf8"))).toEqual({
+    enabled: true,
+  });
+});
+
+it("keeps every other key when setup saves a project and server", () => {
+  delete env.TRACE_TO_LANGSMITH;
+  const path = join(dir, ".cursor", "langsmith.json");
+  mkdirSync(join(dir, ".cursor"));
+  writeFileSync(path, JSON.stringify({ api_key: "lsv2_pt_test", redact: false }));
+  const response = submit("langsmith-tracing:setup my project http://127.0.0.1:1980");
+  expect(response).toEqual({
+    continue: false,
+    user_message: `Turned LangSmith tracing on in ${path}. Traces go to the "my project" project at "http://127.0.0.1:1980". Using your LangSmith API key.`,
+  });
+  expect(JSON.parse(readFileSync(path, "utf8"))).toEqual({
+    api_key: "lsv2_pt_test",
+    redact: false,
+    enabled: true,
+    project: "my project",
+    api_url: "http://127.0.0.1:1980",
+  });
+});
+
+it("refuses setup with a second line and saves nothing", () => {
+  const refused = {
+    continue: false,
+    user_message:
+      "Setup takes its project and URL on one line, so nothing was changed. Send anything else as its own message.",
+  };
+  expect(submit("langsmith-tracing:setup myproj\n\nAlso fix foo.ts")).toEqual(refused);
+  expect(submit("langsmith-tracing:setup\nmyproj")).toEqual(refused);
+  expect(existsSync(join(dir, ".cursor", "langsmith.json"))).toBe(false);
+});
+
+it("refuses setup with a typed API key and leaves the config alone", () => {
+  const path = join(dir, ".cursor", "langsmith.json");
+  mkdirSync(join(dir, ".cursor"));
+  writeFileSync(path, '{"project":"before"}');
+  expect(submit("langsmith-tracing:setup lsv2_pt_typed")).toEqual({
+    continue: false,
+    user_message:
+      "That looks like a LangSmith API key, so nothing was changed. Put the key in your config file instead, since anything typed in chat can end up in your history and traces.",
+  });
+  expect(readFileSync(path, "utf8")).toBe('{"project":"before"}');
+});
+
+it("replies with the error and changes nothing when setup cannot read the config", () => {
+  const path = join(dir, ".cursor", "langsmith.json");
+  mkdirSync(join(dir, ".cursor"));
+  writeFileSync(path, "{broken");
+  expect(submit("langsmith-tracing:setup mine")).toEqual({
+    continue: false,
+    user_message: `Couldn't read ${path} as a JSON object, so nothing was changed. Fix or remove that file and run setup again.`,
+  });
+  expect(readFileSync(path, "utf8")).toBe("{broken");
+});
+
+it("treats near misses of the setup command as ordinary prompts", () => {
+  for (const prompt of ["/langsmith-tracing:setup", "langsmith-tracing:setupx"]) {
+    expect(submit(prompt)).toEqual({ continue: true });
+  }
+  expect(existsSync(join(dir, ".cursor", "langsmith.json"))).toBe(false);
+});
+
+const setupReply = (destination: string, signIn: string) =>
+  held(
+    `Turned LangSmith tracing on in ${join(dir, ".cursor", "langsmith.json")}. ${destination} ${signIn}`,
+  );
+
+it("tells setup about a rejected key the way the next prompt would", async () => {
+  const { prompt } = await withLogin({ LANGSMITH_CURSOR_API_KEY: "key" }, "key rejected");
+  expect(await prompt("thread", "setup", "langsmith-tracing:setup")).toEqual(
+    setupReply(
+      'Traces go to the "cursor" project at "https://api.smith.langchain.com".',
+      "key rejected",
+    ),
+  );
+});
+
+it("tells setup that a login can't reach a keyless replica", async () => {
+  const { prompt } = await withLogin({
+    LANGSMITH_CURSOR_RUNS_ENDPOINTS: JSON.stringify([{ api_url: "https://replica.test" }]),
+  });
+  const reply = await prompt("thread", "setup", "langsmith-tracing:setup");
+  expect(reply.user_message).toContain("https://replica.test");
+  expect(reply.user_message).not.toContain("Signed in");
+});
+
+it("tells setup tracing is on when only a replica with its own key uploads", async () => {
+  const { prompt } = await withLogin({
+    LANGSMITH_CURSOR_RUNS_ENDPOINTS: JSON.stringify([
+      { api_url: "https://replica.test", api_key: "key" },
+    ]),
+  });
+  rmSync(join(dir, "login.json"));
+  expect(await prompt("thread", "setup", "langsmith-tracing:setup")).toEqual(
+    setupReply(
+      "Traces go to the replica destination in your settings, which replaces the usual project and URL.",
+      "Using your LangSmith API key.",
+    ),
+  );
+});
+
+it("tells setup a keyless replica doesn't count without a key or login", async () => {
+  const { prompt } = await withLogin({
+    LANGSMITH_CURSOR_RUNS_ENDPOINTS: JSON.stringify([
+      { api_url: "https://keyed.test", api_key: "key" },
+      { api_url: "https://keyless.test" },
+    ]),
+  });
+  rmSync(join(dir, "login.json"));
+  expect(await prompt("thread", "setup", "langsmith-tracing:setup")).toEqual(
+    setupReply(
+      "Traces go to the replica destination in your settings, which replaces the usual project and URL.",
+      "Using your LangSmith API key.",
+    ),
+  );
+});
+
+it("tells setup the server a CLI login uploads to", async () => {
+  const { prompt } = await withLogin({});
+  writeFileSync(
+    join(dir, "login.json"),
+    JSON.stringify({
+      profiles: {
+        default: {
+          api_url: "https://eu.api.smith.langchain.com",
+          oauth: { refresh_token: "t" },
+        },
+      },
+    }),
+  );
+  expect(await prompt("thread", "setup", "langsmith-tracing:setup")).toEqual(
+    setupReply(
+      'Traces go to the "cursor" project at "https://eu.api.smith.langchain.com".',
+      "Signed in with the LangSmith CLI.",
+    ),
+  );
+});
+
+it("tells setup traces go to the configured agent", async () => {
+  const { prompt } = await withLogin({ LANGSMITH_AGENT_ID: "shared-cursor" });
+  expect(await prompt("thread", "setup", "langsmith-tracing:setup mine")).toEqual(
+    setupReply(
+      'Traces go to the "shared-cursor" agent at "https://api.smith.langchain.com". Another setting overrides part of this (an agent_id, an environment variable, a project\'s langsmith.json or langsmith-plugins.json, or your admin\'s managed settings), so the values above are what\'s in effect.',
+      "Signed in with the LangSmith CLI.",
+    ),
+  );
+});
+
+it("tells setup about a paused login while tracing is switched off", async () => {
+  const { prompt } = await withLogin({ TRACE_TO_LANGSMITH: "false" }, "login paused");
+  const reply = await prompt("thread", "setup", "langsmith-tracing:setup");
+  expect(reply.user_message).toContain("login paused");
+  expect(reply.user_message).not.toContain("Signed in");
+});
+
+it("runs setup after a non-breaking space", () => {
+  expect(submit("langsmith-tracing:setup\u00a0mine").continue).toBe(false);
+  expect(JSON.parse(readFileSync(join(dir, ".cursor", "langsmith.json"), "utf8"))).toEqual({
+    enabled: true,
+    project: "mine",
+  });
+});
+
+it("tells setup the thread is muted after a mute in the same thread", () => {
+  submit("langsmith-tracing:mute", "control");
+  expect(submit("langsmith-tracing:setup", "setup").user_message).toContain(
+    "This thread is muted, so traces keep their structure and usage but not your prompts, responses or tool data.",
+  );
+});
+
+it("tells setup the thread is muted when every conversation starts muted", () => {
+  env.LANGSMITH_CURSOR_DEFAULT_MUTED = "true";
+  expect(submit("langsmith-tracing:setup").user_message).toContain("This thread is muted");
+});
+
+it("tells setup only the replicas a login can reach replace the project", async () => {
+  const { prompt } = await withLogin({
+    LANGSMITH_CURSOR_RUNS_ENDPOINTS: JSON.stringify([
+      { api_url: "https://keyed.test", api_key: "key" },
+      { api_url: "https://api.smith.langchain.com" },
+      { api_url: "https://replica.test" },
+    ]),
+  });
+  expect(await prompt("thread", "setup", "langsmith-tracing:setup mine")).toEqual(
+    setupReply(
+      "Traces go to the 2 replica destinations in your settings, which replace the usual project and URL. Another setting overrides part of this (an agent_id, an environment variable, a project's langsmith.json or langsmith-plugins.json, or your admin's managed settings), so the values above are what's in effect.",
+      "Signed in with the LangSmith CLI.",
+    ),
+  );
+});
+
+it("tells setup every replica replaces the project when an API key uploads", async () => {
+  const { prompt } = await withLogin({
+    LANGSMITH_CURSOR_API_KEY: "key",
+    LANGSMITH_CURSOR_RUNS_ENDPOINTS: JSON.stringify([
+      { api_url: "https://one.test" },
+      { api_url: "https://two.test" },
+    ]),
+  });
+  expect(await prompt("thread", "setup", "langsmith-tracing:setup")).toEqual(
+    setupReply(
+      "Traces go to the 2 replica destinations in your settings, which replace the usual project and URL.",
+      "Using your LangSmith API key.",
+    ),
+  );
 });

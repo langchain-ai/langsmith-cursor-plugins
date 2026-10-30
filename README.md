@@ -73,6 +73,8 @@ Or send them to a project with `project`:
 
 Use either one, and `agent_id` wins if you set both. With neither set traces go to the `cursor` project. Send a prompt and look for it in LangSmith. You only need `api_url` if you don't use the default LangSmith server.
 
+You can also send `langsmith-tracing:setup [project] [https://your-langsmith-url]` in Cursor's agent chat and the plugin turns tracing on and saves the project and server to `~/.cursor/langsmith.json` for you. Start the message with it and no slash, or it goes to the model as a normal prompt. The URL needs `http://` or `https://`, since a bare hostname becomes part of the project name. It never takes an API key, so the key stays out of your chat.
+
 A project can override these settings in `<project>/.cursor/langsmith.json` or `<project>/langsmith-plugins.json`. You can also share settings across LangSmith plugins in `~/.langsmith-plugins.json`. Project files win over your own files and any environment variable beats them all.
 
 > **Read a repository's tracing config before you trust it.** A cloned repository can switch tracing on and send your prompts and files to someone else's server. Review its `.cursor/langsmith.json` and `langsmith-plugins.json` first. Cursor's own `.cursor/hooks.json` can run commands, so read that one too.

@@ -3,6 +3,8 @@
  * Field names mirror the real captured payloads.
  */
 
+import type { UploadCredential } from "@langchain/plugins-base/auth";
+import type { SetupOutcome } from "@langchain/plugins-base/settings";
 import type { UploadJobContext } from "./job-context.js";
 
 // ─── Multimodal content ──────────────────────────────────────────────────────
@@ -50,6 +52,13 @@ export interface PromptReply {
 export interface PromptNotice {
   kind: string;
   text: string;
+}
+
+export interface UploadStatus {
+  credential: UploadCredential;
+  problem?: string;
+  notice?: PromptNotice;
+  untraced: boolean;
 }
 
 /** Token usage carried by both afterAgentResponse and stop. */
@@ -261,3 +270,5 @@ export interface SweepClaim {
   turnNum: number;
   claimedAt: number;
 }
+
+export type SetupSignIn = Pick<SetupOutcome, "signIn" | "credentialProblem">;
