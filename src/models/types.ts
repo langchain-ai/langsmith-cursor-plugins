@@ -208,7 +208,7 @@ export interface TurnBuffer {
   turnNum?: number;
   prompt?: string;
   typedCommand?: TypedCommand;
-  typedSkill?: string;
+  typedSkill?: string | null;
   /** Best model label seen for this turn (from beforeSubmitPrompt / stop). */
   model?: string;
   /** Wall-clock ms when the turn started (beforeSubmitPrompt). */

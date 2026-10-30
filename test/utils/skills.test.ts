@@ -1,9 +1,7 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
-import { SKILL_SEARCH_ENTRY_LIMIT } from "../../src/constants.js";
-import { withTypedSkill } from "../../src/turn-enrichment.js";
 import { typedCommandOf, typedSkillName } from "../../src/utils/skills.js";
 
 let dir: string;
@@ -120,25 +118,20 @@ describe("typedSkillName", () => {
     expect(resolve("deploy", [project, second])).toBe("deploy");
   });
 
-  it("stops looking three folders down", () => {
-    addSkill(dir, "project", ".cursor", "skills", "a", "b", "c", "deep");
-    addSkill(dir, "project", ".cursor", "skills", "a", "b", "shallow");
+  it("searches one group level and no deeper", () => {
+    addSkill(dir, "project", ".cursor", "skills", "a", "shallow");
+    addSkill(dir, "project", ".cursor", "skills", "a", "b", "deep");
     expect(resolve("shallow")).toBe("shallow");
     expect(resolve("deep")).toBeUndefined();
   });
 
-  it("stops after the entry limit across the whole walk, not per folder", () => {
-    const skills = join(project, ".cursor", "skills");
-    for (let i = 0; i < SKILL_SEARCH_ENTRY_LIMIT * 0.75; i++) {
-      mkdirSync(join(skills, `f${String(i).padStart(5, "0")}`), { recursive: true });
-    }
-    for (let i = 0; i < SKILL_SEARCH_ENTRY_LIMIT * 0.5; i++) {
-      mkdirSync(join(skills, "f00000", `g${String(i).padStart(5, "0")}`), { recursive: true });
-    }
-    addSkill(skills, "f00000", "zzz");
-    addSkill(skills, "f00001");
-    expect(resolve("f00001")).toBe("f00001");
-    expect(resolve("zzz")).toBeUndefined();
+  it("does not let a big synced folder hide skills elsewhere", () => {
+    const synced = join(home, ".agents", "skills", "synced");
+    for (let i = 0; i < 1100; i++) mkdirSync(join(synced, `id${i}`), { recursive: true });
+    addSkill(synced, "id1099", "late");
+    addSkill(dir, "home", ".cursor", "skills", "mine");
+    expect(resolve("late")).toBe("late");
+    expect(resolve("mine")).toBe("mine");
   });
 
   it("does not look inside another skill, the same rule a read follows", () => {
@@ -162,25 +155,5 @@ describe("typedSkillName", () => {
     expect(
       typedSkillName({ name: "deploy", workspaceRoots: [null as unknown as string] }, home),
     ).toBeUndefined();
-  });
-});
-
-describe("withTypedSkill", () => {
-  const buffer = (name: string) => ({
-    generation_id: "generation",
-    startMs: 0,
-    tools: [],
-    thoughts: [],
-    subagents: [],
-    typedCommand: { name, workspaceRoots: [project] },
-  });
-
-  it("looks in the home folder once per turn, not once per upload job", () => {
-    vi.stubEnv("HOME", home);
-    addSkill(dir, "home", ".cursor", "skills", "once");
-    expect(withTypedSkill(buffer("once")).typedSkill).toBe("once");
-    rmSync(join(home, ".cursor"), { recursive: true });
-    expect(withTypedSkill(buffer("once")).typedSkill).toBe("once");
-    vi.unstubAllEnvs();
   });
 });

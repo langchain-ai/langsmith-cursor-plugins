@@ -161,6 +161,28 @@ describe("saving a turn for upload", () => {
     expect(names.filter((name) => name === "Skill")).toHaveLength(1);
   });
 
+  it.each<[string, string | null]>([
+    ["deploy", "deploy"],
+    ["add-plugin", null],
+  ])("keeps the answer for typed /%s on the turn so later jobs agree", async (name, expected) => {
+    const workspace = mkdtempSync(join(tmpdir(), "cursor-typed-"));
+    mkdirSync(join(workspace, ".cursor", "skills", "deploy"), { recursive: true });
+    writeFileSync(join(workspace, ".cursor", "skills", "deploy", "SKILL.md"), "x");
+    const typedCommand = { name, workspaceRoots: [workspace] };
+    await saveTool({ ...toolSave, buffer: { ...toolSave.buffer, typedCommand } });
+    expect(loadState(config.stateFilePath).c1.turns.g1.typedSkill).toBe(expected);
+  });
+
+  it("uses the answer a job already kept instead of looking again", async () => {
+    const typedCommand = { name: "gone", workspaceRoots: [] };
+    await saveTurnForUpload(config, {
+      ...toolTurn,
+      buffer: { ...toolTurn.buffer, typedCommand, typedSkill: "kept" },
+    });
+    const skill = (await build()).find(({ submission }) => submission.run.name === "Skill");
+    expect(skill!.submission.run.inputs).toEqual({ input: { skill: "kept" } });
+  });
+
   it("fills the session's repo and each tool's own repo in the uploader", async () => {
     const repo = (name: string) => {
       const cwd = mkdtempSync(join(tmpdir(), `cursor-${name}-`));

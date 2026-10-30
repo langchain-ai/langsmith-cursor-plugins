@@ -93,11 +93,8 @@ export const SKILL_FOLDERS: PathSegments[] = [
   [".claude", "skills"],
   [".codex", "skills"],
   [".cursor", "skills-cursor"],
+  [".agents", "skills", "synced"],
 ];
-
-export const SKILL_SEARCH_DEPTH = 3;
-
-export const SKILL_SEARCH_ENTRY_LIMIT = 2000;
 
 export const POSIX_SEPARATOR = "/";
 

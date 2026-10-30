@@ -43,6 +43,17 @@ export function queuedContext(
   return queued?.savedAtMs === ref.savedAtMs ? queued : undefined;
 }
 
+export function reduceTypedSkill(
+  state: TracingState,
+  conversationId: string,
+  generationId: string,
+  typedSkill: string | null | undefined,
+): TracingState {
+  const turn = getTurnBuffer(state, conversationId, generationId);
+  if (turn) turn.typedSkill = typedSkill;
+  return state;
+}
+
 export function reduceQueued(
   state: TracingState,
   context: UploadJobContext,

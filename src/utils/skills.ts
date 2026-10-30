@@ -1,6 +1,6 @@
 import { existsSync, readdirSync } from "node:fs";
 import { isAbsolute, join } from "node:path";
-import type { SearchBudget, TypedCommand } from "../models/skills.js";
+import type { TypedCommand } from "../models/skills.js";
 import {
   HOME_PREFIX,
   PATH_SEPARATOR,
@@ -14,8 +14,6 @@ import {
   SKILL_DIRECTORY_NAMES,
   SKILL_FILE_NAME,
   SKILL_FOLDERS,
-  SKILL_SEARCH_DEPTH,
-  SKILL_SEARCH_ENTRY_LIMIT,
   SKILL_SHELL_READ_COMMANDS,
   TYPED_SKILL_COMMAND,
 } from "../constants.js";
@@ -104,24 +102,26 @@ function folderNames(folder: string): string[] {
   }
 }
 
-function findSkillFolderName(
-  folder: string,
-  name: string,
-  depth: number,
-  budget: SearchBudget,
-): string | undefined {
-  const names = folderNames(folder).sort().slice(0, Math.max(budget.entriesLeft, 0));
-  budget.entriesLeft -= names.length;
-  const skills = names.filter((entry) => existsSync(join(folder, entry, SKILL_FILE_NAME)));
-  const own =
-    skills.find((entry) => entry === name) ??
-    skills.find((entry) => entry.toLowerCase() === name.toLowerCase());
-  if (own !== undefined || depth <= 1) return own;
-  for (const entry of names.filter((candidate) => !skills.includes(candidate))) {
-    const found = findSkillFolderName(join(folder, entry), name, depth - 1, budget);
-    if (found !== undefined) return found;
-  }
-  return undefined;
+function matchName(names: string[], name: string): string | undefined {
+  return (
+    names.find((entry) => entry === name) ??
+    names.find((entry) => entry.toLowerCase() === name.toLowerCase())
+  );
+}
+
+function hasSkillFile(folder: string, name: string): boolean {
+  return existsSync(join(folder, name, SKILL_FILE_NAME));
+}
+
+function findInSkillsFolder(folder: string, name: string): string | undefined {
+  const children = folderNames(folder);
+  const skills = children.filter((child) => hasSkillFile(folder, child));
+  const own = matchName(skills, name);
+  if (own !== undefined) return own;
+  const group = children.find(
+    (child) => !skills.includes(child) && hasSkillFile(join(folder, child), name),
+  );
+  return group === undefined ? undefined : matchName(folderNames(join(folder, group)), name);
 }
 
 export function typedCommandOf(prompt: unknown, workspaceRoots: unknown): TypedCommand | undefined {
@@ -134,16 +134,10 @@ export function typedCommandOf(prompt: unknown, workspaceRoots: unknown): TypedC
 }
 
 export function typedSkillName(command: TypedCommand, home: string): string | undefined {
-  const budget: SearchBudget = { entriesLeft: SKILL_SEARCH_ENTRY_LIMIT };
   try {
     for (const root of [...command.workspaceRoots, home]) {
       for (const folder of SKILL_FOLDERS) {
-        const found = findSkillFolderName(
-          join(root, ...folder),
-          command.name,
-          SKILL_SEARCH_DEPTH,
-          budget,
-        );
+        const found = findInSkillsFolder(join(root, ...folder), command.name);
         if (found !== undefined) return found;
       }
     }

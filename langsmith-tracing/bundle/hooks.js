@@ -25491,7 +25491,7 @@ var init_settings = __esm({
 });
 
 // dist/src/constants.js
-var TURN_RUN_NAME, SKILL_RUN_NAME, DEFAULT_TAGS, DEFAULT_PROJECT, DEFAULT_SWEEP_IDLE_MINUTES, NOTICE_KINDS, MUTE_LOCKED_MESSAGE, DEFAULT_API_URL2, AGENT_ID_ENV_KEY, CURSOR_DIRECTORY_NAME, MANAGED_PLUGIN_FIELDS, MAX_UPLOAD_ATTEMPTS, BINARY_HOOK_EVENTS, LEADING_BYTE_ORDER_MARKS, LS_INTEGRATION, SKILL_READ_TOOLS, PATH_SEPARATOR, SKILL_SHELL_TOOLS, SKILL_SHELL_READ_COMMANDS, SHELL_SEPARATORS, SHELL_QUOTES, SHELL_WHITESPACE, SHELL_REDIRECT_WORD, SHELL_REDIRECT_OPERATOR, SHELL_CHANGE_DIRECTORY, SKILL_FILE_NAME, SKILL_DIRECTORY_NAMES, TYPED_SKILL_COMMAND, SKILL_FOLDERS, SKILL_SEARCH_DEPTH, SKILL_SEARCH_ENTRY_LIMIT, POSIX_SEPARATOR, HOME_PREFIX, MAX_ATTACHMENT_BYTES, MAX_LOG_BYTES, CONVERSATION_MAX_AGE_MS, WHITESPACE_RUN, MODEL_SUFFIXES, PROVIDER_PREFIX, CLAUDE_VERSIONED_MODEL, OPENAI_MODEL_PREFIX, CURSOR_VENDOR_PREFIX, MCP_TOOL_PREFIX, SUBAGENT_PSEUDO_TOOLS, REDACTED_TRANSCRIPT_MARKER, EMPTY_TOOL_ID_PREFIX, TOOL_FAILED_MESSAGE, STATE_FILE_NAME, LEGACY_STATE_FILE_NAME, TRACING_POLICY_FILE_NAME, LEGACY_TRACING_POLICY_FILE_NAME, HOOK_LOG_FILE_NAME, HOOK_CONTINUE_OUTPUT, ENGINE_WORKER_COMMAND, ENGINE_STORAGE_DIR_NAME, JOB_EVENT_PREFIX, JOB_REF_PREFIX, TOOL_JOB_REF_PREFIX, JOB_STORE_DIR_NAME, GH_LOGIN_MARKER_FILE, TOOL_PATH_INPUT_KEYS, RUN_EVENT_PREFIX, PATCH_EVENT_PREFIX, RUN_SNAPSHOT_FIELDS, RUN_PATCH_FIELDS, CAPTURE_PUBLISHED_STATUS, CAPTURE_DUPLICATE_STATUS, TURN_ON_OTHER_ACCOUNT_MESSAGE, SQLITE_EXPERIMENTAL_WARNING;
+var TURN_RUN_NAME, SKILL_RUN_NAME, DEFAULT_TAGS, DEFAULT_PROJECT, DEFAULT_SWEEP_IDLE_MINUTES, NOTICE_KINDS, MUTE_LOCKED_MESSAGE, DEFAULT_API_URL2, AGENT_ID_ENV_KEY, CURSOR_DIRECTORY_NAME, MANAGED_PLUGIN_FIELDS, MAX_UPLOAD_ATTEMPTS, BINARY_HOOK_EVENTS, LEADING_BYTE_ORDER_MARKS, LS_INTEGRATION, SKILL_READ_TOOLS, PATH_SEPARATOR, SKILL_SHELL_TOOLS, SKILL_SHELL_READ_COMMANDS, SHELL_SEPARATORS, SHELL_QUOTES, SHELL_WHITESPACE, SHELL_REDIRECT_WORD, SHELL_REDIRECT_OPERATOR, SHELL_CHANGE_DIRECTORY, SKILL_FILE_NAME, SKILL_DIRECTORY_NAMES, TYPED_SKILL_COMMAND, SKILL_FOLDERS, POSIX_SEPARATOR, HOME_PREFIX, MAX_ATTACHMENT_BYTES, MAX_LOG_BYTES, CONVERSATION_MAX_AGE_MS, WHITESPACE_RUN, MODEL_SUFFIXES, PROVIDER_PREFIX, CLAUDE_VERSIONED_MODEL, OPENAI_MODEL_PREFIX, CURSOR_VENDOR_PREFIX, MCP_TOOL_PREFIX, SUBAGENT_PSEUDO_TOOLS, REDACTED_TRANSCRIPT_MARKER, EMPTY_TOOL_ID_PREFIX, TOOL_FAILED_MESSAGE, STATE_FILE_NAME, LEGACY_STATE_FILE_NAME, TRACING_POLICY_FILE_NAME, LEGACY_TRACING_POLICY_FILE_NAME, HOOK_LOG_FILE_NAME, HOOK_CONTINUE_OUTPUT, ENGINE_WORKER_COMMAND, ENGINE_STORAGE_DIR_NAME, JOB_EVENT_PREFIX, JOB_REF_PREFIX, TOOL_JOB_REF_PREFIX, JOB_STORE_DIR_NAME, GH_LOGIN_MARKER_FILE, TOOL_PATH_INPUT_KEYS, RUN_EVENT_PREFIX, PATCH_EVENT_PREFIX, RUN_SNAPSHOT_FIELDS, RUN_PATCH_FIELDS, CAPTURE_PUBLISHED_STATUS, CAPTURE_DUPLICATE_STATUS, TURN_ON_OTHER_ACCOUNT_MESSAGE, SQLITE_EXPERIMENTAL_WARNING;
 var init_constants18 = __esm({
   "dist/src/constants.js"() {
     "use strict";
@@ -25553,10 +25553,9 @@ var init_constants18 = __esm({
       [".cursor", "skills"],
       [".claude", "skills"],
       [".codex", "skills"],
-      [".cursor", "skills-cursor"]
+      [".cursor", "skills-cursor"],
+      [".agents", "skills", "synced"]
     ];
-    SKILL_SEARCH_DEPTH = 3;
-    SKILL_SEARCH_ENTRY_LIMIT = 2e3;
     POSIX_SEPARATOR = "/";
     HOME_PREFIX = "~";
     MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024;
@@ -26779,19 +26778,20 @@ function folderNames(folder) {
     return [];
   }
 }
-function findSkillFolderName(folder, name, depth, budget) {
-  const names2 = folderNames(folder).sort().slice(0, Math.max(budget.entriesLeft, 0));
-  budget.entriesLeft -= names2.length;
-  const skills = names2.filter((entry) => existsSync4(join25(folder, entry, SKILL_FILE_NAME)));
-  const own = skills.find((entry) => entry === name) ?? skills.find((entry) => entry.toLowerCase() === name.toLowerCase());
-  if (own !== void 0 || depth <= 1)
+function matchName(names2, name) {
+  return names2.find((entry) => entry === name) ?? names2.find((entry) => entry.toLowerCase() === name.toLowerCase());
+}
+function hasSkillFile(folder, name) {
+  return existsSync4(join25(folder, name, SKILL_FILE_NAME));
+}
+function findInSkillsFolder(folder, name) {
+  const children = folderNames(folder);
+  const skills = children.filter((child) => hasSkillFile(folder, child));
+  const own = matchName(skills, name);
+  if (own !== void 0)
     return own;
-  for (const entry of names2.filter((candidate) => !skills.includes(candidate))) {
-    const found = findSkillFolderName(join25(folder, entry), name, depth - 1, budget);
-    if (found !== void 0)
-      return found;
-  }
-  return void 0;
+  const group = children.find((child) => !skills.includes(child) && hasSkillFile(join25(folder, child), name));
+  return group === void 0 ? void 0 : matchName(folderNames(join25(folder, group)), name);
 }
 function typedCommandOf(prompt, workspaceRoots) {
   const name = typeof prompt === "string" ? TYPED_SKILL_COMMAND.exec(prompt)?.[1] : void 0;
@@ -26801,11 +26801,10 @@ function typedCommandOf(prompt, workspaceRoots) {
   return { name, workspaceRoots: roots };
 }
 function typedSkillName(command, home) {
-  const budget = { entriesLeft: SKILL_SEARCH_ENTRY_LIMIT };
   try {
     for (const root of [...command.workspaceRoots, home]) {
       for (const folder of SKILL_FOLDERS) {
-        const found = findSkillFolderName(join25(root, ...folder), command.name, SKILL_SEARCH_DEPTH, budget);
+        const found = findInSkillsFolder(join25(root, ...folder), command.name);
         if (found !== void 0)
           return found;
       }
@@ -27727,6 +27726,12 @@ function parseJobRef(ref) {
 function queuedContext(state, ref) {
   const queued = ownEntry(ownEntry(state, ref.conversationId)?.queued, ref.generationId);
   return queued?.savedAtMs === ref.savedAtMs ? queued : void 0;
+}
+function reduceTypedSkill(state, conversationId, generationId, typedSkill) {
+  const turn = getTurnBuffer(state, conversationId, generationId);
+  if (turn)
+    turn.typedSkill = typedSkill;
+  return state;
 }
 function reduceQueued(state, context, savedAtMs) {
   const conv = getConversationState(state, context.conversationId);
@@ -29057,20 +29062,14 @@ function enrichTurn(config, options) {
 }
 function withTypedSkill(buffer) {
   const { typedCommand } = buffer;
-  if (!typedCommand)
+  if (!typedCommand || buffer.typedSkill !== void 0)
     return buffer;
-  const home = homedir6();
-  const key = JSON.stringify([buffer.generation_id, typedCommand, home]);
-  if (!typedSkillsResolved.has(key))
-    typedSkillsResolved.set(key, typedSkillName(typedCommand, home));
-  const typedSkill = typedSkillsResolved.get(key);
-  return typedSkill ? { ...buffer, typedSkill } : buffer;
+  return { ...buffer, typedSkill: typedSkillName(typedCommand, homedir6()) ?? null };
 }
 function toolAttachments(config, options) {
   const { buffer, conversationId } = options;
   return config.attachmentsEnabled && buffer.tracingMode === "full" ? resolveTurnAttachments({ conversationId, prompt: buffer.prompt, dbPath: config.cursorDbPath }) : [];
 }
-var typedSkillsResolved;
 var init_turn_enrichment = __esm({
   "dist/src/turn-enrichment.js"() {
     "use strict";
@@ -29078,7 +29077,6 @@ var init_turn_enrichment = __esm({
     init_conversation_steps();
     init_system_prompt();
     init_skills();
-    typedSkillsResolved = /* @__PURE__ */ new Map();
   }
 });
 
@@ -29121,7 +29119,17 @@ function wakeUploader(config, conversationId) {
     storageRoot: storageRootFor(config)
   });
 }
-async function queueUpload(config, context) {
+async function resolveTypedSkill(config, job) {
+  const buffer = withTypedSkill(job.buffer);
+  if (buffer === job.buffer)
+    return job;
+  if (job.kind === "tool") {
+    await atomicUpdateState(config.stateFilePath, (s) => reduceTypedSkill(s, job.conversationId, buffer.generation_id, buffer.typedSkill));
+  }
+  return { ...job, buffer };
+}
+async function queueUpload(config, queued) {
+  const context = await resolveTypedSkill(config, queued);
   const plugin = openSession(config, context.conversationId, context.origin.project);
   const turnId = turnRunId(context.conversationId, context.buffer.generation_id);
   const { sessionId } = plugin;
@@ -29193,7 +29201,7 @@ async function buildQueuedRuns(job, config, plugin) {
   if (!context)
     return { status: "ready", outputs: [] };
   const { conversationId, turnNum, origin } = context;
-  const buffer = withTypedSkill(withLockedMute(context.buffer, config));
+  const buffer = withLockedMute(context.buffer, config);
   const cwd = typeof origin.customMetadata?.cwd === "string" ? origin.customMetadata.cwd : config.cwd;
   const options = {
     buffer,

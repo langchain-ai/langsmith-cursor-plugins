@@ -32,6 +32,7 @@ import {
   queuedContext,
   reduceChosenOutputs,
   reduceQueued,
+  reduceTypedSkill,
   reduceUploaded,
   toolJobContext,
   toolJobRef,
@@ -79,7 +80,19 @@ export function wakeUploader(config: Config, conversationId: string): Promise<nu
   });
 }
 
-async function queueUpload(config: Config, context: UploadJobContext): Promise<void> {
+async function resolveTypedSkill(config: Config, job: UploadJobContext): Promise<UploadJobContext> {
+  const buffer = withTypedSkill(job.buffer);
+  if (buffer === job.buffer) return job;
+  if (job.kind === "tool") {
+    await atomicUpdateState(config.stateFilePath, (s) =>
+      reduceTypedSkill(s, job.conversationId, buffer.generation_id, buffer.typedSkill),
+    );
+  }
+  return { ...job, buffer };
+}
+
+async function queueUpload(config: Config, queued: UploadJobContext): Promise<void> {
+  const context = await resolveTypedSkill(config, queued);
   const plugin = openSession(config, context.conversationId, context.origin.project);
   const turnId = turnRunId(context.conversationId, context.buffer.generation_id);
   const { sessionId } = plugin;
@@ -155,7 +168,7 @@ async function buildQueuedRuns(
     : ref && queuedContext(state, ref);
   if (!context) return { status: "ready", outputs: [] };
   const { conversationId, turnNum, origin } = context;
-  const buffer = withTypedSkill(withLockedMute(context.buffer, config));
+  const buffer = withLockedMute(context.buffer, config);
   const cwd =
     typeof origin.customMetadata?.cwd === "string" ? origin.customMetadata.cwd : config.cwd;
   const options: BuildTurnOptions = {
