@@ -25491,7 +25491,7 @@ var init_settings = __esm({
 });
 
 // dist/src/constants.js
-var TURN_RUN_NAME, SKILL_RUN_NAME, DEFAULT_TAGS, DEFAULT_PROJECT, DEFAULT_SWEEP_IDLE_MINUTES, NOTICE_KINDS, MUTE_LOCKED_MESSAGE, DEFAULT_API_URL2, AGENT_ID_ENV_KEY, CURSOR_DIRECTORY_NAME, MANAGED_PLUGIN_FIELDS, MAX_UPLOAD_ATTEMPTS, BINARY_HOOK_EVENTS, LEADING_BYTE_ORDER_MARKS, LS_INTEGRATION, SKILL_READ_TOOLS, PATH_SEPARATOR, SKILL_SHELL_TOOLS, SKILL_SHELL_READ_COMMANDS, SHELL_WORD, SHELL_COMMAND_END, SKILL_FILE_NAME, SKILL_DIRECTORY_NAME, SKILL_DIRECTORY_NAMES, SYNCED_SKILLS_DIRECTORY_NAME, TYPED_SKILL_COMMAND, SKILL_FOLDERS, BUILT_IN_SKILL_FOLDER, SYNCED_SKILL_FOLDER, MAX_ATTACHMENT_BYTES, MAX_LOG_BYTES, CONVERSATION_MAX_AGE_MS, WHITESPACE_RUN, MODEL_SUFFIXES, PROVIDER_PREFIX, CLAUDE_VERSIONED_MODEL, OPENAI_MODEL_PREFIX, CURSOR_VENDOR_PREFIX, MCP_TOOL_PREFIX, SUBAGENT_PSEUDO_TOOLS, REDACTED_TRANSCRIPT_MARKER, EMPTY_TOOL_ID_PREFIX, TOOL_FAILED_MESSAGE, STATE_FILE_NAME, LEGACY_STATE_FILE_NAME, TRACING_POLICY_FILE_NAME, LEGACY_TRACING_POLICY_FILE_NAME, HOOK_LOG_FILE_NAME, HOOK_CONTINUE_OUTPUT, ENGINE_WORKER_COMMAND, ENGINE_STORAGE_DIR_NAME, JOB_EVENT_PREFIX, JOB_REF_PREFIX, TOOL_JOB_REF_PREFIX, JOB_STORE_DIR_NAME, GH_LOGIN_MARKER_FILE, TOOL_PATH_INPUT_KEYS, RUN_EVENT_PREFIX, PATCH_EVENT_PREFIX, RUN_SNAPSHOT_FIELDS, RUN_PATCH_FIELDS, CAPTURE_PUBLISHED_STATUS, CAPTURE_DUPLICATE_STATUS, TURN_ON_OTHER_ACCOUNT_MESSAGE, SQLITE_EXPERIMENTAL_WARNING;
+var TURN_RUN_NAME, SKILL_RUN_NAME, DEFAULT_TAGS, DEFAULT_PROJECT, DEFAULT_SWEEP_IDLE_MINUTES, NOTICE_KINDS, MUTE_LOCKED_MESSAGE, DEFAULT_API_URL2, AGENT_ID_ENV_KEY, CURSOR_DIRECTORY_NAME, MANAGED_PLUGIN_FIELDS, MAX_UPLOAD_ATTEMPTS, BINARY_HOOK_EVENTS, LEADING_BYTE_ORDER_MARKS, LS_INTEGRATION, SKILL_READ_TOOLS, PATH_SEPARATOR, SKILL_SHELL_TOOLS, SKILL_SHELL_READ_COMMANDS, SHELL_SEPARATORS, SHELL_QUOTES, SHELL_WHITESPACE, SHELL_REDIRECT_WORD, SHELL_REDIRECT_OPERATOR, SHELL_CHANGE_DIRECTORY, SKILL_FILE_NAME, SKILL_DIRECTORY_NAMES, TYPED_SKILL_COMMAND, SKILL_FOLDERS, SKILL_SEARCH_DEPTH, MAX_ATTACHMENT_BYTES, MAX_LOG_BYTES, CONVERSATION_MAX_AGE_MS, WHITESPACE_RUN, MODEL_SUFFIXES, PROVIDER_PREFIX, CLAUDE_VERSIONED_MODEL, OPENAI_MODEL_PREFIX, CURSOR_VENDOR_PREFIX, MCP_TOOL_PREFIX, SUBAGENT_PSEUDO_TOOLS, REDACTED_TRANSCRIPT_MARKER, EMPTY_TOOL_ID_PREFIX, TOOL_FAILED_MESSAGE, STATE_FILE_NAME, LEGACY_STATE_FILE_NAME, TRACING_POLICY_FILE_NAME, LEGACY_TRACING_POLICY_FILE_NAME, HOOK_LOG_FILE_NAME, HOOK_CONTINUE_OUTPUT, ENGINE_WORKER_COMMAND, ENGINE_STORAGE_DIR_NAME, JOB_EVENT_PREFIX, JOB_REF_PREFIX, TOOL_JOB_REF_PREFIX, JOB_STORE_DIR_NAME, GH_LOGIN_MARKER_FILE, TOOL_PATH_INPUT_KEYS, RUN_EVENT_PREFIX, PATCH_EVENT_PREFIX, RUN_SNAPSHOT_FIELDS, RUN_PATCH_FIELDS, CAPTURE_PUBLISHED_STATUS, CAPTURE_DUPLICATE_STATUS, TURN_ON_OTHER_ACCOUNT_MESSAGE, SQLITE_EXPERIMENTAL_WARNING;
 var init_constants18 = __esm({
   "dist/src/constants.js"() {
     "use strict";
@@ -25539,21 +25539,23 @@ var init_constants18 = __esm({
       "bat",
       "nl"
     ]);
-    SHELL_WORD = /"([^"]*)"|'([^']*)'|\S+/g;
-    SHELL_COMMAND_END = /[|;&]/;
+    SHELL_SEPARATORS = /* @__PURE__ */ new Set(["|", ";", "&", "\n"]);
+    SHELL_QUOTES = /* @__PURE__ */ new Set(['"', "'"]);
+    SHELL_WHITESPACE = /\s/;
+    SHELL_REDIRECT_WORD = /^\d*>/;
+    SHELL_REDIRECT_OPERATOR = /^\d*>>?$/;
+    SHELL_CHANGE_DIRECTORY = "cd";
     SKILL_FILE_NAME = "SKILL.md";
-    SKILL_DIRECTORY_NAME = "skills";
-    SKILL_DIRECTORY_NAMES = /* @__PURE__ */ new Set([SKILL_DIRECTORY_NAME, "skills-cursor"]);
-    SYNCED_SKILLS_DIRECTORY_NAME = "synced";
+    SKILL_DIRECTORY_NAMES = /* @__PURE__ */ new Set(["skills", "skills-cursor"]);
     TYPED_SKILL_COMMAND = /^\/([A-Za-z0-9][A-Za-z0-9._-]*)(?=\s|$)/;
     SKILL_FOLDERS = [
       [".agents", "skills"],
       [".cursor", "skills"],
       [".claude", "skills"],
-      [".codex", "skills"]
+      [".codex", "skills"],
+      [".cursor", "skills-cursor"]
     ];
-    BUILT_IN_SKILL_FOLDER = [".cursor", "skills-cursor"];
-    SYNCED_SKILL_FOLDER = [".agents", "skills", "synced"];
+    SKILL_SEARCH_DEPTH = 3;
     MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024;
     MAX_LOG_BYTES = 5 * 1024 * 1024;
     CONVERSATION_MAX_AGE_MS = 24 * 60 * 60 * 1e3;
@@ -26699,35 +26701,94 @@ var init_turn_origin = __esm({
 // dist/src/utils/skills.js
 import { existsSync as existsSync4, readdirSync as readdirSync2 } from "node:fs";
 import { join as join25 } from "node:path";
-function skillPathFromShellCommand(command) {
-  const [first = ""] = command.split(SHELL_COMMAND_END);
-  const words = [...first.matchAll(SHELL_WORD)].map((m) => m[1] ?? m[2] ?? m[0]);
-  if (!SKILL_SHELL_READ_COMMANDS.has(words[0] ?? ""))
-    return void 0;
-  return words.slice(1).find((word) => word.endsWith(SKILL_FILE_NAME));
+function shellSegments(command) {
+  const segments = [[]];
+  let word = "";
+  let inWord = false;
+  let quote = "";
+  const endWord = () => {
+    if (inWord)
+      segments[segments.length - 1].push(word);
+    word = "";
+    inWord = false;
+  };
+  for (const char of command) {
+    if (quote) {
+      if (char === quote)
+        quote = "";
+      else
+        word += char;
+    } else if (SHELL_QUOTES.has(char)) {
+      quote = char;
+      inWord = true;
+    } else if (SHELL_SEPARATORS.has(char)) {
+      endWord();
+      segments.push([]);
+    } else if (SHELL_WHITESPACE.test(char)) {
+      endWord();
+    } else {
+      word += char;
+      inWord = true;
+    }
+  }
+  endWord();
+  return segments;
 }
-function syncedIds(syncedRoot) {
+function commandName(word) {
+  return word?.split(PATH_SEPARATOR).pop() ?? "";
+}
+function isRedirectTarget(words, index) {
+  return SHELL_REDIRECT_WORD.test(words[index]) || index > 0 && SHELL_REDIRECT_OPERATOR.test(words[index - 1]);
+}
+function skillPathFromShellCommand(command) {
+  let directory = "";
+  for (const words of shellSegments(command)) {
+    if (words[0] === SHELL_CHANGE_DIRECTORY && words[1]) {
+      directory = words[1].startsWith("/") ? words[1] : join25(directory, words[1]);
+      continue;
+    }
+    if (!SKILL_SHELL_READ_COMMANDS.has(commandName(words[0])))
+      continue;
+    const index = words.findIndex((word, i) => i > 0 && word.endsWith(SKILL_FILE_NAME) && !isRedirectTarget(words, i));
+    if (index < 0)
+      continue;
+    return words[index].startsWith("/") || !directory ? words[index] : join25(directory, words[index]);
+  }
+  return void 0;
+}
+function folderNames(folder) {
   try {
-    return readdirSync2(syncedRoot);
+    return readdirSync2(folder, { withFileTypes: true }).filter((entry) => entry.isDirectory() || entry.isSymbolicLink()).map((entry) => entry.name);
   } catch {
     return [];
   }
 }
-function skillFolders(roots, home) {
-  const syncedRoot = join25(home, ...SYNCED_SKILL_FOLDER);
-  const synced = syncedIds(syncedRoot).map((id) => join25(syncedRoot, id));
-  return [
-    ...[...roots, home].flatMap((root) => SKILL_FOLDERS.map((folder) => join25(root, ...folder))),
-    join25(home, ...BUILT_IN_SKILL_FOLDER),
-    ...synced
-  ];
+function findSkillFolderName(folder, name, depth) {
+  const names2 = folderNames(folder);
+  const own = names2.find((entry) => entry === name) ?? names2.find((entry) => entry.toLowerCase() === name.toLowerCase());
+  if (own !== void 0 && existsSync4(join25(folder, own, SKILL_FILE_NAME)))
+    return own;
+  if (depth <= 1)
+    return void 0;
+  for (const entry of names2) {
+    const found = findSkillFolderName(join25(folder, entry), name, depth - 1);
+    if (found !== void 0)
+      return found;
+  }
+  return void 0;
 }
 function typedSkillName(prompt, workspaceRoots, home) {
   const name = TYPED_SKILL_COMMAND.exec(prompt)?.[1];
   if (!name)
     return void 0;
-  const exists = skillFolders(workspaceRoots, home).some((folder) => existsSync4(join25(folder, name, SKILL_FILE_NAME)));
-  return exists ? name : void 0;
+  for (const root of [...workspaceRoots, home]) {
+    for (const folder of SKILL_FOLDERS) {
+      const found = findSkillFolderName(join25(root, ...folder), name, SKILL_SEARCH_DEPTH);
+      if (found !== void 0)
+        return found;
+    }
+  }
+  return void 0;
 }
 var init_skills = __esm({
   "dist/src/utils/skills.js"() {
@@ -27715,6 +27776,8 @@ var init_job_context = __esm({
 });
 
 // dist/src/metadata.js
+import { existsSync as existsSync5 } from "node:fs";
+import { join as join29 } from "node:path";
 function withIntegration(opts) {
   return { ...opts, integration: LS_INTEGRATION, integrationVersion: LS_INTEGRATION_VERSION };
 }
@@ -27737,13 +27800,9 @@ function skillNameFromPath(filePath) {
   const name = segments.pop();
   if (file !== SKILL_FILE_NAME || !name || name.startsWith("."))
     return void 0;
-  return isSkillsFolder(segments) ? name : void 0;
-}
-function isSkillsFolder(segments) {
-  const parent = segments.at(-1);
-  if (parent !== void 0 && SKILL_DIRECTORY_NAMES.has(parent))
-    return true;
-  return segments.at(-2) === SYNCED_SKILLS_DIRECTORY_NAME && segments.at(-3) === SKILL_DIRECTORY_NAME;
+  if (!segments.some((segment) => SKILL_DIRECTORY_NAMES.has(segment)))
+    return void 0;
+  return existsSync5(join29(segments.join("/"), SKILL_FILE_NAME)) ? void 0 : name;
 }
 var init_metadata2 = __esm({
   "dist/src/metadata.js"() {
@@ -27781,19 +27840,19 @@ var init_sqlite = __esm({
 });
 
 // dist/src/attachments.js
-import { existsSync as existsSync5, readFileSync as readFileSync14, statSync as statSync9 } from "node:fs";
+import { existsSync as existsSync6, readFileSync as readFileSync14, statSync as statSync9 } from "node:fs";
 import { homedir as homedir6, platform } from "node:os";
-import { basename as basename6, join as join29 } from "node:path";
+import { basename as basename6, join as join30 } from "node:path";
 function defaultCursorDbPath() {
   const home = homedir6();
   const tail = ["Cursor", "User", "globalStorage", "state.vscdb"];
   switch (platform()) {
     case "darwin":
-      return join29(home, "Library", "Application Support", ...tail);
+      return join30(home, "Library", "Application Support", ...tail);
     case "win32":
-      return join29(process.env.APPDATA ?? join29(home, "AppData", "Roaming"), ...tail);
+      return join30(process.env.APPDATA ?? join30(home, "AppData", "Roaming"), ...tail);
     default:
-      return join29(process.env.XDG_CONFIG_HOME ?? join29(home, ".config"), ...tail);
+      return join30(process.env.XDG_CONFIG_HOME ?? join30(home, ".config"), ...tail);
   }
 }
 function queryBubbles(dbPath, conversationId) {
@@ -27911,7 +27970,7 @@ function fileToContentPart(path3) {
 function resolveTurnAttachments(opts) {
   try {
     const dbPath = opts.dbPath ?? defaultCursorDbPath();
-    if (!existsSync5(dbPath)) {
+    if (!existsSync6(dbPath)) {
       debug(`attachments: no Cursor DB at ${dbPath}`);
       return [];
     }
@@ -27976,7 +28035,7 @@ var init_system_prompt_constants = __esm({
 });
 
 // dist/src/system-prompt.js
-import { existsSync as existsSync6 } from "node:fs";
+import { existsSync as existsSync7 } from "node:fs";
 function readVarint(buf, c) {
   let result = 0;
   let shift = 1;
@@ -28078,7 +28137,7 @@ function resolveSystemPrompts(opts) {
     return result;
   try {
     const dbPath = opts.dbPath ?? defaultCursorDbPath();
-    if (!existsSync6(dbPath)) {
+    if (!existsSync7(dbPath)) {
       debug(`system-prompt: no Cursor DB at ${dbPath}`);
       return result;
     }
@@ -28177,7 +28236,7 @@ var init_conversation_steps_constants = __esm({
 });
 
 // dist/src/conversation-steps.js
-import { existsSync as existsSync7 } from "node:fs";
+import { existsSync as existsSync8 } from "node:fs";
 function scanFields(buf) {
   const out = [];
   let p = 0;
@@ -28329,7 +28388,7 @@ function resolveTurnSteps(opts) {
     return void 0;
   try {
     const dbPath = opts.dbPath ?? defaultCursorDbPath();
-    if (!existsSync7(dbPath)) {
+    if (!existsSync8(dbPath)) {
       debug(`conversation-steps: no Cursor DB at ${dbPath}`);
       return void 0;
     }
@@ -28536,18 +28595,21 @@ function createTurnContext(options) {
     turnEndMs: Math.max(buffer.startMs, ...toolEnds, ...subagentEnds, options.savedAtMs ?? Date.now())
   };
 }
+function toolSucceeded(tool) {
+  return tool.error == null && tool.failure_type == null;
+}
 function countedSkillTools(buffer) {
-  const seen = new Set(buffer.typedSkill ? [buffer.typedSkill] : []);
-  const counted = /* @__PURE__ */ new Set();
+  const chosen = /* @__PURE__ */ new Map();
   const subagentTools = buffer.subagents.flatMap((sub) => sub.tools ?? []);
   for (const tool of [...buffer.tools, ...subagentTools]) {
     const name = skillNameFromTool(tool.name, tool.input);
-    if (name && !seen.has(name)) {
-      seen.add(name);
-      counted.add(tool);
-    }
+    if (!name || name === buffer.typedSkill)
+      continue;
+    const earlier = chosen.get(name);
+    if (!earlier || !toolSucceeded(earlier) && toolSucceeded(tool))
+      chosen.set(name, tool);
   }
-  return counted;
+  return new Set(chosen.values());
 }
 function addRootRun(turn) {
   const { options, ctx } = turn;
@@ -28754,7 +28816,7 @@ function addToolRun(turn, parent, ctx, tool, key, clearSubagent = false) {
     addSkillRun(turn, parent, ctx, `${key}:skill`, clearSubagent, {
       skillName,
       // A failure hook may carry no message, so failure_type is the surer signal.
-      success: tool.error == null && tool.failure_type == null,
+      success: toolSucceeded(tool),
       startMs,
       endMs: tool.endMs
     });
@@ -28914,7 +28976,7 @@ var init_langsmith2 = __esm({
 });
 
 // dist/src/tool-origin.js
-import { existsSync as existsSync8 } from "node:fs";
+import { existsSync as existsSync9 } from "node:fs";
 import { isAbsolute as isAbsolute5, resolve as resolve14 } from "node:path";
 function toolOrigin(toolInput, cwd) {
   if (!isRecord(toolInput))
@@ -28928,7 +28990,7 @@ function toolOrigin(toolInput, cwd) {
     if (isAbsolute5(value))
       return { cwd, path: value, namedAPath };
     const resolved = resolve14(cwd, value);
-    if (isAbsolute5(cwd) && existsSync8(resolved))
+    if (isAbsolute5(cwd) && existsSync9(resolved))
       return { cwd, path: resolved, namedAPath };
   }
   return { cwd, namedAPath };
@@ -29002,7 +29064,7 @@ var init_console = __esm({
 });
 
 // dist/src/tracing-engine.js
-import { dirname as dirname19, join as join30 } from "node:path";
+import { dirname as dirname19, join as join31 } from "node:path";
 async function saveTurnForUpload(config, context) {
   try {
     await queueUpload(config, context);
@@ -29132,7 +29194,7 @@ async function buildQueuedRuns(job, config, plugin) {
 }
 function attributorFor(config) {
   attributor ??= createRepositoryAttributor({
-    githubLoginMarkerPath: join30(dirname19(config.stateFilePath), GH_LOGIN_MARKER_FILE)
+    githubLoginMarkerPath: join31(dirname19(config.stateFilePath), GH_LOGIN_MARKER_FILE)
   });
   return attributor;
 }

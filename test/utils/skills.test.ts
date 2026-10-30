@@ -47,6 +47,23 @@ describe("typedSkillName", () => {
     expect(typedSkillName(`/${name} do it`, [project], home)).toBe(name);
   });
 
+  it("returns the folder's real name when the typed case differs", () => {
+    addSkill(dir, "project", ".cursor", "skills", "deploy");
+    expect(typedSkillName("/Deploy", [project], home)).toBe("deploy");
+  });
+
+  it("finds a skill inside a group folder", () => {
+    addSkill(dir, "home", ".cursor", "skills", "group", "deploy");
+    expect(typedSkillName("/deploy", [project], home)).toBe("deploy");
+  });
+
+  it("checks every workspace root, not only the first", () => {
+    const second = join(dir, "second");
+    mkdirSync(second);
+    addSkill(dir, "second", ".cursor", "skills", "deploy");
+    expect(typedSkillName("/deploy", [project, second], home)).toBe("deploy");
+  });
+
   it("ignores a command with no skill of that name, like a built-in /add-plugin", () => {
     addSkill(dir, "home", ".cursor", "skills", "deploy");
     expect(typedSkillName("/add-plugin https://github.com/x/y", [project], home)).toBeUndefined();

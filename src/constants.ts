@@ -1,3 +1,5 @@
+import type { PathSegments } from "./models/skills.js";
+
 /** Display name for the per-turn root (chain) run. */
 export const TURN_RUN_NAME = "Cursor Turn";
 
@@ -67,30 +69,33 @@ export const SKILL_SHELL_READ_COMMANDS = new Set([
   "nl",
 ]);
 
-export const SHELL_WORD = /"([^"]*)"|'([^']*)'|\S+/g;
+export const SHELL_SEPARATORS = new Set(["|", ";", "&", "\n"]);
 
-export const SHELL_COMMAND_END = /[|;&]/;
+export const SHELL_QUOTES = new Set(['"', "'"]);
+
+export const SHELL_WHITESPACE = /\s/;
+
+export const SHELL_REDIRECT_WORD = /^\d*>/;
+
+export const SHELL_REDIRECT_OPERATOR = /^\d*>>?$/;
+
+export const SHELL_CHANGE_DIRECTORY = "cd";
 
 export const SKILL_FILE_NAME = "SKILL.md";
 
-export const SKILL_DIRECTORY_NAME = "skills";
-
-export const SKILL_DIRECTORY_NAMES = new Set([SKILL_DIRECTORY_NAME, "skills-cursor"]);
-
-export const SYNCED_SKILLS_DIRECTORY_NAME = "synced";
+export const SKILL_DIRECTORY_NAMES = new Set(["skills", "skills-cursor"]);
 
 export const TYPED_SKILL_COMMAND = /^\/([A-Za-z0-9][A-Za-z0-9._-]*)(?=\s|$)/;
 
-export const SKILL_FOLDERS = [
+export const SKILL_FOLDERS: PathSegments[] = [
   [".agents", "skills"],
   [".cursor", "skills"],
   [".claude", "skills"],
   [".codex", "skills"],
+  [".cursor", "skills-cursor"],
 ];
 
-export const BUILT_IN_SKILL_FOLDER = [".cursor", "skills-cursor"];
-
-export const SYNCED_SKILL_FOLDER = [".agents", "skills", "synced"];
+export const SKILL_SEARCH_DEPTH = 3;
 
 /** Skip attachments larger than this (raw bytes) — base64 inflates ~33% on top. */
 export const MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024; // 10 MB

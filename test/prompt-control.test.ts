@@ -210,20 +210,6 @@ it("records the project and repo the turn was launched in", () => {
   expect(origin?.customMetadata?.cwd).toBe(dir);
 });
 
-it("records a typed /name only when that skill exists in a folder Cursor loads", () => {
-  env.TRACE_TO_LANGSMITH = "true";
-  env.LANGSMITH_API_KEY = "test";
-  mkdirSync(join(dir, ".cursor", "skills", "deploy"), { recursive: true });
-  writeFileSync(join(dir, ".cursor", "skills", "deploy", "SKILL.md"), "---\nname: deploy\n---\n");
-
-  submit("/deploy to staging", "typed");
-  submit("/add-plugin https://github.com/x/y", "builtin");
-
-  const turns = loadState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns;
-  expect(turns.typed.typedSkill).toBe("deploy");
-  expect(turns.builtin.typedSkill).toBeUndefined();
-});
-
 it("blocks both controls on corrupt preference; ordinary work gets metadata fallback", () => {
   env.TRACE_TO_LANGSMITH = "true";
   env.LANGSMITH_API_KEY = "test";

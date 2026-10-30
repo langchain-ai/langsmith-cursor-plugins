@@ -243,18 +243,20 @@ function createTurnContext(options: BuildTurnOptions): TurnContext {
   };
 }
 
+function toolSucceeded(tool: ToolEvent): boolean {
+  return tool.error == null && tool.failure_type == null;
+}
+
 function countedSkillTools(buffer: TurnBuffer): Set<ToolEvent> {
-  const seen = new Set<string>(buffer.typedSkill ? [buffer.typedSkill] : []);
-  const counted = new Set<ToolEvent>();
+  const chosen = new Map<string, ToolEvent>();
   const subagentTools = buffer.subagents.flatMap((sub) => sub.tools ?? []);
   for (const tool of [...buffer.tools, ...subagentTools]) {
     const name = skillNameFromTool(tool.name, tool.input);
-    if (name && !seen.has(name)) {
-      seen.add(name);
-      counted.add(tool);
-    }
+    if (!name || name === buffer.typedSkill) continue;
+    const earlier = chosen.get(name);
+    if (!earlier || (!toolSucceeded(earlier) && toolSucceeded(tool))) chosen.set(name, tool);
   }
-  return counted;
+  return new Set(chosen.values());
 }
 
 function addRootRun(turn: TurnContext): RunTree {
@@ -519,7 +521,7 @@ function addToolRun(
     addSkillRun(turn, parent, ctx, `${key}:skill`, clearSubagent, {
       skillName,
       // A failure hook may carry no message, so failure_type is the surer signal.
-      success: tool.error == null && tool.failure_type == null,
+      success: toolSucceeded(tool),
       startMs,
       endMs: tool.endMs,
     });

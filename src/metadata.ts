@@ -1,3 +1,5 @@
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 import {
   buildCodingAgentMetadata,
   type CodingAgentMetadataOptions,
@@ -6,12 +8,10 @@ import { LS_INTEGRATION_VERSION } from "./config.js";
 import {
   LS_INTEGRATION,
   PATH_SEPARATOR,
-  SKILL_DIRECTORY_NAME,
   SKILL_DIRECTORY_NAMES,
   SKILL_FILE_NAME,
   SKILL_READ_TOOLS,
   SKILL_SHELL_TOOLS,
-  SYNCED_SKILLS_DIRECTORY_NAME,
 } from "./constants.js";
 import { skillPathFromShellCommand } from "./utils/skills.js";
 import type { CursorMetadataOptions } from "./models/metadata.js";
@@ -48,13 +48,6 @@ function skillNameFromPath(filePath: unknown): string | undefined {
   const name = segments.pop();
   // A leading dot would let "." or ".." stand in for the skill name.
   if (file !== SKILL_FILE_NAME || !name || name.startsWith(".")) return undefined;
-  return isSkillsFolder(segments) ? name : undefined;
-}
-
-function isSkillsFolder(segments: string[]): boolean {
-  const parent = segments.at(-1);
-  if (parent !== undefined && SKILL_DIRECTORY_NAMES.has(parent)) return true;
-  return (
-    segments.at(-2) === SYNCED_SKILLS_DIRECTORY_NAME && segments.at(-3) === SKILL_DIRECTORY_NAME
-  );
+  if (!segments.some((segment) => SKILL_DIRECTORY_NAMES.has(segment))) return undefined;
+  return existsSync(join(segments.join("/"), SKILL_FILE_NAME)) ? undefined : name;
 }
