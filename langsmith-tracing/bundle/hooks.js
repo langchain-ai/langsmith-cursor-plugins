@@ -40,7 +40,7 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   mod
 ));
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/errors.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/utils/errors.js
 function describe(error2) {
   return error2 instanceof Error ? error2.message : String(error2);
 }
@@ -54,14 +54,14 @@ function failureStatus(error2) {
   return typeof status === "number" ? status : void 0;
 }
 var init_errors = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/errors.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/utils/errors.js"() {
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/plugin/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/plugin/constants.js
 var POLICY_LOCK_TIMEOUT_MS, POLICY_LOCK_TIMEOUT_ERROR, POLICY_LOCK_TIMEOUT_MESSAGE, POLICY_UNREADABLE_MESSAGE, POLICY_NOT_REGULAR_MESSAGE, POLICY_ASYNC_UPDATE_MESSAGE, POLICY_FILE_MODE, POLICY_FILE_ENCODING, POLICY_TEMP_CREATE_FLAG, POLICY_DIRECTORY_OPEN_FLAG, POLICY_WARNING_SEPARATOR, POLICY_TEMP_CLOSE_WARNING, POLICY_TEMP_CLEANUP_WARNING, POLICY_DIRECTORY_CLOSE_WARNING, POLICY_LOCK_CLEANUP_FAILED_PREFIX, POLICY_CANNOT_READ_PREFIX, POLICY_DURABILITY_WARNING, POLICY_LOCK_RELEASE_WARNING, COMPILED_BINARY_ENTRY_PREFIXES, WORKER_LOG_FILE_NAME, WORKER_LOG_MODE, WORKER_LOG_MAX_BYTES, WORKER_LOG_APPEND_FLAG, WORKER_LOG_TRUNCATE_FLAG, SYSTEM_CERTIFICATES_FILE_NAME, WORKER_NO_PID_MESSAGE, UNAVAILABLE_ACCOUNT_FINGERPRINT, HOOK_HELP_FLAGS, HOOK_VERSION_FLAGS, POLICY_PARSE_RESULT_MESSAGE, HOOK_OPTIONS_INVALID_MESSAGE, HOOK_ERROR_HANDLER_WARNING;
 var init_constants = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/plugin/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/plugin/constants.js"() {
     POLICY_LOCK_TIMEOUT_MS = 2e3;
     POLICY_LOCK_TIMEOUT_ERROR = "Timed out waiting for tracing preference lock";
     POLICY_LOCK_TIMEOUT_MESSAGE = "Retry; if it persists, remove the lock only after confirming no preference writer is running.";
@@ -101,7 +101,7 @@ var init_constants = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/plugin/hook-command.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/plugin/hook-command.js
 async function dispatchHookCommand(argv, options) {
   assertHookOptions(options);
   const [argument, ...rest] = argv;
@@ -136,16 +136,16 @@ function reportHookError(name, error2, options) {
   }
 }
 var init_hook_command = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/plugin/hook-command.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/plugin/hook-command.js"() {
     init_errors();
     init_constants();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/utils/constants.js
 var FILE_MISSING_CODE, PROCESS_MISSING_CODE, PROCESS_CHECK_SIGNAL, WINDOWS_PLATFORM, FILE_EXISTS_CODE, PERMISSION_DENIED_CODE, FILE_ACCESS_DENIED_CODE, FILE_BUSY_CODE, DIRECTORY_NOT_EMPTY_CODE, INVALID_ARGUMENT_CODE, TEMPLATE_PLACEHOLDER;
 var init_constants2 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/utils/constants.js"() {
     FILE_MISSING_CODE = "ENOENT";
     PROCESS_MISSING_CODE = "ESRCH";
     PROCESS_CHECK_SIGNAL = 0;
@@ -160,10 +160,10 @@ var init_constants2 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/files/cleanup-constants.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/utils/files/cleanup-constants.js
 var CLEANUP_IGNORED_DIRECTORY_CODES;
 var init_cleanup_constants = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/files/cleanup-constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/utils/files/cleanup-constants.js"() {
     init_constants2();
     CLEANUP_IGNORED_DIRECTORY_CODES = [
       FILE_MISSING_CODE,
@@ -176,7 +176,7 @@ var init_cleanup_constants = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/files/cleanup.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/utils/files/cleanup.js
 import { rmdir, unlink } from "node:fs/promises";
 import { dirname } from "node:path";
 async function removeFileIfPresent(path3) {
@@ -211,17 +211,17 @@ async function removeEmptyAncestors(directory, root) {
   }
 }
 var init_cleanup = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/files/cleanup.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/utils/files/cleanup.js"() {
     init_errors();
     init_constants2();
     init_cleanup_constants();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/storage/constants.js
 var FILE_LOCK_CLAIM_VERSION, FILE_LOCK_CLAIM_EXTENSION, FILE_LOCK_DIRECTORY_SUFFIX, FILE_LOCK_LEGACY_DIRECTORY_SUFFIX, FILE_LOCK_TIMEOUT_ERROR_NAME, FILE_LOCK_TEMP_PREFIX, FILE_LOCK_TEMP_SUFFIX, FILE_LOCK_EXCLUSIVE_FLAG, FILE_LOCK_ENCODING, FILE_LOCK_DEFAULT_TIMEOUT_MS, FILE_LOCK_POLL_INTERVAL_MS, FILE_LOCK_DIRECTORY_MODE, FILE_LOCK_FILE_MODE, FILE_LOCK_UNSELECTED_TICKET, FILE_LOCK_NEGATIVE_TICKET_LIMIT, FILE_LOCK_TIMEOUT_MESSAGE, FILE_LOCK_TICKET_LIMIT_MESSAGE, FILE_LOCK_RELEASE_MESSAGE, FILE_LOCK_INVALID_TIMEOUT_MESSAGE, FILE_LOCK_ACQUIRE_MESSAGE, FILE_LOCK_UNSAFE_DIRECTORY_MESSAGE, FILE_LOCK_RENAME_RETRY_TIMEOUT_MS, FILE_LOCK_HEARTBEAT_MS, FILE_LOCK_STALE_CLAIM_MS, FILE_LOCK_TRY_CHOOSING_WAIT_MS, FILE_LOCK_DIRECTORY_CONTENTION_CODES, FILE_LOCK_BUSY_FILE_CODES, FILE_LOCK_HEARTBEAT_WARNING, FILE_LOCK_COMPATIBLE_ACQUIRE_CLEANUP_MESSAGE, FILE_LOCK_COMPATIBLE_RELEASE_MESSAGE, FILE_LOCK_COMPATIBLE_GATE_CHANGED_MESSAGE, FILE_LOCK_COMPATIBLE_OWNER_FILE, FILE_LOCK_COMPATIBLE_OWNER_MESSAGE, FILE_LOCK_COMPATIBLE_OWNER_PID_PATTERN, FILE_LOCK_COMPATIBLE_ABANDONED_GATE_MS, FILE_LOCK_COMPATIBLE_STALE_SUFFIX, FILE_LOCK_GATE_CLEANUP_WARNING, FILE_LOCK_STALE_GATE_CLEANUP_WARNING, FILE_LOCK_WINDOWS_DENIED_RETRIES, STORAGE_NOT_WRITABLE_ERROR_NAME, STORAGE_NOT_WRITABLE_MESSAGE, STORAGE_NOT_WRITABLE_FIX, STORAGE_STALE_FILE_MAX_AGE_MS, STORAGE_STALE_DIRECTORY_WARNING, STORAGE_STALE_REMOVAL_WARNING, FILE_LOCK_LOST_MESSAGE, STORAGE_UUID, STORAGE_ENGINE_FILE_PATTERNS, STORAGE_CLAIM_FILE;
 var init_constants3 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/storage/constants.js"() {
     init_constants2();
     FILE_LOCK_CLAIM_VERSION = 1;
     FILE_LOCK_CLAIM_EXTENSION = ".json";
@@ -285,21 +285,21 @@ var init_constants3 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/lock-folders.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/storage/lock-folders.js
 async function removeEmptyLockFolders(lockPath, root) {
   await removeEmptyAncestors(`${lockPath}${FILE_LOCK_DIRECTORY_SUFFIX}`, root);
 }
 var init_lock_folders = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/lock-folders.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/storage/lock-folders.js"() {
     init_cleanup();
     init_constants3();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/capture/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/storage/capture/constants.js
 var CAPTURE_JOBS_DIRECTORY, CAPTURE_SESSIONS_DIRECTORY, CAPTURE_TURNS_DIRECTORY, CAPTURE_RECORD_VERSION, CAPTURE_DIRECTORY_MODE, CAPTURE_DIRECTORY_SETUP_ATTEMPTS, CAPTURE_REMOVED_DIRECTORY_CODES, CAPTURE_FILE_MODE, CAPTURE_INTEGRATION, CAPTURE_MAX_IDENTIFIER_BYTES, CAPTURE_HASH, CAPTURE_EVENT_FILE, JSON_ARRAY_INDEX_KEY, CAPTURE_EXPIRED_WARNING, CAPTURE_HELD_EXPIRED_WARNING, CAPTURE_SKIPPED_WARNING, CAPTURE_UNREADABLE_WARNING, CAPTURE_NAMESPACE_MISMATCH_MESSAGE, CAPTURE_RETRY_LOST_MESSAGE, CAPTURE_OUTCOME_INVALID_MESSAGE, CAPTURE_RECORD_UNSUPPORTED_MESSAGE, CAPTURE_OUTCOME_UNSUPPORTED_MESSAGE, CAPTURE_DEPENDENCIES_INVALID_MESSAGE, CAPTURE_DEPENDENCY_INVALID_MESSAGE, CAPTURE_DEPENDENCY_INTEGRATION_MESSAGE, CAPTURE_DEPENDENCY_SELF_MESSAGE, CAPTURE_DEPENDENCY_UNIQUE_MESSAGE, CAPTURE_VERSION_UNSUPPORTED_MESSAGE, CAPTURE_FIELD_UNSUPPORTED_MESSAGE, CAPTURE_TURN_CEILING_MS, CAPTURE_MARKER_SUFFIX, CAPTURE_MARKER_FILE, CAPTURE_TURN_MARKER_FILE, CAPTURE_MARKER_VERSION, CAPTURE_MARKER_REMOVED_REASON, CAPTURE_MARKER_INVALID_MESSAGE, CAPTURE_MARKER_INVALID_WARNING, CAPTURE_ROUTES_INVALID_MESSAGE, CAPTURE_ROUTE_INVALID_MESSAGE, CAPTURE_ROUTE_PROJECT_INVALID_MESSAGE, CAPTURE_ROUTE_AGENT_INVALID_MESSAGE, CAPTURE_FILE_EXTENSION, CAPTURE_LOCK_EXTENSION, CAPTURE_STORAGE_DIRECTORY_MESSAGE;
 var init_constants4 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/capture/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/storage/capture/constants.js"() {
     init_constants2();
     CAPTURE_JOBS_DIRECTORY = "jobs";
     CAPTURE_SESSIONS_DIRECTORY = "sessions";
@@ -348,7 +348,7 @@ var init_constants4 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/capture/utils/serialization.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/storage/capture/utils/serialization.js
 function canonicalJson(value) {
   const result = JSON.stringify(canonicalValue(value, /* @__PURE__ */ new Set()));
   if (result === void 0)
@@ -400,12 +400,12 @@ function canonicalValue(value, seen) {
   return result;
 }
 var init_serialization = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/capture/utils/serialization.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/storage/capture/utils/serialization.js"() {
     init_constants4();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/validation/objects.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/utils/validation/objects.js
 function isPlainRecord(value) {
   return value !== null && typeof value === "object" && (Object.getPrototypeOf(value) === Object.prototype || Object.getPrototypeOf(value) === null);
 }
@@ -485,16 +485,16 @@ function parseJsonObject(contents, message) {
   return value;
 }
 var init_objects = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/validation/objects.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/utils/validation/objects.js"() {
     init_serialization();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/errors.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/storage/errors.js
 import { resolve } from "node:path";
 var FileLockTimeoutError, StorageNotWritableError;
 var init_errors2 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/errors.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/storage/errors.js"() {
     init_constants3();
     init_errors();
     FileLockTimeoutError = class extends Error {
@@ -520,7 +520,7 @@ var init_errors2 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/file-lock-heartbeat.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/storage/file-lock-heartbeat.js
 import { utimes } from "node:fs/promises";
 function startHeartbeat(path3, id) {
   const timer = setInterval(() => {
@@ -540,7 +540,7 @@ function warnUnlessMissing(error2) {
 }
 var heartbeats;
 var init_file_lock_heartbeat = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/file-lock-heartbeat.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/storage/file-lock-heartbeat.js"() {
     init_constants3();
     init_errors();
     init_constants2();
@@ -548,7 +548,7 @@ var init_file_lock_heartbeat = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/file-lock-support.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/storage/file-lock-support.js
 import { unlink as unlink2 } from "node:fs/promises";
 import { performance as performance2 } from "node:perf_hooks";
 function processIsAlive(pid) {
@@ -587,7 +587,7 @@ function waitForNextScan(deadline, blockedPath) {
   return new Promise((resolvePromise) => setTimeout(resolvePromise, Math.min(FILE_LOCK_POLL_INTERVAL_MS, remaining)));
 }
 var init_file_lock_support = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/file-lock-support.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/storage/file-lock-support.js"() {
     init_constants3();
     init_errors();
     init_constants2();
@@ -595,7 +595,7 @@ var init_file_lock_support = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/legacy-gate.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/storage/legacy-gate.js
 import { lstat, mkdir, readFile, rename, rmdir as rmdir2, writeFile } from "node:fs/promises";
 import { performance as performance3 } from "node:perf_hooks";
 import { randomUUID } from "node:crypto";
@@ -762,7 +762,7 @@ async function reclaimLegacyGate(gatePath, filePath, tryAcquire) {
   }
 }
 var init_legacy_gate = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/legacy-gate.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/storage/legacy-gate.js"() {
     init_constants3();
     init_file_lock_heartbeat();
     init_file_lock_support();
@@ -773,7 +773,7 @@ var init_legacy_gate = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/file-lock.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/storage/file-lock.js
 import { chmod, link, lstat as lstat2, mkdir as mkdir2, readFile as readFile2, readdir, rename as rename2, writeFile as writeFile2 } from "node:fs/promises";
 import { performance as performance4 } from "node:perf_hooks";
 import { setTimeout as delay } from "node:timers/promises";
@@ -1102,7 +1102,7 @@ async function withFileLock(filePath, callback, options) {
   }
 }
 var init_file_lock = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/file-lock.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/storage/file-lock.js"() {
     init_objects();
     init_constants3();
     init_errors();
@@ -1114,7 +1114,7 @@ var init_file_lock = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/plugin/policy-file.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/plugin/policy-file.js
 import { randomUUID as randomUUID3 } from "node:crypto";
 import { lstatSync, readFileSync } from "node:fs";
 import { open, rename as rename3, unlink as unlink3 } from "node:fs/promises";
@@ -1232,7 +1232,7 @@ function findLockTimeout(error2) {
   return error2.errors.map(findLockTimeout).find((found) => found !== void 0);
 }
 var init_policy_file = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/plugin/policy-file.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/plugin/policy-file.js"() {
     init_lock_folders();
     init_file_lock();
     init_constants3();
@@ -1243,10 +1243,10 @@ var init_policy_file = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/capture/errors.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/storage/capture/errors.js
 var CaptureRecordInvalidError, CaptureRecordVersionError;
 var init_errors3 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/capture/errors.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/storage/capture/errors.js"() {
     CaptureRecordInvalidError = class extends Error {
     };
     CaptureRecordVersionError = class extends Error {
@@ -1254,7 +1254,7 @@ var init_errors3 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/files/publish.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/utils/files/publish.js
 import { closeSync, openSync, renameSync, writeSync } from "node:fs";
 import { randomUUID as randomUUID4 } from "node:crypto";
 function publishByRename(path3, contents, tempSuffix, mode) {
@@ -1268,14 +1268,14 @@ function publishByRename(path3, contents, tempSuffix, mode) {
   renameSync(temp, path3);
 }
 var init_publish = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/files/publish.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/utils/files/publish.js"() {
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/state-constants.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/storage/state-constants.js
 var STATE_TEMP_SUFFIX, STATE_CORRUPT_SUFFIX, STATE_FILE_ENCODING, STATE_LOCK_RELEASE_WARNING, STATE_LOCK_BUSY_WARNING, STATE_CORRUPT_WARNING, STATE_LOCK_WAIT_MS, STATE_LOCK_PROBE_MS, STATE_LOCK_BUSY_MEMORY_MS, PENDING_STATE_DIR_SUFFIX, PENDING_STATE_FILE_SUFFIX, PENDING_STATE_TEMP_SUFFIX, PENDING_STATE_ABANDONED_MS, PENDING_STATE_TIME_WIDTH, PENDING_STATE_SEQUENCE_WIDTH, PENDING_STATE_WRITE_ATTEMPTS, STATE_PRIVATE_DIR_MODE, STATE_PRIVATE_FILE_MODE, STATE_CLAIM_SUFFIX, STATE_CLAIM_SKEW_MS;
 var init_state_constants = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/state-constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/storage/state-constants.js"() {
     STATE_TEMP_SUFFIX = ".state.tmp";
     STATE_CORRUPT_SUFFIX = ".corrupt";
     STATE_FILE_ENCODING = "utf-8";
@@ -1299,7 +1299,7 @@ var init_state_constants = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/state-pending.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/storage/state-pending.js
 import { mkdirSync, readdirSync, readFileSync as readFileSync2, rmdirSync, rmSync, statSync } from "node:fs";
 import { join as join3 } from "node:path";
 function diffValue(path3, before, after, operations) {
@@ -1460,7 +1460,7 @@ function removePending(stateFilePath, files) {
 }
 var sequence, same, pendingDirectory;
 var init_state_pending = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/state-pending.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/storage/state-pending.js"() {
     init_publish();
     init_objects();
     init_state_constants();
@@ -1470,7 +1470,7 @@ var init_state_pending = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/state-store.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/storage/state-store.js
 import { readFileSync as readFileSync3, renameSync as renameSync2 } from "node:fs";
 function createStateStore(options) {
   const { path: path3 } = options;
@@ -1557,7 +1557,7 @@ async function withStateFileLock(path3, warn2, callback, waitMs) {
   return true;
 }
 var init_state_store = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/state-store.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/storage/state-store.js"() {
     init_publish();
     init_objects();
     init_errors2();
@@ -1567,7 +1567,7 @@ var init_state_store = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/state-claim.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/storage/state-claim.js
 import { mkdirSync as mkdirSync2 } from "node:fs";
 import { dirname as dirname5 } from "node:path";
 async function claimStateEntry(path3, key, windowMs) {
@@ -1588,16 +1588,16 @@ async function claimStateEntry(path3, key, windowMs) {
   }
 }
 var init_state_claim = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/state-claim.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/storage/state-claim.js"() {
     init_file_lock();
     init_state_constants();
     init_state_store();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/index.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/storage/index.js
 var init_storage = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/storage/index.js"() {
     init_file_lock();
     init_file_lock_support();
     init_errors2();
@@ -1606,7 +1606,7 @@ var init_storage = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/capture/paths.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/storage/capture/paths.js
 import { createHash } from "node:crypto";
 import { resolve as resolve3, join as join4 } from "node:path";
 function validateIntegration(value) {
@@ -1664,12 +1664,12 @@ function recordLockPath(root, scope) {
   return `${path3.slice(0, -CAPTURE_FILE_EXTENSION.length)}${CAPTURE_LOCK_EXTENSION}`;
 }
 var init_paths = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/capture/paths.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/storage/capture/paths.js"() {
     init_constants4();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/capture/utils/atomic-file.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/storage/capture/utils/atomic-file.js
 import { constants as fsConstants } from "node:fs";
 import { chmod as chmod2, link as link2, lstat as lstat3, mkdir as mkdir3, open as open2, rename as rename4, unlink as unlink4 } from "node:fs/promises";
 import { dirname as dirname6, isAbsolute, join as join5, relative, sep } from "node:path";
@@ -1857,14 +1857,14 @@ async function syncDirectory(path3) {
   }
 }
 var init_atomic_file = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/capture/utils/atomic-file.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/storage/capture/utils/atomic-file.js"() {
     init_errors();
     init_constants4();
     init_constants2();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/files/private-directory.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/utils/files/private-directory.js
 import { lstat as lstat4, readdir as readdir2 } from "node:fs/promises";
 import { isAbsolute as isAbsolute2, join as join6, relative as relative2, resolve as resolve4, sep as sep2 } from "node:path";
 async function listPrivateDirectory(root, directory) {
@@ -1900,13 +1900,13 @@ async function lstatDirectory(path3) {
   }
 }
 var init_private_directory = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/files/private-directory.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/utils/files/private-directory.js"() {
     init_errors();
     init_constants2();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/capture/scope.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/storage/capture/scope.js
 function scopeOf(value) {
   return {
     integration: value.integration,
@@ -1919,34 +1919,34 @@ function scopeKey(scope) {
   return JSON.stringify([scope.integration, scope.sessionId, scope.turnId, scope.eventId]);
 }
 var init_scope = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/capture/scope.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/storage/capture/scope.js"() {
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/compare.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/utils/compare.js
 function compareText(left, right) {
   if (left === right)
     return 0;
   return left < right ? -1 : 1;
 }
 var init_compare = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/compare.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/utils/compare.js"() {
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/capture/order.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/storage/capture/order.js
 function compareCaptureOrder(left, right) {
   if (left.capturedAtMs !== right.capturedAtMs)
     return left.capturedAtMs < right.capturedAtMs ? -1 : 1;
   return compareText(left.eventId, right.eventId);
 }
 var init_order = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/capture/order.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/storage/capture/order.js"() {
     init_compare();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/capture/utils/digest.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/storage/capture/utils/digest.js
 import { createHash as createHash2 } from "node:crypto";
 function captureContentDigest(record) {
   const content = { ...record };
@@ -1957,12 +1957,12 @@ function captureContentDigest(record) {
   return createHash2("sha256").update(canonicalJson(content)).digest("hex");
 }
 var init_digest = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/capture/utils/digest.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/storage/capture/utils/digest.js"() {
     init_serialization();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/capture/markers.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/storage/capture/markers.js
 import { lstat as lstat5 } from "node:fs/promises";
 import { basename, dirname as dirname7, join as join7 } from "node:path";
 function markerPath(root, scope) {
@@ -2107,7 +2107,7 @@ async function removeOldMarkers(root, directory, modifiedBeforeMs) {
   return removed;
 }
 var init_markers = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/capture/markers.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/storage/capture/markers.js"() {
     init_errors();
     init_constants2();
     init_objects();
@@ -2119,7 +2119,7 @@ var init_markers = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/capture/capture-store.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/storage/capture/capture-store.js
 import { lstat as lstat6 } from "node:fs/promises";
 import { basename as basename2, dirname as dirname8, join as join8, resolve as resolve5 } from "node:path";
 function createCaptureStore(root, directory = CAPTURE_TURNS_DIRECTORY) {
@@ -2557,7 +2557,7 @@ function failure(code, error2) {
   };
 }
 var init_capture_store = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/capture/capture-store.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/storage/capture/capture-store.js"() {
     init_errors3();
     init_errors();
     init_storage();
@@ -2576,26 +2576,26 @@ var init_capture_store = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/format.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/utils/format.js
 function fillTemplate(template, values) {
   return template.replace(TEMPLATE_PLACEHOLDER, (_match, key) => String(values[key]));
 }
 var init_format = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/format.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/utils/format.js"() {
     init_constants2();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/capture/account.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/storage/capture/account.js
 function isWaitingForOtherSetting(record, accountFingerprint) {
   return record.destinationFingerprint !== accountFingerprint && Object.keys(record.delivery?.outcomes ?? {}).length === 0;
 }
 var init_account = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/capture/account.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/storage/capture/account.js"() {
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/capture/expiry.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/storage/capture/expiry.js
 function liveTurnSpans(captures) {
   const spans = /* @__PURE__ */ new Map();
   for (const { record, capturedAtMs } of captures) {
@@ -2649,25 +2649,25 @@ async function removeExpiredCaptures(options) {
   return dropped;
 }
 var init_expiry = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/capture/expiry.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/storage/capture/expiry.js"() {
     init_format();
     init_constants4();
     init_account();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/capture/index.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/storage/capture/index.js
 var init_capture = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/capture/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/storage/capture/index.js"() {
     init_capture_store();
     init_expiry();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/background-worker/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/background-worker/constants.js
 var BACKGROUND_WORKER_LOCK_FILE, BACKGROUND_WORKER_PENDING_FILE, BACKGROUND_WORKER_ACTIVE_PREFIX, BACKGROUND_WORKER_LAUNCHING_FILE, BACKGROUND_WORKER_STAGING_FILE, BACKGROUND_WORKER_MARKER_ID_PATTERN, BACKGROUND_WORKER_ACTIVE_MARKER_NAME, BACKGROUND_WORKER_ATTEMPT_NAME, BACKGROUND_WORKER_MARKER_VERSION, BACKGROUND_WORKER_ATTEMPT_VERSION, BACKGROUND_WORKER_LAUNCH_VERSION, BACKGROUND_WORKER_DEFAULT_MAX_ATTEMPTS, BACKGROUND_WORKER_DEFAULT_RETRY_DELAY_MS, BACKGROUND_WORKER_OWNER_WAIT_MS, BACKGROUND_WORKER_LAUNCH_LEASE_MS, BACKGROUND_WORKER_STATE_ERROR, BACKGROUND_WORKER_LAUNCHER_MUST_RETURN_CHILD_PROCESS_ID_MESSAGE, BACKGROUND_WORKER_LAUNCH_IS_ALREADY_PENDING_MESSAGE, BACKGROUND_WORKER_MAX_ATTEMPTS_MUST_BE_POSITIVE_INTEGER_MESSAGE, BACKGROUND_WORKER_RETRY_DELAY_MUST_BE_NON_NEGATIVE_MESSAGE, BACKGROUND_WORKER_STARTUP_WAIT_MUST_BE_POSITIVE_INTEGER_MESSAGE, BACKGROUND_WORKER_ACTIVE_MARKER_ALREADY_EXISTS_MESSAGE, BACKGROUND_WORKER_RETRY_ATTEMPT_ALREADY_EXISTS_MESSAGE, BACKGROUND_WORKER_UNSAFE_LOCK_DIRECTORY_MESSAGE, BACKGROUND_WORKER_UNSAFE_PENDING_MARKER_MESSAGE, BACKGROUND_WORKER_UNSAFE_ACTIVE_MARKER_MESSAGE, BACKGROUND_WORKER_INVALID_ACTIVE_PATH_MESSAGE, BACKGROUND_WORKER_MULTIPLE_ACTIVE_MARKERS_MESSAGE, BACKGROUND_WORKER_ACTIVE_MARKER_PATH_MISMATCH_MESSAGE, BACKGROUND_WORKER_UNSAFE_RETRY_ATTEMPT_MESSAGE, BACKGROUND_WORKER_INVALID_ATTEMPT_PATH_MESSAGE, BACKGROUND_WORKER_UNSAFE_STAGING_FILE_MESSAGE, BACKGROUND_WORKER_UNSAFE_LAUNCH_MARKER_MESSAGE, BACKGROUND_WORKER_UNEXPECTED_STATE_PATH_MESSAGE, BACKGROUND_WORKER_RETRY_SEQUENCE_HAS_GAP_MESSAGE, BACKGROUND_WORKER_INVALID_LAUNCH_MARKER_MESSAGE, BACKGROUND_WORKER_STATE_DISAPPEARED_MESSAGE, BACKGROUND_WORKER_INVALID_MARKER_MESSAGE, BACKGROUND_WORKER_INVALID_RETRY_ATTEMPT_MESSAGE, BACKGROUND_WORKER_FILE_PREFIX, BACKGROUND_WORKER_SCOPED_FILE, BACKGROUND_WORKER_SHARED_DIRECTORY;
 var init_constants5 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/background-worker/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/background-worker/constants.js"() {
     BACKGROUND_WORKER_LOCK_FILE = "worker";
     BACKGROUND_WORKER_PENDING_FILE = "wake.pending";
     BACKGROUND_WORKER_ACTIVE_PREFIX = "wake.active.";
@@ -2713,7 +2713,7 @@ var init_constants5 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/background-worker/paths.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/background-worker/paths.js
 import { join as join9, resolve as resolve6 } from "node:path";
 function validateWorkerScope(scope) {
   validateIntegration(scope.integration);
@@ -2747,23 +2747,23 @@ function scopedWorkerFileName(scope, name) {
   return name.startsWith(prefix) ? `${BACKGROUND_WORKER_FILE_PREFIX}.${name.slice(prefix.length)}` : void 0;
 }
 var init_paths2 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/background-worker/paths.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/background-worker/paths.js"() {
     init_paths();
     init_constants5();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/background-worker/utils/scope.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/background-worker/utils/scope.js
 async function matchesScope(resolveScope, expected) {
   const actual = await resolveScope();
   return actual.integration === expected.integration && actual.sessionId === expected.sessionId && actual.accountFingerprint === expected.accountFingerprint;
 }
 var init_scope2 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/background-worker/utils/scope.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/background-worker/utils/scope.js"() {
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/background-worker/state.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/background-worker/state.js
 import { join as join10 } from "node:path";
 function assertPlainFile(entry, message) {
   if (!entry.isFile() || entry.isSymbolicLink())
@@ -2868,7 +2868,7 @@ function parseAttempt(contents, markerId, attempt) {
   return value;
 }
 var init_state = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/background-worker/state.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/background-worker/state.js"() {
     init_paths2();
     init_objects();
     init_atomic_file();
@@ -2877,7 +2877,7 @@ var init_state = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/background-worker/worker.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/background-worker/worker.js
 import { randomUUID as randomUUID6 } from "node:crypto";
 import { resolve as resolve7 } from "node:path";
 import { setTimeout as delay2 } from "node:timers/promises";
@@ -3147,7 +3147,7 @@ async function readLaunch(storageRoot, scope) {
   return value;
 }
 var init_worker = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/background-worker/worker.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/background-worker/worker.js"() {
     init_storage();
     init_lock_folders();
     init_cleanup();
@@ -3162,14 +3162,14 @@ var init_worker = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/background-worker/index.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/background-worker/index.js
 var init_background_worker = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/background-worker/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/background-worker/index.js"() {
     init_worker();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/files/missing.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/utils/files/missing.js
 function ifMissing(fallback) {
   return (error2) => {
     if (errorCode(error2) === FILE_MISSING_CODE)
@@ -3178,13 +3178,13 @@ function ifMissing(fallback) {
   };
 }
 var init_missing = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/files/missing.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/utils/files/missing.js"() {
     init_constants2();
     init_errors();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/stale-files.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/storage/stale-files.js
 import { lstat as lstat7, readFile as readFile3, readdir as readdir3, rmdir as rmdir3 } from "node:fs/promises";
 import { basename as basename3, dirname as dirname9, join as join11 } from "node:path";
 async function removeStaleStorageFiles(root, folders, modifiedBeforeMs) {
@@ -3233,7 +3233,7 @@ function warnUnlessExpected(error2) {
     console.warn(STORAGE_STALE_DIRECTORY_WARNING, describe(error2));
 }
 var init_stale_files = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/stale-files.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/storage/stale-files.js"() {
     init_constants2();
     init_errors();
     init_cleanup();
@@ -3243,10 +3243,10 @@ var init_stale_files = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/delivery/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/delivery/constants.js
 var DELIVERY_RETRY_BASE_MS, DELIVERY_RETRY_BACKOFF_FACTOR, DELIVERY_RETRY_MAX_MS, DELIVERY_QUICK_RETRY_MS, DELIVERY_DEFAULT_MAX_AGE_MS, DELIVERY_DEFAULT_MAX_ENTRIES, DELIVERY_DROPPED_WARNING, DELIVERY_CAPACITY_REASON, DELIVERY_REJECTED_REASON, DELIVERY_DEPENDENCY_DROPPED_REASON, DELIVERY_AUTH_STATUSES, DELIVERY_AUTH_HINT, DELIVERY_WRITER_REQUIRED_MESSAGE, DELIVERY_DESTINATION_REQUIRED_MESSAGE, DELIVERY_DESTINATION_INVALID_MESSAGE, DELIVERY_DESTINATION_DUPLICATE_MESSAGE, DELIVERY_TRANSPORT_REQUIRED_MESSAGE, DELIVERY_BATCH_LIMITS_INVALID_MESSAGE, DELIVERY_POLICY_INVALID_MESSAGE, DELIVERY_PREREQUISITE_READ_MESSAGE, DELIVERY_RECEIPT_READ_MESSAGE, DELIVERY_RECEIPT_PERSIST_MESSAGE, DELIVERY_ACCOUNT_MISMATCH_WARNING, DELIVERY_DRAIN_LOCK, DELIVERY_DROPPED_DETAIL, DELIVERY_DEPENDENTS_DROPPED_WARNING;
 var init_constants6 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/delivery/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/delivery/constants.js"() {
     DELIVERY_RETRY_BASE_MS = 5e3;
     DELIVERY_RETRY_BACKOFF_FACTOR = 2;
     DELIVERY_RETRY_MAX_MS = 30 * 60 * 1e3;
@@ -3276,18 +3276,18 @@ var init_constants6 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/capture/retry-state.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/storage/capture/retry-state.js
 function isWaitingForRetry(retry, now = Date.now()) {
   return retry !== void 0 && retry.notBeforeMs > now && !(retry.recordedAtMs !== void 0 && retry.recordedAtMs < PROCESS_STARTED_AT_MS);
 }
 var PROCESS_STARTED_AT_MS;
 var init_retry_state = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/storage/capture/retry-state.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/storage/capture/retry-state.js"() {
     PROCESS_STARTED_AT_MS = Date.now();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/delivery/batch.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/delivery/batch.js
 function createBatch() {
   return { candidates: [], scopes: /* @__PURE__ */ new Set(), runIds: /* @__PURE__ */ new Set(), bytes: 0 };
 }
@@ -3307,12 +3307,12 @@ function joinBatch(batch, candidate) {
   batch.bytes += payloadBytes(candidate.entry.record);
 }
 var init_batch = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/delivery/batch.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/delivery/batch.js"() {
     init_scope();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/delivery/retry.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/delivery/retry.js
 function isRetryable(error2) {
   return error2?.retryable !== false;
 }
@@ -3332,13 +3332,13 @@ function nextRetry(previous, baseMs) {
   };
 }
 var init_retry = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/delivery/retry.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/delivery/retry.js"() {
     init_constants6();
     init_errors();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/delivery/outcomes.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/delivery/outcomes.js
 function emptyDestinationResult() {
   return { delivered: 0, dropped: 0, failed: 0, progressed: false };
 }
@@ -3418,7 +3418,7 @@ async function settleDroppedDependency(drainCache, candidate, destination, resul
   result.progressed = true;
 }
 var init_outcomes = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/delivery/outcomes.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/delivery/outcomes.js"() {
     init_scope();
     init_format();
     init_constants6();
@@ -3426,7 +3426,7 @@ var init_outcomes = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/delivery/deliver.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/delivery/deliver.js
 import { setTimeout as delay3 } from "node:timers/promises";
 async function trySend(context, destination, candidates) {
   const { policy, request } = context;
@@ -3498,13 +3498,13 @@ async function deliverBatch(context, destination, candidates) {
   return settleFailed(context, destination, candidates, error2);
 }
 var init_deliver = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/delivery/deliver.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/delivery/deliver.js"() {
     init_outcomes();
     init_retry();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/delivery/drain-cache.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/delivery/drain-cache.js
 function deliveryKey(scope, destination) {
   return JSON.stringify([scopeKey(scope), destination]);
 }
@@ -3569,13 +3569,13 @@ async function countPending(drainCache, entries, destinations) {
   return nextRetryAtMs === void 0 ? { count } : { count, nextRetryAtMs };
 }
 var init_drain_cache = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/delivery/drain-cache.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/delivery/drain-cache.js"() {
     init_scope();
     init_constants6();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/delivery/drain.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/delivery/drain.js
 async function drainLocked(captureStore, integration, sessionId, policy, request, drainCache) {
   const captures = await captureStore.enumerate(integration, sessionId);
   const eligible = captures.filter(({ record }) => record.destinationFingerprint === request.writer.accountFingerprint);
@@ -3708,7 +3708,7 @@ async function dropPending(drainCache, candidate, reason) {
   return dropped;
 }
 var init_drain = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/delivery/drain.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/delivery/drain.js"() {
     init_retry_state();
     init_scope();
     init_format();
@@ -3720,7 +3720,7 @@ var init_drain = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/delivery/options.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/delivery/options.js
 function validateDrainRequest(request) {
   if (request.writer === null || typeof request.writer !== "object")
     throw new TypeError(DELIVERY_WRITER_REQUIRED_MESSAGE);
@@ -3778,13 +3778,13 @@ function resolvePolicy(policy) {
   return resolved;
 }
 var init_options = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/delivery/options.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/delivery/options.js"() {
     init_paths();
     init_constants6();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/delivery/coordinator.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/delivery/coordinator.js
 import { join as join12, resolve as resolve8 } from "node:path";
 async function drainUnderLock(context, request, drainCache) {
   const { captureStore, integration, sessionId, storageRoot, policy } = context;
@@ -3851,7 +3851,7 @@ function createDeliveryCoordinator(options) {
   };
 }
 var init_coordinator = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/delivery/coordinator.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/delivery/coordinator.js"() {
     init_storage();
     init_lock_folders();
     init_capture();
@@ -3866,24 +3866,24 @@ var init_coordinator = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/delivery/index.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/delivery/index.js
 var init_delivery = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/delivery/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/delivery/index.js"() {
     init_coordinator();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/sdk/sdk-constants.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/utils/sdk/sdk-constants.js
 var SDK_DOUBLE_QUOTED, SDK_SINGLE_QUOTED, SDK_PROFILE_QUOTES;
 var init_sdk_constants = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/sdk/sdk-constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/utils/sdk/sdk-constants.js"() {
     SDK_DOUBLE_QUOTED = /^"(.*)"$/;
     SDK_SINGLE_QUOTED = /^'(.*)'$/;
     SDK_PROFILE_QUOTES = /^["']|["']$/g;
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/sdk/normalize.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/utils/sdk/normalize.js
 function sdkSetting(value) {
   if (typeof value !== "string")
     return void 0;
@@ -3896,15 +3896,15 @@ function sdkProfileValue(value) {
   return value.trim().replace(SDK_PROFILE_QUOTES, "") || void 0;
 }
 var init_normalize = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/sdk/normalize.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/utils/sdk/normalize.js"() {
     init_sdk_constants();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/auth/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/auth/constants.js
 var LOGIN_CONFIG_FILE_VARIABLE, LOGIN_PROFILE_VARIABLE, LOGIN_WORKSPACE_VARIABLE, LOGIN_HOME_VARIABLES, LOGIN_API_KEY_VARIABLES, LOGIN_CONFIG_DIRECTORY, LOGIN_CONFIG_FILE_NAME, LOGIN_DEFAULT_PROFILE, LOGIN_CONFIG_KEYS, LOGIN_DEFAULT_API_URL, LOGIN_URL_TRAILING_PATTERN, LOGIN_TOKEN_HASH, LOGIN_TOKEN_HASH_LENGTH, LOGIN_EXPIRED_MARKER_PREFIX, LOGIN_CONFIG_FILE_ENCODING, LOGIN_COMMAND, LOGIN_PROFILE_FLAG, LOGIN_PLAIN_PROFILE_PATTERN, LOGIN_WINDOWS_PLATFORM, LOGIN_QUOTED_PROFILE_APOSTROPHE, LOGIN_NOTICE_HEADING, LOGIN_NONE_REASON, LOGIN_ENDPOINT_MISMATCH_REASON, AGENT_ID_INVALID_REASON, AGENT_ID_PATTERN, LOGIN_WORKSPACE_INVALID_REASON, LOGIN_WORKSPACE_ID_PATTERN, LOGIN_REPLICA_REFUSED_REASON;
 var init_constants7 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/auth/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/auth/constants.js"() {
     LOGIN_CONFIG_FILE_VARIABLE = "LANGSMITH_CONFIG_FILE";
     LOGIN_PROFILE_VARIABLE = "LANGSMITH_PROFILE";
     LOGIN_WORKSPACE_VARIABLE = "LANGSMITH_WORKSPACE_ID";
@@ -3961,7 +3961,7 @@ var init_constants7 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/auth/profile.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/auth/profile.js
 import { createHash as createHash3 } from "node:crypto";
 import { readFileSync as readFileSync4 } from "node:fs";
 import { join as join13 } from "node:path";
@@ -4034,17 +4034,17 @@ function credentialHash(value) {
   return createHash3(LOGIN_TOKEN_HASH).update(value).digest("hex").slice(0, LOGIN_TOKEN_HASH_LENGTH);
 }
 var init_profile = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/auth/profile.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/auth/profile.js"() {
     init_normalize();
     init_objects();
     init_constants7();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/auth/expiry-constants.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/auth/expiry-constants.js
 var LOGIN_EXPIRED_STATUS, LOGIN_PAUSED_NOTICE, LOGIN_KEY_REJECTED_NOTICE, LOGIN_NO_ACCESS_STATUS, LOGIN_NO_ACCESS_SUFFIX, LOGIN_NO_ACCESS_NOTICE, LOGIN_MARKER_WARNING, LOGIN_CLEANUP_WARNING, LOGIN_STATE_FILE, LOGIN_NOTICE_KIND, LOGIN_KEY_REJECTED_ENTRY;
 var init_expiry_constants = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/auth/expiry-constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/auth/expiry-constants.js"() {
     init_constants7();
     LOGIN_EXPIRED_STATUS = 401;
     LOGIN_PAUSED_NOTICE = [
@@ -4072,7 +4072,7 @@ var init_expiry_constants = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/auth/expiry.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/auth/expiry.js
 import { join as join14 } from "node:path";
 async function recordExpiredLogin(login, sentTokenHash, storageRoot, denied = false) {
   try {
@@ -4174,7 +4174,7 @@ function loginStore(storageRoot) {
 }
 var unrecorded;
 var init_expiry2 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/auth/expiry.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/auth/expiry.js"() {
     init_state_claim();
     init_state_store();
     init_errors();
@@ -4186,10 +4186,10 @@ var init_expiry2 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/metadata/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/metadata/constants.js
 var CODING_AGENT_SCHEMA_VERSION, CODING_AGENT_PURPOSE, GIT_METADATA_KEYS, LEGACY_GIT_METADATA_KEYS, ATTRIBUTION_IDENTIFIER_KEY, REPOSITORY_METADATA_KEYS, CODING_AGENT_RUN_TYPES, CODING_AGENT_RUN_SCOPES, CODING_AGENT_AGENT_TYPES, CODING_AGENT_SCHEMA_INTEGRATIONS, CODING_AGENT_CORE_INTEGRATIONS, CODING_AGENT_CODEX_INTEGRATION, CODING_AGENT_RUNTIME_NAMES, CODING_AGENT_INTEGRATION_POLICIES, CODING_AGENT_ALWAYS_FIELD_OPTIONS, CODING_AGENT_WHERE_KNOWN_FIELD_OPTIONS, CODING_AGENT_FIELD_DEFAULTS, CODING_AGENT_STRUCTURAL_FIELD_DEFAULTS, CODING_AGENT_PROVIDER_FIELD_DEFAULTS, CODING_AGENT_METADATA_PROVENANCE_FIELDS, CODING_AGENT_METADATA_PROJECTION_FIELDS, TRUSTED_METADATA, METADATA_MODE_NAME, METADATA_MODE_STATUS_VALUES, CODING_AGENT_RUNTIME_LIBRARY, CODING_AGENT_RUNTIME_SDK, CODING_AGENT_RELEASE_ENVIRONMENT_VARIABLES, CODING_AGENT_ENVIRONMENT_METADATA_PREFIXES, CODING_AGENT_ENVIRONMENT_METADATA_EXCLUDED, CODING_AGENT_ENVIRONMENT_METADATA_SENSITIVE_SUBSTRINGS, CODING_AGENT_ENVIRONMENT_METADATA_ENDPOINT_SUBSTRINGS, CODING_AGENT_REVISION_ID_VARIABLE, CODING_AGENT_REVISION_ID_KEY;
 var init_constants8 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/metadata/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/metadata/constants.js"() {
     CODING_AGENT_SCHEMA_VERSION = "coding-agent-v1";
     CODING_AGENT_PURPOSE = "coding";
     GIT_METADATA_KEYS = {
@@ -4396,13 +4396,13 @@ var init_constants8 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/metadata/contract.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/metadata/contract.js
 function field(key, options = {}) {
   return { key, ...CODING_AGENT_FIELD_DEFAULTS, ...options };
 }
 var structural, provider, CODING_AGENT_V1_CONTRACT;
 var init_contract = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/metadata/contract.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/metadata/contract.js"() {
     init_constants8();
     structural = (key, options = {}) => field(key, { ...CODING_AGENT_STRUCTURAL_FIELD_DEFAULTS, ...options });
     provider = (key, options = {}) => field(key, { ...CODING_AGENT_PROVIDER_FIELD_DEFAULTS, ...options });
@@ -4526,7 +4526,7 @@ var init_contract = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/metadata/git-names.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/metadata/git-names.js
 function withBothGitMetadataNames(metadata) {
   const both = { ...metadata };
   for (const role of Object.keys(GIT_METADATA_KEYS)) {
@@ -4539,12 +4539,12 @@ function withBothGitMetadataNames(metadata) {
   return both;
 }
 var init_git_names = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/metadata/git-names.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/metadata/git-names.js"() {
     init_constants8();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/metadata/validation.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/metadata/validation.js
 function metadataFieldTypeIssue(field4, value) {
   const matchesType = field4.type === "string" ? typeof value === "string" && value.length > 0 : field4.type === "integer" ? typeof value === "number" && Number.isSafeInteger(value) && value >= 1 : isPlainRecord(value);
   if (!matchesType)
@@ -4590,13 +4590,13 @@ function normalizeProviderMetadata(value, integration, runType) {
   return Object.fromEntries(Object.entries(value).filter(([key, entry]) => entry !== void 0 && !issues.has(key)));
 }
 var init_validation = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/metadata/validation.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/metadata/validation.js"() {
     init_objects();
     init_contract();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/metadata/builder.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/metadata/builder.js
 function buildCodingAgentMetadata(options) {
   const policy = CODING_AGENT_INTEGRATION_POLICIES[options.integration];
   const identity = {
@@ -4664,7 +4664,7 @@ function trustedCodingAgentMetadata(metadata) {
   return metadata?.[TRUSTED_METADATA];
 }
 var init_builder = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/metadata/builder.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/metadata/builder.js"() {
     init_constants8();
     init_contract();
     init_git_names();
@@ -4672,7 +4672,7 @@ var init_builder = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/metadata/runtime.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/metadata/runtime.js
 function forwardsEnvironmentVariable(name, value, environmentMetadata) {
   return typeof value === "string" && environmentMetadata.prefixes.some((prefix) => name.startsWith(prefix)) && !environmentMetadata.excluded.includes(name) && ![...environmentMetadata.sensitiveSubstrings, ...environmentMetadata.endpointSubstrings].some((part) => name.toLowerCase().includes(part));
 }
@@ -4698,12 +4698,12 @@ function buildCodingAgentRuntimeMetadata(options) {
   return { runtime, metadata };
 }
 var init_runtime = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/metadata/runtime.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/metadata/runtime.js"() {
     init_contract();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/metadata/privacy.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/metadata/privacy.js
 function projectCodingAgentMetadata(metadata, integration, status) {
   const safe = {};
   for (const [key, value] of Object.entries(metadata ?? {})) {
@@ -4725,7 +4725,7 @@ function metadataForMode(metadata, integration, mode = "full", status) {
   return projectCodingAgentMetadata(source, integration, status);
 }
 var init_privacy = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/metadata/privacy.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/metadata/privacy.js"() {
     init_constants8();
     init_contract();
     init_builder();
@@ -4733,7 +4733,7 @@ var init_privacy = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/metadata/provenance.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/metadata/provenance.js
 function prepareCodingAgentMetadataProvenance(value, integration, mode, status = "running") {
   const source = requirePlainRecord(value, "Run metadata");
   const declaredIntegration = ownDataField(source, "integration");
@@ -4808,7 +4808,7 @@ function projectedString(source, key) {
   return value;
 }
 var init_provenance = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/metadata/provenance.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/metadata/provenance.js"() {
     init_objects();
     init_constants8();
     init_constants8();
@@ -4818,9 +4818,9 @@ var init_provenance = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/metadata/index.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/metadata/index.js
 var init_metadata = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/metadata/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/metadata/index.js"() {
     init_builder();
     init_constants8();
     init_git_names();
@@ -4831,7 +4831,7 @@ var init_metadata = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/tslib.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/internal/tslib.mjs
 function __classPrivateFieldSet(receiver, state, value, kind, f2) {
   if (kind === "m")
     throw new TypeError("Private method is not writable");
@@ -4849,14 +4849,14 @@ function __classPrivateFieldGet(receiver, state, kind, f2) {
   return kind === "m" ? f2 : kind === "a" ? f2.call(receiver) : f2 ? f2.value : state.get(receiver);
 }
 var init_tslib = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/tslib.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/internal/tslib.mjs"() {
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/utils/uuid.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/internal/utils/uuid.mjs
 var uuid4;
 var init_uuid = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/utils/uuid.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/internal/utils/uuid.mjs"() {
     uuid4 = function() {
       const { crypto: crypto2 } = globalThis;
       if (crypto2?.randomUUID) {
@@ -4870,7 +4870,7 @@ var init_uuid = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/errors.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/internal/errors.mjs
 function isAbortError(err) {
   return typeof err === "object" && err !== null && // Spec-compliant fetch implementations
   ("name" in err && err.name === "AbortError" || // Expo fetch
@@ -4878,7 +4878,7 @@ function isAbortError(err) {
 }
 var castToError;
 var init_errors4 = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/errors.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/internal/errors.mjs"() {
     castToError = (err) => {
       if (err instanceof Error)
         return err;
@@ -4906,10 +4906,10 @@ var init_errors4 = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/core/error.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/core/error.mjs
 var LangsmithError, APIError, APIUserAbortError, APIConnectionError, APIConnectionTimeoutError, BadRequestError, AuthenticationError, PermissionDeniedError, NotFoundError, ConflictError, UnprocessableEntityError, RateLimitError, InternalServerError;
 var init_error = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/core/error.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/core/error.mjs"() {
     init_errors4();
     LangsmithError = class extends Error {
     };
@@ -5019,7 +5019,7 @@ var init_error = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/utils/values.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/internal/utils/values.mjs
 function maybeObj(x) {
   if (typeof x !== "object") {
     return {};
@@ -5038,7 +5038,7 @@ function hasOwn(obj, key) {
 }
 var startsWithSchemeRegexp, isAbsoluteURL, isArray, isReadonlyArray, validatePositiveInteger, safeJSON;
 var init_values = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/utils/values.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/internal/utils/values.mjs"() {
     init_error();
     startsWithSchemeRegexp = /^[a-z][a-z0-9+.-]*:/i;
     isAbsoluteURL = (url) => {
@@ -5065,23 +5065,23 @@ var init_values = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/utils/sleep.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/internal/utils/sleep.mjs
 var sleep;
 var init_sleep = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/utils/sleep.mjs"() {
-    sleep = (ms) => new Promise((resolve15) => setTimeout(resolve15, ms));
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/internal/utils/sleep.mjs"() {
+    sleep = (ms) => new Promise((resolve16) => setTimeout(resolve16, ms));
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/version.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/version.mjs
 var VERSION;
 var init_version = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/version.mjs"() {
-    VERSION = "0.11.4";
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/version.mjs"() {
+    VERSION = "0.11.6";
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/detect-platform.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/internal/detect-platform.mjs
 function getDetectedPlatform() {
   if (typeof Deno !== "undefined" && Deno.build != null) {
     return "deno";
@@ -5119,7 +5119,7 @@ function getBrowserInfo() {
 }
 var getPlatformProperties, normalizeArch, normalizePlatform, _platformHeaders, getPlatformHeaders;
 var init_detect_platform = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/detect-platform.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/internal/detect-platform.mjs"() {
     init_version();
     getPlatformProperties = () => {
       const detectedPlatform = getDetectedPlatform();
@@ -5212,7 +5212,7 @@ var init_detect_platform = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/shims.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/internal/shims.mjs
 function getDefaultFetch() {
   if (typeof fetch !== "undefined") {
     return fetch;
@@ -5284,14 +5284,14 @@ async function CancelReadableStream(stream) {
   await cancelPromise;
 }
 var init_shims = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/shims.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/internal/shims.mjs"() {
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/request-options.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/internal/request-options.mjs
 var FallbackEncoder;
 var init_request_options = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/request-options.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/internal/request-options.mjs"() {
     FallbackEncoder = ({ headers, body }) => {
       return {
         bodyHeaders: {
@@ -5303,10 +5303,10 @@ var init_request_options = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/qs/formats.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/internal/qs/formats.mjs
 var default_format, default_formatter, formatters, RFC1738;
 var init_formats = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/qs/formats.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/internal/qs/formats.mjs"() {
     default_format = "RFC3986";
     default_formatter = (v) => String(v);
     formatters = {
@@ -5317,7 +5317,7 @@ var init_formats = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/qs/utils.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/internal/qs/utils.mjs
 function is_buffer(obj) {
   if (!obj || typeof obj !== "object") {
     return false;
@@ -5336,7 +5336,7 @@ function maybe_map(val, fn) {
 }
 var has, hex_table, limit, encode;
 var init_utils = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/qs/utils.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/internal/qs/utils.mjs"() {
     init_formats();
     init_values();
     has = (obj, key) => (has = Object.hasOwn ?? Function.prototype.call.bind(Object.prototype.hasOwnProperty), has(obj, key));
@@ -5403,11 +5403,11 @@ var init_utils = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/qs/stringify.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/internal/qs/stringify.mjs
 function is_non_nullish_primitive(v) {
   return typeof v === "string" || typeof v === "number" || typeof v === "boolean" || typeof v === "symbol" || typeof v === "bigint";
 }
-function inner_stringify(object2, prefix, generateArrayPrefix, commaRoundTrip, allowEmptyArrays, strictNullHandling, skipNulls, encodeDotInKeys, encoder3, filter, sort, allowDots, serializeDate, format, formatter, encodeValuesOnly, charset, sideChannel) {
+function inner_stringify(object2, prefix, generateArrayPrefix, commaRoundTrip, allowEmptyArrays, strictNullHandling, skipNulls, encodeDotInKeys, encoder4, filter, sort, allowDots, serializeDate, format, formatter, encodeValuesOnly, charset, sideChannel) {
   let obj = object2;
   let tmp_sc = sideChannel;
   let step = 0;
@@ -5440,19 +5440,19 @@ function inner_stringify(object2, prefix, generateArrayPrefix, commaRoundTrip, a
   }
   if (obj === null) {
     if (strictNullHandling) {
-      return encoder3 && !encodeValuesOnly ? (
+      return encoder4 && !encodeValuesOnly ? (
         // @ts-expect-error
-        encoder3(prefix, defaults.encoder, charset, "key", format)
+        encoder4(prefix, defaults.encoder, charset, "key", format)
       ) : prefix;
     }
     obj = "";
   }
   if (is_non_nullish_primitive(obj) || is_buffer(obj)) {
-    if (encoder3) {
-      const key_value = encodeValuesOnly ? prefix : encoder3(prefix, defaults.encoder, charset, "key", format);
+    if (encoder4) {
+      const key_value = encodeValuesOnly ? prefix : encoder4(prefix, defaults.encoder, charset, "key", format);
       return [
         formatter?.(key_value) + "=" + // @ts-expect-error
-        formatter?.(encoder3(obj, defaults.encoder, charset, "value", format))
+        formatter?.(encoder4(obj, defaults.encoder, charset, "value", format))
       ];
     }
     return [formatter?.(prefix) + "=" + formatter?.(String(obj))];
@@ -5463,8 +5463,8 @@ function inner_stringify(object2, prefix, generateArrayPrefix, commaRoundTrip, a
   }
   let obj_keys;
   if (generateArrayPrefix === "comma" && isArray(obj)) {
-    if (encodeValuesOnly && encoder3) {
-      obj = maybe_map(obj, encoder3);
+    if (encodeValuesOnly && encoder4) {
+      obj = maybe_map(obj, encoder4);
     }
     obj_keys = [{ value: obj.length > 0 ? obj.join(",") || null : void 0 }];
   } else if (isArray(filter)) {
@@ -5502,7 +5502,7 @@ function inner_stringify(object2, prefix, generateArrayPrefix, commaRoundTrip, a
       skipNulls,
       encodeDotInKeys,
       // @ts-ignore
-      generateArrayPrefix === "comma" && encodeValuesOnly && isArray(obj) ? null : encoder3,
+      generateArrayPrefix === "comma" && encodeValuesOnly && isArray(obj) ? null : encoder4,
       filter,
       sort,
       allowDots,
@@ -5643,7 +5643,7 @@ function stringify(object2, opts = {}) {
 }
 var array_prefix_generators, push_to_array, toISOString, defaults, sentinel;
 var init_stringify = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/qs/stringify.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/internal/qs/stringify.mjs"() {
     init_utils();
     init_formats();
     init_values();
@@ -5688,17 +5688,17 @@ var init_stringify = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/utils/query.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/internal/utils/query.mjs
 function stringifyQuery(query) {
   return stringify(query, { arrayFormat: "repeat" });
 }
 var init_query = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/utils/query.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/internal/utils/query.mjs"() {
     init_stringify();
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/utils/bytes.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/internal/utils/bytes.mjs
 function concatBytes(buffers) {
   let length = 0;
   for (const buffer of buffers) {
@@ -5713,8 +5713,8 @@ function concatBytes(buffers) {
   return output;
 }
 function encodeUTF8(str) {
-  let encoder3;
-  return (encodeUTF8_ ?? (encoder3 = new globalThis.TextEncoder(), encodeUTF8_ = encoder3.encode.bind(encoder3)))(str);
+  let encoder4;
+  return (encodeUTF8_ ?? (encoder4 = new globalThis.TextEncoder(), encodeUTF8_ = encoder4.encode.bind(encoder4)))(str);
 }
 function decodeUTF8(bytes) {
   let decoder;
@@ -5722,11 +5722,11 @@ function decodeUTF8(bytes) {
 }
 var encodeUTF8_, decodeUTF8_;
 var init_bytes = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/utils/bytes.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/internal/utils/bytes.mjs"() {
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/decoders/line.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/internal/decoders/line.mjs
 function findNewlineIndex(buffer, startIndex) {
   const newline = 10;
   const carriage = 13;
@@ -5758,7 +5758,7 @@ function findDoubleNewlineIndex(buffer) {
 }
 var _LineDecoder_buffer, _LineDecoder_carriageReturnIndex, LineDecoder;
 var init_line = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/decoders/line.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/internal/decoders/line.mjs"() {
     init_tslib();
     init_bytes();
     LineDecoder = class {
@@ -5818,7 +5818,7 @@ var init_line = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/utils/log.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/internal/utils/log.mjs
 function noop() {
 }
 function makeLogFn(fnLevel, logger, logLevel) {
@@ -5849,7 +5849,7 @@ function loggerFor(client) {
 }
 var levelNumbers, parseLogLevel, noopLogger, cachedLoggers, formatRequestDetails;
 var init_log = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/utils/log.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/internal/utils/log.mjs"() {
     init_values();
     levelNumbers = {
       off: 0,
@@ -5897,7 +5897,7 @@ var init_log = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/core/streaming.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/core/streaming.mjs
 async function* _iterSSEMessages(response, controller) {
   if (!response.body) {
     controller.abort();
@@ -5952,7 +5952,7 @@ function partition(str, delimiter) {
 }
 var _Stream_client, Stream, SSEDecoder;
 var init_streaming = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/core/streaming.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/core/streaming.mjs"() {
     init_tslib();
     init_error();
     init_shims();
@@ -6188,7 +6188,7 @@ var init_streaming = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/parse.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/internal/parse.mjs
 async function defaultParseResponse(client, props) {
   const { response, requestLogID, retryOfRequestLogID, startTime } = props;
   const body = await (async () => {
@@ -6229,22 +6229,22 @@ async function defaultParseResponse(client, props) {
   return body;
 }
 var init_parse = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/parse.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/internal/parse.mjs"() {
     init_streaming();
     init_log();
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/core/api-promise.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/core/api-promise.mjs
 var _APIPromise_client, APIPromise;
 var init_api_promise = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/core/api-promise.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/core/api-promise.mjs"() {
     init_tslib();
     init_parse();
     APIPromise = class _APIPromise extends Promise {
       constructor(client, responsePromise, parseResponse = defaultParseResponse) {
-        super((resolve15) => {
-          resolve15(null);
+        super((resolve16) => {
+          resolve16(null);
         });
         Object.defineProperty(this, "responsePromise", {
           enumerable: true,
@@ -6318,10 +6318,10 @@ var init_api_promise = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/core/pagination.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/core/pagination.mjs
 var _AbstractPage_client, AbstractPage, PagePromise, OffsetPaginationTopLevelArray, OffsetPaginationIssues, OffsetPaginationOnlineEvaluators, ItemsCursorPostPagination, ItemsCursorGetPagination;
 var init_pagination = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/core/pagination.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/core/pagination.mjs"() {
     init_tslib();
     init_error();
     init_parse();
@@ -6561,7 +6561,7 @@ var init_pagination = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/uploads.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/internal/uploads.mjs
 function makeFile(fileBits, fileName, options) {
   checkFileSupport();
   return new File(fileBits, fileName ?? "unknown_file", options);
@@ -6571,7 +6571,7 @@ function getName(value) {
 }
 var checkFileSupport, isAsyncIterable;
 var init_uploads = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/uploads.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/internal/uploads.mjs"() {
     init_shims();
     checkFileSupport = () => {
       if (typeof File === "undefined") {
@@ -6584,7 +6584,7 @@ var init_uploads = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/to-file.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/internal/to-file.mjs
 async function toFile(value, name, options) {
   checkFileSupport();
   value = await value;
@@ -6634,7 +6634,7 @@ function propsForError(value) {
 }
 var isBlobLike, isFileLike, isResponseLike;
 var init_to_file = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/to-file.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/internal/to-file.mjs"() {
     init_uploads();
     init_uploads();
     isBlobLike = (value) => value != null && typeof value === "object" && typeof value.size === "number" && typeof value.type === "string" && typeof value.text === "function" && typeof value.slice === "function" && typeof value.arrayBuffer === "function";
@@ -6643,23 +6643,23 @@ var init_to_file = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/core/uploads.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/core/uploads.mjs
 var init_uploads2 = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/core/uploads.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/core/uploads.mjs"() {
     init_to_file();
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/shared.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/resources/shared.mjs
 var init_shared = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/shared.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/resources/shared.mjs"() {
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/core/resource.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/core/resource.mjs
 var APIResource;
 var init_resource = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/core/resource.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/core/resource.mjs"() {
     APIResource = class {
       constructor(client) {
         Object.defineProperty(this, "_client", {
@@ -6674,7 +6674,7 @@ var init_resource = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/headers.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/internal/headers.mjs
 function* iterateHeaders(headers) {
   if (!headers)
     return;
@@ -6715,7 +6715,7 @@ function* iterateHeaders(headers) {
 }
 var brand_privateNullableHeaders, buildHeaders;
 var init_headers = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/headers.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/internal/headers.mjs"() {
     init_values();
     brand_privateNullableHeaders = /* @__PURE__ */ Symbol("brand.privateNullableHeaders");
     buildHeaders = (newHeaders) => {
@@ -6743,13 +6743,13 @@ var init_headers = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/utils/path.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/internal/utils/path.mjs
 function encodeURIPath(str) {
   return str.replace(/[^A-Za-z0-9\-._~!$&'()*+,;=:@]+/g, encodeURIComponent);
 }
 var EMPTY, createPathTagFunction, path;
 var init_path = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/utils/path.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/internal/utils/path.mjs"() {
     init_error();
     EMPTY = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.create(null));
     createPathTagFunction = (pathEncoder = encodeURIPath) => function path3(statics, ...params) {
@@ -6804,10 +6804,10 @@ ${underline}`);
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/agents.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/resources/agents.mjs
 var Agents;
 var init_agents = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/agents.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/resources/agents.mjs"() {
     init_resource();
     init_pagination();
     init_headers();
@@ -6872,10 +6872,10 @@ var init_agents = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/annotation-queues/items.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/resources/annotation-queues/items.mjs
 var Items;
 var init_items = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/annotation-queues/items.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/resources/annotation-queues/items.mjs"() {
     init_resource();
     init_pagination();
     init_path();
@@ -6964,10 +6964,10 @@ var init_items = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/annotation-queues/runs.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/resources/annotation-queues/runs.mjs
 var Runs;
 var init_runs = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/annotation-queues/runs.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/resources/annotation-queues/runs.mjs"() {
     init_resource();
     init_path();
     Runs = class extends APIResource {
@@ -7038,10 +7038,10 @@ var init_runs = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/annotation-queues/annotation-queues.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/resources/annotation-queues/annotation-queues.mjs
 var AnnotationQueues;
 var init_annotation_queues = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/annotation-queues/annotation-queues.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/resources/annotation-queues/annotation-queues.mjs"() {
     init_resource();
     init_items();
     init_items();
@@ -7163,10 +7163,10 @@ var init_annotation_queues = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/datasets/examples.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/resources/datasets/examples.mjs
 var Examples;
 var init_examples = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/datasets/examples.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/resources/datasets/examples.mjs"() {
     init_resource();
     init_headers();
     init_path();
@@ -7190,10 +7190,10 @@ var init_examples = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/datasets/experiment-runs.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/resources/datasets/experiment-runs.mjs
 var ExperimentRuns;
 var init_experiment_runs = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/datasets/experiment-runs.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/resources/datasets/experiment-runs.mjs"() {
     init_resource();
     init_pagination();
     init_path();
@@ -7211,10 +7211,10 @@ var init_experiment_runs = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/datasets/datasets.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/resources/datasets/datasets.mjs
 var Datasets;
 var init_datasets = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/datasets/datasets.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/resources/datasets/datasets.mjs"() {
     init_resource();
     init_examples();
     init_examples();
@@ -7242,10 +7242,34 @@ var init_datasets = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/fleet/threads.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/resources/evaluators.mjs
+var Evaluators;
+var init_evaluators = __esm({
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/resources/evaluators.mjs"() {
+    init_resource();
+    Evaluators = class extends APIResource {
+      /**
+       * List all run rules.
+       */
+      list(query = {}, options) {
+        return this._client.get("/api/v1/runs/rules", { query, ...options });
+      }
+      /**
+       * Create a decision-model evaluator (Jev, SemIf or OpenAI Decisions) from its
+       * prompt and questions, and attach it to a project or dataset. Each question's key
+       * becomes a feedback key.
+       */
+      createDecisionModel(body, options) {
+        return this._client.post("/api/v1/runs/rules/decision-models", { body, ...options });
+      }
+    };
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/resources/fleet/threads.mjs
 var Threads;
 var init_threads = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/fleet/threads.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/resources/fleet/threads.mjs"() {
     init_resource();
     init_path();
     Threads = class extends APIResource {
@@ -7261,10 +7285,10 @@ var init_threads = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/fleet/fleet.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/resources/fleet/fleet.mjs
 var Fleet;
 var init_fleet = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/fleet/fleet.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/resources/fleet/fleet.mjs"() {
     init_resource();
     init_threads();
     init_threads();
@@ -7283,10 +7307,10 @@ var init_fleet = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/info.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/resources/info.mjs
 var Info;
 var init_info = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/info.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/resources/info.mjs"() {
     init_resource();
     Info = class extends APIResource {
       /**
@@ -7301,10 +7325,10 @@ var init_info = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/issues.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/resources/issues.mjs
 var Issues;
 var init_issues = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/issues.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/resources/issues.mjs"() {
     init_resource();
     init_pagination();
     init_path();
@@ -7333,10 +7357,10 @@ var init_issues = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/online-evaluators.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/resources/online-evaluators.mjs
 var OnlineEvaluators;
 var init_online_evaluators = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/online-evaluators.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/resources/online-evaluators.mjs"() {
     init_resource();
     init_pagination();
     init_headers();
@@ -7408,10 +7432,10 @@ var init_online_evaluators = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/product-feedback.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/resources/product-feedback.mjs
 var ProductFeedback;
 var init_product_feedback = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/product-feedback.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/resources/product-feedback.mjs"() {
     init_resource();
     init_headers();
     init_path();
@@ -7442,10 +7466,10 @@ var init_product_feedback = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/prompt-webhooks.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/resources/prompt-webhooks.mjs
 var PromptWebhooks;
 var init_prompt_webhooks = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/prompt-webhooks.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/resources/prompt-webhooks.mjs"() {
     init_resource();
     init_headers();
     init_path();
@@ -7505,10 +7529,10 @@ var init_prompt_webhooks = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/public/runs.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/resources/public/runs.mjs
 var Runs2;
 var init_runs2 = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/public/runs.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/resources/public/runs.mjs"() {
     init_resource();
     init_headers();
     init_path();
@@ -7564,10 +7588,10 @@ var init_runs2 = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/public/public.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/resources/public/public.mjs
 var Public;
 var init_public = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/public/public.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/resources/public/public.mjs"() {
     init_resource();
     init_runs2();
     init_runs2();
@@ -7586,10 +7610,10 @@ var init_public = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/runs/share.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/resources/runs/share.mjs
 var Share;
 var init_share = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/runs/share.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/resources/runs/share.mjs"() {
     init_resource();
     init_headers();
     init_path();
@@ -7638,7 +7662,7 @@ var init_share = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/core/query-streaming.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/core/query-streaming.mjs
 async function* iterQueryStream(fetch2, paths) {
   const itemPath = new RegExp(`^${escapeRegExp(paths.items)}/(-|\\d+)$`);
   let cursor;
@@ -7695,14 +7719,14 @@ function escapeRegExp(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 var init_query_streaming = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/core/query-streaming.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/core/query-streaming.mjs"() {
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/runs/streaming.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/resources/runs/streaming.mjs
 var Streaming;
 var init_streaming2 = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/runs/streaming.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/resources/runs/streaming.mjs"() {
     init_resource();
     init_query_streaming();
     init_headers();
@@ -7752,10 +7776,10 @@ var init_streaming2 = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/runs/runs.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/resources/runs/runs.mjs
 var Runs3;
 var init_runs3 = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/runs/runs.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/resources/runs/runs.mjs"() {
     init_resource();
     init_share();
     init_share();
@@ -7866,10 +7890,10 @@ var init_runs3 = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/sandboxes/boxes.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/resources/sandboxes/boxes.mjs
 var Boxes;
 var init_boxes = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/sandboxes/boxes.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/resources/sandboxes/boxes.mjs"() {
     init_resource();
     init_pagination();
     init_headers();
@@ -8016,10 +8040,10 @@ var init_boxes = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/sandboxes/registries.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/resources/sandboxes/registries.mjs
 var Registries;
 var init_registries = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/sandboxes/registries.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/resources/sandboxes/registries.mjs"() {
     init_resource();
     init_headers();
     init_path();
@@ -8065,10 +8089,10 @@ var init_registries = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/sandboxes/snapshots.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/resources/sandboxes/snapshots.mjs
 var Snapshots;
 var init_snapshots = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/sandboxes/snapshots.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/resources/sandboxes/snapshots.mjs"() {
     init_resource();
     init_pagination();
     init_headers();
@@ -8123,10 +8147,10 @@ var init_snapshots = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/sandboxes/sandboxes.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/resources/sandboxes/sandboxes.mjs
 var Sandboxes;
 var init_sandboxes = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/sandboxes/sandboxes.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/resources/sandboxes/sandboxes.mjs"() {
     init_resource();
     init_boxes();
     init_boxes();
@@ -8176,12 +8200,26 @@ var init_sandboxes = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/sessions.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/resources/sessions.mjs
 var Sessions;
 var init_sessions = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/sessions.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/resources/sessions.mjs"() {
     init_resource();
+    init_path();
     Sessions = class extends APIResource {
+      /**
+       * Create a new project.
+       */
+      create(params, options) {
+        const { upsert, ...body } = params;
+        return this._client.post("/api/v1/sessions", { query: { upsert }, body, ...options });
+      }
+      /**
+       * Update a project.
+       */
+      update(project_id, body, options) {
+        return this._client.patch(path`/api/v1/sessions/${project_id}`, { body, ...options });
+      }
       /**
        * Returns the tracing project (session) an address names. An address is an AGENT
        * (`id` and `environment`), an EXPERIMENT (`id`), or an EVALUATOR (no `id`:
@@ -8199,10 +8237,10 @@ var init_sessions = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/threads/share.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/resources/threads/share.mjs
 var Share2;
 var init_share2 = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/threads/share.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/resources/threads/share.mjs"() {
     init_resource();
     init_headers();
     init_path();
@@ -8261,10 +8299,10 @@ var init_share2 = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/threads/streaming.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/resources/threads/streaming.mjs
 var Streaming2;
 var init_streaming3 = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/threads/streaming.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/resources/threads/streaming.mjs"() {
     init_resource();
     init_query_streaming();
     init_headers();
@@ -8314,10 +8352,10 @@ var init_streaming3 = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/threads/threads.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/resources/threads/threads.mjs
 var Threads2;
 var init_threads2 = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/threads/threads.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/resources/threads/threads.mjs"() {
     init_resource();
     init_share2();
     init_share2();
@@ -8439,10 +8477,10 @@ var init_threads2 = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/traces/streaming.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/resources/traces/streaming.mjs
 var Streaming3;
 var init_streaming4 = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/traces/streaming.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/resources/traces/streaming.mjs"() {
     init_resource();
     init_query_streaming();
     init_headers();
@@ -8500,10 +8538,10 @@ var init_streaming4 = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/traces/traces.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/resources/traces/traces.mjs
 var Traces;
 var init_traces = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/traces/traces.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/resources/traces/traces.mjs"() {
     init_resource();
     init_streaming4();
     init_streaming4();
@@ -8583,13 +8621,14 @@ var init_traces = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/index.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/resources/index.mjs
 var init_resources = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/resources/index.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/resources/index.mjs"() {
     init_shared();
     init_agents();
     init_annotation_queues();
     init_datasets();
+    init_evaluators();
     init_fleet();
     init_info();
     init_issues();
@@ -8605,10 +8644,10 @@ var init_resources = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/utils/env.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/internal/utils/env.mjs
 var readEnv;
 var init_env = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/internal/utils/env.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/internal/utils/env.mjs"() {
     readEnv = (env) => {
       if (typeof globalThis.process !== "undefined") {
         return globalThis.process.env?.[env]?.trim() || void 0;
@@ -8621,10 +8660,10 @@ var init_env = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/client.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/client.mjs
 var _Langsmith_instances, _a, _Langsmith_encoder, _Langsmith_baseURLOverridden, Langsmith;
 var init_client = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/client.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/client.mjs"() {
     init_tslib();
     init_uuid();
     init_values();
@@ -8641,6 +8680,7 @@ var init_client = __esm({
     init_resources();
     init_api_promise();
     init_agents();
+    init_evaluators();
     init_info();
     init_issues();
     init_online_evaluators();
@@ -8789,6 +8829,12 @@ var init_client = __esm({
           configurable: true,
           writable: true,
           value: new Traces(this)
+        });
+        Object.defineProperty(this, "evaluators", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: new Evaluators(this)
         });
         Object.defineProperty(this, "onlineEvaluators", {
           enumerable: true,
@@ -9332,6 +9378,7 @@ var init_client = __esm({
     Langsmith.Runs = Runs3;
     Langsmith.Threads = Threads2;
     Langsmith.Traces = Traces;
+    Langsmith.Evaluators = Evaluators;
     Langsmith.OnlineEvaluators = OnlineEvaluators;
     Langsmith.Public = Public;
     Langsmith.AnnotationQueues = AnnotationQueues;
@@ -9342,7 +9389,7 @@ var init_client = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/env.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/env.mjs
 function getRuntimeEnvironment() {
   if (runtimeEnvironment === void 0) {
     const env = getEnv();
@@ -9483,7 +9530,7 @@ function resolveTracingMode(configValue) {
 }
 var globalEnv, isBrowser, isWebWorker, isJsDom, isDeno, isNode, getEnv, runtimeEnvironment, EXCLUDED_SUBSTRINGS, cachedCommitSHAs, _VALID_TRACING_MODES;
 var init_env2 = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/env.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/env.mjs"() {
     init_lib();
     isBrowser = () => typeof window !== "undefined" && typeof window.document !== "undefined";
     isWebWorker = () => typeof globalThis === "object" && globalThis.constructor && globalThis.constructor.name === "DedicatedWorkerGlobalScope";
@@ -9525,7 +9572,7 @@ var init_env2 = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/address.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/address.mjs
 function ensureAddress(value) {
   if (value == null)
     return void 0;
@@ -9595,7 +9642,7 @@ function envNames() {
 }
 var UUID_PATTERN, AGENT_ID_PATTERN2, ENVIRONMENTS, LRN_PATTERN, ENV_NAMES, EnvAddressError;
 var init_address = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/address.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/address.mjs"() {
     init_env2();
     UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     AGENT_ID_PATTERN2 = /^[a-z]([a-z0-9-]{0,61}[a-z0-9])?$/;
@@ -9611,39 +9658,39 @@ var init_address = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/uuid/src/max.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/uuid/src/max.mjs
 var init_max = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/uuid/src/max.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/uuid/src/max.mjs"() {
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/uuid/src/nil.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/uuid/src/nil.mjs
 var init_nil = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/uuid/src/nil.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/uuid/src/nil.mjs"() {
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/uuid/src/regex.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/uuid/src/regex.mjs
 var regex_default;
 var init_regex = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/uuid/src/regex.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/uuid/src/regex.mjs"() {
     regex_default = /^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$/i;
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/uuid/src/validate.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/uuid/src/validate.mjs
 function validate(uuid) {
   return typeof uuid === "string" && regex_default.test(uuid);
 }
 var validate_default;
 var init_validate = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/uuid/src/validate.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/uuid/src/validate.mjs"() {
     init_regex();
     validate_default = validate;
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/uuid/src/parse.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/uuid/src/parse.mjs
 function parse(uuid) {
   if (!validate_default(uuid)) {
     throw TypeError("Invalid UUID");
@@ -9675,19 +9722,19 @@ function parse(uuid) {
 }
 var parse_default;
 var init_parse2 = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/uuid/src/parse.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/uuid/src/parse.mjs"() {
     init_validate();
     parse_default = parse;
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/uuid/src/stringify.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/uuid/src/stringify.mjs
 function unsafeStringify(arr2, offset = 0) {
   return (byteToHex[arr2[offset + 0]] + byteToHex[arr2[offset + 1]] + byteToHex[arr2[offset + 2]] + byteToHex[arr2[offset + 3]] + "-" + byteToHex[arr2[offset + 4]] + byteToHex[arr2[offset + 5]] + "-" + byteToHex[arr2[offset + 6]] + byteToHex[arr2[offset + 7]] + "-" + byteToHex[arr2[offset + 8]] + byteToHex[arr2[offset + 9]] + "-" + byteToHex[arr2[offset + 10]] + byteToHex[arr2[offset + 11]] + byteToHex[arr2[offset + 12]] + byteToHex[arr2[offset + 13]] + byteToHex[arr2[offset + 14]] + byteToHex[arr2[offset + 15]]).toLowerCase();
 }
 var byteToHex;
 var init_stringify2 = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/uuid/src/stringify.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/uuid/src/stringify.mjs"() {
     init_validate();
     byteToHex = [];
     for (let i = 0; i < 256; ++i) {
@@ -9696,18 +9743,18 @@ var init_stringify2 = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/uuid/src/rng.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/uuid/src/rng.mjs
 function rng() {
   return crypto.getRandomValues(rnds8);
 }
 var rnds8;
 var init_rng = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/uuid/src/rng.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/uuid/src/rng.mjs"() {
     rnds8 = new Uint8Array(16);
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/uuid/src/v4.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/uuid/src/v4.mjs
 function v4(options, buf, offset) {
   if (!buf && !options && crypto.randomUUID) {
     return crypto.randomUUID();
@@ -9736,14 +9783,14 @@ function _v4(options, buf, offset) {
 }
 var v4_default;
 var init_v4 = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/uuid/src/v4.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/uuid/src/v4.mjs"() {
     init_rng();
     init_stringify2();
     v4_default = v4;
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/uuid/src/sha1.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/uuid/src/sha1.mjs
 function f(s, x, y, z) {
   switch (s) {
     case 0:
@@ -9811,12 +9858,12 @@ function sha1(bytes) {
 }
 var sha1_default;
 var init_sha1 = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/uuid/src/sha1.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/uuid/src/sha1.mjs"() {
     sha1_default = sha1;
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/uuid/src/v35.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/uuid/src/v35.mjs
 function stringToBytes(str) {
   str = unescape(encodeURIComponent(str));
   const bytes = new Uint8Array(str.length);
@@ -9854,7 +9901,7 @@ function v35(version, hash, value, namespace, buf, offset) {
 }
 var DNS, URL2;
 var init_v35 = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/uuid/src/v35.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/uuid/src/v35.mjs"() {
     init_parse2();
     init_stringify2();
     DNS = "6ba7b810-9dad-11d1-80b4-00c04fd430c8";
@@ -9862,13 +9909,13 @@ var init_v35 = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/uuid/src/v5.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/uuid/src/v5.mjs
 function v5(value, namespace, buf, offset) {
   return v35(80, sha1_default, value, namespace, buf, offset);
 }
 var v5_default;
 var init_v5 = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/uuid/src/v5.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/uuid/src/v5.mjs"() {
     init_sha1();
     init_v35();
     init_v35();
@@ -9878,7 +9925,7 @@ var init_v5 = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/uuid/src/v7.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/uuid/src/v7.mjs
 function v7(options, buf, offset) {
   let bytes;
   if (options) {
@@ -9939,7 +9986,7 @@ function v7Bytes(rnds, msecs, seq, buf, offset = 0) {
 }
 var _state, v7_default;
 var init_v7 = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/uuid/src/v7.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/uuid/src/v7.mjs"() {
     init_rng();
     init_stringify2();
     _state = {};
@@ -9947,16 +9994,16 @@ var init_v7 = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/uuid/src/version.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/uuid/src/version.mjs
 var init_version2 = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/uuid/src/version.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/uuid/src/version.mjs"() {
     init_validate();
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/uuid/src/index.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/uuid/src/index.mjs
 var init_src = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/uuid/src/index.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/uuid/src/index.mjs"() {
     init_max();
     init_nil();
     init_parse2();
@@ -9969,7 +10016,7 @@ var init_src = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/api_url.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/api_url.mjs
 function getOpenAPIBaseUrl(apiUrl) {
   const url = apiUrl.replace(/\/$/, "");
   for (const suffix of ["/api/v1", "/api"]) {
@@ -9979,14 +10026,14 @@ function getOpenAPIBaseUrl(apiUrl) {
   return url;
 }
 var init_api_url = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/api_url.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/api_url.mjs"() {
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/experimental/otel/constants.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/experimental/otel/constants.mjs
 var GEN_AI_OPERATION_NAME, GEN_AI_SYSTEM, GEN_AI_REQUEST_MODEL, GEN_AI_RESPONSE_MODEL, GEN_AI_USAGE_INPUT_TOKENS, GEN_AI_USAGE_OUTPUT_TOKENS, GEN_AI_USAGE_TOTAL_TOKENS, GEN_AI_REQUEST_MAX_TOKENS, GEN_AI_REQUEST_TEMPERATURE, GEN_AI_REQUEST_TOP_P, GEN_AI_REQUEST_FREQUENCY_PENALTY, GEN_AI_REQUEST_PRESENCE_PENALTY, GEN_AI_RESPONSE_FINISH_REASONS, GENAI_PROMPT, GENAI_COMPLETION, GEN_AI_REQUEST_EXTRA_QUERY, GEN_AI_REQUEST_EXTRA_BODY, GEN_AI_SERIALIZED_NAME, GEN_AI_SERIALIZED_SIGNATURE, GEN_AI_SERIALIZED_DOC, GEN_AI_RESPONSE_ID, GEN_AI_TOOL_NAME, GEN_AI_TOOL_CALL_ID, GEN_AI_TOOL_DEFINITIONS, GEN_AI_RESPONSE_SERVICE_TIER, GEN_AI_RESPONSE_SYSTEM_FINGERPRINT, GEN_AI_USAGE_INPUT_TOKEN_DETAILS, GEN_AI_USAGE_OUTPUT_TOKEN_DETAILS, LANGSMITH_SESSION_ID, LANGSMITH_SESSION_NAME, LANGSMITH_RUN_TYPE, LANGSMITH_NAME, LANGSMITH_METADATA, LANGSMITH_TAGS, LANGSMITH_REQUEST_STREAMING, LANGSMITH_REQUEST_HEADERS, LANGSMITH_USAGE_METADATA;
 var init_constants9 = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/experimental/otel/constants.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/experimental/otel/constants.mjs"() {
     GEN_AI_OPERATION_NAME = "gen_ai.operation.name";
     GEN_AI_SYSTEM = "gen_ai.system";
     GEN_AI_REQUEST_MODEL = "gen_ai.request.model";
@@ -10027,7 +10074,7 @@ var init_constants9 = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/singletons/otel.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/singletons/otel.mjs
 function getOTELTrace() {
   return OTELProviderSingleton.getTraceInstance();
 }
@@ -10039,7 +10086,7 @@ function getDefaultOTLPTracerComponents() {
 }
 var MockTracer, MockOTELTrace, MockOTELContext, OTEL_TRACE_KEY, OTEL_CONTEXT_KEY, OTEL_GET_DEFAULT_OTLP_TRACER_PROVIDER_KEY, mockOTELTrace, mockOTELContext, OTELProvider, OTELProviderSingleton;
 var init_otel = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/singletons/otel.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/singletons/otel.mjs"() {
     init_env2();
     MockTracer = class {
       constructor() {
@@ -10139,7 +10186,7 @@ var init_otel = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/experimental/otel/translator.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/experimental/otel/translator.mjs
 function getOperationName(runType) {
   return WELL_KNOWN_OPERATION_NAMES[runType] || runType;
 }
@@ -10148,7 +10195,7 @@ function isPrimitive(value) {
 }
 var WELL_KNOWN_OPERATION_NAMES, LangSmithToOTELTranslator;
 var init_translator = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/experimental/otel/translator.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/experimental/otel/translator.mjs"() {
     init_constants9();
     init_otel();
     WELL_KNOWN_OPERATION_NAMES = {
@@ -10507,7 +10554,7 @@ var init_translator = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/is-network-error/index.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/is-network-error/index.mjs
 function isNetworkError(error2) {
   const isValid = error2 && isError(error2) && error2.name === "TypeError" && typeof error2.message === "string";
   if (!isValid) {
@@ -10525,7 +10572,7 @@ function isNetworkError(error2) {
 }
 var objectToString, isError, errorMessages;
 var init_is_network_error = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/is-network-error/index.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/is-network-error/index.mjs"() {
     objectToString = Object.prototype.toString;
     isError = (value) => objectToString.call(value) === "[object Error]";
     errorMessages = /* @__PURE__ */ new Set([
@@ -10551,7 +10598,7 @@ var init_is_network_error = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/p-retry/index.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/p-retry/index.mjs
 function validateRetries(retries) {
   if (typeof retries === "number") {
     if (retries < 0) {
@@ -10630,7 +10677,7 @@ async function onAttemptFailure({ error: error2, attemptNumber, retriesConsumed,
   const delayTime = calculateDelay(retriesConsumed, options);
   const finalDelay = Math.min(delayTime, remainingTime);
   if (finalDelay > 0) {
-    await new Promise((resolve15, reject) => {
+    await new Promise((resolve16, reject) => {
       const onAbort = () => {
         clearTimeout(timeoutToken);
         options.signal?.removeEventListener("abort", onAbort);
@@ -10638,7 +10685,7 @@ async function onAttemptFailure({ error: error2, attemptNumber, retriesConsumed,
       };
       const timeoutToken = setTimeout(() => {
         options.signal?.removeEventListener("abort", onAbort);
-        resolve15();
+        resolve16();
       }, finalDelay);
       if (options.unref) {
         timeoutToken.unref?.();
@@ -10711,7 +10758,7 @@ async function pRetry(input, options = {}) {
 }
 var AbortError;
 var init_p_retry = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/p-retry/index.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/p-retry/index.mjs"() {
     init_is_network_error();
     AbortError = class extends Error {
       constructor(message) {
@@ -10900,11 +10947,11 @@ var require_p_finally = __commonJS({
       onFinally = onFinally || (() => {
       });
       return promise.then(
-        (val) => new Promise((resolve15) => {
-          resolve15(onFinally());
+        (val) => new Promise((resolve16) => {
+          resolve16(onFinally());
         }).then(() => val),
-        (err) => new Promise((resolve15) => {
-          resolve15(onFinally());
+        (err) => new Promise((resolve16) => {
+          resolve16(onFinally());
         }).then(() => {
           throw err;
         })
@@ -10924,18 +10971,18 @@ var require_p_timeout = __commonJS({
         this.name = "TimeoutError";
       }
     };
-    var pTimeout = (promise, milliseconds, fallback) => new Promise((resolve15, reject) => {
+    var pTimeout = (promise, milliseconds, fallback) => new Promise((resolve16, reject) => {
       if (typeof milliseconds !== "number" || milliseconds < 0) {
         throw new TypeError("Expected `milliseconds` to be a positive number");
       }
       if (milliseconds === Infinity) {
-        resolve15(promise);
+        resolve16(promise);
         return;
       }
       const timer = setTimeout(() => {
         if (typeof fallback === "function") {
           try {
-            resolve15(fallback());
+            resolve16(fallback());
           } catch (error2) {
             reject(error2);
           }
@@ -10950,7 +10997,7 @@ var require_p_timeout = __commonJS({
       }, milliseconds);
       pFinally(
         // eslint-disable-next-line promise/prefer-await-to-then
-        promise.then(resolve15, reject),
+        promise.then(resolve16, reject),
         () => {
           clearTimeout(timer);
         }
@@ -11168,7 +11215,7 @@ var require_dist = __commonJS({
       Adds a sync or async task to the queue. Always returns a promise.
       */
       async add(fn, options = {}) {
-        return new Promise((resolve15, reject) => {
+        return new Promise((resolve16, reject) => {
           const run11 = async () => {
             this._pendingCount++;
             this._intervalCount++;
@@ -11179,7 +11226,7 @@ var require_dist = __commonJS({
                 }
                 return void 0;
               });
-              resolve15(await operation);
+              resolve16(await operation);
             } catch (error2) {
               reject(error2);
             }
@@ -11230,11 +11277,11 @@ var require_dist = __commonJS({
         if (this._queue.size === 0) {
           return;
         }
-        return new Promise((resolve15) => {
+        return new Promise((resolve16) => {
           const existingResolve = this._resolveEmpty;
           this._resolveEmpty = () => {
             existingResolve();
-            resolve15();
+            resolve16();
           };
         });
       }
@@ -11247,11 +11294,11 @@ var require_dist = __commonJS({
         if (this._pendingCount === 0 && this._queue.size === 0) {
           return;
         }
-        return new Promise((resolve15) => {
+        return new Promise((resolve16) => {
           const existingResolve = this._resolveIdle;
           this._resolveIdle = () => {
             existingResolve();
-            resolve15();
+            resolve16();
           };
         });
       }
@@ -11295,19 +11342,19 @@ var require_dist = __commonJS({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/p-queue.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/p-queue.mjs
 var import_p_queue, PQueue;
 var init_p_queue = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/p-queue.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/p-queue.mjs"() {
     import_p_queue = __toESM(require_dist(), 1);
     PQueue = "default" in import_p_queue.default ? import_p_queue.default.default : import_p_queue.default;
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/async_caller.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/async_caller.mjs
 var STATUS_RETRYABLE, AsyncCaller;
 var init_async_caller = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/async_caller.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/async_caller.mjs"() {
     init_p_retry();
     init_p_queue();
     STATUS_RETRYABLE = [
@@ -11439,7 +11486,7 @@ var init_async_caller = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/messages.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/messages.mjs
 function isLangChainMessage(message) {
   return typeof message?._getType === "function";
 }
@@ -11454,11 +11501,11 @@ function convertLangChainMessageToExample(message) {
   return converted;
 }
 var init_messages = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/messages.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/messages.mjs"() {
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/warn.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/warn.mjs
 function warnOnce(message, options) {
   const key = options?.code ?? message;
   if (!warnedMessages[key]) {
@@ -11474,12 +11521,12 @@ function warnOnce(message, options) {
 }
 var warnedMessages;
 var init_warn = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/warn.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/warn.mjs"() {
     warnedMessages = {};
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/xxhash/xxhash.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/xxhash/xxhash.mjs
 function hexToBytes(hex) {
   const bytes = new Uint8Array(hex.length / 2);
   for (let i = 0; i < hex.length; i += 2) {
@@ -11728,7 +11775,7 @@ function xxh128ToBytes(hash128) {
 }
 var n, PRIME32_1, PRIME32_2, PRIME32_3, PRIME64_1, PRIME64_2, PRIME64_3, PRIME64_4, PRIME64_5, PRIME_MX1, PRIME_MX2, kkey, mask128, mask64, mask32, STRIPE_LEN, ACC_NB, _U64, _U32, bswap64, bswap32, XXH_mult32to64, assert;
 var init_xxhash = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/xxhash/xxhash.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/xxhash/xxhash.mjs"() {
     n = (n2) => BigInt(n2);
     PRIME32_1 = n("0x9E3779B1");
     PRIME32_2 = n("0x85EBCA77");
@@ -11764,7 +11811,7 @@ var init_xxhash = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/_uuid.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/_uuid.mjs
 function assertUuid(str, which) {
   if (!UUID_REGEX.test(str)) {
     const msg = which !== void 0 ? `Invalid UUID for ${which}: ${str}` : `Invalid UUID: ${str}`;
@@ -11819,7 +11866,7 @@ function nonCryptographicUuid7Deterministic(originalId, key) {
 }
 var UUID_REGEX, _textEncoder;
 var init_uuid2 = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/_uuid.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/_uuid.mjs"() {
     init_src();
     init_warn();
     init_xxhash();
@@ -11828,13 +11875,121 @@ var init_uuid2 = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/sampling.mjs
-var SAMPLING_HASH_MODULUS, encoder, isSampledById;
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/compressed_runs.mjs
+var encoder, CompressedRunBuffer;
+var init_compressed_runs = __esm({
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/compressed_runs.mjs"() {
+    encoder = new TextEncoder();
+    CompressedRunBuffer = class {
+      constructor() {
+        Object.defineProperty(this, "boundary", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: "----LangSmithFormBoundary" + Math.random().toString(36).slice(2)
+        });
+        Object.defineProperty(this, "uncompressedSize", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: 0
+        });
+        Object.defineProperty(this, "count", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: 0
+        });
+        Object.defineProperty(this, "context", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: []
+        });
+        Object.defineProperty(this, "onSent", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: []
+        });
+        Object.defineProperty(this, "writer", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: void 0
+        });
+        Object.defineProperty(this, "chunks", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: []
+        });
+        Object.defineProperty(this, "readDone", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: void 0
+        });
+        const stream = new CompressionStream("gzip");
+        this.writer = stream.writable.getWriter();
+        const reader = stream.readable.getReader();
+        this.readDone = (async () => {
+          for (; ; ) {
+            const { done, value } = await reader.read();
+            if (done)
+              return;
+            this.chunks.push(value);
+          }
+        })();
+      }
+      static isSupported() {
+        return typeof CompressionStream !== "undefined";
+      }
+      /** Resolves once gzip has taken the bytes, so the caller can drop them. */
+      async writeParts(parts, context, onSent) {
+        this.count += 1;
+        this.context.push(context);
+        this.onSent.push(onSent);
+        for (const part of parts) {
+          await this._write(encoder.encode(`--${this.boundary}\r
+Content-Disposition: form-data; name="${part.name}"\r
+Content-Type: ${part.contentType}\r
+\r
+`));
+          await this._write(part.data);
+          await this._write(encoder.encode("\r\n"));
+        }
+      }
+      /** Close the multipart body and return the gzipped bytes. */
+      async close() {
+        await this._write(encoder.encode(`--${this.boundary}--\r
+`));
+        await this.writer.close();
+        await this.readDone;
+        const body = new Uint8Array(this.chunks.reduce((sum, c) => sum + c.byteLength, 0));
+        let offset = 0;
+        for (const chunk of this.chunks) {
+          body.set(chunk, offset);
+          offset += chunk.byteLength;
+        }
+        this.chunks = [];
+        return body;
+      }
+      async _write(chunk) {
+        this.uncompressedSize += chunk.byteLength;
+        await this.writer.write(chunk);
+      }
+    };
+  }
+});
+
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/sampling.mjs
+var SAMPLING_HASH_MODULUS, encoder2, isSampledById;
 var init_sampling = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/sampling.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/sampling.mjs"() {
     init_xxhash();
     SAMPLING_HASH_MODULUS = 1000000n;
-    encoder = new TextEncoder();
+    encoder2 = new TextEncoder();
     isSampledById = (identifier, samplingRate2) => {
       if (samplingRate2 === void 0 || samplingRate2 >= 1) {
         return true;
@@ -11845,13 +12000,13 @@ var init_sampling = __esm({
       if (identifier == null) {
         return true;
       }
-      const bucket = XXH3_128(encoder.encode(identifier.toLowerCase())) % SAMPLING_HASH_MODULUS;
+      const bucket = XXH3_128(encoder2.encode(identifier.toLowerCase())) % SAMPLING_HASH_MODULUS;
       return Number(bucket) / Number(SAMPLING_HASH_MODULUS) < samplingRate2;
     };
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/addressing.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/addressing.mjs
 function rejectConflicting(project, address) {
   if (project && address) {
     throw new Error(`A run is sent to a project (${JSON.stringify(project)}) or to an address, not both.`);
@@ -11908,14 +12063,14 @@ function applyToPayload(run11, { update = false } = {}) {
   }
 }
 var init_addressing = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/addressing.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/addressing.mjs"() {
     init_address();
     init_env2();
     init_warn();
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/v2_migration.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/v2_migration.mjs
 function getQueryBackend(instanceFlags) {
   const flags = instanceFlags ?? {};
   const chEnabled = Boolean(flags.ch_query_enabled ?? true);
@@ -11928,7 +12083,7 @@ function getQueryBackend(instanceFlags) {
 }
 var QueryBackend;
 var init_v2_migration = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/v2_migration.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/v2_migration.mjs"() {
     QueryBackend = {
       CLICKHOUSE_ONLY: "clickhouse_only",
       SMITHDB_ONLY: "smithdb_only",
@@ -11937,7 +12092,7 @@ var init_v2_migration = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/error.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/error.mjs
 function getInvalidPromptIdentifierMsg(identifier) {
   return `Invalid prompt identifier format: "${identifier}". Expected one of:
   - "prompt-name" (for private prompts)
@@ -11990,7 +12145,7 @@ function isConflictingEndpointsError(err) {
 }
 var LangSmithConflictError, LangSmithNotFoundError, ERR_CONFLICTING_ENDPOINTS, ConflictingEndpointsError;
 var init_error2 = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/error.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/error.mjs"() {
     LangSmithConflictError = class extends Error {
       constructor(message) {
         super(message);
@@ -12033,7 +12188,7 @@ var init_error2 = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/prompts.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/prompts.mjs
 function parseHubIdentifier(identifier) {
   if (!identifier || identifier.split("/").length > 2 || identifier.startsWith("/") || identifier.endsWith("/") || identifier.split(":").length > 2) {
     throw new Error(getInvalidPromptIdentifierMsg(identifier));
@@ -12054,25 +12209,42 @@ function parseHubIdentifier(identifier) {
   }
 }
 var init_prompts = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/prompts.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/prompts.mjs"() {
     init_error2();
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/fs.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/fs.mjs
 import * as nodeFs from "node:fs";
 import * as nodeFsPromises from "node:fs/promises";
 import * as nodePath from "node:path";
+import { homedir } from "node:os";
+import { randomUUID as randomUUID7 } from "node:crypto";
+function resolveConfigPath(filePath) {
+  const expanded = filePath === "~" || filePath.startsWith("~/") || filePath.startsWith("~\\") ? nodePath.join(homedir(), filePath.slice(1)) : filePath;
+  const absolute = nodePath.resolve(expanded);
+  return nodeFs.existsSync(absolute) ? nodeFs.realpathSync(absolute) : absolute;
+}
+function homeDirectory() {
+  return homedir();
+}
 async function mkdir5(dir) {
   await nodeFsPromises.mkdir(dir, { recursive: true });
 }
 async function writeFileAtomic(filePath, content) {
-  const tempPath = `${filePath}.tmp`;
-  await nodeFsPromises.writeFile(tempPath, content, {
-    encoding: "utf8",
-    mode: 384
-  });
-  await nodeFsPromises.rename(tempPath, filePath);
+  const tempPath = `${filePath}.${randomUUID7()}.tmp`;
+  const file = await nodeFsPromises.open(tempPath, "wx", 384);
+  try {
+    try {
+      await file.writeFile(content, "utf8");
+      await file.sync();
+    } finally {
+      await file.close();
+    }
+    await nodeFsPromises.rename(tempPath, filePath);
+  } finally {
+    await nodeFsPromises.rm(tempPath, { force: true });
+  }
 }
 async function readdir5(dir) {
   return nodeFsPromises.readdir(dir);
@@ -12109,16 +12281,21 @@ function statMtimeMs(filePath) {
   }
 }
 async function rmRecursive(filePath) {
-  await nodeFsPromises.rm(filePath, { recursive: true, force: true });
+  await nodeFsPromises.rm(filePath, {
+    recursive: true,
+    force: true,
+    maxRetries: 5,
+    retryDelay: 10
+  });
 }
 var path2;
 var init_fs = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/fs.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/fs.mjs"() {
     path2 = nodePath;
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/prompt_cache/index.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/prompt_cache/index.mjs
 function isStale(entry, ttlSeconds) {
   if (ttlSeconds === null) {
     return false;
@@ -12128,7 +12305,7 @@ function isStale(entry, ttlSeconds) {
 }
 var PromptCache, promptCacheSingleton;
 var init_prompt_cache = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/prompt_cache/index.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/prompt_cache/index.mjs"() {
     init_fs();
     PromptCache = class {
       constructor(config = {}) {
@@ -12398,10 +12575,10 @@ var init_prompt_cache = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/singletons/fetch.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/singletons/fetch.mjs
 var DEFAULT_FETCH_IMPLEMENTATION, globalFetchSupportsWebStreaming, LANGSMITH_FETCH_IMPLEMENTATION_KEY, _shouldStreamForGlobalFetchImplementation, _getFetchImplementation;
 var init_fetch = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/singletons/fetch.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/singletons/fetch.mjs"() {
     init_env2();
     DEFAULT_FETCH_IMPLEMENTATION = (...args) => fetch(...args);
     globalFetchSupportsWebStreaming = void 0;
@@ -12429,9 +12606,9 @@ var init_fetch = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/profile-lock.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/profile-lock.mjs
 function sleep2(ms) {
-  return new Promise((resolve15) => setTimeout(resolve15, ms));
+  return new Promise((resolve16) => setTimeout(resolve16, ms));
 }
 function isEEXIST(err) {
   return typeof err === "object" && err !== null && err.code === "EEXIST";
@@ -12453,13 +12630,6 @@ function lockCreatedAtMs(lockDir) {
   }
   return statMtimeMs(lockDir);
 }
-function lockOwner(lockDir) {
-  const lines = lockMetadataLines(lockDir);
-  if (lines && lines.length >= 2 && lines[1].trim()) {
-    return lines[1].trim();
-  }
-  return void 0;
-}
 async function removeStaleLock(lockDir) {
   const createdAt = lockCreatedAtMs(lockDir);
   if (createdAt === void 0 || Date.now() - createdAt <= LOCK_STALE_AFTER_MS) {
@@ -12468,14 +12638,25 @@ async function removeStaleLock(lockDir) {
   await rmRecursive(lockDir);
   return true;
 }
+function lockOwner(lockDir) {
+  const lines = lockMetadataLines(lockDir);
+  if (lines && lines.length >= 2 && lines[1].trim()) {
+    return lines[1].trim();
+  }
+  return void 0;
+}
 async function acquireOAuthRefreshLock(configPath, deadline) {
-  const lockDir = `${configPath}.oauth.lock.lock`;
+  const lockDir = `${resolveConfigPath(configPath)}.oauth.lock.lock`;
+  const waitUntil = performance.now() + Math.max(0, deadline - Date.now());
   const parent = path2.dirname(lockDir);
   if (parent) {
     await mkdir5(parent);
   }
   const owner = globalThis.crypto.randomUUID();
   for (; ; ) {
+    if (performance.now() >= waitUntil) {
+      throw new Error("timed out acquiring OAuth refresh lock");
+    }
     try {
       await mkdirExclusive(lockDir);
     } catch (err) {
@@ -12483,10 +12664,7 @@ async function acquireOAuthRefreshLock(configPath, deadline) {
         throw err;
       }
       if (!await removeStaleLock(lockDir)) {
-        if (Date.now() >= deadline) {
-          throw new Error("timed out acquiring OAuth refresh lock");
-        }
-        await sleep2(Math.min(LOCK_POLL_INTERVAL_MS, Math.max(0, deadline - Date.now())));
+        await sleep2(Math.min(LOCK_POLL_INTERVAL_MS, Math.max(0, waitUntil - performance.now())));
       }
       continue;
     }
@@ -12508,31 +12686,30 @@ ${owner}
     }
   };
 }
-var LOCK_POLL_INTERVAL_MS, LOCK_STALE_AFTER_MS, LOCK_METADATA_FILE;
+var LOCK_POLL_INTERVAL_MS, OAUTH_REFRESH_LOCK_STALE_AFTER_MS, LOCK_STALE_AFTER_MS, LOCK_METADATA_FILE;
 var init_profile_lock = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/profile-lock.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/profile-lock.mjs"() {
     init_fs();
     LOCK_POLL_INTERVAL_MS = 10;
-    LOCK_STALE_AFTER_MS = 1e4;
+    OAUTH_REFRESH_LOCK_STALE_AFTER_MS = 15e3;
+    LOCK_STALE_AFTER_MS = OAUTH_REFRESH_LOCK_STALE_AFTER_MS;
     LOCK_METADATA_FILE = "created_at";
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/profiles.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/profiles.mjs
 function isBrowserLikeRuntime() {
   const env = getEnv();
   return env === "browser" || env === "webworker";
 }
 function getProfileConfigPath(selected) {
   const explicitPath = selected || getEnvironmentVariable("LANGSMITH_CONFIG_FILE");
-  if (explicitPath) {
-    return explicitPath;
-  }
-  const home = getEnvironmentVariable("HOME") ?? getEnvironmentVariable("USERPROFILE");
-  if (!home) {
+  const configuredPath = explicitPath || path2.join(homeDirectory(), ".langsmith", "config.json");
+  try {
+    return resolveConfigPath(configuredPath);
+  } catch {
     return void 0;
   }
-  return path2.join(home, ".langsmith", "config.json");
 }
 function resolveProfileName(config, selected) {
   const chosen = selected || getEnvironmentVariable("LANGSMITH_PROFILE");
@@ -12589,6 +12766,13 @@ function shouldRefreshProfileToken(profile) {
     return false;
   }
   return expiresAt <= Date.now() + TOKEN_REFRESH_LEEWAY_MS;
+}
+function accessTokenUsable(profile) {
+  if (!trimConfigValue(profile.oauth?.access_token)) {
+    return false;
+  }
+  const expiresAt = profile.oauth?.expires_at ? Date.parse(profile.oauth.expires_at) : Number.NaN;
+  return Number.isNaN(expiresAt) || expiresAt > Date.now();
 }
 function normalizeConfigUrl(apiUrl) {
   let normalized = apiUrl;
@@ -12649,13 +12833,17 @@ function oauthMetadataUrls(base) {
   }
   return inserted === appended ? [inserted] : [inserted, appended];
 }
-async function fetchOAuthMetadata(url, base, fetchImplementation) {
+async function fetchOAuthMetadata(url, base, fetchImplementation, deadline) {
+  const timeoutMs2 = Math.min(OAUTH_DISCOVERY_TIMEOUT_MS, deadline - Date.now());
+  if (timeoutMs2 <= 0) {
+    return void 0;
+  }
   let response;
   try {
     response = await fetchImplementation(url, {
       method: "GET",
       headers: { Accept: "application/json" },
-      signal: AbortSignal.timeout(OAUTH_DISCOVERY_TIMEOUT_MS)
+      signal: AbortSignal.timeout(timeoutMs2)
     });
   } catch {
     return void 0;
@@ -12674,10 +12862,10 @@ async function fetchOAuthMetadata(url, base, fetchImplementation) {
   }
   return doc;
 }
-async function resolveTokenEndpoint(apiUrl, fetchImplementation) {
+async function resolveTokenEndpoint(apiUrl, fetchImplementation, deadline = Number.POSITIVE_INFINITY) {
   for (const base of oauthDiscoveryCandidates(apiUrl)) {
     for (const url of oauthMetadataUrls(base)) {
-      const doc = await fetchOAuthMetadata(url, base, fetchImplementation);
+      const doc = await fetchOAuthMetadata(url, base, fetchImplementation, deadline);
       if (doc) {
         return doc.token_endpoint;
       }
@@ -12732,16 +12920,18 @@ function loadProfileClientConfig(selection = {}) {
   const apiKey = trimConfigValue(profile.api_key);
   const oauthAccessToken = trimConfigValue(profile.oauth?.access_token);
   const oauthRefreshToken = trimConfigValue(profile.oauth?.refresh_token);
+  const apiKeyRef = trimConfigValue(profile.api_key_env) || trimConfigValue(profile.api_key_cmd);
   return {
     apiUrl: profile.api_url,
     apiKey,
     workspaceId: profile.workspace_id,
     oauthAccessToken,
     oauthRefreshToken,
-    profileAuth: apiKey || oauthAccessToken || oauthRefreshToken ? new ProfileAuth(state) : void 0
+    profileAuth: apiKey || oauthAccessToken || oauthRefreshToken || apiKeyRef ? new ProfileAuth(state) : void 0
   };
 }
-function currentAuthHeaderFromProfile(profile) {
+function currentAuthHeaderFromProfile(state) {
+  const { profile } = state;
   const oauthAccessToken = trimConfigValue(profile.oauth?.access_token);
   if (oauthAccessToken) {
     return { name: "Authorization", value: `Bearer ${oauthAccessToken}` };
@@ -12749,22 +12939,41 @@ function currentAuthHeaderFromProfile(profile) {
   if (trimConfigValue(profile.oauth?.refresh_token)) {
     return void 0;
   }
-  return authHeaderFromProfile(profile);
+  return authHeaderFromProfile(state);
 }
-function authHeaderFromProfile(profile) {
+function authHeaderFromProfile(state) {
+  const { profile } = state;
   const oauthAccessToken = trimConfigValue(profile.oauth?.access_token);
   if (oauthAccessToken) {
     return { name: "Authorization", value: `Bearer ${oauthAccessToken}` };
   }
-  const apiKey = trimConfigValue(profile.api_key);
+  const apiKey = profileApiKey(state.profileName, profile);
   if (apiKey) {
     return { name: "x-api-key", value: apiKey };
   }
   return void 0;
 }
-var DEFAULT_API_URL, OAUTH_CLIENT_ID, TOKEN_REFRESH_LEEWAY_MS, TOKEN_REFRESH_TIMEOUT_MS, OAUTH_DISCOVERY_TIMEOUT_MS, WELL_KNOWN_OAUTH_PATH, ProfileAuth;
+function profileApiKey(profileName, profile) {
+  const apiKey = trimConfigValue(profile.api_key);
+  if (apiKey) {
+    return apiKey;
+  }
+  const apiKeyEnv = trimConfigValue(profile.api_key_env);
+  if (apiKeyEnv) {
+    const key = getEnvironmentVariable(apiKeyEnv)?.trim();
+    if (key) {
+      return key;
+    }
+    throw new ProfileApiKeyError(`LangSmith profile "${profileName}" reads its API key from $${apiKeyEnv}, which is not set`);
+  }
+  if (trimConfigValue(profile.api_key_cmd)) {
+    throw new ProfileApiKeyError(`LangSmith profile "${profileName}" gets its API key from a command (api_key_cmd), which the JS SDK does not support yet. Set api_key_env in the profile, or set LANGSMITH_API_KEY.`);
+  }
+  return void 0;
+}
+var DEFAULT_API_URL, OAUTH_CLIENT_ID, TOKEN_REFRESH_LEEWAY_MS, TOKEN_REFRESH_TIMEOUT_MS, OAUTH_DISCOVERY_TIMEOUT_MS, WELL_KNOWN_OAUTH_PATH, ProfileApiKeyError, ProfileRefreshLockError, ProfileAuth;
 var init_profiles = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/profiles.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/profiles.mjs"() {
     init_env2();
     init_fs();
     init_profile_lock();
@@ -12774,6 +12983,21 @@ var init_profiles = __esm({
     TOKEN_REFRESH_TIMEOUT_MS = 1e4;
     OAUTH_DISCOVERY_TIMEOUT_MS = 5e3;
     WELL_KNOWN_OAUTH_PATH = "/.well-known/oauth-authorization-server";
+    ProfileApiKeyError = class extends Error {
+      constructor(message) {
+        super(message);
+        this.name = "ProfileApiKeyError";
+      }
+    };
+    ProfileRefreshLockError = class extends Error {
+      constructor(message, options) {
+        super(message);
+        this.name = "ProfileRefreshLockError";
+        if (options && "cause" in options) {
+          this.cause = options.cause;
+        }
+      }
+    };
     ProfileAuth = class {
       constructor(state) {
         Object.defineProperty(this, "state", {
@@ -12796,8 +13020,21 @@ var init_profiles = __esm({
         });
         this.rememberProfileAuthHeader(this.currentAuthHeader());
       }
+      /**
+       * The auth header to snapshot into default headers. A profile API key that
+       * cannot be resolved yields none here; `getAuthHeader` reports it when a
+       * request needs it.
+       */
       currentAuthHeader() {
-        const header = currentAuthHeaderFromProfile(this.state.profile);
+        let header;
+        try {
+          header = currentAuthHeaderFromProfile(this.state);
+        } catch (error2) {
+          if (!(error2 instanceof ProfileApiKeyError)) {
+            throw error2;
+          }
+          header = void 0;
+        }
         this.rememberProfileAuthHeader(header);
         return header;
       }
@@ -12810,7 +13047,7 @@ var init_profiles = __esm({
           }
           await waitForAbortSignal(this.refreshPromise, signal);
         }
-        const header = authHeaderFromProfile(this.state.profile);
+        const header = authHeaderFromProfile(this.state);
         this.rememberProfileAuthHeader(header);
         return header;
       }
@@ -12837,21 +13074,32 @@ var init_profiles = __esm({
         if (!refreshToken) {
           return;
         }
-        const refreshApiUrl = trimConfigValue(this.state.profile.api_url) ?? DEFAULT_API_URL;
         const deadline = Date.now() + TOKEN_REFRESH_TIMEOUT_MS;
         let lock;
         try {
-          lock = await acquireOAuthRefreshLock(this.state.configPath, deadline);
-          const fresh = this.reloadProfile();
-          if (fresh && !shouldRefreshProfileToken(this.state.profile)) {
+          try {
+            lock = await acquireOAuthRefreshLock(this.state.configPath, deadline);
+          } catch (error2) {
+            if (!accessTokenUsable(this.state.profile)) {
+              throw new ProfileRefreshLockError(`Could not refresh the expired OAuth token for LangSmith profile "${this.state.profileName}": failed to acquire the refresh lock next to ${this.state.configPath} (${error2 instanceof Error ? error2.message : String(error2)}). Another process may be refreshing it, or the config directory may not be writable; OAuth profiles need a writable config. Use an API key for read-only configs. A lock left by a crashed process is released automatically after ${OAUTH_REFRESH_LOCK_STALE_AFTER_MS / 1e3} seconds.`, { cause: error2 });
+            }
             return;
           }
+          const fresh = this.reloadProfile();
+          const freshRefreshToken = fresh?.oauth?.refresh_token;
+          if (!fresh || !freshRefreshToken || !shouldRefreshProfileToken(fresh)) {
+            return;
+          }
+          const refreshApiUrl = trimConfigValue(fresh.api_url) ?? DEFAULT_API_URL;
           const body = new URLSearchParams({
             grant_type: "refresh_token",
             client_id: OAUTH_CLIENT_ID,
-            refresh_token: this.state.profile.oauth?.refresh_token ?? refreshToken
+            refresh_token: freshRefreshToken
           });
-          const tokenEndpoint = await resolveTokenEndpoint(refreshApiUrl, fetchImplementation);
+          const tokenEndpoint = await resolveTokenEndpoint(refreshApiUrl, fetchImplementation, deadline);
+          if (Date.now() >= deadline) {
+            return;
+          }
           const response = await fetchImplementation(tokenEndpoint, {
             method: "POST",
             headers: {
@@ -12872,7 +13120,10 @@ var init_profiles = __esm({
           this.state.config.profiles[this.state.profileName] = this.state.profile;
           await writeFileAtomic(this.state.configPath, `${JSON.stringify(this.state.config, null, 2)}
 `);
-        } catch {
+        } catch (error2) {
+          if (error2 instanceof ProfileRefreshLockError) {
+            throw error2;
+          }
           return;
         } finally {
           await lock?.release();
@@ -12885,7 +13136,7 @@ var init_profiles = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/fast-safe-stringify/index.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/fast-safe-stringify/index.mjs
 function defaultOptions() {
   return {
     depthLimit: Number.MAX_SAFE_INTEGER,
@@ -12893,7 +13144,7 @@ function defaultOptions() {
   };
 }
 function encodeString(str) {
-  return encoder2.encode(str);
+  return encoder3.encode(str);
 }
 function serializeWellKnownTypes(val) {
   if (val && typeof val === "object" && val !== null) {
@@ -13169,29 +13420,29 @@ function replaceGetterValues(replacer) {
     return replacer.call(this, key, val);
   };
 }
-var LIMIT_REPLACE_NODE, CIRCULAR_REPLACE_NODE, arr, replacerStack, encoder2;
+var LIMIT_REPLACE_NODE, CIRCULAR_REPLACE_NODE, arr, replacerStack, encoder3;
 var init_fast_safe_stringify = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/fast-safe-stringify/index.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/fast-safe-stringify/index.mjs"() {
     init_env2();
     LIMIT_REPLACE_NODE = "[...]";
     CIRCULAR_REPLACE_NODE = { result: "[Circular]" };
     arr = [];
     replacerStack = [];
-    encoder2 = new TextEncoder();
+    encoder3 = new TextEncoder();
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/worker_threads.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/worker_threads.mjs
 import { Worker as NodeWorker } from "node:worker_threads";
 var Worker, WORKER_THREADS_AVAILABLE;
 var init_worker_threads = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/worker_threads.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/worker_threads.mjs"() {
     Worker = NodeWorker;
     WORKER_THREADS_AVAILABLE = true;
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/serialize_worker.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/serialize_worker.mjs
 function getSharedSerializeWorker() {
   if (sharedWorker === null)
     sharedWorker = new SerializeWorker();
@@ -13249,7 +13500,7 @@ function hasLargeString(value, threshold = LARGE_STRING_THRESHOLD, nodeBudget = 
 }
 var WORKER_SOURCE, SerializeWorker, sharedWorker, LARGE_STRING_THRESHOLD, NODE_BUDGET;
 var init_serialize_worker = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/serialize_worker.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/serialize_worker.mjs"() {
     init_worker_threads();
     WORKER_SOURCE = /* js */
     `
@@ -13453,8 +13704,8 @@ parentPort.on("message", (msg) => {
         if (!ok)
           return null;
         const id = this.nextId++;
-        return new Promise((resolve15, reject) => {
-          this.pending.set(id, { resolve: resolve15, reject });
+        return new Promise((resolve16, reject) => {
+          this.pending.set(id, { resolve: resolve16, reject });
           try {
             this.worker.postMessage({ id, op: "serialize", payload });
           } catch (e) {
@@ -13480,7 +13731,7 @@ parentPort.on("message", (msg) => {
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/client.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/client.mjs
 function assertPullPublicPromptAllowed(promptIdentifier, dangerouslyPullPublicPrompt) {
   const [owner] = parseHubIdentifier(promptIdentifier);
   if (owner !== "-" && !dangerouslyPullPublicPrompt) {
@@ -13625,7 +13876,7 @@ function getExampleReferenceOutputs(example) {
 }
 var getTracingSamplingRate, isLocalhost, handle429, DEFAULT_UNCOMPRESSED_BATCH_SIZE_LIMIT_BYTES, DEFAULT_MAX_SIZE_BYTES, SERVER_INFO_REQUEST_TIMEOUT_MS, DEFAULT_BATCH_SIZE_LIMIT, AutoBatchQueue, Client;
 var init_client2 = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/client.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/client.mjs"() {
     init_address();
     init_src();
     init_api_url();
@@ -13637,6 +13888,7 @@ var init_client2 = __esm({
     init_lib();
     init_client();
     init_uuid2();
+    init_compressed_runs();
     init_sampling();
     init_warn();
     init_address();
@@ -13670,7 +13922,7 @@ var init_client2 = __esm({
       if (response?.status === 429) {
         const retryAfter = parseInt(response.headers.get("retry-after") ?? "10", 10) * 1e3;
         if (retryAfter > 0) {
-          await new Promise((resolve15) => setTimeout(resolve15, retryAfter));
+          await new Promise((resolve16) => setTimeout(resolve16, retryAfter));
           return true;
         }
       }
@@ -13707,11 +13959,11 @@ var init_client2 = __esm({
       }
       push(item) {
         let itemPromiseResolve;
-        const itemPromise = new Promise((resolve15) => {
-          itemPromiseResolve = resolve15;
+        const itemPromise = new Promise((resolve16) => {
+          itemPromiseResolve = resolve16;
         });
         const size = estimateSerializedSize(item.item).size;
-        if (this.sizeBytes + size > this.maxSizeBytes && this.items.length > 0) {
+        if (this.sizeBytes + size > this.maxSizeBytes && this.sizeBytes > 0) {
           console.warn(`AutoBatchQueue size limit (${this.maxSizeBytes} bytes) exceeded. Dropping run with id: ${item.item.id}. Current queue size: ${this.sizeBytes} bytes, attempted addition: ${size} bytes.`);
           itemPromiseResolve();
           return itemPromise;
@@ -13768,6 +14020,15 @@ var init_client2 = __esm({
     Client = class _Client {
       get tracingMode() {
         return this._tracingMode;
+      }
+      // Workspace ids are per instance: a replica with its own key on another host
+      // drops the inherited one.
+      _applyReplicaWorkspace(headers, options) {
+        if (options?.workspaceId !== void 0) {
+          headers["x-tenant-id"] = options.workspaceId;
+        } else if (options?.apiUrl !== void 0 && options.apiKey !== void 0 && options.apiKey !== this.apiKey && new URL(options.apiUrl).host !== new URL(this.apiUrl).host) {
+          delete headers["x-tenant-id"];
+        }
       }
       get _fetch() {
         const fetchImplementation = this.fetchImplementation || _getFetchImplementation(this.debug);
@@ -14139,6 +14400,30 @@ var init_client2 = __esm({
           writable: true,
           value: /* @__PURE__ */ new Set()
         });
+        Object.defineProperty(this, "_compressedBuffers", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: /* @__PURE__ */ new Map()
+        });
+        Object.defineProperty(this, "_compressedWriteChain", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: Promise.resolve()
+        });
+        Object.defineProperty(this, "_compressedFlushTimeout", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: void 0
+        });
+        Object.defineProperty(this, "_maxIngestMemoryBytes", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: DEFAULT_MAX_SIZE_BYTES
+        });
         Object.defineProperty(this, "langSmithToOTELTranslator", {
           enumerable: true,
           configurable: true,
@@ -14261,6 +14546,7 @@ var init_client2 = __esm({
           }
         }
         const maxMemory = config.maxIngestMemoryBytes ?? DEFAULT_MAX_SIZE_BYTES;
+        this._maxIngestMemoryBytes = maxMemory;
         this.batchIngestCaller = new AsyncCaller({
           maxRetries: 4,
           maxConcurrency: this.traceBatchConcurrency,
@@ -14761,7 +15047,7 @@ var init_client2 = __esm({
           const batchesByDestination = batch.reduce((acc, item) => {
             const apiUrl = item.apiUrl ?? this.apiUrl;
             const apiKey = item.apiKey ?? this.apiKey;
-            const workspaceId = item.workspaceId ?? this.workspaceId;
+            const workspaceId = item.workspaceId;
             const isDefault = item.apiKey === this.apiKey && item.apiUrl === this.apiUrl && item.workspaceId === this.workspaceId;
             const batchKey = isDefault ? "default" : `${apiUrl}|${apiKey}|${workspaceId ?? ""}`;
             if (!acc[batchKey]) {
@@ -14947,6 +15233,10 @@ var init_client2 = __esm({
         }
         const sizeLimitBytes = await this._getBatchSizeLimitBytes();
         const sizeLimit = await this._getBatchSizeLimit();
+        if (this._shouldCompressOnQueue()) {
+          this._moveQueueToCompressed();
+          return itemPromise;
+        }
         if (this.autoBatchQueue.sizeBytes > sizeLimitBytes || this.autoBatchQueue.items.length > sizeLimit) {
           this._trackDrain(this.drainAutoBatchQueue({
             batchSizeLimitBytes: sizeLimitBytes,
@@ -15032,16 +15322,173 @@ var init_client2 = __esm({
         }
         return await this.settings;
       }
+      /** OTel and JSON batch need run objects, so they keep the queue. */
+      _shouldCompressOnQueue() {
+        const serverInfo = this._serverInfo;
+        return serverInfo !== void 0 && this.langSmithToOTELTranslator === void 0 && !this._runCompressionDisabled && !this._multipartDisabled && CompressedRunBuffer.isSupported() && (serverInfo.batch_ingest_config?.use_multipart_endpoint ?? true) && serverInfo.instance_flags?.gzip_body_enabled === true;
+      }
+      /** Move queued runs into the gzip buffers, oldest first. */
+      _moveQueueToCompressed() {
+        const queued = this.autoBatchQueue.items.splice(0);
+        for (const queuedItem of queued) {
+          const { itemPromiseResolve, size } = queuedItem;
+          void this._enqueueCompressed(size, {
+            action: queuedItem.action,
+            item: queuedItem.payload,
+            otelContext: queuedItem.otelContext,
+            apiKey: queuedItem.apiKey,
+            apiUrl: queuedItem.apiUrl,
+            workspaceId: queuedItem.workspaceId
+          }).then(itemPromiseResolve);
+        }
+      }
+      async _serializeQueuedOperation(item) {
+        if (item.action === "feedback") {
+          const feedback = item.item;
+          return {
+            parts: [await this._serializeFeedbackPart(feedback)],
+            context: `trace=${feedback.trace_id},id=${feedback.id}`
+          };
+        }
+        const prepared = item.action === "create" ? await this.prepareRunCreateOrUpdateInputs(item.item) : await this.prepareRunCreateOrUpdateInputs(item.item, {
+          update: true
+        });
+        const attachments = prepared.attachments;
+        delete prepared.attachments;
+        return {
+          parts: await this._serializeRunParts(item.action === "create" ? "post" : "patch", prepared, attachments),
+          context: `trace=${prepared.trace_id},id=${prepared.id}`
+        };
+      }
+      /** Gzip an operation into its destination's buffer. Resolves once sent. */
+      _enqueueCompressed(queuedSize, item) {
+        let onSent;
+        const sent = new Promise((resolve16) => {
+          onSent = resolve16;
+        });
+        const isDefault = item.apiKey === this.apiKey && item.apiUrl === this.apiUrl && item.workspaceId === this.workspaceId;
+        const key = isDefault ? "default" : `${item.apiUrl ?? this.apiUrl}|${item.apiKey ?? this.apiKey}|${item.workspaceId ?? this.workspaceId ?? ""}`;
+        const write2 = async () => {
+          let serialized;
+          try {
+            serialized = await this._serializeQueuedOperation(item);
+          } finally {
+            this.autoBatchQueue.sizeBytes -= queuedSize;
+          }
+          const { parts, context } = serialized;
+          const sizeLimitBytes = await this._getBatchSizeLimitBytes();
+          const sizeLimit = await this._getBatchSizeLimit();
+          const size = parts.reduce((sum, p) => sum + p.data.byteLength, 0);
+          let entry = this._compressedBuffers.get(key);
+          if (entry !== void 0 && entry.buffer.count > 0 && entry.buffer.uncompressedSize + size > this._maxIngestMemoryBytes) {
+            this._compressedBuffers.delete(key);
+            this._trackDrain(this._sendCompressedBuffer(entry));
+            entry = void 0;
+          }
+          if (entry === void 0) {
+            entry = {
+              buffer: new CompressedRunBuffer(),
+              apiKey: isDefault ? void 0 : item.apiKey ?? this.apiKey,
+              apiUrl: isDefault ? void 0 : item.apiUrl ?? this.apiUrl,
+              workspaceId: isDefault ? void 0 : item.workspaceId ?? this.workspaceId
+            };
+            this._compressedBuffers.set(key, entry);
+          }
+          await entry.buffer.writeParts(parts, context, onSent);
+          if (entry.buffer.uncompressedSize >= sizeLimitBytes || entry.buffer.count >= sizeLimit) {
+            this._compressedBuffers.delete(key);
+            this._trackDrain(this._sendCompressedBuffer(entry));
+          }
+        };
+        this._compressedWriteChain = this._compressedWriteChain.then(write2).catch((e) => {
+          console.error("Error queueing run for tracing:", e);
+          onSent();
+        });
+        if (!this.manualFlushMode && this._compressedFlushTimeout === void 0) {
+          this._compressedFlushTimeout = setTimeout(() => {
+            this._compressedFlushTimeout = void 0;
+            this._trackDrain(this._flushCompressedBuffers());
+          }, this.autoBatchAggregationDelayMs);
+        }
+        return sent;
+      }
+      /** Close and send a buffer already taken out of _compressedBuffers. */
+      async _sendCompressedBuffer(entry) {
+        const { buffer } = entry;
+        try {
+          const body = await buffer.close();
+          await this._sendCompressedMultipart(body, buffer, entry);
+        } catch (e) {
+          console.error("Error exporting batch:", e);
+        } finally {
+          for (const onSent of buffer.onSent) {
+            onSent();
+          }
+        }
+      }
+      async _flushCompressedBuffers() {
+        const taken = this._compressedWriteChain.then(() => {
+          const entries2 = [...this._compressedBuffers.values()];
+          this._compressedBuffers.clear();
+          return entries2;
+        });
+        this._compressedWriteChain = taken.then(() => void 0);
+        const entries = await taken;
+        await Promise.all(entries.map((entry) => this._sendCompressedBuffer(entry)));
+      }
+      async _sendCompressedMultipart(body, buffer, options) {
+        const context = buffer.context.join("; ");
+        const headers = {
+          ...this._mergedHeaders,
+          "Content-Type": `multipart/form-data; boundary=${buffer.boundary}`,
+          "Content-Encoding": "gzip"
+        };
+        if (options.apiKey !== void 0) {
+          headers["x-api-key"] = options.apiKey;
+        }
+        if (options.workspaceId !== void 0) {
+          headers["x-tenant-id"] = options.workspaceId;
+        }
+        try {
+          await this.batchIngestCaller.callWithOptions({ sizeBytes: body.byteLength }, async () => {
+            const response = await this._fetch(`${options.apiUrl ?? this.apiUrl}/runs/multipart`, {
+              method: "POST",
+              headers,
+              body,
+              signal: AbortSignal.timeout(this.timeout_ms),
+              ...this.fetchOptions
+            });
+            await raiseForStatus(response, `Failed to send multipart request`, true);
+            return response;
+          });
+        } catch (e) {
+          if (isLangSmithNotFoundError(e)) {
+            this._multipartDisabled = true;
+          }
+          console.warn(`${e.message.trim()}
+
+Context: ${context}`);
+          if (this.failedTracesDir) {
+            await _Client._writeTraceToFallbackDir(this.failedTracesDir, body.buffer, {
+              "Content-Type": `multipart/form-data; boundary=${buffer.boundary}`,
+              "Content-Encoding": "gzip"
+            }, "runs/multipart", this.failedTracesMaxBytes);
+          }
+        }
+      }
       /**
        * Flushes current queued traces.
        */
       async flush() {
         const sizeLimitBytes = await this._getBatchSizeLimitBytes();
         const sizeLimit = await this._getBatchSizeLimit();
-        await this.drainAutoBatchQueue({
-          batchSizeLimitBytes: sizeLimitBytes,
-          batchSizeLimit: sizeLimit
-        });
+        await Promise.all([
+          this.drainAutoBatchQueue({
+            batchSizeLimitBytes: sizeLimitBytes,
+            batchSizeLimit: sizeLimit
+          }),
+          this._flushCompressedBuffers()
+        ]);
       }
       _cloneCurrentOTELContext() {
         const otel_trace = getOTELTrace();
@@ -15099,9 +15546,7 @@ var init_client2 = __esm({
         if (options?.apiKey !== void 0) {
           headers["x-api-key"] = options.apiKey;
         }
-        if (options?.workspaceId !== void 0) {
-          headers["x-tenant-id"] = options.workspaceId;
-        }
+        this._applyReplicaWorkspace(headers, options);
         const body = serialize(mergedRunCreateParam, `Creating run with id: ${mergedRunCreateParam.id}`);
         await this.caller.call(async () => {
           const res = await this._fetch(`${options?.apiUrl ?? this.apiUrl}/runs`, {
@@ -15175,9 +15620,7 @@ var init_client2 = __esm({
         if (options?.apiKey !== void 0) {
           headers["x-api-key"] = options.apiKey;
         }
-        if (options?.workspaceId !== void 0) {
-          headers["x-tenant-id"] = options.workspaceId;
-        }
+        this._applyReplicaWorkspace(headers, options);
         await this.batchIngestCaller.callWithOptions({ sizeBytes: options?.sizeBytes }, async () => {
           const res = await this._fetch(`${options?.apiUrl ?? this.apiUrl}/runs/batch`, {
             method: "POST",
@@ -15210,7 +15653,17 @@ var init_client2 = __esm({
         }
         let preparedUpdateParams = [];
         for (const update of runUpdates ?? []) {
-          preparedUpdateParams.push(await this.prepareRunCreateOrUpdateInputs(update, { update: true }));
+          const preparedUpdate = await this.prepareRunCreateOrUpdateInputs(update, {
+            update: true
+          });
+          if (preparedUpdate.id !== void 0 && preparedUpdate.attachments !== void 0) {
+            allAttachments[preparedUpdate.id] = {
+              ...allAttachments[preparedUpdate.id],
+              ...preparedUpdate.attachments
+            };
+          }
+          delete preparedUpdate.attachments;
+          preparedUpdateParams.push(preparedUpdate);
         }
         const invalidRunCreate = preparedCreateParams.find((runCreate) => {
           return runCreate.trace_id === void 0 || runCreate.dotted_order === void 0;
@@ -15245,73 +15698,80 @@ var init_client2 = __esm({
         }
         const accumulatedContext = [];
         const accumulatedParts = [];
+        const toMultipartPart = (part) => ({
+          name: part.name,
+          payload: new Blob([part.data], { type: part.contentType })
+        });
         for (const [method, payloads] of [
           ["post", preparedCreateParams],
           ["patch", preparedUpdateParams]
         ]) {
           for (const originalPayload of payloads) {
-            const { inputs, outputs, events, extra, error: error2, serialized, attachments, ...payload } = originalPayload;
-            const fields = { inputs, outputs, events, extra, error: error2, serialized };
-            const stringifiedPayload = await this._serializeBody(payload, `Serializing for multipart ingestion of run with id: ${payload.id}`);
-            accumulatedParts.push({
-              name: `${method}.${payload.id}`,
-              payload: new Blob([stringifiedPayload], {
-                type: `application/json; length=${stringifiedPayload.length}`
-                // encoding=gzip
-              })
-            });
-            for (const [key, value] of Object.entries(fields)) {
-              if (value === void 0) {
-                continue;
-              }
-              const stringifiedValue = await this._serializeBody(value, `Serializing ${key} for multipart ingestion of run with id: ${payload.id}`);
-              accumulatedParts.push({
-                name: `${method}.${payload.id}.${key}`,
-                payload: new Blob([stringifiedValue], {
-                  type: `application/json; length=${stringifiedValue.length}`
-                })
-              });
+            const attachments = originalPayload.id !== void 0 ? allAttachments[originalPayload.id] : void 0;
+            if (originalPayload.id !== void 0) {
+              delete allAttachments[originalPayload.id];
             }
-            if (payload.id !== void 0) {
-              const attachments2 = allAttachments[payload.id];
-              if (attachments2) {
-                delete allAttachments[payload.id];
-                for (const [name, attachment] of Object.entries(attachments2)) {
-                  let contentType;
-                  let content;
-                  if (Array.isArray(attachment)) {
-                    [contentType, content] = attachment;
-                  } else {
-                    contentType = attachment.mimeType;
-                    content = attachment.data;
-                  }
-                  if (name.includes(".")) {
-                    console.warn(`Skipping attachment '${name}' for run ${payload.id}: Invalid attachment name. Attachment names must not contain periods ('.'). Please rename the attachment and try again.`);
-                    continue;
-                  }
-                  accumulatedParts.push({
-                    name: `attachment.${payload.id}.${name}`,
-                    payload: new Blob([content], {
-                      type: `${contentType}; length=${content.byteLength}`
-                    })
-                  });
-                }
-              }
-            }
-            accumulatedContext.push(`trace=${payload.trace_id},id=${payload.id}`);
+            const parts = await this._serializeRunParts(method, originalPayload, attachments);
+            accumulatedParts.push(...parts.map(toMultipartPart));
+            accumulatedContext.push(`trace=${originalPayload.trace_id},id=${originalPayload.id}`);
           }
         }
         for (const feedback of feedbacks ?? []) {
-          const stringifiedFeedback = await this._serializeBody(feedback, `Serializing for multipart ingestion of feedback with id: ${feedback.id}`);
-          accumulatedParts.push({
-            name: `feedback.${feedback.id}`,
-            payload: new Blob([stringifiedFeedback], {
-              type: `application/json; length=${stringifiedFeedback.length}`
-            })
-          });
+          accumulatedParts.push(toMultipartPart(await this._serializeFeedbackPart(feedback)));
           accumulatedContext.push(`trace=${feedback.trace_id},id=${feedback.id}`);
         }
         await this._sendMultipartRequest(accumulatedParts, accumulatedContext.join("; "), options);
+      }
+      /** Serialize one run operation into its multipart parts. */
+      async _serializeRunParts(method, originalPayload, attachments) {
+        const parts = [];
+        const { inputs, outputs, events, extra, error: error2, serialized, attachments: _attachments, ...payload } = originalPayload;
+        const fields = { inputs, outputs, events, extra, error: error2, serialized };
+        const stringifiedPayload = await this._serializeBody(payload, `Serializing for multipart ingestion of run with id: ${payload.id}`);
+        parts.push({
+          name: `${method}.${payload.id}`,
+          contentType: `application/json; length=${stringifiedPayload.length}`,
+          data: stringifiedPayload
+        });
+        for (const [key, value] of Object.entries(fields)) {
+          if (value === void 0) {
+            continue;
+          }
+          const stringifiedValue = await this._serializeBody(value, `Serializing ${key} for multipart ingestion of run with id: ${payload.id}`);
+          parts.push({
+            name: `${method}.${payload.id}.${key}`,
+            contentType: `application/json; length=${stringifiedValue.length}`,
+            data: stringifiedValue
+          });
+        }
+        for (const [name, attachment] of Object.entries(attachments ?? {})) {
+          let contentType;
+          let content;
+          if (Array.isArray(attachment)) {
+            [contentType, content] = attachment;
+          } else {
+            contentType = attachment.mimeType;
+            content = attachment.data;
+          }
+          if (name.includes(".")) {
+            console.warn(`Skipping attachment '${name}' for run ${payload.id}: Invalid attachment name. Attachment names must not contain periods ('.'). Please rename the attachment and try again.`);
+            continue;
+          }
+          parts.push({
+            name: `attachment.${payload.id}.${name}`,
+            contentType: `${contentType}; length=${content.byteLength}`,
+            data: content instanceof Uint8Array ? content : new Uint8Array(content)
+          });
+        }
+        return parts;
+      }
+      async _serializeFeedbackPart(feedback) {
+        const stringifiedFeedback = await this._serializeBody(feedback, `Serializing for multipart ingestion of feedback with id: ${feedback.id}`);
+        return {
+          name: `feedback.${feedback.id}`,
+          contentType: `application/json; length=${stringifiedFeedback.length}`,
+          data: stringifiedFeedback
+        };
       }
       async _createNodeFetchBody(parts, boundary) {
         const chunks = [];
@@ -15335,12 +15795,12 @@ var init_client2 = __esm({
         return arrayBuffer;
       }
       async _createMultipartStream(parts, boundary) {
-        const encoder3 = new TextEncoder();
+        const encoder4 = new TextEncoder();
         const stream = new ReadableStream({
           async start(controller) {
             const writeChunk = async (chunk) => {
               if (typeof chunk === "string") {
-                controller.enqueue(encoder3.encode(chunk));
+                controller.enqueue(encoder4.encode(chunk));
               } else {
                 controller.enqueue(chunk);
               }
@@ -15386,9 +15846,7 @@ var init_client2 = __esm({
             if (options?.apiKey !== void 0) {
               headers["x-api-key"] = options.apiKey;
             }
-            if (options?.workspaceId !== void 0) {
-              headers["x-tenant-id"] = options.workspaceId;
-            }
+            this._applyReplicaWorkspace(headers, options);
             let transformedBody = body;
             if (options?.useGzip && typeof body === "object" && "pipeThrough" in body) {
               transformedBody = body.pipeThrough(new CompressionStream("gzip"));
@@ -15492,9 +15950,7 @@ Context: ${context}`);
         if (options?.apiKey !== void 0) {
           headers["x-api-key"] = options.apiKey;
         }
-        if (options?.workspaceId !== void 0) {
-          headers["x-tenant-id"] = options.workspaceId;
-        }
+        this._applyReplicaWorkspace(headers, options);
         const wireRun = { ...run11 };
         applyToPayload(wireRun, { update: true });
         const body = serialize(wireRun.extra ? mergeRuntimeEnvIntoRun(wireRun, this.cachedLSEnvVarsForMetadata, this.omitTracedRuntimeInfo, this.tracingSampleRate) : wireRun, `Serializing payload to update run with id: ${runId}`);
@@ -17138,9 +17594,7 @@ Message: ${Array.isArray(result.detail) ? result.detail.join("\n") : "Unspecifie
         if (options?.apiKey !== void 0) {
           headers["x-api-key"] = options.apiKey;
         }
-        if (options?.workspaceId !== void 0) {
-          headers["x-tenant-id"] = options.workspaceId;
-        }
+        this._applyReplicaWorkspace(headers, options);
         const body = JSON.stringify(feedback);
         await this.caller.call(async () => {
           const res = await this._fetch(`${options?.apiUrl ?? this.apiUrl}/feedback`, {
@@ -18338,17 +18792,16 @@ Message: ${Array.isArray(result.detail) ? result.detail.join("\n") : "Unspecifie
         if (!await this._currentTenantIsOwner(owner)) {
           throw await this._ownerConflictError("delete a prompt", owner);
         }
-        const response = await this.caller.call(async () => {
+        await this.caller.call(async () => {
           const res = await this._fetch(`${this.apiUrl}/repos/${owner}/${promptName}`, {
             method: "DELETE",
             headers: this._mergedHeaders,
             signal: AbortSignal.timeout(this.timeout_ms),
             ...this.fetchOptions
           });
-          await raiseForStatus(res, "delete prompt");
+          await raiseForStatus(res, "delete prompt", true);
           return res;
         });
-        return response.json();
       }
       /**
        * Generate a cache key for a prompt.
@@ -18822,9 +19275,17 @@ Message: ${Array.isArray(result.detail) ? result.detail.join("\n") : "Unspecifie
           console.warn("[WARNING]: When tracing in manual flush mode, you must call `await client.flush()` manually to submit trace batches.");
           return Promise.resolve();
         }
-        await new Promise((resolve15) => setTimeout(resolve15, 1));
+        await new Promise((resolve16) => setTimeout(resolve16, 1));
         while (this._pendingDrains.size > 0) {
           await Promise.all([...this._pendingDrains]);
+        }
+        for (let pass = 0; pass < 2; pass++) {
+          clearTimeout(this._compressedFlushTimeout);
+          this._compressedFlushTimeout = void 0;
+          await this._flushCompressedBuffers();
+          while (this._pendingDrains.size > 0) {
+            await Promise.all([...this._pendingDrains]);
+          }
         }
         await Promise.all([
           ...this.autoBatchQueue.items.map(({ itemPromise }) => itemPromise),
@@ -18871,10 +19332,10 @@ Message: ${Array.isArray(result.detail) ? result.detail.join("\n") : "Unspecifie
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/env.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/env.mjs
 var isEnvTracingEnabled;
 var init_env3 = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/env.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/env.mjs"() {
     init_env2();
     isEnvTracingEnabled = (tracingEnabled) => {
       if (tracingEnabled !== void 0) {
@@ -18886,16 +19347,16 @@ var init_env3 = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/singletons/constants.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/singletons/constants.mjs
 var _LC_CONTEXT_VARIABLES_KEY, _REPLICA_TRACE_ROOTS_KEY;
 var init_constants10 = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/singletons/constants.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/singletons/constants.mjs"() {
     _LC_CONTEXT_VARIABLES_KEY = /* @__PURE__ */ Symbol.for("lc:context_variables");
     _REPLICA_TRACE_ROOTS_KEY = /* @__PURE__ */ Symbol.for("langsmith:replica_trace_roots");
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/context_vars.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/context_vars.mjs
 function getContextVar(runTree, key) {
   if (_LC_CONTEXT_VARIABLES_KEY in runTree) {
     const contextVars = runTree[_LC_CONTEXT_VARIABLES_KEY];
@@ -18912,12 +19373,12 @@ function setContextVar(runTree, key, value) {
   runTree[_LC_CONTEXT_VARIABLES_KEY] = contextVars;
 }
 var init_context_vars = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/context_vars.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/context_vars.mjs"() {
     init_constants10();
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/run_trees.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/run_trees.mjs
 function getReplicaKey(replica) {
   const sortedKeys = Object.keys(replica).sort();
   const keyData = sortedKeys.map((key) => `${key}:${replica[key] ?? ""}`).join("|");
@@ -19005,6 +19466,10 @@ function _getWriteReplicasFromEnv() {
           console.warn(`Invalid project_name type in LANGSMITH_RUNS_ENDPOINTS: expected string, got ${typeof item.project_name}`);
           continue;
         }
+        if (item.workspace_id !== void 0 && item.workspace_id !== null && typeof item.workspace_id !== "string") {
+          console.warn(`Invalid workspace_id type in LANGSMITH_RUNS_ENDPOINTS: expected string, got ${typeof item.workspace_id}; ignoring it`);
+          item.workspace_id = void 0;
+        }
         if (item.primary !== void 0 && typeof item.primary !== "boolean") {
           console.warn(`Invalid primary type in LANGSMITH_RUNS_ENDPOINTS: expected boolean, got ${typeof item.primary}`);
           continue;
@@ -19013,6 +19478,7 @@ function _getWriteReplicasFromEnv() {
           apiUrl: item.api_url.replace(/\/$/, ""),
           apiKey: item.api_key,
           projectName: item.project_name ?? void 0,
+          workspaceId: item.workspace_id?.trim() || void 0,
           primary: item.primary ?? void 0
         });
       }
@@ -19068,7 +19534,7 @@ function _checkEndpointEnvUnset(parsed) {
 }
 var TIMESTAMP_LENGTH, UUID_NAMESPACE_DNS, HEADER_SAFE_REPLICA_FIELDS, Baggage, RunTree;
 var init_run_trees = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/run_trees.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/run_trees.mjs"() {
     init_address();
     init_client2();
     init_env3();
@@ -19353,6 +19819,12 @@ var init_run_trees = __esm({
           writable: true,
           value: void 0
         });
+        Object.defineProperty(this, "_postedAttachmentNames", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: void 0
+        });
         Object.defineProperty(this, "_awaitInputsOnPost", {
           enumerable: true,
           configurable: true,
@@ -19556,7 +20028,8 @@ var init_run_trees = __esm({
           trace_id: run11.trace_id,
           dotted_order: run11.dotted_order,
           tags: run11.tags,
-          attachments: run11.attachments,
+          // Copied so files added later are left to patchRun, not this create.
+          attachments: run11.attachments ? { ...run11.attachments } : void 0,
           events: run11.events
         };
       }
@@ -19711,6 +20184,7 @@ var init_run_trees = __esm({
         }
         try {
           const runtimeEnv = getRuntimeEnvironment();
+          const postedAttachmentNames = new Set(Object.keys(this.attachments ?? {}));
           if (this.replicas && this.replicas.length > 0) {
             for (const replica of this.replicas) {
               const { primary, apiKey, apiUrl, workspaceId, reroot, client: replicaClient } = replica;
@@ -19738,6 +20212,7 @@ var init_run_trees = __esm({
             const runCreate = this._convertToCreate(this, runtimeEnv, excludeChildRuns);
             await this.client.createRun(runCreate);
           }
+          this._postedAttachmentNames = postedAttachmentNames;
           if (!excludeChildRuns) {
             warnOnce("Posting with excludeChildRuns=false is deprecated and will be removed in a future version.");
             for (const childRun of this.child_runs) {
@@ -19748,6 +20223,12 @@ var init_run_trees = __esm({
         } catch (error2) {
           console.error(`Error in postRun for run ${this.id}:`, error2);
         }
+      }
+      /** Attachments added since postRun, or undefined when there are none. */
+      _attachmentsToPatch() {
+        const posted = this._postedAttachmentNames;
+        const pending = Object.entries(this.attachments ?? {}).filter(([name]) => !posted?.has(name));
+        return pending.length > 0 ? Object.fromEntries(pending) : void 0;
       }
       /**
        * Patch the run tree to the API.
@@ -19763,6 +20244,7 @@ var init_run_trees = __esm({
        */
       async patchRun(options) {
         const excludeInputs = options?.excludeInputs ?? getExcludeInputsOnPatch();
+        const attachments = this._attachmentsToPatch();
         if (this.replicas && this.replicas.length > 0) {
           for (const replica of this.replicas) {
             const { primary, apiKey, apiUrl, workspaceId, updates, reroot, client: replicaClient } = replica;
@@ -19796,7 +20278,7 @@ var init_run_trees = __esm({
               events: runData.events,
               tags: runData.tags,
               extra: runData.extra,
-              attachments: this.attachments,
+              attachments,
               ...updates
             };
             if (!excludeInputs) {
@@ -19825,7 +20307,7 @@ var init_run_trees = __esm({
               dotted_order: this.dotted_order,
               trace_id: this.trace_id,
               tags: this.tags,
-              attachments: this.attachments,
+              attachments,
               session_name: this.project_name,
               address: this.address
             };
@@ -19974,14 +20456,14 @@ var init_run_trees = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/project.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/project.mjs
 var init_project = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/project.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/project.mjs"() {
     init_env2();
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/uuid.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/uuid.mjs
 function computeRunIdForSecondaryReplica(runId, projectName) {
   if (typeof projectName !== "string" || projectName.length === 0) {
     throw new Error("projectName must be a non-empty string");
@@ -19994,17 +20476,17 @@ function computeRunIdForSecondaryReplica(runId, projectName) {
   return nonCryptographicUuid7Deterministic(normalizedRunId, projectName);
 }
 var init_uuid3 = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/uuid.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/uuid.mjs"() {
     init_src();
     init_uuid2();
     init_uuid2();
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/singletons/traceable.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/singletons/traceable.mjs
 var MockAsyncLocalStorage, TRACING_ALS_KEY, mockAsyncLocalStorage, AsyncLocalStorageProvider, AsyncLocalStorageProviderSingleton;
 var init_traceable = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/singletons/traceable.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/singletons/traceable.mjs"() {
     MockAsyncLocalStorage = class {
       getStore() {
         return void 0;
@@ -20029,17 +20511,17 @@ var init_traceable = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/guard.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/guard.mjs
 var init_guard = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/utils/guard.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/utils/guard.mjs"() {
     init_env3();
     init_traceable();
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/index.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/index.mjs
 var init_lib = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/index.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/index.mjs"() {
     init_client2();
     init_run_trees();
     init_address();
@@ -20053,9 +20535,9 @@ var init_lib = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/index.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/index.mjs
 var init_langsmith = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/index.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/index.mjs"() {
     init_client();
     init_uploads2();
     init_api_promise();
@@ -20066,10 +20548,10 @@ var init_langsmith = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/privacy/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/privacy/constants.js
 var MUTED_TRACE_CONTENT, METADATA_MODE_RUN_CONFIG_FIELDS;
 var init_constants11 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/privacy/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/privacy/constants.js"() {
     MUTED_TRACE_CONTENT = "[LangSmith system notice: content omitted because tracing is muted.]";
     METADATA_MODE_RUN_CONFIG_FIELDS = [
       "client",
@@ -20088,7 +20570,7 @@ var init_constants11 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/privacy/run-tree.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/privacy/run-tree.js
 function mutedContent(role) {
   return { messages: [{ role, content: MUTED_TRACE_CONTENT }] };
 }
@@ -20209,25 +20691,25 @@ function survivingCodingAgentPatchFields(projectedRun, fields) {
   });
 }
 var init_run_tree = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/privacy/run-tree.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/privacy/run-tree.js"() {
     init_langsmith();
     init_metadata();
     init_constants11();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/privacy/index.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/privacy/index.js
 var init_privacy2 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/privacy/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/privacy/index.js"() {
     init_run_tree();
     init_constants11();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/upload/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/upload/constants.js
 var UPLOAD_ACCOUNT_FINGERPRINT_PREFIX, UPLOAD_DESTINATION_ID_PREFIX, UPLOAD_FINGERPRINT_LENGTH, UPLOAD_ALREADY_RECEIVED_STATUS, UPLOAD_CONTROL_CHARACTER_PATTERN, UPLOAD_API_URL_TRAILING_SLASH_PATTERN, UPLOAD_AGENT_ADDRESS, UPLOAD_UUID_PATTERN, UPLOAD_REPLICA_UUID_V7_PATTERN, UPLOAD_REPLICA_UUID_V5_NAMESPACE, UPLOAD_REPLICA_UUID_V5_NAMESPACE_BYTES, UPLOAD_REPLICA_UUID_V5_DOMAIN, UPLOAD_REPLICA_DOTTED_ORDER_ID_LENGTH, UPLOAD_REPLICA_IDENTITY_UPDATE_FIELDS, UPLOAD_REPLICA_PATCH_UPDATE_FIELDS, UPLOAD_PATCH_FIELDS, UPLOAD_REDACTED_FIELDS, UPLOAD_FAILED_MESSAGE, UPLOAD_RETRYABLE_STATUSES, UPLOAD_SDK_MAX_RETRIES, UPLOAD_BUN_RUNTIME, UPLOAD_NODE_RUNTIME, UPLOAD_DOTTED_ORDER_SEGMENT, UPLOAD_REQUEST_TIMEOUT_MS, UPLOAD_SEND_DEADLINE_MS, UPLOAD_BATCH_LIMITS, UPLOAD_ALREADY_RECEIVED_MESSAGE, UPLOAD_DEADLINE_MESSAGE, UPLOAD_RECEIPT_MISSING_MESSAGE, UPLOAD_ERROR_NAME, UPLOAD_SERVER_ERROR_MIN_STATUS, UPLOAD_UNKNOWN_DESTINATION_MESSAGE, UPLOAD_SAMPLING_RATE_VARIABLES, UPLOAD_SAMPLING_HASH, UPLOAD_SAMPLING_BUCKET_BYTES, UPLOAD_DOTTED_ORDER_ROOT_ID, UPLOAD_SDK_API_KEY_FIELD, UPLOAD_SDK_API_URL_FIELD, UPLOAD_AUTHORIZATION_HEADER, UPLOAD_BEARER_PATTERN, UPLOAD_LOGIN_UNUSABLE_MESSAGE, UPLOAD_KEY_UNUSABLE_MESSAGE, UPLOAD_CREDENTIAL_REQUIRED_MESSAGE, UPLOAD_LOGIN_INVALID_MESSAGE, UPLOAD_LOGIN_FIELD_NAMES;
 var init_constants12 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/upload/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/upload/constants.js"() {
     UPLOAD_ACCOUNT_FINGERPRINT_PREFIX = "account_";
     UPLOAD_DESTINATION_ID_PREFIX = "destination_";
     UPLOAD_FINGERPRINT_LENGTH = 32;
@@ -20312,7 +20794,7 @@ var init_constants12 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/upload/client.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/upload/client.js
 function createUploadClient(options) {
   const { apiKey, apiUrl, workspaceId, login, anonymizer, redactedFields } = options;
   const auth = login === void 0 ? { apiKey: apiKey ?? "", workspaceId: workspaceId ?? "" } : {
@@ -20352,7 +20834,7 @@ function takeRejectedAccessToken(client) {
 }
 var rejectedAuthorizations;
 var init_client3 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/upload/client.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/upload/client.js"() {
     init_langsmith();
     init_expiry_constants();
     init_constants12();
@@ -20360,7 +20842,7 @@ var init_client3 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/auth/credential.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/auth/credential.js
 function resolveUploadCredential(options = {}) {
   const env = options.env ?? process.env;
   const workspaceId = sdkSetting(options.workspaceId);
@@ -20430,7 +20912,7 @@ function loginReplicaRefusal(replicas, apiUrl) {
   return usable ? void 0 : refusedLoginReplicas(configured, apiUrl);
 }
 var init_credential = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/auth/credential.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/auth/credential.js"() {
     init_format();
     init_constants7();
     init_normalize();
@@ -20438,7 +20920,7 @@ var init_credential = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/upload/destination-identity.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/upload/destination-identity.js
 import { createHash as createHash4 } from "node:crypto";
 function resolveUploadDestinationIdentities(options) {
   if (!Array.isArray(options.destinations) || options.destinations.length === 0) {
@@ -20587,7 +21069,7 @@ function fingerprint(value) {
   return createHash4("sha256").update(value).digest("hex").slice(0, UPLOAD_FINGERPRINT_LENGTH);
 }
 var init_destination_identity = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/upload/destination-identity.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/upload/destination-identity.js"() {
     init_credential();
     init_profile();
     init_normalize();
@@ -20596,7 +21078,7 @@ var init_destination_identity = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/anonymizer/index.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/anonymizer/index.mjs
 function extractStringNodes(data, options) {
   const parsedOptions = { ...options, maxDepth: options.maxDepth ?? 10 };
   const queue = [[data, 0, "", null, ""]];
@@ -20710,7 +21192,7 @@ function createSecretAnonymizer(options) {
 }
 var SECRET_PLACEHOLDER, DEFAULT_SECRET_RULES;
 var init_anonymizer = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/lib/anonymizer/index.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/lib/anonymizer/index.mjs"() {
     SECRET_PLACEHOLDER = "[SECRET_DETECTED]";
     DEFAULT_SECRET_RULES = [
       // ── Provider API keys (prefix-anchored) ─────────────────────────────────
@@ -20811,14 +21293,14 @@ var init_anonymizer = __esm({
   }
 });
 
-// node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/anonymizer.mjs
+// node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/anonymizer.mjs
 var init_anonymizer2 = __esm({
-  "node_modules/.pnpm/langsmith@0.11.4/node_modules/langsmith/anonymizer.mjs"() {
+  "node_modules/.pnpm/langsmith@0.11.6/node_modules/langsmith/anonymizer.mjs"() {
     init_anonymizer();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/upload/redaction.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/upload/redaction.js
 function createUploadAnonymizer(enabled, extraRules) {
   if (!enabled)
     return void 0;
@@ -20848,13 +21330,13 @@ function normalizedRedactedFields(value) {
   return UPLOAD_REDACTED_FIELDS.filter((field4) => value.includes(field4));
 }
 var init_redaction = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/upload/redaction.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/upload/redaction.js"() {
     init_anonymizer2();
     init_constants12();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/upload/destinations.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/upload/destinations.js
 function resolveUploadDestinations(options) {
   const resolved = resolveUploadDestinationIdentities(options);
   const destinations = resolved.destinations.map((destination) => {
@@ -20883,7 +21365,7 @@ function usesLogin(login, client) {
   return loginUrl === void 0 || typeof clientUrl === "string" && sameServer(clientUrl, loginUrl);
 }
 var init_destinations = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/upload/destinations.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/upload/destinations.js"() {
     init_client3();
     init_profile();
     init_constants12();
@@ -20892,7 +21374,7 @@ var init_destinations = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/upload/client-cache.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/upload/client-cache.js
 function createUploadClientCache() {
   const clientsByMode = /* @__PURE__ */ new Map();
   return {
@@ -20911,19 +21393,19 @@ function createUploadClientCache() {
   };
 }
 var init_client_cache = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/upload/client-cache.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/upload/client-cache.js"() {
     init_client3();
     init_redaction();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/upload/errors.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/upload/errors.js
 function isAlreadyReceived(cause) {
   return failureStatus(cause) === UPLOAD_ALREADY_RECEIVED_STATUS && describe(cause).includes(UPLOAD_ALREADY_RECEIVED_MESSAGE);
 }
 var UploadError;
 var init_errors5 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/upload/errors.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/upload/errors.js"() {
     init_errors();
     init_expiry_constants();
     init_constants12();
@@ -20943,7 +21425,7 @@ var init_errors5 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/upload/runtime-metadata.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/upload/runtime-metadata.js
 function applyRuntimeMetadata(payload, privacyMode) {
   if (privacyMode !== "full")
     return;
@@ -20961,14 +21443,14 @@ function applyRuntimeMetadata(payload, privacyMode) {
   };
 }
 var init_runtime_metadata = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/upload/runtime-metadata.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/upload/runtime-metadata.js"() {
     init_langsmith();
     init_metadata();
     init_constants12();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/upload/replica-identifiers.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/upload/replica-identifiers.js
 import { createHash as createHash5 } from "node:crypto";
 function contextForDestination(context, destination) {
   if (destination.sourceProjectName === void 0)
@@ -21012,13 +21494,13 @@ function remapReplicaDottedOrder(dottedOrder, projectName) {
   }).join(".");
 }
 var init_replica_identifiers = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/upload/replica-identifiers.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/upload/replica-identifiers.js"() {
     init_langsmith();
     init_constants12();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/upload/replica-updates.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/upload/replica-updates.js
 function applyReplicaPatchUpdates(payload, destination, privacyMode) {
   if (privacyMode !== "full" || destination.updates === void 0)
     return;
@@ -21045,12 +21527,12 @@ function mergeReplicaExtra(baseValue, updateValue) {
   };
 }
 var init_replica_updates = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/upload/replica-updates.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/upload/replica-updates.js"() {
     init_objects();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/upload/deadline.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/upload/deadline.js
 async function withDeadline(work) {
   let timer;
   const expired = new Promise((_resolve, reject) => {
@@ -21063,12 +21545,12 @@ async function withDeadline(work) {
   }
 }
 var init_deadline = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/upload/deadline.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/upload/deadline.js"() {
     init_constants12();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/upload/sampling.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/upload/sampling.js
 import { createHash as createHash6 } from "node:crypto";
 function samplingRate(environment) {
   for (const name of UPLOAD_SAMPLING_RATE_VARIABLES) {
@@ -21091,12 +21573,12 @@ function traceIdOf(run11) {
   return run11.trace_id ?? UPLOAD_DOTTED_ORDER_ROOT_ID.exec(run11.dotted_order ?? "")?.[1] ?? run11.id;
 }
 var init_sampling2 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/upload/sampling.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/upload/sampling.js"() {
     init_constants12();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/upload/timestamps.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/upload/timestamps.js
 function startTimeFromDottedOrder(dottedOrder) {
   if (typeof dottedOrder !== "string")
     return void 0;
@@ -21115,12 +21597,12 @@ function startTimeText(supplied, dottedOrder) {
   return startTimeFromDottedOrder(dottedOrder);
 }
 var init_timestamps = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/upload/timestamps.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/upload/timestamps.js"() {
     init_constants12();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/upload/upload.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/upload/upload.js
 function createLangSmithUploadWriter(options) {
   const resolved = resolveUploadDestinations(options);
   const destinations = resolved.destinations.map(({ id }) => Object.freeze({ id }));
@@ -21401,7 +21883,7 @@ function validatePatch(submission) {
   }
 }
 var init_upload = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/upload/upload.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/upload/upload.js"() {
     init_profile();
     init_expiry_constants();
     init_expiry2();
@@ -21423,23 +21905,23 @@ var init_upload = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/upload/index.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/upload/index.js
 var init_upload2 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/upload/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/upload/index.js"() {
     init_upload();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/capture-wake-constants.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/capture-wake-constants.js
 var CAPTURE_WAKE_ERROR_NAME, CAPTURE_WAKE_FAILURE_MESSAGE;
 var init_capture_wake_constants = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/capture-wake-constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/capture-wake-constants.js"() {
     CAPTURE_WAKE_ERROR_NAME = "CaptureWakeError";
     CAPTURE_WAKE_FAILURE_MESSAGE = "Trace work was saved but its worker could not start";
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/capture-wake.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/capture-wake.js
 async function wakeCapturedWork(captureResult, wake) {
   try {
     await wake();
@@ -21464,7 +21946,7 @@ async function readSavedCaptureWake(error2, options) {
 }
 var CaptureWakeError;
 var init_capture_wake = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/capture-wake.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/capture-wake.js"() {
     init_capture_wake_constants();
     init_digest();
     CaptureWakeError = class extends Error {
@@ -21478,10 +21960,10 @@ var init_capture_wake = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/constants.js
 var ROOT_RUN_EXECUTION_ORDER, DOTTED_ORDER_TIME_PREFIX_LENGTH, DOTTED_ORDER_SEGMENT_PATTERN, DOTTED_ORDER_STRIP_PATTERN, LIFECYCLE_POST_EVENT_KIND, LIFECYCLE_PATCH_EVENT_KIND, LIFECYCLE_SETTLEMENT_EVENT_KIND, LIFECYCLE_ATTRIBUTION_READY_FIELD, LIFECYCLE_ENGINE_FOLDERS, LIFECYCLE_SETTLEMENT_LOCK_PREFIX, LIFECYCLE_TURN_CLOSURE_STATES, LIFECYCLE_SWEEP_WARNING, LIFECYCLE_CHILD_TURN_GRACE_MS, LIFECYCLE_UPLOAD_ACCOUNT_CHANGED_MESSAGE, LIFECYCLE_STORED_RUN_CONTEXT_IS_REQUIRED_MESSAGE, LIFECYCLE_STORED_INTEGRATION_DOES_NOT_MATCH_LIFECYCLE_BRIDGE_MESSAGE, LIFECYCLE_STORED_RUN_DATA_IS_REQUIRED_MESSAGE, LIFECYCLE_STORED_RUN_ID_DOES_NOT_MATCH_ITS_CAPTURE_MESSAGE, LIFECYCLE_STORED_PRIVACY_MODE_IS_INVALID_MESSAGE, LIFECYCLE_STORED_CAPTURE_IS_MISSING_THREAD_IDENTITY_MESSAGE, LIFECYCLE_RUN_INTEGRATION_MISMATCH_MESSAGE, LIFECYCLE_INVALID_PRIVACY_MODE_MESSAGE, LIFECYCLE_INVALID_RUN_OPERATION_MESSAGE, LIFECYCLE_INVALID_CLOSURE_STATE_MESSAGE, LIFECYCLE_RUN_IDENTITY_CHANGED_MESSAGE, LIFECYCLE_PATCH_START_TIME_MESSAGE, LIFECYCLE_RUN_TRACE_ORDER_MESSAGE, LIFECYCLE_INVALID_PATCH_FIELD_MESSAGE, LIFECYCLE_PATCH_FIELDS_UNIQUE_MESSAGE, LIFECYCLE_PATCH_FIELD_VALUE_MESSAGE, LIFECYCLE_INVALID_PATCH_PRIVACY_STATUS_MESSAGE, LIFECYCLE_IDENTITY_FIELD_LABELS;
 var init_constants13 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/constants.js"() {
     init_constants4();
     ROOT_RUN_EXECUTION_ORDER = 1;
     DOTTED_ORDER_TIME_PREFIX_LENGTH = 18;
@@ -21522,7 +22004,7 @@ var init_constants13 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/settlement/readiness.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/settlement/readiness.js
 async function captureReadiness(scopes, destinations, readOutcome) {
   const pending = /* @__PURE__ */ new Set();
   const dropped = /* @__PURE__ */ new Set();
@@ -21542,11 +22024,11 @@ async function captureReadiness(scopes, destinations, readOutcome) {
   return pending.size > 0 ? { status: "pending", destinations: [...pending].toSorted() } : dropped.size > 0 ? { status: "dropped", destinations: [...dropped].toSorted() } : { status: "delivered", destinations: [] };
 }
 var init_readiness = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/settlement/readiness.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/settlement/readiness.js"() {
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/closure.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/closure.js
 function deriveAttributionReadiness(value, integration) {
   const source = requirePlainRecord(value, "Prepared run submission");
   const metadata = prepareCodingAgentMetadataProvenance(requireOwnDataField(source, "metadata"), integration, "full");
@@ -21687,7 +22169,7 @@ function field2(value, key) {
   return value !== null && typeof value === "object" && !Array.isArray(value) ? value[key] : void 0;
 }
 var init_closure = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/closure.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/closure.js"() {
     init_metadata();
     init_constants8();
     init_objects();
@@ -21696,7 +22178,7 @@ var init_closure = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/identity.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/identity.js
 function createRunIdentity(input) {
   const id = requireNonBlankString(input.id, "Run ID");
   const start_time = requireTimestamp(input.start_time);
@@ -21756,13 +22238,13 @@ function dottedOrderSegment(startTime, runId) {
   return `${precisionTime.replace(DOTTED_ORDER_STRIP_PATTERN, "")}${runId}`;
 }
 var init_identity = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/identity.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/identity.js"() {
     init_objects();
     init_constants13();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/projection.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/projection.js
 function projectPostSubmission(source, common, priorIdentity) {
   const { integration, privacyMode, redaction } = common;
   const run11 = canonicalIdentity(normalizedRunSnapshot(requireOwnDataField(source, "run")), priorIdentity);
@@ -22029,7 +22511,7 @@ function requiredText(source, key, name) {
   return requireNonBlankString(requireOwnDataField(source, key), name);
 }
 var init_projection = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/projection.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/projection.js"() {
     init_metadata();
     init_privacy2();
     init_objects();
@@ -22040,7 +22522,7 @@ var init_projection = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/settlement/projection.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/settlement/projection.js
 function projectCapture(record, integration) {
   const rawPayload = canonicalJsonObject(record.normalizedPayload, "Stored run payload");
   const submission = projectSubmission({ ...rawPayload, metadata: record.metadataProvenance }, integration);
@@ -22128,7 +22610,7 @@ function closureRank(state) {
   return state === "authoritative" ? 2 : state === "provisional" ? 1 : 0;
 }
 var init_projection2 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/settlement/projection.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/settlement/projection.js"() {
     init_metadata();
     init_objects();
     init_constants13();
@@ -22137,10 +22619,10 @@ var init_projection2 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/settlement/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/settlement/constants.js
 var REPOSITORY_NAME_KEY, SETTLEMENT_EVENT_ID_PREFIX, SETTLEMENT_DROPPED_RUN_WARNING, SETTLEMENT_ATTRIBUTION_LOST_MESSAGE, SETTLEMENT_QUIET_TURN_MS, SETTLEMENT_NEVER_ENDED_WARNING;
 var init_constants14 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/settlement/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/settlement/constants.js"() {
     init_constants8();
     REPOSITORY_NAME_KEY = GIT_METADATA_KEYS.repository;
     SETTLEMENT_EVENT_ID_PREFIX = "turn-settlement-";
@@ -22151,7 +22633,7 @@ var init_constants14 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/settlement/recorded-run.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/settlement/recorded-run.js
 function recordRun(events) {
   const latest = events.at(-1);
   const run11 = latest.payload.run;
@@ -22194,13 +22676,13 @@ function mergeMetadataObject(previous, current) {
   return { ...previous, ...current };
 }
 var init_recorded_run = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/settlement/recorded-run.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/settlement/recorded-run.js"() {
     init_metadata();
     init_objects();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/settlement/source-order.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/settlement/source-order.js
 function uniqueScopes(scopes) {
   const unique = /* @__PURE__ */ new Map();
   for (const scope of scopes)
@@ -22302,14 +22784,14 @@ function report(turnId, status, reason, runIds = [], destinations = []) {
   };
 }
 var init_source_order = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/settlement/source-order.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/settlement/source-order.js"() {
     init_order();
     init_compare();
     init_scope();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/settlement/revision.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/settlement/revision.js
 import { createHash as createHash7 } from "node:crypto";
 function settlementEventId(turnId, runId, dependencies, rootRunId, childRunIds, attribution) {
   const revision = createHash7("sha256").update(JSON.stringify({
@@ -22323,13 +22805,13 @@ function settlementEventId(turnId, runId, dependencies, rootRunId, childRunIds, 
   return `${SETTLEMENT_EVENT_ID_PREFIX}${revision}`;
 }
 var init_revision = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/settlement/revision.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/settlement/revision.js"() {
     init_constants14();
     init_source_order();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/settlement/run-state.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/settlement/run-state.js
 function hasCausalRunError(events) {
   let hasError = false;
   for (const { payload } of events) {
@@ -22361,12 +22843,12 @@ function retainedEndTime(events) {
   return endTime;
 }
 var init_run_state = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/settlement/run-state.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/settlement/run-state.js"() {
     init_objects();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/settlement/settlement.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/settlement/settlement.js
 function attributionOf(metadata) {
   const carried = {};
   const named = withBothGitMetadataNames(metadata ?? {});
@@ -22400,14 +22882,14 @@ function metadataAfterFill(run11, filled) {
 }
 var namesARepository;
 var init_settlement = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/settlement/settlement.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/settlement/settlement.js"() {
     init_constants14();
     init_git_names();
     namesARepository = (carried) => carried[REPOSITORY_NAME_KEY] !== void 0;
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/settlement/settle-turn.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/settlement/settle-turn.js
 function unsettled(settlementReport) {
   return { report: settlementReport, patches: [], captured: 0 };
 }
@@ -22647,7 +23129,7 @@ async function settleOneTurn(turnId, events, generated, allByRunId, options) {
 }
 var warnedNeverEndedTurns, warnedDroppedRuns;
 var init_settle_turn = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/settlement/settle-turn.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/settlement/settle-turn.js"() {
     init_metadata();
     init_format();
     init_objects();
@@ -22665,7 +23147,7 @@ var init_settle_turn = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/settlement/pass.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/settlement/pass.js
 async function settleCapturedTurns(options) {
   if (options.destinations.length === 0)
     throw new TypeError("At least one settlement destination is required");
@@ -22727,7 +23209,7 @@ async function refreshSettlementProgress(work, destinations, readOutcome) {
   return { captured: work.progress.captured, turns };
 }
 var init_pass = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/settlement/pass.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/settlement/pass.js"() {
     init_constants13();
     init_readiness();
     init_projection2();
@@ -22736,7 +23218,7 @@ var init_pass = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/validation/snapshot.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/utils/validation/snapshot.js
 function snapshotData(value) {
   return copySnapshot(value, /* @__PURE__ */ new WeakMap());
 }
@@ -22776,11 +23258,11 @@ function copySnapshot(value, copies) {
   return copy;
 }
 var init_snapshot = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/validation/snapshot.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/utils/validation/snapshot.js"() {
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/turn-removal.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/turn-removal.js
 async function removeSettledTurns(options) {
   const known = new Set(options.knownScopes.map(turnEventKey));
   const removable = /* @__PURE__ */ new Map();
@@ -22847,13 +23329,13 @@ function field3(value, key) {
   return value !== null && typeof value === "object" && !Array.isArray(value) ? value[key] : void 0;
 }
 var init_turn_removal = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/turn-removal.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/turn-removal.js"() {
     init_constants13();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/bridge.js
-import { join as join15, resolve as resolve9 } from "node:path";
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/bridge.js
+import { join as join16, resolve as resolve10 } from "node:path";
 function createLifecycleBridge(options) {
   const context = createBridgeContext(options);
   return Object.freeze({
@@ -22865,7 +23347,7 @@ function createLifecycleBridge(options) {
 function createBridgeContext(options) {
   const integration = options.integration;
   const sessionId = requireNonBlankString(options.sessionId, "Session ID");
-  const storageRoot = resolve9(options.storageRoot);
+  const storageRoot = resolve10(options.storageRoot);
   const captureStore = createCaptureStore(storageRoot);
   const coordinator = createDeliveryCoordinator({
     storageRoot,
@@ -22986,7 +23468,7 @@ function busyDrainResult() {
 }
 async function acquireSettlementLock(context) {
   const directory = await ensurePrivateDirectory(context.storageRoot, sessionSegments(identifierHash(context.sessionId)));
-  const path3 = join15(directory, `${LIFECYCLE_SETTLEMENT_LOCK_PREFIX}${identifierHash(context.writer.accountFingerprint)}`);
+  const path3 = join16(directory, `${LIFECYCLE_SETTLEMENT_LOCK_PREFIX}${identifierHash(context.writer.accountFingerprint)}`);
   return { path: path3, lock: await tryAcquireFileLock(path3) };
 }
 async function sweepWithWarning(fallback, sweep) {
@@ -23209,7 +23691,7 @@ function restoreSubmission(record, integration) {
   return { ...projected.value.payload, metadata: projected.value.metadata };
 }
 var init_bridge = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/bridge.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/bridge.js"() {
     init_storage();
     init_lock_folders();
     init_capture();
@@ -23234,17 +23716,17 @@ var init_bridge = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/index.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/index.js
 var init_lifecycle = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/lifecycle/index.js"() {
     init_bridge();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/constants.js
 var RECONSTRUCTION_DRAIN_LOCK, RECONSTRUCTION_RUN_ID_PREFIX, RECONSTRUCTION_MAPPING_EVENT_ID_PREFIX, RECONSTRUCTION_JOB_KIND, RECONSTRUCTION_MAPPING_KIND, RECONSTRUCTION_RECORD_VERSION, RECONSTRUCTION_DEFERRED_REASON, RECONSTRUCTION_CLOSURE_STATES, RECONSTRUCTION_JOB_INPUT_KEYS, RECONSTRUCTION_JOB_OPTIONAL_INPUT_KEYS, RECONSTRUCTION_SOURCE_SNAPSHOT_KEYS, RECONSTRUCTION_SOURCE_SNAPSHOT_OPTIONAL_KEYS, RECONSTRUCTION_STORED_JOB_KEYS, RECONSTRUCTION_STORED_JOB_OPTIONAL_KEYS, RECONSTRUCTION_ATTRIBUTION_CONTEXT_KEYS, RECONSTRUCTION_ATTRIBUTION_CONTEXT_OPTIONAL_KEYS, RECONSTRUCTION_TOOL_ORIGIN_KEYS, RECONSTRUCTION_TOOL_ORIGIN_OPTIONAL_KEYS, RECONSTRUCTION_OUTPUT_KEYS, RECONSTRUCTION_OUTPUT_OPTIONAL_KEYS, RECONSTRUCTION_TURN_EVIDENCE_KEYS, RECONSTRUCTION_TURN_EVIDENCE_KEYS_WITH_ROOT, RECONSTRUCTION_DEPENDENCY_KEYS, RECONSTRUCTION_OUTPUTS_MUST_BE_ARRAY_MESSAGE, RECONSTRUCTION_OUTPUT_HAS_UNSUPPORTED_FIELDS_MESSAGE, RECONSTRUCTION_EVENT_IDS_MUST_BE_UNIQUE_MESSAGE, RECONSTRUCTION_INTEGRATION_CHANGED_MESSAGE, RECONSTRUCTION_PRIVACY_MODE_IS_INVALID_MESSAGE, RECONSTRUCTION_METADATA_FULL_MODE_MESSAGE, RECONSTRUCTION_DEPENDENCIES_MUST_BE_ARRAY_MESSAGE, RECONSTRUCTION_EVIDENCE_IDENTITY_MESSAGE, RECONSTRUCTION_SNAPSHOT_OUTPUTS_REQUIRE_SOURCE_REF_MESSAGE, RECONSTRUCTION_OUTPUT_SOURCE_REF_HAS_NO_SNAPSHOT_MESSAGE, RECONSTRUCTION_OUTPUT_REF_UNKNOWN_MESSAGE, RECONSTRUCTION_DEPENDENCY_SCOPE_MESSAGE, RECONSTRUCTION_DEPENDENCY_INTEGRATION_MESSAGE, RECONSTRUCTION_CAPTURES_CANNOT_DEPEND_ON_THEMSELVES_MESSAGE, RECONSTRUCTION_DEPENDENCIES_MUST_BE_UNIQUE_MESSAGE, RECONSTRUCTION_JOB_HAS_UNSUPPORTED_FIELDS_MESSAGE, RECONSTRUCTION_SOURCE_REFS_ARE_REQUIRED_MESSAGE, RECONSTRUCTION_SOURCE_REFS_MUST_BE_UNIQUE_MESSAGE, RECONSTRUCTION_SOURCE_CONFLICT_MESSAGE, RECONSTRUCTION_SNAPSHOTS_EMPTY_MESSAGE, RECONSTRUCTION_SNAPSHOT_FIELDS_MESSAGE, RECONSTRUCTION_SNAPSHOT_REF_MUST_BELONG_TO_JOB_MESSAGE, RECONSTRUCTION_SNAPSHOT_REFS_MUST_BE_UNIQUE_MESSAGE, RECONSTRUCTION_SNAPSHOT_PRIVACY_MESSAGE, RECONSTRUCTION_SNAPSHOT_START_TIME_MESSAGE, RECONSTRUCTION_SNAPSHOT_NOT_READY_MESSAGE, RECONSTRUCTION_SNAPSHOT_COVERAGE_MESSAGE, RECONSTRUCTION_PATHLESS_REF_MESSAGE, RECONSTRUCTION_CONTEXT_FIELDS_MESSAGE, RECONSTRUCTION_TOOL_ORIGIN_HAS_UNSUPPORTED_FIELDS_MESSAGE, RECONSTRUCTION_PINNED_BLANK_MESSAGE, RECONSTRUCTION_PINNED_UNIQUE_MESSAGE, RECONSTRUCTION_EVIDENCE_STRUCTURAL_MESSAGE, RECONSTRUCTION_CLOSURE_STATE_MESSAGE, RECONSTRUCTION_STORED_NAMESPACE_MESSAGE, RECONSTRUCTION_UNSUPPORTED_RECONSTRUCTION_JOB_MESSAGE, RECONSTRUCTION_STORED_FIELDS_MESSAGE, RECONSTRUCTION_STORED_PRIVACY_MESSAGE, RECONSTRUCTION_STORED_REFS_EMPTY_MESSAGE, RECONSTRUCTION_STORED_REFS_UNIQUE_MESSAGE, RECONSTRUCTION_STORED_SOURCE_CONFLICT_MESSAGE, RECONSTRUCTION_PROVENANCE_MESSAGE, RECONSTRUCTION_JOB_DEPENDENCIES_MESSAGE, RECONSTRUCTION_UNSUPPORTED_RECONSTRUCTION_MAPPING_MESSAGE, RECONSTRUCTION_STORED_NO_OUTPUTS_MESSAGE, RECONSTRUCTION_STORED_EVENTS_UNIQUE_MESSAGE, RECONSTRUCTION_STORED_DEPENDENCIES_MESSAGE, RECONSTRUCTION_DEFERRAL_REASON_INVALID_MESSAGE, RECONSTRUCTION_RESULT_STATUS_INVALID_MESSAGE, RECONSTRUCTION_TERMINAL_OUTCOME_MESSAGE, RECONSTRUCTION_CALLBACKS_REQUIRED_MESSAGE, RECONSTRUCTION_DRAIN_TIME_MESSAGE, RECONSTRUCTION_RECORD_UNSUPPORTED_MESSAGE, RECONSTRUCTION_JOB_MISSING_MESSAGE, RECONSTRUCTION_LABEL_OUTPUT, RECONSTRUCTION_LABEL_EVENT_ID, RECONSTRUCTION_LABEL_EVENT_ID_FIELD, RECONSTRUCTION_LABEL_SUBMISSION, RECONSTRUCTION_LABEL_INTEGRATION, RECONSTRUCTION_LABEL_RUN, RECONSTRUCTION_LABEL_RUN_ID, RECONSTRUCTION_LABEL_RUN_ID_FIELD, RECONSTRUCTION_LABEL_SOURCE_REF, RECONSTRUCTION_LABEL_SOURCE_REF_FIELD, RECONSTRUCTION_SUBMISSION_INVALID_MESSAGE;
 var init_constants15 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/constants.js"() {
     RECONSTRUCTION_DRAIN_LOCK = "reconstruction";
     RECONSTRUCTION_RUN_ID_PREFIX = "reconstruction:";
     RECONSTRUCTION_MAPPING_EVENT_ID_PREFIX = "reconstruction-map:";
@@ -23369,18 +23851,18 @@ var init_constants15 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/known-keys.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/known-keys.js
 function assertKnownKeys(record, required, optional, message) {
   const keys = Object.keys(record);
   if (required.some((key) => !keys.includes(key)) || keys.some((key) => !required.includes(key) && !optional.includes(key)))
     throw new TypeError(message);
 }
 var init_known_keys = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/known-keys.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/known-keys.js"() {
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/job-validation.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/job-validation.js
 function readEventId(output, seen) {
   const eventId = requireNonBlankString(requireOwnDataField(output, "eventId"), RECONSTRUCTION_LABEL_EVENT_ID);
   validateIdentifier(eventId, RECONSTRUCTION_LABEL_EVENT_ID_FIELD);
@@ -23651,7 +24133,7 @@ function validateTurnEvidence(value) {
   };
 }
 var init_job_validation = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/job-validation.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/job-validation.js"() {
     init_paths();
     init_serialization();
     init_objects();
@@ -23664,7 +24146,7 @@ var init_job_validation = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/job-records.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/job-records.js
 function snapshotJob(job) {
   return Object.freeze({
     ...job,
@@ -23862,7 +24344,7 @@ function mappingScope(job) {
   return { ...scopeOf(job), eventId };
 }
 var init_job_records = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/job-records.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/job-records.js"() {
     init_known_keys();
     init_paths();
     init_serialization();
@@ -23874,7 +24356,7 @@ var init_job_records = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/job-processing.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/job-processing.js
 async function processJob(candidate, context) {
   const { job, scope } = candidate;
   const retry = candidate.entry.record.delivery?.retries[job.accountFingerprint];
@@ -23992,7 +24474,7 @@ async function recordTerminal(store, scope, accountFingerprint, outcome, reason)
   return result.status === "recorded";
 }
 var init_job_processing = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/job-processing.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/job-processing.js"() {
     init_retry_state();
     init_constants6();
     init_retry();
@@ -24004,8 +24486,8 @@ var init_job_processing = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/worker.js
-import { join as join16, resolve as resolve10 } from "node:path";
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/worker.js
+import { join as join17, resolve as resolve11 } from "node:path";
 function createReconstructionWorker(options) {
   const integration = options.integration;
   const sessionId = requireNonBlankString(options.sessionId, "Session ID");
@@ -24018,7 +24500,7 @@ function createReconstructionWorker(options) {
   validateIdentifier(sessionId, "session ID");
   validateIdentifier(accountFingerprint, "account fingerprint");
   const policy = resolvePolicy(options.policy);
-  const storageRoot = resolve10(options.storageRoot);
+  const storageRoot = resolve11(options.storageRoot);
   const captureStore = createCaptureStore(storageRoot, CAPTURE_JOBS_DIRECTORY);
   const context = {
     integration,
@@ -24059,7 +24541,7 @@ async function drainJobs(context, request) {
   if (!Number.isFinite(now))
     throw new RangeError(RECONSTRUCTION_DRAIN_TIME_MESSAGE);
   const lockDirectory = await ensurePrivateDirectory(context.storageRoot, sessionSegments(identifierHash(context.sessionId)));
-  const lockPath = join16(lockDirectory, RECONSTRUCTION_DRAIN_LOCK);
+  const lockPath = join17(lockDirectory, RECONSTRUCTION_DRAIN_LOCK);
   const lock = await tryAcquireFileLock(lockPath);
   if (!lock)
     return { status: "busy" };
@@ -24160,7 +24642,7 @@ async function summarizePending(context) {
   };
 }
 var init_worker2 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/worker.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/worker.js"() {
     init_constants4();
     init_storage();
     init_lock_folders();
@@ -24180,14 +24662,14 @@ var init_worker2 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/index.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/index.js
 var init_reconstruction = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/reconstruction/index.js"() {
     init_worker2();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/engine/pass-results.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/engine/pass-results.js
 function reconstructionPassResult(result) {
   if (result.status === "busy")
     return "retryable-failure";
@@ -24206,14 +24688,14 @@ function waitingOnBackoff(result) {
   return result.pending > 0 && result.nextRetryAtMs !== void 0;
 }
 var init_pass_results = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/engine/pass-results.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/engine/pass-results.js"() {
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/engine/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/engine/constants.js
 var TRACING_ENGINE_FOREIGN_SESSION_MIN_AGE_MS, TRACING_ENGINE_BACKGROUND_RECOVERY_REPORT_ERROR, TRACING_ENGINE_BACKGROUND_RECOVERY_SESSION_CALLBACK_ERROR, TRACING_ENGINE_BACKGROUND_RECOVERY_REPORT_CALLBACK_ERROR, TRACING_ENGINE_BACKGROUND_RECOVERY_MINIMUM_AGE_ERROR, TRACING_ENGINE_MAX_RETRY_WAIT_MS, TRACING_ENGINE_MAX_RETRY_PASSES, TRACING_ENGINE_RECOVERY_TIME_MUST_BE_VALID_TIMESTAMP_MESSAGE, TRACING_ENGINE_SESSION_RECOVERY_OPTIONS_CALLBACK_IS_REQUIRED_MESSAGE, TRACING_ENGINE_RECOVERY_ACCOUNT_FINGERPRINT_DOES_NOT_MATCH_ACTIVE_SESSION_MESSAGE, TRACING_ENGINE_SESSION_RECOVERY_OPTIONS_MUST_BE_OBJECT_MESSAGE, TRACING_ENGINE_RECOVERY_MAX_FOREIGN_SESSIONS, TRACING_ENGINE_STORAGE_ROOT_REQUIRED_MESSAGE, TRACING_ENGINE_RECOVERY_SETTLEMENT_CONFLICT_MESSAGE, TRACING_ENGINE_MISSING_SETTLEMENT_CAPTURE_MESSAGE, HOOK_OUTPUTS_KEY;
 var init_constants16 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/engine/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/engine/constants.js"() {
     TRACING_ENGINE_FOREIGN_SESSION_MIN_AGE_MS = 2 * 60 * 60 * 1e3;
     TRACING_ENGINE_BACKGROUND_RECOVERY_REPORT_ERROR = "Background recovery report callback failed";
     TRACING_ENGINE_BACKGROUND_RECOVERY_SESSION_CALLBACK_ERROR = "Background recovery session callback is required";
@@ -24233,14 +24715,14 @@ var init_constants16 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/engine/options.js
-import { resolve as resolve11 } from "node:path";
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/engine/options.js
+import { resolve as resolve12 } from "node:path";
 function snapshotEngineOptions(options) {
   if (typeof options.storageRoot !== "string" || options.storageRoot.trim() === "")
     throw new TypeError(TRACING_ENGINE_STORAGE_ROOT_REQUIRED_MESSAGE);
   return Object.freeze({
     ...options,
-    storageRoot: resolve11(options.storageRoot),
+    storageRoot: resolve12(options.storageRoot),
     writer: snapshotWriterOptions(options.writer)
   });
 }
@@ -24275,15 +24757,15 @@ function snapshotWriterOptions(options) {
   });
 }
 var init_options2 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/engine/options.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/engine/options.js"() {
     init_constants16();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/engine/errors.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/engine/errors.js
 var MissingSettlementCaptureError;
 var init_errors6 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/engine/errors.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/engine/errors.js"() {
     init_constants16();
     MissingSettlementCaptureError = class extends Error {
       constructor() {
@@ -24294,7 +24776,7 @@ var init_errors6 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery-settlement.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery-settlement.js
 async function hasUnsettledRecoverySettlement(options) {
   try {
     const work = await settleCapturedTurns({
@@ -24337,7 +24819,7 @@ async function hasUnsettledRecoverySettlement(options) {
   }
 }
 var init_recovery_settlement = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery-settlement.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery-settlement.js"() {
     init_serialization();
     init_pass();
     init_constants16();
@@ -24345,7 +24827,7 @@ var init_recovery_settlement = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery.js
 function validateRecoveryRequest(request) {
   const now = request.now ?? Date.now();
   if (!Number.isSafeInteger(now) || !Number.isFinite(new Date(now).getTime()))
@@ -24493,7 +24975,7 @@ async function recoverTracingSessions(runtime, request, scopeGuard) {
   return { scheduled, failed };
 }
 var init_recovery = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/engine/recovery.js"() {
     init_constants4();
     init_retry_state();
     init_capture();
@@ -24510,7 +24992,7 @@ var init_recovery = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/engine/background-recovery.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/engine/background-recovery.js
 function retryableFailure(error2) {
   return { status: "failed", message: describe(error2), retryable: true };
 }
@@ -24558,14 +25040,14 @@ async function runBackgroundRecovery(runtime, options, scopeGuard) {
   }
 }
 var init_background_recovery = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/engine/background-recovery.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/engine/background-recovery.js"() {
     init_errors();
     init_constants16();
     init_recovery();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/engine/retry-wait.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/engine/retry-wait.js
 import { setTimeout as delay4 } from "node:timers/promises";
 async function drainThroughBackoff(drain) {
   let waitedMs = 0;
@@ -24586,12 +25068,12 @@ async function drainThroughBackoff(drain) {
   return result;
 }
 var init_retry_wait = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/engine/retry-wait.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/engine/retry-wait.js"() {
     init_constants16();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/engine/engine.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/engine/engine.js
 function createTracingEngine(options) {
   const config = snapshotEngineOptions(options);
   const forSession = (sessionOptions) => createSession(config, snapshotSessionOptions(sessionOptions));
@@ -24710,7 +25192,7 @@ async function drainSession(context) {
   return result;
 }
 var init_engine = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/engine/engine.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/engine/engine.js"() {
     init_background_worker();
     init_scope2();
     init_lifecycle();
@@ -24726,24 +25208,24 @@ var init_engine = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/engine/index.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/engine/index.js
 var init_engine2 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/engine/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/engine/index.js"() {
     init_engine();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/upload/identity.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/upload/identity.js
 function resolveUploadDestinationFingerprint(options) {
   return resolveUploadDestinationIdentities(options).accountFingerprint;
 }
 var init_identity2 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/upload/identity.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/upload/identity.js"() {
     init_destination_identity();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/plugin/session.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/plugin/session.js
 function openPluginSession(options) {
   const { storageRoot, integration, sessionId, writer } = options;
   const callbacks = (id) => ({
@@ -24783,7 +25265,7 @@ function fingerprintOf(writer) {
   }
 }
 var init_session = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/plugin/session.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/plugin/session.js"() {
     init_capture();
     init_engine2();
     init_identity2();
@@ -24791,19 +25273,19 @@ var init_session = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/binary-runtime.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/utils/binary-runtime.js
 function builtAsBinary() {
   return typeof LS_COMPILED_BINARY !== "undefined";
 }
 var init_binary_runtime = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/binary-runtime.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/utils/binary-runtime.js"() {
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/tls/tls-constants.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/utils/tls/tls-constants.js
 var EXTRA_CERTIFICATES_VARIABLE, SYSTEM_CERTIFICATE_STORE, CERTIFICATE_FILE_ENCODING, SYSTEM_CERTIFICATES_WARNING, CERTIFICATE_PATTERN;
 var init_tls_constants = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/tls/tls-constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/utils/tls/tls-constants.js"() {
     EXTRA_CERTIFICATES_VARIABLE = "NODE_EXTRA_CA_CERTS";
     SYSTEM_CERTIFICATE_STORE = "system";
     CERTIFICATE_FILE_ENCODING = "utf8";
@@ -24812,7 +25294,7 @@ var init_tls_constants = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/tls/system-certificates.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/utils/tls/system-certificates.js
 import { readFileSync as readFileSync7, writeFileSync as writeFileSync3 } from "node:fs";
 import * as tls from "node:tls";
 function trustSystemCertificates(file, environment, readSystem = readSystemStore) {
@@ -24850,20 +25332,20 @@ function readIfPresent(file) {
   }
 }
 var init_system_certificates = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/tls/system-certificates.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/utils/tls/system-certificates.js"() {
     init_errors();
     init_tls_constants();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/plugin/worker-launch.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/plugin/worker-launch.js
 import { spawn } from "node:child_process";
 import { closeSync as closeSync2, mkdirSync as mkdirSync5, openSync as openSync2, statSync as statSync3, writeSync as writeSync2 } from "node:fs";
-import { dirname as dirname10, join as join17 } from "node:path";
+import { dirname as dirname10, join as join18 } from "node:path";
 function launchDetachedWorker(args, options = {}) {
   const root = options.storageRoot;
-  const log2 = root === void 0 ? void 0 : openLog(join17(root, WORKER_LOG_FILE_NAME));
-  const certificates = root === void 0 ? void 0 : trustSystemCertificates(join17(root, SYSTEM_CERTIFICATES_FILE_NAME), process.env);
+  const log2 = root === void 0 ? void 0 : openLog(join18(root, WORKER_LOG_FILE_NAME));
+  const certificates = root === void 0 ? void 0 : trustSystemCertificates(join18(root, SYSTEM_CERTIFICATES_FILE_NAME), process.env);
   if (log2 !== void 0 && certificates?.warning !== void 0)
     logWarning(log2, certificates.warning);
   const child = spawn(options.executable ?? process.execPath, [...scriptArguments(), ...args], {
@@ -24874,7 +25356,7 @@ function launchDetachedWorker(args, options = {}) {
   });
   if (log2 !== void 0)
     closeSync2(log2);
-  return new Promise((resolve15, reject) => {
+  return new Promise((resolve16, reject) => {
     child.once("error", reject);
     child.once("spawn", () => {
       if (child.pid === void 0) {
@@ -24882,7 +25364,7 @@ function launchDetachedWorker(args, options = {}) {
         return;
       }
       child.unref();
-      resolve15(child.pid);
+      resolve16(child.pid);
     });
   });
 }
@@ -24910,25 +25392,25 @@ function logWarning(log2, warning) {
   }
 }
 var init_worker_launch = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/plugin/worker-launch.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/plugin/worker-launch.js"() {
     init_constants();
     init_binary_runtime();
     init_system_certificates();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/plugin/notice-cooldown.js
-import { join as join18 } from "node:path";
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/plugin/notice-cooldown.js
+import { join as join19 } from "node:path";
 var init_notice_cooldown = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/plugin/notice-cooldown.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/plugin/notice-cooldown.js"() {
     init_state_claim();
     init_constants();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/plugin/index.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/plugin/index.js
 var init_plugin = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/plugin/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/plugin/index.js"() {
     init_hook_command();
     init_policy_file();
     init_session();
@@ -24937,9 +25419,9 @@ var init_plugin = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/auth/index.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/auth/index.js
 var init_auth = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/auth/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/auth/index.js"() {
     init_credential();
     init_expiry2();
     init_profile();
@@ -24948,11 +25430,11 @@ var init_auth = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/settings/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/settings/constants.js
 import { constants } from "node:fs";
 var COMMON_BOOLEAN_SETTINGS, COMMON_NOTICE_COOLDOWN_OFF, COMMON_STRICT_BOOLEAN_FIELDS, COMMON_DEFAULT_API_URL, COMMON_USER_ONLY_FIELDS, COMMON_CONFIG_FILE_NAME, COMMON_CONFIG_OPEN_FLAGS, COMMON_CONFIG_ROOT_FILE_NAME, COMMON_CONFIG_USER_ROOT_FILE_NAME, MANAGED_CONFIG_DIRECTORY, MANAGED_CONFIG_FILE_NAME, MANAGED_CONFIG_OPEN_FLAGS, MANAGED_CONFIG_OWNER_UID, GROUP_OR_OTHERS_WRITE_BITS, MANAGED_CONFIG_OVERRIDE_SOURCES, MANAGED_CONFIG_UNSAFE_OWNERSHIP, MANAGED_CONFIG_INVALID, MANAGED_CONFIG_UNLOCKABLE_WARNING, MANAGED_CONFIG_OVERRIDE_WARNING, MANAGED_CONFIG_OVERRIDE_FIELD_SEPARATOR, MANAGED_CONFIG_OVERRIDE_SOURCE_SEPARATOR, ACCOUNT_LOOKUP_TIMEOUT_MS, MACOS_ACCOUNT_LOOKUP, MACOS_ACCOUNT_LOOKUP_ARGUMENTS, MACOS_ACCOUNT_HOME_FIELD, LINUX_ACCOUNT_LIST_FILE, LINUX_ACCOUNT_LOOKUPS, LINUX_ACCOUNT_HOME_FIELD, ACCOUNT_ID_FIELD, ACCOUNT_FIELD_SEPARATOR, UTF8_BOM;
 var init_constants17 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/settings/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/settings/constants.js"() {
     COMMON_BOOLEAN_SETTINGS = {
       enabled: { default: false, restrictive: false },
       defaultMuted: { default: false, restrictive: true }
@@ -25000,16 +25482,16 @@ var init_constants17 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/settings/utils/records.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/settings/utils/records.js
 function object(value) {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 var init_records = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/settings/utils/records.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/settings/utils/records.js"() {
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/settings/parse.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/settings/parse.js
 function invalid(raw) {
   return {
     status: "invalid",
@@ -25131,13 +25613,13 @@ function parseCommonConfig(value) {
   return { status: "valid", common, raw: value, diagnostics };
 }
 var init_parse3 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/settings/parse.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/settings/parse.js"() {
     init_constants17();
     init_records();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/settings/utils/account-home.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/settings/utils/account-home.js
 import { execFileSync } from "node:child_process";
 import { readFileSync as readFileSync8 } from "node:fs";
 import { userInfo } from "node:os";
@@ -25211,12 +25693,12 @@ function homeField(entry, field4) {
 }
 var cachedBunHome;
 var init_account_home = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/settings/utils/account-home.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/settings/utils/account-home.js"() {
     init_constants17();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/settings/utils/warnings.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/settings/utils/warnings.js
 function warnOnce2(lines) {
   for (const line of lines) {
     if (warned.has(line))
@@ -25227,23 +25709,23 @@ function warnOnce2(lines) {
 }
 var warned;
 var init_warnings = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/settings/utils/warnings.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/settings/utils/warnings.js"() {
     warned = /* @__PURE__ */ new Set();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/settings/managed-config.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/settings/managed-config.js
 import { closeSync as closeSync3, fstatSync, lstatSync as lstatSync2, openSync as openSync3, readFileSync as readFileSync9 } from "node:fs";
-import { homedir } from "node:os";
-import { dirname as dirname11, join as join19 } from "node:path";
+import { homedir as homedir2 } from "node:os";
+import { dirname as dirname11, join as join20 } from "node:path";
 function onlyOwnerCanChange(stats, ownerUid) {
   return !stats.isSymbolicLink() && stats.uid === ownerUid && (stats.mode & GROUP_OR_OTHERS_WRITE_BITS) === 0;
 }
 function managedConfigPath() {
   if (process.platform === "win32")
     return void 0;
-  const accountHome = accountHomeDirectory() ?? homedir();
-  return join19(accountHome, MANAGED_CONFIG_DIRECTORY, MANAGED_CONFIG_FILE_NAME);
+  const accountHome = accountHomeDirectory() ?? homedir2();
+  return join20(accountHome, MANAGED_CONFIG_DIRECTORY, MANAGED_CONFIG_FILE_NAME);
 }
 function rejectManagedConfig(diagnostic) {
   return { status: "invalid", common: {}, diagnostics: [diagnostic] };
@@ -25295,7 +25777,7 @@ function lockPluginFields(managed, fields) {
   return Object.fromEntries(present(fields.lockable).map((name) => [name, raw[name]]));
 }
 var init_managed_config = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/settings/managed-config.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/settings/managed-config.js"() {
     init_constants17();
     init_parse3();
     init_account_home();
@@ -25304,7 +25786,7 @@ var init_managed_config = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/settings/managed-lock.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/settings/managed-lock.js
 import { isDeepStrictEqual } from "node:util";
 function lockedValues(common) {
   const lock = { ...common };
@@ -25362,13 +25844,13 @@ function overrideDiagnostics(sources, lock) {
   return [MANAGED_CONFIG_OVERRIDE_WARNING.replace("{overrides}", list)];
 }
 var init_managed_lock = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/settings/managed-lock.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/settings/managed-lock.js"() {
     init_constants17();
     init_records();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/settings/common-config.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/settings/common-config.js
 function resolveField(sources, field4) {
   return sources.find((source) => source[field4] !== void 0)?.[field4];
 }
@@ -25427,7 +25909,7 @@ function toSdkReplicas(replicas) {
   }));
 }
 var init_common_config = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/settings/common-config.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/settings/common-config.js"() {
     init_constants17();
     init_managed_config();
     init_managed_lock();
@@ -25435,9 +25917,9 @@ var init_common_config = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/settings/config-files.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/settings/config-files.js
 import { closeSync as closeSync4, fstatSync as fstatSync2, lstatSync as lstatSync3, openSync as openSync4, readFileSync as readFileSync10 } from "node:fs";
-import { join as join20 } from "node:path";
+import { join as join21 } from "node:path";
 function readCommonConfigFile(path3) {
   let fd;
   try {
@@ -25470,24 +25952,24 @@ function readCommonConfigFile(path3) {
 function readCommonConfigFiles(options) {
   const { cwd, home, harnessDirectory } = options;
   return {
-    harness: readCommonConfigFile(join20(cwd, harnessDirectory, COMMON_CONFIG_FILE_NAME)),
-    root: readCommonConfigFile(join20(cwd, COMMON_CONFIG_ROOT_FILE_NAME)),
-    user: home ? readCommonConfigFile(join20(home, harnessDirectory, COMMON_CONFIG_FILE_NAME)) : absent(),
-    userRoot: home ? readCommonConfigFile(join20(home, COMMON_CONFIG_USER_ROOT_FILE_NAME)) : absent(),
+    harness: readCommonConfigFile(join21(cwd, harnessDirectory, COMMON_CONFIG_FILE_NAME)),
+    root: readCommonConfigFile(join21(cwd, COMMON_CONFIG_ROOT_FILE_NAME)),
+    user: home ? readCommonConfigFile(join21(home, harnessDirectory, COMMON_CONFIG_FILE_NAME)) : absent(),
+    userRoot: home ? readCommonConfigFile(join21(home, COMMON_CONFIG_USER_ROOT_FILE_NAME)) : absent(),
     managed: readManagedConfigFile(options.managed)
   };
 }
 var init_config_files = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/settings/config-files.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/settings/config-files.js"() {
     init_constants17();
     init_managed_config();
     init_parse3();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/settings/index.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/settings/index.js
 var init_settings = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/settings/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/settings/index.js"() {
     init_constants17();
     init_common_config();
     init_config_files();
@@ -25598,7 +26080,7 @@ var init_constants18 = __esm({
 // dist/src/logger.js
 import { appendFileSync, mkdirSync as mkdirSync6, statSync as statSync4, renameSync as renameSync5 } from "node:fs";
 import { dirname as dirname12 } from "node:path";
-import { homedir as homedir2 } from "node:os";
+import { homedir as homedir3 } from "node:os";
 function initLogger(debug2) {
   debugEnabled = debug2;
   mkdirSync6(dirname12(LOG_FILE), { recursive: true });
@@ -25640,7 +26122,7 @@ var init_logger = __esm({
   "dist/src/logger.js"() {
     "use strict";
     init_constants18();
-    LOG_FILE = process.env.LANGSMITH_CURSOR_LOG_FILE ?? `${homedir2()}/.cursor/${HOOK_LOG_FILE_NAME}`;
+    LOG_FILE = process.env.LANGSMITH_CURSOR_LOG_FILE ?? `${homedir3()}/.cursor/${HOOK_LOG_FILE_NAME}`;
     debugEnabled = false;
   }
 });
@@ -25680,8 +26162,8 @@ var init_parse4 = __esm({
 });
 
 // dist/src/config.js
-import { homedir as homedir3, userInfo as userInfo2 } from "node:os";
-import { join as join21 } from "node:path";
+import { homedir as homedir4, userInfo as userInfo2 } from "node:os";
+import { join as join22 } from "node:path";
 function isRedactRule(rule) {
   if (typeof rule !== "object" || rule === null)
     return false;
@@ -25763,7 +26245,7 @@ function loadConfig(options) {
   const cwd = options?.cwd ?? process.env.CURSOR_PROJECT_DIR ?? process.cwd();
   const files = readCommonConfigFiles({
     cwd,
-    home: homedir3(),
+    home: homedir4(),
     harnessDirectory: CURSOR_DIRECTORY_NAME
   });
   for (const { diagnostics } of Object.values(files)) {
@@ -25815,7 +26297,7 @@ function loadConfig(options) {
   const systemPromptEnabled = managedExtensions.system_prompt ?? parseBoolean(getEnv2("SYSTEM_PROMPT")) ?? fromFiles("system_prompt") ?? true;
   const sweepIdleMinutes = parsePositiveNumber(getEnv2("SWEEP_IDLE_MINUTES")) ?? fromFiles("sweep_idle_minutes") ?? DEFAULT_SWEEP_IDLE_MINUTES;
   const cursorDbPath = getEnv2("DB_PATH") ?? fromFiles("cursor_db_path");
-  const stateFilePath = process.env.LANGSMITH_CURSOR_STATE_FILE ?? join21(homedir3(), CURSOR_DIRECTORY_NAME, STATE_FILE_NAME);
+  const stateFilePath = process.env.LANGSMITH_CURSOR_STATE_FILE ?? join22(homedir4(), CURSOR_DIRECTORY_NAME, STATE_FILE_NAME);
   const baseMetadata = { cwd };
   if (LS_INTEGRATION_VERSION)
     baseMetadata.ls_integration_version = LS_INTEGRATION_VERSION;
@@ -25857,19 +26339,19 @@ var init_config = __esm({
     init_logger();
     init_constants18();
     init_parse4();
-    LS_INTEGRATION_VERSION = true ? "0.7.1" : process.env.LANGSMITH_CURSOR_INTEGRATION_VERSION || void 0;
+    LS_INTEGRATION_VERSION = true ? "0.7.2" : process.env.LANGSMITH_CURSOR_INTEGRATION_VERSION || void 0;
   }
 });
 
 // dist/src/utils/stdin.js
 function readStdin(stream = process.stdin) {
-  return new Promise((resolve15, reject) => {
+  return new Promise((resolve16, reject) => {
     let data = "";
     stream.setEncoding("utf-8");
     stream.on("data", (chunk) => data += chunk);
     stream.on("end", () => {
       try {
-        resolve15(JSON.parse(data.replace(LEADING_BYTE_ORDER_MARKS, "")));
+        resolve16(JSON.parse(data.replace(LEADING_BYTE_ORDER_MARKS, "")));
       } catch (err) {
         reject(new Error(`Failed to parse hook input: ${err}`));
       }
@@ -25885,9 +26367,9 @@ var init_stdin = __esm({
 });
 
 // dist/src/writer-options.js
-import { dirname as dirname13, join as join22 } from "node:path";
+import { dirname as dirname13, join as join23 } from "node:path";
 function storageRootFor(config) {
-  return join22(dirname13(config.stateFilePath), ENGINE_STORAGE_DIR_NAME);
+  return join23(dirname13(config.stateFilePath), ENGINE_STORAGE_DIR_NAME);
 }
 function uploadCredential(config) {
   return resolveUploadCredential({
@@ -25970,11 +26452,11 @@ var init_notice = __esm({
 
 // dist/src/utils/legacy-file.js
 import { constants as constants2, copyFileSync, existsSync as existsSync3 } from "node:fs";
-import { basename as basename4, dirname as dirname14, join as join23 } from "node:path";
+import { basename as basename4, dirname as dirname14, join as join24 } from "node:path";
 function adoptLegacyFile(path3, fileName, legacyFileName) {
   if (basename4(path3) !== fileName || existsSync3(path3))
     return;
-  const legacy = join23(dirname14(path3), legacyFileName);
+  const legacy = join24(dirname14(path3), legacyFileName);
   if (!existsSync3(legacy))
     return;
   try {
@@ -26599,13 +27081,13 @@ var init_reducer = __esm({
 });
 
 // dist/src/tracing-policy.js
-import { homedir as homedir4 } from "node:os";
-import { join as join24 } from "node:path";
+import { homedir as homedir5 } from "node:os";
+import { join as join25 } from "node:path";
 function isMode(value) {
   return value === "full" || value === "metadata";
 }
 function tracingPolicyPath() {
-  return process.env.LANGSMITH_CURSOR_PRIVACY_FILE ?? join24(homedir4(), ".cursor", TRACING_POLICY_FILE_NAME);
+  return process.env.LANGSMITH_CURSOR_PRIVACY_FILE ?? join25(homedir5(), ".cursor", TRACING_POLICY_FILE_NAME);
 }
 function mutingLocked(config) {
   return config.defaultMuted && config.locked.includes("defaultMuted");
@@ -26874,7 +27356,7 @@ var init_text = __esm({
 
 // dist/src/subagent-transcript.js
 import { readFileSync as readFileSync11, readdirSync as readdirSync2, statSync as statSync5 } from "node:fs";
-import { dirname as dirname15, join as join25, basename as basename5 } from "node:path";
+import { dirname as dirname15, join as join26, basename as basename5 } from "node:path";
 function readJsonl(path3) {
   const rows = [];
   for (const line of readFileSync11(path3, "utf-8").split("\n")) {
@@ -26903,12 +27385,12 @@ function resolveSubagentTranscript(parentTranscriptPath, task) {
   if (!parentTranscriptPath)
     return void 0;
   try {
-    const dir = join25(dirname15(parentTranscriptPath), "subagents");
+    const dir = join26(dirname15(parentTranscriptPath), "subagents");
     const files = readdirSync2(dir).filter((f2) => f2.endsWith(".jsonl"));
     if (files.length === 0)
       return void 0;
     const candidates = files.map((f2) => {
-      const full = join25(dir, f2);
+      const full = join26(dir, f2);
       return { full, child: basename5(f2, ".jsonl"), mtime: statSync5(full).mtimeMs };
     });
     const wanted = task ? normalizeWs(task).slice(0, 120) : "";
@@ -26965,7 +27447,7 @@ var init_subagent_stop = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/paths.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/utils/paths.js
 import { statSync as statSync6 } from "node:fs";
 import { dirname as dirname16 } from "node:path";
 function nearestExistingDirectory(path3) {
@@ -26984,14 +27466,14 @@ function nearestExistingDirectory(path3) {
   }
 }
 var init_paths3 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/paths.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/utils/paths.js"() {
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/git/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/git/constants.js
 var GIT_LOCATION_ENV_KEYS, NOT_A_REPOSITORY, REMOTE_PATH_EDGE_SLASHES, REMOTE_PATH_TRAILING_SLASHES, REMOTE_GIT_SUFFIX, REMOTE_LINE_WHITESPACE, SCP_REMOTE_PATTERN, GIT_DIRECTORY_NAME, GIT_FILE_POINTER, GIT_MARKERS, GIT_PROVIDERS, SELF_HOSTED_PROVIDER_HINTS, PROVIDER_HOSTS, GIT_COMMAND_TIMEOUT_MS, GH_LOGIN_COMMAND, GIT_COMMAND, GIT_COMMAND_MISSING, GH_LOGIN_ARGUMENTS, GH_LOGIN_TIMEOUT_MS, GH_LOGIN_PATTERN, GH_LOGIN_NULL_OUTPUT, GH_LOGIN_RETRY_AFTER_MS;
 var init_constants19 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/git/constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/git/constants.js"() {
     GIT_LOCATION_ENV_KEYS = [
       "GIT_DIR",
       "GIT_WORK_TREE",
@@ -27037,10 +27519,10 @@ var init_constants19 = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/desktop/desktop-constants.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/utils/desktop/desktop-constants.js
 var DESKTOP_WINDOWS_EXTENSIONS, DESKTOP_WINDOWS_SEPARATOR, DESKTOP_PATH_SEPARATOR, DESKTOP_PATH_VARIABLES, DESKTOP_EXTENSIONS_VARIABLE;
 var init_desktop_constants = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/desktop/desktop-constants.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/utils/desktop/desktop-constants.js"() {
     DESKTOP_WINDOWS_EXTENSIONS = ".EXE;.CMD;.BAT";
     DESKTOP_WINDOWS_SEPARATOR = ";";
     DESKTOP_PATH_SEPARATOR = ":";
@@ -27049,9 +27531,9 @@ var init_desktop_constants = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/desktop/launch.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/utils/desktop/launch.js
 import { accessSync, constants as constants3, statSync as statSync7 } from "node:fs";
-import { join as join26, posix, win32 } from "node:path";
+import { join as join27, posix, win32 } from "node:path";
 function findExecutable(name, env, platform2) {
   const windows = platform2 === WINDOWS_PLATFORM;
   const extensions = windows ? (env[DESKTOP_EXTENSIONS_VARIABLE] ?? DESKTOP_WINDOWS_EXTENSIONS).split(DESKTOP_WINDOWS_SEPARATOR) : [""];
@@ -27060,7 +27542,7 @@ function findExecutable(name, env, platform2) {
   const absolute = windows ? win32.isAbsolute : posix.isAbsolute;
   for (const folder of folders.filter((entry) => entry !== "" && absolute(entry))) {
     for (const extension of extensions) {
-      const candidate = join26(folder, `${name}${extension}`);
+      const candidate = join27(folder, `${name}${extension}`);
       try {
         accessSync(candidate, constants3.X_OK);
         if (statSync7(candidate).isFile())
@@ -27072,15 +27554,15 @@ function findExecutable(name, env, platform2) {
   return void 0;
 }
 var init_launch = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/utils/desktop/launch.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/utils/desktop/launch.js"() {
     init_constants2();
     init_desktop_constants();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/git/repository.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/git/repository.js
 import { execFileSync as execFileSync2 } from "node:child_process";
-import { resolve as resolve12 } from "node:path";
+import { resolve as resolve13 } from "node:path";
 function parseRepoName(remoteUrl) {
   const value = remoteUrl.trim();
   try {
@@ -27160,7 +27642,7 @@ function getRepoUrl(provider2, name) {
 function getRepoRoot(cwd) {
   try {
     const root = gitOutput(["rev-parse", "--show-toplevel"], cwd).trim();
-    return root ? resolve12(root) : void 0;
+    return root ? resolve13(root) : void 0;
   } catch (error2) {
     const stderr = String(error2?.stderr ?? "");
     return NOT_A_REPOSITORY.test(stderr) ? null : void 0;
@@ -27225,7 +27707,7 @@ function installedCommand(name) {
   return found;
 }
 var init_repository = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/git/repository.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/git/repository.js"() {
     init_launch();
     init_constants19();
     init_constants8();
@@ -27233,7 +27715,7 @@ var init_repository = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/git/github-login.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/git/github-login.js
 import { mkdirSync as mkdirSync7, readFileSync as readFileSync12, renameSync as renameSync6, writeFileSync as writeFileSync4 } from "node:fs";
 import { dirname as dirname17 } from "node:path";
 function createGitHubLoginFallback(options) {
@@ -27279,17 +27761,17 @@ function createGitHubLoginFallback(options) {
   };
 }
 var init_github_login = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/git/github-login.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/git/github-login.js"() {
     init_constants19();
     init_repository();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/git/paths.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/git/paths.js
 import { readFileSync as readFileSync13, statSync as statSync8 } from "node:fs";
-import { dirname as dirname18, join as join27, resolve as resolve13 } from "node:path";
+import { dirname as dirname18, join as join28, resolve as resolve14 } from "node:path";
 function gitMarkerAt(directory) {
-  const marker = join27(directory, GIT_DIRECTORY_NAME);
+  const marker = join28(directory, GIT_DIRECTORY_NAME);
   try {
     if (statSync8(marker).isDirectory())
       return GIT_MARKERS.REPOSITORY_ROOT;
@@ -27301,13 +27783,13 @@ function gitMarkerAt(directory) {
 function pointsAtGitDirectory(directory, marker) {
   try {
     const pointer = readFileSync13(marker, "utf-8").match(GIT_FILE_POINTER)?.[1];
-    return pointer !== void 0 && statSync8(resolve13(directory, pointer)).isDirectory();
+    return pointer !== void 0 && statSync8(resolve14(directory, pointer)).isDirectory();
   } catch {
     return false;
   }
 }
 function rootFromGitMarker(directory) {
-  let current = resolve13(directory);
+  let current = resolve14(directory);
   for (; ; ) {
     const marker = gitMarkerAt(current);
     if (marker === GIT_MARKERS.REPOSITORY_ROOT)
@@ -27322,12 +27804,12 @@ function rootFromGitMarker(directory) {
   }
 }
 var init_paths4 = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/git/paths.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/git/paths.js"() {
     init_constants19();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/git/attribution.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/git/attribution.js
 import { isAbsolute as isAbsolute4 } from "node:path";
 function createRepositoryAttributor(options) {
   const rootByDirectory = /* @__PURE__ */ new Map();
@@ -27432,7 +27914,7 @@ function withoutRepositoryKeys(base, pinned) {
   return stripped;
 }
 var init_attribution = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/git/attribution.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/git/attribution.js"() {
     init_constants8();
     init_paths3();
     init_github_login();
@@ -27441,9 +27923,9 @@ var init_attribution = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/git/index.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/git/index.js
 var init_git = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/git/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/git/index.js"() {
     init_attribution();
     init_github_login();
     init_paths4();
@@ -27654,7 +28136,7 @@ var init_job_context = __esm({
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/hook-outputs.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/hook-outputs.js
 function hookOutputs(hooks) {
   const valid = hooks.filter((hook) => typeof hook?.name === "string" && typeof hook.output === "string");
   if (valid.length === 0)
@@ -27662,14 +28144,14 @@ function hookOutputs(hooks) {
   return { [HOOK_OUTPUTS_KEY]: valid.map(({ name, output }) => ({ name, output })) };
 }
 var init_hook_outputs = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/hook-outputs.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/hook-outputs.js"() {
     init_constants16();
   }
 });
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/index.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/index.js
 var init_tracing = __esm({
-  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/tracing/index.js"() {
+  "node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/tracing/index.js"() {
     init_engine2();
     init_capture_wake();
     init_hook_outputs();
@@ -27733,18 +28215,18 @@ var init_sqlite = __esm({
 
 // dist/src/attachments.js
 import { existsSync as existsSync4, readFileSync as readFileSync14, statSync as statSync9 } from "node:fs";
-import { homedir as homedir5, platform } from "node:os";
-import { basename as basename6, join as join28 } from "node:path";
+import { homedir as homedir6, platform } from "node:os";
+import { basename as basename6, join as join29 } from "node:path";
 function defaultCursorDbPath() {
-  const home = homedir5();
+  const home = homedir6();
   const tail = ["Cursor", "User", "globalStorage", "state.vscdb"];
   switch (platform()) {
     case "darwin":
-      return join28(home, "Library", "Application Support", ...tail);
+      return join29(home, "Library", "Application Support", ...tail);
     case "win32":
-      return join28(process.env.APPDATA ?? join28(home, "AppData", "Roaming"), ...tail);
+      return join29(process.env.APPDATA ?? join29(home, "AppData", "Roaming"), ...tail);
     default:
-      return join28(process.env.XDG_CONFIG_HOME ?? join28(home, ".config"), ...tail);
+      return join29(process.env.XDG_CONFIG_HOME ?? join29(home, ".config"), ...tail);
   }
 }
 function queryBubbles(dbPath, conversationId) {
@@ -28976,7 +29458,7 @@ var init_langsmith2 = __esm({
 
 // dist/src/tool-origin.js
 import { existsSync as existsSync7 } from "node:fs";
-import { isAbsolute as isAbsolute5, resolve as resolve14 } from "node:path";
+import { isAbsolute as isAbsolute5, resolve as resolve15 } from "node:path";
 function toolOrigin(toolInput, cwd) {
   if (!isRecord(toolInput))
     return { cwd, namedAPath: false };
@@ -28988,7 +29470,7 @@ function toolOrigin(toolInput, cwd) {
     namedAPath = true;
     if (isAbsolute5(value))
       return { cwd, path: value, namedAPath };
-    const resolved = resolve14(cwd, value);
+    const resolved = resolve15(cwd, value);
     if (isAbsolute5(cwd) && existsSync7(resolved))
       return { cwd, path: resolved, namedAPath };
   }
@@ -29086,7 +29568,7 @@ var init_console = __esm({
 });
 
 // dist/src/tracing-engine.js
-import { dirname as dirname19, join as join29 } from "node:path";
+import { dirname as dirname19, join as join30 } from "node:path";
 async function saveTurnForUpload(config, context) {
   try {
     await queueUpload(config, context);
@@ -29218,7 +29700,7 @@ async function buildQueuedRuns(job, config, plugin) {
 }
 function attributorFor(config) {
   attributor ??= createRepositoryAttributor({
-    githubLoginMarkerPath: join29(dirname19(config.stateFilePath), GH_LOGIN_MARKER_FILE)
+    githubLoginMarkerPath: join30(dirname19(config.stateFilePath), GH_LOGIN_MARKER_FILE)
   });
   return attributor;
 }
@@ -29579,15 +30061,15 @@ var init_engine_worker = __esm({
 // dist/src/hooks/dispatch.js
 init_plugin();
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/binary.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/binary.js
 import { arch as osArch, platform as osPlatform } from "node:os";
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/constants.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/constants.js
 var DEFAULT_PUBLISHED_TARGETS = {
   darwin: ["arm64", "x64"]
 };
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/target.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/target.js
 function resolveTarget(options) {
   for (const field4 of ["executableName", "repository", "userAgent"]) {
     if (typeof options[field4] !== "string" || options[field4].trim() === "") {
@@ -29609,7 +30091,7 @@ function releaseAssetName(target, platform2, arch, version) {
   return `${target.executableName}-${platform2}-${arch}-${version}`;
 }
 
-// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.4/node_modules/@langchain/plugins-base/dist/binary.js
+// node_modules/.pnpm/@langchain+plugins-base@0.6.0_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/binary.js
 function defineBinaryTarget(options) {
   const target = resolveTarget(options);
   return {

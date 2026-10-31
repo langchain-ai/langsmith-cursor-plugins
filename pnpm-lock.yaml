@@ -12,12 +12,12 @@ importers:
   .:
     dependencies:
       langsmith:
-        specifier: ^0.11.4
-        version: 0.11.4
+        specifier: ^0.11.6
+        version: 0.11.6
     devDependencies:
       '@langchain/plugins-base':
         specifier: 0.6.0
-        version: 0.6.0(langsmith@0.11.4)
+        version: 0.6.0(langsmith@0.11.6)
       '@types/node':
         specifier: ^26.6.4
         version: 26.6.4
@@ -769,8 +769,8 @@ packages:
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
     os: [darwin]
 
-  langsmith@0.11.4:
-    resolution: {integrity: sha512-sasOaKuuZ3OKSE9XIXSAxBUX1/r6t2z0SUe2VgBPLQHKKyLayYzKwU38nKzz0cQoMpN4zpSxz7poQwSTt1OdoA==}
+  langsmith@0.11.6:
+    resolution: {integrity: sha512-5hfJM5DEZpXFxUS3U9nY2CMyBRmFnhkJj7znUODJ8vsr/Jx38tGJl4GIhV484xAY7yQFWrFOTDr33PB95kHUKg==}
     peerDependencies:
       '@opentelemetry/api': '*'
       '@opentelemetry/exporter-trace-otlp-proto': '*'
@@ -1162,9 +1162,9 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.6.0
 
-  '@langchain/plugins-base@0.6.0(langsmith@0.11.4)':
+  '@langchain/plugins-base@0.6.0(langsmith@0.11.6)':
     dependencies:
-      langsmith: 0.11.4
+      langsmith: 0.11.6
 
   '@napi-rs/wasm-runtime@1.2.4(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)':
     dependencies:
@@ -1481,7 +1481,7 @@ snapshots:
   fsevents@2.3.3:
     optional: true
 
-  langsmith@0.11.4:
+  langsmith@0.11.6:
     dependencies:
       p-queue: 6.6.2
 
