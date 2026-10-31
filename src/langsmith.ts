@@ -1,6 +1,7 @@
 /** LangSmith run construction: one trace per turn via RunTree, threaded by conversation_id. */
 
 import { MUTED_TRACE_CONTENT } from "@langchain/plugins-base/privacy";
+import { hookOutputs } from "@langchain/plugins-base/tracing";
 import { RunTree } from "langsmith";
 import type { ToolEvent, SubagentEvent, ContentPart, TurnBuffer } from "./models/types.js";
 import type {
@@ -166,7 +167,7 @@ export function buildTurnRuns(options: BuildTurnOptions): CapturedRun[] {
   }
 
   turnRun.end_time = turn.turnEndMs;
-  turnRun.outputs = { text: buffer.finalText ?? "" };
+  turnRun.outputs = { text: buffer.finalText ?? "", ...hookOutputs(options.hooks?.outputs ?? []) };
   turnRun.error = buffer.status && buffer.status !== "completed" ? buffer.status : undefined;
 
   logger.log(
@@ -240,7 +241,10 @@ function addRootRun(turn: TurnContext): RunTree {
     id: stableRunId(ctx, "turn"),
     name: `${TURN_RUN_NAME} ${options.turnNum}`,
     run_type: "chain",
-    inputs: { messages: [{ role: "user", content: turn.userContent }] },
+    inputs: {
+      messages: [{ role: "user", content: turn.userContent }],
+      ...hookOutputs(options.hooks?.inputs ?? []),
+    },
     project_name: options.project,
     start_time: options.buffer.startMs,
     tags: DEFAULT_TAGS,
@@ -466,13 +470,17 @@ function addToolRun(
   const floorMs = typeof parent.start_time === "number" ? parent.start_time : 0;
   const startMs = Math.max(floorMs, toolStartMs(tool));
   const error = toolError(tool);
+  const hooks = turn.options.hooks?.tools.get(tool.tool_use_id);
 
   addRun(turn, parent, {
     key,
     name: tool.name,
     type: "tool",
-    inputs: { input: tool.input },
-    outputs: error != null ? { error } : { output: tool.output ?? "" },
+    inputs: { input: tool.input, ...hookOutputs(hooks?.inputs ?? []) },
+    outputs: {
+      ...(error != null ? { error } : { output: tool.output ?? "" }),
+      ...hookOutputs(hooks?.outputs ?? []),
+    },
     error,
     startMs,
     endMs: tool.endMs,

@@ -33,6 +33,7 @@ export interface Config {
   locked: LockableField[];
   apiUrlIsDefault: boolean;
   strictAuth: boolean;
+  captureHookOutputs: boolean;
   managedConfigProblem?: string;
 }
 

@@ -58,6 +58,7 @@ export function testConfig(stateFilePath: string): Config {
     locked: [],
     apiUrlIsDefault: false,
     strictAuth: false,
+    captureHookOutputs: false,
   };
 }
 

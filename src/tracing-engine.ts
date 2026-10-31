@@ -46,7 +46,7 @@ import { isRecord } from "./normalize.js";
 import { toolOrigin } from "./tool-origin.js";
 import { withLockedMute } from "./tracing-policy.js";
 import { originFromConfig } from "./turn-origin.js";
-import { enrichTurn, toolAttachments } from "./turn-enrichment.js";
+import { enrichTurn, toolAttachments, withTurnHooks } from "./turn-enrichment.js";
 import { withWarningsTo } from "./utils/console.js";
 import { currentWriterOptions, storageRootFor, writerOptions } from "./writer-options.js";
 
@@ -66,6 +66,7 @@ export async function saveTurnForUpload(
 }
 
 export async function saveToolForUpload(config: Config, context: UploadJobContext): Promise<void> {
+  if (config.captureHookOutputs) return;
   try {
     await queueUpload(config, context);
   } catch (err) {
@@ -173,7 +174,7 @@ async function buildQueuedRuns(
     ? toolInputs(config, plugin, options, toolRef)
     : await turnInputs(
         plugin,
-        context.kind === "stop" ? enrichTurn(config, options) : options,
+        withTurnHooks(config, context.kind === "stop" ? enrichTurn(config, options) : options),
         chosen,
       );
   if (ref && !chosen) {

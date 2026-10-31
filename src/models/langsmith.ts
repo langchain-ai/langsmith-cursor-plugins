@@ -2,7 +2,7 @@ import type { CodingAgentAgentType } from "@langchain/plugins-base/metadata";
 import type { CursorMetadataOptions, LlmMetadata } from "./metadata.js";
 import type { CapturedRun } from "./tracing-engine.js";
 import type { ContentPart, ToolEvent, TracingMode, TurnBuffer } from "./types.js";
-import type { Step } from "./conversation-steps.js";
+import type { Step, TurnHooks } from "./conversation-steps.js";
 import type { UsageMetadata } from "./normalize.js";
 
 export interface BuildTurnOptions {
@@ -22,6 +22,7 @@ export interface BuildTurnOptions {
   systemPrompt?: string;
   /** True interleaved step sequence from Cursor's DB; enables per-round llm/tool fidelity. */
   steps?: Step[];
+  hooks?: TurnHooks;
   savedAtMs?: number;
 }
 

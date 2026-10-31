@@ -140,6 +140,8 @@ Each setting has a config file key and an environment variable. The environment 
 | `profile`            | none                                  | Which CLI login to use                      | the CLI's current one             |
 | `workspace_id`       | none                                  | Workspace for a login's traces              | the login's own                   |
 
+Set `capture_hook_outputs` (`LANGSMITH_CURSOR_CAPTURE_HOOK_OUTPUTS`) to `true` to add the text your own hooks give Cursor to the turn or tool call it belongs to, which is off by default.
+
 `profile` is personal so the managed file can't lock it. `LANGSMITH_PROFILE` and `LANGSMITH_WORKSPACE_ID` are only used when no `profile` or `workspace_id` is set in a settings file.
 
 ## Development

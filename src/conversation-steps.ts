@@ -4,12 +4,16 @@
  */
 
 import { existsSync } from "node:fs";
+import type { HookOutput } from "@langchain/plugins-base/tracing";
 import { isRecord } from "./normalize.js";
 import { defaultCursorDbPath } from "./attachments.js";
 import { decodeConversationStateBlob } from "./system-prompt.js";
 import { openDbReader } from "./cursor-db.js";
 import {
   AGENT_STEPS_FIELD,
+  HOOK_CONTEXT_NAME_FIELD,
+  HOOK_CONTEXT_TEXT_FIELD,
+  HOOK_EVENT_PLACEMENT,
   MESSAGE_TEXT_FIELD,
   STATE_TURNS_FIELD,
   STEP_ASSISTANT_FIELD,
@@ -20,12 +24,20 @@ import {
   TOOLCALL_TOOL_USE_ID_FIELD,
   TOOL_FIELD_NAMES,
   TURN_AGENT_FIELD,
+  TURN_USER_MESSAGE_FIELD,
+  UNKNOWN_HOOK_PLACEMENT,
+  USER_MESSAGE_HOOK_CONTEXTS_FIELD,
+  USER_MESSAGE_ID_FIELD,
 } from "./conversation-steps-constants.js";
 import type { BlobReader } from "./models/cursor-db.js";
 import type {
+  HookPlacement,
+  ResolveTurnHooksOptions,
   ResolveTurnStepsOptions,
   Round,
+  RunHooks,
   Step,
+  TurnHooks,
   WireField,
 } from "./models/conversation-steps.js";
 import * as logger from "./logger.js";
@@ -173,6 +185,15 @@ export function groupSteps(steps: Step[]): Round[] {
 
 const agentKvKey = (blobId: Buffer): string => `agentKv:blob:${blobId.toString("hex")}`;
 
+function conversationTurnIds(reader: BlobReader, conversationId: string): Buffer[] | undefined {
+  const composer = reader.get(`composerData:${conversationId}`);
+  if (!composer) return undefined;
+  const parsed: unknown = JSON.parse(composer.toString("utf-8"));
+  const blob = decodeConversationStateBlob(isRecord(parsed) ? parsed.conversationState : undefined);
+  if (!blob) return undefined;
+  return allBytes(blob, STATE_TURNS_FIELD);
+}
+
 /** Decode the ordered steps of one turn blob. Returns undefined for non-agent (e.g. shell) turns. */
 function decodeTurnSteps(reader: BlobReader, turnBlobId: Buffer): Step[] | undefined {
   const turnBlob = reader.get(agentKvKey(turnBlobId));
@@ -201,15 +222,8 @@ export function resolveTurnSteps(opts: ResolveTurnStepsOptions): Step[] | undefi
     }
     const reader = (opts.openReader ?? openDbReader)(dbPath);
     try {
-      const composer = reader.get(`composerData:${opts.conversationId}`);
-      if (!composer) return undefined;
-      const parsed: unknown = JSON.parse(composer.toString("utf-8"));
-      const blob = decodeConversationStateBlob(
-        isRecord(parsed) ? parsed.conversationState : undefined,
-      );
-      if (!blob) return undefined;
-
-      const turnIds = allBytes(blob, STATE_TURNS_FIELD);
+      const turnIds = conversationTurnIds(reader, opts.conversationId);
+      if (!turnIds) return undefined;
       // Newest-first: the current turn is almost always the last one flushed.
       for (let i = turnIds.length - 1; i >= 0; i--) {
         const steps = decodeTurnSteps(reader, turnIds[i]);
@@ -233,6 +247,113 @@ export function resolveTurnSteps(opts: ResolveTurnStepsOptions): Step[] | undefi
     logger.warn(
       `conversation-steps: resolution failed for ${opts.conversationId}, skipping (${err})`,
     );
+    return undefined;
+  }
+}
+
+function readHooks(entries: Buffer[]): HookOutput[] {
+  return entries.flatMap((entry) => {
+    const name = firstBytes(entry, HOOK_CONTEXT_NAME_FIELD)?.toString("utf-8");
+    const output = firstBytes(entry, HOOK_CONTEXT_TEXT_FIELD)?.toString("utf-8");
+    return name && output ? [{ name, output }] : [];
+  });
+}
+
+function turnAgent(reader: BlobReader, turnBlobId: Buffer): Buffer | undefined {
+  const turnBlob = reader.get(agentKvKey(turnBlobId));
+  return turnBlob && firstBytes(turnBlob, TURN_AGENT_FIELD);
+}
+
+function agentToolCalls(reader: BlobReader, agent: Buffer): Buffer[] {
+  return allBytes(agent, AGENT_STEPS_FIELD).flatMap((stepId) => {
+    const step = reader.get(agentKvKey(stepId));
+    const tool = step && firstBytes(step, STEP_TOOL_FIELD);
+    return tool ? [tool] : [];
+  });
+}
+
+const toolCallId = (tool: Buffer): string | undefined =>
+  firstBytes(tool, TOOLCALL_TOOL_USE_ID_FIELD)?.toString("utf-8") || undefined;
+
+function matchedTurnHooks(
+  reader: BlobReader,
+  turnBlobId: Buffer,
+  opts: ResolveTurnHooksOptions,
+): TurnHooks | undefined {
+  const agent = turnAgent(reader, turnBlobId);
+  if (!agent) return undefined;
+  const userBlobId = firstBytes(agent, TURN_USER_MESSAGE_FIELD);
+  const user = userBlobId && reader.get(agentKvKey(userBlobId));
+  if (!user || firstBytes(user, USER_MESSAGE_ID_FIELD)?.toString("utf-8") !== opts.generationId) {
+    return undefined;
+  }
+
+  const hooks: TurnHooks = { inputs: [], outputs: [], tools: new Map() };
+  placeHooks(hooks, readHooks(allBytes(user, USER_MESSAGE_HOOK_CONTEXTS_FIELD)));
+  const tools = agentToolCalls(reader, agent);
+  const idless = tools.filter((tool) => !toolCallId(tool));
+  for (const tool of tools) {
+    const toolUseId = toolCallId(tool) ?? (idless.length === 1 ? opts.idlessToolId : undefined);
+    if (toolUseId)
+      placeHooks(hooks, readHooks(allBytes(tool, TOOLCALL_HOOK_CONTEXTS_FIELD)), toolUseId);
+  }
+  return hooks;
+}
+
+function addSubagentToolHooks(
+  reader: BlobReader,
+  hooks: TurnHooks,
+  conversationId: string,
+  wanted: Set<string>,
+): void {
+  const turnIds = conversationTurnIds(reader, conversationId) ?? [];
+  for (let i = turnIds.length - 1; i >= 0 && wanted.size > 0; i--) {
+    const agent = turnAgent(reader, turnIds[i]);
+    for (const tool of agent ? agentToolCalls(reader, agent) : []) {
+      const toolUseId = toolCallId(tool);
+      if (!toolUseId || !wanted.delete(toolUseId)) continue;
+      const entries = readHooks(allBytes(tool, TOOLCALL_HOOK_CONTEXTS_FIELD));
+      const toolScoped = entries.filter((hook) => hookPlacement(hook).scope === "tool");
+      placeHooks(hooks, toolScoped, toolUseId);
+    }
+  }
+}
+
+const hookPlacement = (hook: HookOutput): HookPlacement =>
+  HOOK_EVENT_PLACEMENT.get(hook.name) ?? UNKNOWN_HOOK_PLACEMENT;
+
+function placeHooks(hooks: TurnHooks, entries: HookOutput[], toolUseId?: string): void {
+  for (const hook of entries) {
+    const { direction, scope } = hookPlacement(hook);
+    let run: RunHooks = hooks;
+    if (scope === "tool" && toolUseId) {
+      run = hooks.tools.get(toolUseId) ?? { inputs: [], outputs: [] };
+      hooks.tools.set(toolUseId, run);
+    }
+    run[direction === "input" ? "inputs" : "outputs"].push(hook);
+  }
+}
+
+export function resolveTurnHooks(opts: ResolveTurnHooksOptions): TurnHooks | undefined {
+  try {
+    const dbPath = opts.dbPath ?? defaultCursorDbPath();
+    if (!existsSync(dbPath)) return undefined;
+    const reader = openDbReader(dbPath);
+    try {
+      const turnIds = conversationTurnIds(reader, opts.conversationId) ?? [];
+      let hooks: TurnHooks | undefined;
+      for (let i = turnIds.length - 1; i >= 0 && !hooks; i--) {
+        hooks = matchedTurnHooks(reader, turnIds[i], opts);
+      }
+      for (const [childId, toolUseIds] of opts.subagentToolIds) {
+        if (hooks) addSubagentToolHooks(reader, hooks, childId, new Set(toolUseIds));
+      }
+      return hooks;
+    } finally {
+      reader.close();
+    }
+  } catch (err) {
+    logger.warn(`conversation-steps: hook resolution failed for ${opts.conversationId} (${err})`);
     return undefined;
   }
 }

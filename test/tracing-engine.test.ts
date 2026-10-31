@@ -20,6 +20,12 @@ const engine = vi.hoisted(() => ({
   attachments: [] as unknown[],
   attachmentLoads: 0,
   currentWriter: undefined as undefined | (() => unknown),
+  hooks: undefined as unknown,
+}));
+
+vi.mock("../src/conversation-steps.js", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../src/conversation-steps.js")>()),
+  resolveTurnHooks: () => engine.hooks,
 }));
 
 vi.mock("@langchain/plugins-base/plugin", async (importOriginal) => ({
@@ -72,7 +78,7 @@ interface Output {
   submission: {
     operation: string;
     privacyMode?: string;
-    run: { name?: string; end_time?: unknown };
+    run: { name?: string; end_time?: unknown; inputs?: unknown; outputs?: unknown };
     metadata: { base?: Record<string, unknown> };
   };
   dependencies?: Array<{ eventId: string }>;
@@ -326,6 +332,62 @@ describe("saving a turn whose tool was saved before stop", () => {
     });
     expect(engine.queued).toHaveLength(queued);
   });
+});
+
+describe("saving a turn with hook output", () => {
+  const hook = (name: string) => ({ name, output: `${name} text` });
+  const promptHooks = [hook("beforeSubmitPrompt"), hook("stop")];
+  const toolHooks = [hook("preToolUse"), hook("postToolUse")];
+
+  const hooks = {
+    inputs: [promptHooks[0]],
+    outputs: [promptHooks[1]],
+    tools: new Map([["t1", { inputs: [toolHooks[0]], outputs: [toolHooks[1]] }]]),
+  };
+
+  it("uploads exactly what it would with no hooks when hook capture is off", async () => {
+    const uploads = async (found: unknown) => {
+      engine.hooks = found;
+      engine.saved.clear();
+      await saveTool(toolSave);
+      const early = await build();
+      for (const { eventId } of early) {
+        engine.saved.set(eventId, { destinationFingerprint: "fingerprint", turnEvidence: {} });
+      }
+      await saveTurnForUpload(config, toolTurn);
+      return [...early, ...(await build())];
+    };
+    vi.useFakeTimers({ toFake: ["Date"], now: T0 + 5000 });
+    try {
+      expect(await uploads(hooks)).toEqual(await uploads(undefined));
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it.each(["stop", "sweep"] as const)(
+    "uploads tools finished at %s with their own hooks, and the turn's hooks on the turn",
+    async (kind) => {
+      engine.hooks = hooks;
+      config = { ...config, captureHookOutputs: true };
+      const failed = { ...toolTurn.buffer.tools[0], error: "failed" };
+      const buffer = { ...toolTurn.buffer, tools: [failed, tool("t2", "Read", T0 + 2000)] };
+      await saveTool({ ...toolSave, buffer });
+      expect(engine.queued).toEqual([]);
+      await saveTurnForUpload(config, { ...toolTurn, kind, buffer });
+      const runs = (await build()).map(({ submission }) => submission.run);
+      expect(runs.find(({ name }) => name === "Shell")).toMatchObject({
+        end_time: expect.anything(),
+        inputs: { hooks: [toolHooks[0]] },
+        outputs: { hooks: [toolHooks[1]] },
+      });
+      expect(runs.find(({ name }) => name === "Read")?.outputs).not.toHaveProperty("hooks");
+      expect(runs[0]).toMatchObject({
+        inputs: { hooks: [promptHooks[0]] },
+        outputs: { hooks: [promptHooks[1]] },
+      });
+    },
+  );
 });
 
 describe("the background recovery report", () => {

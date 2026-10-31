@@ -1,9 +1,10 @@
 import { resolveTurnAttachments } from "./attachments.js";
-import { resolveTurnSteps } from "./conversation-steps.js";
+import { resolveTurnHooks, resolveTurnSteps } from "./conversation-steps.js";
 import { resolveSystemPrompts } from "./system-prompt.js";
+import { EMPTY_TOOL_ID_PREFIX } from "./constants.js";
 import type { Config } from "./models/config.js";
 import type { BuildTurnOptions } from "./models/langsmith.js";
-import type { ContentPart } from "./models/types.js";
+import type { ContentPart, ToolEvent } from "./models/types.js";
 
 export function enrichTurn(config: Config, options: BuildTurnOptions): BuildTurnOptions {
   const { buffer: toTrace, conversationId } = options;
@@ -46,6 +47,30 @@ export function enrichTurn(config: Config, options: BuildTurnOptions): BuildTurn
   });
 
   return { ...options, attachments, systemPrompt, steps };
+}
+
+export function withTurnHooks(config: Config, options: BuildTurnOptions): BuildTurnOptions {
+  const { buffer, conversationId } = options;
+  if (buffer.tracingMode !== "full" || !config.captureHookOutputs) return options;
+  const hasId = (tool: ToolEvent) => !tool.tool_use_id.startsWith(EMPTY_TOOL_ID_PREFIX);
+  const idless = buffer.tools.filter((tool) => !hasId(tool));
+  const subagentToolIds = new Map<string, string[]>();
+  for (const { childConversationId, tracingMode, tools = [] } of buffer.subagents) {
+    if (!childConversationId || tracingMode !== "full") continue;
+    const withIds = tools.filter(hasId);
+    subagentToolIds.set(
+      childConversationId,
+      withIds.map((tool) => tool.tool_use_id),
+    );
+  }
+  const hooks = resolveTurnHooks({
+    conversationId,
+    generationId: buffer.generation_id,
+    idlessToolId: idless.length === 1 ? idless[0].tool_use_id : undefined,
+    subagentToolIds,
+    dbPath: config.cursorDbPath,
+  });
+  return { ...options, hooks };
 }
 
 export function toolAttachments(config: Config, options: BuildTurnOptions): ContentPart[] {

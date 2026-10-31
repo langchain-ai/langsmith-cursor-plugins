@@ -4,11 +4,13 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { scanFields, decodeStep, groupSteps, resolveTurnSteps } from "../src/conversation-steps.js";
 import { openDbReader } from "../src/cursor-db.js";
-import { enrichTurn } from "../src/turn-enrichment.js";
+import { HOOK_EVENT_PLACEMENT } from "../src/conversation-steps-constants.js";
+import { enrichTurn, withTurnHooks } from "../src/turn-enrichment.js";
 import type { Step } from "../src/models/conversation-steps.js";
 import type { BlobReader } from "../src/models/cursor-db.js";
 import type { Config } from "../src/models/config.js";
 import type { TurnBuffer } from "../src/models/types.js";
+import { tool, turn } from "./utils/state.js";
 
 vi.mock("../src/cursor-db.js", () => ({ openDbReader: vi.fn() }));
 
@@ -48,9 +50,19 @@ function assistantStep(text: string): Buffer {
 function thinkingStep(text: string, durationMs: number): Buffer {
   return lenField(3, Buffer.concat([lenField(1, str(text)), varintField(2, durationMs)]));
 }
-function toolStep(toolField: number, toolUseId: string): Buffer {
-  const toolCall = Buffer.concat([lenField(toolField, str("args")), lenField(57, str(toolUseId))]);
+function toolStep(toolField: number, toolUseId: string, ...hooks: Buffer[]): Buffer {
+  const toolCall = Buffer.concat([
+    lenField(toolField, str("args")),
+    lenField(57, str(toolUseId)),
+    ...hooks.map((hook) => lenField(54, hook)),
+  ]);
   return lenField(2, toolCall);
+}
+function hookEntry(name?: string, output?: string): Buffer {
+  return Buffer.concat([
+    name ? lenField(1, str(name)) : str(""),
+    output ? lenField(2, str(output)) : str(""),
+  ]);
 }
 
 describe("decodeStep", () => {
@@ -106,18 +118,23 @@ describe("groupSteps", () => {
 // ─── resolveTurnSteps ─────────────────────────────────────────────────────────
 
 /** Map-backed reader for a conversation with the given turns' step blobs. */
-function buildReader(conversationId: string, turns: Buffer[][]): BlobReader {
+function buildReader(conversationId: string, turns: Buffer[][], users: Buffer[] = []): BlobReader {
   const store = new Map<string, Buffer>();
   const turnIds: Buffer[] = [];
   turns.forEach((steps, ti) => {
     const stepIdBufs: Buffer[] = [];
     steps.forEach((stepBlob, si) => {
-      const stepId = str(`t${ti}s${si}`);
+      const stepId = str(`${conversationId}t${ti}s${si}`);
       store.set(`agentKv:blob:${stepId.toString("hex")}`, stepBlob);
       stepIdBufs.push(stepId);
     });
-    const agent = Buffer.concat(stepIdBufs.map((id) => lenField(2, id)));
-    const turnId = str(`turn${ti}`);
+    const userId = str(`${conversationId}user${ti}`);
+    if (users[ti]) store.set(`agentKv:blob:${userId.toString("hex")}`, users[ti]);
+    const agent = Buffer.concat([
+      users[ti] ? lenField(1, userId) : Buffer.alloc(0),
+      ...stepIdBufs.map((id) => lenField(2, id)),
+    ]);
+    const turnId = str(`${conversationId}turn${ti}`);
     store.set(`agentKv:blob:${turnId.toString("hex")}`, lenField(1, agent));
     turnIds.push(turnId);
   });
@@ -170,5 +187,148 @@ describe("resolveTurnSteps", () => {
     const config = { cursorDbPath: tmpDb() } as Config;
     const enriched = enrichTurn(config, { buffer, conversationId: conv, turnNum: 2, project: "p" });
     expect(enriched.steps).toBeUndefined();
+  });
+});
+
+describe("withTurnHooks", () => {
+  const user = (generationId: string, ...hooks: Buffer[]) =>
+    Buffer.concat([lenField(2, str(generationId)), ...hooks.map((h) => lenField(21, h))]);
+
+  it("reads the hooks of the turn whose message id is the generation, placed by event, and none when muted or off", () => {
+    const hook = (name: string, output = name) => ({ name, output });
+    const entries = (...names: string[]) => names.map((name) => hookEntry(name, name));
+    const reader = buildReader(
+      "conv-1",
+      [
+        [
+          toolStep(
+            8,
+            "tool_m",
+            hookEntry("preToolUse", "pre"),
+            hookEntry("postToolUse", "post"),
+            ...entries("stop", "y"),
+          ),
+          toolStep(8, "tool_n", hookEntry("postToolUse"), hookEntry(undefined, "no name")),
+        ],
+        [],
+      ],
+      [
+        user("gen-1", ...entries("beforeSubmitPrompt", "afterAgentResponse", "preToolUse", "x")),
+        user("gen-2", hookEntry("beforeSubmitPrompt", "P2")),
+      ],
+    );
+    vi.mocked(openDbReader).mockReturnValue(reader);
+    const hooksFor = (tracingMode: "full" | "metadata", captureHookOutputs = true) =>
+      withTurnHooks({ cursorDbPath: tmpDb(), captureHookOutputs } as Config, {
+        buffer: turn("gen-1", 0, { tracingMode }),
+        conversationId: "conv-1",
+        turnNum: 1,
+        project: "test",
+      }).hooks;
+    expect(hooksFor("full")).toEqual({
+      inputs: [hook("beforeSubmitPrompt"), hook("preToolUse"), hook("x"), hook("y")],
+      outputs: [hook("afterAgentResponse"), hook("stop")],
+      tools: new Map([
+        ["tool_m", { inputs: [hook("preToolUse", "pre")], outputs: [hook("postToolUse", "post")] }],
+      ]),
+    });
+    expect(hooksFor("metadata")).toBeUndefined();
+    expect(hooksFor("full", false)).toBeUndefined();
+  });
+
+  it("gives an id-less step's hooks to the turn's only id-less tool, and to none when ambiguous", () => {
+    const hooksFor = (steps: number, tools: number) => {
+      const idless = [...Array(steps).keys()].map((i) =>
+        toolStep(1, "", hookEntry("postToolUse", `out${i}`)),
+      );
+      vi.mocked(openDbReader).mockReturnValue(buildReader("c", [idless], [user("g")]));
+      const buffered = [...Array(tools).keys()].map((i) => tool(`cursor-call-g-${i}`, "Shell", 0));
+      return withTurnHooks({ cursorDbPath: tmpDb(), captureHookOutputs: true } as Config, {
+        buffer: turn("g", 0, { tracingMode: "full", tools: buffered }),
+        conversationId: "c",
+        turnNum: 1,
+        project: "p",
+      }).hooks?.tools.get("cursor-call-g-0");
+    };
+    expect(hooksFor(1, 1)).toEqual({
+      inputs: [],
+      outputs: [{ name: "postToolUse", output: "out0" }],
+    });
+    expect(hooksFor(2, 1)).toBeUndefined();
+    expect(hooksFor(1, 2)).toBeUndefined();
+  });
+
+  it("reads only an unmuted subagent's own tool hooks from its newest turns, over the parent's reader", () => {
+    const parent = buildReader("p", [[], []], [user("old"), user("g")]);
+    const child = buildReader("child", [
+      [toolStep(8, "s1", hookEntry("postToolUse", "old"))],
+      [
+        toolStep(8, "s1", hookEntry("postToolUse", "S1"), hookEntry("stop", "S1 stop")),
+        toolStep(8, "", hookEntry("postToolUse", "id-less")),
+        toolStep(8, "other", hookEntry("postToolUse", "other")),
+      ],
+    ]);
+    const older = ["pturn0", "childturn0"].map((id) => `agentKv:blob:${str(id).toString("hex")}`);
+    const get = (k: string) => {
+      if (older.includes(k)) throw new Error(`read an older turn: ${k}`);
+      return parent.get(k) ?? child.get(k);
+    };
+    const reader = { get, close: () => {} };
+    vi.mocked(openDbReader).mockClear().mockReturnValue(reader);
+    const hooksFor = (tracingMode: "full" | "metadata") => {
+      const subagent = {
+        subagent_id: "sa",
+        subagent_type: "explore",
+        task: "t",
+        startMs: 0,
+        tracingMode,
+        childConversationId: "child",
+        tools: [tool("s1", "Read", 0), tool("cursor-call-c-0", "Shell", 0)],
+      };
+      return withTurnHooks({ cursorDbPath: tmpDb(), captureHookOutputs: true } as Config, {
+        buffer: turn("g", 0, { tracingMode: "full", subagents: [subagent] }),
+        conversationId: "p",
+        turnNum: 1,
+        project: "p",
+      }).hooks;
+    };
+    expect(hooksFor("full")).toEqual({
+      inputs: [],
+      outputs: [],
+      tools: new Map([["s1", { inputs: [], outputs: [{ name: "postToolUse", output: "S1" }] }]]),
+    });
+    expect(hooksFor("metadata")?.tools).toEqual(new Map());
+    expect(openDbReader).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe("HOOK_EVENT_PLACEMENT", () => {
+  it("matches Cursor's documented hook events", () => {
+    const rows = [...HOOK_EVENT_PLACEMENT].map(
+      ([event, p]) => `${event} ${p.direction} ${p.scope}`,
+    );
+    expect(rows).toEqual([
+      "sessionStart input turn",
+      "sessionEnd output turn",
+      "preToolUse input tool",
+      "postToolUse output tool",
+      "postToolUseFailure output tool",
+      "subagentStart input turn",
+      "subagentStop output turn",
+      "beforeShellExecution input tool",
+      "afterShellExecution output tool",
+      "beforeMCPExecution input tool",
+      "afterMCPExecution output tool",
+      "beforeReadFile input tool",
+      "afterFileEdit output tool",
+      "beforeSubmitPrompt input turn",
+      "preCompact input turn",
+      "stop output turn",
+      "afterAgentResponse output turn",
+      "afterAgentThought output turn",
+      "beforeTabFileRead input turn",
+      "afterTabFileEdit output turn",
+      "workspaceOpen input turn",
+    ]);
   });
 });
