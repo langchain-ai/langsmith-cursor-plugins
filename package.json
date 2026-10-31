@@ -1,6 +1,6 @@
 {
   "name": "@langchain/langsmith-cursor-plugins",
-  "version": "0.7.1",
+  "version": "0.7.2",
   "description": "Cursor plugin for LangSmith tracing",
   "type": "module",
   "scripts": {
@@ -21,7 +21,7 @@
     "clean": "rm -rf bin dist langsmith-tracing/bundle"
   },
   "dependencies": {
-    "langsmith": "^0.11.4"
+    "langsmith": "^0.11.6"
   },
   "devDependencies": {
     "@langchain/plugins-base": "0.6.0",

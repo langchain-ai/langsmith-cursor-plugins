@@ -1,7 +1,7 @@
 {
   "name": "langsmith-tracing",
   "displayName": "LangSmith Tracing for Cursor",
-  "version": "0.7.1",
+  "version": "0.7.2",
   "description": "Traces Cursor conversations to LangSmith, including subagent and tool executions",
   "license": "MIT",
   "keywords": ["langsmith", "langchain", "tracing", "observability", "cursor"],
