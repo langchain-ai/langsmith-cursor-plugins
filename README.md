@@ -31,6 +31,8 @@ The managed file works on macOS and Linux, and the plugin only trusts it when:
 - No other user can write to either
 - Neither is a symlink
 
+Set `workspace_id` as well when your users sign in with the LangSmith CLI. Each user's sign-in may default to a different workspace, so setting it here keeps everyone's traces in one place. API keys ignore this setting so use one scoped to a workspace.
+
 If the file is broken or fails these checks then tracing stops. The plugin's log explains why and so does its reply to mute or unmute. See [the settings guide](https://github.com/langchain-ai/langsmith-plugin-binary/blob/main/docs/settings.md) to set it up.
 
 ## Authenticate
@@ -51,6 +53,8 @@ If more than one credential is set the plugin uses the first one it finds:
 2. Your `langsmith auth login` sign-in
 3. A generic `LANGSMITH_API_KEY` in your shell
 
+A CLI sign-in acts as you so your workspace role needs permission to write traces. You may get a 403 if you switched from a tracing API key (`lsv2_tr_...`) to the CLI sign-in since tracing keys can always write traces whatever your role is. If that happens ask your admin to give you a role that can write traces such as Workspace Editor and check that no [ABAC deny policy](https://docs.langchain.com/langsmith/abac) on the project blocks it.
+
 When your sign-in expires or your key is rejected the plugin stops uploading but still lets your prompts through, and turns from that gap are never uploaded. Cursor can't show a message without stopping the prompt, so the reason goes to the plugin's log instead. The log also notes when `api_url` points at a different server than your sign-in, since the sign-in can't be used there.
 
 ### Strict auth
@@ -59,19 +63,19 @@ Strict auth holds back every prompt with a message until your sign-in or key wor
 
 ## Turn on tracing
 
-Tracing is off until you switch it on in `~/.cursor/langsmith.json`, unless your admin already turned it on with a [managed file](#lock-settings-with-a-managed-file). Send traces to an agent with `agent_id`:
+Tracing is off until you switch it on in `~/.cursor/langsmith.json`, unless your admin already turned it on with a [managed file](#lock-settings-with-a-managed-file). In an [agent-based workspace](https://docs.langchain.com/langsmith/migrate-to-agent-based-workspaces), send traces to an agent with `agent_id`:
 
 ```json
 { "enabled": true, "agent_id": "shared-cursor" }
 ```
 
-Or send them to a project with `project`:
+In a project-based workspace, use the legacy `project` setting instead:
 
 ```json
 { "enabled": true, "project": "shared-cursor" }
 ```
 
-Use either one, and `agent_id` wins if you set both. With neither set traces go to the `cursor` project. Send a prompt and look for it in LangSmith. You only need `api_url` if you don't use the default LangSmith server.
+With neither set traces go to the `cursor` project. Send a prompt and look for it in LangSmith. You only need `api_url` if you don't use the default LangSmith server.
 
 A project can override these settings in `<project>/.cursor/langsmith.json` or `<project>/langsmith-plugins.json`. You can also share settings across LangSmith plugins in `~/.langsmith-plugins.json`. Project files win over your own files and any environment variable beats them all.
 
@@ -107,6 +111,7 @@ Set `defaultMuted` to `true` to mute every new conversation by default. A conver
 
 - **No runs at all.** Check that the plugin is in Cursor's plugin list and that you fully restarted Cursor after installing it. Then check that tracing is on.
 - **Tracing is paused.** The log says your sign-in expired or your key was rejected. Run `langsmith auth login` again or replace the key and tracing resumes from the next prompt.
+- **Tracing is paused after a 403.** Your sign-in or API key might not have access to the agent, project or workspace. Look through `~/.cursor/langsmith_engine/worker.log` and `~/.cursor/langsmith_hook.log` for the details.
 - **Still stuck.** Run `tail -f ~/.cursor/langsmith_hook.log` while you send a prompt. The background uploader logs to `~/.cursor/langsmith_engine/worker.log` and `LANGSMITH_CURSOR_DEBUG=1` adds more detail.
 - **Node too old on Windows or Linux.** Cursor starts its hooks from the desktop app, so it can pick up an old system Node instead of the one you manage with nvm, mise or asdf. The log names the Node it used. Make Node 22.13 or newer the one your login shell picks, or start Cursor from a terminal with `cursor .` so it inherits your shell.
 
@@ -120,25 +125,25 @@ Secrets the plugin recognizes are stripped before upload unless you turn `redact
 
 Each setting has a config file key and an environment variable. The environment variable wins when both are set. Every `LANGSMITH_CURSOR_` variable except the API key and default mute also accepts a shorter `LANGSMITH_` name, and the `LANGSMITH_CURSOR_` name wins if you set both.
 
-| Setting              | Environment variable                  | What it does                                | Default                           |
-| -------------------- | ------------------------------------- | ------------------------------------------- | --------------------------------- |
-| `enabled`            | `TRACE_TO_LANGSMITH`                  | Turns tracing on                            | `false`                           |
-| `api_key`            | `LANGSMITH_CURSOR_API_KEY`            | Your LangSmith API key                      | none                              |
-| `api_url`            | `LANGSMITH_CURSOR_ENDPOINT`           | Which LangSmith to send to                  | `https://api.smith.langchain.com` |
-| `project`            | `LANGSMITH_CURSOR_PROJECT`            | Project the traces land in                  | `cursor`                          |
-| `agent_id`           | `LANGSMITH_AGENT_ID`                  | Agent to trace to, instead of project       | none                              |
-| `defaultMuted`       | `LANGSMITH_CURSOR_DEFAULT_MUTED`      | Starts every new conversation muted         | `false`                           |
-| `redact`             | `LANGSMITH_CURSOR_REDACT`             | Strips detected secrets before upload       | `true`                            |
-| `redact_extra_rules` | `LANGSMITH_CURSOR_REDACT_EXTRA`       | Extra patterns to strip                     | none                              |
-| `attachments`        | `LANGSMITH_CURSOR_ATTACHMENTS`        | Includes images attached to prompts         | `true`                            |
-| `system_prompt`      | `LANGSMITH_CURSOR_SYSTEM_PROMPT`      | Includes the system prompt                  | `true`                            |
-| `metadata`           | `LANGSMITH_CURSOR_METADATA`           | Custom fields on every run                  | none                              |
-| `replicas`           | `LANGSMITH_CURSOR_RUNS_ENDPOINTS`     | Send the same trace somewhere else too      | none                              |
-| `strict_auth`        | `LANGSMITH_CURSOR_STRICT_AUTH`        | Hold back prompts until you sign in again   | `false`                           |
-| `cursor_db_path`     | `LANGSMITH_CURSOR_DB_PATH`            | Where Cursor's local database lives         | platform default                  |
-| `sweep_idle_minutes` | `LANGSMITH_CURSOR_SWEEP_IDLE_MINUTES` | How long an unfinished turn waits to upload | `360`                             |
-| `profile`            | none                                  | Which CLI login to use                      | the CLI's current one             |
-| `workspace_id`       | none                                  | Workspace for a login's traces              | the login's own                   |
+| Setting                | Environment variable                  | What it does                                                                                                                                                                        | Default                           |
+| ---------------------- | ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------- |
+| `enabled`              | `TRACE_TO_LANGSMITH`                  | Turns tracing on                                                                                                                                                                    | `false`                           |
+| `api_key`              | `LANGSMITH_CURSOR_API_KEY`            | Your LangSmith API key                                                                                                                                                              | none                              |
+| `api_url`              | `LANGSMITH_CURSOR_ENDPOINT`           | Which LangSmith to send to                                                                                                                                                          | `https://api.smith.langchain.com` |
+| `agent_id`             | `LANGSMITH_AGENT_ID`                  | Agent to trace to, instead of project                                                                                                                                               | none                              |
+| `project` (deprecated) | `LANGSMITH_CURSOR_PROJECT`            | Project the traces go to. Use `agent_id` unless your workspace is [project-based](https://docs.langchain.com/langsmith/migrate-to-agent-based-workspaces#check-which-one-you-have). | `cursor`                          |
+| `defaultMuted`         | `LANGSMITH_CURSOR_DEFAULT_MUTED`      | Starts every new conversation muted                                                                                                                                                 | `false`                           |
+| `redact`               | `LANGSMITH_CURSOR_REDACT`             | Strips detected secrets before upload                                                                                                                                               | `true`                            |
+| `redact_extra_rules`   | `LANGSMITH_CURSOR_REDACT_EXTRA`       | Extra patterns to strip                                                                                                                                                             | none                              |
+| `attachments`          | `LANGSMITH_CURSOR_ATTACHMENTS`        | Includes images attached to prompts                                                                                                                                                 | `true`                            |
+| `system_prompt`        | `LANGSMITH_CURSOR_SYSTEM_PROMPT`      | Includes the system prompt                                                                                                                                                          | `true`                            |
+| `metadata`             | `LANGSMITH_CURSOR_METADATA`           | Custom fields on every run                                                                                                                                                          | none                              |
+| `replicas`             | `LANGSMITH_CURSOR_RUNS_ENDPOINTS`     | Send the same trace somewhere else too                                                                                                                                              | none                              |
+| `strict_auth`          | `LANGSMITH_CURSOR_STRICT_AUTH`        | Hold back prompts until you sign in again                                                                                                                                           | `false`                           |
+| `cursor_db_path`       | `LANGSMITH_CURSOR_DB_PATH`            | Where Cursor's local database lives                                                                                                                                                 | platform default                  |
+| `sweep_idle_minutes`   | `LANGSMITH_CURSOR_SWEEP_IDLE_MINUTES` | How long an unfinished turn waits to upload                                                                                                                                         | `360`                             |
+| `profile`              | none                                  | Which CLI login to use                                                                                                                                                              | the CLI's current one             |
+| `workspace_id`         | none                                  | Workspace for a login's traces                                                                                                                                                      | the login's own                   |
 
 Set `capture_hook_outputs` (`LANGSMITH_CURSOR_CAPTURE_HOOK_OUTPUTS`) to `true` to add the text your own hooks give Cursor to the turn or tool call it belongs to, which is off by default.
 
