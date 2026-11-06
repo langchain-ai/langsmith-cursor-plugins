@@ -7,8 +7,8 @@ import {
 } from "@langchain/plugins-base/auth";
 import { NOTICE_KINDS } from "./constants.js";
 import type { Config } from "./models/config.js";
-import type { PromptNotice } from "./models/types.js";
-import { storageRootFor } from "./writer-options.js";
+import type { PromptNotice, UploadStatus } from "./models/types.js";
+import { storageRootFor, uploadCredential, uploadProblem } from "./writer-options.js";
 
 export function promptNotice(
   config: Config,
@@ -38,4 +38,14 @@ export function promptNotice(
       : undefined;
   if (replicaReason !== undefined) return { kind: NOTICE_KINDS.replica, text: replicaReason };
   return problem === undefined ? undefined : { kind: NOTICE_KINDS.credential, text: problem };
+}
+
+export function uploadStatus(config: Config): UploadStatus {
+  const credential = uploadCredential(config);
+  const problem = uploadProblem(config, credential);
+  const notice = promptNotice(config, credential, problem);
+  const untraced =
+    notice?.kind === LOGIN_NOTICE_KIND ||
+    (notice?.kind !== NOTICE_KINDS.managed && problem !== undefined);
+  return { credential, problem, notice, untraced };
 }

@@ -66,13 +66,6 @@ export function getThreadTracingMode(
   }
 }
 
-/** Exact, argument-free commands only; ordinary prompts are never interpreted. */
-export function parseTracingCommand(prompt: string): "mute" | "unmute" | undefined {
-  if (prompt === "langsmith-tracing:mute") return "mute";
-  if (prompt === "langsmith-tracing:unmute") return "unmute";
-  return undefined;
-}
-
 /**
  * Independent of tracing state and its pruning. Writers serialize through an
  * exclusive directory lock (mkdir avoids O_EXCL's network-filesystem caveats).

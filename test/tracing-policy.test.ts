@@ -17,7 +17,6 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
   getThreadTracingMode,
-  parseTracingCommand,
   setThreadTracingMode,
   tracingPolicyPath,
 } from "../src/tracing-policy.js";
@@ -185,25 +184,6 @@ describe("standalone tracing preference", () => {
       expect(readFileSync(policy, "utf8")).toBe(before);
     },
   );
-});
-
-describe("exact command parser", () => {
-  it.each(["mute", "unmute"] as const)("recognizes %s", (cmd) => {
-    expect(parseTracingCommand(`langsmith-tracing:${cmd}`)).toBe(cmd);
-  });
-  it.each([
-    "",
-    "/mute",
-    "/langsmith-tracing:mute",
-    "/langsmith-tracing:unmute",
-    "langsmith-tracing:mute now",
-    "langsmith-tracing:unmute now",
-    " langsmith-tracing:mute",
-    "langsmith-tracing:mute\n",
-    "langsmith-tracing:MUTE",
-    "please langsmith-tracing:mute",
-    "langsmith-tracing:muted",
-  ])("does not handle %j", (prompt) => expect(parseTracingCommand(prompt)).toBeUndefined());
 });
 
 it("rejects even a readable symlink policy without overwriting its target", async () => {
