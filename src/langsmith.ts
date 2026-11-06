@@ -21,7 +21,12 @@ import {
   TOOL_FAILED_MESSAGE,
   TURN_RUN_NAME,
 } from "./constants.js";
-import { codingAgentMetadata, skillNameFromTool, withIntegration } from "./metadata.js";
+import {
+  codingAgentMetadata,
+  skillNameFromTool,
+  typedSkillName,
+  withIntegration,
+} from "./metadata.js";
 import type { CursorMetadataOptions } from "./models/metadata.js";
 import type { CapturedRun } from "./models/tracing-engine.js";
 import { groupSteps } from "./conversation-steps.js";
@@ -160,6 +165,16 @@ export function buildTurnRuns(options: BuildTurnOptions): CapturedRun[] {
 
   // Root turn run. createChild derives ids, trace_id and dotted_order for children.
   const turnRun = addRootRun(turn);
+  const typed = typedSkillName(buffer.prompt, options.customMetadata?.cwd);
+  if (typed) {
+    turn.skills.add(typed);
+    addSkillRun(turn, turnRun, turn.ctx, "typed-skill", false, {
+      skillName: typed,
+      success: true,
+      startMs: buffer.startMs,
+      endMs: buffer.startMs,
+    });
+  }
   const interleaved = options.steps?.length ? addInterleavedRounds(turn, turnRun) : false;
   if (!interleaved) {
     if (turn.calls.length === 0) addSingleLlmRun(turn, turnRun);
@@ -180,6 +195,12 @@ export function buildToolRuns(options: BuildTurnOptions, toolIndex: number): Cap
   const tool = options.buffer.tools[toolIndex];
   if (!tool) return [];
   const turn = createTurnContext(options);
+  const typed = typedSkillName(options.buffer.prompt, options.customMetadata?.cwd);
+  if (typed) turn.skills.add(typed);
+  for (const earlier of options.buffer.tools.slice(0, toolIndex)) {
+    const skillName = skillNameFromTool(earlier.name, earlier.input);
+    if (skillName) turn.skills.add(skillName);
+  }
   addToolRun(turn, addRootRun(turn), turn.ctx, tool, toolKey(toolIndex, tool));
   return turn.runs;
 }
@@ -210,6 +231,7 @@ function createTurnContext(options: BuildTurnOptions): TurnContext {
     options,
     ctx,
     runs: [],
+    skills: new Set(),
     mode: buffer.tracingMode === "full" ? "full" : "metadata",
     userContent: userMessageContent(buffer.prompt ?? "", options.attachments ?? []),
     llmName: ls_provider ?? ls_model_name,
@@ -500,7 +522,8 @@ function addToolRun(
   });
 
   const skillName = skillNameFromTool(tool.name, tool.input);
-  if (skillName) {
+  if (skillName && !turn.skills.has(skillName)) {
+    turn.skills.add(skillName);
     addSkillRun(turn, parent, ctx, `${key}:skill`, clearSubagent, {
       skillName,
       // A failure hook may carry no message, so failure_type is the surer signal.
