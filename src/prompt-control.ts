@@ -1,59 +1,142 @@
-import { LOGIN_NOTICE_KIND } from "@langchain/plugins-base/auth";
+import { uploadingReplicaCount } from "@langchain/plugins-base/auth";
+import { matchPromptCommand, runPromptCommand } from "@langchain/plugins-base/plugin";
+import type { PromptCommandHandler } from "@langchain/plugins-base/plugin";
+import { applySetup } from "@langchain/plugins-base/settings";
+import type { SetupState } from "@langchain/plugins-base/settings";
+import { homedir } from "node:os";
 import { loadConfig } from "./config.js";
-import { MUTE_LOCKED_MESSAGE, NOTICE_KINDS } from "./constants.js";
+import {
+  CURSOR_DIRECTORY_NAME,
+  MUTE_LOCKED_MESSAGE,
+  NOTICE_KINDS,
+  PROMPT_COMMANDS,
+  TRACING_DISABLED_NOTE,
+} from "./constants.js";
 import { error as logError, initLogger, warn as logWarn } from "./logger.js";
-import { promptNotice } from "./notice.js";
+import { uploadStatus } from "./notice.js";
 import { atomicUpdateState } from "./state.js";
 import { reduceBeforeSubmitPrompt } from "./reducer.js";
 import {
   getThreadTracingMode,
   mutingLocked,
-  parseTracingCommand,
   setThreadTracingMode,
   tracingPolicyPath,
 } from "./tracing-policy.js";
 import { originFromConfig } from "./turn-origin.js";
-import { uploadCredential, uploadProblem } from "./writer-options.js";
-import type { BeforeSubmitPromptInput, PromptReply } from "./models/types.js";
+import { destinationCredential, uploadCredential } from "./writer-options.js";
+import type { Config } from "./models/config.js";
+import type {
+  BeforeSubmitPromptInput,
+  PromptCommandName,
+  PromptReply,
+  SetupSignIn,
+  TracingMode,
+} from "./models/types.js";
+
+function requireNativeIds(input: BeforeSubmitPromptInput): void {
+  if (
+    !input.conversation_id ||
+    typeof input.conversation_id !== "string" ||
+    !input.generation_id ||
+    typeof input.generation_id !== "string"
+  ) {
+    throw new Error("Nonempty native conversation_id and generation_id required; update Cursor");
+  }
+}
+
+function errorDetail(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
+
+function logUntraced(detail: string): void {
+  logError(`Could not save tracing preference/turn snapshot: ${detail}. Turn not traced.`);
+}
+
+async function saveThreadMode(input: BeforeSubmitPromptInput, mode: TracingMode): Promise<string> {
+  requireNativeIds(input);
+  const config = loadConfig({ cwd: input.workspace_roots?.[0] });
+  initLogger(config.debug);
+  if (mode === "full" && mutingLocked(config)) return MUTE_LOCKED_MESSAGE;
+  const result = await setThreadTracingMode(tracingPolicyPath(), input.conversation_id, mode);
+  const change = mode === "metadata" ? "muted (metadata-only)" : "unmuted (full content)";
+  let tracingNote = "";
+  if (config.managedConfigProblem !== undefined) {
+    tracingNote = ` ${config.managedConfigProblem}`;
+  } else if (!config.enabled) {
+    tracingNote = TRACING_DISABLED_NOTE;
+  }
+  const warning = result.warning ? ` Warning: ${result.warning}` : "";
+  return `Thread tracing ${change}. Preference saved for the next turn; the current turn is unchanged.${tracingNote}${warning}`;
+}
+
+function signInOutcome(config: Config): SetupSignIn {
+  const status = uploadStatus({ ...config, enabled: true });
+  if (status.untraced || status.notice?.kind === NOTICE_KINDS.managed)
+    return { signIn: "none", credentialProblem: status.notice?.text };
+  return { signIn: status.credential.kind === "login" ? "login" : "api-key" };
+}
+
+function setupState(input: BeforeSubmitPromptInput): SetupState {
+  const config = loadConfig({ cwd: input.workspace_roots?.[0] });
+  const mode = getThreadTracingMode(
+    tracingPolicyPath(),
+    input.conversation_id,
+    config.defaultMuted,
+    mutingLocked(config),
+  );
+  return {
+    enabled: config.enabled,
+    project: config.project,
+    apiUrl: destinationCredential(config).apiUrl,
+    ...(config.agentId === undefined ? {} : { agentId: config.agentId }),
+    muted: mode === "metadata",
+    replicaCount: uploadingReplicaCount(config.replicas, uploadCredential(config)),
+    ...signInOutcome(config),
+  };
+}
+
+function logFailure(
+  handler: PromptCommandHandler<BeforeSubmitPromptInput>,
+): PromptCommandHandler<BeforeSubmitPromptInput> {
+  return async (argumentText, input) => {
+    try {
+      return await handler(argumentText, input);
+    } catch (error) {
+      logUntraced(errorDetail(error));
+      throw error;
+    }
+  };
+}
+
+const COMMAND_HANDLERS: Record<PromptCommandName, PromptCommandHandler<BeforeSubmitPromptInput>> = {
+  setup: logFailure((argumentText, input) =>
+    applySetup(argumentText, {
+      home: homedir(),
+      harnessDirectory: CURSOR_DIRECTORY_NAME,
+      readState: () => setupState(input),
+    }),
+  ),
+  mute: logFailure((_argumentText, input) => saveThreadMode(input, "metadata")),
+  unmute: logFailure((_argumentText, input) => saveThreadMode(input, "full")),
+};
 
 /** Synchronous command hook contract, not an LLM skill or slash-command expansion. */
 export async function handlePromptSubmit(input: BeforeSubmitPromptInput): Promise<PromptReply> {
-  const command = parseTracingCommand(input.prompt);
+  const command =
+    typeof input.prompt === "string"
+      ? matchPromptCommand(input.prompt, PROMPT_COMMANDS)
+      : undefined;
+  if (command)
+    return {
+      continue: false,
+      user_message: await runPromptCommand(command, COMMAND_HANDLERS, input),
+    };
   try {
-    if (
-      !input.conversation_id ||
-      typeof input.conversation_id !== "string" ||
-      !input.generation_id ||
-      typeof input.generation_id !== "string"
-    ) {
-      throw new Error("Nonempty native conversation_id and generation_id required; update Cursor");
-    }
+    requireNativeIds(input);
     const config = loadConfig({ cwd: input.workspace_roots?.[0] });
     initLogger(config.debug);
-    if (command === "unmute" && mutingLocked(config)) {
-      return { continue: false, user_message: MUTE_LOCKED_MESSAGE };
-    }
-    if (command) {
-      const result = await setThreadTracingMode(
-        tracingPolicyPath(),
-        input.conversation_id,
-        command === "mute" ? "metadata" : "full",
-      );
-      return {
-        continue: false,
-        user_message:
-          `Thread tracing ${command === "mute" ? "muted (metadata-only)" : "unmuted (full content)"}. Preference saved for the next turn; the current turn is unchanged.` +
-          (config.managedConfigProblem !== undefined
-            ? ` ${config.managedConfigProblem}`
-            : !config.enabled
-              ? " Master tracing is disabled; this does not enable it."
-              : "") +
-          (result.warning ? ` Warning: ${result.warning}` : ""),
-      };
-    }
     // Even master-off launches need evidence if tracing is enabled before stop.
-    const credential = uploadCredential(config);
-    const problem = uploadProblem(config, credential);
+    const { problem, notice, untraced } = uploadStatus(config);
     const enabled = config.enabled && problem === undefined;
     const mode = getThreadTracingMode(
       tracingPolicyPath(),
@@ -61,10 +144,6 @@ export async function handlePromptSubmit(input: BeforeSubmitPromptInput): Promis
       config.defaultMuted,
       mutingLocked(config),
     );
-    const notice = promptNotice(config, credential, problem);
-    const untraced =
-      notice?.kind === LOGIN_NOTICE_KIND ||
-      (notice?.kind !== NOTICE_KINDS.managed && problem !== undefined);
     if (notice && untraced && config.strictAuth)
       return { continue: false, user_message: notice.text };
     if (notice) logWarn(notice.text);
@@ -79,11 +158,7 @@ export async function handlePromptSubmit(input: BeforeSubmitPromptInput): Promis
     );
     return { continue: true };
   } catch (error) {
-    const detail = error instanceof Error ? error.message : String(error);
-    logError(`Could not save tracing preference/turn snapshot: ${detail}. Turn not traced.`);
-    if (command) {
-      return { continue: false, user_message: `Could not save tracing preference: ${detail}` };
-    }
+    logUntraced(errorDetail(error));
     return { continue: true };
   }
 }

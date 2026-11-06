@@ -41,6 +41,20 @@ beforeEach(() => {
 afterEach(() => rmSync(dir, { recursive: true, force: true }));
 
 function submit(prompt: string, generation_id = "generation", cwd = dir) {
+  return submitWith({ prompt, generation_id, cwd });
+}
+
+function submitWith({
+  prompt,
+  generation_id = "generation",
+  cwd = dir,
+  workspace = dir,
+}: {
+  prompt: string;
+  generation_id?: string;
+  cwd?: string;
+  workspace?: string;
+}) {
   const hooks = JSON.parse(
     readFileSync(new URL(`../${PLUGIN_DIRECTORY_NAME}/hooks/hooks.json`, import.meta.url), "utf8"),
   );
@@ -62,7 +76,7 @@ function submit(prompt: string, generation_id = "generation", cwd = dir) {
         conversation_id: "thread",
         model: "default",
         hook_event_name: "beforeSubmitPrompt",
-        workspace_roots: [dir],
+        workspace_roots: [workspace],
       }),
     },
   );
@@ -156,7 +170,7 @@ it("persists exact controls across fresh hook processes while master off; no tra
     const response = submit(`langsmith-tracing:${command}`);
     expect(response.continue).toBe(false);
     expect(response.user_message).toContain("next turn; the current turn is unchanged");
-    expect(response.user_message).toContain("Master tracing is disabled");
+    expect(response.user_message).toContain("Tracing is disabled");
     expect(getThreadTracingMode(env.LANGSMITH_CURSOR_PRIVACY_FILE!, "thread")).toBe(
       command === "mute" ? "metadata" : "full",
     );
@@ -167,6 +181,7 @@ it("persists exact controls across fresh hook processes while master off; no tra
 it.each([
   "/langsmith-tracing:mute",
   "langsmith-tracing:mute now",
+  "langsmith-tracing:unmute now",
   " langsmith-tracing:mute",
   "langsmith-tracing:mute\n",
 ])("does not interpret %j", (prompt) => {
@@ -542,7 +557,7 @@ it.skipIf(process.platform === "win32")(
       expect(await prompt("thread", "second")).toEqual({ continue: true });
       const reply = await prompt("thread", "control", "langsmith-tracing:mute");
       expect(reply.user_message).toContain("owned by root");
-      expect(reply.user_message).not.toContain("Master tracing is disabled");
+      expect(reply.user_message).not.toContain("Tracing is disabled");
     } finally {
       rmSync(join(managed, "managed.json"));
       vi.unstubAllEnvs();
@@ -690,6 +705,40 @@ it.skipIf(process.platform === "win32")(
   },
 );
 
+it.skipIf(process.platform === "win32")(
+  "never holds back a prompt in strict mode over a broken managed file",
+  async () => {
+    const { prompt } = await withLogin({ LANGSMITH_CURSOR_STRICT_AUTH: "true" });
+    rmSync(join(dir, "login.json"));
+    const managed = join(env.LS_TEST_ACCOUNT_HOME!, ".langsmith-plugins");
+    mkdirSync(managed, { recursive: true });
+    writeFileSync(join(managed, "managed.json"), "{}");
+    try {
+      expect(await prompt("thread", "first")).toEqual({ continue: true });
+    } finally {
+      rmSync(join(managed, "managed.json"));
+    }
+  },
+);
+
+it.skipIf(process.platform === "win32")(
+  "tells setup about a broken managed file instead of a sign-in",
+  async () => {
+    const { prompt } = await withLogin({});
+    const managed = join(env.LS_TEST_ACCOUNT_HOME!, ".langsmith-plugins");
+    mkdirSync(managed, { recursive: true });
+    writeFileSync(join(managed, "managed.json"), "{}");
+    rmSync(join(dir, "login.json"));
+    try {
+      const reply = await prompt("thread", "setup", "langsmith-tracing:setup");
+      expect(reply.user_message).toContain("owned by root");
+      expect(reply.user_message).not.toContain("Using your LangSmith API key");
+    } finally {
+      rmSync(join(managed, "managed.json"));
+    }
+  },
+);
+
 it("stops tracing and names keyless replicas the login can't reach", async () => {
   const { initHook, prompt } = await withLogin({
     LANGSMITH_CURSOR_RUNS_ENDPOINTS: JSON.stringify([{ api_url: "https://replica.test" }]),
@@ -726,7 +775,7 @@ it("keeps a conversation muted when the managed file locks muting on", async () 
   try {
     await setThreadTracingMode(tracingPolicyPath(), "thread", "full");
     expect((await prompt("langsmith-tracing:unmute", "control")).user_message).toContain(
-      "admin locked",
+      "enabled muting for all sessions",
     );
     expect((await prompt("langsmith-tracing:mute", "control2")).user_message).toContain("muted");
     await setThreadTracingMode(tracingPolicyPath(), "thread", "full");
@@ -734,7 +783,12 @@ it("keeps a conversation muted when the managed file locks muting on", async () 
     expect(loadState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns.one.tracingMode).toBe(
       "metadata",
     );
+    await setThreadTracingMode(tracingPolicyPath(), "thread", "full");
+    expect((await prompt("langsmith-tracing:setup", "setup")).user_message).toContain(
+      "This thread is muted",
+    );
   } finally {
+    vi.mocked(settings.readCommonConfigFiles).mockRestore();
     vi.unstubAllEnvs();
   }
 });
@@ -777,4 +831,141 @@ it("keeps tracing while a replica with its own key can still upload", async () =
     ]),
   });
   expect(initHook(dir)).not.toBeNull();
+});
+
+it("writes setup to the home config and reports what the workspace config overrides", () => {
+  env.LANGSMITH_CURSOR_ENDPOINT = "http://127.0.0.1:9";
+  const workspace = join(dir, "workspace");
+  mkdirSync(join(workspace, ".cursor"), { recursive: true });
+  writeFileSync(join(workspace, ".cursor", "langsmith.json"), '{"project":"from-repo"}');
+  const path = join(dir, ".cursor", "langsmith.json");
+  const response = submitWith({
+    prompt: "langsmith-tracing:setup mine https://example.test",
+    workspace,
+  });
+  expect(response.continue).toBe(false);
+  expect(response.user_message).toContain(
+    `Turned LangSmith tracing on in ${path}. Traces go to the "from-repo" project at "http://127.0.0.1:9". Tracing is still off because`,
+  );
+  expect(response.user_message).toContain("LANGSMITH TRACING IS PAUSED");
+  expect(JSON.parse(readFileSync(path, "utf8"))).toEqual({
+    enabled: true,
+    project: "mine",
+    api_url: "https://example.test",
+  });
+  expect(readFileSync(join(workspace, ".cursor", "langsmith.json"), "utf8")).toBe(
+    '{"project":"from-repo"}',
+  );
+  expect(existsSync(env.LANGSMITH_CURSOR_STATE_FILE!)).toBe(false);
+});
+
+it("replies with and logs why a mute or a turn could not be saved", () => {
+  const reason = "Nonempty native conversation_id and generation_id required; update Cursor";
+  const logLine = `Could not save tracing preference/turn snapshot: ${reason}. Turn not traced.`;
+  expect(submit("langsmith-tracing:mute", "")).toEqual({ continue: false, user_message: reason });
+  expect(logged().split(logLine)).toHaveLength(2);
+  expect(submit("work", "")).toEqual({ continue: true });
+  expect(logged().split(logLine)).toHaveLength(3);
+});
+
+it("records the turn for an event with no prompt", () => {
+  const result = raw(
+    JSON.stringify({
+      conversation_id: "thread",
+      generation_id: "no-prompt",
+      hook_event_name: "beforeSubmitPrompt",
+      workspace_roots: [dir],
+    }),
+  );
+  expect(JSON.parse(result.stdout)).toEqual({ continue: true });
+  expect(Object.keys(loadState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns)).toEqual([
+    "no-prompt",
+  ]);
+});
+
+const setupReply = (destination: string, signIn: string) =>
+  held(
+    `Turned LangSmith tracing on in ${join(dir, ".cursor", "langsmith.json")}. ${destination} ${signIn}`,
+  );
+
+it("tells setup the server a CLI login uploads to", async () => {
+  const { prompt } = await withLogin({});
+  writeFileSync(
+    join(dir, "login.json"),
+    JSON.stringify({
+      profiles: {
+        default: {
+          api_url: "https://eu.api.smith.langchain.com",
+          oauth: { refresh_token: "t" },
+        },
+      },
+    }),
+  );
+  expect(await prompt("thread", "setup", "langsmith-tracing:setup")).toEqual(
+    setupReply(
+      'Traces go to the "cursor" project at "https://eu.api.smith.langchain.com".',
+      "Signed in with the LangSmith CLI.",
+    ),
+  );
+});
+
+it("tells setup traces go to the configured agent", async () => {
+  const { prompt } = await withLogin({ LANGSMITH_AGENT_ID: "shared-cursor" });
+  expect(await prompt("thread", "setup", "langsmith-tracing:setup mine")).toEqual(
+    setupReply(
+      'Traces go to the "shared-cursor" agent at "https://api.smith.langchain.com". Another setting overrides part of this (an agent_id, an environment variable, a project\'s langsmith.json or langsmith-plugins.json, or your admin\'s managed settings), so the values above are what\'s in effect.',
+      "Signed in with the LangSmith CLI.",
+    ),
+  );
+});
+
+it("tells setup about a paused login while tracing is switched off", async () => {
+  const { prompt } = await withLogin({ TRACE_TO_LANGSMITH: "false" }, "login paused");
+  const reply = await prompt("thread", "setup", "langsmith-tracing:setup");
+  expect(reply.user_message).toContain("login paused");
+  expect(reply.user_message).not.toContain("Signed in");
+});
+
+it("tells setup the thread is muted after a mute in the same thread", () => {
+  submit("langsmith-tracing:mute", "control");
+  expect(submit("langsmith-tracing:setup", "setup").user_message).toContain(
+    "This thread is muted, so traces keep their structure and usage but not your prompts, responses or tool data.",
+  );
+});
+
+it("tells setup the thread is muted when every conversation starts muted", () => {
+  env.LANGSMITH_CURSOR_DEFAULT_MUTED = "true";
+  expect(submit("langsmith-tracing:setup").user_message).toContain("This thread is muted");
+});
+
+it("tells setup only the replicas a login can reach replace the project", async () => {
+  const { prompt } = await withLogin({
+    LANGSMITH_CURSOR_RUNS_ENDPOINTS: JSON.stringify([
+      { api_url: "https://keyed.test", api_key: "key" },
+      { api_url: "https://api.smith.langchain.com" },
+      { api_url: "https://replica.test" },
+    ]),
+  });
+  expect(await prompt("thread", "setup", "langsmith-tracing:setup mine")).toEqual(
+    setupReply(
+      "Traces go to the 2 replica destinations in your settings, which replace the usual project and URL. Another setting overrides part of this (an agent_id, an environment variable, a project's langsmith.json or langsmith-plugins.json, or your admin's managed settings), so the values above are what's in effect.",
+      "Signed in with the LangSmith CLI.",
+    ),
+  );
+});
+
+it("tells setup every replica replaces the project when an API key uploads", async () => {
+  const { prompt } = await withLogin({
+    LANGSMITH_CURSOR_API_KEY: "key",
+    LANGSMITH_CURSOR_RUNS_ENDPOINTS: JSON.stringify([
+      { api_url: "https://one.test" },
+      { api_url: "https://two.test" },
+    ]),
+  });
+  expect(await prompt("thread", "setup", "langsmith-tracing:setup")).toEqual(
+    setupReply(
+      "Traces go to the 2 replica destinations in your settings, which replace the usual project and URL.",
+      "Using your LangSmith API key.",
+    ),
+  );
 });
