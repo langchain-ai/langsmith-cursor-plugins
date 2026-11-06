@@ -1,9 +1,25 @@
+import { existsSync } from "node:fs";
+import { homedir } from "node:os";
+import { join } from "node:path";
 import {
   buildCodingAgentMetadata,
   type CodingAgentMetadataOptions,
 } from "@langchain/plugins-base/metadata";
 import { LS_INTEGRATION_VERSION } from "./config.js";
-import { LS_INTEGRATION, PATH_SEPARATOR, SKILL_READ_TOOLS } from "./constants.js";
+import {
+  BUILT_IN_SKILLS_FOLDER,
+  CURSOR_DIRECTORY_NAME,
+  LS_INTEGRATION,
+  PATH_SEPARATOR,
+  SHELL_CAT_PATH,
+  SKILL_FILE_NAME,
+  SKILL_FOLDERS,
+  SKILL_READ_TOOLS,
+  SKILLS_FOLDER,
+  SYNCED_SKILLS_FOLDER,
+  TYPED_SKILL_COMMAND,
+  TYPED_SKILL_ROOT_DIRS,
+} from "./constants.js";
 import type { CursorMetadataOptions } from "./models/metadata.js";
 
 export function withIntegration(opts: CursorMetadataOptions): CodingAgentMetadataOptions {
@@ -20,8 +36,13 @@ export function codingAgentMetadata(opts: CursorMetadataOptions): Record<string,
 export function skillNameFromTool(toolName: string, toolInput: unknown): string | undefined {
   if (!SKILL_READ_TOOLS.has(toolName)) return undefined;
   // Older captures use `file_path`.
-  const input = toolInput as { path?: unknown; file_path?: unknown } | null | undefined;
-  const filePath = input?.path ?? input?.file_path;
+  const input = toolInput as
+    | { path?: unknown; file_path?: unknown; command?: unknown }
+    | null
+    | undefined;
+  const command = typeof input?.command === "string" ? input.command : "";
+  const catPath = command.match(SHELL_CAT_PATH);
+  const filePath = input?.path ?? input?.file_path ?? catPath?.[1] ?? catPath?.[2];
   if (typeof filePath !== "string") return undefined;
 
   // Not a regex: any path regex backtracks quadratically here (CodeQL `js/polynomial-redos`).
@@ -30,6 +51,21 @@ export function skillNameFromTool(toolName: string, toolInput: unknown): string 
   const name = segments.pop();
   // A leading dot would let "." or ".." stand in for the skill name.
   if (file !== "SKILL.md" || !name || name.startsWith(".")) return undefined;
-  // `segments` now holds only the directories above the skill.
-  return segments.includes("skills") ? name : undefined;
+  const folder = segments.at(-2) === SYNCED_SKILLS_FOLDER ? segments.at(-3) : segments.at(-1);
+  return SKILL_FOLDERS.has(folder ?? "") ? name : undefined;
+}
+
+export function typedSkillName(
+  prompt: string | undefined,
+  workspaceRoot: unknown,
+): string | undefined {
+  const name = prompt?.match(TYPED_SKILL_COMMAND)?.[1];
+  if (!name) return undefined;
+  const home = homedir();
+  const roots = typeof workspaceRoot === "string" ? [workspaceRoot, home] : [home];
+  const paths = roots.flatMap((root) =>
+    TYPED_SKILL_ROOT_DIRS.map((dir) => join(root, dir, SKILLS_FOLDER, name, SKILL_FILE_NAME)),
+  );
+  paths.push(join(home, CURSOR_DIRECTORY_NAME, BUILT_IN_SKILLS_FOLDER, name, SKILL_FILE_NAME));
+  return paths.some(existsSync) ? name : undefined;
 }

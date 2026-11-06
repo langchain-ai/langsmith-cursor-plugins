@@ -184,14 +184,25 @@ async function buildQueuedRuns(
     );
   }
   const attributor = attributorFor(config);
-  const toolOrigins = buffer.tools.map((tool) => toolOrigin(tool.input, cwd));
+  const allTools = [...buffer.tools, ...buffer.subagents.flatMap((sub) => sub.tools ?? [])];
+  const workspaceOf = (toolUseId: unknown) =>
+    allTools.find((tool) => tool.tool_use_id === toolUseId)?.workspace_root ?? cwd;
+  const toolOrigins = buffer.tools.map((tool) =>
+    toolOrigin(tool.input, tool.workspace_root ?? cwd),
+  );
   return {
     status: "ready",
     outputs: inputs.map(({ eventId, submission, turnEvidence, dependencies }) => {
       const { metadata } = submission;
       const base =
         submission.operation === "post" && submission.run.run_type === "tool"
-          ? attributor.toolMetadata(metadata.base, toolOrigin(submission.run.inputs?.input, cwd))
+          ? attributor.toolMetadata(
+              metadata.base,
+              toolOrigin(
+                submission.run.inputs?.input,
+                workspaceOf(submission.metadata.runSpecific?.tool_use_id),
+              ),
+            )
           : attributor.turnMetadata(metadata.base, cwd, toolOrigins);
       return {
         eventId,

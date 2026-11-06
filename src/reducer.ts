@@ -143,6 +143,7 @@ export function reducePostToolUse(
     error: extractMcpError(input.tool_name, output),
     duration: input.duration,
     endMs: nowMs,
+    workspace_root: input.workspace_roots?.[0],
   });
   setOwnEntry(conv.turns, input.generation_id, turn);
   touch(conv);
@@ -166,6 +167,7 @@ export function reducePostToolUseFailure(
     failure_type: input.failure_type,
     duration: input.duration,
     endMs: nowMs,
+    workspace_root: input.workspace_roots?.[0],
   });
   setOwnEntry(conv.turns, input.generation_id, turn);
   touch(conv);
