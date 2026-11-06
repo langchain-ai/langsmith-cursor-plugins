@@ -77,6 +77,8 @@ In a project-based workspace, use the legacy `project` setting instead:
 
 With neither set traces go to the `cursor` project. Send a prompt and look for it in LangSmith. You only need `api_url` if you don't use the default LangSmith server.
 
+Or start a chat message with `langsmith-tracing:setup [project] [https://url]` (no slash) to turn tracing on and save both to `~/.cursor/langsmith.json`. It never takes an API key, so the key stays out of chat.
+
 A project can override these settings in `<project>/.cursor/langsmith.json` or `<project>/langsmith-plugins.json`. You can also share settings across LangSmith plugins in `~/.langsmith-plugins.json`. Project files win over your own files and any environment variable beats them all.
 
 > **Read a repository's tracing config before you trust it.** A cloned repository can switch tracing on and send your prompts and files to someone else's server. Review its `.cursor/langsmith.json` and `langsmith-plugins.json` first. Cursor's own `.cursor/hooks.json` can run commands, so read that one too.

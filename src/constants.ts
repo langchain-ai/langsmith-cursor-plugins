@@ -1,3 +1,5 @@
+import type { PromptCommand } from "@langchain/plugins-base/plugin";
+
 /** Display name for the per-turn root (chain) run. */
 export const TURN_RUN_NAME = "Cursor Turn";
 
@@ -18,7 +20,16 @@ export const NOTICE_KINDS = {
   credential: "credential",
 };
 
-export const MUTE_LOCKED_MESSAGE = "Thread tracing stays muted because an admin locked muting on.";
+export const MUTE_LOCKED_MESSAGE =
+  "An admin has enabled muting for all sessions, so this thread cannot be unmuted.";
+export const TRACING_DISABLED_NOTE =
+  " Tracing is disabled. Changes will not take effect until it's configured with langsmith-tracing:setup.";
+
+export const PROMPT_COMMANDS = [
+  { name: "setup", text: "langsmith-tracing:setup", takesArguments: true },
+  { name: "mute", text: "langsmith-tracing:mute", takesArguments: false },
+  { name: "unmute", text: "langsmith-tracing:unmute", takesArguments: false },
+] as const satisfies readonly PromptCommand[];
 
 export const DEFAULT_API_URL = "https://api.smith.langchain.com";
 
