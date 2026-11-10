@@ -27662,14 +27662,20 @@ function* readLines(path3) {
   try {
     const decoder = new StringDecoder("utf8");
     const chunk = Buffer.alloc(LINE_READ_CHUNK_BYTES);
-    let rest = "";
+    let pending = [];
     let bytes;
     while ((bytes = readSync(fd, chunk, 0, chunk.length, null)) > 0) {
-      const lines = (rest + decoder.write(chunk.subarray(0, bytes))).split("\n");
-      rest = lines.pop() ?? "";
-      yield* lines;
+      const text = decoder.write(chunk.subarray(0, bytes));
+      let start = 0;
+      let end;
+      while ((end = text.indexOf("\n", start)) !== -1) {
+        yield pending.join("") + text.slice(start, end);
+        pending = [];
+        start = end + 1;
+      }
+      pending.push(text.slice(start));
     }
-    yield rest + decoder.end();
+    yield pending.join("") + decoder.end();
   } finally {
     closeSync6(fd);
   }
