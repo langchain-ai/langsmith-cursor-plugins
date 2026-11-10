@@ -26192,7 +26192,7 @@ var init_settings = __esm({
 });
 
 // dist/src/constants.js
-var TURN_RUN_NAME, SKILL_RUN_NAME, DEFAULT_TAGS, DEFAULT_PROJECT, DEFAULT_SWEEP_IDLE_MINUTES, NOTICE_KINDS, MUTE_LOCKED_MESSAGE, TRACING_DISABLED_NOTE, PROMPT_COMMANDS, DEFAULT_API_URL2, AGENT_ID_ENV_KEY, CURSOR_DIRECTORY_NAME, MANAGED_PLUGIN_FIELDS, MAX_UPLOAD_ATTEMPTS, BINARY_HOOK_EVENTS, LEADING_BYTE_ORDER_MARKS, LS_INTEGRATION, SKILL_READ_TOOLS, SHELL_CAT_PATH, SYNCED_SKILLS_FOLDER, SKILLS_FOLDER, BUILT_IN_SKILLS_FOLDER, SKILL_FILE_NAME, SKILL_FOLDERS, TYPED_SKILL_COMMAND, TYPED_SKILL_ROOT_DIRS, PATH_SEPARATOR, MAX_ATTACHMENT_BYTES, MAX_LOG_BYTES, CONVERSATION_MAX_AGE_MS, WHITESPACE_RUN, MODEL_SUFFIXES, PROVIDER_PREFIX, CLAUDE_VERSIONED_MODEL, OPENAI_MODEL_PREFIX, CURSOR_VENDOR_PREFIX, MCP_TOOL_PREFIX, SUBAGENT_PSEUDO_TOOLS, REDACTED_TRANSCRIPT_MARKER, EMPTY_TOOL_ID_PREFIX, TOOL_FAILED_MESSAGE, STATE_FILE_NAME, LEGACY_STATE_FILE_NAME, TRACING_POLICY_FILE_NAME, LEGACY_TRACING_POLICY_FILE_NAME, HOOK_LOG_FILE_NAME, HOOK_CONTINUE_OUTPUT, ENGINE_WORKER_COMMAND, ENGINE_STORAGE_DIR_NAME, JOB_EVENT_PREFIX, JOB_REF_PREFIX, TOOL_JOB_REF_PREFIX, JOB_STORE_DIR_NAME, GH_LOGIN_MARKER_FILE, TOOL_PATH_INPUT_KEYS, RUN_EVENT_PREFIX, PATCH_EVENT_PREFIX, RUN_SNAPSHOT_FIELDS, RUN_PATCH_FIELDS, CAPTURE_PUBLISHED_STATUS, CAPTURE_DUPLICATE_STATUS, TURN_ON_OTHER_ACCOUNT_MESSAGE, SQLITE_EXPERIMENTAL_WARNING;
+var TURN_RUN_NAME, SKILL_RUN_NAME, DEFAULT_TAGS, DEFAULT_PROJECT, DEFAULT_SWEEP_IDLE_MINUTES, NOTICE_KINDS, MUTE_LOCKED_MESSAGE, TRACING_DISABLED_NOTE, PROMPT_COMMANDS, DEFAULT_API_URL2, AGENT_ID_ENV_KEY, CURSOR_DIRECTORY_NAME, MANAGED_PLUGIN_FIELDS, MAX_UPLOAD_ATTEMPTS, BINARY_HOOK_EVENTS, LEADING_BYTE_ORDER_MARKS, LS_INTEGRATION, SKILL_READ_TOOLS, SHELL_CAT_PATH, SYNCED_SKILLS_FOLDER, SKILLS_FOLDER, BUILT_IN_SKILLS_FOLDER, SKILL_FILE_NAME, SKILL_FOLDERS, TYPED_SKILL_COMMAND, TYPED_SKILL_ROOT_DIRS, PATH_SEPARATOR, MAX_ATTACHMENT_BYTES, USER_IMAGE_BUBBLES_SQL, MAX_LOG_BYTES, LINE_READ_CHUNK_BYTES, CONVERSATION_MAX_AGE_MS, WHITESPACE_RUN, MODEL_SUFFIXES, PROVIDER_PREFIX, CLAUDE_VERSIONED_MODEL, OPENAI_MODEL_PREFIX, CURSOR_VENDOR_PREFIX, MCP_TOOL_PREFIX, SUBAGENT_PSEUDO_TOOLS, REDACTED_TRANSCRIPT_MARKER, EMPTY_TOOL_ID_PREFIX, TOOL_FAILED_MESSAGE, STATE_FILE_NAME, LEGACY_STATE_FILE_NAME, TRACING_POLICY_FILE_NAME, LEGACY_TRACING_POLICY_FILE_NAME, HOOK_LOG_FILE_NAME, HOOK_CONTINUE_OUTPUT, ENGINE_WORKER_COMMAND, ENGINE_STORAGE_DIR_NAME, JOB_EVENT_PREFIX, JOB_REF_PREFIX, TOOL_JOB_REF_PREFIX, JOB_STORE_DIR_NAME, GH_LOGIN_MARKER_FILE, TOOL_PATH_INPUT_KEYS, RUN_EVENT_PREFIX, PATCH_EVENT_PREFIX, RUN_SNAPSHOT_FIELDS, RUN_PATCH_FIELDS, CAPTURE_PUBLISHED_STATUS, CAPTURE_DUPLICATE_STATUS, TURN_ON_OTHER_ACCOUNT_MESSAGE, SQLITE_EXPERIMENTAL_WARNING;
 var init_constants18 = __esm({
   "dist/src/constants.js"() {
     "use strict";
@@ -26245,7 +26245,14 @@ var init_constants18 = __esm({
     TYPED_SKILL_ROOT_DIRS = [".cursor", ".agents", ".claude", ".codex"];
     PATH_SEPARATOR = /[/\\]/;
     MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024;
+    USER_IMAGE_BUBBLES_SQL = `
+  SELECT value FROM cursorDiskKV
+  WHERE key LIKE ?
+    AND json_valid(value)
+    AND json_extract(value, '$.type') = 1
+    AND json_array_length(value, '$.context.selectedImages') > 0`;
     MAX_LOG_BYTES = 5 * 1024 * 1024;
+    LINE_READ_CHUNK_BYTES = 64 * 1024;
     CONVERSATION_MAX_AGE_MS = 24 * 60 * 60 * 1e3;
     WHITESPACE_RUN = /\s+/g;
     MODEL_SUFFIXES = /* @__PURE__ */ new Set([
@@ -27647,21 +27654,46 @@ var init_text = __esm({
   }
 });
 
+// dist/src/utils/files.js
+import { closeSync as closeSync6, openSync as openSync6, readSync } from "node:fs";
+import { StringDecoder } from "node:string_decoder";
+function* readLines(path3) {
+  const fd = openSync6(path3, "r");
+  try {
+    const decoder = new StringDecoder("utf8");
+    const chunk = Buffer.alloc(LINE_READ_CHUNK_BYTES);
+    let rest = "";
+    let bytes;
+    while ((bytes = readSync(fd, chunk, 0, chunk.length, null)) > 0) {
+      const lines = (rest + decoder.write(chunk.subarray(0, bytes))).split("\n");
+      rest = lines.pop() ?? "";
+      yield* lines;
+    }
+    yield rest + decoder.end();
+  } finally {
+    closeSync6(fd);
+  }
+}
+var init_files = __esm({
+  "dist/src/utils/files.js"() {
+    "use strict";
+    init_constants18();
+  }
+});
+
 // dist/src/subagent-transcript.js
-import { readFileSync as readFileSync12, readdirSync as readdirSync2, statSync as statSync5 } from "node:fs";
+import { readdirSync as readdirSync2, statSync as statSync5 } from "node:fs";
 import { dirname as dirname16, join as join27, basename as basename5 } from "node:path";
-function readJsonl(path3) {
-  const rows = [];
-  for (const line of readFileSync12(path3, "utf-8").split("\n")) {
+function* readJsonl(path3) {
+  for (const line of readLines(path3)) {
     const trimmed = line.trim();
     if (!trimmed)
       continue;
     try {
-      rows.push(JSON.parse(trimmed));
+      yield JSON.parse(trimmed);
     } catch {
     }
   }
-  return rows;
 }
 function firstUserText(rows) {
   for (const row of rows) {
@@ -27691,11 +27723,11 @@ function resolveSubagentTranscript(parentTranscriptPath, task) {
     if (candidates.length === 1) {
       chosen = candidates[0];
     } else {
-      const matches = candidates.map((c) => ({ ...c, rows: readJsonl(c.full) })).filter((c) => wanted !== "" && normalizeWs(firstUserText(c.rows)).includes(wanted));
+      const matches = candidates.filter((c) => wanted !== "" && normalizeWs(firstUserText(readJsonl(c.full))).includes(wanted));
       const pool = matches.length > 0 ? matches : candidates;
       chosen = pool.slice().sort((a, b) => b.mtime - a.mtime)[0];
     }
-    const rows = chosen.rows ?? readJsonl(chosen.full);
+    const rows = [...readJsonl(chosen.full)];
     const { toolCalls, resultText } = parseSubagentTranscript(rows);
     return { childConversationId: chosen.child, toolCalls, resultText };
   } catch {
@@ -27708,6 +27740,7 @@ var init_subagent_transcript = __esm({
     init_normalize2();
     init_normalize2();
     init_text();
+    init_files();
   }
 });
 
@@ -28009,7 +28042,7 @@ var init_repository = __esm({
 });
 
 // node_modules/.pnpm/@langchain+plugins-base@0.6.2_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/git/github-login.js
-import { mkdirSync as mkdirSync8, readFileSync as readFileSync13, renameSync as renameSync7, writeFileSync as writeFileSync4 } from "node:fs";
+import { mkdirSync as mkdirSync8, readFileSync as readFileSync12, renameSync as renameSync7, writeFileSync as writeFileSync4 } from "node:fs";
 import { dirname as dirname18 } from "node:path";
 function createGitHubLoginFallback(options) {
   const now = options.now ?? Date.now;
@@ -28018,7 +28051,7 @@ function createGitHubLoginFallback(options) {
   let login;
   function failedRecently() {
     try {
-      const marker = JSON.parse(readFileSync13(options.markerPath, "utf-8"));
+      const marker = JSON.parse(readFileSync12(options.markerPath, "utf-8"));
       const failed = new Date(marker.failed).getTime();
       const since = now() - failed;
       return since >= 0 && since < retryAfterMs;
@@ -28061,7 +28094,7 @@ var init_github_login = __esm({
 });
 
 // node_modules/.pnpm/@langchain+plugins-base@0.6.2_langsmith@0.11.6/node_modules/@langchain/plugins-base/dist/git/paths.js
-import { readFileSync as readFileSync14, statSync as statSync8 } from "node:fs";
+import { readFileSync as readFileSync13, statSync as statSync8 } from "node:fs";
 import { dirname as dirname19, join as join29, resolve as resolve15 } from "node:path";
 function gitMarkerAt(directory) {
   const marker = join29(directory, GIT_DIRECTORY_NAME);
@@ -28075,7 +28108,7 @@ function gitMarkerAt(directory) {
 }
 function pointsAtGitDirectory(directory, marker) {
   try {
-    const pointer = readFileSync14(marker, "utf-8").match(GIT_FILE_POINTER)?.[1];
+    const pointer = readFileSync13(marker, "utf-8").match(GIT_FILE_POINTER)?.[1];
     return pointer !== void 0 && statSync8(resolve15(directory, pointer)).isDirectory();
   } catch {
     return false;
@@ -28524,7 +28557,7 @@ var init_sqlite = __esm({
 });
 
 // dist/src/attachments.js
-import { existsSync as existsSync5, readFileSync as readFileSync15, statSync as statSync9 } from "node:fs";
+import { existsSync as existsSync5, readFileSync as readFileSync14, statSync as statSync9 } from "node:fs";
 import { homedir as homedir8, platform } from "node:os";
 import { basename as basename6, join as join31 } from "node:path";
 function defaultCursorDbPath() {
@@ -28544,7 +28577,7 @@ function queryBubbles(dbPath, conversationId) {
   const { DatabaseSync } = loadSqlite();
   const db = new DatabaseSync(dbPath, { readOnly: true });
   try {
-    const rows = db.prepare("SELECT value FROM cursorDiskKV WHERE key LIKE ?").all(like);
+    const rows = db.prepare(USER_IMAGE_BUBBLES_SQL).all(like);
     const bubbles = [];
     for (const row of rows) {
       const text = typeof row.value === "string" ? row.value : row.value instanceof Uint8Array ? Buffer.from(row.value).toString("utf-8") : void 0;
@@ -28640,7 +28673,7 @@ function fileToContentPart(path3) {
       warn(`attachments: too large (${st.size} bytes), skipping: ${path3}`);
       return placeholder(`[attachment too large: ${name} (${st.size} bytes)]`);
     }
-    const buf = readFileSync15(path3);
+    const buf = readFileSync14(path3);
     const mime = sniffMime(buf, path3);
     const base64 = buf.toString("base64");
     if (mime.startsWith("image/"))

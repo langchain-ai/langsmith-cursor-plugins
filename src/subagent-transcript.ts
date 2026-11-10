@@ -3,29 +3,28 @@
  * and final answer from `subagents/*.jsonl`. Best-effort; never throws.
  */
 
-import { readFileSync, readdirSync, statSync } from "node:fs";
+import { readdirSync, statSync } from "node:fs";
 import { dirname, join, basename } from "node:path";
 import { parseSubagentTranscript } from "./normalize.js";
 import { isRecord } from "./normalize.js";
 import { normalizeWs } from "./utils/text.js";
+import { readLines } from "./utils/files.js";
 import type { ResolvedSubagentTranscript } from "./models/subagent-transcript.js";
 
-function readJsonl(path: string): unknown[] {
-  const rows: unknown[] = [];
-  for (const line of readFileSync(path, "utf-8").split("\n")) {
+function* readJsonl(path: string): Generator<unknown> {
+  for (const line of readLines(path)) {
     const trimmed = line.trim();
     if (!trimmed) continue;
     try {
-      rows.push(JSON.parse(trimmed));
+      yield JSON.parse(trimmed);
     } catch {
       /* skip malformed line */
     }
   }
-  return rows;
 }
 
 /** Concatenate the text parts of the first user row. */
-function firstUserText(rows: unknown[]): string {
+function firstUserText(rows: Iterable<unknown>): string {
   for (const row of rows) {
     if (!isRecord(row) || row.role !== "user") continue;
     const content = isRecord(row.message) ? row.message.content : undefined;
@@ -55,19 +54,19 @@ export function resolveSubagentTranscript(
     });
 
     const wanted = task ? normalizeWs(task).slice(0, 120) : "";
-    let chosen: (typeof candidates)[number] & { rows?: unknown[] };
+    let chosen: (typeof candidates)[number];
 
     if (candidates.length === 1) {
       chosen = candidates[0];
     } else {
-      const matches = candidates
-        .map((c) => ({ ...c, rows: readJsonl(c.full) }))
-        .filter((c) => wanted !== "" && normalizeWs(firstUserText(c.rows)).includes(wanted));
+      const matches = candidates.filter(
+        (c) => wanted !== "" && normalizeWs(firstUserText(readJsonl(c.full))).includes(wanted),
+      );
       const pool = matches.length > 0 ? matches : candidates;
       chosen = pool.slice().sort((a, b) => b.mtime - a.mtime)[0];
     }
 
-    const rows = chosen.rows ?? readJsonl(chosen.full);
+    const rows = [...readJsonl(chosen.full)];
     const { toolCalls, resultText } = parseSubagentTranscript(rows);
     return { childConversationId: chosen.child, toolCalls, resultText };
   } catch {
