@@ -85,7 +85,16 @@ export const PATH_SEPARATOR = /[/\\]/;
 /** Skip attachments larger than this (raw bytes) — base64 inflates ~33% on top. */
 export const MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024; // 10 MB
 
+export const USER_IMAGE_BUBBLES_SQL = `
+  SELECT value FROM cursorDiskKV
+  WHERE key LIKE ?
+    AND json_valid(value)
+    AND json_extract(value, '$.type') = 1
+    AND json_array_length(value, '$.context.selectedImages') > 0`;
+
 export const MAX_LOG_BYTES = 5 * 1024 * 1024; // 5 MB
+
+export const LINE_READ_CHUNK_BYTES = 64 * 1024;
 
 export const CONVERSATION_MAX_AGE_MS = 24 * 60 * 60 * 1000; // 24 hours
 

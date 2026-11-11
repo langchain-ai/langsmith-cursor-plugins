@@ -9,7 +9,7 @@ import { basename, join } from "node:path";
 import type { ContentPart } from "./models/types.js";
 import type { ResolveAttachmentsOptions } from "./models/attachments.js";
 import { isRecord } from "./normalize.js";
-import { MAX_ATTACHMENT_BYTES } from "./constants.js";
+import { MAX_ATTACHMENT_BYTES, USER_IMAGE_BUBBLES_SQL } from "./constants.js";
 import { loadSqlite } from "./utils/sqlite.js";
 import { normalizeWs } from "./utils/text.js";
 import * as logger from "./logger.js";
@@ -28,13 +28,13 @@ export function defaultCursorDbPath(): string {
   }
 }
 
-/** Query a conversation's bubbles via built-in `node:sqlite`, read-only (no native dep). */
+/** Query a conversation's user bubbles with images via built-in `node:sqlite`, read-only (no native dep). */
 function queryBubbles(dbPath: string, conversationId: string): unknown[] {
   const like = `bubbleId:${conversationId}:%`;
   const { DatabaseSync } = loadSqlite();
   const db = new DatabaseSync(dbPath, { readOnly: true });
   try {
-    const rows = db.prepare("SELECT value FROM cursorDiskKV WHERE key LIKE ?").all(like) as Array<{
+    const rows = db.prepare(USER_IMAGE_BUBBLES_SQL).all(like) as Array<{
       value?: unknown;
     }>;
     const bubbles: unknown[] = [];
