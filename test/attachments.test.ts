@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { DatabaseSync } from "node:sqlite";
 import {
   sniffMime,
   fileToContentPart,
@@ -110,6 +111,29 @@ describe("resolveTurnAttachments (end-to-end, injected reader)", () => {
       prompt: "describe this image to me",
       dbPath: tmpFile("fake.vscdb", "x"), // must exist; reader is injected below
       readBubbles: () => [userBubble("describe this image to me", [path])],
+    });
+    expect(parts).toEqual([
+      { type: "image", mime_type: "image/png", base64: PNG.toString("base64") },
+    ]);
+  });
+
+  it("reads the image bubble from a real database past malformed and image-less bubbles", () => {
+    const path = tmpFile("describe.png", PNG);
+    const dbPath = join(mkdtempSync(join(tmpdir(), "attach-db-")), "state.vscdb");
+    const db = new DatabaseSync(dbPath);
+    db.exec("CREATE TABLE cursorDiskKV (key TEXT PRIMARY KEY, value BLOB)");
+    const insert = db.prepare("INSERT INTO cursorDiskKV VALUES (?, ?)");
+    insert.run("bubbleId:conv-1:malformed", "{not json");
+    insert.run("bubbleId:conv-1:reply", JSON.stringify({ type: 2, text: "sure" }));
+    insert.run(
+      "bubbleId:conv-1:ask",
+      JSON.stringify(userBubble("describe this image to me", [path])),
+    );
+    db.close();
+    const parts = resolveTurnAttachments({
+      conversationId: "conv-1",
+      prompt: "describe this image to me",
+      dbPath,
     });
     expect(parts).toEqual([
       { type: "image", mime_type: "image/png", base64: PNG.toString("base64") },

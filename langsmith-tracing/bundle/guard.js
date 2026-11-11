@@ -7,6 +7,7 @@ import { userInfo } from "node:os";
 // dist/src/constants.js
 var MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024;
 var MAX_LOG_BYTES = 5 * 1024 * 1024;
+var LINE_READ_CHUNK_BYTES = 64 * 1024;
 var CONVERSATION_MAX_AGE_MS = 24 * 60 * 60 * 1e3;
 var HOOK_LOG_FILE_NAME = "langsmith_hook.log";
 var NODE_PATH_CACHE_FILE_NAME = "langsmith_node.json";

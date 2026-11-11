@@ -1,8 +1,11 @@
 import { describe, it, expect } from "vitest";
 import { join } from "node:path";
-import { readFileSync } from "node:fs";
+import { cpSync, mkdtempSync, readFileSync, utimesSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { parseSubagentTranscript } from "../src/normalize.js";
 import { resolveSubagentTranscript } from "../src/subagent-transcript.js";
+import { LINE_READ_CHUNK_BYTES } from "../src/constants.js";
+import { readLines } from "../src/utils/files.js";
 
 const PARENT_CONV = "6bd3db3e-e838-485e-befc-b5f0d05b18cd";
 const CHILD_CONV = "3e6a5f09-8e10-4614-8714-152f3cc1b719";
@@ -57,11 +60,30 @@ describe("resolveSubagentTranscript", () => {
     expect(resolved!.resultText).toBeTruthy();
   });
 
+  it("picks the older transcript whose first user row matches the task", () => {
+    const subagents = join(mkdtempSync(join(tmpdir(), "subagents-")), "subagents");
+    cpSync(CHILD_TRANSCRIPT, join(subagents, `${CHILD_CONV}.jsonl`));
+    utimesSync(join(subagents, `${CHILD_CONV}.jsonl`), 1, 1);
+    const other = { role: "user", message: { content: [{ type: "text", text: "Another task" }] } };
+    writeFileSync(join(subagents, "newer.jsonl"), `${JSON.stringify(other)}\n`);
+    const resolved = resolveSubagentTranscript(join(subagents, "..", "parent.jsonl"), TASK);
+    expect(resolved).toEqual(resolveSubagentTranscript(PARENT_TRANSCRIPT, TASK));
+  });
+
   it("returns undefined when the subagents directory is absent", () => {
     expect(resolveSubagentTranscript("/nonexistent/path/conv.jsonl", TASK)).toBeUndefined();
   });
 
   it("returns undefined for a null transcript path", () => {
     expect(resolveSubagentTranscript(null, TASK)).toBeUndefined();
+  });
+});
+
+describe("readLines", () => {
+  it("yields the same lines as splitting the whole file", () => {
+    const path = join(mkdtempSync(join(tmpdir(), "read-lines-")), "rows.jsonl");
+    const long = "é".repeat(LINE_READ_CHUNK_BYTES);
+    writeFileSync(path, `first!\n${long}\n\nmiddle ✓\nlast`);
+    expect([...readLines(path)]).toEqual(readFileSync(path, "utf-8").split("\n"));
   });
 });
