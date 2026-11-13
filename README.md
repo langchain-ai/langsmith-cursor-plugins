@@ -33,7 +33,7 @@ The managed file works on macOS and Linux, and the plugin only trusts it when:
 
 Set `workspace_id` as well when your users sign in with the LangSmith CLI. Each user's sign-in may default to a different workspace, so setting it here keeps everyone's traces in one place. API keys ignore this setting so use one scoped to a workspace.
 
-If the file is broken or fails these checks then tracing stops. The plugin's log explains why and so does its reply to mute or unmute. See [the settings guide](https://github.com/langchain-ai/langsmith-plugin-binary/blob/main/docs/settings.md) to set it up.
+If the file is broken or fails these checks then tracing stops. The plugin's log explains why and so does its reply to mute or unmute. See [the settings guide](https://github.com/langchain-ai/plugins-base/blob/main/docs/settings.md) to set it up.
 
 ## Authenticate
 
@@ -160,7 +160,7 @@ pnpm lint
 pnpm format
 ```
 
-The macOS binary is built, signed and released by the shared pipeline in [langsmith-plugin-binary](https://github.com/langchain-ai/langsmith-plugin-binary) using `binary.config.json`.
+The macOS binary is built, signed and released by the shared pipeline in [plugins-base](https://github.com/langchain-ai/plugins-base) using `binary.config.json`.
 
 ## License
 
