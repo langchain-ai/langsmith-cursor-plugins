@@ -1,6 +1,10 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
+import { tracerPaths } from "@langchain/plugins-base/tracer";
+import type { HookNote } from "@langchain/plugins-base/tracer";
+import { createTranscriptBuilder } from "../../src/tracer-builder.js";
 import type { Config } from "../../src/models/config.js";
+import type { BuilderState } from "../../src/models/tracer-builder.js";
 import type {
   ConversationState,
   ToolEvent,
@@ -60,6 +64,24 @@ export function testConfig(stateFilePath: string): Config {
     strictAuth: false,
     captureHookOutputs: false,
   };
+}
+
+export function loadNotedState(stateFilePath: string): TracingState {
+  const builder = createTranscriptBuilder({
+    sessionId: "notes",
+    savedState: undefined,
+    sink: { post: () => undefined, patch: () => undefined },
+  });
+  let notes: string[] = [];
+  try {
+    notes = readFileSync(tracerPaths(dirname(stateFilePath)).notes, "utf8").split("\n");
+  } catch {
+    return {};
+  }
+  for (const line of notes.filter(Boolean)) builder.receiveNote(JSON.parse(line) as HookNote);
+  const { tracing } = builder.state() as BuilderState;
+  for (const conversation of Object.values(tracing)) conversation.updated = "";
+  return tracing;
 }
 
 export function loadState(stateFilePath: string): TracingState {

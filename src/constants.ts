@@ -150,6 +150,10 @@ export const HOOK_CONTINUE_OUTPUT = `${JSON.stringify({ continue: true })}\n`;
 
 export const ENGINE_WORKER_COMMAND = "engine-worker";
 
+export const DEVELOPMENT_VERSION = "development";
+
+export const OFF_NOTES_WORKER_BYTES = 1024 * 1024;
+
 export const ENGINE_STORAGE_DIR_NAME = "langsmith_engine";
 
 export const JOB_EVENT_PREFIX = "cursor-job:";
