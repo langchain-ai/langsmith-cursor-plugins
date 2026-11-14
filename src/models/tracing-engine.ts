@@ -18,3 +18,8 @@ export type RunPatchContext = PreparedRunPatchSubmission["run"];
 export type RunPatchValues = PreparedRunPatchSubmission["patch"]["values"];
 
 export type SavedCapture = Awaited<ReturnType<PluginSession["store"]["read"]>>;
+
+export type RepositoryBase = (
+  base: Record<string, unknown> | undefined,
+  tool?: { input: unknown; toolUseId: unknown },
+) => Record<string, unknown> | undefined;

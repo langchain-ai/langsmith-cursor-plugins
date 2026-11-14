@@ -2,11 +2,11 @@ import { resolveTurnAttachments } from "./attachments.js";
 import { resolveTurnHooks, resolveTurnSteps } from "./conversation-steps.js";
 import { resolveSystemPrompts } from "./system-prompt.js";
 import { EMPTY_TOOL_ID_PREFIX } from "./constants.js";
-import type { Config } from "./models/config.js";
+import type { BuilderSettings } from "./models/tracer-builder.js";
 import type { BuildTurnOptions } from "./models/langsmith.js";
 import type { ContentPart, ToolEvent } from "./models/types.js";
 
-export function enrichTurn(config: Config, options: BuildTurnOptions): BuildTurnOptions {
+export function enrichTurn(config: BuilderSettings, options: BuildTurnOptions): BuildTurnOptions {
   const { buffer: toTrace, conversationId } = options;
 
   // Best-effort attachment enrichment (read-only DB + disk); never throws, and an
@@ -49,7 +49,10 @@ export function enrichTurn(config: Config, options: BuildTurnOptions): BuildTurn
   return { ...options, attachments, systemPrompt, steps };
 }
 
-export function withTurnHooks(config: Config, options: BuildTurnOptions): BuildTurnOptions {
+export function withTurnHooks(
+  config: BuilderSettings,
+  options: BuildTurnOptions,
+): BuildTurnOptions {
   const { buffer, conversationId } = options;
   if (buffer.tracingMode !== "full" || !config.captureHookOutputs) return options;
   const hasId = (tool: ToolEvent) => !tool.tool_use_id.startsWith(EMPTY_TOOL_ID_PREFIX);
@@ -73,7 +76,7 @@ export function withTurnHooks(config: Config, options: BuildTurnOptions): BuildT
   return { ...options, hooks };
 }
 
-export function toolAttachments(config: Config, options: BuildTurnOptions): ContentPart[] {
+export function toolAttachments(config: BuilderSettings, options: BuildTurnOptions): ContentPart[] {
   const { buffer, conversationId } = options;
   return config.attachmentsEnabled && buffer.tracingMode === "full"
     ? resolveTurnAttachments({ conversationId, prompt: buffer.prompt, dbPath: config.cursorDbPath })
