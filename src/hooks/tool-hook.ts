@@ -38,7 +38,7 @@ export function toolHook<Input extends HookInputBase>({
   };
 }
 
-function addedLiveTool(state: TracingState, input: HookInputBase): LiveTool | undefined {
+export function addedLiveTool(state: TracingState, input: HookInputBase): LiveTool | undefined {
   const buffer = getTurnBuffer(state, input.conversation_id, input.generation_id);
   if (!buffer || buffer.turnNum === undefined) return undefined;
   if (buffer.tracingMode !== "full" && buffer.tracingMode !== "metadata") return undefined;
