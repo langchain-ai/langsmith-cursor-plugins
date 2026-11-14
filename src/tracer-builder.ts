@@ -20,7 +20,7 @@ import {
   reduceSubagentStop,
   reduceSweep,
 } from "./reducer.js";
-import { pruneOldConversations } from "./state.js";
+import { getTurnBuffer, pruneOldConversations } from "./state.js";
 import { resolveSubagentTranscript } from "./subagent-transcript.js";
 import { sweepTracingMode } from "./sweep.js";
 import { BUILDER_STATE_VERSION, NOTE_EVENTS } from "./tracer-builder-constants.js";
@@ -162,11 +162,13 @@ export const createTranscriptBuilder: CreateTranscriptBuilder = ({ savedState, s
       if (state.posted[captured.run.id] === undefined) post(captured, repositoryBase, details.time);
   }
 
-  function stopTurn(input: StopInput, details: NoteDetails): void {
+  function stopTurn(input: StopInput, details: NoteDetails, mode: HookNote["tracingMode"]): void {
+    const { conversation_id: conversationId, generation_id: generationId } = input;
+    const launch = getTurnBuffer(state.tracing, conversationId, generationId);
+    if (mode === "off" && launch?.tracingMode !== "off") return;
     const { state: next, buffer, turnNum } = reduceStop(state.tracing, input, details.time);
     state.tracing = next;
     if (buffer === undefined) return;
-    const { conversation_id: conversationId, generation_id: generationId } = input;
     const origin = details.origin;
     sendTurn(
       { conversationId, buffer, turnNum, origin, savedAtMs: details.time, enrich: true },
@@ -258,7 +260,7 @@ export const createTranscriptBuilder: CreateTranscriptBuilder = ({ savedState, s
         return;
       }
       case NOTE_EVENTS.stop:
-        stopTurn(details.input as StopInput, details);
+        stopTurn(details.input as StopInput, details, mode);
         return;
     }
   }

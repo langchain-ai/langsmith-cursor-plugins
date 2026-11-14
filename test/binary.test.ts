@@ -6,7 +6,7 @@ import { join } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import { fileURLToPath } from "node:url";
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from "vitest";
-import { waitForWorkers } from "./utils/engine.js";
+import { stopWorkers, waitForWorkers } from "./utils/engine.js";
 import { PLUGIN_DIRECTORY_NAME } from "./utils/plugin-layout.js";
 
 const root = new URL("../", import.meta.url);
@@ -172,6 +172,7 @@ beforeEach(() => {
 });
 
 afterEach(async () => {
+  stopWorkers(home);
   await waitForWorkers(home);
   rmSync(home, { recursive: true, force: true, maxRetries: 50, retryDelay: 100 });
 });
