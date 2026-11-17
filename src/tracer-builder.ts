@@ -182,7 +182,7 @@ export const createTranscriptBuilder: CreateTranscriptBuilder = ({ savedState, s
     if (mode === "off" && launch?.tracingMode !== "off") return;
     const { state: next, buffer, turnNum } = reduceStop(state.tracing, input, details.time);
     state.tracing = next;
-    if (buffer === undefined) return;
+    if (buffer === undefined || buffer.tracingMode === "off") return;
     const tracingMode = buffer.tracingMode ?? threadMode(conversationId, details.settings);
     sendTurn(
       {

@@ -3,6 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it, vi } from "vitest";
 import type { HookNote, RunPatch, RunPost } from "@langchain/plugins-base/tracer";
+import { resolveTurnSteps } from "../src/conversation-steps.js";
 import { loadConfig } from "../src/config.js";
 import { buildTurnRuns, toolRunId, turnRunId } from "../src/langsmith.js";
 import { readLegacySessions } from "../src/legacy-sessions.js";
@@ -20,6 +21,10 @@ vi.mock("@langchain/plugins-base/storage/capture", () => ({
 }));
 vi.mock("../src/attachments.js", () => ({
   resolveTurnAttachments: () => [{ type: "text", text: "ATTACHED" }],
+}));
+vi.mock("../src/conversation-steps.js", async (original) => ({
+  ...(await original<typeof import("../src/conversation-steps.js")>()),
+  resolveTurnSteps: vi.fn(() => undefined),
 }));
 
 const CAPTURE = join(process.cwd(), "test/fixtures/cursor-hooks.jsonl");
@@ -250,6 +255,7 @@ describe("Cursor transcript builder", () => {
   });
 
   it("keeps a locked mute and skips a turn that started off", () => {
+    vi.mocked(resolveTurnSteps).mockClear();
     const locked = { ...SETTINGS, defaultMuted: true, locked: ["defaultMuted" as const] };
     const { posts, send } = fakeBuilder(locked);
     send(prompt("g1"), T0, "full");
@@ -259,6 +265,7 @@ describe("Cursor transcript builder", () => {
     send(tool("g2", "t2"), T0 + 3_000);
     send(stop("g2"), T0 + 4_000);
 
+    expect(resolveTurnSteps).toHaveBeenCalledTimes(1);
     expect(posts.length).toBe(4);
     expect(posts.every((run) => run.tracingMode === "metadata")).toBe(true);
   });

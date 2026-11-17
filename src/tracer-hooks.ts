@@ -11,7 +11,7 @@ import {
   LS_INTEGRATION,
   OFF_NOTES_WORKER_BYTES,
 } from "./constants.js";
-import { warn } from "./logger.js";
+import { initLogger, warn } from "./logger.js";
 import { readLegacySessions } from "./legacy-sessions.js";
 import { handlePromptSubmit } from "./prompt-control.js";
 import { createTranscriptBuilder } from "./tracer-builder.js";
@@ -102,8 +102,8 @@ export const NOTE_RUNNERS: Record<string, HookRunner> = {
 };
 
 export async function runTracerWorker(cwd: string | undefined): Promise<void> {
-  const config = initHook(cwd);
-  if (!config) return;
+  const config = loadConfig({ cwd });
+  initLogger(config.debug);
   const legacySessions = await readLegacySessions(config);
   await startTracerWorker({
     agentStateFolder: dirname(config.stateFilePath),

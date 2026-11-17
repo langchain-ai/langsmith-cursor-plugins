@@ -17,15 +17,22 @@ vi.mock("@langchain/plugins-base/plugin", async (original) => ({
   launchDetachedWorker: vi.fn(async () => 1),
 }));
 
+vi.mock("@langchain/plugins-base/tracer", async (original) => ({
+  ...(await original<typeof import("@langchain/plugins-base/tracer")>()),
+  startTracerWorker: vi.fn(async () => undefined),
+}));
+
 vi.mock("../src/tracing-engine.js", async (original) => ({
   ...(await original<typeof import("../src/tracing-engine.js")>()),
   runEngineWorker: vi.fn(async () => undefined),
 }));
 
 import { launchDetachedWorker } from "@langchain/plugins-base/plugin";
+import { startTracerWorker } from "@langchain/plugins-base/tracer";
+import { OFF_NOTES_WORKER_BYTES } from "../src/constants.js";
 import { readLegacySessions } from "../src/legacy-sessions.js";
 import { loadConfig } from "../src/config.js";
-import { NOTE_RUNNERS } from "../src/tracer-hooks.js";
+import { NOTE_RUNNERS, runTracerWorker } from "../src/tracer-hooks.js";
 import { runEngineWorker } from "../src/tracing-engine.js";
 import { setThreadTracingMode } from "../src/tracing-policy.js";
 import { readStdin } from "../src/utils/stdin.js";
@@ -94,14 +101,19 @@ describe("Cursor hook notes", () => {
     expect(launchDetachedWorker).toHaveBeenCalledTimes(1);
   });
 
-  it("starts the worker for off launches once their notes pass a megabyte", async () => {
+  it("starts the worker for off launches once their notes are due to rotate", async () => {
     vi.stubEnv("TRACE_TO_LANGSMITH", "false");
     const stop = { hook_event_name: "stop", conversation_id: "c1", generation_id: "g1" };
     await runHook("stop", stop);
     expect(launchDetachedWorker).not.toHaveBeenCalled();
-    appendFileSync(notesFile(), `${JSON.stringify({ padding: "x".repeat(1024 * 1024) })}\n`);
+    appendFileSync(
+      notesFile(),
+      `${JSON.stringify({ padding: "x".repeat(OFF_NOTES_WORKER_BYTES) })}\n`,
+    );
     await runHook("stop", stop);
     expect(launchDetachedWorker).toHaveBeenCalledTimes(1);
+    await runTracerWorker(dir);
+    expect(startTracerWorker).toHaveBeenCalledTimes(1);
   });
 });
 

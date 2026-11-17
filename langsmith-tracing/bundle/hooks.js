@@ -24482,7 +24482,7 @@ var HOOK_CONTINUE_OUTPUT = `${JSON.stringify({ continue: true })}
 `;
 var ENGINE_WORKER_COMMAND = "engine-worker";
 var DEVELOPMENT_VERSION = "development";
-var OFF_NOTES_WORKER_BYTES = 1024 * 1024;
+var OFF_NOTES_WORKER_BYTES = 10 * 1024 * 1024;
 var CURSOR_PROJECTS_FOLDER = "projects";
 var AGENT_TRANSCRIPTS_FOLDER = "agent-transcripts";
 var TRANSCRIPT_EXTENSION = ".jsonl";
@@ -29121,7 +29121,7 @@ var createTranscriptBuilder = ({ savedState, sink }) => {
       return;
     const { state: next, buffer, turnNum } = reduceStop(state.tracing, input, details.time);
     state.tracing = next;
-    if (buffer === void 0)
+    if (buffer === void 0 || buffer.tracingMode === "off")
       return;
     const tracingMode = buffer.tracingMode ?? threadMode(conversationId, details.settings);
     sendTurn({
@@ -29473,9 +29473,8 @@ var NOTE_RUNNERS = {
   [BINARY_HOOK_EVENTS.stop]: sendStopNote
 };
 async function runTracerWorker(cwd) {
-  const config = initHook(cwd);
-  if (!config)
-    return;
+  const config = loadConfig({ cwd });
+  initLogger(config.debug);
   const legacySessions = await readLegacySessions(config);
   await startTracerWorker({
     agentStateFolder: dirname22(config.stateFilePath),
