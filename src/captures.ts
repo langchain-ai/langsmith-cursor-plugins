@@ -105,7 +105,7 @@ function runSnapshot(run: RunTree, mode: CapturedRun["mode"]): NormalizedRunSnap
   ) as NormalizedRunSnapshot;
 }
 
-function metadataWithInherited({ run, metadata }: CapturedRun): CodingAgentMetadataOptions {
+export function metadataWithInherited({ run, metadata }: CapturedRun): CodingAgentMetadataOptions {
   const own = buildCodingAgentMetadata(metadata);
   const inherited = Object.fromEntries(
     Object.entries(run.extra?.metadata ?? {}).filter(([key]) => !(key in own)),

@@ -8,7 +8,7 @@ import type { SweepClaim, TracingMode, TurnMode } from "./models/types.js";
 import type { Config } from "./models/config.js";
 import type { SweepOptions } from "./models/sweep.js";
 
-function sweepTracingMode(buffered: TurnMode | undefined, policy: TracingMode): TracingMode {
+export function sweepTracingMode(buffered: TurnMode | undefined, policy: TracingMode): TracingMode {
   return buffered === "metadata" ? "metadata" : policy;
 }
 
