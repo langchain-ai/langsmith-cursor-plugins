@@ -11,6 +11,7 @@ import type {
   ReconstructionResult,
 } from "@langchain/plugins-base/tracing/reconstruction";
 import type { Config } from "./models/config.js";
+import type { BuilderSettings } from "./models/tracer-builder.js";
 import { rootPatch, turnCaptures, withRootDependency } from "./captures.js";
 import {
   CAPTURE_DUPLICATE_STATUS,
@@ -40,7 +41,8 @@ import { atomicUpdateState, readState } from "./state.js";
 import { buildToolRuns, buildTurnRuns, toolRunId, turnRunId } from "./langsmith.js";
 import type { ToolJobRef, UploadJobContext } from "./models/job-context.js";
 import type { BuildTurnOptions } from "./models/langsmith.js";
-import type { RecoveryReport, SavedCapture } from "./models/tracing-engine.js";
+import type { RecoveryReport, RepositoryBase, SavedCapture } from "./models/tracing-engine.js";
+import type { TurnBuffer } from "./models/types.js";
 import { debug, warn } from "./logger.js";
 import { isRecord } from "./normalize.js";
 import { toolOrigin } from "./tool-origin.js";
@@ -183,27 +185,17 @@ async function buildQueuedRuns(
       reduceChosenOutputs(s, ref, outputEventIds),
     );
   }
-  const attributor = attributorFor(config);
-  const allTools = [...buffer.tools, ...buffer.subagents.flatMap((sub) => sub.tools ?? [])];
-  const workspaceOf = (toolUseId: unknown) =>
-    allTools.find((tool) => tool.tool_use_id === toolUseId)?.workspace_root ?? cwd;
-  const toolOrigins = buffer.tools.map((tool) =>
-    toolOrigin(tool.input, tool.workspace_root ?? cwd),
-  );
+  const repositoryBase = repositoryMetadata(config, buffer, cwd);
   return {
     status: "ready",
     outputs: inputs.map(({ eventId, submission, turnEvidence, dependencies }) => {
       const { metadata } = submission;
-      const base =
+      const base = repositoryBase(
+        metadata.base,
         submission.operation === "post" && submission.run.run_type === "tool"
-          ? attributor.toolMetadata(
-              metadata.base,
-              toolOrigin(
-                submission.run.inputs?.input,
-                workspaceOf(submission.metadata.runSpecific?.tool_use_id),
-              ),
-            )
-          : attributor.turnMetadata(metadata.base, cwd, toolOrigins);
+          ? { input: submission.run.inputs?.input, toolUseId: metadata.runSpecific?.tool_use_id }
+          : undefined,
+      );
       return {
         eventId,
         submission: { ...submission, metadata: { ...metadata, base: base ?? metadata.base } },
@@ -214,11 +206,29 @@ async function buildQueuedRuns(
   };
 }
 
-function attributorFor(config: Config): RepositoryAttributor {
+function attributorFor(config: BuilderSettings): RepositoryAttributor {
   attributor ??= createRepositoryAttributor({
     githubLoginMarkerPath: join(dirname(config.stateFilePath), GH_LOGIN_MARKER_FILE),
   });
   return attributor;
+}
+
+export function repositoryMetadata(
+  config: BuilderSettings,
+  buffer: TurnBuffer,
+  cwd: string,
+): RepositoryBase {
+  const attributor = attributorFor(config);
+  const allTools = [...buffer.tools, ...buffer.subagents.flatMap((sub) => sub.tools ?? [])];
+  const workspaceOf = (toolUseId: unknown) =>
+    allTools.find((tool) => tool.tool_use_id === toolUseId)?.workspace_root ?? cwd;
+  const toolOrigins = buffer.tools.map((tool) =>
+    toolOrigin(tool.input, tool.workspace_root ?? cwd),
+  );
+  return (base, tool) =>
+    tool
+      ? attributor.toolMetadata(base, toolOrigin(tool.input, workspaceOf(tool.toolUseId)))
+      : attributor.turnMetadata(base, cwd, toolOrigins);
 }
 
 async function turnInputs(

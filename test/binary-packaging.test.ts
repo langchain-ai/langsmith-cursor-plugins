@@ -52,7 +52,7 @@ it("names every built file that carries the version, so a stale one stops the re
 describe("the caller workflow", () => {
   it("builds with the same release of the shared pipeline the repository installs", () => {
     const [, commit, tag] =
-      /uses: langchain-ai\/langsmith-plugin-binary\/\S+@([0-9a-f]{40})(?: # v(\d+\.\d+\.\d+))?/.exec(
+      /uses: langchain-ai\/langsmith-plugins-base\/\S+@([0-9a-f]{40})(?: # v(\d+\.\d+\.\d+))?/.exec(
         workflow,
       ) ?? [];
     const { devDependencies } = JSON.parse(read("package.json")) as {
@@ -61,10 +61,10 @@ describe("the caller workflow", () => {
 
     expect(commit).toBeDefined();
     expect(devDependencies["@langchain/plugins-base"]).toBe(
-      tag ?? `github:langchain-ai/langsmith-plugin-binary#${commit}`,
+      tag ?? `github:langchain-ai/langsmith-plugins-base#${commit}`,
     );
     expect(lockfile).toContain(
-      tag ? `'@langchain/plugins-base@${tag}':` : `langsmith-plugin-binary/tar.gz/${commit}`,
+      tag ? `'@langchain/plugins-base@${tag}':` : `langsmith-plugins-base/tar.gz/${commit}`,
     );
   });
 

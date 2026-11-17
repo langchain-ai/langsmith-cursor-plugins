@@ -199,3 +199,17 @@ export const CAPTURE_DUPLICATE_STATUS = "duplicate";
 export const TURN_ON_OTHER_ACCOUNT_MESSAGE = "its first runs were saved under another API key";
 
 export const SQLITE_EXPERIMENTAL_WARNING = /^SQLite is an experimental feature/;
+
+export const BUILDER_STATE_VERSION = 1;
+
+export const NOTE_EVENTS = {
+  sessionStart: "sessionStart",
+  beforeSubmitPrompt: "beforeSubmitPrompt",
+  postToolUse: "postToolUse",
+  postToolUseFailure: "postToolUseFailure",
+  afterAgentResponse: "afterAgentResponse",
+  afterAgentThought: "afterAgentThought",
+  subagentStart: "subagentStart",
+  subagentStop: "subagentStop",
+  stop: "stop",
+} as const;
