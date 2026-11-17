@@ -150,6 +150,18 @@ export const HOOK_CONTINUE_OUTPUT = `${JSON.stringify({ continue: true })}\n`;
 
 export const ENGINE_WORKER_COMMAND = "engine-worker";
 
+export const DEVELOPMENT_VERSION = "development";
+
+export const OFF_NOTES_WORKER_BYTES = 10 * 1024 * 1024;
+
+export const CURSOR_PROJECTS_FOLDER = "projects";
+
+export const AGENT_TRANSCRIPTS_FOLDER = "agent-transcripts";
+
+export const TRANSCRIPT_EXTENSION = ".jsonl";
+
+export const WORKSPACE_FOLDER_SEPARATORS = /[^A-Za-z0-9]+/;
+
 export const ENGINE_STORAGE_DIR_NAME = "langsmith_engine";
 
 export const JOB_EVENT_PREFIX = "cursor-job:";
@@ -199,6 +211,7 @@ export const CAPTURE_DUPLICATE_STATUS = "duplicate";
 export const TURN_ON_OTHER_ACCOUNT_MESSAGE = "its first runs were saved under another API key";
 
 export const SQLITE_EXPERIMENTAL_WARNING = /^SQLite is an experimental feature/;
+export const RUN_POST_EVENT_KIND = "run-post";
 
 export const BUILDER_STATE_VERSION = 1;
 
