@@ -23,6 +23,7 @@ import {
   DEFAULT_API_URL,
   DEFAULT_PROJECT,
   DEFAULT_SWEEP_IDLE_MINUTES,
+  DEVELOPMENT_VERSION,
   MANAGED_PLUGIN_FIELDS,
   STATE_FILE_NAME,
 } from "./constants.js";
@@ -38,6 +39,8 @@ export const LS_INTEGRATION_VERSION: string | undefined =
   typeof __LS_INTEGRATION_VERSION__ !== "undefined"
     ? __LS_INTEGRATION_VERSION__
     : process.env.LANGSMITH_CURSOR_INTEGRATION_VERSION || undefined;
+
+export const PLUGIN_VERSION = LS_INTEGRATION_VERSION ?? DEVELOPMENT_VERSION;
 
 /** Type guard for a user redaction rule: { pattern: string, replace?: string }. */
 function isRedactRule(rule: unknown): rule is CommonRedactRule {

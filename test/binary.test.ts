@@ -6,7 +6,8 @@ import { join } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import { fileURLToPath } from "node:url";
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from "vitest";
-import { waitForWorkers } from "./utils/engine.js";
+import { STATE_FILE_NAME } from "../src/constants.js";
+import { stopWorkers, waitForWorkers } from "./utils/engine.js";
 import { PLUGIN_DIRECTORY_NAME } from "./utils/plugin-layout.js";
 
 const root = new URL("../", import.meta.url);
@@ -87,7 +88,7 @@ function run(
       TMPDIR: process.env.TMPDIR ?? "/tmp",
       HOME: home,
       LANGSMITH_CURSOR_LOG_FILE: join(home, "hook.log"),
-      LANGSMITH_CURSOR_STATE_FILE: join(home, "state.json"),
+      LANGSMITH_CURSOR_STATE_FILE: join(home, STATE_FILE_NAME),
       NODE_OPTIONS: process.env.NODE_OPTIONS ?? "",
       LS_TEST_ACCOUNT_HOME: process.env.LS_TEST_ACCOUNT_HOME ?? "",
       ...extraEnv,
@@ -114,7 +115,7 @@ function stopATracedTurn(withImage: boolean, command?: string[]) {
   const imagePath = join(home, "shot.png");
   writeFileSync(imagePath, PNG);
   seedDatabase(dbPath, withImage ? imagePath : undefined);
-  seedState(join(home, "state.json"));
+  seedState(join(home, STATE_FILE_NAME));
 
   return run(
     ["stop"],
@@ -172,6 +173,7 @@ beforeEach(() => {
 });
 
 afterEach(async () => {
+  stopWorkers(home);
   await waitForWorkers(home);
   rmSync(home, { recursive: true, force: true, maxRetries: 50, retryDelay: 100 });
 });

@@ -1,15 +1,23 @@
-import { mkdtempSync, readFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it, vi } from "vitest";
 import type { HookNote, RunPatch, RunPost } from "@langchain/plugins-base/tracer";
-import { buildTurnRuns, turnRunId } from "../src/langsmith.js";
+import { loadConfig } from "../src/config.js";
+import { buildTurnRuns, toolRunId, turnRunId } from "../src/langsmith.js";
+import { readLegacySessions } from "../src/legacy-sessions.js";
+import { reduceBeforeSubmitPrompt, reducePostToolUse } from "../src/reducer.js";
 import { createTranscriptBuilder } from "../src/tracer-builder.js";
 import { setThreadTracingMode } from "../src/tracing-policy.js";
 import type { BuilderSettings, CursorHookInput } from "../src/models/tracer-builder.js";
+import type { BeforeSubmitPromptInput, PostToolUseInput } from "../src/models/types.js";
 import { MINUTE, T0 } from "./utils/state.js";
 import { replayHookLog } from "./utils/replay.js";
 
+const oldCaptures = vi.hoisted(() => ({ records: [] as unknown[] }));
+vi.mock("@langchain/plugins-base/storage/capture", () => ({
+  createCaptureStore: () => ({ enumerateTurn: async () => oldCaptures.records }),
+}));
 vi.mock("../src/attachments.js", () => ({
   resolveTurnAttachments: () => [{ type: "text", text: "ATTACHED" }],
 }));
@@ -190,6 +198,55 @@ describe("Cursor transcript builder", () => {
       turnRunId("c1", "g1"),
       turnRunId("c1", "g2"),
     ]);
+  });
+
+  it("traces a turn whose prompt ran on the old build in the user's configured mode", () => {
+    const privacy = join(mkdtempSync(join(tmpdir(), "builder privacy ")), "privacy.json");
+    vi.stubEnv("LANGSMITH_CURSOR_PRIVACY_FILE", privacy);
+    const { posts, send } = fakeBuilder();
+    send(tool("g1", "t1"), T0);
+    send(stop("g1"), T0 + 1_000);
+    vi.unstubAllEnvs();
+
+    expect(posts.map((run) => [run.run_type, run.tracingMode]).sort()).toEqual([
+      ["chain", "full"],
+      ["llm", "full"],
+      ["llm", "full"],
+      ["tool", "full"],
+    ]);
+  });
+
+  it("finishes a turn the old build started from the runs it already sent", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "builder upgrade "));
+    vi.stubEnv("HOME", dir);
+    vi.stubEnv("LANGSMITH_CURSOR_STATE_FILE", join(dir, "langsmith_state.json"));
+    const origin = { project: "p", customMetadata: { cwd: "/repo" } };
+    const begun = prompt("g1") as BeforeSubmitPromptInput;
+    let oldState = reduceBeforeSubmitPrompt({}, begun, T0, "full", origin);
+    for (const id of ["t1", "t2"])
+      oldState = reducePostToolUse(oldState, tool("g1", id) as PostToolUseInput, T0 + 500);
+    writeFileSync(join(dir, "langsmith_state.json"), JSON.stringify(oldState));
+    const buffer = oldState.c1.turns.g1;
+    const [sentTool, queuedTool] = [0, 1].map((index) => toolRunId("c1", buffer, index));
+    const delivered = { outcomes: { sent: {} } };
+    oldCaptures.records = [
+      { record: { eventKind: "run-post", runId: turnRunId("c1", "g1") } },
+      { record: { eventKind: "run-post", runId: sentTool, delivery: delivered } },
+      { record: { eventKind: "run-post", runId: queuedTool } },
+    ];
+
+    const sessions = await readLegacySessions(loadConfig({ cwd: "/repo" }));
+    vi.unstubAllEnvs();
+    const seed = sessions.find((session) => session.sessionId === "/repo");
+    const { posts, patches, send } = fakeBuilder(SETTINGS, seed?.openTurn?.builderState);
+    send(tool("g1", "t3"), T0 + 1_000);
+    send(stop("g1"), T0 + 2_000);
+
+    expect(posts.map((run) => run.run_type).sort()).toEqual(["llm", "llm", "tool", "tool"]);
+    expect(posts.map((run) => run.id)).toContain(queuedTool);
+    expect(patches.map((patch) => patch.id).sort()).toEqual(
+      [turnRunId("c1", "g1"), sentTool].sort(),
+    );
   });
 
   it("keeps a locked mute and skips a turn that started off", () => {

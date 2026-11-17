@@ -13,7 +13,8 @@ import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { spawnSync } from "node:child_process";
 import { getThreadTracingMode } from "../src/tracing-policy.js";
-import { loadState } from "./utils/state.js";
+import { loadNotedState, loadState } from "./utils/state.js";
+import { stopWorkers } from "./utils/engine.js";
 import { PLUGIN_DIRECTORY_NAME } from "./utils/plugin-layout.js";
 import { MIN_NODE } from "../src/utils/node-version.js";
 
@@ -38,7 +39,10 @@ beforeEach(() => {
     LANGSMITH_CURSOR_LOG_FILE: join(dir, "hook.log"),
   });
 });
-afterEach(() => rmSync(dir, { recursive: true, force: true }));
+afterEach(() => {
+  stopWorkers(dir);
+  rmSync(dir, { recursive: true, force: true });
+});
 
 function submit(prompt: string, generation_id = "generation", cwd = dir) {
   return submitWith({ prompt, generation_id, cwd });
@@ -186,7 +190,7 @@ it.each([
   "langsmith-tracing:mute\n",
 ])("does not interpret %j", (prompt) => {
   expect(submit(prompt).continue).toBe(true);
-  expect(loadState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns.generation.tracingMode).toBe(
+  expect(loadNotedState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns.generation.tracingMode).toBe(
     "off",
   );
   expect(getThreadTracingMode(env.LANGSMITH_CURSOR_PRIVACY_FILE!, "thread")).toBe("full");
@@ -201,14 +205,14 @@ it("snapshots next turns, not active/duplicate generations; preferences outlive 
   submit("langsmith-tracing:unmute", "control2");
   submit("duplicate must not overwrite", "two");
   submit("third", "three");
-  const turns = loadState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns;
+  const turns = loadNotedState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns;
   expect(Object.keys(turns)).toEqual(["one", "two", "three"]);
   expect(Object.values(turns).map((t) => t.tracingMode)).toEqual(["full", "metadata", "full"]);
   expect(turns.two.prompt).toBe("private");
   submit("langsmith-tracing:mute");
-  rmSync(env.LANGSMITH_CURSOR_STATE_FILE!);
+  rmSync(env.LANGSMITH_CURSOR_STATE_FILE!, { force: true });
   submit("after pruning", "four");
-  expect(loadState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns.four.tracingMode).toBe(
+  expect(loadNotedState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns.four.tracingMode).toBe(
     "metadata",
   );
 });
@@ -220,7 +224,7 @@ it("records the project and repo the turn was launched in", () => {
 
   submit("launched here", "one");
 
-  const origin = loadState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns.one.origin;
+  const origin = loadNotedState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns.one.origin;
   expect(origin?.project).toBe("the-window-that-typed-it");
   expect(origin?.customMetadata?.cwd).toBe(dir);
 });
@@ -234,7 +238,7 @@ it("blocks both controls on corrupt preference; ordinary work gets metadata fall
     expect(readFileSync(env.LANGSMITH_CURSOR_PRIVACY_FILE!, "utf8")).toBe("broken");
   }
   expect(submit("work").continue).toBe(true);
-  expect(loadState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns.generation.tracingMode).toBe(
+  expect(loadNotedState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns.generation.tracingMode).toBe(
     "metadata",
   );
 });
@@ -304,20 +308,20 @@ it.each(["master-off", "no-credentials"] as const)(
       Object.assign(env, { TRACE_TO_LANGSMITH: "true", LANGSMITH_CURSOR_NOTICE_COOLDOWN: "off" });
     // Ordinary disabled Stop without a launch is also a no-upload no-op.
     event("stop", "missing");
-    expect(loadState(env.LANGSMITH_CURSOR_STATE_FILE!)).toEqual({});
+    expect(loadNotedState(env.LANGSMITH_CURSOR_STATE_FILE!)).toEqual({});
     submit("OFF_PRIVATE", "one");
     submit("OFF_PRIVATE", "two");
-    let state = loadState(env.LANGSMITH_CURSOR_STATE_FILE!);
+    let state = loadNotedState(env.LANGSMITH_CURSOR_STATE_FILE!);
     expect(Object.values(state.thread.turns).map((t) => t.tracingMode)).toEqual(["off", "off"]);
     event("stop", "one", { status: "completed" });
-    state = loadState(env.LANGSMITH_CURSOR_STATE_FILE!);
+    state = loadNotedState(env.LANGSMITH_CURSOR_STATE_FILE!);
     expect(Object.keys(state.thread.turns)).toEqual(["two"]);
     expect(state.thread.turn_count).toBe(1);
     expect(state.thread.completedOffGenerations).toEqual(["one"]);
     event("stop", "one");
-    expect(loadState(env.LANGSMITH_CURSOR_STATE_FILE!)).toEqual(state);
+    expect(loadNotedState(env.LANGSMITH_CURSOR_STATE_FILE!)).toEqual(state);
     event("stop", "two");
-    expect(loadState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns).toEqual({});
+    expect(loadNotedState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns).toEqual({});
     // Enable upload later: delayed hooks and duplicate submission still cannot recreate content.
     env.TRACE_TO_LANGSMITH = "true";
     env.LANGSMITH_API_KEY = "test";
@@ -341,18 +345,18 @@ it.each(["master-off", "no-credentials"] as const)(
       task: "LATE_PRIVATE",
     });
     event("stop", "one");
-    state = loadState(env.LANGSMITH_CURSOR_STATE_FILE!);
+    state = loadNotedState(env.LANGSMITH_CURSOR_STATE_FILE!);
     expect(state.thread.turns).toEqual({});
     expect(state.thread.turn_count).toBe(2);
     expect(JSON.stringify(state)).not.toContain("PRIVATE");
     // Do not change the pre-existing lifecycle for enabled launches when uploads
     // are later disabled: this cleanup path is deliberately off-snapshot-only.
     submit("public", "full");
-    const beforeDisabledStop = loadState(env.LANGSMITH_CURSOR_STATE_FILE!);
+    const beforeDisabledStop = loadNotedState(env.LANGSMITH_CURSOR_STATE_FILE!);
     if (disabled === "master-off") env.TRACE_TO_LANGSMITH = "false";
     else delete env.LANGSMITH_API_KEY;
     event("stop", "full");
-    expect(loadState(env.LANGSMITH_CURSOR_STATE_FILE!)).toEqual(beforeDisabledStop);
+    expect(loadNotedState(env.LANGSMITH_CURSOR_STATE_FILE!)).toEqual(beforeDisabledStop);
     expect(() => readFileSync(join(dir, "unexpected-io"))).toThrow();
   },
   15000,
@@ -368,7 +372,7 @@ it("a newly muted preference does not mute an explicitly proven full subagent la
     subagent_type: "explore",
     task: "full task",
   });
-  const turn = loadState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns.one;
+  const turn = loadNotedState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns.one;
   expect(turn.tracingMode).toBe("full");
   expect(turn.subagents[0].tracingMode).toBe("full");
   expect(getThreadTracingMode(env.LANGSMITH_CURSOR_PRIVACY_FILE!, "thread")).toBe("metadata");
@@ -385,7 +389,7 @@ it("config changes affect only new unoverridden generations and preserve child l
   submit("public", "two");
   env.LANGSMITH_CURSOR_DEFAULT_MUTED = "true";
   event("subagentStart", "two", { subagent_id: "full-sub", subagent_type: "explore" });
-  const turns = loadState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns;
+  const turns = loadNotedState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns;
   expect(turns.one.tracingMode).toBe("metadata");
   expect(turns.one.subagents[0].tracingMode).toBe("metadata");
   expect(turns.two.tracingMode).toBe("full");
@@ -394,11 +398,13 @@ it("config changes affect only new unoverridden generations and preserve child l
 
   submit("langsmith-tracing:unmute", "control");
   submit("explicit full", "three");
-  expect(loadState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns.three.tracingMode).toBe("full");
+  expect(loadNotedState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns.three.tracingMode).toBe(
+    "full",
+  );
   submit("langsmith-tracing:mute", "control");
   env.LANGSMITH_CURSOR_DEFAULT_MUTED = "false";
   submit("explicit mute", "four");
-  expect(loadState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns.four.tracingMode).toBe(
+  expect(loadNotedState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns.four.tracingMode).toBe(
     "metadata",
   );
   expect(JSON.parse(readFileSync(env.LANGSMITH_CURSOR_PRIVACY_FILE!, "utf8"))).toEqual({
@@ -415,7 +421,7 @@ it("uses payload workspace config rather than hook cwd, with per-field env fallt
   const hookCwd = join(dir, "hook-install");
   mkdirSync(hookCwd);
   expect(submit("project mute", "generation", hookCwd).continue).toBe(true);
-  expect(loadState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns.generation.tracingMode).toBe(
+  expect(loadNotedState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns.generation.tracingMode).toBe(
     "metadata",
   );
   expect(existsSync(env.LANGSMITH_CURSOR_PRIVACY_FILE!)).toBe(false);
@@ -440,7 +446,7 @@ it("registered hooks honor workspace root master-off over user and harness over 
   );
   env.CURSOR_PROJECT_DIR = hookCwd;
   expect(submit("root off", "off", hookCwd).continue).toBe(true);
-  expect(loadState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns.off.tracingMode).toBe("off");
+  expect(loadNotedState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns.off.tracingMode).toBe("off");
   // Root master-off must suppress Stop uploads as well as prompt snapshots.
   const tripwire = join(dir, "root-tripwire.mjs");
   writeFileSync(
@@ -452,11 +458,11 @@ it("registered hooks honor workspace root master-off over user and harness over 
   );
   env.NODE_OPTIONS = `--import=${tripwire}`;
   event("stop", "off", { status: "completed" });
-  expect(loadState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns).toEqual({});
+  expect(loadNotedState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns).toEqual({});
   mkdirSync(join(dir, ".cursor"));
   writeFileSync(join(dir, ".cursor", "langsmith.json"), JSON.stringify({ enabled: true }));
   submit("root default mute", "muted", hookCwd);
-  expect(loadState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns.muted.tracingMode).toBe(
+  expect(loadNotedState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns.muted.tracingMode).toBe(
     "metadata",
   );
   writeFileSync(
@@ -464,11 +470,13 @@ it("registered hooks honor workspace root master-off over user and harness over 
     JSON.stringify({ enabled: true, defaultMuted: false }),
   );
   submit("harness wins", "full", hookCwd);
-  expect(loadState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns.full.tracingMode).toBe("full");
+  expect(loadNotedState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns.full.tracingMode).toBe(
+    "full",
+  );
   rmSync(join(dir, ".cursor", "langsmith.json"));
-  const beforeStop = loadState(env.LANGSMITH_CURSOR_STATE_FILE!);
+  const beforeStop = loadNotedState(env.LANGSMITH_CURSOR_STATE_FILE!);
   event("stop", "full", { status: "completed" });
-  expect(loadState(env.LANGSMITH_CURSOR_STATE_FILE!)).toEqual(beforeStop);
+  expect(loadNotedState(env.LANGSMITH_CURSOR_STATE_FILE!)).toEqual(beforeStop);
   expect(existsSync(join(dir, "unexpected-upload"))).toBe(false);
 });
 
@@ -480,17 +488,23 @@ it.each([JSON.stringify({ enabled: false, defaultMuted: true }), "{malformed"])(
     env.LANGSMITH_CURSOR_DEFAULT_MUTED = "false";
     writeFileSync(join(dir, "langsmith.json"), raw);
     submit("old app config ignored", "old");
-    expect(loadState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns.old.tracingMode).toBe("full");
+    expect(loadNotedState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns.old.tracingMode).toBe(
+      "full",
+    );
     writeFileSync(join(dir, "langsmith-plugins.json"), JSON.stringify({ enabled: false }));
     submit("environment intentionally overrides root", "env");
-    expect(loadState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns.env.tracingMode).toBe("full");
+    expect(loadNotedState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns.env.tracingMode).toBe(
+      "full",
+    );
     delete env.TRACE_TO_LANGSMITH;
     submit("new root honored", "root");
-    expect(loadState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns.root.tracingMode).toBe("off");
+    expect(loadNotedState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns.root.tracingMode).toBe(
+      "off",
+    );
     mkdirSync(join(dir, ".cursor"));
     writeFileSync(join(dir, ".cursor", "langsmith.json"), JSON.stringify({ enabled: true }));
     submit("harness overrides root", "harness");
-    expect(loadState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns.harness.tracingMode).toBe(
+    expect(loadNotedState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns.harness.tracingMode).toBe(
       "full",
     );
   },
@@ -508,7 +522,7 @@ it.each([JSON.stringify({ enabled: true, defaultMuted: true }), "{malformed"])(
     env.USERPROFILE = home;
     writeFileSync(join(home, "langsmith-plugins.json"), raw);
     const mode = (generation: string) =>
-      loadState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns[generation].tracingMode;
+      loadNotedState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns[generation].tracingMode;
     submit("old home ignored", "old-home");
     expect(mode("old-home")).toBe("off");
     writeFileSync(
@@ -878,7 +892,7 @@ it("records the turn for an event with no prompt", () => {
     }),
   );
   expect(JSON.parse(result.stdout)).toEqual({ continue: true });
-  expect(Object.keys(loadState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns)).toEqual([
+  expect(Object.keys(loadNotedState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns)).toEqual([
     "no-prompt",
   ]);
 });
