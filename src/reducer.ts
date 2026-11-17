@@ -120,7 +120,7 @@ export function reduceBeforeSubmitPrompt(
   turn.model = input.model;
   setOwnEntry(conv.turns, input.generation_id, turn);
   touch(conv);
-  return pruneOldConversations({ ...state, [input.conversation_id]: conv });
+  return pruneOldConversations({ ...state, [input.conversation_id]: conv }, nowMs);
 }
 
 export function reducePostToolUse(

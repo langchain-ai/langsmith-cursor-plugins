@@ -178,6 +178,20 @@ describe("Cursor transcript builder", () => {
     expect(patches).toEqual([]);
   });
 
+  it("keeps a conversation's open turn when its notes arrive more than a day late", () => {
+    const { posts, send } = fakeBuilder();
+    send(prompt("g1"), T0, "full");
+    send(prompt("g2"), T0 + 1_000, "full");
+    send(stop("g1"), T0 + 2_000);
+    send({ ...prompt("g3"), conversation_id: "c2" }, T0 + 3_000, "full");
+    send(stop("g2"), T0 + 4_000);
+
+    expect(posts.filter((run) => run.run_type === "chain").map((run) => run.id)).toEqual([
+      turnRunId("c1", "g1"),
+      turnRunId("c1", "g2"),
+    ]);
+  });
+
   it("keeps a locked mute and skips a turn that started off", () => {
     const locked = { ...SETTINGS, defaultMuted: true, locked: ["defaultMuted" as const] };
     const { posts, send } = fakeBuilder(locked);

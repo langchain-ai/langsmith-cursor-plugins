@@ -27064,7 +27064,7 @@ function reduceBeforeSubmitPrompt(state, input, nowMs, mode = "full", origin) {
   turn.model = input.model;
   setOwnEntry(conv.turns, input.generation_id, turn);
   touch(conv);
-  return pruneOldConversations({ ...state, [input.conversation_id]: conv });
+  return pruneOldConversations({ ...state, [input.conversation_id]: conv }, nowMs);
 }
 function reducePostToolUse(state, input, nowMs) {
   const conv = getConversationState(state, input.conversation_id);
