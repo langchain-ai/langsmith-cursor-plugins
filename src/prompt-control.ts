@@ -31,6 +31,8 @@ import type {
   PromptReply,
   SetupSignIn,
   TracingMode,
+  TurnMode,
+  TurnStarter,
 } from "./models/types.js";
 
 function requireNativeIds(input: BeforeSubmitPromptInput): void {
@@ -120,8 +122,21 @@ const COMMAND_HANDLERS: Record<PromptCommandName, PromptCommandHandler<BeforeSub
   unmute: logFailure((_argumentText, input) => saveThreadMode(input, "full")),
 };
 
+async function saveTurnSnapshot(
+  input: BeforeSubmitPromptInput,
+  config: Config,
+  mode: TurnMode,
+): Promise<void> {
+  await atomicUpdateState(config.stateFilePath, (s) =>
+    reduceBeforeSubmitPrompt(s, input, Date.now(), mode, originFromConfig(config, input)),
+  );
+}
+
 /** Synchronous command hook contract, not an LLM skill or slash-command expansion. */
-export async function handlePromptSubmit(input: BeforeSubmitPromptInput): Promise<PromptReply> {
+export async function handlePromptSubmit(
+  input: BeforeSubmitPromptInput,
+  startTurn: TurnStarter = saveTurnSnapshot,
+): Promise<PromptReply> {
   const command =
     typeof input.prompt === "string"
       ? matchPromptCommand(input.prompt, PROMPT_COMMANDS)
@@ -147,15 +162,7 @@ export async function handlePromptSubmit(input: BeforeSubmitPromptInput): Promis
     if (notice && untraced && config.strictAuth)
       return { continue: false, user_message: notice.text };
     if (notice) logWarn(notice.text);
-    await atomicUpdateState(config.stateFilePath, (s) =>
-      reduceBeforeSubmitPrompt(
-        s,
-        input,
-        Date.now(),
-        enabled ? mode : "off",
-        originFromConfig(config, input),
-      ),
-    );
+    await startTurn(input, config, enabled ? mode : "off");
     return { continue: true };
   } catch (error) {
     logUntraced(errorDetail(error));

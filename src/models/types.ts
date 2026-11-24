@@ -5,7 +5,9 @@
 
 import type { UploadCredential } from "@langchain/plugins-base/auth";
 import type { SetupState } from "@langchain/plugins-base/settings";
+import type { LegacyOpenTurn, LegacySession } from "@langchain/plugins-base/tracer";
 import type { PROMPT_COMMANDS } from "../constants.js";
+import type { Config } from "./config.js";
 import type { UploadJobContext } from "./job-context.js";
 
 // ─── Multimodal content ──────────────────────────────────────────────────────
@@ -44,6 +46,12 @@ export interface BeforeSubmitPromptInput extends HookInputBase {
   attachments?: unknown[];
   composer_mode?: string;
 }
+
+export type TurnStarter = (
+  input: BeforeSubmitPromptInput,
+  config: Config,
+  mode: TurnMode,
+) => Promise<void>;
 
 export interface PromptReply {
   continue: boolean;
@@ -276,3 +284,10 @@ export interface SweepClaim {
 export type SetupSignIn = Pick<SetupState, "signIn" | "credentialProblem">;
 
 export type PromptCommandName = (typeof PROMPT_COMMANDS)[number]["name"];
+
+export type SeededSession = LegacySession & { openTurn: LegacyOpenTurn };
+
+export interface SentRuns {
+  runIds: string[];
+  atMs: number;
+}

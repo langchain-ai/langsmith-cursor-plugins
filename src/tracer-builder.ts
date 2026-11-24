@@ -53,11 +53,15 @@ import type {
   TurnOrigin,
 } from "./models/types.js";
 
+export function emptyBuilderState(): BuilderState {
+  return { version: BUILDER_STATE_VERSION, tracing: {}, posted: {} };
+}
+
 function restoredState(saved: unknown): BuilderState {
   const candidate = saved as Partial<BuilderState> | undefined;
   return candidate?.version === BUILDER_STATE_VERSION
     ? (candidate as BuilderState)
-    : { version: BUILDER_STATE_VERSION, tracing: {}, posted: {} };
+    : emptyBuilderState();
 }
 
 export const createTranscriptBuilder: CreateTranscriptBuilder = ({ savedState, sink }) => {
@@ -137,11 +141,16 @@ export const createTranscriptBuilder: CreateTranscriptBuilder = ({ savedState, s
     if (saved === undefined) post(root, repositoryBase, details.time);
     let posted = 0;
     for (const child of children) {
-      if (state.posted[child.run.id] !== undefined) continue;
+      const sent = state.posted[child.run.id];
+      if (sent?.closed === false) patchRoot(child, repositoryBase);
+      if (sent !== undefined) continue;
       post(child, repositoryBase, details.time);
       posted += 1;
     }
-    if (saved !== undefined && (!saved.closed || posted === 0)) patchRoot(root, repositoryBase);
+    if (saved !== undefined && (!saved.closed || posted === 0)) {
+      patchRoot(root, repositoryBase);
+      saved.closed = root.run.end_time !== undefined;
+    }
   }
 
   function sendLiveTool(input: PostToolUseInput | PostToolUseFailureInput, details: NoteDetails) {
@@ -161,16 +170,43 @@ export const createTranscriptBuilder: CreateTranscriptBuilder = ({ savedState, s
       if (state.posted[captured.run.id] === undefined) post(captured, repositoryBase, details.time);
   }
 
-  function stopTurn(input: StopInput, details: NoteDetails): void {
+  function threadMode(conversationId: string, settings: BuilderSettings) {
+    return getThreadTracingMode(
+      tracingPolicyPath(),
+      conversationId,
+      settings.defaultMuted,
+      mutingLocked(settings),
+    );
+  }
+
+  function closeRoot(turn: TurnToSend, details: NoteDetails): void {
+    const buffer = withLockedMute(turn.buffer, details.settings);
+    const [root] = buildTurnRuns({
+      ...turnOptions(turn.conversationId, buffer, turn.turnNum, turn.origin),
+      savedAtMs: turn.savedAtMs,
+    });
+    if (root === undefined || state.posted[root.run.id]?.closed !== false) return;
+    const repositoryBase = turnRepositoryBase(buffer, turn.origin, details.settings);
+    const { inputs: _inputs, outputs: _outputs, ...run } = runPost(root, repositoryBase);
+    sink.patch(run);
+  }
+
+  function stopTurn(input: StopInput, details: NoteDetails, mode: HookNote["tracingMode"]): void {
+    const { conversation_id: conversationId, generation_id: generationId } = input;
     const { state: next, buffer, turnNum } = reduceStop(state.tracing, input, details.time);
     state.tracing = next;
-    if (buffer === undefined) return;
-    const { conversation_id: conversationId, generation_id: generationId } = input;
-    const origin = details.origin;
-    sendTurn(
-      { conversationId, buffer, turnNum, origin, savedAtMs: details.time, enrich: true },
-      details,
-    );
+    if (buffer === undefined || buffer.tracingMode === "off") return;
+    const tracingMode = buffer.tracingMode ?? threadMode(conversationId, details.settings);
+    const turn: TurnToSend = {
+      conversationId,
+      buffer: { ...buffer, tracingMode },
+      turnNum,
+      origin: details.origin,
+      savedAtMs: details.time,
+      enrich: true,
+    };
+    if (mode === "off") closeRoot(turn, details);
+    else sendTurn(turn, details);
     state.tracing = reduceSavedForUpload(state.tracing, conversationId, generationId, details.time);
   }
 
@@ -184,12 +220,7 @@ export const createTranscriptBuilder: CreateTranscriptBuilder = ({ savedState, s
     );
     state.tracing = next;
     for (const claim of claims) {
-      const policy = getThreadTracingMode(
-        tracingPolicyPath(),
-        claim.conversationId,
-        settings.defaultMuted,
-        mutingLocked(settings),
-      );
+      const policy = threadMode(claim.conversationId, settings);
       const tracingMode = sweepTracingMode(claim.buffer.tracingMode, policy);
       sendTurn(
         {
@@ -257,7 +288,7 @@ export const createTranscriptBuilder: CreateTranscriptBuilder = ({ savedState, s
         return;
       }
       case NOTE_EVENTS.stop:
-        stopTurn(details.input as StopInput, details);
+        stopTurn(details.input as StopInput, details, mode);
         return;
     }
   }
