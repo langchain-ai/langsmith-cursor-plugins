@@ -20,7 +20,7 @@ import {
   reduceSubagentStop,
   reduceSweep,
 } from "./reducer.js";
-import { getTurnBuffer, pruneOldConversations } from "./state.js";
+import { pruneOldConversations } from "./state.js";
 import { resolveSubagentTranscript } from "./subagent-transcript.js";
 import { sweepTracingMode } from "./sweep.js";
 import { repositoryMetadata } from "./tracing-engine.js";
@@ -147,7 +147,10 @@ export const createTranscriptBuilder: CreateTranscriptBuilder = ({ savedState, s
       post(child, repositoryBase, details.time);
       posted += 1;
     }
-    if (saved !== undefined && (!saved.closed || posted === 0)) patchRoot(root, repositoryBase);
+    if (saved !== undefined && (!saved.closed || posted === 0)) {
+      patchRoot(root, repositoryBase);
+      saved.closed = root.run.end_time !== undefined;
+    }
   }
 
   function sendLiveTool(input: PostToolUseInput | PostToolUseFailureInput, details: NoteDetails) {
@@ -176,25 +179,34 @@ export const createTranscriptBuilder: CreateTranscriptBuilder = ({ savedState, s
     );
   }
 
+  function closeRoot(turn: TurnToSend, details: NoteDetails): void {
+    const buffer = withLockedMute(turn.buffer, details.settings);
+    const [root] = buildTurnRuns({
+      ...turnOptions(turn.conversationId, buffer, turn.turnNum, turn.origin),
+      savedAtMs: turn.savedAtMs,
+    });
+    if (root === undefined || state.posted[root.run.id]?.closed !== false) return;
+    const repositoryBase = turnRepositoryBase(buffer, turn.origin, details.settings);
+    const { inputs: _inputs, outputs: _outputs, ...run } = runPost(root, repositoryBase);
+    sink.patch(run);
+  }
+
   function stopTurn(input: StopInput, details: NoteDetails, mode: HookNote["tracingMode"]): void {
     const { conversation_id: conversationId, generation_id: generationId } = input;
-    const launch = getTurnBuffer(state.tracing, conversationId, generationId);
-    if (mode === "off" && launch?.tracingMode !== "off") return;
     const { state: next, buffer, turnNum } = reduceStop(state.tracing, input, details.time);
     state.tracing = next;
     if (buffer === undefined || buffer.tracingMode === "off") return;
     const tracingMode = buffer.tracingMode ?? threadMode(conversationId, details.settings);
-    sendTurn(
-      {
-        conversationId,
-        buffer: { ...buffer, tracingMode },
-        turnNum,
-        origin: details.origin,
-        savedAtMs: details.time,
-        enrich: true,
-      },
-      details,
-    );
+    const turn: TurnToSend = {
+      conversationId,
+      buffer: { ...buffer, tracingMode },
+      turnNum,
+      origin: details.origin,
+      savedAtMs: details.time,
+      enrich: true,
+    };
+    if (mode === "off") closeRoot(turn, details);
+    else sendTurn(turn, details);
     state.tracing = reduceSavedForUpload(state.tracing, conversationId, generationId, details.time);
   }
 

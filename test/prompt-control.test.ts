@@ -349,14 +349,12 @@ it.each(["master-off", "no-credentials"] as const)(
     expect(state.thread.turns).toEqual({});
     expect(state.thread.turn_count).toBe(2);
     expect(JSON.stringify(state)).not.toContain("PRIVATE");
-    // Do not change the pre-existing lifecycle for enabled launches when uploads
-    // are later disabled: this cleanup path is deliberately off-snapshot-only.
+    // A traced launch whose stop arrives after uploads are disabled closes without uploading.
     submit("public", "full");
-    const beforeDisabledStop = loadNotedState(env.LANGSMITH_CURSOR_STATE_FILE!);
     if (disabled === "master-off") env.TRACE_TO_LANGSMITH = "false";
     else delete env.LANGSMITH_API_KEY;
     event("stop", "full");
-    expect(loadNotedState(env.LANGSMITH_CURSOR_STATE_FILE!)).toEqual(beforeDisabledStop);
+    expect(loadNotedState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns).toEqual({});
     expect(() => readFileSync(join(dir, "unexpected-io"))).toThrow();
   },
   15000,
@@ -474,9 +472,8 @@ it("registered hooks honor workspace root master-off over user and harness over 
     "full",
   );
   rmSync(join(dir, ".cursor", "langsmith.json"));
-  const beforeStop = loadNotedState(env.LANGSMITH_CURSOR_STATE_FILE!);
   event("stop", "full", { status: "completed" });
-  expect(loadNotedState(env.LANGSMITH_CURSOR_STATE_FILE!)).toEqual(beforeStop);
+  expect(loadNotedState(env.LANGSMITH_CURSOR_STATE_FILE!).thread.turns.full).toBeUndefined();
   expect(existsSync(join(dir, "unexpected-upload"))).toBe(false);
 });
 

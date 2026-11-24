@@ -101,6 +101,21 @@ describe("Cursor hook notes", () => {
     expect(launchDetachedWorker).toHaveBeenCalledTimes(1);
   });
 
+  it("hands the worker the plugin's key and keeps it out of the notes", async () => {
+    const notes = await runHook("before-submit-prompt", {
+      hook_event_name: "beforeSubmitPrompt",
+      conversation_id: "c1",
+      generation_id: "g1",
+      prompt: "hi",
+    });
+    expect(notes).toHaveLength(1);
+    expect(readFileSync(notesFile(), "utf8")).not.toContain("test-key");
+    await runTracerWorker(dir);
+    expect(vi.mocked(startTracerWorker).mock.calls[0][0].credentials.destinations).toEqual([
+      expect.objectContaining({ apiKey: "test-key" }),
+    ]);
+  });
+
   it("starts the worker for off launches once their notes are due to rotate", async () => {
     vi.stubEnv("TRACE_TO_LANGSMITH", "false");
     const stop = { hook_event_name: "stop", conversation_id: "c1", generation_id: "g1" };

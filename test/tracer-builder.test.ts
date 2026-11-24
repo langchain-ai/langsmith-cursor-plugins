@@ -176,6 +176,33 @@ describe("Cursor transcript builder", () => {
     ]);
   });
 
+  it("closes a traced turn without uploading it when its stop arrives with tracing off", () => {
+    const { posts, patches, send } = fakeBuilder();
+    send(prompt("g1"), T0, "full");
+    send(tool("g1", "t1"), T0 + 1_000);
+    send(stop("g1"), T0 + 2_000, "off");
+    send(prompt("g2"), T0 + 3_000, "full");
+    send(stop("g2"), T0 + 4_000, "off");
+    send({ ...prompt("g3"), conversation_id: "c2" }, T0 + 361 * MINUTE, "full");
+
+    expect(posts.filter((run) => run.trace_id === turnRunId("c1", "g1")).length).toBe(2);
+    expect(posts.filter((run) => run.trace_id === turnRunId("c1", "g2"))).toEqual([]);
+    expect(patches).toEqual([
+      expect.objectContaining({ id: turnRunId("c1", "g1"), end_time: expect.any(String) }),
+    ]);
+    expect(patches[0]).not.toHaveProperty("outputs");
+  });
+
+  it("leaves a root the idle sweep already closed when its stop arrives with tracing off", () => {
+    const { patches, send } = fakeBuilder();
+    send(prompt("g1"), T0, "full");
+    send(tool("g1", "t1"), T0 + 1_000);
+    send({ ...prompt("g2"), conversation_id: "c2" }, T0 + 361 * MINUTE, "full");
+    send(stop("g1"), T0 + 362 * MINUTE, "off");
+
+    expect(patches.map((patch) => patch.id)).toEqual([turnRunId("c1", "g1")]);
+  });
+
   it("does not patch a closed root again when a late tool reopens its swept turn", () => {
     const { posts, patches, send } = fakeBuilder();
     send(prompt("g1"), T0, "full");

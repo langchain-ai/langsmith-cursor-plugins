@@ -109,6 +109,7 @@ export async function runTracerWorker(cwd: string | undefined): Promise<void> {
     agentStateFolder: dirname(config.stateFilePath),
     integration: LS_INTEGRATION,
     version: PLUGIN_VERSION,
+    credentials: writerOptions(config, config.project),
     createBuilder: createTranscriptBuilder,
     readLegacySessions: () => legacySessions,
   });
